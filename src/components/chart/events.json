@@ -1,0 +1,68 @@
+{
+    "events": [
+        {
+            "year": "1964",
+            "activities": [
+                {
+                    "name": "Stronges Earthquate in U.S. History - rocks Alaska",
+                    "desc": "The strongest earthquake in American history, measuring 9.2 on the Richter scale, slams southern Alaska, creating a deadly tsunami. Some 131 people were killed and thousands injured"
+                },
+                {
+                    "name": "China Joins A-bomb clud",
+                    "desc": "The People’s Republic of China joins the rank of nations with atomic bomb capability, after a successful nuclear test on October 16, 1964."
+                },
+                {
+                    "name": "China Joins A-bomb clud",
+                    "desc": "The People’s Republic of China joins the rank of nations with atomic bomb capability, after a successful nuclear test on October 16, 1964."
+                }
+            ]
+        },
+        {
+            "year": "1970",
+            "activities": [
+                {
+                    "name": "Vietnam war update",
+                    "desc": "In Paris, a Communist delegation rejects U.S. President Richard Nixon's peace proposal as a maneuver to deceive world opinion."
+                },
+                {
+                    "name": "Vietnam Worst Monsoon",
+                    "desc": "In Vietnam, the worst monsoon to hit the area in six years causes large floods, kills 500,000 people and leaves 200,000 homeless and virtually halts the Vietnam War."
+                },
+                {
+                    "name": "1970 Bhola KIller cyclone",
+                    "desc": "The 1970 Bhola cyclone makes landfall in modern-day Bangladesh around high tide, causing $86.4 million in damage (1970 USD, $576 million 2020 USD) and becomes the world's deadliest storm killing over 500,000 people"
+                }
+            ]
+        },
+        {
+            "year": "1976",
+            "activities": [
+                {
+                    "name": "Venezuela Nationalizes Oil Fields",
+                    "desc": ""
+                },
+                {
+                    "name": "US performs nuclear test at Nevada Test Site",
+                    "desc": ""
+                },
+                {
+                    "name": "Earthquake hits Fruili area,Italy",
+                    "desc": "killed more than 900 people and making another 100,000 homeless."
+                }
+            ]
+        },
+        {
+            "year": "1985",
+            "activities": [
+                {
+                    "name": "Killer Algarrobo earthquake",
+                    "desc": "8.0 Mw Algarrobo earthquake hits Santiago and Valparaíso, Chile, leaving 177 dead, 2,575 injured, 142,489 houses destroyed, and approximately a million people homeless"
+                },
+                {
+                    "name": "Earthquake Destroys Mexico",
+                    "desc": "An 8.0 Mw earthquake strikes Mexico City, killing between 5,000 and 45,000 people and injuring 30,000 more"
+                }
+            ]
+        }
+    ]
+}
