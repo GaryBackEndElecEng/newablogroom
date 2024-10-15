@@ -490,7 +490,7 @@ export type introDescType={
 export type sendEmailMsgType={user_id:string,messageId:number,msg:string,viewerEmail:string,viewerName:string}
 export type saveProcessType={
     class_:string,
-    method:string,
+    method:()=>Promise<void>|void|undefined,
     imgKey:string|null,
     target_id:string |null,
     parent_id:string

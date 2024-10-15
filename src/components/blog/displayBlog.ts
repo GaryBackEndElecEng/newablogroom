@@ -7,7 +7,7 @@ import User from "@/components/user/userMain"
 import Misc, {  mediaQueryType} from "../common/misc";
 import Edit from "../editor/edit";
 import Service from "@/components/common/services";
-import {btnReturnType, buttonReturn, imageLoader, smallbtnReturn } from '../common/tsFunctions';
+import {AWSImageLoader, btnReturnType, buttonReturn, imageLoader, smallbtnReturn } from '../common/tsFunctions';
 import Main from "../editor/main";
 import Message from "@/components/common/message";
 import { FaPython, FaHtml5} from "react-icons/fa";
@@ -430,7 +430,7 @@ _onlyMeta:boolean=false;
                 }
                 const code=codes.find(cd=>(cd.placement===num+1));
                 if(code){
-                    this.showCleanCode({parent:main,selectCode:code});
+                   await this._code.showCleanCode({parent:main,selectCode:code});
                 }
             }));
             container.appendChild(main);
@@ -763,15 +763,19 @@ _onlyMeta:boolean=false;
                         ShapeOutside.cleanUpByID(res.ele,"setAttributes");
                     return;
                     case element.name==="img":
+                        const width:number=700;
                         res.ele=res.ele as HTMLImageElement;
                         (res.ele as HTMLImageElement).alt=element.inner_html;
                         res.ele.setAttribute("is-element","true");
                         (res.ele as HTMLImageElement).src=element.img as string;
                         res.ele.style.cssText=element.cssText;
+                        res.ele.style.width=`${width}px`;
+                        res.ele.style.maxHeight="50vh";
                         if(element.imgKey){
                             const res_= await this._service.getSimpleImg(element.imgKey);
                             if(res_){
-                                (res.ele as HTMLImageElement).src=res_.img as string;
+                                // const image=AWSImageLoader({url:res_.img,width:width,quality:75});
+                                (res.ele as HTMLImageElement).src=res_.img;
                                 (res.ele as HTMLImageElement).alt=res_.Key as string;
                             }
                         }

@@ -36,11 +36,7 @@ class Nav{
         Nav.bgColor=this._modSelector._bgColor;
         Nav.btnColor=this._modSelector.btnColor;
         this.btnArray=[] as navLinkBtnType[]
-        this.promGetProcess().then(async(res)=>{
-            if(res){
-                res.process_();
-            }
-        });
+       
 
     }
     //--------GETTER SETTERS------//
@@ -60,34 +56,8 @@ class Nav{
     async getcsrfToken(){
         return await getCsrfToken()
     }
-    async promGetProcess(){
-        const prom= new Promise((resolve)=>{
-            const processStr=localStorage.getItem("process");
-            if(typeof window !=="undefined" && processStr){
-                resolve({process_:async()=>{ const genProcess=JSON.parse(processStr);await this.getProcess(genProcess);}});
-            }
-        }) as Promise<{process_:()=>Promise<void>}>;
-        return prom;
-    }
-     async getProcess(PROCESS:saveProcessType){
-        //THIS GETS IMAGES OR BLOGS WANTING TO BE SAVED AFTER SIGNING IN:
-        //NEED TO GET DOCUMENT'S ID AND TEMP SAVE THE KEY BEFORE SIGNIN-IN
-        const {parent_id,class_,method,imgKey}=PROCESS
-        if(class_==="user" && parent_id){
-            const blog=this._modSelector.blog;
-            const parent=document.getElementById(parent_id);
-            if(method==="saveWork" && parent){
-                await this._user.saveWork({parent,blog,func:()=>{return undefined}})
-                return "done"
-            }else if(method==="saveOnlyImage" && imgKey){
-                // find a way to change modify imgkey with AWS
-                alert("find a way to change the imgKey in AWS");
-                return "done"
-            }
-        }
-        return localStorage.removeItem("process")
-
-    }
+ 
+     
     //--------GETTER SETTERS------//
     
 

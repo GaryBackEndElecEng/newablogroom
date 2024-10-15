@@ -133,12 +133,12 @@ class Meta{
               siteName: "ablogroom",
               images: [
                 {
-                  url: "/images/gb_logo.png",
+                  url: "/images/gb_logo_600.png",
                   width: 600,
                   height: 600
                 },
                 {
-                  url: "https://new-master.s3.ca-central-1.amazonaws.com/static/masterultils/masterUltils800_400.png",
+                  url: "/images/gb_logo_800_400.png",
                   width: 800,
                   height: 400
                 },
@@ -175,7 +175,7 @@ class Meta{
               startupImage: [
                 '/assets/startup/apple-touch-startup-image-768x1025.png',
                 {
-                  url: '/assets/startup/apple-touch-startup-image-1536x2051.png',
+                  url: '/images/gb_logo768x1025.png',
                   media: '(device-width: 768px) and (device-height: 1024px)',
                 },
               ],
@@ -349,7 +349,7 @@ class Meta{
                   height: 300
               },
               {
-                  url: "https://new-master.s3.ca-central-1.amazonaws.com/static/masterultils/logoLarge.png",
+                  url: "/images/feature/profile.png",
                   width: 600,
                   height: 900
               },

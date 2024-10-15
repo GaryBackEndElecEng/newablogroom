@@ -206,9 +206,66 @@ class NewCode{
     }
     //----GETTERS SETTERS---///
 
-    showCode(parent:HTMLElement,selectCode:codeType){
+   async showCleanCode(item:{parent:HTMLElement,selectCode:codeType}){
+        const {parent,selectCode}=item;
         //THIS IS USED IN EDIT ( && CLEAN VERSION: DISPLAY BLOG)
-        if(selectCode){
+        await this.asyncCode({parent,selectCode}).then(async(res)=>{
+            if(res){
+
+                const regType=res.regArr.find(reg=>(reg.name===selectCode.name));
+                if(regType){
+                    this.preElementShow({pre:res.pre,regArr:regType.arrType,selectCode:this.selectCode});
+                    
+                }
+            }
+        });
+            
+        
+    }
+   async showCode(item:{parent:HTMLElement,selectCode:codeType}){
+        const {parent,selectCode}=item;
+        //THIS IS USED IN EDIT ( && CLEAN VERSION: DISPLAY BLOG)
+        await this.asyncCode({parent,selectCode}).then(async(res)=>{
+            if(res){
+
+                const regType=res.regArr.find(reg=>(reg.name===selectCode.name));
+                if(regType){
+                    this.preElementShow({pre:res.pre,regArr:regType.arrType,selectCode:this.selectCode});
+                    
+                }
+                res.target.onclick=(e:MouseEvent)=>{
+                    if(e){
+                       res.target.classList.toggle("isActive");
+                    }
+                };
+                this.removeMainElement({parent,container:res.innerContainer,target:res.target});
+                const {button:refresh}=Misc.simpleButton({anchor:res.btnContainer,bg:Nav.btnColor,color:"white",text:"refresh",time:400,type:"button"});
+                refresh.onclick=(e:MouseEvent)=>{
+                    if(e){
+                        const getType=res.regArr.find(type=>(type.name===this.selectCode.name))
+                        if(getType){
+                            this.preElementShow({pre:res.pre,regArr:getType.arrType,selectCode:this.selectCode});
+                        }
+                    }
+                };
+                const {button:save}=Misc.simpleButton({anchor:res.btnContainer,bg:Nav.btnColor,color:"white",text:"save",time:400,type:"button"});
+                save.onclick=(e:MouseEvent)=>{
+                    if(e){
+                        this.selectCode={...this.selectCode,placement:this.placement};
+                        this._selectCodes.push(this.selectCode);
+                        this.selectCodes=[...this._selectCodes];
+                        this.placement= this.placement + 1;
+                        //save it to database=>service
+                    }
+                };
+            }
+        });
+            
+        
+    }
+    async asyncCode(item:{parent:HTMLElement,selectCode:codeType}):Promise<{innerContainer:HTMLElement,pre:HTMLPreElement,target:HTMLElement,btnContainer:HTMLElement,selectCode:codeType,regArr:{name:string,arrType:regJavaType[]}[]}|undefined>{
+        const {parent,selectCode}=item;
+        if(!selectCode)return;
             this.selectCode={...selectCode};
             const regArr:{name:string,arrType:regJavaType[]}[]=[
                 {name:"java",arrType:NewCode.regJavaArr},
@@ -225,9 +282,9 @@ class NewCode{
 
             const imgDive=document.createElement("div");
             imgDive.id="imgDiv";
-            imgDive.style.cssText="display:block;justify-content:center;align-items:center;gap:1.25rem;position:absolute;top:0%;right:10%;transform:translate(-185px,15px);";
+            imgDive.style.cssText="display:block;justify-content:center;align-items:center;gap:1.25rem;position:absolute;top:0%;right:10%;transform:translate(-225px,15px);";
             if(selectCode.name==="html"){
-                imgDive.style.transform="translate(-185px,15px)";
+                imgDive.style.transform="translate(-225px,15px)";
             }
             const xDiv=document.createElement("div");
             xDiv.style.cssText="padding:1rem;max-width:75px;border-radius:25%;background-color:black;color:white;display:flex;justify-content:center;align-items:center;position:relative;z-index:20;box-shadow:1px 1px 12px 1px black;";
@@ -261,43 +318,15 @@ class NewCode{
             pre.id="pre";
             pre.className=selectCode.class;
             pre.style.cssText="color:white;padding-block:1rem;width:100%;";
-            const regType=regArr.find(reg=>(reg.name===selectCode.name));
-            if(regType){
-                this.preElementShow({pre:pre,regArr:regType.arrType,selectCode:this.selectCode});
-                
-            }
-            target.onclick=(e:MouseEvent)=>{
-                if(e){
-                    target.classList.toggle("isActive");
-                }
-            };
-            this.removeMainElement({parent,container:innerContainer,target:target});
-            const btnContainer=document.createElement("div");
-            btnContainer.style.cssText="margin-inline:auto;display:flex;justify-content;center;align-items:center;"
-            const {button:refresh}=Misc.simpleButton({anchor:btnContainer,bg:Nav.btnColor,color:"white",text:"refresh",time:400,type:"button"});
-            refresh.onclick=(e:MouseEvent)=>{
-                if(e){
-                    const getType=regArr.find(type=>(type.name===this.selectCode.name))
-                    if(getType){
-                        this.preElementShow({pre:pre,regArr:getType.arrType,selectCode:this.selectCode});
-                    }
-                }
-            };
-            const {button:save}=Misc.simpleButton({anchor:btnContainer,bg:Nav.btnColor,color:"white",text:"save",time:400,type:"button"});
-            save.onclick=(e:MouseEvent)=>{
-                if(e){
-                    this.selectCode={...this.selectCode,placement:this.placement};
-                    this._selectCodes.push(this.selectCode);
-                    this.selectCodes=[...this._selectCodes];
-                    this.placement= this.placement + 1;
-                    //save it to database=>service
-                }
-            };
             target.appendChild(pre)
             innerContainer.appendChild(target);
+            const btnContainer=document.createElement("div");
+            btnContainer.style.cssText="margin-inline:auto;display:flex;justify-content;center;align-items:center;"
             innerContainer.appendChild(btnContainer);
             parent.appendChild(innerContainer);
-        }
+            return new Promise(resolve=>{
+                resolve({innerContainer,pre,target,btnContainer,selectCode,regArr})
+            })as Promise<{innerContainer:HTMLElement,pre:HTMLPreElement,target:HTMLElement,btnContainer:HTMLElement,selectCode:codeType,regArr:{name:string,arrType:regJavaType[]}[]}>;
     }
 
     codeTemplate(parent:HTMLElement) {
@@ -416,7 +445,9 @@ class NewCode{
         const xDiv=document.createElement("div");
         xDiv.style.cssText="padding:1rem;max-width:175px;border-radius:25%;background-color:black;color:white;display:flex;justify-content:center;align-items:center;gap:1rem;position:relative;z-index:20;box-shadow:1px 1px 12px 1px black;";
         if(selectCode.name==="html"){
-            imgDive.style.transform="translate(-155px,15px)";
+            imgDive.style.transform="translate(-215px,15px)";
+        }else if(selectCode.name==="java"){
+            imgDive.style.transform="translate(-415px,15px)";
         }
         const span=document.createElement("span");
         span.style.cssText="margin-inline:auto;position:absolute;top:100%;left:0%;transform:translate(15px,-20px);z-index:60;color:white;"
@@ -486,7 +517,7 @@ class NewCode{
         const innerPre=document.createElement("p");
         innerPre.setAttribute("contenteditable","true");
         innerPre.id="innerPre";
-        innerPre.style.cssText="width:100%;margin:auto;";
+        innerPre.style.cssText="width:100%;margin:auto;color:white;";
         const check=([...pre.children as any] as HTMLElement[]).length>0 ? true:false;
     
 
@@ -542,7 +573,7 @@ class NewCode{
         Header.cleanUpByID(pre,"preSubContainer");
         const container=document.createElement("div");
         container.id="preSubContainer";
-        container.style.cssText="width:100%;background-color:transparent;padding-inline:3px;"
+        container.style.cssText="width:100%;background-color:transparent;padding-inline:3px;padding-block:1rem;color:white;"
         const check=(this.selectCode.linecode as linecodeType[]).length>0 ? true:false;
         if(check){
             //children P exists
@@ -551,6 +582,7 @@ class NewCode{
                 if(line ){
                     const innerPre=document.createElement("p");
                     const text:string=line.text;
+                    innerPre.style.color="white";
                     innerPre.setAttribute("contenteditable","true");
                     innerPre.setAttribute("index",String(index));
                     innerPre.id="innerPre-"+ `${index}`;

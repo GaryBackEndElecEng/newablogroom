@@ -1042,7 +1042,6 @@ class User{
      }
      switch(true){
         case notSignedIn:
-            //blog is saved at localStorage.The signin will bring user back to editor.
             await this._service.signIn(parent);
         return
         case hasBlogWithSigninAndNoBlogName:
@@ -1214,14 +1213,14 @@ class User{
                             parent.style.backgroundPosition="50% 50%";
                             formdata.set("Key","");
                             formdata.set("file","");
-                            console.log("saveKeyWithinBackground",imgKeyUrl,blog)
+                            // console.log("saveKeyWithinBackground",imgKeyUrl,blog)
                            return await this.saveKeyWithinBackground({parent,imgKeyUrl,blog});
                             
                         }
                     }
                 }).catch((err)=>{const msg=getErrorMessage(err);Misc.message({parent,msg,type_:"error",time:700})});
                 if(finalBlog){
-                    console.log("finalBlog",finalBlog)
+                    // console.log("finalBlog",finalBlog)
                     this._modSelector._blog={...finalBlog}
                 }
                 }

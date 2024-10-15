@@ -16,7 +16,7 @@ import Message from '../common/message';
 
 // const url = process.env.BASE_URL as string;
 
-function Index({ id }: { id: string }) {
+function Index({ id }: { id: number }) {
     const clientRef = React.useRef(null);
     let count: number = 0;
     const { blog_, setBlog_ } = useEditor();

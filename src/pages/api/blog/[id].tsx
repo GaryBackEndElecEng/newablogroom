@@ -7,12 +7,13 @@ import { findCountKeys, generateMarkImgkey } from "@/lib/ultils/functions";
 const prisma = new PrismaClient();
 //--------( /API/BLOG/ID ) OR ( /API/BLOG/USER_ID )---------///
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
-    const { id } = req.query;
+    const { id } = req.query as { id: string };
+    const id_num = parseInt(id) as number;
     if (req.method === "GET") {
-        if (id) {
+        if (id_num && !isNaN(id_num)) {
             try {
                 const blog = await prisma.blog.findUnique({
-                    where: { id: parseInt(id as string) },
+                    where: { id: id_num },
                     include: {
                         selectors: {
                             include: {
@@ -58,7 +59,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
                     where: { id: parseInt(id as string) }
                 });
                 const imgKeys: { level: string, imgKey: string }[] = generateMarkImgkey(blogImgKey as blogType | null);
-                console.log("blog/id:delete:imgKeys", imgKeys)//SHOWING []
+                // console.log("blog/id:delete:imgKeys", imgKeys)//SHOWING []
                 if (imgKeys && imgKeys.length > 0) {
                     await Promise.all(imgKeys.map(async (item) => {
                         if (item) {

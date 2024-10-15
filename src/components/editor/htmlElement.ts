@@ -173,7 +173,7 @@ class HtmlElement {
                                 (res.ele as HTMLImageElement).alt=res_.Key as string;
                             }
                         }
-                        (res.ele as HTMLImageElement).style.cssText=`${element.cssText}`;
+                        (res.ele as HTMLImageElement).style.cssText=`${element.cssText};max-height:50vh;`;
                         Misc.blurIn({anchor:res.divCont,blur:"20px",time:700});
                         if(imgKey===""){
                             this._user.refreshImageShow(res.divCont,res.ele as HTMLImageElement,null,null);
@@ -461,7 +461,7 @@ class HtmlElement {
                 img.alt="image";
                 img.setAttribute("contenteditable","false");
                 img.classList.add("image");
-                img.style.cssText=`position:relative !important;margin-inline:auto;border-radius:12px;border-radius:6px;`;
+                img.style.cssText=`position:relative !important;margin-inline:auto;border-radius:12px;border-radius:6px;max-height:50vh;`;
                 img.style.maxHeight="50vh !important";
                 img.setAttribute("imgKey","");
                 img.setAttribute("data-placement",`${this.placement}`);
@@ -603,7 +603,9 @@ class HtmlElement {
     }
     selectColumns(parent:HTMLElement,btnClk:HTMLButtonElement){
         btnClk.classList.add("active");
+        parent.style.position="relative";
         const select=document.createElement("select") as HTMLSelectElement;
+        select.style.cssText="width:100%;margin-inline:auto;display:flex;flex-direction:column;align-items:center;justify-content:flex-start;";
         const isActives=document.querySelectorAll("[is-element='true'].isActive");
         Main.colArr.forEach((op)=>{
             const option=document.createElement("option") as HTMLOptionElement;

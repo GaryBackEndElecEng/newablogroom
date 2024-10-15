@@ -19,8 +19,8 @@ export async function generateMetadata({ params, searchParams }: Props, parent: 
 }
 
 export default async function page({ params }: { params: { id: string } }) {
-    const id = params.id;
-    const check1: { id: number | null, user_id: string | null } = await Meta.blogExist({ id: parseInt(id) });
+    const id = Number(params.id as string);
+    const check1: { id: number | null, user_id: string | null } = await Meta.blogExist({ id: id });
     const style: { [key: string]: string } = { minHeight: "100vh", height: "100%" };
     if (check1.id) {
         return (

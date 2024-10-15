@@ -123,13 +123,15 @@ export  function imageLoader({ src, width, quality }) {
     newUrl.searchParams.set("q",(quality || 75).toString());
     return newUrl.href
   }
-export  function httpImageLoader({ src, width, quality }) {
+export  function httpImageLoader(item:{ src:string, width:number, quality:number }) {
+    const {src,width,quality}=item;
     const url=new URL(src);
     url.searchParams.set("w",width.toString());
     url.searchParams.set("q",(quality || 75).toString());
     return url.href
   }
-export  function AWSImageLoader({ url, width, quality }) {
+export  function AWSImageLoader(item:{ url:string, width:number, quality:number }) {
+    const {url,width,quality}=item;
     const url_ = new URL(url)
     url_.searchParams.set('format', 'auto')
     url_.searchParams.set('width', width.toString())

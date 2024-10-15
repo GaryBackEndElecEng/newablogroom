@@ -628,7 +628,7 @@ class Edit {
                     if(codes){
                         const code=codes.find(cde=>(cde.placement===num+1));
                         if(code){
-                            await this._code.showCode(parent,code);
+                            await this._code.showCode({parent,selectCode:code});
                         }
                     }
                     if(charts){

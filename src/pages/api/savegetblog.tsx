@@ -118,7 +118,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
                                         name: ele.name,
                                         eleId: ele.eleId,
                                         placement: ele.placement ? ele.placement : ele.id,
-                                        img: ele.img ? ele.img : null,
+                                        img: !ele.imgKey ? ele.img : null,
                                         imgKey: ele.imgKey,
                                         attr: ele.attr
                                     },
