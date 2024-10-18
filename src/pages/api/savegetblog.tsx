@@ -208,7 +208,22 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         //-------------( GETS ALL BLOGS ) -------------//
         try {
             const blogs = await prisma.blog.findMany({
-                where: { show: true }
+                where: { show: true },
+                select: {
+                    id: true,
+                    name: true,
+                    title: true,
+                    desc: true,
+                    img: true,
+                    attr: true,
+                    rating: true,
+                    imgKey: true,
+                    date: true,
+                    show: true,
+                    username: true,
+                    messages: true
+
+                }
             }) as unknown[] as blogType[];
             // const blogsWithImgs = await getUserBlogsImgs(blogs);
             res.status(200).json(blogs)

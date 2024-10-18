@@ -25,7 +25,7 @@ import { ChartConfiguration, ChartConfigurationCustomTypesPerDataset, Color } fr
     name:string,
     color:string,
     link:string|null,
-    func:()=>buttonCheckType[]|void | Promise<void|"logged out" | undefined>,
+    func:()=>buttonCheckType[]|void | Promise<void| undefined> | undefined,
     save:()=>Promise<void|null> | void|null,
     icon:IconType,
     show:boolean,
@@ -326,8 +326,18 @@ export type blogType={
     rating:number,
     barOptions:barOptionType[],
     date: Date,
-    pageCounts:pageCountType[]
+    pageCounts:pageCountType[],
+    messages:messageType[]
 }
+export type postType={
+    id:number,
+    title:string,
+    imageKey?:string,
+    content?:string,
+    published: boolean,
+    date:Date,
+    userId:string
+};
 export type sessionType={
     id:string,
     userId:string,
@@ -378,6 +388,7 @@ export type userType={
     accounts:accountType[],
     sessions:sessionType[],
     blogs:blogType[],
+    posts:postType[],
     showinfo?:boolean,
     admin:boolean,
     username?:string

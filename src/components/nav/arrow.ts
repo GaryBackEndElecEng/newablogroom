@@ -197,17 +197,18 @@ class NavArrow{
             if(!MainHeader.header) return;
             // Header.cleanUpByID(MainHeader.header,"list-items-container");
             this.btnArray=[
-                {id:0,name:"home",color:"#0a2351",link:"/",func:()=>Nav.navHistory("/"),icon:FaHome,show:true,isEditor:false,save:async()=>null},
-                {id:1,name:"blogs",color:"#0a2351",link:"/blogs",func:()=>Nav.navHistory("/blogs"),icon:FaBlog,show:true,isEditor:false,save:async()=>null},
-                {id:2,name:"admin",color:"#0a2351",link:"/admin",func:()=> Nav.navHistory("/admin"),icon:FaSign,show:this._isAdmin,isEditor:false,save:async()=>null},
-                {id:3,name:"editor",color:"#0a2351",link:"/editor",func:()=>Nav.navHistory("/editor"),icon:FaEdit,show:true,isEditor:true,save:()=>null},
-                {id:4,name:"chart",color:"#0a2351",link:"/chart",func:()=>Nav.navHistory("/chart"),icon:Icons.FaChartBar,show:true,isEditor:true,save:()=>null},
-                {id:5,name:"signin",color:"#0a2351",link:null,func:()=> this._regSignin.signIn(),icon:FaSign,show:!this.checkUser,isEditor:false,save:()=>null},
-                {id:6,name:"logout",color:"#0a2351",link:null,func:()=> this.logout(),icon:FaSign,show:this.checkUser,isEditor:false,save:()=>null},
-                {id:7,name:"contact",color:"#0a2351",link:null,func:()=> this.contact(MainHeader.header as HTMLElement),icon:FaMedapps,show:true,isEditor:false,save:()=>null},
-                {id:8,name:"profile",color:"#0a2351",link:null,func:()=> this._profile.main(MainHeader.header as HTMLElement),icon:FaAccessibleIcon,show:this.checkUser,isEditor:false,save:()=>null},
-                {id:9,name:"general-Info",color:"#0a2351",link:null,func:()=> this.generalInfo(MainHeader.header as HTMLElement),icon:FaInfo,show:true,isEditor:false,save:()=>null},
-                {id:10,name:"features",color:"#0a2351",link:null,func:()=> this.feature.feature(document.body as HTMLElement),icon:FaFilePowerpoint,show:true,isEditor:false,save:()=>null},
+                {id:0,name:"home",color:"pink",link:"/",func:()=>Nav.navHistory("/"),icon:FaHome,show:true,isEditor:false,save:async()=>null},
+                {id:1,name:"blogs",color:"#00BFFF",link:"/blogs",func:()=>Nav.navHistory("/blogs"),icon:FaBlog,show:true,isEditor:false,save:async()=>null},
+                {id:2,name:"admin",color:"red",link:"/admin",func:()=> Nav.navHistory("/admin"),icon:FaSign,show:this._isAdmin,isEditor:false,save:async()=>null},
+                {id:3,name:"editor",color:"#00BFFF",link:"/editor",func:()=>Nav.navHistory("/editor"),icon:FaEdit,show:true,isEditor:true,save:()=>null},
+                {id:4,name:"posts",color:"#00BFFF",link:"/posts",func:()=>Nav.navHistory("/posts"),icon:Icons.FaDropbox,show:true,isEditor:true,save:()=>null},
+                {id:5,name:"chart",color:"#00BFFF",link:"/chart",func:()=>Nav.navHistory("/chart"),icon:Icons.FaChartBar,show:true,isEditor:true,save:()=>null},
+                {id:6,name:"signin",color:"#00FF00",link:null,func:()=> this._regSignin.signIn(),icon:FaSign,show:!this.checkUser,isEditor:false,save:()=>null},
+                {id:7,name:"logout",color:"#00FF00",link:null,func:()=> this.logout(),icon:FaSign,show:this.checkUser,isEditor:false,save:()=>null},
+                {id:8,name:"contact",color:"#00FF00",link:null,func:()=> this.contact(MainHeader.header as HTMLElement),icon:FaMedapps,show:true,isEditor:false,save:()=>null},
+                {id:9,name:"profile",color:"#800000",link:null,func:()=> this._profile.main(MainHeader.header as HTMLElement),icon:FaAccessibleIcon,show:this.checkUser,isEditor:false,save:()=>null},
+                {id:10,name:"general-Info",color:"#00FF00",link:null,func:()=> this.generalInfo(MainHeader.header as HTMLElement),icon:FaInfo,show:true,isEditor:false,save:()=>null},
+                {id:11,name:"features",color:"#00FF00",link:null,func:()=> this.feature.feature(document.body as HTMLElement),icon:FaFilePowerpoint,show:true,isEditor:false,save:()=>null},
             ]
         }
         ////----------!!IS CLIENT LOGGED IN ? YES=> SHOW ELSE: HIDE -----//////
@@ -235,19 +236,40 @@ class NavArrow{
         const iDiv=document.createElement("div");
         iDiv.className="list-icon";
         iDiv.style.cssText="border-radius:50%;display:flex;justify-content:center;align-items:center;width:26px;height:26px;aspect-ratio:1 / 1;";
-        FaBtn({parent:iDiv,icon:navItem.icon,cssStyle:{background:"inherit",color:"white",width:"100%"}});
+        FaBtn({parent:iDiv,icon:navItem.icon,cssStyle:{background:"inherit",width:"100%"}});
         const li=document.createElement("li");
         li.style.cssText="position:relative;"
         li.id="list-nav-item";
-        li.innerHTML=`<span style="${name_css}">${navItem.name.toUpperCase()}</span><span></span></span>`;
+        li.textContent=`${navItem.name.toUpperCase()}`;
         li.style.cssText="list-style:none;";
         const itemCont=document.createElement("div");
         itemCont.id=`item-container-${navItem.name}`;
         itemCont.style.cssText="display:flex;justify-content:space-around;align-items:center;width:100%;flex-wrap:nowrap;cursor:pointer;";
-        itemCont.className="nav-item-element";
+        // itemCont.className="nav-item-element";
         itemCont.appendChild(iDiv);
         itemCont.appendChild(li);
         parent.appendChild(itemCont);
+        itemCont.onmouseover=(e:Event)=>{
+            if(e){
+                itemCont.style.color=navItem.color;
+                itemCont.style.transform="translateX(5%)";
+                itemCont.animate([
+                    {color:"white",transform:"translateX(0%)"},
+                    {color:navItem.color,transform:"translateX(5%)"},
+                ],{duration:700,iterations:1,"easing":"ease-in-out"});
+            }
+        };
+        itemCont.onmouseout=(e:Event)=>{
+            if(e){
+                itemCont.style.color="white";
+                itemCont.style.transform="translateX(0%)";
+                itemCont.animate([
+                    {color:navItem.color,transform:"translateX(5%)"},
+                    {color:"white",transform:"translateX(0%)"},
+                ],{duration:700,iterations:1,"easing":"ease-in-out"});
+            }
+        };
+        itemCont.setAttribute("data-color",navItem.color);
         itemCont.onclick=async(e:MouseEvent)=>{
             if(e){
                 if(navItem.link){
@@ -264,13 +286,7 @@ class NavArrow{
                             
                         }else{
 
-                            this.logout().then(async(res)=>{
-                                if(res){
-                                    if(!res.mainHeader) return;
-                                    this.checkUser=false;
-                                    res.logout();
-                                }
-                            });
+                           await this.logout()
                         }
 
                     }else{
@@ -319,12 +335,9 @@ class NavArrow{
                                                 setTimeout(()=>{
                                                     const navigateSaveBtnGrp=parent.querySelector("div#navigateSaveBtnGrp") as HTMLElement;
                                                     Misc.fadeOut({anchor:navigateSaveBtnGrp,xpos:50,ypos:100,time:400});
-                                                    setTimeout(()=>{
-                                                        this.logout().then(async(res)=>{
-                                                            res.logout();
-                                                            parent.removeChild(navigateSaveBtnGrp);
-                                    
-                                                        });
+                                                    setTimeout(async()=>{
+                                                       await this.logout()
+                                                       parent.removeChild(navigateSaveBtnGrp);
                                                     },380);
                                                 },380);
                                             }
@@ -342,11 +355,9 @@ class NavArrow{
                                                         setTimeout(()=>{
                                                             const navigateSaveBtnGrp=parent.querySelector("div#navigateSaveBtnGrp") as HTMLElement;
                                                             Misc.fadeOut({anchor:navigateSaveBtnGrp,xpos:50,ypos:100,time:400});
-                                                            setTimeout(()=>{
-                                                                this.logout().then(async(res)=>{
-                                                                    res.logout();
-                                                                    parent.removeChild(navigateSaveBtnGrp);
-                                                                });
+                                                            setTimeout(async()=>{
+                                                               await this.logout();
+                                                                parent.removeChild(navigateSaveBtnGrp);
                                                             },380);
                                                         },380);
                                                     }
@@ -363,11 +374,9 @@ class NavArrow{
                         cancel.addEventListener("click",(e:MouseEvent)=>{
                             if(e){
                                 Misc.fadeOut({anchor:btnGrp,xpos:50,ypos:100,time:400});
-                                setTimeout(()=>{
+                                setTimeout(async()=>{
                                     parent.removeChild(btnGrp);
-                                    this.logout().then(async(res)=>{
-                                        res.logout();
-                                    });
+                                   await this.logout()
                                 },380);
                             }
                         });
@@ -378,9 +387,7 @@ class NavArrow{
                 Misc.message({parent,msg:"could not find your blog to save",type_:"error",time:800});
                }
             }else{
-                this.logout().then(async(res)=>{
-                    res.logout();//service.signout=>clears all && message:Thanks for comming"
-                   });
+                await this.logout();
             }
         });
     }
@@ -586,7 +593,7 @@ class NavArrow{
         }
        });
     }
-    async logout(){
+    async logout(): Promise<void>{
         MainHeader.header=document.querySelector("header#navHeader") as HTMLElement;
         this._user.user={} as userType;
         const user=this._user.user;
@@ -594,28 +601,9 @@ class NavArrow{
         this._user.user=this._user._user;
         this.checkUser=false;
         window.scroll(0,0);
-        return new Promise((resolve)=>{
-            resolve({
-                logout:()=>this._service.signout(),
-                mainHeader:MainHeader.header as HTMLElement
-            });
-        }) as Promise<{logout:()=>Promise<string>,
-                        mainHeader:HTMLElement
-        }> ;
+        return this._service.signout();
     }
-    async mainLogout(){
-        //parent=MainHeader.header
-        this.logout().then(async(res)=>{
-            if(res){
-                if(!res.mainHeader) return;
-                // Main.container=document.querySelector("section#main") as HTMLElement;
-                this.checkUser=false;
-                res.logout();
-                // const cssStyle={top:"460%",fontSize:"150%",color:"blue"};
-                // Misc.msgSourceImage({parent:res.mainHeader,msg:"Thank you for comming!!",src:Nav.logo2,width:125,quality:75,time:2500,cssStyle});
-            }
-        });
-    }
+   
     generalInfo(parent:HTMLElement){
         const container=document.createElement("div");
         container.style.cssText="margin-inline:auto;position:absolute;max-width:600px;width:100%;top:160%;left:35%;";

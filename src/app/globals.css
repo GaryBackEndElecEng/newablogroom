@@ -44,6 +44,7 @@
   --bg-image-symetric: url("/images/display/symetric.png");
   --bg-image-timely: url("/images/display/timely.png");
   --bg-image-graphic: url("/images/display/graphic.png");
+  --bg-image-colors: url("/images/colors.png");
 }
 @media screen and (max-width: 400px) {
   .client_blog {
@@ -1136,19 +1137,35 @@ svg.show {
 .blue {
   color: hsl(177, 93%, 48%);
 }
-.nav-item-element {
-  color: white;
-  font-size: 100%;
-  transform: translateX(0%);
-  transition: all 0.7s ease-in-out;
-  cursor: pointer;
+p.post-title {
+  background-clip: text;
+  -webkit-background-clip: text;
+  color: transparent;
+  font-size: 190%;
+  text-transform: capitalize;
+  background-image: var(--bg-image-colors);
+  background-position: 50% 50%;
+  background-size: 200% 200%;
+  text-shadow: #0cafff 0px 0px 2px;
+  -webkit-text-stroke: 0.5px white;
+  animation: rotate 10s infinite;
 }
-.nav-item-element:hover {
-  color: blue;
-  font-size: 110%;
-  transform: translateX(5%);
-  transition: all 0.7s ease-in-out;
-  cursor: pointer;
+@keyframes rotate {
+  0% {
+    background-position: 50% 50%;
+  }
+  25% {
+    background-position: 0% 0%;
+  }
+  50% {
+    background-position: 50% 50%;
+  }
+  75% {
+    background-position: 100% 100%;
+  }
+  100% {
+    background-position: 50% 50%;
+  }
 }
 @media screen and (max-width: 500px) {
   .columns-2,

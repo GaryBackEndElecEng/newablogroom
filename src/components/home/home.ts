@@ -58,7 +58,7 @@ class Home{
         {id:12,name:"nature",image:"",desc:"harvest"},
     ]
    
-    constructor(private _modSelector:ModSelector,private _service:Service,private _nav:Nav,public allmsgs:AllMsgs,public feature:Features) {
+    constructor(private _modSelector:ModSelector,private _service:Service,private _nav:Nav,public allmsgs:AllMsgs,public feature:Features,public _blogs:Blogs) {
         Home.injector=document.querySelector("section#home-index");
         this.bgColor=this._modSelector._bgColor;
         this.btnColor=this._modSelector.btnColor;
@@ -134,21 +134,14 @@ class Home{
                             ///-----------display Blogs-------////
                              await this.listBlogs(res.showEffectContainer).then(async(_res)=>{
                                 if(_res && _res.blogs && _res.blogs.length>0){
-                                    const showBlogs=new Blogs(this._modSelector,this._service);
-                                    showBlogs.showBlogs(_res.container,true,_res.blogs);
+                                    this._blogs.showBlogs(_res.container,true,_res.blogs);
                                     this.normalLinks(res.btnContainer);
                                 }
                             });
                             ///-----------display Blogs-------////
-                            // GET MSGS----------------------//
-                            
-                            await this.allmsgs.showMsgs(res.showmsgs); 
-                            parent.appendChild(res.showmsgs); 
-                            // GET MSGS----------------------// 
+                        }
+                    }); 
                 }
-                }); 
-
-            }
         });
     
     };
@@ -184,6 +177,7 @@ class Home{
         const btnContainer=document.createElement("div");
         btnContainer.id="btnContainer";
         btnContainer.style.cssText="margin-block:2rem;padding:auto;margin-inline:auto;max-width:800px;width:100%;";
+        parent.appendChild(showmsgs);
         parent.appendChild(btnContainer);
         
         Misc.matchMedia({parent,maxWidth:900,cssStyle:{"width":"100%","paddingInline":"2px","maxWidth":"auto"}});

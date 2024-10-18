@@ -1,4 +1,4 @@
-import {flexType,elementType,selectorType,element_selType,codeType,blogType, gets3ImgKey, userType,messageType, imageType, generalInfoType, deletedImgType, img_keyType, adminImageType, credentialType, providerType, pageCountType, delteUserType, sendEmailMsgType, categoryListType, barOptionType, chartType} from "@/components/editor/Types";
+import {flexType,elementType,selectorType,element_selType,codeType,blogType, gets3ImgKey, userType,messageType, imageType, generalInfoType, deletedImgType, img_keyType, adminImageType, credentialType, providerType, pageCountType, delteUserType, sendEmailMsgType, categoryListType, barOptionType, chartType, postType} from "@/components/editor/Types";
 import Misc from "../common/misc";
 import ModSelector from "@/components/editor/modSelector";
 import { getErrorMessage } from "@/lib/errorBoundaries";
@@ -48,6 +48,8 @@ class Service {
     adminpagecountUrl:string="/api/admin/adminpagecount";
     pageCountUrl:string="/api/pagecount";
     metaUrl:string="/api/meta";
+    postsUrl:string="/api/posts";
+    userpostUrl:string="/api/userpost";
     user:userType;
     checkemail:string="/api/checkemail";
     showCustomHeader:boolean;
@@ -125,7 +127,7 @@ class Service {
         this._modSelector._selectors=[] as selectorType[];
         this._modSelector.selectCodes=[] as codeType[];
         this._modSelector.charts=[] as chartType[];
-        blog={id:0,name:undefined,desc:undefined,user_id:"",class:ModSelector.main_class,inner_html:undefined,cssText:ModSelector.main_css,img:undefined,imgKey:undefined,show:false,username:undefined,rating:0,selectors:[] as selectorType[],elements:[] as elementType[],codes:[] as codeType[],pageCounts:[] as pageCountType[],charts:[] as chartType[],date:new Date(),attr:"circle",barOptions:[]};
+        blog={id:0,name:undefined,desc:undefined,user_id:"",class:ModSelector.main_class,inner_html:undefined,cssText:ModSelector.main_css,img:undefined,imgKey:undefined,show:false,username:undefined,rating:0,selectors:[] as selectorType[],elements:[] as elementType[],codes:[] as codeType[],pageCounts:[] as pageCountType[],messages:[] as messageType[],charts:[] as chartType[],date:new Date(),attr:"circle",barOptions:[]};
         this._modSelector._blog=blog;
         this._modSelector.blog=this._modSelector._blog;
     }
@@ -237,6 +239,7 @@ class Service {
     
     //RETURNS PROMISE<{KEY,IMG}>
     async simpleImgUpload(parent:HTMLElement,formData:FormData):Promise<gets3ImgKey|null>{
+        //UPLOADS FILE AND THEN GETS IMAGE WITH IMAGEKEY
         const file=formData.get("file") as string;
         const Key=formData.get("Key") as string;
         if(file && Key){
@@ -398,7 +401,7 @@ class Service {
         }
         const reParent= MainHeader.header ? MainHeader.header as HTMLElement : document.querySelector("header#navHeader") as HTMLElement;    
         Misc.msgSourceImage({parent:reParent,msg:"thanks for comming!!",width:175,quality:75,time:3500,src:"gb_logo.png",cssStyle:{borderRadius:"20px",backgroundColor:"black",color:"white",boxShadow:"1px 1px 12px 1px rgb(8, 4, 249);",inset:"-760% 0% -1600% 0%",zIndex:"4000"}});
-        return "logged out";
+        return;
     }
 
     //THIS GETS IMAGE FROM AWS USING ONLY A KEY
@@ -1171,6 +1174,100 @@ class Service {
                 return blogOnly
             }
         });
+    }
+
+    async getposts():Promise<postType[] |void>{
+        const option={
+            headers:{
+                "Content-Type":"application/json"
+            },
+            method:"GET"
+        }
+        return fetch(this.postsUrl,option).then(async(res)=>{
+            if(res.ok){
+                const posts= await res.json() as postType[];
+                return posts;
+            }
+        });
+    }
+    async getpost(item:{id:number}):Promise<postType |void>{
+        const {id}=item;
+        const option={
+            headers:{
+                "Content-Type":"application/json"
+            },
+            method:"GET"
+        }
+        return fetch(`${this.postsUrl}?id=${id}`,option).then(async(res)=>{
+            if(res.ok){
+                const post= await res.json() as postType;
+                return post;
+            }
+        });
+    }
+    async saveUpdatepost(item:{post:postType}):Promise<postType |void>{
+        const {post}=item;
+        const option={
+            headers:{
+                "Content-Type":"application/json"
+            },
+            method:"POST",
+            body:JSON.stringify(post)
+        }
+        return fetch(this.postsUrl,option).then(async(res)=>{
+            if(res.ok){
+                const post= await res.json() as postType;
+                return post;
+            }
+        });
+    }
+    async getUserposts(item:{user:userType}):Promise<postType[] |void>{
+        const {user}=item;
+        const option={
+            headers:{
+                "Content-Type":"application/json"
+            },
+            method:"GET",
+        }
+        return fetch(`${this.userpostUrl}?user_id=${user.id}`,option).then(async(res)=>{
+            if(res.ok){
+                const post= await res.json() as postType[];
+                return post;
+            }
+        });
+    }
+    async delpost(item:{id:number}):Promise<postType |void>{
+        const {id}=item;
+        const option={
+            headers:{
+                "Content-Type":"application/json"
+            },
+            method:"DELETE"
+        }
+        return fetch(`${this.postsUrl}?id=${id}`,option).then(async(res)=>{
+            if(res.ok){
+                const post= await res.json() as postType;
+                return post;
+            }
+        });
+    }
+    generatePostImgKey(formdata:FormData,post:postType):{Key:string}|undefined{
+        //THIS GENERATES AN IMAGE KEY=> NEEDS FORMDATA && BLOG.NAME && user_id
+        const getKey=formdata.get("Key");
+        const file=formdata.get("file") as File;
+        if(!file)return;
+        if(!getKey){
+            const rand=uuidv4().split("-")[0];
+            const name=post.title ? post.title:"postTitle";
+            const user_id=post.userId ? post.userId : "ananomous"
+            const Key=`${user_id}-${name}/${rand}-${file.name}`;
+            const Key_=Key.trim();
+            formdata.set("Key",Key_);
+            return {Key:Key_}
+        }else{
+            return {Key:getKey as string}
+
+        }
     }
    
 

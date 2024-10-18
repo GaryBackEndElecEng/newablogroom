@@ -13,6 +13,7 @@ import NavArrow from './arrow';
 import MetaBlog from '../editor/metaBlog';
 import Features from '../home/feature';
 import ChartJS from '../chart/chartJS';
+import Post from '../posts/post';
 
 
 function Index({ user_ }: { user_: userType | undefined }) {
@@ -28,7 +29,8 @@ function Index({ user_ }: { user_: userType | undefined }) {
             const feature = new Features();
             const regSignin = new RegSignIn(modSelector, service, user);
             const metaBlog = new MetaBlog(modSelector, service, user);
-            const profile = new Profile(modSelector, service, auth, user, metaBlog, chart);
+            const post = new Post(modSelector, service, user);
+            const profile = new Profile(modSelector, service, auth, user, metaBlog, chart, post);
             const navArrow = new NavArrow(user, regSignin, service, profile, modSelector, feature);
             const nav = new Nav(modSelector, auth, service, user, regSignin);
             if (user_) {

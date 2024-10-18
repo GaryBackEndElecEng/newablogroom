@@ -124,7 +124,8 @@ class ErrorClass {
         text.textContent="other sites";
         parent.appendChild(text);
         const otherSite=document.createElement("div");
-       otherSite.style.cssText="margin:auto;width:auto;display:flex;flex-direction:column;justify-content:center;align-items:center;gap:1rem;border-radius:12px;padding:1.25rem;box-shadow:1px 1px 12px 1px rgba(0, 191, 255,0.5);";
+        otherSite.id="otherSite";
+       otherSite.style.cssText="margin:auto;width:auto;display:flex;flex-direction:column;justify-content:center;align-items:center;gap:1rem;border-radius:12px;padding:1.25rem;box-shadow:1px 1px 12px 1px rgba(0, 191, 255,0.5);height:60vh;overflow-y:scroll;";
        const ol=document.createElement("ol");
        ol.style.cssText="margin-block:1.5rem;margin-inline:auto;padding-inline:1.5rem;";
 

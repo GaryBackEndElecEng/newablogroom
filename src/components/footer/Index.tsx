@@ -13,6 +13,7 @@ import RegSignIn from '../nav/regSignin';
 import Features from '../home/feature';
 import MetaBlog from '../editor/metaBlog';
 import ChartJS from '../chart/chartJS';
+import Post from '../posts/post';
 
 
 
@@ -26,10 +27,11 @@ export default function Index() {
             const service = new Service(modSelector, auth);
             const dataflow = new Dataflow(service);
             const user = new User(modSelector, service, auth);
+            const post = new Post(modSelector, service, user);
             const chart = new ChartJS(modSelector, service, user);
             const feature = new Features();
             const metaBlog = new MetaBlog(modSelector, service, user);
-            const profile = new Profile(modSelector, service, auth, user, metaBlog, chart);
+            const profile = new Profile(modSelector, service, auth, user, metaBlog, chart, post);
             const regSignin = new RegSignIn(modSelector, service, user);
             const navArrow = new NavArrow(user, regSignin, service, profile, modSelector, feature);
             const nav = new Nav(modSelector, auth, service, user, regSignin)

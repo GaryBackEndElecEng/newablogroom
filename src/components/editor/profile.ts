@@ -1,6 +1,6 @@
 import AuthService from "../common/auth";
 import Service from "../common/services";
-import {blogType, gets3ImgKey, userType, messageType,sendEmailMsgType} from "./Types";
+import {blogType, gets3ImgKey, userType, messageType,sendEmailMsgType, postType} from "./Types";
 import ModSelector from "./modSelector";
 import {FaCreate} from "@/components/common/ReactIcons";
 import { FaCrosshairs,FaSignal } from "react-icons/fa";
@@ -16,6 +16,8 @@ import Message from "../common/message";
 import MetaBlog from "./metaBlog";
 import NewCode from "./newCode";
 import ChartJS from "../chart/chartJS";
+import Post from "../posts/post";
+import Blogs from "../blogs/blogsInjection";
 
 const baseUrl="http://localhost:3000";
 
@@ -33,7 +35,7 @@ class Profile{
     static main:HTMLElement | null;
 
 
-    constructor(private _modSelector:ModSelector,private _service:Service,private _auth:AuthService,private _user:User,private _metaBlog:MetaBlog,private chart:ChartJS){
+    constructor(private _modSelector:ModSelector,private _service:Service,private _auth:AuthService,private _user:User,private _metaBlog:MetaBlog,private chart:ChartJS,private _post:Post){
         this.bgColor=this._modSelector._bgColor;
         this.btnColor=this._modSelector.btnColor;
         this.userUrlUpdate=baseUrl + "/api/user_update";
@@ -67,7 +69,7 @@ class Profile{
     }
     //----------SETTER/GETTERS---------/////
     //injector: MainHeader.header
-    main(parent:HTMLElement){
+   async main(parent:HTMLElement){
         Profile.cleanUpByID(parent,"div#headerAnchor")
         parent.style.position="relative";
         parent.style.justifyContent="space-between";
@@ -104,15 +106,16 @@ class Profile{
         const user= this._user.user;
         //USER //
         //EMAIL SECTION colNum=2 => two section
-        this.updateImageBio(row,user,1)
-        this.emailForm(row,2);
-        this.passwordForm(row,2);
-        this.userBlogs(row,1);//row.id=row-profile
-        this.messages(row,user,2);
         ////--------------row -------------------------///
          //APPENDING ROW TO MAIN
          Profile.main.appendChild(row);
         //APPENDING MAIN
+        this.updateImageBio(row,user,1)
+        this.emailForm(row,2);
+        this.passwordForm(row,2);
+        this.userBlogs(row,1);//row.id=row-profile
+        await this.messages(row,user,2);
+        await this.userposts({row,user,cols:2})
         headerAnchor.appendChild(outerMain);
         //APPENDING TO PARENT
         parent.appendChild(headerAnchor);
@@ -1299,6 +1302,398 @@ class Profile{
         
 
 
+    }
+    async userposts(item:{row:HTMLElement,user:userType,cols:number}){
+        const {row,user,cols}=item;
+        const css_row="display:flex;flex-direction:row;flex-wrap:wrap;align-items:center;justify-content:center;width:100%;position:relative;padding-block:2rem;";
+        const section =document.createElement("section");
+        section.id="userposts-section";
+        section.style.cssText=css_row + "width:100%;";
+        section.className="col-md-12 row";
+        row.appendChild(section);
+        const scrollCol1=document.createElement("div");
+        scrollCol1.id="scrollCol1";
+        scrollCol1.style.cssText="height:400px;overflow-y:scroll;flex:0 0 50%;display:flex;flex-direction:column;align-items:center;width:100%;position:relative;";
+        scrollCol1.className=`col-md-${12/cols}`;
+        section.appendChild(scrollCol1);
+        const displayCol2=document.createElement("div");
+        displayCol2.style.cssText="height:inherit;min-height:5vh;margin-block:1rem;flex:0 0 50%;display:flex;flex-direction:column;align-items:center;width:100%;position:relative;";
+        const labelDisplay2=document.createElement("p");
+        labelDisplay2.id="labelDisplay2";
+        labelDisplay2.style.cssText="position:absolute;z-index:200;background-color:black;color:white;font-Family:'Poppins-Thin';font-weight:800;font-size:180%;padding-inline:6rem;padding-block:1.5rem;border-radius:42px;box-shadow:1px 1px 12px 1px blue;display:flex;justify-content:center;align-items:center;";
+        const {button:createPost}=Misc.simpleButton({anchor:labelDisplay2,bg:"#002380",color:"white",text:"create post",time:400,type:"button"});
+        createPost.onclick=(e:MouseEvent)=>{
+            if(e){
+                displayCol2.style.height="400px";
+                displayCol2.style.width="100%";
+                this.createPost({displayCol2:displayCol2,scrollCol1,user});
+                labelDisplay2.hidden=true;
+            }
+        };
+        labelDisplay2.hidden=false;
+        const span=document.createElement("span");
+        span.style.cssText="text-align:center;margin-inline:auto;padding-left:2rem";
+        span.textContent="Edit-panel";
+        labelDisplay2.appendChild(span);
+        displayCol2.appendChild(labelDisplay2);
+        displayCol2.className=`col-md-${12/cols}`;
+        section.appendChild(displayCol2);
+        Misc.growIn({anchor:scrollCol1,scale:1,opacity:0,time:500});
+        // Misc.matchMedia({parent:section,maxWidth:900,cssStyle:{flexDirection:"column",flexWrap:"noWrap"}});
+        Misc.matchMedia({parent:scrollCol1,maxWidth:900,cssStyle:{flex:"0 0 100%",order:"-1"}});
+        Misc.matchMedia({parent:displayCol2,maxWidth:900,cssStyle:{flex:"0 0 100%",order:"2"}});
+        this._service.getUserposts({user:user}).then(async(_posts)=>{
+            if(_posts){
+                this._post.posts=_posts;
+                this._user.user.posts=_posts;
+                this._post.posts.map(async(post,index)=>{
+                    if(post){
+                        const col1=document.createElement("div");
+                        // col1.className=`col-md-${12/cols}`;
+                        col1.id=`posts-col1-${index}`;
+                        col1.style.cssText="margin-inline:auto;display:flex;flex-direction:column;align-items:center;gap:0.75rem;flex:0 0 50%;background-color:#098ca091;color:white;border-radius:12px;";
+                        scrollCol1.appendChild(col1);
+                        const getCol1=scrollCol1.querySelector(`div#posts-col1-${index}`) as HTMLElement;
+                        
+                        this.postCard({parent:scrollCol1,col:col1,post,user:user,index}).then(async(res_)=>{
+                            if(res_){
+                                res_.card.onclick=(e:MouseEvent)=>{
+                                    if(e){
+                                        labelDisplay2.hidden=true;
+                                        this.editPost({parent:section,col1:col1,displayCol2:displayCol2,post,user,index});
+                                        col1.style.border="1px solid red";
+                                    }
+                                };
+                            }
+                        });
+                       
+                        
+                    }
+                });
+
+            }
+        });
+
+    };
+    async postCard(item:{parent:HTMLElement,col:HTMLElement,post:postType,user:userType,index:number}):Promise<{card:HTMLElement}>{
+        const {parent,col,post,user,index}=item;
+        Header.cleanUpByID(col,`postcard-card-${index}`);
+        await this.removePost({parent,target:col,post,user,index}).then(async(xDiv)=>{
+            if(xDiv){
+                xDiv.onclick=(e:MouseEvent) =>{
+                    if(e){
+                        this._post.askToDelete({parent,target:col,post,user});
+                    }
+                };
+            }
+        });
+        const css_col="margin-inline:auto;display:flex;flex-direction:column;justify-content:center;align-items:center;gap:0.7rem;background-color:inherit;color:inherit;border-radius:inherit;";
+        const css_row="margin-inline:auto;display:flex;flex-direction:row;flex-wrap:wrap;justify-content:center;align-items:center;gap:0.27rem;background-color:inherit;color:inherit;border-radius:inherit;";
+        const card=document.createElement("div");
+        card.id=`postcard-card-${index}`;
+        card.style.cssText=css_col + "width:100%;padding-block:2rem;";
+        const title=document.createElement("p");
+        title.id="card-title";
+        title.className="post-title";
+        
+        title.textContent=post.title;
+        card.appendChild(title);
+        const shapeOutside=document.createElement("p");
+        shapeOutside.style.cssText="padding:1rem;text-wrap:wrap;color:black;font-family:'Poppins-Thin';font-weight:bold;font-size:120%;line-height:2.05rem;color:inherit;";
+        const img=document.createElement("img");
+        img.src=this.logo;
+        img.alt="www.ablogroom.com";
+        img.style.cssText="border-radius:50%;filter:drop-shadow(0 0 0.75rem white);max-width:250px;shape-outside:circle(50%);float:left;margin-right:1.25rem;margin-bottom:2rem;aspect-ratio:1/1;";
+        if(post.imageKey){
+            await this._service.getSimpleImg(post.imageKey).then(async(res)=>{
+                if(res){
+                    img.src=res.img;
+                    img.alt=res.Key;
+                    shapeOutside.appendChild(img);
+                    Misc.blurIn({anchor:img,blur:"20px",time:700});
+                    shapeOutside.innerHTML+=post.content ? post.content : "";
+                }
+            });
+        }else{
+            shapeOutside.appendChild(img);
+            Misc.blurIn({anchor:img,blur:"20px",time:700});
+            shapeOutside.innerHTML+=post.content ? post.content : "";
+        }
+        Misc.matchMedia({parent:img,maxWidth:400,cssStyle:{maxWidth:"300px",shapeOutside:""}});
+        card.appendChild(shapeOutside);
+        const cardBody=document.createElement("div");
+        cardBody.style.cssText=css_col +"gap:2rem;padding:1rem;" ;
+        const dateEmailCont=document.createElement("div");
+        dateEmailCont.style.cssText=css_row
+        const date=document.createElement("small");
+        const email=document.createElement("small");
+        email.textContent=user.email;
+        date.textContent= post.date ? Blogs.tolocalstring(post.date):"no date";
+        dateEmailCont.appendChild(date);
+        dateEmailCont.appendChild(email);
+        cardBody.appendChild(dateEmailCont);
+        card.appendChild(cardBody);
+        col.appendChild(card);
+        Misc.growIn({anchor:card,scale:1,opacity:0,time:500});
+        return {card}
+       
+    }
+    editPost(item:{parent:HTMLElement,displayCol2:HTMLElement,col1:HTMLElement,post:postType,user:userType,index:number}){
+        const {parent,col1,displayCol2,post,user,index}=item;
+        Header.cleanUpByID(displayCol2,`editPost-container-${post.id}`);
+        const css_col="margin-inline:auto;display:flex;flex-direction:column;justify-content:center;align-items:center;gap:0.7rem;";
+        const css_row="margin-inline:auto;display:flex;flex-direction:row;flex-wrap:wrap;justify-content:center;align-items:center;gap:0.7rem;";
+        displayCol2.style.position="relative";
+        const container=document.createElement('div');
+        container.id=`editPost-container-${post.id}`;
+        container.style.cssText="width:100%;border-radius:12px;box-shadow:1px 1px 12px 1px #0CAFFF;padding:7px;z-index:1000;";
+        displayCol2.appendChild(container);
+        //-------DELETE----------//
+        const xDiv=document.createElement("div");
+        xDiv.style.cssText=css_row + "position:absolute;padding:0.37rem;background:black;color:white;top:0%;right:0%;transform:translate(-12px,12px);z-index:200;border-radius:50%;";
+        FaCreate({parent:xDiv,name:FaCrosshairs,cssStyle:{color:"white",fontSize:"22px"}});
+        container.appendChild(xDiv);
+        xDiv.onclick=(e:MouseEvent) =>{
+            if(e){
+                Misc.growOut({anchor:container,scale:0,opacity:0,time:400});
+                setTimeout(()=>{
+                    displayCol2.removeChild(container);
+                    const getlabelDisplay2=displayCol2.querySelector("p#labelDisplay2") as HTMLElement;
+                    getlabelDisplay2.hidden=false;
+                },390);
+            }
+        };
+        //-------DELETE----------//
+        const form=document.createElement('form');
+        form.id=`post-form-${post.id}`;
+        form.style.cssText=css_col +"color:white;width:100%";
+        container.appendChild(form);
+        Misc.growIn({anchor:container,scale:0,opacity:0,time:400});
+        const {input:intitle,label:ltitle,formGrp:grptitle}=Nav.inputComponent(form);
+        grptitle.style.cssText="margin-inline:auto;";
+        grptitle.className="text-light text-center";
+        intitle.id="post-title";
+        intitle.name="title";
+        intitle.value=post.title ? post.title : "";
+        ltitle.textContent="Your Title";
+        ltitle.className="text-light display-6";
+        ltitle.setAttribute("for",intitle.id);
+        const {textarea:inContent,label:lContent,formGrp:grpTextarea}=Nav.textareaComponent(form);
+        grpTextarea.style.cssText="width:100% !important;margin-inline:auto;";
+        grpTextarea.className="text-center";
+        inContent.id="post-content";
+        inContent.name="content";
+        inContent.rows=4;
+        inContent.value=post.content ? post.content : "";
+        lContent.className="text-light text-center display-6";
+        lContent.textContent="edit your thoughts";
+        lContent.setAttribute("for",inContent.id);
+        const {input:pub,label:lpub,formGrp:grpPub}=Nav.inputComponent(form);
+        grpPub.className="text-light";
+        grpPub.style.cssText="margin-inline:auto;";
+        pub.className="";
+        pub.id="pub";
+        pub.name="pub";
+        pub.type="checkbox";
+        pub.checked=post.published;
+        lpub.textContent="publish";
+        lpub.style.cssText="font-size:140%;text-decoration:underline;text-underline-offset:0.5rem;margin-bottom:1rem;";
+        lpub.setAttribute("for",pub.id);
+        const {button:submit}=Misc.simpleButton({anchor:form,bg:Nav.btnColor,color:"white",text:"submit",time:400,type:"submit"});
+        submit.disabled=false;
+        form.onsubmit=async(e:SubmitEvent) =>{
+            if(e){
+                e.preventDefault();
+                const formdata=new FormData(e.currentTarget as HTMLFormElement);
+                const title=formdata.get("title");
+                const content=formdata.get("content");
+                const pub=formdata.get("pub");
+                if(title && content){
+                    this._post.post={...post,title:title as string,content:content as string,published:Boolean(pub)};
+                   await this._service.saveUpdatepost({post:this._post.post}).then(async(res)=>{
+                    //    if(res){
+                            
+                            const getContainer=displayCol2.querySelector(`div#editPost-container-${post.id}`) as HTMLElement;
+                            if(getContainer){
+                                Misc.growOut({anchor:getContainer,scale:0,opacity:0,time:400});
+                                setTimeout(()=>{
+                                    displayCol2.removeChild(getContainer);
+                                    const getlabelDisplay2=displayCol2.querySelector("p#labelDisplay2") as HTMLElement;
+                                    getlabelDisplay2.hidden=false;
+                                },390);
+                                const getCol1=parent.querySelector(`div#${col1.id}`) as HTMLElement;
+                                this.postCard({parent:parent,col:getCol1,post:this._post.post,user,index:index});
+                            }
+                        // }
+                    });
+
+                }
+            }
+        };
+    }
+    createPost(item:{displayCol2:HTMLElement,scrollCol1:HTMLElement,user:userType}){
+        const {displayCol2,scrollCol1,user}=item;
+        // const parent=displayCol2.parentElement as HTMLElement;
+        displayCol2.style.position="relative";
+        const css_col="margin-inline:auto;display:flex;flex-direction:column;justify-content:center;align-items:center;gap:0.7rem;";
+        Header.cleanUpByID(displayCol2,`createPost-popup`);
+        const popup=document.createElement("div");
+        popup.id=`createPost-popup`;
+        popup.style.cssText=css_col + "position:absolute;width:375px;min-height:400px;gap:1rem;box-shadow:1px 1px 12px 1px blue;border-radius:12px;backdrop-filter:blur(20px);";
+        const form=document.createElement("form");
+        form.id="createPost-form";
+        form.style.cssText=css_col + "width:100%;padding-inline:1rem;margin-block:1.5rem;";
+        const {input:inTitle,label:lTitle,formGrp:grpTitle}=Nav.inputComponent(form);
+        grpTitle.style.width="100% !important";
+        inTitle.id="title";
+        inTitle.name="title";
+        inTitle.placeholder="Your Title";
+        lTitle.textContent="Title";
+        lTitle.style.cssText="font-size:140%;text-decoration:underline;text-underline-offset:0.5rem;margin-bottom:1rem;";
+        lTitle.setAttribute("for",inTitle.id);
+        const {textarea:incontent,label:lcontent,formGrp:grpContent}=Nav.textareaComponent(form);
+        grpContent.style.width="100% !important";
+        incontent.id="content";
+        incontent.rows=4;
+        incontent.style.cssText="width:100% !important";
+        incontent.name="content";
+        incontent.placeholder="Your Thoughts";
+        lcontent.textContent="content";
+        lcontent.style.cssText="font-size:140%;text-decoration:underline;text-underline-offset:0.5rem;margin-bottom:1rem;";
+        lcontent.setAttribute("for",incontent.id);
+        const {input:pub,label:lpub,formGrp:grpPub}=Nav.inputComponent(form);
+        grpPub.className="";
+        pub.className="";
+        pub.id="pub";
+        pub.name="pub";
+        pub.type="checkbox";
+        pub.checked=true;
+        lpub.textContent="publish";
+        lpub.style.cssText="font-size:140%;text-decoration:underline;text-underline-offset:0.5rem;margin-bottom:1rem;";
+        lpub.setAttribute("for",pub.id);
+        const {button:submit}=Misc.simpleButton({anchor:form,type:"submit",bg:Nav.btnColor,color:"white",text:"submit",time:400});
+        submit.disabled=true;
+        inTitle.onchange=(e:Event)=>{
+            if(e){
+                submit.disabled=false;
+            }
+        };
+        if(user && user.id && user.email){
+            popup.appendChild(form);
+            displayCol2.appendChild(popup);
+        }
+        //-------DELETE----------//
+        const xDiv=document.createElement("div");
+        xDiv.id="xDiv-delete-createpost"
+        xDiv.style.cssText=css_col + "position:absolute;padding:0.7rem;background:black;color:white;top:0%;right:0%;transform:translate(-12px,12px);border-radius:50%;";
+        FaCreate({parent:xDiv,name:FaCrosshairs,cssStyle:{color:"white",fontSize:"22px",backgroundColor:"grey",borderradius:"50%",padding:"2px"}});
+        popup.appendChild(xDiv);
+        xDiv.onclick=(e:MouseEvent) =>{
+            if(e){
+                const labelDisplay2=displayCol2.querySelector("p#labelDisplay2") as HTMLElement;
+                Misc.growOut({anchor:popup,scale:0,opacity:0,time:400});
+                setTimeout(()=>{
+                    displayCol2.removeChild(popup);
+                    labelDisplay2.hidden=false;
+                },390);
+            }
+        };
+        //-------DELETE----------//
+        form.onsubmit=(e:SubmitEvent)=>{
+            if(e){
+                e.preventDefault();
+                const formdata=new FormData(e.currentTarget as HTMLFormElement);
+                const content=formdata.get("content") as string;
+                const title=formdata.get("title") as string;
+                const pub=formdata.get("pub") as string;
+                if(content && title){
+                    this._post.post={...this._post.post,title:title as string,content:content as string,published:Boolean(pub)}
+                    this.uploadPic({displayCol2,popup:popup,scrollCol1,post:this._post.post,user});
+                    const labelDisplay2=displayCol2.querySelector("div#labelDisplay2") as HTMLElement;
+                    if(labelDisplay2){
+                        labelDisplay2.hidden=false;
+                    }
+                }
+            }
+        };
+    }
+    uploadPic(item:{displayCol2:HTMLElement,popup:HTMLElement,scrollCol1:HTMLElement,post:postType,user:userType}){
+        const {user,post,displayCol2,popup,scrollCol1}=item;
+        this._post.post={...post,userId:user.id};
+        const css_col="margin-inline:auto;display:flex;flex-direction:column;justify-content:center;align-items:center;gap:0.7rem;";
+        const form=document.createElement("form");
+        form.style.cssText=css_col;
+        const {input:file,label:lfile}=Nav.inputComponent(form);
+        file.id="file";
+        file.type="file";
+        file.name="file";
+        file.placeholder="";
+        lfile.textContent="Upload a Pic";
+        lfile.setAttribute("for",file.id);
+        const {button:submit}=Misc.simpleButton({anchor:form,type:"submit",text:"submit",bg:Nav.btnColor,color:"white",time:400});
+        file.onchange=(e:Event)=>{
+            if(e){
+                submit.disabled=false;
+            }
+        };
+        form.onsubmit=async(e:SubmitEvent)=>{
+            if(e){
+                e.preventDefault();
+                const formdata=new FormData(e.currentTarget as HTMLFormElement);
+                const file=formdata.get("file") as File;
+                if(file ){
+                    const urlImg=URL.createObjectURL(file as File);
+                    this._service.generatePostImgKey(formdata,post) as {Key:string};
+                   await this._service.simpleImgUpload(displayCol2,formdata).then(async(res)=>{
+                        if(res){
+                            this._post.post={...this._post.post,imageKey:res.Key};
+                            const labelDisplay2=displayCol2.querySelector("p#labelDisplay2") as HTMLElement;
+                            const section=displayCol2.parentElement as HTMLElement;
+                           await this._service.saveUpdatepost({post:this._post.post}).then(async(post_)=>{
+                                if(post_){
+                                    this._post.posts=[...this._post.posts,post_];
+                                    const len=this._post.posts ? this._post.posts.length :0;
+                                    const col1=document.createElement("div");
+                                    col1.id=`posts-col1-${len-1}`;
+                                    col1.style.cssText="margin-inline:auto;display:flex;flex-direction:column;align-items:center;gap:0.75rem;flex:0 0 50%;background-color:#098ca091;color:white;border-radius:12px;";
+                                    this.postCard({parent:scrollCol1,col:col1,post:post_,user:user,index:len+1}).then(async(res_)=>{
+                                        if(res_){
+                                            res_.card.onclick=(e:MouseEvent)=>{
+                                                if(e){
+                                                    this.editPost({parent:section,col1:col1,displayCol2:displayCol2,post,user,index:len-1});
+                                                    col1.style.border="1px solid red";
+                                                }
+                                            };
+                                        }
+                                    });
+                                }
+                                Misc.growOut({anchor:popup,scale:0,opacity:0,time:400});
+                                setTimeout(()=>{
+                                    labelDisplay2.hidden=true;
+                                    displayCol2.removeChild(popup);
+                                },390);
+                            });
+                        }
+                    });
+
+                };
+            }
+        };
+        popup.appendChild(form);
+    }
+    removePost(item:{parent:HTMLElement,target:HTMLElement,post:postType,user:userType,index:number}):Promise<HTMLElement>{
+        const {parent,target,post,user,index}=item;
+        Header.cleanUpByID(target,`delete-${index}`);
+        const css_row="margin-inline:auto;display:flex;flex-direction:row;flex-wrap:wrap;justify-content:center;align-items:center;gap:0.7rem;";
+            const xDiv=document.createElement("div");
+            xDiv.id=`delete-${index}`;
+            xDiv.style.cssText=css_row + "position:absolute;padding:0.37rem;background:black;color:white;top:0%;right:0%;transform:translate(-18px,32px);z-index:200;border-radius:50%;";
+            FaCreate({parent:xDiv,name:FaCrosshairs,cssStyle:{color:"white",fontSize:"22px"}});
+            target.appendChild(xDiv);
+            return new Promise(resolve=>{
+                resolve(xDiv)
+            }) as Promise<HTMLElement>;
+        
     }
     removeChild(parent:HTMLElement,target:HTMLElement){
         parent.style.position="relative";

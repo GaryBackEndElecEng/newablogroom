@@ -1,7 +1,7 @@
 import type { Metadata,ResolvingMetadata,MetadataRoute } from 'next';
 import {PrismaClient } from '@prisma/client';
-import { getAllBlogImages, getOnlyBlogImages, getUserImage, getUsersImage } from '@/lib/awsFunctions';
-import { blogType, userType } from '../editor/Types';
+import { awsImage, getAllBlogImages, getOnlyBlogImages, getUserImage, getUsersImage } from '@/lib/awsFunctions';
+import { blogType, postType, userType } from '../editor/Types';
 import { getErrorMessage } from '@/lib/errorBoundaries';
 
 const prisma=new PrismaClient();
@@ -35,7 +35,8 @@ class Meta{
           {page:"/policy",redir:/\/(policy)[a-zA-Z\/]+/,match:/\/(policy)/},
           {page:"/termsOfService",redir:/\/(termsOfService)[a-zA-Z\/]+/,match:/\/(termsOfService)/},
           {page:"/admin",redir:/\/(admin)[a-zA-Z\/]+/,match:/\/(admin)/},
-          {page:"/error_page",redir:/\/(error_page)[a-zA-Z\/]+/,match:/\/(error_page)/}
+          {page:"/error_page",redir:/\/(error_page)[a-zA-Z\/]+/,match:/\/(error_page)/},
+          {page:"/posts",redir:/\/(posts)[a-zA-Z\/]+/,match:/\/(posts)/},
 
         ]
         this.params=["blog_id","misc","intent"]
@@ -408,6 +409,7 @@ class Meta{
       return {image_:image_,bio:bio,author,email:email}
     }
     static async getBlog(blog_id:number): Promise<getBlogType>{
+      if(!blog_id) return {image:"",name:"",desc:"",user_id:"",title:""};
       const blog=await prisma.blog.findUnique({
         where:{id:blog_id}
       });
@@ -423,6 +425,7 @@ class Meta{
     }
     static async blogExist(item:{id:number}):Promise<{id:number|null,user_id:string|null}>{
       const {id}=item;
+      if(!id)return {id:null,user_id:null}
       const blog=await prisma.blog.findUnique({
         where:{id}
       });
@@ -460,8 +463,37 @@ class Meta{
               images:newImages
           },
       }
+    }
+    static async genposts_metadata(parent:ResolvingMetadata){
+      const genPosts= await Meta.genPosts();
+      const kwords:string[]=genPosts.map(post=>(post.title));
+      const descs:string=genPosts.map(post=>(post.content?.slice(0,25))).join(",");
+      const images:string[]=genPosts.length > 4 ? 
+      await Promise.all(genPosts.slice(0,4).map(async(post)=>((post && post.imageKey) ? (await awsImage(post.imageKey)):""))):[];
+      const referrer = (await parent).referrer;
+      const previousImages = (await parent)?.openGraph?.images || []
+      const prevDesc = (await parent).openGraph?.description ||"posts";
+      const keywords = (await parent).keywords || [];
+      // const authors = (await parent).authors || [];
       
+      const postUrl = `/posts`;
+      const descsJoin=[descs,prevDesc].join(", ");
+      const joinKWords=keywords.concat(kwords);
+      const newImages = previousImages.concat(images);
+      return {
+        title:"posts",
+          description: descsJoin,
+          keywords: joinKWords,
+          // authors: newAuths,
+          referrer,
 
+          openGraph: {
+              // images: [image, ...newImages],
+              description: descsJoin,
+              url: postUrl,
+              images:newImages
+          },
+      }
       // const newAuths = authors.concat(getAuths)
     }
     static async generateSingleMetadata({params}:Props,parent:ResolvingMetadata){
@@ -505,6 +537,7 @@ class Meta{
         arr=[
           {url:`${DOMAIN}`,lastModified:new Date(),changeFrequency:'weekly',priority:1},
           {url:`${DOMAIN}/blogs`,lastModified:new Date(),changeFrequency:'daily',priority:1},
+          {url:`${DOMAIN}/posts`,lastModified:new Date(),changeFrequency:'daily',priority:1},
           {url:`${DOMAIN}/editor`,lastModified:new Date(),changeFrequency:'weekly',priority:1},
           {url:`${DOMAIN}/policy`,lastModified:new Date(),changeFrequency:'monthly',priority:1},
           {url:`${DOMAIN}/register`,lastModified:new Date(),changeFrequency:'yearly',priority:1},
@@ -531,6 +564,19 @@ class Meta{
         return arr;
       }
 
+    }
+    static async genPosts():Promise<postType[]>{
+      const posts=await prisma.post.findMany() as unknown[] as postType[];
+      await prisma.$disconnect();
+     return posts
+    }
+    static async genPost({params}:{params:{id:string}}):Promise<postType|undefined>{
+      const id=Number(params.id);
+      const post=await prisma.post.findUnique({
+        where:{id:id}
+       }) as unknown as postType|undefined;
+       await prisma.$disconnect();
+     return post
     }
 }
 export default Meta;

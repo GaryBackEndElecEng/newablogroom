@@ -57,6 +57,7 @@ model User {
   accounts      Account[]
   sessions      Session[]
   blogs         Blog[]
+  posts         Post[]
   showinfo      Boolean?
   admin         Boolean   @default(false)
   username      String?
@@ -249,4 +250,15 @@ model PageCount {
   blog_id Int?
 
   @@unique([name, id])
+}
+
+model Post {
+  id        Int      @id @default(autoincrement())
+  title     String
+  content   String?
+  imageKey  String?
+  published Boolean  @default(false)
+  date      DateTime @default(now()) @db.Date
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId    String
 }

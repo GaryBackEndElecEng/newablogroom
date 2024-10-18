@@ -24,6 +24,7 @@ import Features from '../home/feature';
 import NewCode from './newCode';
 import ChartJS from '../chart/chartJS';
 import Message from '../common/message';
+import Post from '../posts/post';
 
 
 function Index() {
@@ -41,6 +42,7 @@ function Index() {
             const _auth = new AuthService(modSelector);
             const service = new Service(modSelector, _auth);
             const _user = new User(modSelector, service, _auth);
+            const post = new Post(modSelector, service, _user);
             const chart = new ChartJS(modSelector, service, _user);
             const shapeOutside = new ShapeOutside(modSelector, service, _user);
             const newCode = new NewCode(modSelector, service, _user);
@@ -52,7 +54,7 @@ function Index() {
             const message = new Message(modSelector, service, modSelector.blog);
             const displayBlog = new DisplayBlog(modSelector, service, _user, shapeOutside, newCode, chart, message);
             const metablog = new MetaBlog(modSelector, service, _user);
-            const profile = new Profile(modSelector, service, _auth, _user, metablog, chart);
+            const profile = new Profile(modSelector, service, _auth, _user, metablog, chart, post);
             const regSignin = new RegSignIn(modSelector, service, _user);
             const feature = new Features();
             const navArrow = new NavArrow(_user, regSignin, service, profile, modSelector, feature);

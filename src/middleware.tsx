@@ -3,7 +3,7 @@ import { NextResponse, NextRequest } from "next/server";
 
 
 export function middleware(req: NextRequest) {
-    const pages = ['/', '/blog/', '/blogs', "/register", "/editor", "/policy", "/termsOfService", "/admin", "/chart"];
+    const pages = ['/', '/blog/', '/blogs', "/register", "/editor", "/policy", "/termsOfService", "/admin", "/chart", "/posts"];
     // const csrf = req.cookies.get("next-auth.csrf-token")?.value;
     if (req && req.url) {
         const url = new URL(req.url);
@@ -30,6 +30,7 @@ export const config = {
         '/policy/:path*',
         '/admin/:path*',
         '/chart',
+        '/posts',
 
     ]
 }

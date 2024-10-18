@@ -8,6 +8,8 @@ import Service from "../common/services";
 import Header from "../editor/header";
 import { FaCreate } from "../common/ReactIcons";
 import { BsHandThumbsUpFill } from "react-icons/bs";
+import AllMsgs from "../home/allMsgs";
+import Message from "../common/message";
 
 const base_url="http://localhost:3000";
 // const base_url=process.env.BASE_URL as string;
@@ -34,11 +36,15 @@ class Blogs{
 _blogs:blogType[];
 _blog:blogType;
 _displayBlog:DisplayBlog;
+allMsgs:AllMsgs;
+message:Message
     constructor( private _modSelector:ModSelector,private _service:Service){
         this.baseUrl=base_url
        this.gbLogo=`${base_url}/images/gb_logo.png`;
        this.logo=`gb_logo.png`;
        this.bgColor=this._modSelector._bgColor;
+       this.message=new Message(this._modSelector,this._service,this._modSelector.blog);
+        this.allMsgs=new AllMsgs(this._modSelector,this._service,this.message);
     }
 
     //GETTERS SETTERS
@@ -67,6 +73,7 @@ _displayBlog:DisplayBlog;
 //GETTERS SETTERS
 //main injector ---MAIN INJECTION----
    async showBlogs(parent:HTMLElement,home:boolean,blogs:blogType[]){
+    this.baseUrl=new URL(window.location.href).origin;
     this.blogs=blogs;
     Header.cleanUp(parent);
     const m_block= window.innerWidth < 500 ? "2rem" : "3.25rem";
@@ -130,6 +137,7 @@ _displayBlog:DisplayBlog;
                     colBlog.style.backgroundPosition=`50% 50%`;
                     colBlog.style.boxShadow=`1px 1px 4px 1px #0aa2db,-1px -1px 4px 1px #0aa2db`;
                     await this.displayCard(colBlog,blog);
+                    await this.allMsgs.blogMsgs({col:colBlog,blog});
                     const btn=buttonReturn({parent:colBlog,text:"view details",bg:"#0C090A",color:"white",type:"button"})
                     colBlog.appendChild(btn);
                     mainRow.appendChild(colBlog);
