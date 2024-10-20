@@ -140,6 +140,7 @@ const nextConfig = {
         ? "http:///localhost:3000"
         : "http://localhost:3000",
     DATABASE_URL_heroku: process.env.DATABASE_URL_heroku,
+    DATABASE_URL_AWS: process.env.DATABASE_URL_AWS,
     NEXTAUTH_CSRF: process.env.NEXTAUTH_CSRF,
     NEXTAUTH_SECRET: process.env.NEXTAUTH_SECRET,
     DATABASEURL: process.env.DATABASEURL,

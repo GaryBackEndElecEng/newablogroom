@@ -334,6 +334,7 @@ export type postType={
     title:string,
     imageKey?:string,
     content?:string,
+    link?:string,
     published: boolean,
     date:Date,
     userId:string

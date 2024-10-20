@@ -13,6 +13,9 @@ class Dataflow {
  sidebarImg:string="/images/dataFlow/draftOverflowSidebar.png";
  userImg:string="/images/dataFlow/draftOverflowUser.png";
  profileImg:string="/images/dataFlow/draftOverflowProfile.png";
+ chartImg:string="/images/dataFlow/draftOverflowChart.png";
+ storage:string="/images/storage/storage.png";
+ cookie:string="/images/storage/cookie.png";
  nameStyle:string;
  nameStyle2:string;
  slides:{id:number,name:string,img:string,desc:string}[]=[];
@@ -78,11 +81,29 @@ class Dataflow {
                     <br/>
                     <span>Within the profile, the user can edit blogs on realtime, view their blogs, bring a blog online or bring it off-line,review recieved messages from viewers, send message responses to viewers, change password and email,,,, etc
                     <br>
-                    <span> The user has all available features alowing for easy control and managerial control.</span>
+                    <span> The user has all available features allowing for easy control and managerial control.</span>
                     </span>
                 </span>
                 `},
+            {id:8,name:"Chart Component",img:this.chartImg,desc:`
+                <span style="font-family:Poppins-Regular">
+                    The Chart Component allows you to customize your chart element before saving.Once saved, the chart migrates your work to the editor for further add-ons. The Chart Component consists of a 2 by 2 data storage array with a maximum capacity of 10,000 x,y sets,along with a floating point indicator emphasizing the x,y-point value for further visualy graph clarity.
+                    <br/>
+                    <span><span style=color:#0CAFFF;font-size:140%;text-decoration:underline dotted red;>Entering data:</span> Entering data is easy, there are two arrays, similarly: x array and y-array.You copy the array ( number or string separated by a comma()',') into the input area, and then give your graph a name. Once saved, the system brings you to the editor for further entries.,,,, etc
+                    <br>
+                    <span> The user has all available features allowing for easy control. <pre style=color:pink;font-size:160%;> TRY IT!</pre></span>
+                    </span>
+                </span>
+                <p> features: </p>
+                <ol style=${this.nameStyle2}>
+                <li>easy data entry;</li>
+                <li>line or Bar option; and</li>
+                <li>stringify data preservation;</li>
+                </ol>
+                `},
         ]
+        this.storage="/images/storage/storage.png";
+        this.cookie="/images/storage/cookie.png";
     }
     main(parent:HTMLElement){
         window.scroll(0,0);
@@ -104,19 +125,19 @@ class Dataflow {
             const para=document.createElement("p");
             para.style.cssText="margin-inline:auto;width:100%;padding-inline:3rem;line-height:2.55rem;font-size:115%;";
             const img=document.createElement("img");
-            img.style.cssText=`shape-outside:circle();margin-block:2rem;width:${width_}px;aspect-ratio: 1 / 1;border-radius:50%;padding:${padding};filter:drop-shadow(0 0 0.75rem white);`;
+            img.style.cssText=`shape-outside:circle(50%);margin-block:2rem;width:${width_}px;aspect-ratio: 1 / 1;border-radius:50%;padding:${padding};filter:drop-shadow(0 0 0.75rem white);margin-right:4rem;float:left;`;
             img.src=slide.img;
             img.id=`image-round-${index}`;
-            img.className="image-round";
-            img.style.float="left";
-            img.style.marginRight="4rem";
             para.appendChild(img);
             para.innerHTML +=slide.desc;
             card.appendChild(para);
             popup.appendChild(card);
             Misc.matchMedia({parent:card,maxWidth:400,cssStyle:{maxWidth:"390px",margin:"0px"}});
+            const getImg=para.querySelector(`img#image-round-${index}`) as HTMLImageElement;
+            Misc.matchMedia({parent:getImg,maxWidth:900,cssStyle:{marginRight:"2rem"}});
+            Misc.matchMedia({parent:getImg,maxWidth:400,cssStyle:{float:"none",marginRight:"none",marginInline:"auto"}});
             Misc.matchMedia({parent:para,maxWidth:900,cssStyle:{padding:"2rem",lineHeight:"1.80rem"}});
-            Misc.matchMedia({parent:para,maxWidth:420,cssStyle:{padding:"1rem",lineHeight:"1.5rem",paddingInline:"1.5rem",fontSize:"100%"}});
+            Misc.matchMedia({parent:para,maxWidth:420,cssStyle:{display:"flex",flexDirection:"column",alignItems:"center",padding:"1rem",lineHeight:"1.5rem",paddingInline:"1.5rem",fontSize:"100%"}});
         });
         parent.appendChild(popup);
         const {button}=Misc.simpleButton({anchor:popup,bg:Nav.btnColor,color:"white",text:"close",type:"button",time:400});
@@ -166,27 +187,54 @@ class Dataflow {
        
         const text=document.createElement("p");
         text.style.cssText="margin-block:2rem;margin-inline:1rem;padding-inline:3rem";
-        text.innerHTML=`The site uses Editor uses local storage to ensure that your work is saved and secure.<br/> We believe in securing your interests. <br/>For more info: we use the browser's storage to assist with the following:
-        <ul>
-            <li class="liStyle"> local storage:
-               <ul> When on /editor:
-               <li style=${liCss}> to save your work temporarily until you save it;</li>
-               <li style=${liCss}> to ensure that work will be saved  when refreshing the browser; and</li>
-               <li style=${liCss}> available account after page refresh.</li>
-               </ul>
-               <ul> When on site:
-               <li style=${liCss}> to ensure that your browser is secure when using personal data.</li>
-               </ul>
-            </li>
-            <li class="liStyle"> cookies:
-               <ul> When on site:
+        const intro=document.createElement("span");
+        intro.innerHTML=`The site uses Editor uses local storage to ensure that your work is saved and secure.<br/> We believe in securing your interests. <br/>For more info: we use the browser's storage to assist with the following:`;
+        text.appendChild(intro);
+        const ul=document.createElement("ul");
+        text.appendChild(ul);
+        const liStorage=document.createElement("li");
+        const storage_img=document.createElement("img");
+        storage_img.style.cssText="width:100px;padding:7px;border-radius:50%;filter:drop-shadow(0 0 0.75rem white);border:none;margin-right:10px;";
+        storage_img.src=this.storage;
+        storage_img.alt="cookie : www.ablogroom.com";
+        liStorage.appendChild(storage_img);
+        liStorage.innerHTML+="storage:"
+        liStorage.innerHTML+=`<ul> When on /editor:
+                            <li style=${liCss}> to save your work temporarily until you save it;</li>
+                            <li style=${liCss}> to ensure that work will be saved  when refreshing the browser; and</li>
+                            <li style=${liCss}> available account after page refresh.</li>
+                            </ul>
+                            <ul> When on site:
+                            <li style=${liCss}> to ensure that your browser is secure when using personal data.</li>
+                            </ul>
+                            `;
+        ul.appendChild(liStorage);
+        const liCookie=document.createElement("li");
+        const cookie=document.createElement("img");
+        cookie.style.cssText="width:100px;padding:7px;border-radius:50%;filter:drop-shadow(0 0 0.75rem white);border:none;margin-right:10px;";
+        cookie.src=this.cookie;
+        cookie.alt="cookie : www.ablogroom.com";
+        liCookie.appendChild(cookie);
+        liCookie.innerHTML+="cookie:";
+        liCookie.innerHTML+=`
+        <ul> When on site:
                <li style=${liCss}> to encode all personal information, such as passwords and email info; and</li>
                <li style=${liCss}> to help prevent cross-site contamination.</li>
-               </ul>
-            </li>
         </ul>
+        `;
+        ul.appendChild(liCookie);
+        text.appendChild(ul);
+        text.innerHTML+=`
         <br/>
-        <span>Gary Wallace</span>`;
+        <span>Gary Wallace</span>
+        <br/>
+        <pre style=color:#0CAFFF;font-size:120%;margin-block:1rem>
+            <span> Developer, </span>
+            <span>
+            <a style=color:inherit;text-decoration:none; href='tel:4169175768'>
+            cell</a>
+            </span>
+        </pre>`;
         popup.appendChild(text);
         const {button}=Misc.simpleButton({anchor:popup,bg:Nav.btnColor,color:"white",type:"button",time:400,text:"close"});
         parent.appendChild(popup);

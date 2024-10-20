@@ -35,9 +35,10 @@ class MainFooter{
     policyUrl:string="/policy";
     logoUrl:string=baseUrl + "/images/gb_logo.png";
     termsOfServiceUrl:string="/termsOfService";
+    masterultilsUrl:string="https://www.masterultils.com";
     arrUrl:{name:string,link:string}[]
     constructor(private _modSelector:ModSelector,private _service:Service,private _user:User,private _nav:Nav,private _navArrow:NavArrow,public dataflow:Dataflow,public feature:Features){
-        this.arrUrl=[{name:"masterconnect",link:"https://www.masterconnect.ca"},{name:"policy",link:this.policyUrl},{name:"privacy",link:this.termsOfServiceUrl},];
+        this.arrUrl=[{name:"masterconnect",link:"https://www.masterconnect.ca"},{name:"masterultils",link:this.masterultilsUrl},{name:"policy",link:this.policyUrl},{name:"privacy",link:this.termsOfServiceUrl},];
         this._regSignin= new RegSignIn(this._modSelector,this._service,this._user);
         this.closeInfoMsg=false;
     }
@@ -121,7 +122,7 @@ class MainFooter{
         imgWrapper.classList.add("col-lg-3");
         //IMAGE CONTAINER
         const imgDiv=document.createElement("div");
-        imgDiv.style.cssText="border-radius:50%;filter:drop-shadow(0 0 0.75rem white);position:relative;margin:1rem;display:grid;place-items:center;order:-1;";
+        imgDiv.style.cssText="border-radius:50%;filter:drop-shadow(0 0 0.75rem white);position:relative;margin:1rem;display:grid;place-items:center;order:-1;border:none;";
         imgDiv.style.left="0px";
         imgDiv.style.width=width;
         imgDiv.style.height=height;
@@ -129,7 +130,7 @@ class MainFooter{
         const img=document.createElement("img");
         img.src=this.logoUrl;
         img.alt="www.ablogroom.com";
-        img.style.cssText="margin:auto;width::80px;height:80px;border-radius:inherit;filter:drop-shadow(0 0 0.75rem white);position:absolute;inset:0%;";
+        img.style.cssText="margin:auto;width::80px;height:80px;border-radius:inherit;filter:drop-shadow(0 0 0.75rem white);position:absolute;inset:0%;border:none;";
         img.style.top="0px";
         img.style.left="0px";
         img.style.width=width;
@@ -172,6 +173,7 @@ class MainFooter{
         Misc.matchMedia({parent:container,maxWidth:900,cssStyle:{"position":"relative","width":"100%","flexDirection":"column"}});
         Misc.matchMedia({parent:container,maxWidth:800,cssStyle:{"position":"relative","width":"100%","flexDirection":"row"}});
         Misc.matchMedia({parent:innerContainer,maxWidth:770,cssStyle:{"position":"absolute","inset":"0% 0% 0% 15%","marginRight":"0.5rem","width":"auto"}});
+        Misc.matchMedia({parent:innerContainer,maxWidth:400,cssStyle:{minHeight:"20vh"}});
         this.privacy(container)
         parent.appendChild(container);
        
@@ -519,36 +521,53 @@ class MainFooter{
         Header.cleanUpByID(parent,"popup-storageMsg");
         const popup=document.createElement("div");
         popup.id="popup-storageMsg";
-        popup.style.cssText="font-family:Poppins-Regular;position:absolute;width:50%;min-height:20vh;display:flex;justify-content:center;flex-direction:column;align-items:center;padding:1rem;background-color:black;color:white;z-index:200;border-radius:12px;box-shadow:1px 1px 12 1px rgba(12, 175, 255,0.5);";
+        popup.style.cssText="font-family:Poppins-Regular;position:absolute;width:50%;min-height:20vh;display:flex;justify-content:center;flex-direction:column;align-items:center;padding:1rem;background-color:black;color:white;z-index:200;border-radius:12px;box-shadow:1px 1px 12 1px rgba(12, 175, 255,0.5);margin-inline:auto;";
         popup.style.inset="0% 20% 0% 20%";
         const text=document.createElement("p");
         text.innerHTML=this.infoMsg;
         popup.appendChild(text);
-        const {button:close}=Misc.simpleButton({anchor:popup,type:"button",bg:"rgb(31, 48, 94)",color:"white",text:"Got it!",time:400});
-        close.style.alignSelf="center";
-        close.style.justifySelf="center";
-        close.style.marginInline="auto";
-        close.style.marginTop="2rem;";
-        close.style.marginBottom="1rem;";
+        const btnCont=document.createElement("div");
+        btnCont.id="btnCont";
+        btnCont.style.cssText="width:100%;display:flex;justify-content:center;align-items:center;gap:3rem;"
+        const {button:close}=Misc.simpleButton({anchor:btnCont,type:"button",bg:"rgb(31, 48, 94)",color:"white",text:"Got it!",time:400});
+        const {button:openStorage}=Misc.simpleButton({anchor:btnCont,type:"button",bg:"#06f0be",color:"white",text:"more info?",time:400});
+        popup.appendChild(btnCont);
+        
         close.onclick=(e:MouseEvent)=>{
             if(e){
                 this.closeInfoMsg=true;
                 parent.removeChild(msgCont);//observer ref
             }
         };
+        openStorage.onclick=(e:MouseEvent)=>{
+            if(e){
+                this.closeInfoMsg=true;
+                parent.removeChild(msgCont);//observer ref
+                const getNavHeader=document.querySelector("header#navHeader") as HTMLElement;
+                window.scroll(0,0);
+                this.dataflow.storageMessage(getNavHeader);
+            }
+        };
         parent.appendChild(popup);
-        Misc.matchMedia({parent:popup,maxWidth:900,cssStyle:{inset:"0% 10% 60% 10%",width:"auto"}});
-        Misc.matchMedia({parent:popup,maxWidth:400,cssStyle:{inset:"0% 2% 40% 2%"}});
+        const getPopup=parent.querySelector("div#popup-storageMsg") as HTMLElement;
+        if(getPopup){
+        Misc.matchMedia({parent:getPopup,maxWidth:900,cssStyle:{inset:"0% 10% 60% 10%",width:"auto"}});
+        Misc.matchMedia({parent:getPopup,maxWidth:400,cssStyle:{inset:"0% 2% 40% 2%",padding:"0px",transform:"translateY(-110%)"}});
+        }else{
+            Misc.matchMedia({parent:popup,maxWidth:900,cssStyle:{inset:"0% 10% 60% 10%",width:"auto"}});
+        Misc.matchMedia({parent:popup,maxWidth:400,cssStyle:{inset:"0% 2% 40% 2%",padding:"0px",transform:"translateY(-110%)"}});
+        }
+        const height=window.innerWidth <410 ? "translateY(-110%)":"translateY(-150%)";
         if(show && !closeInfoMsg){
-            popup.style.transform="translateY(-150%)";
+            popup.style.transform=height;
             popup.animate([
                 {transform:"translateY(0%)",opacity:"0"},
-                {transform:"translateY(-150%)",opacity:"1"},
+                {transform:height,opacity:"1"},
             ],{iterations:1,duration:800});
         }else{
             popup.style.transform="translateY(100%)";
             popup.animate([
-                {transform:"translateY(-150%)",opacity:"1"},
+                {transform:height,opacity:"1"},
                 {transform:"translateY(0%)",opacity:"0"},
             ],{iterations:1,duration:800});
             setTimeout(()=>{

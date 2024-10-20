@@ -596,6 +596,15 @@ class NavArrow{
     async logout(): Promise<void>{
         MainHeader.header=document.querySelector("header#navHeader") as HTMLElement;
         this._user.user={} as userType;
+        localStorage.removeItem("user");
+        localStorage.removeItem("user_id");
+        localStorage.removeItem("email");
+        setTimeout(()=>{
+            localStorage.removeItem("user");
+        localStorage.removeItem("user_id");
+        localStorage.removeItem("email");
+        },1000);
+        console.log(this._user.user)
         const user=this._user.user;
         this._user._user={...user,id:"",email:"",blogs:[] as blogType[],name:undefined,bio:undefined,admin:false,showinfo:false} as userType;
         this._user.user=this._user._user;

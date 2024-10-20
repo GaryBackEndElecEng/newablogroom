@@ -113,7 +113,7 @@ class Features{
         img.id=`${feature.name}-${feature.id}-${feature.id}`;
         img.src=feature.img ? feature.img : "/images/gb_logo.png";
         img.alt=`${feature.name}-${feature.id}`;
-        img.style.cssText="max-width:400px;border-radius:inherit;aspect-ratio:1 / 1;filter:drop-shadow(0 0 0.75rem black);border-radius:12px;width:100%; "
+        img.style.cssText="max-width:400px;border-radius:inherit;aspect-ratio:1 / 1;filter:drop-shadow(0 0 0.75rem black);border-radius:12px;width:100%;border:none; "
         card.appendChild(img);
         const cardBody=document.createElement("div");
         cardBody.id="card-cardBody-" + `${feature.id}`;
@@ -177,35 +177,13 @@ class Features{
         popupEffect.style.zIndex="-1";
         parent.appendChild(popupEffect);
         popupEffect.animate([
-            {backgroundPosition:"50% 50%",filter:`drop-shadow(0 0 0.75rem hsl(177, ${rot*5*0.93}%, ${rot*1*0.48}%))`},
-            {backgroundPosition:"100% 100%",filter:`drop-shadow(0 0 0.75rem hsl(177, ${rot*4*0.93}%,  ${rot*2*0.48}%))`},
-            {backgroundPosition:"50% 50%",filter:`drop-shadow(0 0 0.75rem hsl(177, ${rot*3*0.93}%,  ${rot*3*0.48}%))`},
-            {backgroundPosition:"0% 0%",filter:`drop-shadow(0 0 0.75rem hsl(177, ${rot*4*0.93}%,  ${rot*4*0.48}%))`},
-            {backgroundPosition:"50% 50%",filter:`drop-shadow(0 0 0.75rem hsl(177, ${rot*5*0.93}%,  ${rot*5*0.48}%))`},
+            {backgroundPosition:"50% 50%",filter:`drop-shadow(0 0 0.75rem hsl(177, ${rot*5*0.93}%, ${rot*1*0.48}%))`,border:"none"},
+            {backgroundPosition:"100% 100%",filter:`drop-shadow(0 0 0.75rem hsl(177, ${rot*4*0.93}%,  ${rot*2*0.48}%))`,border:"none"},
+            {backgroundPosition:"50% 50%",filter:`drop-shadow(0 0 0.75rem hsl(177, ${rot*3*0.93}%,  ${rot*3*0.48}%))`,border:"none"},
+            {backgroundPosition:"0% 0%",filter:`drop-shadow(0 0 0.75rem hsl(177, ${rot*4*0.93}%,  ${rot*4*0.48}%))`,border:"none"},
+            {backgroundPosition:"50% 50%",filter:`drop-shadow(0 0 0.75rem hsl(177, ${rot*5*0.93}%,  ${rot*5*0.48}%))`,border:"none"},
         ],{duration:time,iterations:Infinity});
-        // popupEffect.animate([
-        //     {background: `linear-gradient(-${rot*20}deg, white,blue,white)`,boxShadow:`1px 1px 12px 1px hsl(${rot*20}deg 94.14% 49.7% / 95%)`},
-        //     {background: `linear-gradient(-${rot*19}deg, white,blue,white)`,boxShadow:`1px 1px 12px 1px hsl(${rot*19}deg 94.14% 49.7% / 95%)`},
-        //     {background: `linear-gradient(-${rot*18}deg, white,blue,white)`,boxShadow:`1px 1px 12px 1px hsl(${rot*18}deg 94.14% 49.7% / 95%)`},
-        //     {background: `linear-gradient(-${rot*17}deg, white,blue,white)`,boxShadow:`1px 1px 12px 1px hsl(${rot*17}deg 94.14% 49.7% / 95%)`},
-        //     {background: `linear-gradient(-${rot*16}deg, white,blue,white)`,boxShadow:`1px 1px 12px 1px hsl(${rot*16}deg 94.14% 49.7% / 95%)`},
-        //     {background: `linear-gradient(-${rot*15}deg, white,blue,white)`,boxShadow:`1px 1px 12px 1px hsl(${rot*15}deg 94.14% 49.7% / 95%)`},
-        //     {background: `linear-gradient(-${rot*14}deg, white,blue,white)`,boxShadow:`1px 1px 12px 1px hsl(${rot*14}deg 94.14% 49.7% / 95%)`},
-        //     {background: `linear-gradient(-${rot*13}deg, white,blue,white)`,boxShadow:`1px 1px 12px 1px hsl(${rot*13}deg 94.14% 49.7% / 95%)`},
-        //     {background: `linear-gradient(-${rot*12}deg, white,blue,white)`,boxShadow:`1px 1px 12px 1px hsl(${rot*12}deg 94.14% 49.7% / 95%)`},
-        //     {background: `linear-gradient(-${rot*11}deg, white,blue,white)`,boxShadow:`1px 1px 12px 1px hsl(${rot*11}deg 94.14% 49.7% / 95%)`},
-        //     {background: `linear-gradient(-${rot*10}deg, white,blue,white)`,boxShadow:`1px 1px 12px 1px hsl(${rot*10}deg 94.14% 49.7% / 95%)`},
-        //     {background: `linear-gradient(-${rot*9}deg, white,blue,white)`,boxShadow:`1px 1px 12px 1px hsl(${rot*9}deg 94.14% 49.7% / 95%)`},
-        //     {background: `linear-gradient(-${rot*8}deg, white,blue,white)`,boxShadow:`1px 1px 12px 1px hsl(${rot*8}deg 94.14% 49.7% / 95%)`},
-        //     {background: `linear-gradient(-${rot*7}deg, white,blue,white)`,boxShadow:`1px 1px 12px 1px hsl(${rot*7}deg 94.14% 49.7% / 95%)`},
-        //     {background: `linear-gradient(-${rot*6}deg, white,blue,white)`,boxShadow:`1px 1px 12px 1px hsl(${rot*6}deg 94.14% 49.7% / 95%)`},
-        //     {background: `linear-gradient(-${rot*5}deg,white,blue,white)`,boxShadow:`1px 1px 12px 1px hsl(${rot*5}deg 94.14% 49.7% / 95%)`},
-        //     {background: `linear-gradient(-${rot*4}deg,white,blue,white)`,boxShadow:`1px 1px 12px 1px hsl(${rot*4}deg 94.14% 49.7% / 95%)`},
-        //     {background: `linear-gradient(-${rot*3}deg,white,blue,white)`,boxShadow:`1px 1px 12px 1px hsl(${rot*3}deg 94.14% 49.7% / 95%)`},
-        //     {background: `linear-gradient(-${rot*2}deg,white,blue,white)`,boxShadow:`1px 1px 12px 1px hsl(${rot*2}deg 94.14% 49.7% / 95%)`},
-        //     {background: `linear-gradient(-${rot*1}deg,white,blue,white)`,boxShadow:`1px 1px 12px 1px hsl(${rot*1}deg 94.14% 49.7% / 95%)`},
-        //     {background: `linear-gradient(0deg,white,blue)`},
-        // ],{duration:time,iterations:Infinity})
+        
     }
     removeElement(item:{parent:HTMLElement,target:HTMLElement}){
         const {parent,target}=item;

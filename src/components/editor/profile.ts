@@ -82,7 +82,7 @@ class Profile{
         outerMain.id="profileMain";
         Profile.main=document.createElement("div");
         Profile.main.id="profileInnermain";
-        Profile.main.style.cssText="position:relative;margin:auto;width:100%;height:100vh;overflow-y:scroll;";
+        Profile.main.style.cssText="position:relative;margin:auto;width:100%;min-height:100vh;overflow-y:scroll;";
         outerMain.appendChild(Profile.main);
         ////--------------row -------------------------///
         const row=document.createElement("section");
@@ -1337,13 +1337,14 @@ class Profile{
         labelDisplay2.appendChild(span);
         displayCol2.appendChild(labelDisplay2);
         displayCol2.className=`col-md-${12/cols}`;
+        displayCol2.id="displayCol2";
         section.appendChild(displayCol2);
         Misc.growIn({anchor:scrollCol1,scale:1,opacity:0,time:500});
         // Misc.matchMedia({parent:section,maxWidth:900,cssStyle:{flexDirection:"column",flexWrap:"noWrap"}});
         Misc.matchMedia({parent:scrollCol1,maxWidth:900,cssStyle:{flex:"0 0 100%",order:"-1"}});
         Misc.matchMedia({parent:displayCol2,maxWidth:900,cssStyle:{flex:"0 0 100%",order:"2"}});
         this._service.getUserposts({user:user}).then(async(_posts)=>{
-            if(_posts){
+            if(_posts && _posts.length>0){
                 this._post.posts=_posts;
                 this._user.user.posts=_posts;
                 this._post.posts.map(async(post,index)=>{
@@ -1355,7 +1356,7 @@ class Profile{
                         scrollCol1.appendChild(col1);
                         const getCol1=scrollCol1.querySelector(`div#posts-col1-${index}`) as HTMLElement;
                         
-                        this.postCard({parent:scrollCol1,col:col1,post,user:user,index}).then(async(res_)=>{
+                        this.postCard({scrollCol1,col:col1,post,user:user,index}).then(async(res_)=>{
                             if(res_){
                                 res_.card.onclick=(e:MouseEvent)=>{
                                     if(e){
@@ -1371,22 +1372,15 @@ class Profile{
                     }
                 });
 
+            }else{
+                scrollCol1.style.height="auto";
             }
         });
 
     };
-    async postCard(item:{parent:HTMLElement,col:HTMLElement,post:postType,user:userType,index:number}):Promise<{card:HTMLElement}>{
-        const {parent,col,post,user,index}=item;
+    async postCard(item:{scrollCol1:HTMLElement,col:HTMLElement,post:postType,user:userType,index:number}):Promise<{card:HTMLElement}>{
+        const {scrollCol1,col,post,user,index}=item;
         Header.cleanUpByID(col,`postcard-card-${index}`);
-        await this.removePost({parent,target:col,post,user,index}).then(async(xDiv)=>{
-            if(xDiv){
-                xDiv.onclick=(e:MouseEvent) =>{
-                    if(e){
-                        this._post.askToDelete({parent,target:col,post,user});
-                    }
-                };
-            }
-        });
         const css_col="margin-inline:auto;display:flex;flex-direction:column;justify-content:center;align-items:center;gap:0.7rem;background-color:inherit;color:inherit;border-radius:inherit;";
         const css_row="margin-inline:auto;display:flex;flex-direction:row;flex-wrap:wrap;justify-content:center;align-items:center;gap:0.27rem;background-color:inherit;color:inherit;border-radius:inherit;";
         const card=document.createElement("div");
@@ -1395,7 +1389,6 @@ class Profile{
         const title=document.createElement("p");
         title.id="card-title";
         title.className="post-title";
-        
         title.textContent=post.title;
         card.appendChild(title);
         const shapeOutside=document.createElement("p");
@@ -1432,14 +1425,37 @@ class Profile{
         dateEmailCont.appendChild(date);
         dateEmailCont.appendChild(email);
         cardBody.appendChild(dateEmailCont);
+        if(post.link){
+            const anchor=document.createElement("a");
+            anchor.style.cssText="align-self:center;justify-self:center;font-weight:800;margin-inline:auto;color:white;"
+            anchor.id="post-anchor";
+            anchor.href=post.link;
+            anchor.textContent=post.link;
+            cardBody.appendChild(anchor);
+        }
         card.appendChild(cardBody);
         col.appendChild(card);
+        await this.removePost({parent:scrollCol1,target:col,post,index}).then(async(res)=>{
+            if(res){
+                res.xDiv.onclick=(e:MouseEvent) =>{
+                    if(e){
+                        const getCol=scrollCol1.querySelector(`div#${res.target.id}`) as HTMLElement;
+                        //res.parent===scrollCol1
+                        this.askToDelete({scrollCol1:res.parent,target:getCol,post:res.post,user});
+                    }
+                };
+            }
+        });
         Misc.growIn({anchor:card,scale:1,opacity:0,time:500});
         return {card}
        
     }
     editPost(item:{parent:HTMLElement,displayCol2:HTMLElement,col1:HTMLElement,post:postType,user:userType,index:number}){
         const {parent,col1,displayCol2,post,user,index}=item;
+        const labelDisplay2=displayCol2.querySelector("div#labelDisplay2") as HTMLElement;
+        if(labelDisplay2){
+            labelDisplay2.hidden=true;
+        }
         Header.cleanUpByID(displayCol2,`editPost-container-${post.id}`);
         const css_col="margin-inline:auto;display:flex;flex-direction:column;justify-content:center;align-items:center;gap:0.7rem;";
         const css_row="margin-inline:auto;display:flex;flex-direction:row;flex-wrap:wrap;justify-content:center;align-items:center;gap:0.7rem;";
@@ -1499,17 +1515,27 @@ class Profile{
         lpub.textContent="publish";
         lpub.style.cssText="font-size:140%;text-decoration:underline;text-underline-offset:0.5rem;margin-bottom:1rem;";
         lpub.setAttribute("for",pub.id);
+        const {input:link,label:lLink,formGrp:grplink}=Nav.inputComponent(form);
+        link.id="link";
+        link.name="link";
+        link.value=post.link? post.link : "";
+        link.placeholder="https://example.com";
+        link.type="url";
+        lLink.textContent="add a link ";
+        lLink.style.cssText="font-size:140%;text-decoration:underline;text-underline-offset:0.5rem;margin-bottom:1rem;";
+        lLink.setAttribute("for",link.id);
         const {button:submit}=Misc.simpleButton({anchor:form,bg:Nav.btnColor,color:"white",text:"submit",time:400,type:"submit"});
         submit.disabled=false;
         form.onsubmit=async(e:SubmitEvent) =>{
             if(e){
                 e.preventDefault();
                 const formdata=new FormData(e.currentTarget as HTMLFormElement);
-                const title=formdata.get("title");
-                const content=formdata.get("content");
-                const pub=formdata.get("pub");
+                const title=formdata.get("title") as string;
+                const content=formdata.get("content") as string;
+                const pub=formdata.get("pub") as string;
+                const link=formdata.get("link") as string;
                 if(title && content){
-                    this._post.post={...post,title:title as string,content:content as string,published:Boolean(pub)};
+                    this._post.post={...post,title:title as string,content:content as string,published:Boolean(pub),link:link};
                    await this._service.saveUpdatepost({post:this._post.post}).then(async(res)=>{
                     //    if(res){
                             
@@ -1518,11 +1544,11 @@ class Profile{
                                 Misc.growOut({anchor:getContainer,scale:0,opacity:0,time:400});
                                 setTimeout(()=>{
                                     displayCol2.removeChild(getContainer);
-                                    const getlabelDisplay2=displayCol2.querySelector("p#labelDisplay2") as HTMLElement;
-                                    getlabelDisplay2.hidden=false;
+                                    labelDisplay2.hidden=false;
+                                    displayCol2.style.height="auto";
                                 },390);
                                 const getCol1=parent.querySelector(`div#${col1.id}`) as HTMLElement;
-                                this.postCard({parent:parent,col:getCol1,post:this._post.post,user,index:index});
+                                this.postCard({scrollCol1:parent,col:getCol1,post:this._post.post,user,index:index});
                             }
                         // }
                     });
@@ -1571,6 +1597,14 @@ class Profile{
         lpub.textContent="publish";
         lpub.style.cssText="font-size:140%;text-decoration:underline;text-underline-offset:0.5rem;margin-bottom:1rem;";
         lpub.setAttribute("for",pub.id);
+        const {input:link,label:lLink,formGrp:grplink}=Nav.inputComponent(form);
+        link.id="link";
+        link.name="link";
+        link.placeholder="https://example.com";
+        link.type="url";
+        lLink.textContent="add a link ";
+        lLink.style.cssText="font-size:140%;text-decoration:underline;text-underline-offset:0.5rem;margin-bottom:1rem;";
+        lLink.setAttribute("for",link.id);
         const {button:submit}=Misc.simpleButton({anchor:form,type:"submit",bg:Nav.btnColor,color:"white",text:"submit",time:400});
         submit.disabled=true;
         inTitle.onchange=(e:Event)=>{
@@ -1606,12 +1640,15 @@ class Profile{
                 const content=formdata.get("content") as string;
                 const title=formdata.get("title") as string;
                 const pub=formdata.get("pub") as string;
+                const link=formdata.get("link") as string;
                 if(content && title){
-                    this._post.post={...this._post.post,title:title as string,content:content as string,published:Boolean(pub)}
+                    this._post.post={...this._post.post,title:title as string,content:content as string,published:Boolean(pub),link}
                     this.uploadPic({displayCol2,popup:popup,scrollCol1,post:this._post.post,user});
                     const labelDisplay2=displayCol2.querySelector("div#labelDisplay2") as HTMLElement;
+                    // const scrollCol1=document.querySelector("div#labelDisplay2") as HTMLElement;
                     if(labelDisplay2){
                         labelDisplay2.hidden=false;
+                        labelDisplay2.style.height="auto";
                     }
                 }
             }
@@ -1649,14 +1686,16 @@ class Profile{
                             this._post.post={...this._post.post,imageKey:res.Key};
                             const labelDisplay2=displayCol2.querySelector("p#labelDisplay2") as HTMLElement;
                             const section=displayCol2.parentElement as HTMLElement;
+
                            await this._service.saveUpdatepost({post:this._post.post}).then(async(post_)=>{
                                 if(post_){
-                                    this._post.posts=[...this._post.posts,post_];
+                                    this._post.posts=[...this._post.posts,this._post.post];
                                     const len=this._post.posts ? this._post.posts.length :0;
                                     const col1=document.createElement("div");
                                     col1.id=`posts-col1-${len-1}`;
                                     col1.style.cssText="margin-inline:auto;display:flex;flex-direction:column;align-items:center;gap:0.75rem;flex:0 0 50%;background-color:#098ca091;color:white;border-radius:12px;";
-                                    this.postCard({parent:scrollCol1,col:col1,post:post_,user:user,index:len+1}).then(async(res_)=>{
+                                    scrollCol1.appendChild(col1);
+                                    this.postCard({scrollCol1:scrollCol1,col:col1,post:post_,user:user,index:len+1}).then(async(res_)=>{
                                         if(res_){
                                             res_.card.onclick=(e:MouseEvent)=>{
                                                 if(e){
@@ -1664,13 +1703,16 @@ class Profile{
                                                     col1.style.border="1px solid red";
                                                 }
                                             };
+                                         
                                         }
                                     });
                                 }
                                 Misc.growOut({anchor:popup,scale:0,opacity:0,time:400});
                                 setTimeout(()=>{
-                                    labelDisplay2.hidden=true;
+                                    labelDisplay2.hidden=false;
                                     displayCol2.removeChild(popup);
+                                    labelDisplay2.style.height="auto";
+                                    displayCol2.style.height="auto";
                                 },390);
                             });
                         }
@@ -1681,9 +1723,10 @@ class Profile{
         };
         popup.appendChild(form);
     }
-    removePost(item:{parent:HTMLElement,target:HTMLElement,post:postType,user:userType,index:number}):Promise<HTMLElement>{
-        const {parent,target,post,user,index}=item;
+    removePost(item:{parent:HTMLElement,target:HTMLElement,post:postType,index:number}):Promise<{xDiv:HTMLElement,parent:HTMLElement,target:HTMLElement,post:postType}>{
+        const {parent,target,post,index}=item;
         Header.cleanUpByID(target,`delete-${index}`);
+        target.style.position="relative";//need this
         const css_row="margin-inline:auto;display:flex;flex-direction:row;flex-wrap:wrap;justify-content:center;align-items:center;gap:0.7rem;";
             const xDiv=document.createElement("div");
             xDiv.id=`delete-${index}`;
@@ -1691,8 +1734,8 @@ class Profile{
             FaCreate({parent:xDiv,name:FaCrosshairs,cssStyle:{color:"white",fontSize:"22px"}});
             target.appendChild(xDiv);
             return new Promise(resolve=>{
-                resolve(xDiv)
-            }) as Promise<HTMLElement>;
+                resolve({xDiv,parent,target,post})
+            }) as Promise<{xDiv:HTMLElement,parent:HTMLElement,target:HTMLElement,post:postType}>;
         
     }
     removeChild(parent:HTMLElement,target:HTMLElement){
@@ -1709,6 +1752,66 @@ class Profile{
                 setTimeout(()=>{parent.removeChild(target)},368);
             }
         };
+    }
+    askToDelete(item:{scrollCol1:HTMLElement,target:HTMLElement,post:postType,user:userType}){
+        const {scrollCol1,target,post,user}=item;
+        target.style.position="relative";
+        const css_row="margin-inline:auto;display:flex;flex-direction:row;flex-wrap:wrap;justify-content:center;align-items:center;gap:0.7rem;";
+        const container=document.createElement("div");
+        container.id="askToDelete-popup";
+        container.style.cssText=css_row + "position:absolute;inset:0%;backdrop-filter:blur(12px);border-radius:12px;justify-content:center;gap:1.5rem;border:none;";
+        const {button:cancel}=Misc.simpleButton({anchor:container,bg:Nav.btnColor,color:"white",type:"button",time:40,text:"cancel"});
+        const {button:del}=Misc.simpleButton({anchor:container,bg:"#007FFF",color:"red",type:"button",time:40,text:"delete"});
+        target.appendChild(container);
+        Misc.growIn({anchor:container,scale:0,opacity:0,time:400});
+        cancel.onclick=(e:MouseEvent) => {
+            if(e){
+                Misc.growOut({anchor:container,scale:0,opacity:0,time:400});
+                setTimeout(()=>{
+                    target.removeChild(container);
+                },390);
+            }
+        };
+        del.onclick=(e:MouseEvent) => {
+            if(e){
+                this._service.delpost({id:post.id}).then(async(res)=>{
+                    if(res){
+                        this._post.posts.map((_post,ind)=>{
+                            if(_post && _post.id===post.id){
+                                this._post.posts.splice(ind,1);
+                                this._post.posts=this._post._posts;
+                               
+                            }
+                        });
+                        const scrollCol1=document.querySelector("div#scrollCol1") as HTMLElement;
+                        if(scrollCol1){
+                            //MEANS DELETING FROM PROFILE: PROFILE SECTION IS USING THIS
+                            Header.cleanUp(scrollCol1);
+                            scrollCol1.style.height="auto";
+                            if(this._post.posts && this._post.posts.length>0){
+
+                                await Promise.all(this._post.posts.map(async(post,index)=>{
+                                    if(post){
+                                        const col1=document.createElement("div");
+                                        // col1.className=`col-md-${12/cols}`;
+                                        col1.id=`posts-col1-${index}`;
+                                        col1.style.cssText="margin-inline:auto;display:flex;flex-direction:column;align-items:center;gap:0.75rem;flex:0 0 50%;background-color:#098ca091;color:white;border-radius:12px;";
+                                        scrollCol1.appendChild(col1);
+                                        await this.postCard({scrollCol1:scrollCol1,col:col1,post:post,user,index});
+    
+                                    }
+                                }));
+                            }else{
+                                scrollCol1.style.height="auto";
+                            }
+                        }
+                    }
+                });
+
+            }
+        };
+
+
     }
     static cleanUpByID(parent:HTMLElement,query:string){
         const getElements=parent.querySelectorAll(query);

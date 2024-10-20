@@ -380,9 +380,12 @@ class User{
     set user(user:userType){
         this._user=user;
         this._auth._user=user;
-        localStorage.setItem("user",JSON.stringify(user));
-        localStorage.setItem("email",user.email);
-        localStorage.setItem("user_id",user.id);
+        if(user && user.id && user.email){
+
+            localStorage.setItem("user",JSON.stringify(user));
+            localStorage.setItem("email",user.email);
+            localStorage.setItem("user_id",user.id);
+        }
     }
     get user(){
         const {parsed,isJSON}=Header.checkJson(localStorage.getItem("user"));

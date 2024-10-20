@@ -270,6 +270,7 @@ class ChartJS {
     }
     async mainChart(injector:HTMLElement,blog:blogType){
         this._modSelector.blog={...blog};
+        Misc.matchMedia({parent:injector,maxWidth:900,cssStyle:{paddingInline:"1rem"}})
         await this.mainBarChart({injector,blog});
 
     }
@@ -279,6 +280,10 @@ class ChartJS {
         if(injector.id !=="textarea"){
             injector.style.cssText="min-height:100vh;margin-inline:auto;border-radius:20px;max-width:1000px;min-width:800px;width:100%;position:relative;display:flex;justify-content:center;align-items:center;flex-direction:column;";
         }
+        Misc.matchMedia({parent:injector,maxWidth:900,cssStyle:{minWidth:"800px",maxWidth:"890px",width:"100%"}});
+        Misc.matchMedia({parent:injector,maxWidth:800,cssStyle:{minWidth:"700px",maxWidth:"790px",width:"100%"}});
+        Misc.matchMedia({parent:injector,maxWidth:700,cssStyle:{minWidth:"600px",maxWidth:"690px",width:"100%"}});
+        Misc.matchMedia({parent:injector,maxWidth:400,cssStyle:{minWidth:"300px",maxWidth:"390px",width:"100%"}});
         const divCont=document.createElement("section");
         divCont.id="ctx-container-target";
         divCont.style.cssText="margin-inline:auto;margin-block:2rem;padding-inline:2rem; width:100%;display:flex;flex-direction:column;gap:1rem;align-items:center;justify-content:flex-start;gap:1rem;background-color:white;max-width:800px;border-radius:20px;overflow-y:scroll;height:800px;";
@@ -291,7 +296,7 @@ class ChartJS {
         injector.appendChild(divCont);
         const getCtx=document.getElementById(`ctx-graph-${lenId}`) as HTMLCanvasElement;
         if(!getCtx)return;
-        Misc.matchMedia({parent:getCtx,maxWidth:900,cssStyle:{maxWidth:"900px",width:"100%",minWidth:"575px"}});
+        Misc.matchMedia({parent:getCtx,maxWidth:900,cssStyle:{maxWidth:"890px",width:"100%",minWidth:"575px"}});
         Misc.matchMedia({parent:getCtx,maxWidth:400,cssStyle:{maxWidth:"380px",width:"100%",minWidth:"320px"}});
         this.removeElement({parent:injector,divCont,target:ctx});
         this.barGraph({parent:injector,divCont,getCtx,blog});
@@ -710,8 +715,10 @@ class ChartJS {
                         if(chart.eleId===target.id){
                             this._modSelector._charts.splice(index,1);
                             this._modSelector.shiftPlace(chart.placement);
+                            this.placement=this.placement - 1;
                             this._modSelector.charts=this._modSelector._charts;
                             parent.removeChild(divCont);
+                           this.placement=this.placement;
                         }
                         
                     })

@@ -32,6 +32,7 @@ export type arrItemType={
 const baseUrl="http://localhost:3000";
 
 class Home{
+    bend1:string;
     count:number=0;
     bgColor:string;
     btnColor:string;
@@ -67,6 +68,7 @@ class Home{
         localStorage.removeItem("placement");
         this.intro=new HomeIntro(this._service);
         this._images=[];
+        this.bend1="/images/bend2.png";
     }
 
     ////-----------------GETTERS//SETTERS------------------//
@@ -94,14 +96,14 @@ class Home{
                             
                         });
                     //    const  showImages=this.getImages.filter((im,index)=>(index<=cutOff)) as imageType2[];
-                        const {button:openFeatures}=Misc.simpleButton({anchor:res.messageDisplay,bg:Nav.btnColor,color:"white",text:"open features",type:"button",time:400});
+                    Header.cleanUp(res.sectionOne);//clean up
+                        const {button:openFeatures}=Misc.simpleButton({anchor:res.sectionOne,bg:Nav.btnColor,color:"white",text:"open features",type:"button",time:400});
+                        openFeatures.style.marginInline="auto";
                         const arrReveal:{html:HTMLElement}[]=[
-                            {html:res.messageDisplay},
+                            {html:res.sectionOne},
                             {html:openFeatures},
                             {html:res.showEffectContainer},
-                            {html:res.btnContainer},
                             {html:res.showBlogs},
-                            {html:res.showmsgs},
         
                         ]
                         //opacity=0, hide
@@ -121,21 +123,24 @@ class Home{
                         //opacity=1
                         this.signoutFromEditor();//signout message from /editor
 
-                        },4000);
+                        },3200);
 
-                            this.normalCreateYourBlog(res.messageDisplay);//SCROLL DISPLAY
-                            openFeatures.onclick=(e:MouseEvent)=>{
-                                if(e){
-                                    this.feature.feature(parent);//features
-                                }
-                            };
-                            //introLayout
-                            this.normalLayout(res.showEffectContainer);
+                        // show attributes
+                        openFeatures.onclick=(e:MouseEvent)=>{
+                            if(e){
+                                this.feature.feature(parent);//features
+                            }
+                        };
+                        this.normalCreateYourBlog(res.sectionOne);//SCROLL DISPLAY
+                        this.editorAttributeDisplay(res.sectionOne);
+                        //Main editor/Blogs links
+                        this.mainLinks(res.sectionOne);
+                            // show attributes
                             ///-----------display Blogs-------////
-                             await this.listBlogs(res.showEffectContainer).then(async(_res)=>{
+                             await this.listBlogs(res.showBlogs).then(async(_res)=>{
                                 if(_res && _res.blogs && _res.blogs.length>0){
                                     this._blogs.showBlogs(_res.container,true,_res.blogs);
-                                    this.normalLinks(res.btnContainer);
+                                    
                                 }
                             });
                             ///-----------display Blogs-------////
@@ -146,58 +151,69 @@ class Home{
     
     };
 
-    async asyncMain(item:{parent:HTMLElement}): Promise<{messageDisplay:HTMLElement,showBlogs:HTMLElement,showBlogsTwo:HTMLElement,showEffectContainer:HTMLElement,btnContainer:HTMLElement,showmsgs:HTMLElement}|undefined>{
+    async asyncMain(item:{parent:HTMLElement}): Promise<{showBlogs:HTMLElement,showEffectContainer:HTMLElement,sectionOne:HTMLElement}|undefined>{
         const {parent}=item;
         if(!parent)return;
         window.scroll(0,0);
         Home.injector=parent;
         Home.cleanUp(parent);
-        parent.style.cssText="margin-inline:auto;padding-block:2rem;min-height:80vh;box-shadow:1px 1px 3px black;border-radius:10px 1px 10px 10px;background:white;display:grid;position:relative;z-index:0;";
+        parent.style.cssText="margin-inline:auto;padding-block:2rem;min-height:110vh;box-shadow:1px 1px 3px black;border-radius:10px 1px 10px 10px;background:white;display:grid;position:relative;z-index:0;";
         parent.style.width="80%";
         parent.style.paddingInline="1rem";
+
         const messageDisplay=document.createElement("div");
         messageDisplay.id="messageDisplay";
-        messageDisplay.style.cssText="margin-inline:auto;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:1.5rem;width:100%;"
-        parent.appendChild(messageDisplay);
+        messageDisplay.style.cssText="margin-inline:auto;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:1.5rem;width:100%;";
+
         const showBlogs=document.createElement("div");
         showBlogs.id="showBlogs";
-        showBlogs.style.cssText="margin-block:2rem;padding:auto;margin-inline:auto;max-width:800px;width:100%;position:relative;";
-        parent.appendChild(showBlogs);
-        const showBlogsTwo=document.createElement("div");
-        showBlogsTwo.id="showBlogsTwo";
-        showBlogsTwo.style.cssText="margin-block:2rem;padding:auto;margin-inline:auto;max-width:800px;width:100%;";
-        parent.appendChild(showBlogsTwo);
+        showBlogs.style.cssText="display:flex;flex-direction:column;align-items:center;position:relative;width:100%;overflow-x:hidden;";
+        
         const showEffectContainer=document.createElement("div");
         showEffectContainer.id="showEffectContainer";
         showEffectContainer.style.cssText="display:flex;flex-direction:column;align-items:center;position:relative;width:100%;overflow-x:hidden;"
+
         const showmsgs=document.createElement("div");
         showmsgs.id="showmsgs";
         showmsgs.style.cssText="width:100%;margin-inline:auto;display:flex;flex-direction:column;align-items:center;";
-        parent.appendChild(showEffectContainer);
+
         const btnContainer=document.createElement("div");
         btnContainer.id="btnContainer";
         btnContainer.style.cssText="margin-block:2rem;padding:auto;margin-inline:auto;max-width:800px;width:100%;";
-        parent.appendChild(showmsgs);
-        parent.appendChild(btnContainer);
+        const sectionOne=document.createElement("section");
+        sectionOne.id="sectionOne";
+        sectionOne.style.cssText="width;100%;padding:1rem;border-radius:16px;background-color:aliceblue;min-height:50vh;box-shadow:1px 1px 12px 1px #b4f3f3;margin-inline:auto;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:1.5rem;width:100%;padding-block:2rem;";
+        sectionOne.style.opacity="0";
+        sectionOne.style.backgroundImage=`url(${this.bend1})`;
+        sectionOne.style.backgroundSize=`100% 100%`;
+        sectionOne.style.backgroundPosition=`50% 50%`;
+        sectionOne.style.backgroundColor=`aliceblue`;
+        sectionOne.appendChild(messageDisplay);
+        sectionOne.appendChild(showmsgs);
+        sectionOne.appendChild(btnContainer);
+        parent.appendChild(sectionOne);
+        Misc.matchMedia({parent:sectionOne,maxWidth:900,cssStyle:{padding:"0px",backgroundImage:"none"}});
+        parent.appendChild(showEffectContainer);
+        parent.appendChild(showBlogs);
         
         Misc.matchMedia({parent,maxWidth:900,cssStyle:{"width":"100%","paddingInline":"2px","maxWidth":"auto"}});
         Misc.matchMedia({parent,maxWidth:400,cssStyle:{"paddingInline":"1px","maxWidth":"390px"}});
         Misc.matchMedia({parent,maxWidth:800,cssStyle:{"maxWidth":"790px"}});
         return new Promise(resolve=>{
-            resolve({messageDisplay,showBlogs,showBlogsTwo,showEffectContainer,btnContainer,showmsgs})
-        }) as Promise<{messageDisplay:HTMLElement,showBlogs:HTMLElement,showBlogsTwo:HTMLElement,showEffectContainer:HTMLElement,btnContainer:HTMLElement,showmsgs:HTMLElement,}>;
+            resolve({showBlogs,showEffectContainer,sectionOne})
+        }) as Promise<{showBlogs:HTMLElement,showEffectContainer:HTMLElement,sectionOne:HTMLElement}>;
     }
 
   
-    normalLinks(parent:HTMLElement){
+    mainLinks(parent:HTMLElement){
         //DISPLAY THE TWO LINKS /EDITOR && /BLOGS
-        Home.cleanUp(parent);
+        // Home.cleanUp(parent);
         const outerContainer=document.createElement("div");
-        outerContainer.id="outerContainer";
+        outerContainer.id="mainLinks-outerContainer";
         outerContainer.style.cssText="display:flex;flex-direction:column;justify-content:center;align-items:center;width:100%;position:relative;";
         const container=document.createElement("div");
         container.style.cssText="width:100%;min-height:10vh;display:inline-flex;justify-content:space-around;align-items:center;gap:1rem;position:relative;max-width:800px;margin-inline:auto;";
-        container.id="main-links";
+        container.id="mainLinks-container";
         const divTop=document.createElement("div");
         divTop.style.cssText="width:80%;margin-inline:auto;margin-bottom:2rem;margin-top:3rem;height:4px;background-color:#0E3386;";
         const divBottom=document.createElement("div");
@@ -209,7 +225,7 @@ class Home{
         MainHeader.links.map((link,index)=>{
             if(!(link.name==="home")){
                 const anchor=document.createElement("a");
-                anchor.id=`link-${index}`;
+                anchor.id=`mainLinks-container-link-${index}`;
                 // anchor.href="#";
                 anchor.textContent=link.name;
                 anchor.style.cssText="text-decoration:none; text-decoration:underline; text-underline-offset:0.5rem;color:black;position:relative;border-radius:2rem;padding-inline:2rem;padding-block:0.5rem;box-shadow:1px 1px 6px 1px black;cursor:pointer;background-color:#0C090A;color:white;";
@@ -252,12 +268,12 @@ class Home{
        
     }
   
-     normalLayout(parent:HTMLElement){
+     editorAttributeDisplay(parent:HTMLElement){
         //DISPLAYS THE SCOLLING -SNAP-TO-CENTER-IMAGES
-        Home.cleanUp(parent);
+        // Home.cleanUp(parent);
         const itemArr:HTMLElement[]=[];
         const outerContainer=document.createElement("div");
-        outerContainer.id="normalLayout";
+        outerContainer.id="editorAttributeDisplay";
         outerContainer.style.cssText="margin-inline:auto;margin-block:1.5rem;display:flex;flex-direction:column;align-items:center;justify-content:flex-start;padding-inline:5px;max-width:800px;gap:4.5rem;width:100%;position:relative;height:30vh;overflow-y:scroll;padding-block:2rem;margin-block:1.5rem;";
         outerContainer.style.scrollSnapType="y mandatory";
         outerContainer.style.backgroundColor="#f5f6fa";
@@ -275,13 +291,13 @@ class Home{
         ];
         arrImgs.map((item,index)=>{
             const container=document.createElement("div");
-            container.id=`normalLayout-arrImg-${index}`;
+            container.id=`editorAttributeDisplay-arrImg-${index}`;
             container.classList.add("arrImg");
             container.style.cssText="margin-inline:auto;display:flex;flex-direction:column;justify-content:center;align-items:center; gap:1rem;padding-inline:0.75rem;min-height:25vh;background-color:black;color:white;text-align:center;padding-block:1.5rem;flex:1 1 25%;align-self:stretch;position:relative;z-index:0;width:100%;border-radius:12px;box-shadow:1px 1px 12px 1px #0CAFFF,-1px -1px 12px 1px black;cursor:pointer;";
             container.style.scrollSnapAlign="center";
             container.style.transform="translateX(-0%)";
             const mask=document.createElement("div");
-            mask.id="normalLayout-mask";
+            mask.id="editorAttributeDisplay-mask";
             mask.style.cssText=`position:absolute;inset:0%;z-index:0;border-radius:inherit;`;
             mask.style.backgroundImage=`url(${item.image})`;
             mask.style.backgroundPosition="50% 50%";
@@ -391,7 +407,7 @@ class Home{
         Header.cleanUpByID(container,`showMaskDetail-popup-${index}`);
         const popup=document.createElement("div");
         popup.id=`showMaskDetail-popup-${index}`;
-        popup.style.cssText="position:absolute;backdrop-filter:blur(20px);inset:-2rem;z-index:300;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:0.7rem;border-radius:12px;box-shadow:1px 1px 12px 1px rgba(12, 175, 255,0.5);padding:0.75rem;";
+        popup.style.cssText="position:absolute;backdrop-filter:blur(20px);inset:-2rem;z-index:300;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:0.7rem;border-radius:12px;box-shadow:1px 1px 12px 1px rgba(12, 175, 255,0.5);padding:0.75rem;border:none;";
         popup.style.position="absolute";
         popup.style.inset="-1rem";
         const h6=document.createElement("h6");
@@ -401,18 +417,23 @@ class Home{
         const imgH6=document.createElement("div");
         imgH6.id="showmaskDetail-popup-imgH6";
         imgH6.style.cssText="margin-inline:auto;padding-inline:8px;display:flex;justify-content:center;width:100%;height:8vh;align-items:center;position:relative;background-color:white;border-radius:12px;box-shadow:1px 1px 12px 1px #0CAFFF;";
-        imgH6.appendChild(h6);
         const img=document.createElement("img");
         img.src=item.image;
         img.alt="www.ablogroom.com";
-        img.style.cssText="position:absolute;height:inherit;aspect-ratio:1/1;border-radius:50%;top:0%;left:3px;filter:drop-shadow(0 0 0.5rem black);";
+        img.style.cssText="position:absolute;height:inherit;aspect-ratio:1/1;border-radius:50%;top:0%;left:3px;filter:drop-shadow(0 0 0.5rem black);border:none;";
         imgH6.appendChild(img);
+        imgH6.appendChild(h6);
         popup.appendChild(imgH6);
         const para=document.createElement("p");
         para.id="showMaskDetail-popup-para";
         para.style.cssText="font-family:'Poppins-thin';font-weight:600;text-wrap:pretty;padding:7px;border-radius:12px;margin-inline:auto;color:black;font-size:140%;background-color:white;";
         para.textContent=item.detail;
         popup.appendChild(para);
+        Misc.matchMedia({parent:popup,maxWidth:400,cssStyle:{inset:"0%",gap:"5px"}});
+        Misc.matchMedia({parent:h6,maxWidth:400,cssStyle:{fontSize:"100%"}});
+        Misc.matchMedia({parent:imgH6,maxWidth:400,cssStyle:{flexDirection:"column"}});
+        Misc.matchMedia({parent:img,maxWidth:400,cssStyle:{position:"static"}});
+        Misc.matchMedia({parent:para,maxWidth:400,cssStyle:{fontSize:"100%",padding:"5px"}});
         //CLOSE----///
         const xDiv=document.createElement("div");
         xDiv.style.cssText="border-radius:50%;background:black;position:absolute;top:0%;right:0%;transform:translate(-22px,22px);diplay:flex;justify-content:center;align-items:center;padding:0.15rem;";
@@ -437,6 +458,7 @@ class Home{
         icon.style.cssText="padding:8px;border-radius:50%;background:blue;transform:scale(1.3);"
         FaCreate({parent:icon,name:IoArrowRedoSharp,cssStyle:{fontSize:"26px",backgroundColor:"black",color:"white",padding:"5px",borderRadius:"50%"}});
         btnCont.appendChild(icon);
+        Misc.matchMedia({parent:btnCont,maxWidth:400,cssStyle:{marginBlock:"0px"}});
         icon.animate([
             {transform:"translateX(-150%) scale(0.2)",opacity:"0.3"},
             {transform:"translateX(0%) scale(1.3)",opacity:"1"},

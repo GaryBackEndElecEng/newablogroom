@@ -188,7 +188,7 @@ class AllMsgs{
             img.alt="www.ablogroom.ca";
         }
         
-        img.style.cssText="width:50px;height:50%;border-radius:50%;filter:drop-shadow(0 0 0.5rem #0CAFFF);background-color:black;";
+        img.style.cssText="width:50px;height:50px;aspect-ratio:1 / 1;border-radius:50%;filter:drop-shadow(0 0 0.5rem #0CAFFF);background-color:black;";
         card.appendChild(img);
         const cardBody=document.createElement("div");
         cardBody.id="viewCard-body";
@@ -211,7 +211,7 @@ class AllMsgs{
         cardBody.appendChild(mess);
         Misc.fadeIn({anchor:container,xpos:70,ypos:100,time:400});
         Misc.matchMedia({parent:container,maxWidth:900,cssStyle:{inset:"30% 5% 30% 5%"}});
-            Misc.matchMedia({parent:container,maxWidth:500,cssStyle:{inset:"30% 0% 30% 0%"}});
+            Misc.matchMedia({parent:container,maxWidth:500,cssStyle:{inset:"33% 0% 35% 0%"}});
         Misc.matchMedia({parent:rate,maxWidth:500,cssStyle:{width:"8px;"}});
         
         const btn=buttonReturn({parent:container,bg:"black",color:"white",text:"close",type:"button"});

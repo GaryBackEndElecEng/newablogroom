@@ -10,7 +10,7 @@ const prisma = new PrismaClient();
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
     const get_id = Number(req.query.id);
-    const { id, title, content, imageKey, published, userId } = req.body as postType;
+    const { id, title, content, link, imageKey, published, userId } = req.body as postType;
     const ID = id ? id : 0;
 
 
@@ -27,17 +27,19 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
                         imageKey,
                         published,
                         userId,
+                        link
                     },
                     update: {
                         title,
                         content,
                         imageKey,
                         published,
+                        link
                     }
 
                 });
                 if (post) {
-                    res.status(301).json(post);
+                    res.status(200).json(post);
                     return await prisma.$disconnect();
                 } else {
                     res.status(400).json({ msg: ` not created/updated:${userId}` });

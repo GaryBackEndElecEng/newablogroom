@@ -61,6 +61,8 @@ class Meta{
                 template: `%s | blogs`,
             
             },
+           
+            
             description: "Comment page",
             keywords:kwords,
             
@@ -74,6 +76,49 @@ class Meta{
             openGraph: {
                 title: "Blogs",
                 description: 'blogs',
+                url: "/blogs",
+                images: [
+                {
+                    url: "/images/gb_logo.png",
+                    width: 300,
+                    height: 300
+                },
+                {
+                    url: "/images/display/symetric.png",
+                    width: 400,
+                    height: 300
+                },
+                {
+                    url: "https://new-master.s3.ca-central-1.amazonaws.com/static/masterultils/logoLarge.png",
+                    width: 600,
+                    height: 900
+                },
+                ],
+          }
+        }
+        return metadata;
+    }
+    static metaPosts():Metadata{
+        const kwords=[ "comments and messages", "posts", "Free Posts", "publisize your thoughts", "Happy Posts"];
+        const metadata:Metadata ={
+            title: {
+                default: "posts",
+                template: `%s | posts`,
+            
+            },
+            description: "Post page",
+            keywords:kwords,
+            
+            alternates: {
+                canonical: "/posts",
+                languages: {
+                "en-US": "/en-US",
+                "fr-CA": "/fr-CA"
+                }
+            },
+            openGraph: {
+                title: "Posts",
+                description: 'Quick and Free Posts for you',
                 url: "/blogs",
                 images: [
                 {
@@ -181,6 +226,7 @@ class Meta{
                 },
               ],
             },
+          
             
           
           
@@ -481,18 +527,28 @@ class Meta{
       const joinKWords=keywords.concat(kwords);
       const newImages = previousImages.concat(images);
       return {
-        title:"posts",
-          description: descsJoin,
-          keywords: joinKWords,
-          // authors: newAuths,
-          referrer,
-
-          openGraph: {
-              // images: [image, ...newImages],
-              description: descsJoin,
-              url: postUrl,
-              images:newImages
-          },
+        title: {
+            default: "posts",
+            template: `%s | posts`,
+        
+        },
+        description: descsJoin,
+        keywords:joinKWords,
+        referrer,
+        
+        alternates: {
+            canonical: "/posts",
+            languages: {
+            "en-US": "/en-US",
+            "fr-CA": "/fr-CA"
+            }
+        },
+        openGraph: {
+            title: "Posts",
+            description: descsJoin,
+            url: postUrl,
+            images:newImages
+      }
       }
       // const newAuths = authors.concat(getAuths)
     }

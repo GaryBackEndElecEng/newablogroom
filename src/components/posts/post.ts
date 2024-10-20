@@ -20,7 +20,7 @@ class Post{
     constructor(private _modSelector:ModSelector,private _service:Service,private _user:User){
         this.logo="/images/gb_logo.png";
         this.no_posts="Sorry there are no posts,,,try again later,, then add advertising to get contracts;";
-        this._post={} as postType;
+        this._post={id:0,title:"",imgKey:"",content:"",link:"",published:true,userId:"",date:{} as Date} as postType;
         this._posts=[] as postType[];
     }
     //----GETTERS SETTERS----////
@@ -43,7 +43,7 @@ class Post{
         Header.cleanUpByID(injector,"main-post-container");
         const width=window.innerWidth;
         const css_col="margin-inline:auto;display:flex;flex-direction:column;justify-content:center;align-items:center;gap:0.7rem;";
-        injector.style.cssText=css_col + "gap:1rem;position:relative;width:100%;min-height:100vh;";
+        injector.style.cssText=css_col + "gap:1rem;position:relative;width:75%;min-height:100vh;";
         this.injector=injector;
         const user=this._user.user;
         const container=document.createElement("div");
@@ -68,7 +68,9 @@ class Post{
                 }
             };
         }
-
+        Misc.matchMedia({parent:injector,maxWidth:1200,cssStyle:{width:"85%"}});
+        Misc.matchMedia({parent:injector,maxWidth:1000,cssStyle:{width:"90%"}});
+        Misc.matchMedia({parent:injector,maxWidth:900,cssStyle:{width:"100%"}});
         this.Posts({injector:injector,posts,user});
     };
     
@@ -101,7 +103,11 @@ class Post{
             this.noPosts({parent:container});
         }
         container.appendChild(row);
-        injector.appendChild(container);
+        console.log(container,injector)
+        if(injector && container){
+
+            injector.appendChild(container);
+        }
     };
     createPost(item:{parent:HTMLElement,user:userType}){
         const {parent,user}=item;
@@ -110,7 +116,7 @@ class Post{
         Header.cleanUpByID(parent,`createPost-popup`);
         const popup=document.createElement("div");
         popup.id=`createPost-popup`;
-        popup.style.cssText=css_col + "position:absolute;width:375px;min-height:400px;gap:1rem;box-shadow:1px 1px 12px 1px blue;border-radius:12px;backdrop-filter:blur(20px);";
+        popup.style.cssText=css_col + "position:absolute;width:375px;min-height:400px;gap:1rem;box-shadow:1px 1px 12px 1px blue;border-radius:12px;backdrop-filter:blur(20px);border:none;";
         const form=document.createElement("form");
         form.id="createPost-form";
         form.style.cssText=css_col + "width:100%;padding-inline:1rem;margin-block:1.5rem;";
@@ -142,6 +148,14 @@ class Post{
         lpub.textContent="publish";
         lpub.style.cssText="font-size:140%;text-decoration:underline;text-underline-offset:0.5rem;margin-bottom:1rem;";
         lpub.setAttribute("for",pub.id);
+        const {input:link,label:lLink,formGrp:grplink}=Nav.inputComponent(form);
+        link.id="link";
+        link.name="link";
+        link.placeholder="https://example.com";
+        link.type="url";
+        lLink.textContent="add a link ";
+        lLink.style.cssText="font-size:140%;text-decoration:underline;text-underline-offset:0.5rem;margin-bottom:1rem;";
+        lLink.setAttribute("for",link.id);
         const {button:submit}=Misc.simpleButton({anchor:form,type:"submit",bg:Nav.btnColor,color:"white",text:"submit",time:400});
         submit.disabled=true;
         inTitle.onchange=(e:Event)=>{
@@ -176,8 +190,9 @@ class Post{
                 const content=formdata.get("content") as string;
                 const title=formdata.get("title") as string;
                 const pub=formdata.get("pub") as string;
+                const link=formdata.get("link") as string;
                 if(content && title){
-                    this.post={...this.post,title:title as string,content:content as string,published:Boolean(pub)}
+                    this.post={...this._post,title:title as string,content:content as string,published:Boolean(pub),link}
                     this.uploadPic({parent,popup:popup,post:this.post,user});
                     const labelDisplay2=parent.querySelector("div#labelDisplay2") as HTMLElement;
                     if(labelDisplay2){
@@ -189,6 +204,7 @@ class Post{
     }
     async postCard(item:{row:HTMLElement,col:HTMLElement,post:postType,user:userType,index:number}){
         const {row,col,post,user,index}=item;
+        this.post=post;
         Header.cleanUpByID(col,`postcard-card-${index}`);
         const css_col="margin-inline:auto;display:flex;flex-direction:column;justify-content:center;align-items:center;gap:0.7rem;background-color:inherit;color:inherit;border-radius:inherit;";
         const css_row="margin-inline:auto;display:flex;flex-direction:row;flex-wrap:wrap;justify-content:center;align-items:center;gap:0.27rem;background-color:inherit;color:inherit;border-radius:inherit;";
@@ -205,9 +221,10 @@ class Post{
         shapeOutside.id="shapeOutside";
         shapeOutside.style.cssText="padding:1rem;text-wrap:wrap;color:black;font-family:'Poppins-Thin';font-weight:bold;font-size:120%;line-height:2.05rem;color:inherit;border-radius:12px;background-color:black;box-shadow:1px 1px 12px white;";
         const img=document.createElement("img");
+        img.id="shapeOutside-img";
         img.src=this.logo;
         img.alt="www.ablogroom.com";
-        img.style.cssText="border-radius:50%;max-width:250px;shape-outside:circle(50%);float:left;margin-right:1.25rem;margin-bottom:2rem;aspect-ratio:1/1;";
+        img.style.cssText="border-radius:50%;max-width:250px;shape-outside:circle(50%);float:left;margin-right:1.25rem;margin-bottom:2rem;aspect-ratio:1/1;filter:drop-shadow(0 0 0.75rem white);border:none;";
         img.style.filter="drop-shadow(0 0 0.75rem white) !important";
         if(post.imageKey){
             await this._service.getSimpleImg(post.imageKey).then(async(res)=>{
@@ -226,6 +243,8 @@ class Post{
         }
         Misc.matchMedia({parent:img,maxWidth:400,cssStyle:{maxWidth:"300px",shapeOutside:""}});
         card.appendChild(shapeOutside);
+        Misc.matchMedia({parent:shapeOutside,maxWidth:400,cssStyle:{display:"flex",flexDirection:"column",alignItems:"center"}});
+        Misc.matchMedia({parent:img,maxWidth:400,cssStyle:{shapeOutside:"none"}});
         const cardBody=document.createElement("div");
         cardBody.style.cssText=css_col +"gap:2rem;padding:1rem;" ;
         const dateEmailCont=document.createElement("div");
@@ -236,6 +255,15 @@ class Post{
         date.textContent= post.date ? Blogs.tolocalstring(post.date):"no date";
         dateEmailCont.appendChild(date);
         dateEmailCont.appendChild(email);
+        cardBody.appendChild(dateEmailCont);
+        if(post.link){
+            const anchor=document.createElement("a");
+            anchor.style.cssText="align-self:center;justify-self:center;font-weight:800;margin-inline:auto;color:white;"
+            anchor.id="post-anchor";
+            anchor.href=post.link;
+            anchor.textContent=post.link;
+            cardBody.appendChild(anchor);
+        }
         this.removePost({parent:row,target:col,post,user});
         if(post.userId===user.id){
             const {button:edit}=Misc.simpleButton({anchor:cardBody,bg:Nav.btnColor,color:"white",type:"button",time:400,text:"update"});
@@ -246,12 +274,15 @@ class Post{
                 }
             };
         }
-        cardBody.appendChild(dateEmailCont);
         card.appendChild(cardBody);
         col.appendChild(card);
         Misc.growIn({anchor:card,scale:1,opacity:0,time:500});
-        // Misc.matchMedia({parent:card,maxWidth:400,cssStyle:{flexDirection:"column"}});
-        // Misc.matchMedia({parent:cardBody,maxWidth:400,cssStyle:{flex:"0 0 100%"}});
+        const getShapeOutside=card.querySelector("p#shapeOutside") as HTMLElement;
+        if(!getShapeOutside) return;
+        const getImg=getShapeOutside.querySelector("img#shapeOutside-img") as HTMLElement;
+        if(!getImg) return;
+        Misc.matchMedia({parent:getShapeOutside,maxWidth:400,cssStyle:{display:"flex",flexDirection:"column",alignItems:"center"}});
+        Misc.matchMedia({parent:getImg,maxWidth:400,cssStyle:{shapeOutside:"none"}});
        
     }
     noPosts(item:{parent:HTMLElement}){
@@ -269,13 +300,14 @@ class Post{
     }
     editPost(item:{parent:HTMLElement,col:HTMLElement,post:postType,user:userType,index:number}){
         const {parent,col,post,user,index}=item;
+        this.post=post;
         Header.cleanUpByID(col,`editPost-popup-${post.id}`);
         const css_col="margin-inline:auto;display:flex;flex-direction:column;justify-content:center;align-items:center;gap:0.7rem;";
         const css_row="margin-inline:auto;display:flex;flex-direction:row;flex-wrap:wrap;justify-content:center;align-items:center;gap:0.7rem;";
         col.style.position="relative";
         const popup=document.createElement('div');
         popup.id=`editPost-popup-${post.id}`;
-        popup.style.cssText="position:absolute;inset:0%;backdrop-filter:blur(20px);border-radius:12px;box-shadow:1px 1px 12px 1px #0CAFFF;padding:7px;z-index:1000;";
+        popup.style.cssText="position:absolute;inset:0%;backdrop-filter:blur(20px);border-radius:12px;box-shadow:1px 1px 12px 1px #0CAFFF;padding:7px;z-index:1000;border:none;";
         col.appendChild(popup);
         //-------DELETE----------//
         const xDiv=document.createElement("div");
@@ -326,17 +358,27 @@ class Post{
         lpub.textContent="publish";
         lpub.style.cssText="font-size:140%;text-decoration:underline;text-underline-offset:0.5rem;margin-bottom:1rem;";
         lpub.setAttribute("for",pub.id);
+        const {input:link,label:lLink,formGrp:grplink}=Nav.inputComponent(form);
+        link.id="link";
+        link.name="link";
+        link.value=post.link ? post.link : "";
+        link.placeholder="https://example.com";
+        link.type="url";
+        lLink.textContent="add a link ";
+        lLink.style.cssText="font-size:140%;text-decoration:underline;text-underline-offset:0.5rem;margin-bottom:1rem;";
+        lLink.setAttribute("for",link.id);
         const {button:submit}=Misc.simpleButton({anchor:form,bg:Nav.btnColor,color:"white",text:"submit",time:400,type:"submit"});
         submit.disabled=false;
         form.onsubmit=async(e:SubmitEvent) =>{
             if(e){
                 e.preventDefault();
                 const formdata=new FormData(e.currentTarget as HTMLFormElement);
-                const title=formdata.get("title");
-                const content=formdata.get("content");
-                const pub=formdata.get("pub");
+                const title=formdata.get("title") as string;
+                const content=formdata.get("content") as string;
+                const pub=formdata.get("pub") as string;
+                const link=formdata.get("link") as string;
                 if(title && content){
-                    this.post={...post,title:title as string,content:content as string,published:Boolean(pub)};
+                    this.post={...post,title:title as string,content:content as string,published:Boolean(pub),link:link};
                    await this._service.saveUpdatepost({post:this.post}).then(async(res)=>{
                     //    if(res){
                             
@@ -384,7 +426,7 @@ class Post{
         const css_row="margin-inline:auto;display:flex;flex-direction:row;flex-wrap:wrap;justify-content:center;align-items:center;gap:0.7rem;";
         const container=document.createElement("div");
         container.id="askToDelete-popup";
-        container.style.cssText=css_row + "position:absolute;inset:0%;backdrop-filter:blur(12px);border-radius:12px;justify-content:center;gap:1.5rem;";
+        container.style.cssText=css_row + "position:absolute;inset:0%;backdrop-filter:blur(12px);border-radius:12px;justify-content:center;gap:1.5rem;border:none;";
         const {button:cancel}=Misc.simpleButton({anchor:container,bg:Nav.btnColor,color:"white",type:"button",time:40,text:"cancel"});
         const {button:del}=Misc.simpleButton({anchor:container,bg:"#007FFF",color:"red",type:"button",time:40,text:"delete"});
         target.appendChild(container);
@@ -411,7 +453,7 @@ class Post{
                                 },390);
                             }
                         });
-                        await this.Posts({injector:this.injector,posts:this.posts,user})
+                        await this.Posts({injector:this.injector,posts:this.posts,user});
                     }
                 });
 
@@ -453,9 +495,20 @@ class Post{
                            await this._service.saveUpdatepost({post:this.post}).then(async(post_)=>{
                                 if(post_){
                                     this.posts=[...this._posts,post_];
-                                    await this.Posts({injector:this.injector,posts:this.posts,user});
+                                    const getScrollCol1=document.querySelector("div#scrollCol1") as HTMLElement;
+                                    if(getScrollCol1){
+                                        //USED BY Profile: client account
+                                        await this.Posts({injector:getScrollCol1,posts:this.posts,user});
+                                        parent.style.height="auto";
+                                    }else{
+                                        await this.Posts({injector:this.injector,posts:this.posts,user});
+                                    }
                                     Misc.growOut({anchor:popup,scale:0,opacity:0,time:400});
                                     setTimeout(()=>{
+                                        const labelDisplay2=parent.querySelector("div#labelDisplay2") as HTMLElement;
+                                        if(labelDisplay2){
+                                            labelDisplay2.hidden=true;
+                                        }
                                         parent.removeChild(popup);
                                     },390);
                                 }
@@ -467,6 +520,7 @@ class Post{
             }
         };
         popup.appendChild(form);
+        parent.appendChild(popup)
     }
     
 };

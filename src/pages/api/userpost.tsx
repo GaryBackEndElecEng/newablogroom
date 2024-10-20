@@ -12,7 +12,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
     if (req.method === "GET") {
         const { user_id } = req.query as { user_id: string };
-        console.log("user", user_id);
+
         if (user_id) {
 
             try {

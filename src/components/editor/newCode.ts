@@ -287,7 +287,7 @@ class NewCode{
                 imgDive.style.transform="translate(-225px,15px)";
             }
             const xDiv=document.createElement("div");
-            xDiv.style.cssText="padding:1rem;max-width:75px;border-radius:25%;background-color:black;color:white;display:flex;justify-content:center;align-items:center;position:relative;z-index:20;box-shadow:1px 1px 12px 1px black;";
+            xDiv.style.cssText="padding:0.5rem;max-width:75px;border-radius:25%;background-color:black;color:white;display:flex;justify-content:center;align-items:center;position:relative;z-index:20;box-shadow:1px 1px 12px 1px black;border-radius:50%;";
             
             const span=document.createElement("span");
             span.style.cssText="position:absolute:top:100%;left:0%;transform:translate(10px,-16px);z-index:100;";
@@ -305,6 +305,8 @@ class NewCode{
             }
             imgDive.appendChild(xDiv);
             imgDive.appendChild(span);
+            Misc.matchMedia({parent:imgDive,maxWidth:900,cssStyle:{transform:"translate(0px,0px)",right:"6%"}});
+            Misc.matchMedia({parent:imgDive,maxWidth:400,cssStyle:{right:"0%"}});
             innerContainer.appendChild(imgDive);
             const target=document.createElement("code");
             target.id=selectCode.eleId;
@@ -467,6 +469,8 @@ class NewCode{
         imgDive.appendChild(span);
         // imgDive.appendChild(title);
         innerContainer.appendChild(imgDive);
+        Misc.matchMedia({parent:imgDive,maxWidth:900,cssStyle:{transform:"translate(0px,0px)"}});
+        Misc.matchMedia({parent:imgDive,maxWidth:400,cssStyle:{right:"0%"}});
         //------title container----------//
 
         const divCont=document.createElement("div");

@@ -1227,12 +1227,14 @@ class Misc{
     static matchMedia(media:{parent:HTMLElement,maxWidth:number,cssStyle:{[key:string]:string}}){
         const {parent,maxWidth,cssStyle}=media;
         const matches=window.matchMedia(`(max-width:${maxWidth}px)`).matches;
-        if(matches){
+        if(matches && parent){
             for(const key of Object.keys(parent.style)){
-                
-                for(const [key1,value1] of Object.entries(cssStyle)){
-                    if(key1===key){
-                        parent.style[key]=value1;
+                if(key){
+
+                    for(const [key1,value1] of Object.entries(cssStyle)){
+                        if(key1===key && value1){
+                            parent.style[key]=value1;
+                        }
                     }
                 }
             }

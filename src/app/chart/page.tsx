@@ -6,7 +6,7 @@ export const metadata: Metadata = Meta.metaChart();
 
 export default function page() {
     return (
-        <div className="container-fluid mx-auto my-3">
+        <div className="container mx-auto my-3">
             <Index />
         </div>
     )

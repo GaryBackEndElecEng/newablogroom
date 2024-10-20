@@ -3,7 +3,7 @@
 
 // Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
 // Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
-// url      = env("DATABASE_URL")
+// url      = env("DATABASE_URL_heroku"), update date: @db.Date
 
 generator client {
   provider      = "prisma-client-js"
@@ -256,9 +256,10 @@ model Post {
   id        Int      @id @default(autoincrement())
   title     String
   content   String?
+  link      String?
   imageKey  String?
   published Boolean  @default(false)
-  date      DateTime @default(now()) @db.Date
+  date      DateTime @default(now())
   user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
   userId    String
 }
