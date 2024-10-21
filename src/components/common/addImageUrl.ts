@@ -139,7 +139,7 @@ class AddImageUrl {
                     const img=document.createElement("img");
                     img.style.cssText="border-radius:50%;width:100px;height:100px;filter:drop-shadow(0 0 0.75rem white);";
                     if(img_.level==="element"){
-                        let image=img_.img as HTMLImageElement;
+                        const image=img_.img as HTMLImageElement;
                         // if(img_)
                         img.src=image.src;
                         img.alt=image.alt;
@@ -396,7 +396,7 @@ class AddImageUrl {
         const {parsed,isJSON}=Header.checkJson(ele.getAttribute("flex"));
         let retImg:string|undefined;
         if(isJSON){
-            let flex=parsed as flexType;
+            const flex=parsed as flexType;
             const imgKey=flex.imgKey;
             if(imgKey){
               const {img}= await this._service.getSimpleImg(imgKey) as gets3ImgKey;
