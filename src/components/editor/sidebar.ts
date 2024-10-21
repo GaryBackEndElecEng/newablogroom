@@ -28,6 +28,7 @@ import RegSignIn from "../nav/regSignin";
 import Reference from "./reference";
 import NewCode from "./newCode";
 import ChartJS from "../chart/chartJS";
+import AddImageUrl from "../common/addImageUrl";
 
 
 export type extendType={
@@ -940,6 +941,7 @@ class Sidebar{
     reference:Reference;
     // DROP-DOWN SELECTOR FOR EACH BOX
    design:Design;
+   addImage:AddImageUrl;
     _elements:elementType[]=[];
     //Column GENERATOR
     arrCol=[{col:1,num:12},{col:2,num:6},{col:3,num:4},{col:4,num:3},{col:6,num:2}]
@@ -974,6 +976,7 @@ class Sidebar{
                 this._modSelector._blog={...blog};
             }
         });
+        this.addImage=new AddImageUrl(this._modSelector,this._service);
     }
     //------GETTER SETTERS-----/////
     
@@ -1151,6 +1154,7 @@ class Sidebar{
         this.initiateHeaderTemplate(sidebarMain);
         this.ultility(sidebarMain);
         this.initiateCustomHeaderBtn(sidebarMain);
+        this.addimageClass(sidebarMain);
         this.loadImages(sidebarMain);
         this.initiateShapOutsideBtn(sidebarMain);
         this.initiateGenerateCode(sidebarMain);
@@ -1823,6 +1827,51 @@ class Sidebar{
                     this.customHeader.customHeader(Main._mainHeader as HTMLElement,false);
                     console.log(Sidebar.headerType,"hello")
                 // }
+            }
+        });
+     };
+     addimageClass(parent:HTMLElement){
+        Sidebar.headerType={normal:false,custom:true};
+        this.customHeader.isRefreshed=false;
+        const btnContainer=document.createElement("div");
+        btnContainer.className="flexCol text-center";
+        btnContainer.style.cssText="box-shadow:1px 1px 12px 1px white;border-radius:10px;padding-inline:0.5rem;padding-block:1rem;text-align:center;align-items:center;width:100%;";
+        const H5=document.createElement("h5");
+        H5.textContent="Load free Images";
+        H5.style.cssText="margin:auto;text-decoration:underline;text-underline-offset:1rem;";
+        H5.className="text-info lean";
+        btnContainer.appendChild(H5);
+        const para=document.createElement("p");
+        para.className="mc-auto px-1 text-balance  text-center";
+        para.style.cssText="text-wrap:wrap;margin-block:1rem;";
+        para.style.color=this.textColor;
+        para.textContent="This allows you to insert images.";
+        btnContainer.appendChild(para);
+        const btn=document.createElement("button");
+        btn.className="btnStyle1 box-shadow2";
+        btn.style.backgroundColor="blue";
+        btn.style.color="white";
+        btn.onmouseover=()=>{
+            btn.animate([
+                {transform:"scale(1)",opacity:"1"},
+                {transform:"scale(1.1)",opacity:"0.7"},
+                {transform:"scale(1)",opacity:"1"},
+            ],{duration:1000,iterations:1});
+        };
+        btn.textContent="image inserter";
+        btnContainer.appendChild(btn);
+        parent.appendChild(btnContainer);
+        btn.animate([
+            {transform:"translateY(-100%) skew(45deg,0deg)",opacity:"0.3"},
+            {transform:"translateY(0%) skew(0deg,0deg)",opacity:"1"}
+        ],{duration:1000,iterations:1})
+        btn.addEventListener("click",async(e:MouseEvent)=>{
+            if(e){
+                window.scroll(0,500);
+                //MAIN INSERTION POINT FOR TEXTAREA
+                if(!Main.textarea) return;
+                const blog=this._modSelector.blog;
+                   await this.addImage.main({parent:Main.textarea,blog});
             }
         });
      };

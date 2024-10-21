@@ -44,15 +44,17 @@ class AllMsgs{
     blogMsgs(item:{col:HTMLElement,blog:blogType}){
         const {col,blog}=item;
         const msgs=blog.messages ? blog.messages : [] as messageType[];
-        const contScroll=document.createElement("div");
-        contScroll.id="blogMsgs-contScroll";
-        contScroll.style.cssText="height:15vh;overflow-y:scroll;margin-block:2rem;padding:1rem;display:flex;flex-direction:column;align-items:center;gap:1rem;";
-        col.appendChild(contScroll);
-        msgs.map(msg=>{
-            if(msg){
-                this.singleMsgTwo({col:col,contScroll:contScroll,msg,imgKey:blog.imgKey})
-            }
-        });
+        if(blog && msgs && msgs.length>0){
+            const contScroll=document.createElement("div");
+            contScroll.id="blogMsgs-contScroll";
+            contScroll.style.cssText="height:15vh;overflow-y:scroll;margin-block:2rem;padding:1rem;display:flex;flex-direction:column;align-items:center;gap:1rem;";
+            col.appendChild(contScroll);
+            msgs.map(msg=>{
+                if(msg){
+                    this.singleMsgTwo({col:col,contScroll:contScroll,msg,imgKey:blog.imgKey})
+                }
+            });
+        }
     }
     addMsgsToBlogs(item:{blogs:blogType[],msgs:messageType[]}){
         const {blogs,msgs}=item;

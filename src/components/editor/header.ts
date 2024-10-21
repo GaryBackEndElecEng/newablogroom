@@ -1421,7 +1421,7 @@ class Header{
         col.style.height="15vh";
         const formContainer=document.createElement("div");
         formContainer.className="flexCol box-shadow";
-        formContainer.style.cssText="position:absolute;width:clamp(150px,250px,300px);height:150px;z-index:100;font-size:15px;align-items:center;";
+        formContainer.style.cssText="position:absolute;width:clamp(150px,250px,300px);height:150px;z-index:100;font-size:15px;align-items:center;z-index:300;background-color:white;box-shadow:1px 1px 12px 1px black;border-radius:12px;";
         formContainer.style.inset="0%";
         const form=document.createElement("form");
         form.className="m-auto d-flex flex-column gap-1 form-group";

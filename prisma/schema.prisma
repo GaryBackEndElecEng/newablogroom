@@ -3,7 +3,7 @@
 
 // Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
 // Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
-// url      = env("DATABASE_URL_heroku"), update date: @db.Date
+// url      = env("DATABASE_URL_AWS"), update date: @db.Date
 
 generator client {
   provider      = "prisma-client-js"
@@ -12,7 +12,7 @@ generator client {
 
 datasource db {
   provider = "postgresql"
-  url      = env("DATABASEURL")
+  url      = env("DATABASE_URL_AWS")
 }
 
 model Account {

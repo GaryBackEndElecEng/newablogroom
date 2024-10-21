@@ -137,9 +137,8 @@ const nextConfig = {
   env: {
     NEXTAUTH_URL:
       process.env.NODE_ENV === "production"
-        ? "http:///localhost:3000"
+        ? process.env.NEXTAUTH_URL
         : "http://localhost:3000",
-    DATABASE_URL_heroku: process.env.DATABASE_URL_heroku,
     DATABASE_URL_AWS: process.env.DATABASE_URL_AWS,
     NEXTAUTH_CSRF: process.env.NEXTAUTH_CSRF,
     NEXTAUTH_SECRET: process.env.NEXTAUTH_SECRET,

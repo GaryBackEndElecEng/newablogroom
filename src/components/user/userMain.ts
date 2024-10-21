@@ -1036,7 +1036,7 @@ class User{
         const hasBlogWithSigninAndNoBlogName=(blog && user.id && !blog.name) ? true:false;
         const hasSignedInWithBlogName=(blog && blog.user_id && blog.name)? true:false;
      if(user && user.id){
-         _blog={...blog,user_id:user.id};
+         _blog={...blog,user_id:user.id,id:blog.id};
         if(blog && !blog.name){
             _blog={..._blog};
         }
@@ -1105,7 +1105,7 @@ class User{
         return;
         case hasSignedInWithBlogName:
                  //----------------------SAVING BLOG-----------------------//
-                 this.blog={...this.blog,user_id:user.id};
+                 this.blog={...blog,user_id:user.id};
                  this._service.promsaveItems(this.blog).then(async(_blog_)=>{
                     if(_blog_){
 
