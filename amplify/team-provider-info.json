@@ -1,0 +1,15 @@
+{
+  "dev": {
+    "awscloudformation": {
+      "AuthRoleName": "amplify-newablogroom-dev-12dfe-authRole",
+      "UnauthRoleArn": "arn:aws:iam::302619268814:role/amplify-newablogroom-dev-12dfe-unauthRole",
+      "AuthRoleArn": "arn:aws:iam::302619268814:role/amplify-newablogroom-dev-12dfe-authRole",
+      "Region": "us-east-1",
+      "DeploymentBucketName": "amplify-newablogroom-dev-12dfe-deployment",
+      "UnauthRoleName": "amplify-newablogroom-dev-12dfe-unauthRole",
+      "StackName": "amplify-newablogroom-dev-12dfe",
+      "StackId": "arn:aws:cloudformation:us-east-1:302619268814:stack/amplify-newablogroom-dev-12dfe/b5c20230-8fe8-11ef-bae4-0e602741a9eb",
+      "AmplifyAppId": "d894o8gm2vmhl"
+    }
+  }
+}
