@@ -1,7 +1,7 @@
 import {blogType,selectorType,elementType,element_selType,codeType, flexType, userType,  colType, chartType} from "@/components/editor/Types";
 import Blogs from "@/components/blogs/blogsInjection";
 import {modAddEffect} from "@/components/editor/modSelector";
-import html2canvas from "html2Canvas";
+import html2canvas from "html2canvas";
 import ModSelector from "@/components/editor/modSelector";
 import User from "@/components/user/userMain"
 import Misc, {  mediaQueryType} from "../common/misc";
@@ -338,7 +338,7 @@ _onlyMeta:boolean=false;
 
                         }else if(str==="print"){
                             this.printThis=true;
-                            const finalWork=parent.querySelector("div#blog-work") as HTMLElement;
+                            const finalWork=parent.querySelector("div#saveFinalWork-container") as HTMLElement;
                             finalWork.style.overflowY="auto";
                             finalWork.style.backgroundColor="white";
                             this._service.promsaveItems(blog).then(async(_blog)=>{
