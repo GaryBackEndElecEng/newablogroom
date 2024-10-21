@@ -43,7 +43,7 @@
     "ts-node": "^10.9.2",
     "typescript": "^5.6.2"
   },
-  "description": "This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).",
+  "description": "This is an editor project built on [Next.js]",
   "main": "index.js",
   "keywords": [],
   "author": "",
