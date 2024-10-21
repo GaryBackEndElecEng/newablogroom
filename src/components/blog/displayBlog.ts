@@ -338,14 +338,13 @@ _onlyMeta:boolean=false;
 
                         }else if(str==="print"){
                             this.printThis=true;
-                            const finalWork=parent.querySelector("div#saveFinalWork-container") as HTMLElement;
-                            finalWork.style.overflowY="auto";
-                            finalWork.style.backgroundColor="white";
+                            const finalWork=parent.querySelector("div#PDFPrint") as HTMLElement;
                             this._service.promsaveItems(blog).then(async(_blog)=>{
                                 if(_blog){
-                                    innerContainer.style.height="auto";
-                                    innerContainer.style.overflowY="auto";
-                                    this.htmlTwoCanvassPDF(innerContainer,_blog);
+                                    finalWork.style.backgroundColor="white";
+                                    finalWork.style.height="auto";
+                                    finalWork.style.overflowY="auto";
+                                    this.htmlTwoCanvassPDF(finalWork,_blog);
                                 }
                             });
                             Misc.growOut({anchor:mainContainer,scale:0,opacity:0,time:400});
