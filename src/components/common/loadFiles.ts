@@ -50,7 +50,7 @@ class LoadMisc {
         const row=document.createElement("div");
         row.className="row gap-1 align-items-center";
         row.style.cssText="margin:auto;position:relative;display:flex;justify-content:center;align-items:center;gap:1rem;"
-        this._service.getImages().then(async(res:imageType[])=>{
+        this._service.getImages().then(async(res:imageType[]|undefined)=>{
             if(res){
                 this.arrImgs=res;
                 this.arrImgs.map((item,index)=>{

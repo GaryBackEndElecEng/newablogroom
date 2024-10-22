@@ -928,7 +928,7 @@ colAttrs=["col-start","col-end","col-center"];
         this._modSelector.loadBlog(blog);
         let flex=isJSON ? parsed as flexType : flex_;
         if(flex.imgKey){
-            const markDel:deletedImgType={id:undefined,Key:flex.imgKey,del:true};
+            const markDel:deletedImgType={id:undefined,Key:flex.imgKey,del:true,date:new Date()};
             await this._service.markDelKey(markDel);
         }
         btnClicked.classList.add("active");
@@ -1016,7 +1016,7 @@ colAttrs=["col-start","col-end","col-center"];
         const {parsed}=Header.checkJson(column.getAttribute("flex"));
         let _flex=(parsed as flexType) ? parsed as flexType : flex;
         if(_flex.imgKey){
-            const markDel:deletedImgType={id:undefined,Key:_flex.imgKey,del:true};
+            const markDel:deletedImgType={id:undefined,Key:_flex.imgKey,del:true,date:new Date()};
             await this._service.markDelKey(markDel);
         }
         form.onsubmit=async(e:SubmitEvent)=>{
@@ -1053,7 +1053,7 @@ colAttrs=["col-start","col-end","col-center"];
         const {parsed}=Header.checkJson(row.getAttribute("flex"));
         let _flex=(parsed as flexType) ? parsed as flexType : flex;
         if(_flex.imgKey){
-            const markDel:deletedImgType={id:undefined,Key:_flex.imgKey,del:true};
+            const markDel:deletedImgType={id:undefined,Key:_flex.imgKey,del:true,date:new Date()};
             await this._service.markDelKey(markDel);
         }
         const blog=this._modSelector._blog;

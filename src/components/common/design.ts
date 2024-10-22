@@ -11,9 +11,7 @@ import Main from "../editor/main";
 
 
 class Design{
-    parent:HTMLElement;
-    canvas:HTMLCanvasElement;
-    ctx:CanvasRenderingContext2D;
+   
     constructor(private _modSelector:ModSelector,public htmlelement:HtmlElement){
         
     }
@@ -943,10 +941,10 @@ class Design{
         btn.disabled=true;
         btn.style.marginBottom="2rem;"
         col.appendChild(form);
-        input.onchange=(e:MouseEvent)=>{
-            if(e){
+        input.onchange=(ev:Event)=>{
+            if(ev){
                 btn.disabled=false;
-                const value=(e.currentTarget as HTMLInputElement).value;
+                const value=(ev.currentTarget as HTMLInputElement).value;
                 (input as HTMLInputElement).value=value;
             }
         };

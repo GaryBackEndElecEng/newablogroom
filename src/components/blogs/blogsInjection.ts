@@ -35,13 +35,14 @@ class Blogs{
     logo:string;
 _blogs:blogType[];
 _blog:blogType;
-_displayBlog:DisplayBlog;
 allMsgs:AllMsgs;
 message:Message
     constructor( private _modSelector:ModSelector,private _service:Service){
         this.baseUrl=base_url
        this.gbLogo=`${base_url}/images/gb_logo.png`;
        this.logo=`gb_logo.png`;
+       this._blogs=[] as blogType[];
+        this._blog={} as blogType;
        this.bgColor=this._modSelector._bgColor;
        this.message=new Message(this._modSelector,this._service,this._modSelector.blog);
         this.allMsgs=new AllMsgs(this._modSelector,this._service,this.message);

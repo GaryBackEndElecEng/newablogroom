@@ -55,7 +55,7 @@ class Climate{
     events:eventType;
     lineOption:optionLineType;
     _data:dataType;
-    _chart:Chart;
+    // _chart:Chart;
     bgColors:string[];
     bdr:string[];
     xaxis:string[];
@@ -64,6 +64,9 @@ class Climate{
         this._data=data;
         this.xaxis=[];
         this.yaxis=[];
+        this.lineOption={} as optionLineType;
+        this.bgColors=[] as string[];
+        this.bdr=[] as string[];
         this.convertX({data:this._data.data});
         this.convertY({data:this._data.data});
         this.events=events as eventType;

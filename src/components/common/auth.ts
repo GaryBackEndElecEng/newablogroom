@@ -17,6 +17,9 @@ class AuthService {
         this.btnColor=this._modSelector.btnColor;
         this.logo=`gb_logo.png`;
         this._admin=[];
+        this._user={} as userType;
+        this.blog={} as blogType;
+        this.adminEmail= "" as string;
     }
 
     set user(user:userType){

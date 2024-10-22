@@ -33,7 +33,7 @@ class DisplayBlog{
     logo:string=baseUrl + "/images/gb_logo.png";
     logo2:string="gb_logo.png";
 
-_BlogsCreate:Blogs;
+
 mainSection:HTMLElement|null;
 _blog:blogType;
 _codes:codeType[];
@@ -45,7 +45,7 @@ _element_sel:element_selType;
 _element_sels:element_selType[];
 _bgColor:string="#41393C";
 btnColor:string;
-_edit:Edit;
+// _edit:Edit;
 reference:Reference;
 _onlyMeta:boolean=false;
  static _showOn:boolean;
@@ -61,6 +61,15 @@ _onlyMeta:boolean=false;
         //this populates selectors/elements/codes
         // getting parameters
         DisplayBlog._showOn=true;
+        this._blog={} as blogType;
+        this._codes=[] as codeType[];
+        this._selector={} as selectorType;
+        this._selectors=[] as selectorType[];
+        this._elements=[] as elementType[];
+        this._element={} as elementType;
+        this._element_sel={} as element_selType;
+        this._element_sels=[] as element_selType[];
+        // this._edit=new Edit(this._modSelector,this._auth,this._service)
         this.reference=new Reference(this._modSelector);
       
     }

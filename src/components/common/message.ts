@@ -197,7 +197,7 @@ class MessageSetup{
         popup.appendChild(form);
         this.removeEle(useParent,popup);
         useParent.appendChild(popup);
-        name.onchange=(e:MouseEvent)=>{
+        name.onchange=(e:Event)=>{
             if(e){
                 const nvalue=(e.currentTarget as HTMLInputElement).value;
                 if(nvalue){
@@ -212,7 +212,7 @@ class MessageSetup{
                 }
             }
         };
-        tArea.onchange=(e:MouseEvent)=>{
+        tArea.onchange=(e:Event)=>{
             if(e){
                 const tvalue=(e.currentTarget as HTMLInputElement).value;
                 const isLen=tvalue.length > 10 ? true:false;
@@ -228,7 +228,7 @@ class MessageSetup{
                 }
             }
         };
-        email.onchange=(e:MouseEvent)=>{
+        email.onchange=(e:Event)=>{
             if(e){
                 const eReg:RegExp=/[a-zA-Z0-9\.\_]{2,}@[a-zA-Z0-9]{2,}\.[a-z]{2,3}/;
                 const evalue=(e.currentTarget as HTMLInputElement).value;
@@ -308,6 +308,9 @@ class Message{
     static bgColor:string;
     static btnColor:string;
     constructor(private _modSelector:ModSelector,private _service:Service,blog:blogType|null){
+        this._blog={} as blogType;
+        this._message={} as messageType;
+        this._messages=[] as messageType[];
         if(blog){
             this._blog=blog;
             this._message={} as messageType;

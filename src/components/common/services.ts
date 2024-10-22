@@ -253,7 +253,7 @@ class Service {
                 if(res.ok){
                     const formdata_key=formData.get("Key") as string;
                     //store key//
-                    const store:deletedImgType={id:undefined,Key:formdata_key,del:false}
+                    const store:deletedImgType={id:undefined,Key:formdata_key,del:false,date:new Date()}
                     await this.storeKey(store)
                     //store key//
                     //GETTING IMAGE URL////////

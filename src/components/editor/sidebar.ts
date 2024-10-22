@@ -500,7 +500,7 @@ listThemeTypes:{name:string}[]=[{name:"background"},{name:"fonts"},{name:"colors
                 
                     if(_blog && user && user.id && _blog.name){
                         if(_blog.imgBgKey){
-                            const deletedImg:deletedImgType={Key:_blog.imgBgKey,del:true}
+                            const deletedImg:deletedImgType={Key:_blog.imgBgKey,del:true,date:new Date()}
                             this._service.markDelKey(deletedImg);//marking delete on exiting image
                         }
                         //GENERATING NEW KEY
