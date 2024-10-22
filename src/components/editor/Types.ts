@@ -478,7 +478,7 @@ export type deletedImgType={
     id?: number,
     Key: string,
     del:boolean,
-    date:Date
+    date?:Date
 }
 export type adminImageType={
     id: number,
@@ -488,7 +488,11 @@ export type adminImageType={
     date:Date
 }
 export type img_keyType={
-    id:number,del:boolean,imgKey:string,url:string,date:Date
+    id:number,
+    del:boolean,
+    imgKey:string,
+    url:string,
+    date?:Date
 }
 export type arrImgType={start:number,end:number,word:string,found:boolean};
 export type arrImgType2={name:string,img:string,loc:string};

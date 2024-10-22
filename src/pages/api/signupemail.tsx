@@ -1,4 +1,4 @@
-import { transporter, mailOptions, } from "@components/emails/nodemailer";
+import { transporter, mailOptions, } from "@/components/emails/nodemailer";
 import { NextApiRequest, NextApiResponse } from "next";
 import { PrismaClient } from "@prisma/client";
 import { userType } from "@/components/editor/Types";
