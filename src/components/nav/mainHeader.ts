@@ -205,35 +205,35 @@ count:number=0;
         this.meta.pages.map(page=>{
             if((page.match.test(pg)) && this.count===0){
                 this.count++;
-                this._service.getPageCount(pg,blog_id).then(async(res)=>{
-                    if(res){
-                            Header.cleanUpByID(parent,"genPageCount-main");
-                            let name=(res && res && res.name) ? res.name : "";
-                            if(res.name==="/"){
-                                name="/home"
-                            }
-                            const count_=(res && res && res.count) ? res.count : 0;
-                            const container=document.createElement("div");
-                            container.id="genPageCount-main";
-                            container.style.cssText="position:relative;width:auto;height:auto;display:flex;justify-content:center;flex-direction:column;align-items:center;border-left:1px solid white;border-right:1px solid white;min-width:90px;";
-                            const div=document.createElement("div");
-                            div.id="genPageCount-inner";
-                            div.style.cssText="margin:auto;display:flex;justify-content:center;gap:1rem;align-items:center;flex-direction:row;flex-wrap:wrap;"
-                            const text=document.createElement("p");
-                            text.id="genPageCount-inner-text";
-                            text.style.cssText="color:#0CAFFF;font-size:10px;font-weight:bold;";
-                            text.innerHTML=`<span style="color:white;">loc: </span>${name}`;
-                            const count=document.createElement("p");
-                            count.id="genPageCount-inner-count";
-                            count.style.cssText="color:white;font-size:10px;font-weight:bold;"
-                            count.innerHTML=`<span style="color:#0CAFFF;">#: </span>${String(count_)}`;
-                            div.appendChild(text);
-                            div.appendChild(count);
-                            container.appendChild(div);
-                            parent.appendChild(container);
-                            Misc.growIn({anchor:container,scale:0.2,opacity:0,time:500});
-                        }
-                    });
+                // this._service.getPageCount(pg,blog_id).then(async(res)=>{
+                //     if(res){
+                //             Header.cleanUpByID(parent,"genPageCount-main");
+                //             let name=(res && res && res.name) ? res.name : "";
+                //             if(res.name==="/"){
+                //                 name="/home"
+                //             }
+                //             const count_=(res && res && res.count) ? res.count : 0;
+                //             const container=document.createElement("div");
+                //             container.id="genPageCount-main";
+                //             container.style.cssText="position:relative;width:auto;height:auto;display:flex;justify-content:center;flex-direction:column;align-items:center;border-left:1px solid white;border-right:1px solid white;min-width:90px;";
+                //             const div=document.createElement("div");
+                //             div.id="genPageCount-inner";
+                //             div.style.cssText="margin:auto;display:flex;justify-content:center;gap:1rem;align-items:center;flex-direction:row;flex-wrap:wrap;"
+                //             const text=document.createElement("p");
+                //             text.id="genPageCount-inner-text";
+                //             text.style.cssText="color:#0CAFFF;font-size:10px;font-weight:bold;";
+                //             text.innerHTML=`<span style="color:white;">loc: </span>${name}`;
+                //             const count=document.createElement("p");
+                //             count.id="genPageCount-inner-count";
+                //             count.style.cssText="color:white;font-size:10px;font-weight:bold;"
+                //             count.innerHTML=`<span style="color:#0CAFFF;">#: </span>${String(count_)}`;
+                //             div.appendChild(text);
+                //             div.appendChild(count);
+                //             container.appendChild(div);
+                //             parent.appendChild(container);
+                //             Misc.growIn({anchor:container,scale:0.2,opacity:0,time:500});
+                //         }
+                //     });
             }
         });
 
