@@ -62,7 +62,7 @@ const nextConfig = {
           {
             key: "Access-Control-Allow-Origin",
             value:
-              "newmasterconnect.herokuapp.com,www.masterconnect.ca,ww.master-connect.ca,compute-1.amazonaws.com,master-sale.herokuapp.com, www.masterconnect.ca,www.masterultils.com,masterultils-postimages.s3.us-east-1.amazonaws.com,localhost:3000",
+              "newmasterconnect.herokuapp.com,www.masterconnect.ca,ww.master-connect.ca,compute-1.amazonaws.com,master-sale.herokuapp.com, www.masterconnect.ca,www.masterultils.com,masterultils-postimages.s3.us-east-1.amazonaws.com,localhost:3000,main.d1qeikuwg9b9l6.amplifyapp.com/,newmasterconnect.herokuapp.com",
           },
         ],
       },
@@ -126,12 +126,19 @@ const nextConfig = {
         port: "",
         // pathname: '/account123/**',
       },
+      {
+        protocol: "https",
+        hostname: "newmasterconnect.herokuapp.com",
+        port: "",
+        pathname: "/api/**",
+      },
     ],
     domains: [
       "new-master.s3.ca-central-1.amazonaws.com",
       "garyposttestupload.s3.us-east-1.amazonaws.com",
       "masterultils-postimages.s3.us-east-1.amazonaws.com",
       "new-master.s3.ca-central-1.amazonaws.com",
+      "newmasterconnect.herokuapp.com",
     ],
   },
   env: {

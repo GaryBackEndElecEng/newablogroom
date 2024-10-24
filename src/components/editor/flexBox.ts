@@ -349,7 +349,7 @@ colAttrs=["col-start","col-end","col-center"];
                                         this.removeMainElement(parent,divCont,_ele_);
                                     }
                                 });
-                                _ele_.addEventListener("keydown",(e:KeyboardEvent)=>{
+                                _ele_.addEventListener("imgKeydown",(e:KeyboardEvent)=>{
                                     if(e.key==="Enter"){
                                         const icon=Main.icons.find(ic=>(ic.name===_ele_.nodeName.toLowerCase()));
                                         this.appElement(col,null,icon,this.flex)
@@ -697,7 +697,7 @@ colAttrs=["col-start","col-end","col-center"];
         column.appendChild(popup);
         select.addEventListener("change",(e:Event)=>{
             if(e){
-                // type valueType={[key:string]:string}
+                // type valueType={[imgKey:string]:string}
                 const value_=(e.currentTarget as HTMLSelectElement).value
                 const {parsed,isJSON}=Header.checkJson(value_)
                 const value:choiceType|null=isJSON ? parsed as choiceType : null;
@@ -928,7 +928,7 @@ colAttrs=["col-start","col-end","col-center"];
         this._modSelector.loadBlog(blog);
         let flex=isJSON ? parsed as flexType : flex_;
         if(flex.imgKey){
-            const markDel:deletedImgType={id:undefined,Key:flex.imgKey,del:true,date:new Date()};
+            const markDel:deletedImgType={id:undefined,imgKey:flex.imgKey,del:true,date:new Date()};
             await this._service.markDelKey(markDel);
         }
         btnClicked.classList.add("active");
@@ -1016,7 +1016,7 @@ colAttrs=["col-start","col-end","col-center"];
         const {parsed}=Header.checkJson(column.getAttribute("flex"));
         let _flex=(parsed as flexType) ? parsed as flexType : flex;
         if(_flex.imgKey){
-            const markDel:deletedImgType={id:undefined,Key:_flex.imgKey,del:true,date:new Date()};
+            const markDel:deletedImgType={id:undefined,imgKey:_flex.imgKey,del:true,date:new Date()};
             await this._service.markDelKey(markDel);
         }
         form.onsubmit=async(e:SubmitEvent)=>{
@@ -1053,7 +1053,7 @@ colAttrs=["col-start","col-end","col-center"];
         const {parsed}=Header.checkJson(row.getAttribute("flex"));
         let _flex=(parsed as flexType) ? parsed as flexType : flex;
         if(_flex.imgKey){
-            const markDel:deletedImgType={id:undefined,Key:_flex.imgKey,del:true,date:new Date()};
+            const markDel:deletedImgType={id:undefined,imgKey:_flex.imgKey,del:true,date:new Date()};
             await this._service.markDelKey(markDel);
         }
         const blog=this._modSelector._blog;
@@ -1663,7 +1663,7 @@ colAttrs=["col-start","col-end","col-center"];
                     cssText:target.style.cssText,
                     cols:[] as colType[],
                     selector_id:select.id,
-                    imgKey:imgKey ? imgKey : undefined,
+                    imgimgKey:imgKey ? imgKey : undefined,
                     order:ID
                 } as rowType;
                 if(backgroundImage){
@@ -1844,7 +1844,7 @@ colAttrs=["col-start","col-end","col-center"];
                                             ele.cssText=target.style.cssText;
                                             ele.class=target.className.split(" ").filter(cl=>(cl !== "isActive")).join(" ");
                                             ele.inner_html=target.innerHTML;
-                                            ele.imgKey=imgKey?imgKey:undefined;
+                                            ele.imgKey=imgKey ? imgKey:undefined;
                                             if(nodename==="a"){
                                                 const link=target.getAttribute("data-href");
                                                 const anchorContainer=target.getAttribute("data-anchor-container");

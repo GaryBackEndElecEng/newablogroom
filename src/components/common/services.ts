@@ -16,8 +16,8 @@ class Service {
     awsimgUrl:string="/api/awsimg";
     liveonoffUrl:string="/api/liveonoff";
     newBlogUrl:string="/api/blog/createNew"
-    images:string="https://newmasterconnect.herokuapp.com/api/category/";
-    category:string="https://newmasterconnect.herokuapp.com/api/category/";
+    // images:string="https://newmasterconnect.herokuapp.com/api/category/";
+    // category:string="https://newmasterconnect.herokuapp.com/api/category/";
     urlUpload="/api/uploadImage";
     urlBlog:string="/api/blog";
     urlsaveBlog:string="/api/savegetblog";
@@ -253,7 +253,7 @@ class Service {
                 if(res.ok){
                     const formdata_key=formData.get("Key") as string;
                     //store key//
-                    const store:deletedImgType={id:undefined,Key:formdata_key,del:false,date:new Date()}
+                    const store:deletedImgType={id:undefined,imgKey:formdata_key,del:false,date:new Date()}
                     await this.storeKey(store)
                     //store key//
                     //GETTING IMAGE URL////////
@@ -455,18 +455,30 @@ class Service {
         
    }
    async peronalInfo(){
-    const option={
-        headers:{
-            "Content-Type":"application/json"
-        },
-        method:"GET"
-    }
-    return fetch(this.category,option).then(async(res)=>{
-        if(res){
-            const body= await res.json() as categoryListType[];
-            const general:generalInfoType=(body).filter((obj)=>(obj.name==="GeneralInfo"))[0].categoryGeneralInfo[0];
-            return general
-        }
+    
+    return new Promise(resolve=>{
+            const general:generalInfoType= {
+                id: 2,
+                name: "Gary Wallace",
+                address: "21 Rue St-Jean",
+                cell: "416-917-5768",
+                country: "CA",
+                provState: "ON",
+                city: "Chateauguay",
+                postal: "L4C-1K8",
+                extra: "Business hours: mon-Fri, 9-6pm",
+                siteArray: [
+                    "fb:: https://www.facebook.com/people/Master-Connect/100077971323770/",
+                    "linkedin:: https://www.linkedin.com/in/gary-wallace-501513229/",
+                    "masterconnect:: https://www.masterconnect.ca",
+                    "master-connect.ca:: https://www.master-connect.ca",
+                    ".com:: https://www.master-connect.com",
+                    "email::masterconnect919@gmail.com",
+                    "github:: https://github.com/GaryBackEndElecEng",
+                    "instagram::https://www.instagram.com/garysjwallacedeveloper/?next=%2F"
+                ]
+            };
+            resolve( general)       
     }) as Promise<generalInfoType | undefined>;
    }
    
@@ -538,8 +550,8 @@ class Service {
     }
     async storeKey(store:deletedImgType):Promise<void | deletedImgType>{
         //EXECUTES ONLY IF DEL=FALSE && KEY EXIST.IT STORES KEY IN DeletedImg table
-        const {Key,del}=store;
-        if(!del && Key){
+        const {imgKey,del}=store;
+        if(!del && imgKey){
             const option={
                 headers:{
                     "Content-Type":"application/json"
@@ -557,8 +569,8 @@ class Service {
     }
     async markDelKey(item:deletedImgType):Promise<void | deletedImgType>{
         // DEL=TRUE  AND KEY EXIST FOR DELETE: it does not delete item from the db (DeletedImg table) only changes its del state. it deletes teh image fro aws
-        const {del,Key}=item;
-        if(del && Key){
+        const {del,imgKey}=item;
+        if(del && imgKey){
             const option={
                 headers:{
                     "Content-Type":"application/json"
@@ -790,23 +802,23 @@ class Service {
             console.error(msg);
         });
     }
-    async getImages(){
-        const option={
-            headers:{
-            "Content-Type":"application/json",
-            },
-            method:"GET"
-        }
-        return fetch(this.images,option).then(async(res)=>{
-            if(res){
-                const body:any= await res.json() as any;
-                const imageCat=body.filter(obj=>(obj.name==="extraImages"))[0]?.imageCategory as imageType[];
-                const imageCat2=body.filter(obj=>(obj.name==="FlowerShop"))[0]?.imageCategory as imageType[];
-                return imageCat.concat(imageCat2);
-            }
-        });
-        //FlowerShop
-    }
+    // async getImages(){
+    //     const option={
+    //         headers:{
+    //         "Content-Type":"application/json",
+    //         },
+    //         method:"GET"
+    //     }
+    //     return fetch(this.images,option).then(async(res)=>{
+    //         if(res){
+    //             const body:any= await res.json() as any;
+    //             const imageCat=body.filter(obj=>(obj.name==="extraImages"))[0]?.imageCategory as imageType[];
+    //             const imageCat2=body.filter(obj=>(obj.name==="FlowerShop"))[0]?.imageCategory as imageType[];
+    //             return imageCat.concat(imageCat2);
+    //         }
+    //     });
+    //     //FlowerShop
+    // }
 
     async registerUser(user:userType):Promise<userType|void>{
         if(!user) return;

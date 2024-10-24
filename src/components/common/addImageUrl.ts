@@ -273,7 +273,7 @@ class AddImageUrl {
                         if(isJSON){
                             let flex=parsed as flexType;
                             if(flex.imgKey){
-                                const markDel:deletedImgType={Key:flex.imgKey,del:true,date:new Date()};
+                                const markDel:deletedImgType={imgKey:flex.imgKey,del:true,date:new Date()};
                                 this._service.markDelKey(markDel)
 
                             }
@@ -289,7 +289,7 @@ class AddImageUrl {
                         }else{
                             const imgKey=targetImg.img.getAttribute("imgKey");
                                 if(imgKey){
-                                    const markDel:deletedImgType={Key:imgKey,del:true,date:new Date()};
+                                    const markDel:deletedImgType={imgKey:imgKey,del:true,date:new Date()};
                                     this._service.markDelKey(markDel)
                                 }
                             targetImg.img.removeAttribute("imgKey");
@@ -358,7 +358,7 @@ class AddImageUrl {
                             if(isJSON){
                                 let flex=parsed as flexType;
                                 if(flex.imgKey){
-                                    const markDel:deletedImgType={Key:flex.imgKey,del:true,date:new Date()};
+                                    const markDel:deletedImgType={imgKey:flex.imgKey,del:true,date:new Date()};
                                     this._service.markDelKey(markDel)
 
                                 }
@@ -374,7 +374,7 @@ class AddImageUrl {
                             }else{
                                 const imgKey=targetImg.img.getAttribute("imgKey");
                                 if(imgKey){
-                                    const markDel:deletedImgType={Key:imgKey,del:true,date:new Date()};
+                                    const markDel:deletedImgType={imgKey:imgKey,del:true,date:new Date()};
                                     this._service.markDelKey(markDel)
                                 }
                                 targetImg.img.removeAttribute("imgKey");

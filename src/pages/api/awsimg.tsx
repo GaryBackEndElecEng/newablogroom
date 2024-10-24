@@ -13,21 +13,21 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
     if (req.method === "POST") {
         const delImg = req.body as deletedImgType;
-        const { Key, del } = delImg as deletedImgType
+        const { imgKey, del } = delImg as deletedImgType
 
-        if (!(Key)) { res.status(400).json({ msg: "no key" }); return await prisma.$disconnect(); };
+        if (!(imgKey)) { res.status(400).json({ msg: "no key" }); return await prisma.$disconnect(); };
         try {
             const create = await prisma.deletedImg.upsert({
                 where: {
-                    imgKey: Key
+                    imgKey: imgKey
                 },
                 create: {
-                    imgKey: Key,
+                    imgKey: imgKey,
                     del: false,
                     count: 1
                 },
                 update: {
-                    imgKey: Key,
+                    imgKey: imgKey,
                     del: Boolean(del),
                 }
             });
@@ -43,12 +43,12 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
     } else if (req.method === "PUT") {
         const delImg = req.body as deletedImgType;
-        const { Key, del } = delImg;
-        if (!(Key && del)) { res.status(400).json({ msg: "no key" }); return await prisma.$disconnect(); };
+        const { imgKey, del } = delImg;
+        if (!(imgKey && del)) { res.status(400).json({ msg: "no key" }); return await prisma.$disconnect(); };
         try {
             const getdelImg = await prisma.deletedImg.findUnique({
                 where: {
-                    imgKey: Key
+                    imgKey: imgKey
                 }
             });
             if (!getdelImg) { res.status(400).json({ msg: "could not find" }); return await prisma.$disconnect(); }

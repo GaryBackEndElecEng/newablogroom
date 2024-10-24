@@ -476,7 +476,7 @@ export type imageType={
 }
 export type deletedImgType={
     id?: number,
-    Key: string,
+    imgKey: string,
     del:boolean,
     date?:Date
 }

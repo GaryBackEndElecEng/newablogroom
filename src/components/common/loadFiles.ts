@@ -13,7 +13,19 @@ class LoadMisc {
     _arrImgs:imageType[]
     _arrLoadImgs:arrImgType3[];
     constructor(private _modSelector:ModSelector,private _service:Service){
-        this._arrImgs=[];
+        this._arrImgs=[
+            {id:0,name:"Explore",image:"https://images.unsplash.com/photo-1657736301709-b1365740ddbe?crop=entropy",},
+            {id:1,name:"symetric",image:"https://images.unsplash.com/photo-1658288797137-7ca820c77a2b?crop=entropy"},
+            {id:2,name:"fast",image:"https://images.unsplash.com/photo-1657987273071-fbe77b5b4e90?crop=entropy&h=900"},
+            {id:3,name:"elagent",image:"https://images.unsplash.com/photo-1655760862449-52e5b2bd8620?crop=entropy"},
+            {id:4,name:"symetry",image:"https://images.unsplash.com/photo-1657963928657-9da48ea0c496?crop=entropy"},
+            {id:5,name:"time",image:"https://images.unsplash.com/photo-1656922612260-2ebb170dd637?crop=entropy"},
+            {id:6,name:"wonder",image:"https://images.unsplash.com/photo-1656342468017-a298b6c63cc9?crop=entropy"},
+            {id:7,name:"tranquil",image:"https://images.unsplash.com/photo-1658137135662-82ab663ee627?crop=entropy&cs=tinysrgb&fit=max&fm=jpg"},
+            {id:8,name:"majestic",image:"https://images.unsplash.com/photo-1657653463810-fa2f223fbb82?crop=entropy"},
+            {id:9,name:"earth",image:"https://images.unsplash.com/photo-1657832034979-e2f9c5b0a2fc?crop=fit&h=900"},
+            
+        ];
         this._arrLoadImgs=[];
     }
     set arrImgs(arrImgs:imageType[]){
@@ -50,9 +62,6 @@ class LoadMisc {
         const row=document.createElement("div");
         row.className="row gap-1 align-items-center";
         row.style.cssText="margin:auto;position:relative;display:flex;justify-content:center;align-items:center;gap:1rem;"
-        this._service.getImages().then(async(res:imageType[]|undefined)=>{
-            if(res){
-                this.arrImgs=res;
                 this.arrImgs.map((item,index)=>{
                     if(item){
                         const col=document.createElement("div");
@@ -85,8 +94,8 @@ class LoadMisc {
                     }
                 });
 
-            }
-        });
+            
+       
         container.appendChild(row);
         popup.appendChild(container);
         parent.appendChild(popup);

@@ -808,11 +808,11 @@ class User{
         if(isJSON){
             const flex=parsed as flexType;
         //IF IMGkEY MARK DELETE
-            await this._service.markDelKey({del:true,Key:flex.imgKey as string,date:new Date()})
+            await this._service.markDelKey({del:true,imgKey:flex.imgKey as string,date:new Date()})
             //IF IMGkEY MARK DELETE
         }else{
             const imgKey=image.getAttribute("imgKey") as string;
-            await this._service.markDelKey({del:true,Key:imgKey,date:new Date()})
+            await this._service.markDelKey({del:true,imgKey:imgKey,date:new Date()})
         }
         }else{
             //background
@@ -821,7 +821,7 @@ class User{
             if(isJSON && urlImage){
                 const flex=parsed as flexType;
                 if(flex.imgKey){
-                    await this._service.markDelKey({del:true,Key:flex.imgKey,date:new Date()});
+                    await this._service.markDelKey({del:true,imgKey:flex.imgKey,date:new Date()});
                 }
             }
            

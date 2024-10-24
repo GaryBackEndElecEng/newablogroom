@@ -43,21 +43,7 @@ class Home{
     createYourBlogMsg:string="create your blog,,,we layed it out for you for all size screens,,its the best in Canada";
     static injector:HTMLElement|null
     _images:imageType[];
-    getImages:imageType2[]=[
-        {id:0,name:"Explore",image:"",desc:"creativity"},
-        {id:1,name:"symetric",image:"",desc:"and clean"},
-        {id:2,name:"fast",image:"",desc:"creation"},
-        {id:3,name:"elagent",image:"",desc:"class"},
-        {id:4,name:"symetry",image:"",desc:"uniform"},
-        {id:5,name:"time",image:"",desc:"moment"},
-        {id:6,name:"wonder",image:"",desc:"symetric erosion"},
-        {id:7,name:"tranquil",image:"",desc:"smooth"},
-        {id:8,name:"majestic",image:"",desc:"cautious"},
-        {id:9,name:"earth",image:"",desc:"alone"},
-        {id:10,name:"organized",image:"",desc:"structure"},
-        {id:11,name:"dynamic",image:"",desc:"busy"},
-        {id:12,name:"nature",image:"",desc:"harvest"},
-    ]
+    getImages:imageType2[];
    
     constructor(private _modSelector:ModSelector,private _service:Service,private _nav:Nav,public allmsgs:AllMsgs,public feature:Features,public _blogs:Blogs) {
         Home.injector=document.querySelector("section#home-index");
@@ -69,6 +55,19 @@ class Home{
         this.intro=new HomeIntro(this._service);
         this._images=[];
         this.bend1="/images/bend2.png";
+        this.getImages=[
+            {id:0,name:"Explore",image:"https://images.unsplash.com/photo-1657736301709-b1365740ddbe?crop=entropy",desc:"creativity"},
+            {id:1,name:"symetric",image:"https://images.unsplash.com/photo-1658288797137-7ca820c77a2b?crop=entropy",desc:"and clean"},
+            {id:2,name:"fast",image:"https://images.unsplash.com/photo-1657987273071-fbe77b5b4e90?crop=entropy&h=900",desc:"creation"},
+            {id:3,name:"elagent",image:"https://images.unsplash.com/photo-1655760862449-52e5b2bd8620?crop=entropy",desc:"class"},
+            {id:4,name:"symetry",image:"https://images.unsplash.com/photo-1657963928657-9da48ea0c496?crop=entropy",desc:"uniform"},
+            {id:5,name:"time",image:"https://images.unsplash.com/photo-1656922612260-2ebb170dd637?crop=entropy",desc:"moment"},
+            {id:6,name:"wonder",image:"https://images.unsplash.com/photo-1656342468017-a298b6c63cc9?crop=entropy",desc:"symetric erosion"},
+            {id:7,name:"tranquil",image:"https://images.unsplash.com/photo-1658137135662-82ab663ee627?crop=entropy&cs=tinysrgb&fit=max&fm=jpg",desc:"smooth"},
+            {id:8,name:"majestic",image:"https://images.unsplash.com/photo-1657653463810-fa2f223fbb82?crop=entropy",desc:"cautious"},
+            {id:9,name:"earth",image:"https://images.unsplash.com/photo-1657832034979-e2f9c5b0a2fc?crop=fit&h=900",desc:"alone"},
+            
+        ]
     }
 
     ////-----------------GETTERS//SETTERS------------------//
@@ -83,69 +82,59 @@ class Home{
     async main(parent:HTMLElement){
         await this.asyncMain({parent}).then(async(res)=>{
             if(res){
-                await this._service.getImages().then(async(images)=>{
-                    if(images){
-                        const cutOff=3
-                        this.images=images;
-                        this.getImages=this.getImages.map((getImage,index)=>{
-                            if(index <= cutOff){
-                            const image=images[index].image
-                            getImage={...getImage,image:image}
-                            }
-                            return getImage
-                            
-                        });
-                    //    const  showImages=this.getImages.filter((im,index)=>(index<=cutOff)) as imageType2[];
-                    Header.cleanUp(res.sectionOne);//clean up
-                        const {button:openFeatures}=Misc.simpleButton({anchor:res.sectionOne,bg:Nav.btnColor,color:"white",text:"open features",type:"button",time:400});
-                        openFeatures.style.marginInline="auto";
-                        const arrReveal:{html:HTMLElement}[]=[
-                            {html:res.sectionOne},
-                            {html:openFeatures},
-                            {html:res.showEffectContainer},
-                            {html:res.showBlogs},
-        
-                        ]
-                        //opacity=0, hide
-                        arrReveal.map(html=>(html.html.style.opacity="0"));
-                        //opacity=0
-                        setTimeout(async()=>{
-                            //opacity=1 show
-                            arrReveal.map(html=>{
-                                if(html){
-                                    html.html.style.opacity="1";
-                                    html.html.animate([
-                                        {opacity:"0"},
-                                        {opacity:"1"},
-                                    ],{duration:1500,iterations:1});
-                                }
-                            });
-                        //opacity=1
-                        this.signoutFromEditor();//signout message from /editor
+                this.images=this.getImages;
 
-                        },3200);
+            //    const  showImages=this.getImages.filter((im,index)=>(index<=cutOff)) as imageType2[];
+            Header.cleanUp(res.sectionOne);//clean up
+                const {button:openFeatures}=Misc.simpleButton({anchor:res.sectionOne,bg:Nav.btnColor,color:"white",text:"open features",type:"button",time:400});
+                openFeatures.style.marginInline="auto";
+                const arrReveal:{html:HTMLElement}[]=[
+                    {html:res.sectionOne},
+                    {html:openFeatures},
+                    {html:res.showEffectContainer},
+                    {html:res.showBlogs},
 
-                        // show attributes
-                        openFeatures.onclick=(e:MouseEvent)=>{
-                            if(e){
-                                this.feature.feature(parent);//features
-                            }
-                        };
-                        this.normalCreateYourBlog(res.sectionOne);//SCROLL DISPLAY
-                        this.editorAttributeDisplay(res.sectionOne);
-                        //Main editor/Blogs links
-                        this.mainLinks(res.sectionOne);
-                            // show attributes
-                            ///-----------display Blogs-------////
-                             await this.listBlogs(res.showBlogs).then(async(_res)=>{
-                                if(_res && _res.blogs && _res.blogs.length>0){
-                                    this._blogs.showBlogs(_res.container,true,_res.blogs);
-                                    
-                                }
-                            });
-                            ///-----------display Blogs-------////
+                ]
+                //opacity=0, hide
+                arrReveal.map(html=>(html.html.style.opacity="0"));
+                //opacity=0
+                setTimeout(async()=>{
+                    //opacity=1 show
+                    arrReveal.map(html=>{
+                        if(html){
+                            html.html.style.opacity="1";
+                            html.html.animate([
+                                {opacity:"0"},
+                                {opacity:"1"},
+                            ],{duration:1500,iterations:1});
                         }
-                    }); 
+                    });
+                //opacity=1
+                this.signoutFromEditor();//signout message from /editor
+
+                },3200);
+
+                // show attributes
+                openFeatures.onclick=(e:MouseEvent)=>{
+                    if(e){
+                        this.feature.feature(parent);//features
+                    }
+                };
+                this.normalCreateYourBlog(res.sectionOne);//SCROLL DISPLAY
+                this.editorAttributeDisplay(res.sectionOne);
+                //Main editor/Blogs links
+                this.mainLinks(res.sectionOne);
+                    // show attributes
+                    ///-----------display Blogs-------////
+                        await this.listBlogs(res.showBlogs).then(async(_res)=>{
+                        if(_res && _res.blogs && _res.blogs.length>0){
+                            this._blogs.showBlogs(_res.container,true,_res.blogs);
+                            
+                        }
+                    });
+                    ///-----------display Blogs-------////
+                      
+                   
                 }
         });
     
@@ -437,7 +426,7 @@ class Home{
         //CLOSE----///
         const xDiv=document.createElement("div");
         xDiv.style.cssText="border-radius:50%;background:black;position:absolute;top:0%;right:0%;transform:translate(-22px,22px);diplay:flex;justify-content:center;align-items:center;padding:0.15rem;";
-        FaCreate({parent:xDiv,name:FaCrosshairs,cssStyle:{fontSize:"20px;color:white;"}});
+        FaCreate({parent:xDiv,name:FaCrosshairs,cssStyle:{fontSize:"20px",color:"white"}});
         xDiv.onclick=(e:MouseEvent)=>{
             if(e){
                 Misc.growOut({anchor:popup,scale:0,opacity:0,time:400});
