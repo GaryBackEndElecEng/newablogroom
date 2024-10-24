@@ -27,7 +27,7 @@ export default async function RootLayout({
         <Providers>
           <EditorContextProvider>
             {children}
-            <Footer />
+            {/* <Footer /> */}
           </EditorContextProvider>
         </Providers>
 
