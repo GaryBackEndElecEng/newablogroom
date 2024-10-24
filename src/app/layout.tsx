@@ -26,9 +26,8 @@ export default async function RootLayout({
       <body className={inter.className} style={style}>
         <Providers>
           <EditorContextProvider>
-            {/* <Header /> */}
             {children}
-            {/* <Footer /> */}
+            <Footer />
           </EditorContextProvider>
         </Providers>
 

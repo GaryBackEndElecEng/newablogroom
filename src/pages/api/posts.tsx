@@ -132,7 +132,8 @@ async function markDelete(item: { imgKey: string | null }) {
     const { imgKey } = item;
     if (!imgKey) return
     try {
-        await prisma.deletedImg.update({
+
+        const isImg = await prisma.deletedImg.update({
             where: {
                 imgKey: imgKey
             },
@@ -140,6 +141,7 @@ async function markDelete(item: { imgKey: string | null }) {
                 del: true
             }
         });
+        if (!isImg) return
     } catch (error) {
         const msg = getErrorMessage(error);
         console.error(msg)

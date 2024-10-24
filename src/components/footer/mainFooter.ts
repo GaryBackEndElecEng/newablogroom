@@ -15,25 +15,18 @@ import NavArrow from "../nav/arrow";
 import Features from "../home/feature";
 import { userType } from "../editor/Types";
 
-const baseUrl="http://localhost:3000";
+
 
 class MainFooter{
     closeInfoMsg:boolean;
-    infoMsg:string="The site uses both cookies and browser storage to ensure that your work is temporaryily saved and secure during your editing before saving your work to the server. <br/><span style='color:blue;font-weight:bold;background-color:white;padding-inline:2rem;border-radius:12px;line-height:2rem;'> We believe in securing your interests.</span> <br/><span style='font-size:120%;font-weight:bold;margin-top:1.25rem;padding-left:4rem;'> The Team.</span>"
-
-    bioPhrase:string=`I am an ex Military Officer /Engineer turned developer who enjoys providing you with the best means of creating a great web-page and or a poster or advertising with the tools of exporting your work to suit your purpose. If you desire additional tools, then please don't hesitate on contacting us with your request.
-    <hr style="width:80%;margin-inline:auto;margin-block:1rem;">
-    <pre style="color:#0a2351"><span class="small-left-triangle"></span> Sincerely,<span class="small-right-triangle"></span></pre>
-    <div style="display:flex;margin-left:2rem;">
-    <div style="width:4px;height:3rem;margin-right:10px;background-color:red;"></div><span style="font-style:italic;"> Gary Wallace <pre>c:416-917-5768</pre></span>
-    </div>
-    `;
+    infoMsg:string;
+    bioPhrase:string;
     _regSignin:RegSignIn;
-    thankYouImg:string="/images/thankYou.png";
-    btnColor:string=Misc.btnColor
-    privacyUlr:string="/policy";
-    policyUrl:string="/policy";
-    logoUrl:string=baseUrl + "/images/gb_logo.png";
+    thankYouImg:string;
+    btnColor:string;
+    privacyUlr:string;
+    policyUrl:string;
+    logoUrl:string;
     termsOfServiceUrl:string="/termsOfService";
     masterultilsUrl:string="https://www.masterultils.com";
     arrUrl:{name:string,link:string}[]
@@ -41,6 +34,20 @@ class MainFooter{
         this.arrUrl=[{name:"masterconnect",link:"https://www.masterconnect.ca"},{name:"masterultils",link:this.masterultilsUrl},{name:"policy",link:this.policyUrl},{name:"privacy",link:this.termsOfServiceUrl},];
         this._regSignin= new RegSignIn(this._modSelector,this._service,this._user);
         this.closeInfoMsg=false;
+        this.infoMsg="The site uses both cookies and browser storage to ensure that your work is temporaryily saved and secure during your editing before saving your work to the server. <br/><span style='color:blue;font-weight:bold;background-color:white;padding-inline:2rem;border-radius:12px;line-height:2rem;'> We believe in securing your interests.</span> <br/><span style='font-size:120%;font-weight:bold;margin-top:1.25rem;padding-left:4rem;'> The Team.</span>"
+
+        this.bioPhrase=`I am an ex Military Officer /Engineer turned developer who enjoys providing you with the best means of creating a great web-page and or a poster or advertising with the tools of exporting your work to suit your purpose. If you desire additional tools, then please don't hesitate on contacting us with your request.
+        <hr style="width:80%;margin-inline:auto;margin-block:1rem;">
+        <pre style="color:#0a2351"><span class="small-left-triangle"></span> Sincerely,<span class="small-right-triangle"></span></pre>
+        <div style="display:flex;margin-left:2rem;">
+        <div style="width:4px;height:3rem;margin-right:10px;background-color:red;"></div><span style="font-style:italic;"> Gary Wallace <pre>c:416-917-5768</pre></span>
+        </div>
+        `;
+        this.thankYouImg="/images/thankYou.png";
+        this.btnColor=Misc.btnColor
+        this.privacyUlr="/policy";
+        this.policyUrl="/policy";
+        this.logoUrl="/images/gb_logo.png";
     }
 
     //-------GETTERS ------SETTERS------///

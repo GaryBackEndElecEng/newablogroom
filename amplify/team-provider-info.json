@@ -1,41 +1,15 @@
 {
-  "main": {
-    "awscloudformation": {
-      "AuthRoleName": "amplify-newablogroom-main-83542-authRole",
-      "UnauthRoleArn": "arn:aws:iam::302619268814:role/amplify-newablogroom-main-83542-unauthRole",
-      "AuthRoleArn": "arn:aws:iam::302619268814:role/amplify-newablogroom-main-83542-authRole",
-      "Region": "us-east-1",
-      "DeploymentBucketName": "amplify-newablogroom-main-83542-deployment",
-      "UnauthRoleName": "amplify-newablogroom-main-83542-unauthRole",
-      "StackName": "amplify-newablogroom-main-83542",
-      "StackId": "arn:aws:cloudformation:us-east-1:302619268814:stack/amplify-newablogroom-main-83542/16c8e400-9209-11ef-bccd-0affc83b3d83",
-      "AmplifyAppId": "d894o8gm2vmhl"
-    }
-  },
   "dev": {
     "awscloudformation": {
-      "AuthRoleName": "amplify-newablogroom-dev-12dfe-authRole",
-      "UnauthRoleArn": "arn:aws:iam::302619268814:role/amplify-newablogroom-dev-12dfe-unauthRole",
-      "AuthRoleArn": "arn:aws:iam::302619268814:role/amplify-newablogroom-dev-12dfe-authRole",
+      "AuthRoleName": "amplify-newablogroom-dev-92d35-authRole",
+      "UnauthRoleArn": "arn:aws:iam::302619268814:role/amplify-newablogroom-dev-92d35-unauthRole",
+      "AuthRoleArn": "arn:aws:iam::302619268814:role/amplify-newablogroom-dev-92d35-authRole",
       "Region": "us-east-1",
-      "DeploymentBucketName": "amplify-newablogroom-dev-12dfe-deployment",
-      "UnauthRoleName": "amplify-newablogroom-dev-12dfe-unauthRole",
-      "StackName": "amplify-newablogroom-dev-12dfe",
-      "StackId": "arn:aws:cloudformation:us-east-1:302619268814:stack/amplify-newablogroom-dev-12dfe/b5c20230-8fe8-11ef-bae4-0e602741a9eb",
-      "AmplifyAppId": "d894o8gm2vmhl"
-    }
-  },
-  "ablogroom": {
-    "awscloudformation": {
-      "AuthRoleName": "amplify-newablogroom-ablogroom-f65bc-authRole",
-      "UnauthRoleArn": "arn:aws:iam::302619268814:role/amplify-newablogroom-ablogroom-f65bc-unauthRole",
-      "AuthRoleArn": "arn:aws:iam::302619268814:role/amplify-newablogroom-ablogroom-f65bc-authRole",
-      "Region": "us-east-1",
-      "DeploymentBucketName": "amplify-newablogroom-ablogroom-f65bc-deployment",
-      "UnauthRoleName": "amplify-newablogroom-ablogroom-f65bc-unauthRole",
-      "StackName": "amplify-newablogroom-ablogroom-f65bc",
-      "StackId": "arn:aws:cloudformation:us-east-1:302619268814:stack/amplify-newablogroom-ablogroom-f65bc/4da0e810-9204-11ef-98d6-12c5ab4778b3",
-      "AmplifyAppId": "d894o8gm2vmhl"
+      "DeploymentBucketName": "amplify-newablogroom-dev-92d35-deployment",
+      "UnauthRoleName": "amplify-newablogroom-dev-92d35-unauthRole",
+      "StackName": "amplify-newablogroom-dev-92d35",
+      "StackId": "arn:aws:cloudformation:us-east-1:302619268814:stack/amplify-newablogroom-dev-92d35/73901ab0-9244-11ef-b73f-0e6a158638c9",
+      "AmplifyAppId": "d2qer3lk2obzqm"
     }
   }
 }

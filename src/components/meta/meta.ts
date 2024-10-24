@@ -624,7 +624,7 @@ class Meta{
     static async genPosts():Promise<postType[]>{
       const posts=await prisma.post.findMany() as unknown[] as postType[];
       await prisma.$disconnect();
-     return posts
+     return posts ? posts : []
     }
     static async genPost({params}:{params:{id:string}}):Promise<postType|undefined>{
       const id=Number(params.id);
