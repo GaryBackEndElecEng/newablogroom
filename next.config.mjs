@@ -155,13 +155,8 @@ const nextConfig = {
     EMAIL2: process.env.EMAIL2,
     EMAIL: process.env.EMAIL,
     EMAIL_PASS: process.env.EMAIL_PASS,
-    EMAIL_PASS_from_masterconnect919:
-      process.env.EMAIL_PASS_from_masterconnect919,
-    adminpassword: process.env.adminpassword,
-    NEXT_PUBLIC_serverApi: process.env.NEXT_PUBLIC_serverApi,
     CSRF_SECRET: process.env.CSRF_SECRET,
     NEXTAUTH_SECRET: process.env.NEXTAUTH_SECRET,
-    NEXT_PUBLIC_baseUrl: process.env.NEXT_PUBLIC_baseurl,
     BUCKET_NAME: process.env.BUCKET_NAME,
     BUCKET_REGION: process.env.BUCKET_REGION,
     SDK_ACCESS_KEY: process.env.SDK_ACCESS_KEY,

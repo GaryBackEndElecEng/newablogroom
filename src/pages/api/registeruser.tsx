@@ -49,7 +49,6 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         } catch (error) {
             const msg = getErrorMessage(error);
             console.log(msg);
-            return await prisma.$disconnect();
         } finally {
             return await prisma.$disconnect();
         }
@@ -100,6 +99,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
             const msg = getErrorMessage(error);
             console.log(msg);
             res.status(500).json({ msg: msg });
+        } finally {
             return await prisma.$disconnect();
         }
     }

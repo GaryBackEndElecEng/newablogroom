@@ -3,7 +3,6 @@ import { NextApiRequest, NextApiResponse } from "next";
 import { blogType } from "@/components/editor/Types";
 import { getErrorMessage } from "@/lib/errorBoundaries";
 
-import "@aws-sdk/signature-v4-crt";
 
 const prisma = new PrismaClient();
 

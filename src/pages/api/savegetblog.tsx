@@ -2,7 +2,6 @@ import { PrismaClient } from "@prisma/client";
 import { NextApiRequest, NextApiResponse } from "next";
 import { blogType, selectorType, element_selType, elementType, codeType, rowType, colType, chartType } from "@/components/editor/Types";
 import { getErrorMessage } from "@/lib/errorBoundaries";
-import "@aws-sdk/signature-v4-crt";
 import { findCountKeys } from "@/lib/ultils/functions";
 
 const prisma = new PrismaClient();

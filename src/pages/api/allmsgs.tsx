@@ -8,7 +8,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     //  THIS SAVES MESSAGES AND , IF BLOG_ID && RATE UPDATES BLOG RATE
     if (req.method === "GET") {
         const { rating, secret } = req.query as { rating: string | null, secret: string | null };
-        console.log("RATING,SECRET", rating, typeof (rating), secret, typeof (secret))
+        // console.log("RATING,SECRET", rating, typeof (rating), secret, typeof (secret))
         if (rating && secret === "null") {
             try {
                 const allmsgs = await prisma.message.findMany({
