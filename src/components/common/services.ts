@@ -15,18 +15,16 @@ import MainHeader from "../nav/mainHeader";
 class Service {
     awsimgUrl:string="/api/awsimg";
     liveonoffUrl:string="/api/liveonoff";
-    newBlogUrl:string="/api/blog/createNew"
-    // images:string="https://newmasterconnect.herokuapp.com/api/category/";
-    // category:string="https://newmasterconnect.herokuapp.com/api/category/";
-    urlUpload="/api/uploadImage";
+    newBlogUrl:string="/api/blog/createNew";
+    urlUpload:string="/api/uploadImage";
     urlBlog:string="/api/blog";
     urlsaveBlog:string="/api/savegetblog";
     urlSignin:string="/api/auth/callback/credentials";
     urlProvider:string="/api/auth/providers";
     urlSignOut:string="/api/auth/signout"
     imgLoad:string="/api/imgload";
-    urlGetImg="/api/blog/getimg";
-    urlMsg="/api/message";
+    urlGetImg:string="/api/blog/getimg";
+    urlMsg:string="/api/message";
     urlAllmsgs:string="/api/allmsgs"
     urlToken:string="api/token;"
     urlAdminGetMsgs:string="/api/admin/getmessages";
@@ -57,6 +55,41 @@ class Service {
     element:elementType | element_selType | undefined;
     // getInitBlog:blogType;
     constructor(private _modSelector:ModSelector,private _auth:AuthService){
+        this.awsimgUrl="/api/awsimg";
+        this.liveonoffUrl="/api/liveonoff";
+        this.newBlogUrl="/api/blog/createNew";
+        this.urlUpload="/api/uploadImage";
+        this.urlBlog="/api/blog";
+        this.urlsaveBlog="/api/savegetblog";
+        this.urlSignin="/api/auth/callback/credentials";
+        this.urlProvider="/api/auth/providers";
+        this.urlSignOut="/api/auth/signout"
+        this.imgLoad="/api/imgload";
+        this.urlGetImg="/api/blog/getimg";
+        this.urlMsg="/api/message";
+        this.urlAllmsgs="/api/allmsgs"
+        this.urlToken="api/token;"
+        this.urlAdminGetMsgs="/api/admin/getmessages";
+        this.urlAdminEmail="/api/admin/adminemail";
+        this.adminUserUrl="/api/admin/user";
+        this.userUrlUpdate="/api/user_update";
+        this.getuserinfo_url="/api/getuserinfo";
+        this.emailUrl="/api/email";
+        this.signupemailUrl="/api/signupemail";
+        this.sendEmailUrl="/api/sendemail";
+        this.registeruserUrl="/api/registeruser";
+        this.user_blogs="/api/user_blogs";
+        this.userBlogUrl="/api/blog/getuserblog";
+        this.requestUrl="/api/admin/request";
+        this.btnColor=this._modSelector.btnColor;
+        this.adminimages="/api/admin/images";
+        this.adminusers="/api/admin/users";
+        this.adminpagecountUrl="/api/admin/adminpagecount";
+        this.pageCountUrl="/api/pagecount";
+        this.metaUrl="/api/meta";
+        this.postsUrl="/api/posts";
+        this.userpostUrl="/api/userpost";
+        this.checkemail="/api/checkemail";
         this.showCustomHeader=false;
         this.showHeader=false;
         this.bgColor=this._modSelector._bgColor;
