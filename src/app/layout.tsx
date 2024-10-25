@@ -10,8 +10,8 @@ const bend = "/images/main.png";
 
 const inter = Inter({ subsets: ["latin"] });
 import Header from "@/components/nav/Header";
-
-export const metadata: Metadata = Meta.metaHome();
+const baseUrl = process.env.NODE_ENV !== "production" ? process.env.NEXTAUTH_URL as string : "http://localhost:3000";
+export const metadata: Metadata = Meta.metaHome({ baseUrl });
 
 export default async function RootLayout({
   children,

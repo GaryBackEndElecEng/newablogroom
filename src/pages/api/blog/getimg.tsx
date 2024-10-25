@@ -23,7 +23,7 @@ export const s3 = new S3Client({
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
     const Key = req.query.Key as string;
     // console.log("Key", Key)
-    if (!(Key)) res.status(400).json({ imageUrl: null, key: null })
+    if (!(Key)) res.status(200).json({ imageUrl: null, key: null })
     try {
         const params = {
             Key,
@@ -39,7 +39,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
             }
             res.status(200).json(retObj)
         } else {
-            res.status(400).json({ img: null, key: Key })
+            res.status(200).json({ img: null, key: Key })
         }
     } catch (error) {
         const msg = getErrorMessage(error)

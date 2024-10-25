@@ -99,6 +99,13 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     }
     else if (req.method === "GET") {
         const { imgKey, count } = req.query as { imgKey: string, count: string };
+        const noImage = {
+            id: 0,
+            img: null,
+            imgKey: null,
+            del: false,
+            date: null
+        }
         if (imgKey && count === "count") {
             try {
                 const getImg = await prisma.deletedImg.findUnique({
@@ -113,7 +120,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
                     }) as unknown as adminImageType;
                     res.status(200).json(getImage)
                 } else {
-                    res.status(400).json({ msg: `image not found:${imgKey}` });
+                    res.status(308).json(noImage);
                 }
             } catch (error) {
                 const msg = getErrorMessage(error);
@@ -123,7 +130,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
                 await prisma.$disconnect()
             }
         } else {
-            res.status(400).json({ msg: "missing key" })
+            res.status(308).json(noImage)
         }
         await prisma.$disconnect();
     }

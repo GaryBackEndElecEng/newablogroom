@@ -69,7 +69,7 @@ const nextConfig = {
     ];
   },
   images: {
-    unoptimized: true,
+    unoptimized: false,
     remotePatterns: [
       {
         protocol: "https",
@@ -141,27 +141,24 @@ const nextConfig = {
       "newmasterconnect.herokuapp.com",
     ],
   },
-  env: {
-    NEXTAUTH_URL:
-      process.env.NODE_ENV === "production"
-        ? process.env.NEXTAUTH_URL
-        : "http://localhost:3000",
-    DATABASE_URL_AWS: process.env.DATABASE_URL_AWS,
-    NEXTAUTH_CSRF: process.env.NEXTAUTH_CSRF,
-    NEXTAUTH_SECRET: process.env.NEXTAUTH_SECRET,
-    DATABASEURL: process.env.DATABASEURL,
-    GOOGLE_client_secret: process.env.GOOGLE_client_secret,
-    GOOGLE_client_ID: process.env.GOOGLE_client_ID,
-    EMAIL2: process.env.EMAIL2,
-    EMAIL: process.env.EMAIL,
-    EMAIL_PASS: process.env.EMAIL_PASS,
-    CSRF_SECRET: process.env.CSRF_SECRET,
-    NEXTAUTH_SECRET: process.env.NEXTAUTH_SECRET,
-    BUCKET_NAME: process.env.BUCKET_NAME,
-    BUCKET_REGION: process.env.BUCKET_REGION,
-    SDK_ACCESS_KEY: process.env.SDK_ACCESS_KEY,
-    SDK_ACCESS_SECRET: process.env.SDK_ACCESS_SECRET,
-  },
+  // env: {
+  //   NEXTAUTH_URL:process.env.NEXTAUTH_URL,
+  //   DATABASE_URL_AWS: process.env.DATABASE_URL_AWS,
+  //   NEXTAUTH_CSRF: process.env.NEXTAUTH_CSRF,
+  //   NEXTAUTH_SECRET: process.env.NEXTAUTH_SECRET,
+  //   DATABASEURL: process.env.DATABASEURL,
+  //   GOOGLE_client_secret: process.env.GOOGLE_client_secret,
+  //   GOOGLE_client_ID: process.env.GOOGLE_client_ID,
+  //   EMAIL2: process.env.EMAIL2,
+  //   EMAIL: process.env.EMAIL,
+  //   EMAIL_PASS: process.env.EMAIL_PASS,
+  //   CSRF_SECRET: process.env.CSRF_SECRET,
+  //   NEXTAUTH_SECRET: process.env.NEXTAUTH_SECRET,
+  //   BUCKET_NAME: process.env.BUCKET_NAME,
+  //   BUCKET_REGION: process.env.BUCKET_REGION,
+  //   SDK_ACCESS_KEY: process.env.SDK_ACCESS_KEY,
+  //   SDK_ACCESS_SECRET: process.env.SDK_ACCESS_SECRET,
+  // },
 };
 
 export default nextConfig;
