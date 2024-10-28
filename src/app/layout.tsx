@@ -9,7 +9,7 @@ import Providers from "./providers";
 const bend = "/images/main.png";
 
 const inter = Inter({ subsets: ["latin"] });
-const baseUrl = process.env.NODE_ENV !== "production" ? process.env.NEXTAUTH_URL as string : "http://localhost:3000";
+const baseUrl = process.env.NODE_ENV !== "production" ? process.env.NEXTAUTH_URL as string : "https://www.ablogroom.com";
 
 export const metadata: Metadata = {
   metadataBase: new URL(baseUrl),
@@ -117,7 +117,7 @@ export default async function RootLayout({
       <body className={inter.className} style={style}>
         <Providers>
           {/* <EditorContextProvider> */}
-          {/* <Header /> */}
+          <Header />
           {children}
           <Footer />
           {/* </EditorContextProvider> */}

@@ -14,9 +14,12 @@ import MetaBlog from '../editor/metaBlog';
 import Features from '../home/feature';
 import ChartJS from '../chart/chartJS';
 import Post from '../posts/post';
+import { Session } from 'next-auth';
+import { useSession } from 'next-auth/react';
 
 
-function Index({ user_ }: { user_: userType | undefined }) {
+function Index() {
+    const { data: session, status } = useSession()
     const navRef = React.useRef(null);
     React.useEffect(() => {
         if (typeof window !== "undefined" && navRef.current) {
@@ -33,15 +36,15 @@ function Index({ user_ }: { user_: userType | undefined }) {
             const profile = new Profile(modSelector, service, auth, user, metaBlog, chart, post);
             const navArrow = new NavArrow(user, regSignin, service, profile, modSelector, feature);
             const nav = new Nav(modSelector, auth, service, user, regSignin);
-            if (user_) {
-                user.user = user_;
-                auth.user = user_;
+            if (session) {
+                auth.getUser({ session: session });
             }
             const mainHeader = new MainHeader(modSelector, auth, service, user, nav, regSignin, profile, navArrow);
-            //REMOVE NAVARROW FROM HEADER AFTER WORKING ON NAV!!!!
             mainHeader.main(inject as HTMLElement)
+            // const testHeader = new TestHeader();
+            // testHeader.main({ parent: inject, session: session });
         }
-    }, [user_]);
+    }, [session]);
     return (
         <div id="headerInjector" ref={navRef}></div>
     )
