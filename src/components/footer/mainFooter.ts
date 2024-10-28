@@ -362,8 +362,8 @@ class MainFooter{
         arr.forEach((item)=>{
             if(item==="contact"){
                 const btn=buttonReturn({parent:row,text:item,bg:"#34282C",color:"white",type:"button"});
-                const getHeader=document.getElementById("navHeader") as HTMLElement;
-                if(!getHeader) return
+                const getHeader=document.querySelector("header#navHeader") as HTMLElement;
+                // if(!getHeader) return
                 btn.addEventListener("click",(e:MouseEvent)=>{
                     if(e){
                            window.scroll(0,0);

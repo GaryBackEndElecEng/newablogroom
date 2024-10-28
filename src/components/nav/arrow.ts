@@ -604,7 +604,7 @@ class NavArrow{
         localStorage.removeItem("user_id");
         localStorage.removeItem("email");
         },1000);
-        console.log(this._user.user)
+        this._service.isSignedOut=true;
         const user=this._user.user;
         this._user._user={...user,id:"",email:"",blogs:[] as blogType[],name:undefined,bio:undefined,admin:false,showinfo:false} as userType;
         this._user.user=this._user._user;

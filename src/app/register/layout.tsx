@@ -49,7 +49,7 @@ export default function registerlayout({
     children: React.ReactNode
 }) {
     return (
-        <div className="mx-auto d-flex w-100 p-0 flex-column">
+        <div className="registerlayout mx-auto d-flex w-100 p-0 flex-column">
             {children}
         </div>
     )

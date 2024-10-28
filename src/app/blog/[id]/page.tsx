@@ -1,3 +1,4 @@
+"use server";
 import React from 'react';
 import Index from "@/components/blog/Index";
 import Meta from "@/components/meta/meta";
@@ -27,7 +28,7 @@ export default async function page({ params }: { params: { id: string } }) {
     const style: { [key: string]: string } = { minHeight: "100vh", height: "100%" };
     if (check1.id) {
         return (
-            <div style={style}>
+            <div style={style} className="isLocal">
                 <Index id={id} />
             </div>
         )

@@ -1,3 +1,4 @@
+"use server"
 import React from 'react';
 import type { Metadata, ResolvingMetadata } from "next";
 import Index from "@/components/blogs/Index";
@@ -15,7 +16,7 @@ type Props = {
 // }
 export default async function Page() {
     return (
-        <div style={{ minHeight: "110vh", width: "100%" }}>
+        <div className="isLocal" style={{ minHeight: "110vh", width: "100%" }}>
             <Index />
 
         </div>

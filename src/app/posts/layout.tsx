@@ -50,7 +50,7 @@ export default function postlayout({
     children: React.ReactNode
 }) {
     return (
-        <div className="mx-auto d-flex w-100 p-0 flex-column">
+        <div className="postslayout mx-auto d-flex w-100 p-0 flex-column">
             {children}
         </div>
     )

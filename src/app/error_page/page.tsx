@@ -8,6 +8,6 @@ export default async function error_() {
     const getsitemap = await meta.genSitemapArray({ baseUrl: baseUrl })
     const siteUrls = getsitemap.map(site => (site.url));
     return (
-        <div className="container-fluid mx-auto"><Index siteUrls={siteUrls} /> </div>
+        <div className="isLocal container-fluid mx-auto"><Index siteUrls={siteUrls} /> </div>
     )
 }

@@ -1,3 +1,4 @@
+"use server"
 import React from 'react'
 import Index from "@/components/posts/Index";
 import { Metadata, ResolvingMetadata } from 'next';
@@ -14,9 +15,9 @@ type Props = {
 
 // }
 
-export default function page() {
+export default async function page() {
     return (
-        <div className="container-fluid mx-auto">
+        <div className="isLocal container-fluid mx-auto">
             <Index />
         </div>
     )

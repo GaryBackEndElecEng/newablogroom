@@ -5,7 +5,7 @@ import Blogs from "@/components/blogs/blogsInjection";
 import { blogType, } from '../editor/Types';
 import ModSelector from "@/components/editor/modSelector";
 import Service from "@/components/common/services";
-import AuthService from "@/components/common/auth";
+
 
 
 export default function Index() {
@@ -17,7 +17,7 @@ export default function Index() {
             const modSelector = new ModSelector();
             const service = new Service(modSelector);
             const initBlogs = new Blogs(modSelector, service);
-            const injectBlogs = document.getElementById("injectBlogs");
+            const injectBlogs = document.getElementById("injectBlogs") as HTMLElement;
             const option = {
                 Headers: { "Content-Type": "application/json" },
                 method: "GET"

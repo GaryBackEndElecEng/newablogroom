@@ -49,7 +49,7 @@ export default function signinlayout({
     children: React.ReactNode
 }) {
     return (
-        <div className="mx-auto d-flex w-100 p-0 flex-column">
+        <div className="signinLayout mx-auto d-flex w-100 p-0 flex-column">
             {children}
         </div>
     )
