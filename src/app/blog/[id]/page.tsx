@@ -4,7 +4,6 @@ import Meta from "@/components/meta/meta";
 import type { Metadata, ResolvingMetadata } from "next";
 // import { getErrorMessage } from '@/lib/errorBoundaries';
 import { redirect } from 'next/navigation';
-export const metadata: Metadata = Meta.metaBlog();
 
 type Props = {
     params: { id: string }
@@ -22,8 +21,9 @@ type Props = {
 
 export default async function page({ params }: { params: { id: string } }) {
     const id = Number(params.id as string);
+    const meta = new Meta();
     // console.log("page", params, id)
-    const check1: { id: number | null, user_id: string | null } = await Meta.blogExist({ id: id });//issue
+    const check1: { id: number | null, user_id: string | null } = await meta.blogExist({ id: id });//issue
     const style: { [key: string]: string } = { minHeight: "100vh", height: "100%" };
     if (check1.id) {
         return (

@@ -8,38 +8,34 @@ import AuthService from '@/components/common/auth';
 import User from '@/components/user/userMain';
 import Header from '../editor/header';
 import Climate from './climate';
+
 export default function Index() {
     let count = 0;
     const refChart = React.useRef(null);
-    React.useMemo(async () => {
+    React.useEffect(() => {
 
-        awaitWindow().then(async (res) => {
-            const isWindow = res.window() ? true : false;
-            if (isWindow) {
-                const climate = new Climate();
-                const modSelector = new ModSelector();
-                const auth = new AuthService(modSelector);
-                const service = new Service(modSelector, auth);
-                const user = new User(modSelector, service, auth);
-                const chart = new ChartJS(modSelector, service, user);
-                const docChart = document.getElementById("chart") as HTMLElement;
-                Header.cleanUp(docChart);
-                // console.log(docChart)//works
-                if (count === 0) {
-                    setTimeout(async () => {
-                        const blog = modSelector.blog;
-                        await chart.mainChart(docChart, blog);
-                        climate.generateGraph({ parent: docChart })
-                    }, 0)
-                    count++;
-                }
+        if (typeof window !== "undefined" && refChart.current) {
+            const climate = new Climate();
+            const modSelector = new ModSelector();
+            const service = new Service(modSelector);
+            const user = new User(modSelector, service);
+            const chart = new ChartJS(modSelector, service, user);
+            const docChart = document.getElementById("chart") as HTMLElement;
+            Header.cleanUp(docChart);
+            // console.log(docChart)//works
+            if (count === 0) {
+                setTimeout(async () => {
+                    const blog = modSelector.blog;
+                    await chart.mainChart(docChart, blog);
+                    await climate.generateGraph({ parent: docChart })
+                }, 0)
+                count++;
             }
-
-        });
+        }
 
     }, [count]);
     return (
-        <div className="container-fluid mx-auto">
+        <div className="container-fluid mx-auto" style={{ minHeight: "110vh" }}>
             <h5 className="mx-auto lean display-5 text-light text-center"> Graphs for you</h5>
             <h6 className="mx-auto px-1 text-center text-light lean display-6 my-6"> Create your own graph</h6>
             <p className="mx-auto px-1 text-center text-light lean my-2">Graph demonstration for you</p>

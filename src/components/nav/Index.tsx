@@ -19,12 +19,12 @@ import Post from '../posts/post';
 function Index({ user_ }: { user_: userType | undefined }) {
     const navRef = React.useRef(null);
     React.useEffect(() => {
-        const inject = document.getElementById("headerInjector");
-        if (inject && navRef.current) {
+        if (typeof window !== "undefined" && navRef.current) {
+            const inject = document.getElementById("headerInjector") as HTMLElement;
             const modSelector = new ModSelector();
-            const auth = new AuthService(modSelector);
-            const service = new Service(modSelector, auth);
-            const user = new User(modSelector, service, auth);
+            const service = new Service(modSelector);
+            const user = new User(modSelector, service);
+            const auth = new AuthService(modSelector, service, user);
             const chart = new ChartJS(modSelector, service, user);
             const feature = new Features();
             const regSignin = new RegSignIn(modSelector, service, user);

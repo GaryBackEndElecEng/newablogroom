@@ -26,12 +26,12 @@ const baseUrl="http://localhost:3000";
 
 class DisplayBlog{
     count:number;
-    baseUrl:string;
-    url:string="http://localhost:3000/api/blog";
-    signin="http://localhost:3000/api/user";
-    imgLoad="http://localhost:3000/api/imgload";
-    logo:string=baseUrl + "/images/gb_logo.png";
-    logo2:string="gb_logo.png";
+    baseUrl:URL;
+    url:string;
+    signin:string;
+    imgLoad:string;
+    logo:string;
+    logo2:string;
 
 
 mainSection:HTMLElement|null;
@@ -51,15 +51,19 @@ _onlyMeta:boolean=false;
  static _showOn:boolean;
  _showMeta=false;
  printThis:boolean;
+ static noBlogText:string;
     constructor(private _modSelector:ModSelector,private _service:Service,private _user:User,private _shapeOutside:ShapeOutside,private _code:NewCode,private chart:ChartJS,private _message:Message){
         this.count=0;
         this.mainSection=document.querySelector("section#main");
         this.printThis=false;
-        this.baseUrl=baseUrl;
+        this.baseUrl=new URL(window.location.href);
         this._bgColor=this._modSelector._bgColor;
         this.btnColor=this._modSelector.btnColor;
-        //this populates selectors/elements/codes
-        // getting parameters
+        this.logo="/images/gb_logo.png";
+        this.logo2="gb_logo.png";
+        this.url="/api/blog";
+        this.signin="/api/user";
+        this.imgLoad="/api/imgload";
         DisplayBlog._showOn=true;
         this._blog={} as blogType;
         this._codes=[] as codeType[];
@@ -71,6 +75,17 @@ _onlyMeta:boolean=false;
         this._element_sels=[] as element_selType[];
         // this._edit=new Edit(this._modSelector,this._auth,this._service)
         this.reference=new Reference(this._modSelector);
+       DisplayBlog.noBlogText=`<span>sorry there are no blogs just yet. Be the first to create a blog.</span><span> We garrantee data preservation, with the following advantage:</span>
+        <ul> <pre>
+       <li style="text-wrap:wrap;"> You can create your own flamboyant poster and or design</li>
+       <li style="text-wrap:wrap;"> Your post and or poster are small format compatible, meaning you can print your site as a blog or web-site and or poster fitting ( smat phone and or Ipad format)</li>
+       <li style="text-wrap:wrap;"> its absolutely free with tight security protocol to protect your information.</li>
+       </pre>
+       </ul>
+       <blockquote>
+       <pre style="font-style:italic"> "to create is to learn and grow",,, <span style="font-size:22px;font-weight:bold">try it out</span><span style="color:red;font-weight:bold;font-size:30px;margin-right:1rem;">!</span></pre>
+       </blockquote>
+       <prev> yours truly Gary Wallace</prev>`;
       
     }
     //GETTERS SETTERS
@@ -123,6 +138,7 @@ _onlyMeta:boolean=false;
      //MAIN INJECTION DONE @ Index.tsx//id=client_blog
     async main(item:{parent:HTMLElement,blog:blogType}){
         const {parent,blog}=item;
+        this._modSelector.loadBlog(blog);
         this.blog=blog;
         this.loadBlog(blog);
         const paddingInline=window.innerWidth < 900 ? (window.innerWidth < 420 ? "0rem" : "0.5rem") :"1rem"
@@ -189,7 +205,8 @@ _onlyMeta:boolean=false;
             btn.className=""
             btn.addEventListener("click",(e:MouseEvent)=>{
             if(e){
-                const blogsUrl=new URL("/",this.baseUrl);
+                this.baseUrl=new URL(window.location.href);
+                const blogsUrl=new URL("/",this.baseUrl.origin);
                 window.location.href=blogsUrl.href;
             }
             });
@@ -216,7 +233,8 @@ _onlyMeta:boolean=false;
                                     localStorage.setItem("user_id",user_id);
 
                                     setTimeout(()=>{
-                                        const blogsUrl=new URL("/editor",this.baseUrl);
+                                        this.baseUrl=new URL(window.location.href);
+                                        const blogsUrl=new URL("/editor",this.baseUrl.origin);
                                         window.location.href=blogsUrl.href;
                                     },200);
                                 }
@@ -234,7 +252,8 @@ _onlyMeta:boolean=false;
             btn1.className=""
             btn1.addEventListener("click",(e:MouseEvent)=>{
                 if(e){
-                    const blogsUrl=new URL("/editor",this.baseUrl);
+                    this.baseUrl=new URL(window.location.href);
+                    const blogsUrl=new URL("/editor",this.baseUrl.origin);
                     window.location.href=blogsUrl.href;
                 }
                 });
@@ -782,7 +801,6 @@ _onlyMeta:boolean=false;
                         if(element.imgKey){
                             const res_= await this._service.getSimpleImg(element.imgKey);
                             if(res_){
-                                // const image=AWSImageLoader({url:res_.img,width:width,quality:75});
                                 (res.ele as HTMLImageElement).src=res_.img;
                                 (res.ele as HTMLImageElement).alt=res_.Key as string;
                             }
@@ -1201,33 +1219,7 @@ _onlyMeta:boolean=false;
 
     }
   
-     saveBlog(parent:HTMLElement,target:HTMLElement|null,blog:blogType):void{
-        const url="/api/blog"
-        localStorage.setItem("blog",JSON.stringify(blog));
-        const option={
-            headers:{
-                "Content-Type":"application/json",
-            },
-            method:"POST",
-            body:JSON.stringify(blog)
-        };
-        fetch(url,option).then(async(res)=>{
-                const body= await res.json() as blogType;
-                this._blog=body as blogType;
-                this.blog=this._blog;
-               
-            // closing signin
-            if( target){
-            Misc.growOut({anchor:target,scale:0,opacity:0,time:400});
-            setTimeout(()=>{
-                parent.removeChild(target);
-            },390);
-            }
-            Misc.message({parent,msg:"saved",type_:"success",time:600});
-           
-            
-        }).catch((err)=>{console.log(err.message)});
-    }
+   
     loadBlog(blog:blogType){
         this._blog=blog;
         this._selectors=blog.selectors;
@@ -1274,6 +1266,25 @@ _onlyMeta:boolean=false;
         Misc.divider({parent:metaCont,numLines:2,divCont,color:"blue"});
         parent.appendChild(container)
         container.appendChild(metaCont);
+    }
+    static noBlog(item:{parent:HTMLElement}){
+        const {parent}=item;
+        const container=document.createElement("section");
+        container.style.cssText=`margin:auto;width:80%;padding-inline:1rem;padding-block:5rem;background-color:${Blogs.bg_color};color:white;border-radius:7px;position:relative;font-size:18px;`;
+        Misc.matchMedia({parent:container,maxWidth:900,cssStyle:{"width":"100%","paddingInline":"5px;","marginBlock":"2rem","paddingBlock":"2rem","maxWidth":"700px"}});
+        const innerCont=document.createElement("div");
+        innerCont.style.cssText="padding:1rem;box-shadow:1px 1px 10px 1px white,-1px -1px 10px 1px whitesmoke;margin:auto;border-radius:inherit;width:100%;position:relative;";
+        const para=document.createElement("p");
+        para.style.cssText="margin:auto;padding:0.5remrem;text-wrap:wrap;font-family:'Playwrite'";
+        para.innerHTML=DisplayBlog.noBlogText;
+        innerCont.appendChild(para);
+        container.appendChild(innerCont);
+        parent.appendChild(container);
+        Misc.fadeIn({anchor:container,xpos:50,ypos:100,time:400});
+        Misc.matchMedia({parent:container,maxWidth:800,cssStyle:{"maxWidth":"700px"}});
+        Misc.matchMedia({parent:container,maxWidth:600,cssStyle:{"maxWidth":"500px"}});
+        Misc.matchMedia({parent:container,maxWidth:460,cssStyle:{"maxWidth":"350px"}});
+
     }
 
     async showMeta(parent:HTMLElement,blog:blogType,printThis:boolean){

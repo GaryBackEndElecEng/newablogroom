@@ -1,35 +1,41 @@
 import {blogType, userType, jwtPayload} from "@/components/editor/Types";
 import ModSelector from "@/components/editor/modSelector";
+import { Session } from "next-auth";
+import User from "../user/userMain";
+import Service from "./services";
 
 
 class AuthService {
     _jwtPayload:jwtPayload={} as jwtPayload
     logo:string;
-    _user:userType;
     blog:blogType;
     bgColor:string;
     btnColor:string;
     adminEmail:string;
+    userupdate:string;
     _admin:string[];
+    isSignedOut:boolean;
 
-    constructor(private _modSelector:ModSelector){
+    constructor(private _modSelector:ModSelector,private _service:Service,private _user:User){
         this.bgColor=this._modSelector._bgColor;
         this.btnColor=this._modSelector.btnColor;
         this.logo=`gb_logo.png`;
         this._admin=[];
-        this._user={} as userType;
         this.blog={} as blogType;
         this.adminEmail= "" as string;
+        this.userupdate="/api/user_update";
+        this.isSignedOut=false;
     }
 
     set user(user:userType){
-        this._user=user;
+        this._user.user=user;
         this.storeLocal(user).then(async(res)=>{
             res(); //stores user_id && email to localStorage
         });
+        this.isSignedOut=false;
     }
     get user(){
-        return this._user;
+        return this._user.user;
     }
     set payload(payload:jwtPayload){
         this._jwtPayload=payload;
@@ -42,6 +48,23 @@ class AuthService {
     }
     get admin(){
         return this._admin;
+    }
+    async getUser(item:{session:Session}){
+        const {session}=item;
+        const email=session && session.user?.email ? session.user.email:null;
+        if(!email) return;
+        const option={
+            headers:{"Content-Type":"application/json"},
+            method:"GET"
+        }
+        const res = await fetch(`${this.userupdate}?email=${email}`,option)
+        if(res.ok){
+            const body= await res.json() as userType
+            this.user=body;
+            this._service.isSignedOut=false;
+            this.isSignedOut=false;
+        }
+
     }
 
    async navigator(user:userType){

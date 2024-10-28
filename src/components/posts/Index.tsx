@@ -15,9 +15,8 @@ export default function Index() {
         if (typeof window !== 'undefined' && refPosts.current && count === 0) {
             const htmlPosts = document.querySelector("section#posts") as HTMLElement;
             const modSelector = new ModSelector();
-            const auth = new AuthService(modSelector);
-            const service = new Service(modSelector, auth);
-            const user = new User(modSelector, service, auth);
+            const service = new Service(modSelector);
+            const user = new User(modSelector, service);
             const posts = new Post(modSelector, service, user);
             const option = {
                 headers: {

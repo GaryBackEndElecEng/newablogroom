@@ -21,7 +21,7 @@ static header:HTMLElement|null;
 bgColor:string;
 btnColor:string;
 static mainHeader_css:string;
-dataflow:Dataflow;
+// dataflow:Dataflow;
 static links:linkType[]=[{name:"home",link:"/"},{name:"editor",link:"/editor"},{name:"blogs",link:"/blogs"}]
 pic="/images/gb_logo.png";
 count:number=0;
@@ -31,7 +31,7 @@ count:number=0;
         this.btnColor=this._modSelector.btnColor;
         MainHeader.mainHeader_css=`width:100%;height:5vh;box-shadow:1px 1px 5px 1px black,-1px -1px 5px -1px black;margin-block:0px;position:relative;background:${this.bgColor};display:flex;justify-content:space-between;`;
         
-        this.dataflow= new Dataflow(this._service);
+        // this.dataflow= new Dataflow(this._service);
         this.logo="gb_logo.png"
         this.meta=new Meta();
        
@@ -56,8 +56,6 @@ count:number=0;
         this._navArrow.rotateArrow({button,time:800});//arrow navigator
         MainHeader.header.appendChild(button);
         parent.appendChild(MainHeader.header);
-       
-        if(typeof window !=="undefined"){
           //ADMIN DISPLAY
           if(!MainHeader.header) return;
           //ADMIN DISPLAY
@@ -101,13 +99,13 @@ count:number=0;
                     if(res){
                         if(res.parent ){
                             //NOT LOGGED IN
-                            this.genPageCount(MainHeader.header as HTMLElement);
+                            // this.genPageCount(MainHeader.header as HTMLElement);
     
                         }
                     }
                     });
             }
-        }
+        
         
        
     }

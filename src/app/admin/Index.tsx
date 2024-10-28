@@ -10,10 +10,10 @@ export default function Index() {
     React.useEffect(() => {
         const getIndex = document.getElementById("admin-injection") as HTMLElement;
         const modSelector = new ModSelector();
-        const auth = new AuthService(modSelector);
         // auth.admin = emailArr;
-        const service = new Service(modSelector, auth);
-        const user = new User(modSelector, service, auth);
+        const service = new Service(modSelector);
+        const user = new User(modSelector, service);
+        const auth = new AuthService(modSelector, service, user);
         const admin = new Admin(service, modSelector, auth, user);
         admin.main(getIndex);
     }, []);

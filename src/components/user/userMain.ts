@@ -346,7 +346,7 @@ class User{
     _blog:blogType;
     hasSignedIn:boolean;
     userSetups:UserSetups;
-    constructor(private _modSelector:ModSelector,private _service:Service,private _auth:AuthService){
+    constructor(private _modSelector:ModSelector,private _service:Service){
         this.logo=`gb_logo.png`
         this._signIn={} as userSignInType;
         this.bgColor=this._modSelector._bgColor;
@@ -375,11 +375,10 @@ class User{
     }
     set signUp(signIn:userSignInType){
         this._signIn=signIn;
-        this._auth._user={...this._auth._user,email:signIn.email,password:signIn.password}
+        this._user={...this._user,email:signIn.email,password:signIn.password}
     }
     set user(user:userType){
         this._user=user;
-        this._auth._user=user;
         if(user && user.id && user.email){
 
             localStorage.setItem("user",JSON.stringify(user));
@@ -391,7 +390,6 @@ class User{
         const {parsed,isJSON}=Header.checkJson(localStorage.getItem("user"));
         if(isJSON){
             this._user=parsed as userType;
-            this._auth.user=this._user;
             return this._user;
         }else{
             return this._user;
@@ -411,9 +409,7 @@ class User{
     get blog(){
         return this._modSelector._blog;
     }
-    get admin(){
-        return this._auth.admin;
-    }
+   
 
     //GETTER SETTERS
 

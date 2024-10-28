@@ -23,10 +23,10 @@ export default function Index() {
     React.useEffect(() => {
         if (typeof window !== "undefined") {
             const modSelector = new ModSelector();
-            const auth = new AuthService(modSelector);
-            const service = new Service(modSelector, auth);
+            const service = new Service(modSelector);
             const dataflow = new Dataflow(service);
-            const user = new User(modSelector, service, auth);
+            const user = new User(modSelector, service);
+            const auth = new AuthService(modSelector, service, user);
             const post = new Post(modSelector, service, user);
             const chart = new ChartJS(modSelector, service, user);
             const feature = new Features();

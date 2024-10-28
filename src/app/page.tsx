@@ -1,6 +1,6 @@
 
 import Index from "@/components/home/Index";
-
+import "bootstrap/dist/css/bootstrap.min.css";
 
 
 

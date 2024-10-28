@@ -11,7 +11,7 @@ import RegSignIn from '../nav/regSignin';
 import NavArrow from '../nav/arrow';
 import AllMsgs from './allMsgs';
 import Message from '../common/message';
-import MetaBlog from '../editor/metaBlog';
+// import MetaBlog from '../editor/metaBlog';
 import Features from './feature';
 import ChartJS from '../chart/chartJS';
 import Post from '../posts/post';
@@ -23,17 +23,12 @@ export default function Index() {
         if (typeof window !== "undefined" && refCheck.current) {
             const home = document.querySelector("section#home-index");
             const modSelector = new ModSelector();
-            const auth = new AuthService(modSelector);
-            const service = new Service(modSelector, auth);
+            const service = new Service(modSelector);
             const blogs = new Blogs(modSelector, service);
-            const user = new User(modSelector, service, auth);
-            const post = new Post(modSelector, service, user);
+            const user = new User(modSelector, service,);
+            const auth = new AuthService(modSelector, service, user);
             const regSignin = new RegSignIn(modSelector, service, user);
-            const metaBlog = new MetaBlog(modSelector, service, user);
-            const chart = new ChartJS(modSelector, service, user);
-            const profile = new Profile(modSelector, service, auth, user, metaBlog, chart, post);
             const feature = new Features();
-            const navArrow = new NavArrow(user, regSignin, service, profile, modSelector, feature);
             const nav = new Nav(modSelector, auth, service, user, regSignin);
             const message = new Message(modSelector, service, modSelector.blog)
             const allmsgs = new AllMsgs(modSelector, service, message);

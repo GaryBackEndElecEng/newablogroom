@@ -18,6 +18,7 @@ import { userType } from "../editor/Types";
 
 
 class MainFooter{
+    baseUrl:URL;
     closeInfoMsg:boolean;
     infoMsg:string;
     bioPhrase:string;
@@ -27,15 +28,15 @@ class MainFooter{
     privacyUlr:string;
     policyUrl:string;
     logoUrl:string;
-    termsOfServiceUrl:string="/termsOfService";
-    masterultilsUrl:string="https://www.masterultils.com";
+    termsOfServiceUrl:string;
+    masterultilsUrl:string;
     arrUrl:{name:string,link:string}[]
     constructor(private _modSelector:ModSelector,private _service:Service,private _user:User,private _nav:Nav,private _navArrow:NavArrow,public dataflow:Dataflow,public feature:Features){
         this.arrUrl=[{name:"masterconnect",link:"https://www.masterconnect.ca"},{name:"masterultils",link:this.masterultilsUrl},{name:"policy",link:this.policyUrl},{name:"privacy",link:this.termsOfServiceUrl},];
         this._regSignin= new RegSignIn(this._modSelector,this._service,this._user);
         this.closeInfoMsg=false;
         this.infoMsg="The site uses both cookies and browser storage to ensure that your work is temporaryily saved and secure during your editing before saving your work to the server. <br/><span style='color:blue;font-weight:bold;background-color:white;padding-inline:2rem;border-radius:12px;line-height:2rem;'> We believe in securing your interests.</span> <br/><span style='font-size:120%;font-weight:bold;margin-top:1.25rem;padding-left:4rem;'> The Team.</span>"
-
+        this.baseUrl=new URL(window.location.href);
         this.bioPhrase=`I am an ex Military Officer /Engineer turned developer who enjoys providing you with the best means of creating a great web-page and or a poster or advertising with the tools of exporting your work to suit your purpose. If you desire additional tools, then please don't hesitate on contacting us with your request.
         <hr style="width:80%;margin-inline:auto;margin-block:1rem;">
         <pre style="color:#0a2351"><span class="small-left-triangle"></span> Sincerely,<span class="small-right-triangle"></span></pre>
@@ -48,6 +49,7 @@ class MainFooter{
         this.privacyUlr="/policy";
         this.policyUrl="/policy";
         this.logoUrl="/images/gb_logo.png";
+        this.termsOfServiceUrl="/termsOfService";
     }
 
     //-------GETTERS ------SETTERS------///

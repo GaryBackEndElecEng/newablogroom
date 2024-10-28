@@ -39,9 +39,9 @@ function Index() {
 
         if (mainInjection && side_bar) {
             const modSelector = new ModSelector();
-            const _auth = new AuthService(modSelector);
-            const service = new Service(modSelector, _auth);
-            const _user = new User(modSelector, service, _auth);
+            const service = new Service(modSelector);
+            const _user = new User(modSelector, service);
+            const _auth = new AuthService(modSelector, service, _user);
             const post = new Post(modSelector, service, _user);
             const chart = new ChartJS(modSelector, service, _user);
             const shapeOutside = new ShapeOutside(modSelector, service, _user);

@@ -1,6 +1,6 @@
 "use client"
 import React from 'react'
-import { useEditor } from '../context/editorContext';
+// import { useEditor } from '../context/editorContext';
 import { blogType } from '../editor/Types';
 import DisplayBlog from "@/components/blog/displayBlog";
 import ModSelector from "@/components/editor/modSelector";
@@ -19,21 +19,19 @@ import Message from '../common/message';
 function Index({ id }: { id: number }) {
     const clientRef = React.useRef(null);
     let count: number = 0;
-    const { blog_, setBlog_ } = useEditor();
+    // const { blog_, setBlog_ } = useEditor();
 
 
 
-    React.useMemo(async () => {
+    React.useEffect(() => {
         if (typeof window !== "undefined" && clientRef && id) {
             const url_id = `/api/blog/${id}`;
             const _modSelector = new ModSelector();
             const maxWidth = window.innerWidth < 900 ? "none" : "75%";
             const target = document.querySelector("section#client_blog") as HTMLElement;
             if (target) {
-
-                const auth = new AuthService(_modSelector);
-                const _service = new Service(_modSelector, auth);
-                const user = new User(_modSelector, _service, auth);
+                const _service = new Service(_modSelector);
+                const user = new User(_modSelector, _service);
                 const shapeOutside = new ShapeOutside(_modSelector, _service, user);
                 const code = new NewCode(_modSelector, _service, user);
                 const chart = new ChartJS(_modSelector, _service, user);
@@ -49,30 +47,28 @@ function Index({ id }: { id: number }) {
                     method: "GET"
                 }
 
-                const res = await fetch(url_id, option);
-                if (res.ok && target && count === 0) {
-                    const body = await res.json() as blogType;
-                    setBlog_(body);
-                    const thisBlog = await _modSelector.awaitBlog(body as blogType);
-                    thisBlog.blog();//setting params in modSelector
-                    // const message = new Message(_modSelector, _service, body);
-                    const message = new Message(_modSelector, _service, body);
-                    const displayBlog = new DisplayBlog(_modSelector, _service, user, shapeOutside, code, chart, message);
-                    displayBlog._onlyMeta = true;
-                    await displayBlog.main({ parent: target, blog: body });
-                    count++;
-                }
+                fetch(url_id, option).then(async (res) => {
+                    if (res && target && count === 0) {
+                        const body = await res.json() as blogType;
+                        // const message = new Message(_modSelector, _service, body);
+                        const message = new Message(_modSelector, _service, body);
+                        const displayBlog = new DisplayBlog(_modSelector, _service, user, shapeOutside, code, chart, message);
+                        displayBlog._onlyMeta = true;
+                        await displayBlog.main({ parent: target, blog: body });
+                        count++;
+                    } else {
+                        DisplayBlog.noBlog({ parent: target })
+                    }
+                });
+
+
 
 
             }
         }
 
-    }, [setBlog_, count, id]);
-    React.useEffect(() => {
-        if (blog_) {
+    }, [count, id]);
 
-        }
-    }, [blog_]);
 
     return (
         <div className="container-fluid mx-auto">

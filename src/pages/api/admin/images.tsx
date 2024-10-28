@@ -31,7 +31,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
                         }
                     });
                     const arr = await Promise.all(images.map(async (img) => {
-                        const getImg = await awsImage(img.imgKey);
+                        const getImg = img.imgKey ? await awsImage(img.imgKey as string) as string : null;
                         return { ...img, img: getImg }
                     })) as unknown[] as adminImageType[];
                     res.status(200).json(arr);

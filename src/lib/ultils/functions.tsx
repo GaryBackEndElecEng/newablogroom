@@ -114,7 +114,7 @@ export function generateMarkImgkey(blog: blogType | null): { level: string, imgK
 }
 export async function findCountKeys(blog: blogType): Promise<void> {
     //ADDS VIEW COUNT TOKEYS
-    const prisma = new PrismaClient();
+
     const arr: { key: string }[] = [];
     const selects = (blog.selectors && blog.selectors.length) ? blog.selectors as selectorType[] : null;
     const elements = (blog.elements && blog.elements.length) ? blog.elements as elementType[] : null;
@@ -157,53 +157,32 @@ export async function findCountKeys(blog: blogType): Promise<void> {
     if (blog && blog.imgBgKey) {
         arr.push({ key: blog.imgBgKey });
     }
+    await MarkCountKeys({ keys: arr });
+
+};
+
+export async function MarkCountKeys(item: { keys: { key: string }[] }) {
+    const prisma = new PrismaClient();
+    const { keys } = item;
     try {
-        const user = await prisma.user.findUnique({
-            where: { id: blog.user_id }
-        });
-        if (user && user.imgKey) {
-            arr.push({ key: user.imgKey })
+        await Promise.all(keys.map(async (res) => {
+            if (res && res.key) {
+                const markDel = await prisma.deletedImg.findUnique({
+                    where: { imgKey: res.key },
 
-        }
-    } catch (error) {
-        const msg = getErrorMessage(error);
-        console.error(msg);
-    }
-
-    if (arr && arr.length > 0) {
-        await Promise.all(arr.map(async (key) => {
-            if (key.key) {
-                try {
-                    const getImgkey = await prisma.deletedImg.findUnique({
-                        where: { imgKey: key.key }
+                });
+                if (markDel) {
+                    await prisma.deletedImg.update({
+                        where: { id: markDel.id },
+                        data: {
+                            count: markDel.count
+                        }
                     });
-                    if (getImgkey) {
-
-                        await prisma.deletedImg.update({
-                            where: {
-                                id: getImgkey.id
-                            },
-                            data: {
-                                count: getImgkey.count ? getImgkey.count + 1 : 1
-                            }
-                        });
-                    } else if (!getImgkey && key.key) {
-                        await prisma.deletedImg.create({
-                            data: {
-                                imgKey: key.key,
-                                count: 1,
-                                del: false,
-                            }
-                        })
-                    }
-
-                } catch (error) {
-                    const msg = getErrorMessage(error);
-                    console.error(msg);
                 }
+
             }
         }));
+    } finally {
+        await prisma.$disconnect();
     }
-
-    await prisma.$disconnect();
 }
