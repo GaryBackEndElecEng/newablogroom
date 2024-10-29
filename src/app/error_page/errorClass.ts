@@ -6,14 +6,26 @@ import Nav from "@/components/nav/headerNav";
 
 
 class ErrorClass {
-    meta:Meta;
+  
     urls_:string[];
     logo:string="/images/gb_logo.png";
     bend:string="/images/bend.png";
    _params:{[key:string]:string}[];
+   pages:{id:number,page:string,redir:RegExp,match:RegExp}[]
     constructor(){
        this._params=[];
-       this.meta=new Meta();
+       this.pages=[
+        {id:0,page:'/az',redir:/\/[a-z]{1,3}\//,match:/\//},
+        {id:1,page:'/blog/',redir:/\/(blog)\/[0-9]+[a-z\/]+/,match:/\/(blog)\/[0-9]+/},
+        {id:2,page:'/blogs',redir:/\/(blogs)[a-zA-Z\/]+/,match:/\/(blogs)/},
+        {id:3,page:"/register",redir:/\/(register)[a-zA-Z\/]+/,match:/\/(register)/},
+        {id:4,page:"/editor",redir:/\/(editor)[a-zA-Z\/]+/,match:/\/(editor)/},
+        {id:5,page:"/policy",redir:/\/(policy)[a-zA-Z\/]+/,match:/\/(policy)/},
+        {id:6,page:"/termsOfService",redir:/\/(termsOfService)[a-zA-Z\/]+/,match:/\/(termsOfService)/},
+        {id:7,page:"/admin",redir:/\/(admin)[a-zA-Z\/]+/,match:/\/(admin)/},
+        {id:8,page:"/posts",redir:/\/(posts)[a-zA-Z\/]+/,match:/\/(posts)/},
+      ]
+      
       
     }
 
@@ -107,7 +119,8 @@ class ErrorClass {
     async getUrl(){
         //GETTING PARAMETERS FROM URL
         const url=new URL(window.location.href);
-        this.meta.params.map(key=>{
+        const params=["blog_id","misc","intent"]
+        params.map(key=>{
             if(key){
                 const value=url.searchParams.get(key);
                 if(value){
@@ -140,6 +153,37 @@ class ErrorClass {
        });
        otherSite.appendChild(ol);
        parent.appendChild(otherSite);
+    }
+
+    retPage(item: { pathname: string }) {
+        const { pathname } = item;
+        let rtPage: string = '';
+        const params = ["blog_id", "misc", "intent"]
+        if (!pathname) return `/error_page?misc=${pathname}`;
+        const pages: { id: number, page: string, redir: RegExp, match: RegExp }[] = [
+            { id: 0, page: '/az', redir: /\/[a-z]{1,3}\//, match: /\// },
+            { id: 1, page: '/blog/', redir: /\/(blog)\/[0-9]+[a-z\/]+/, match: /\/(blog)\/[0-9]+/ },
+            { id: 2, page: '/blogs', redir: /\/(blogs)[a-zA-Z\/]+/, match: /\/(blogs)/ },
+            { id: 3, page: "/register", redir: /\/(register)[a-zA-Z\/]+/, match: /\/(register)/ },
+            { id: 4, page: "/editor", redir: /\/(editor)[a-zA-Z\/]+/, match: /\/(editor)/ },
+            { id: 5, page: "/policy", redir: /\/(policy)[a-zA-Z\/]+/, match: /\/(policy)/ },
+            { id: 6, page: "/termsOfService", redir: /\/(termsOfService)[a-zA-Z\/]+/, match: /\/(termsOfService)/ },
+            { id: 7, page: "/admin", redir: /\/(admin)[a-zA-Z\/]+/, match: /\/(admin)/ },
+            { id: 8, page: "/posts", redir: /\/(posts)[a-zA-Z\/]+/, match: /\/(posts)/ },
+        ]
+        pages.map(page => {
+            if (page.match.test(pathname)) {
+                if (page.id === 1) {
+                    const id = pathname.split("/")[1].split("/")[1];
+                    rtPage = `/error_page?blog_id=${id}`
+                } else {
+                    rtPage = `/error_page?intent=${pathname}`
+                }
+            } else {
+                rtPage = `/error_page?misc=${pathname}`
+            }
+        });
+        return rtPage
     }
 }
 export default ErrorClass;

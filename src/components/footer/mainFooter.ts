@@ -225,7 +225,8 @@ class MainFooter{
         privAnc.href="#";
         privAnc.style.cssText="text-decoration:underline;text-underline-offset:1rem;";
         privAnc.onclick=()=>{
-            window.open(this.privacyUlr,"_blank");
+            const newUrl=new URL(window.location.href);
+            window.open(new URL(this.privacyUlr,newUrl.origin).href,"_blank");
         }
         //POLICY LINK
         this.arrUrl.forEach((link)=>{
@@ -235,7 +236,8 @@ class MainFooter{
             anchor.style.cssText="text-decoration:underline;text-underline-offset:1rem;padding-block:0.25rem;padding-inline:1.5rem;box-shadow:1px 1px 10px black,-2px -2px 10px 2px blue;border-radius:10px;";
             anchor.onclick=()=>{
                 parent.style.zIndex="0";
-                window.open(link.link,"_blank");
+                const newUrl=new URL(window.location.href);
+                window.open(new URL(link.link,newUrl.origin).href,"_blank");
             }
             //HORIZONTAL LINE
             const line=document.createElement("hr");

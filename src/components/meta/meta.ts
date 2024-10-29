@@ -4,8 +4,6 @@ import { awsImage, getAllBlogImages, getOnlyBlogImages, getUserImage, getUsersIm
 import { blogType, postType, userType } from '../editor/Types';
 import { getErrorMessage } from '@/lib/errorBoundaries';
 
-const prisma=new PrismaClient();
-const baseUrl=process.env.NODE_ENV === 'production' ? process.env.NEXTAUTH_URL as string : process.env.DOMAIN as string;
 export type Props = {
   params: {id:string },
   // searchParams: { [key: string]: string | string[] | undefined }
@@ -27,6 +25,10 @@ class Meta{
      url:URL;
     params:string[];
     baseUrl:string;
+    savegetblog:string;
+    getusers:string;
+    getblog:string;
+    getposts:string;
     constructor(){
       //BELOW PAGES HELPS REDIRECT THE PAGE TO THE ERROR_PAGE IF THE PAGE DOES NOT EXIST
         this.pages=[
@@ -42,7 +44,11 @@ class Meta{
           {page:"/posts",redir:/\/(posts)[a-zA-Z\/]+/,match:/\/(posts)/},
 
         ]
-        this.params=["blog_id","misc","intent"]
+        this.params=["blog_id","misc","intent"];
+        this.savegetblog="/api/savegetblog";
+        this.getusers="/api/getusers";
+        this.getblog="/api/blog";
+        this.getposts="/api/posts";
        
         
     }
@@ -414,36 +420,44 @@ class Meta{
       }
       return metadata;
     }
-     async genBlogs(): Promise<{keywords: string[],descs: string[],images:string[]}>{
-        const blogNames= await prisma.blog.findMany();
-        const constrainBlogs=blogNames ? blogNames.filter(blog=>(blog.rating > 2)) as blogType[]:[] as blogType[];
-        const blogsWithimages=constrainBlogs? await getAllBlogImages(constrainBlogs):[] as blogType[];
-        const images=blogsWithimages ? blogsWithimages.map(bl=>(bl.img)).filter(img=>(img !=="undefined")) as string[] :["/images/gb_logo.png"];
-        const keywords=constrainBlogs ? constrainBlogs.map(name=>(name.title as string)) :["blogs"];
-        const descs=constrainBlogs ? constrainBlogs.map(name=>((name.desc as string).slice(0,20))):["blogs"];
-        await prisma.$disconnect()
-        return {keywords,descs,images}
+     async genBlogs(): Promise<{keywords: string[],descs: string[],images:string[]}|undefined>{
+        const option={
+          headers:{"Content-Type":"application/json"},
+          method:"GET"
+        }
+        return fetch(this.savegetblog,option).then(async(res)=>{
+          if(res){
+            const blogNames= await res.json() as blogType[];
+            const constrainBlogs=blogNames ? blogNames.filter(blog=>(blog.rating > 2)) as blogType[]:[] as blogType[];
+            const blogsWithimages=constrainBlogs? await getAllBlogImages(constrainBlogs):[] as blogType[];
+            const images=blogsWithimages ? blogsWithimages.map(bl=>(bl.img)).filter(img=>(img !=="undefined")) as string[] :["/images/gb_logo.png"];
+            const keywords=constrainBlogs ? constrainBlogs.map(name=>(name.title as string)) :["blogs"];
+            const descs=constrainBlogs ? constrainBlogs.map(name=>((name.desc as string).slice(0,20))):["blogs"];
+            return {keywords,descs,images}
+          }
+        });
     }
      async genUsers(): Promise<{
-      images: (string | undefined)[] | undefined;
-      bios: (string | undefined)[] | undefined;
-      names: (string | undefined)[] | undefined;
+      images: (string | undefined)[];
+      bios: (string | undefined)[];
+      names: (string | undefined)[];
   }>{
-      const users= await prisma.user.findMany({
-          select:{
-            name:true,
-            image:true,
-            imgKey:true,
-            bio:true,
-            email:true
-          }
-      });
-      const newUsers=users ? await getUsersImage(users as unknown[] as userType[]):[] as userType[];
-      const images=newUsers ? newUsers.map(us=>(us.image)).filter(im=>(im !=="undefined")) : [] as string[];
-      const bios=newUsers ? newUsers.map(us=>(us.bio)).filter(bi=>(bi !=="undefined")):["users bio"];
-      const names=newUsers ? (newUsers.map(us=>(us.name))).filter(name=>(name!==undefined)):["Gary Wallace"];
-      await prisma.$disconnect();
-      return {images,bios,names};
+    const option={
+      headers:{"Content-Type":"application/json"},
+      method:"GET"
+    };
+    return fetch(this.getusers,option).then(async(res)=>{
+      if(res){
+        const users= await res.json() as userType[]
+        const images=users ? users.map(us=>(us.image)).filter(im=>(im !=="undefined")) : [] as string[];
+        const bios=users ? users.map(us=>(us.bio)).filter(bi=>(bi !=="undefined")):["users bio"];
+        const names=users ? (users.map(us=>(us.name))).filter(name=>(name!==undefined)):["Gary Wallace"];
+        return {images,bios,names};
+      }else{
+        return {images:[] as string[],bios:[] as string[],names:[] as string[]}
+      }
+    });
+      
     }
      async getUser(user_id:string):Promise<{
       image_: string,
@@ -451,49 +465,55 @@ class Meta{
       author:{name: string,url:string},
       email: string
   }>{
-      const user=await prisma.user.findUnique({
-          where:{
-            id:user_id
-          },
-      });
-      const newUser=user ? await getUserImage(user as unknown as userType):{} as userType;
-      const image_=newUser.image ? newUser.image :"/images/gb_logo.png";
-      const bio=newUser.bio ? newUser.bio :" not included";
-      const author:{ name:string, url:string }=newUser.showinfo ? {name:newUser.name as string,url:"/blog"} :{name:"ablogroom",url:"https://www.ablogroom.com"};
-      const email=newUser.showinfo ? newUser.email :"masterconnect919@gmail.com";
-      return {image_:image_,bio:bio,author,email:email}
+    const option={
+      headers:{"Content-Type":"application/json"},
+      method:"GET"
+    };
+    let author:{ name:string, url:string }={name:"ablogroom",url:"https://www.ablogroom.com"}
+    return fetch(`${this.getusers}user_id=${user_id}`,option).then(async(res)=>{
+      if(res){
+        const newUser=await res.json() as userType;
+        const image_=newUser.image ? newUser.image :"/images/gb_logo.png";
+        const bio=newUser.bio ? newUser.bio :" not included";
+         author={name:newUser.name as string,url:"/blog"};
+        const email=newUser.showinfo ? newUser.email :"masterconnect919@gmail.com";
+        return {image_:image_,bio:bio,author,email:email}
+      }else{
+        return {image_:"noShow@noShow",bio:"no show user",author,email:""}
+      }
+    });
     }
      async getBlog(blog_id:number): Promise<getBlogType>{
       if(!blog_id) return {image:"",name:"",desc:"",user_id:"",title:""};
-      const blog=await prisma.blog.findUnique({
-        where:{id:blog_id}
+      const option={
+        headers:{"Content-Type":"application/json"},
+        method:"GET"
+      };
+      let image:string= "/images/gb_logo.png";
+      let name:string= "ablogroom";
+      let title:string="no Title";
+      let desc:string="no desc";
+      let user_id:string="";
+      return fetch(`${this.getblog}/${blog_id}`,option).then(async(res)=>{
+        if(res){
+          const blog= await res.json() as blogType;
+          const newBlog=blog ? await getOnlyBlogImages(blog as unknown as blogType): {} as blogType;
+          image=newBlog && newBlog.img ? newBlog.img :"/images/gb_logo.png"
+          name=newBlog && newBlog.name ? newBlog.name : "ablogroom";
+          title=newBlog && newBlog.title ? newBlog.title : "no Title";
+          desc=(newBlog && newBlog.desc) ? newBlog.desc : "no desc";
+          user_id=(newBlog && newBlog.user_id) ? newBlog.user_id as string: "";
+        }
+        return {image,name,desc,user_id,title};
       });
-
-      this.isExist=blog ? false : true;
-      const newBlog=blog ? await getOnlyBlogImages(blog as unknown as blogType): {} as blogType;
-      const image=newBlog && newBlog.img ? newBlog.img : "/images/gb_logo.png";
-      const name=newBlog && newBlog.name ? newBlog.name : "ablogroom";
-      const title=newBlog && newBlog.title ? newBlog.title : "no Title";
-      const desc=(newBlog && newBlog.desc) ? newBlog.desc : "no desc";
-      const user_id=(newBlog && newBlog.user_id) ? newBlog.user_id as string: "";
-      return {image,name,desc,user_id,title};
     }
-    async blogExist(item:{id:number}):Promise<{id:number|null,user_id:string|null}>{
-      const {id}=item;
-      if(!id)return {id:null,user_id:null}
-      const blog=await prisma.blog.findUnique({
-        where:{id}
-      });
-      await prisma.$disconnect();
-      if(!blog) return {id:null,user_id:null}
-      return {id:blog.id,user_id:blog.user_id}
-    }
+   
 
      async generate_metadata(parent:ResolvingMetadata){
-      const genBlogs= await this.genBlogs();
-      const kwords:string[]=genBlogs.keywords;
-      const descs:string=genBlogs.descs.join(",");
-      const images:string[]=genBlogs.images;
+      const genBlogs=await this.genBlogs();
+      const kwords:string[]=genBlogs && genBlogs.keywords ? genBlogs.keywords as string[]:[];
+      const descs:string=genBlogs && genBlogs.descs  ? genBlogs.descs.join(",") :"";
+      const images:string[]=genBlogs && genBlogs.images ? genBlogs.images as string[]:[];
       const referrer = (await parent).referrer;
       const previousImages = (await parent)?.openGraph?.images || []
       const prevDesc = (await parent).openGraph?.description ||"blogs";
@@ -599,6 +619,7 @@ class Meta{
      async genSitemapArray(item:{baseUrl:string}):Promise<MetadataRoute.Sitemap>{
       const {baseUrl}=item;
       let arr:MetadataRoute.Sitemap=[];
+      let arr2:MetadataRoute.Sitemap=[];
       try {
         arr=[
           {url:`${baseUrl}`,lastModified:new Date(),changeFrequency:'weekly',priority:1},
@@ -611,39 +632,45 @@ class Meta{
           {url:`${baseUrl}/signin`,lastModified:new Date(),changeFrequency:'yearly',priority:1},
           {url:`${baseUrl}/chart`,lastModified:new Date(),changeFrequency:'monthly',priority:1},
         ];
-        const getBlogs= await prisma.blog.findMany({
-          where:{
-            show:true
-          }
-        });
-        if(getBlogs && getBlogs.length>0){
-          getBlogs.map(blog=>{
-            arr.push({url:`${baseUrl}/blog/${blog.id}`,lastModified:new Date(),changeFrequency:'always',priority:1})
-          });
+        const option={
+          headers:{"Content-Type":"application/json"},
+          method:"GET"
         }
+        arr2= await fetch(this.savegetblog,option).then(async(res)=>{
+          if(res){
+            const blogs= await res.json() as blogType[];
+            blogs.map(blog=>{
+              arr.push({url:`${baseUrl}/blog/${blog.id}`,lastModified:new Date(),changeFrequency:'always',priority:1})
+            });
+            return arr;
+          }
+          return arr
+        });
+       
       } catch (error) {
         const msg=getErrorMessage(error)
         console.log(msg);
         
       }finally{
-        await prisma.$disconnect();
-        return arr;
+        return arr2;
       }
 
     }
+    
     async genPosts():Promise<postType[]>{
-      const posts=await prisma.post.findMany() as unknown[] as postType[];
-      await prisma.$disconnect();
-     return posts ? posts : []
+      const option={
+        headers:{"Content-Type":"application/json"},
+        method:"GET"
+      }
+      return await fetch(this.getposts,option).then(async(res)=>{
+        if(res){
+          const posts =await res.json() as postType[];
+          return posts;
+        }
+        return [] as postType[]
+      });
     }
-    async genPost({params}:{params:{id:string}}):Promise<postType|undefined>{
-      const id=Number(params.id);
-      const post=await prisma.post.findUnique({
-        where:{id:id}
-       }) as unknown as postType;
-       await prisma.$disconnect();
-     return post ? post :undefined
-    }
+    
 }
 export default Meta;
 
