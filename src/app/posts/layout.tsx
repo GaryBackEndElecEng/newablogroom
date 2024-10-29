@@ -1,3 +1,4 @@
+"use server";
 import React from 'react';
 import type { Metadata } from 'next';
 import Meta from "@/components/meta/meta";
@@ -44,7 +45,7 @@ export const metadata: Metadata = {
         ],
     }
 }
-export default function postlayout({
+export default async function postlayout({
     children,
 }: {
     children: React.ReactNode

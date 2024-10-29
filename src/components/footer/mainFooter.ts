@@ -25,14 +25,14 @@ class MainFooter{
     _regSignin:RegSignIn;
     thankYouImg:string;
     btnColor:string;
-    privacyUlr:string;
-    policyUrl:string;
+    privacyUlr:string="/policy";
+    policyUrl:string="/policy";
     logoUrl:string;
-    termsOfServiceUrl:string;
-    masterultilsUrl:string;
+    termsOfServiceUrl:string="/termsOfService";
+    masterultilsUrl:string="https://www.masterultils.com";
     arrUrl:{name:string,link:string}[]
     constructor(private _modSelector:ModSelector,private _service:Service,private _user:User,private _nav:Nav,private _navArrow:NavArrow,public dataflow:Dataflow,public feature:Features){
-        this.arrUrl=[{name:"masterconnect",link:"https://www.masterconnect.ca"},{name:"masterultils",link:this.masterultilsUrl},{name:"policy",link:this.policyUrl},{name:"privacy",link:this.termsOfServiceUrl},];
+        this.arrUrl=[{name:"masterconnect",link:"https://www.masterconnect.ca"},{name:"masterultils",link:this.masterultilsUrl},{name:"policy",link:"/policy"},{name:"privacy",link:"/termsOfService"},];
         this._regSignin= new RegSignIn(this._modSelector,this._service,this._user);
         this.closeInfoMsg=false;
         this.infoMsg="The site uses both cookies and browser storage to ensure that your work is temporaryily saved and secure during your editing before saving your work to the server. <br/><span style='color:blue;font-weight:bold;background-color:white;padding-inline:2rem;border-radius:12px;line-height:2rem;'> We believe in securing your interests.</span> <br/><span style='font-size:120%;font-weight:bold;margin-top:1.25rem;padding-left:4rem;'> The Team.</span>"
@@ -230,15 +230,20 @@ class MainFooter{
         }
         //POLICY LINK
         this.arrUrl.forEach((link)=>{
+            const check=["/policy","/termsOfService"].includes(link.link);
             const anchor=document.createElement("a");
             anchor.textContent=link.name
             anchor.href="#";
             anchor.style.cssText="text-decoration:underline;text-underline-offset:1rem;padding-block:0.25rem;padding-inline:1.5rem;box-shadow:1px 1px 10px black,-2px -2px 10px 2px blue;border-radius:10px;";
             anchor.onclick=()=>{
                 parent.style.zIndex="0";
-                const newUrl2=this.removeSlash({url:window.location.href});
-                const newUrl=new URL(newUrl2);
-                window.open(new URL(link.link,newUrl.origin).href,"_blank");
+                if(check){
+                    const newUrl2=this.removeSlash({url:window.location.href});
+                    const newUrl=new URL(newUrl2);
+                    window.open(new URL(link.link,newUrl.origin).href,"_blank");
+                }else{
+                    window.open(link.link,"_blank")
+                }
             }
             //HORIZONTAL LINE
             const line=document.createElement("hr");
@@ -311,7 +316,7 @@ class MainFooter{
         if(match.reg.test(url)){
            const lts=url.split("");
            const len=lts.length;
-           retStr=lts.slice(0,len-2).join("");
+           retStr=lts.slice(0,len-1).join("");
         }
         return retStr;
     }

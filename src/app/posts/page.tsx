@@ -1,6 +1,6 @@
 import React from 'react'
 import Index from "@/components/posts/Index";
-import { Metadata, ResolvingMetadata } from 'next';
+
 
 
 type Props = {
