@@ -25,6 +25,7 @@ export const metadata: Metadata = {
     template: `%s | ablogroom`,
 
   },
+  manifest: "./manifest.json",
   verification: {
     google: 'S88O7lTinqgyYLB8h1x2fOusiDQY9V68xuDpUZevLQY',
     yandex: 'yandex',

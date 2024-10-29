@@ -28,7 +28,7 @@ import Post from '../posts/post';
 
 
 function Index() {
-    const { setBlog_ } = useEditor();
+    // const { setBlog_ } = useEditor();
     const mainRef = React.useRef(null);
     const sidebarRef = React.useRef(null);
     const styleOne = { Background: "white", color: "black", width: "100%", minHeight: "100vh", marginInline: "0px" }
@@ -64,12 +64,10 @@ function Index() {
             const sidebar = new Sidebar(modSelector, service, main, _flexbox, newCode, _header, customHeader, _footer, _edit, _user, regSignin, displayBlog, chart, shapeOutside, metablog);
             sidebar.onclickHideShowSideBar(side_bar);
             main.mainContainer(mainInjection);
-            if (modSelector.blog) {
-                setBlog_(modSelector.blog);
-            }
+
         }
 
-    }, [setBlog_]);
+    }, []);
 
     return (
         <div className="d-flex flex-column align-items-center justify-content-start mx-auto mb-4 mt-0 py-0">

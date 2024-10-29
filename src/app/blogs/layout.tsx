@@ -1,3 +1,4 @@
+"use server";
 import React from 'react';
 import type { Metadata } from 'next';
 // export const metadata: Metadata = meta.metaBlogs();
@@ -42,7 +43,18 @@ export const metadata: Metadata = {
         ],
     }
 }
-export default function bloglayout({
+
+type Props = {
+    params: { id: string }
+    searchParams: { [key: string]: string | string[] | undefined }
+}
+
+// export async function generateMetadata({ params, searchParams }: Props, parent: ResolvingMetadata): Promise<Metadata> {
+//     const metaBlogs = await Meta.generate_metadata(parent);
+//     return metaBlogs;
+//}
+
+export default async function bloglayout({
     children,
 }: {
     children: React.ReactNode

@@ -236,7 +236,8 @@ class MainFooter{
             anchor.style.cssText="text-decoration:underline;text-underline-offset:1rem;padding-block:0.25rem;padding-inline:1.5rem;box-shadow:1px 1px 10px black,-2px -2px 10px 2px blue;border-radius:10px;";
             anchor.onclick=()=>{
                 parent.style.zIndex="0";
-                const newUrl=new URL(window.location.href);
+                const newUrl2=this.removeSlash({url:window.location.href});
+                const newUrl=new URL(newUrl2);
                 window.open(new URL(link.link,newUrl.origin).href,"_blank");
             }
             //HORIZONTAL LINE
@@ -302,6 +303,18 @@ class MainFooter{
             }
         }
     }
+    removeSlash(item:{url:string}):string{
+        const {url}=item;
+        let retStr=url;
+        const template="https://main.d2qer3lk2obzqm.amplifyapp.com/";
+        const match:{name:string,reg:RegExp}={name:"https://main",reg:/(https\:\/\/main\.)/};
+        if(match.reg.test(url)){
+           const lts=url.split("");
+           const len=lts.length;
+           retStr=lts.slice(0,len-2).join("");
+        }
+        return retStr;
+    }
     //LEFT SIDE
     description(row:HTMLElement){
         const column=document.createElement("div");
@@ -344,7 +357,7 @@ class MainFooter{
     //CENTER
     copyRight(parent:HTMLElement){
         const container=document.createElement("div");
-        container.style.cssText="position:absolute;top:90%;left:0%;width:130px;display:grid;place-items:center;font-size:12px;";
+        container.style.cssText="position:absolute;top:85%;left:0%;width:130px;display:grid;place-items:center;font-size:12px;";
         const year:number=new Date().getFullYear();
         const copyright=document.createElement("div");
         copyright.style.cssText="margin-inline:auto;";

@@ -104,7 +104,9 @@ class ErrorClass {
         Misc.matchMedia({parent:container,maxWidth:400,cssStyle:{paddingInline:"0rem",marginInline:"0rem"}});
         back.onclick=(e:MouseEvent)=>{
             if(e){
-                window.history.go(-1);
+                const origin=new URL(window.location.href).origin;
+                const newUrl=new URL("/blogs",origin);
+                window.location.replace(newUrl.href);
             }
         };
         

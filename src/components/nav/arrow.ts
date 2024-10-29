@@ -392,8 +392,9 @@ class NavArrow{
         });
     }
     contact(parent:HTMLElement){
-        Nav.navHeader=document.querySelector("header#navHeader") as HTMLElement;
-        const useParent= parent ? parent :Nav.navHeader;
+        const headerInject=document.getElementById("headerInjector") as HTMLElement;
+        Nav.navHeader=headerInject.querySelector("header#navHeader") as HTMLElement;
+        const useParent=headerInject.querySelector("header#navHeader") as HTMLElement;
         useParent.style.zIndex="";
         const cont=document.createElement("div");
         useParent.style.position="relative";
