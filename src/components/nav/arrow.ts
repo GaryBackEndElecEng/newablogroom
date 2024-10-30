@@ -503,7 +503,7 @@ class NavArrow{
         form.appendChild(btn);
         cont.appendChild(divGrp);
         cont.appendChild(form);
-        Nav.cancel(parent,cont);
+        Nav.cancel(useParent,cont);
         useParent.appendChild(cont);
         if(btn.disabled){
             btn.style.color="white";

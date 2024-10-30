@@ -337,7 +337,8 @@ export type postType={
     link?:string,
     published: boolean,
     date:Date,
-    userId:string
+    userId:string,
+    likes:number
 };
 export type sessionType={
     id:string,

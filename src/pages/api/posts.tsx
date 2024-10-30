@@ -10,7 +10,7 @@ const prisma = new PrismaClient();
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
     const get_id = Number(req.query.id);
-    const { id, title, content, link, imageKey, published, userId } = req.body as postType;
+    const { id, title, content, link, imageKey, published, userId, likes } = req.body as postType;
     const ID = id ? id : 0;
 
 
@@ -27,14 +27,16 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
                         imageKey,
                         published,
                         userId,
-                        link
+                        link,
+                        likes
                     },
                     update: {
                         title,
                         content,
                         imageKey,
                         published,
-                        link
+                        link,
+                        likes
                     }
 
                 });

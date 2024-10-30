@@ -6,7 +6,7 @@ import type { ResolvingMetadata, Metadata } from "next";
 import { PrismaClient } from "@prisma/client"
 import { blogType } from '@/components/editor/Types';
 
-// const meta_ = new Meta();
+
 const prisma = new PrismaClient();
 type Props = {
     params: { id: string },

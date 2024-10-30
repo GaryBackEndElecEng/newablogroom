@@ -14,6 +14,7 @@ import MainHeader from "../nav/mainHeader";
 
 class Service {
     awsimgUrl:string="/api/awsimg";
+    postlike:string="/api/postlike";
     liveonoffUrl:string="/api/liveonoff";
     newBlogUrl:string="/api/blog/createNew";
     urlUpload:string="/api/uploadImage";
@@ -1315,6 +1316,21 @@ class Service {
             return {Key:getKey as string}
 
         }
+    }
+    async checkPostlike(item:{post:postType}):Promise<postType|boolean>{
+        const {post}=item;
+        const option={
+            headers:{"Content-Type":"application/json"},
+            method:"GET"
+        }
+        const likes=post.likes? post.likes:0;
+        return fetch(`${this.postlike}?id=${post.id}&likes=${likes}`,option).then(async(res)=>{
+            if(res){
+                const post=await res.json() as postType;
+                return post;
+            }
+            return false;
+        });
     }
    
 

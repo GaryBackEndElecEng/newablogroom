@@ -9,6 +9,8 @@ import Header from "../editor/header";
 import { FaCrosshairs } from "react-icons/fa";
 import { FaCreate } from "../common/ReactIcons";
 import Blogs from "../blogs/blogsInjection";
+import { FaThumbsUp } from "react-icons/fa";
+import { FaHandBackFist } from "react-icons/fa6";
 
 
 class Post{
@@ -17,11 +19,13 @@ class Post{
     _post:postType;
     _posts:postType[];
     injector:HTMLElement;
+    _like:boolean;
     constructor(private _modSelector:ModSelector,private _service:Service,private _user:User){
         this.logo="/images/gb_logo.png";
         this.no_posts="Sorry there are no posts,,,try again later,, then add advertising to get contracts;";
-        this._post={id:0,title:"",imgKey:"",content:"",link:"",published:true,userId:"",date:{} as Date} as postType;
+        this._post={id:0,title:"",imgKey:"",content:"",link:"",published:true,userId:"",date:{} as Date,likes:0} as postType;
         this._posts=[] as postType[];
+        this._like=false;
     }
     //----GETTERS SETTERS----////
     get post(){
@@ -35,6 +39,12 @@ class Post{
     }
     set posts(posts:postType[]){
         this._posts=posts;
+    }
+    get like(){
+        return this._like;
+    }
+    set like(like:boolean){
+        this._like=like;
     }
     //----GETTERS SETTERS----////
 
@@ -98,14 +108,16 @@ class Post{
     async Posts(item:{injector:HTMLElement,posts:postType[],user:userType}):Promise<{container:HTMLElement,row:HTMLElement,posts:postType[],user:userType}>{
         const {injector,posts,user}=item;
         Header.cleanUpByID(injector,"inner-post-container");//CLEANING UP
-        const css="margin-inline:auto;display:flex;flex-direction:column;justify-content:center;align-items:center;gap:1.5rem;";
+        const css="margin-inline:auto;display:flex;flex-direction:column;justify-content:flex-start;align-items:center;gap:1.5rem;";
         const container=document.createElement("div");
         container.id="inner-post-container";
-        container.style.cssText=css + "position:relative;width:100%;padding-inline:2rem;border-radius:12px;";
+        container.style.cssText=css + "position:relative;width:100%;padding-inline:2rem;border-radius:12px;height:80vh;overflow-y:scroll;padding-block:2rem;";
         const row=document.createElement("div");
         row.id="posts-row";
         row.className="row";
         container.appendChild(row);
+        Misc.matchMedia({parent:container,maxWidth:900,cssStyle:{height:"85vh"}});
+        Misc.matchMedia({parent:container,maxWidth:400,cssStyle:{height:"100vh"}});
         injector.appendChild(container);
         return new Promise(resolve=>{
             resolve({container,row,posts,user})
@@ -214,16 +226,16 @@ class Post{
         card.id=`postcard-card-${index}`;
         card.style.cssText=css_col + "width:100%;padding-block:2rem;";
         const title=document.createElement("p");
-        title.id="card-title";
+        title.id=`card-title-${index}`;
         title.className="post-title";
         
         title.textContent=post.title;
         card.appendChild(title);
         const shapeOutside=document.createElement("p");
-        shapeOutside.id="shapeOutside";
+        shapeOutside.id=`shapeOutside-${index}`;
         shapeOutside.style.cssText="padding:1rem;text-wrap:wrap;color:black;font-family:'Poppins-Thin';font-weight:bold;font-size:120%;line-height:2.05rem;color:inherit;border-radius:12px;background-color:black;box-shadow:1px 1px 12px white;";
         const img=document.createElement("img");
-        img.id="shapeOutside-img";
+        img.id=`shapeOutside-img-${index}`;
         img.src=this.logo;
         img.alt="www.ablogroom.com";
         img.style.cssText="border-radius:50%;max-width:250px;shape-outside:circle(50%);float:left;margin-right:1.25rem;margin-bottom:2rem;aspect-ratio:1/1;filter:drop-shadow(0 0 0.75rem white);border:none;";
@@ -248,20 +260,43 @@ class Post{
         Misc.matchMedia({parent:shapeOutside,maxWidth:400,cssStyle:{display:"flex",flexDirection:"column",alignItems:"center"}});
         Misc.matchMedia({parent:img,maxWidth:400,cssStyle:{shapeOutside:"none"}});
         const cardBody=document.createElement("div");
+        cardBody.id=`cardBody-${index}`;
         cardBody.style.cssText=css_col +"gap:2rem;padding:1rem;" ;
         const dateEmailCont=document.createElement("div");
-        dateEmailCont.style.cssText=css_row
+        dateEmailCont.id=`dateEmailCont-${index}`;
+        dateEmailCont.style.cssText=css_row + "position:relative;gap:1.5rem;"
         const date=document.createElement("small");
+        date.id=`date-${index}`;
         const email=document.createElement("small");
+        email.id=`email-${index}`;
         email.textContent=user.email;
         date.textContent= post.date ? Blogs.tolocalstring(post.date):"no date";
         dateEmailCont.appendChild(date);
         dateEmailCont.appendChild(email);
+        if(post.likes && post.likes>0){
+
+            const likes=document.createElement("div");
+            likes.id=`likes-${index}`;
+            likes.style.cssText="background-color:green;font-size:20px;display:flex;justify-content:center;align-items:center:gap:0.5rem;padding-block:2px;border-radius:50%;color:white;padding-inline:12px;";
+            const xDiv=document.createElement("div");
+            xDiv.id=`xDiv-thumbs-up-${index}`;
+            xDiv.style.margin="auto";
+            FaCreate({parent:xDiv,name:FaThumbsUp,cssStyle:{fontSize:"25px",padding:"5px",borderRadius:"50%",color:"white",margin:"auto",zIndex:"200"}});
+            const subLike=document.createElement("small");
+            subLike.id=`subLike-${index}`;
+            subLike.style.color="#23f803";
+            subLike.textContent=`: ${post && post.likes ? post.likes :0}`;
+            likes.appendChild(xDiv);
+            likes.appendChild(subLike);
+            dateEmailCont.appendChild(likes);
+        }
+        
+        this.likepost({parent:dateEmailCont,post});
         cardBody.appendChild(dateEmailCont);
         if(post.link){
             const anchor=document.createElement("a");
             anchor.style.cssText="align-self:center;justify-self:center;font-weight:800;margin-inline:auto;color:white;"
-            anchor.id="post-anchor";
+            anchor.id=`post-anchor-${index}`;
             anchor.href=post.link;
             anchor.textContent=post.link;
             cardBody.appendChild(anchor);
@@ -286,6 +321,41 @@ class Post{
         Misc.matchMedia({parent:getShapeOutside,maxWidth:400,cssStyle:{display:"flex",flexDirection:"column",alignItems:"center"}});
         Misc.matchMedia({parent:getImg,maxWidth:400,cssStyle:{shapeOutside:"none"}});
        
+    }
+    likepost(item:{parent:HTMLElement,post:postType}){
+        const {parent,post}=item;
+        parent.style.position="relative";
+        const popup=document.createElement("div");
+        popup.style.cssText="position:absolute;width:30px;height:30px;border-radius:50%;top:0%;right:0%;transform:translate(20px,-20px);z-index:200;aspect-ratio:1 / 1;padding:0px;";
+        popup.id="popup-likepost";
+        popup.className="popup";
+        const xDiv=document.createElement("div");
+        xDiv.id="thumb";
+        xDiv.style.cssText="padding:2px;border-radius:50%;background-color:black;color:white;position:relative;display:flex;justify-content:center;align-items:center;aspect-ratio:inherit;";
+        popup.appendChild(xDiv);
+        FaCreate({parent:xDiv,name:FaHandBackFist,cssStyle:{fontSize:"28px",padding:"5px",borderRadius:"50%",color:"white",margin:"auto",zIndex:"200"}});
+        Misc.matchMedia({parent:popup,maxWidth:900,cssStyle:{transform:"translate(30px,-30px)"}});
+        Misc.matchMedia({parent:popup,maxWidth:400,cssStyle:{transform:"translate(25px,-25px)"}});
+        parent.appendChild(popup);
+        xDiv.onclick=async(e:MouseEvent)=>{
+            if(e){
+                //FaHandBackFist
+                Header.cleanUp(xDiv);
+                FaCreate({parent:xDiv,name:FaThumbsUp,cssStyle:{fontSize:"28px",padding:"5px",borderRadius:"50%",color:"white",margin:"auto",zIndex:"200"}});
+                xDiv.style.backgroundColor="blue";
+                xDiv.style.color="green";
+                xDiv.animate([
+                    {transform:"scale(1)",backgroundColor:"black",color:"white"},
+                    {transform:"scale(1.1)",backgroundColor:"red",color:"blue"},
+                    {transform:"scale(1)",backgroundColor:"blue",color:"green"},
+                ],{duration:1000,iterations:1});
+                const isPost= await this._service.checkPostlike({post:post});
+                if(isPost !==false){
+                    this.post=isPost as postType;
+                }
+            }
+        }
+
     }
     noPosts(item:{parent:HTMLElement}){
         const {parent}=item;

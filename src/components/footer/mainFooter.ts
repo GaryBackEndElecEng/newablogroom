@@ -473,7 +473,7 @@ class MainFooter{
             parent.style.zIndex="";
             const container=document.createElement("div");
             container.id="bio-container";
-            container.style.cssText="width:100%; max-width:600px;box-shadow:1px 1px 10px black;border-radius:16px;position:absolute;top:160%;left:28%;right:28%;box-shadow:1px 1px 10px 1px black;border-radius:16px;z-index:100;";
+            container.style.cssText="width:100%; max-width:600px;box-shadow:1px 1px 10px black;border-radius:16px;position:absolute;top:100%;left:28%;right:28%;box-shadow:1px 1px 10px 1px black;border-radius:16px;z-index:100;";
             const card=document.createElement("div");
             card.className="card";
             card.style.cssText="width:100%;border-radius:inherit;";
@@ -500,9 +500,9 @@ class MainFooter{
             cardBody.appendChild(btnGrp);
             card.appendChild(cardBody);
             container.appendChild(card);
-            Misc.matchMedia({parent:container,maxWidth:900,cssStyle:{"top":"160%","left":"13%","right":"13%","width":"100%"}});
-            Misc.matchMedia({parent:container,maxWidth:800,cssStyle:{"top":"160%","left":"9%","right":"9%"}});
-            Misc.matchMedia({parent:container,maxWidth:420,cssStyle:{"top":"160%","left":"0%","right":"0%"}});
+            Misc.matchMedia({parent:container,maxWidth:900,cssStyle:{"top":"120%","left":"13%","right":"13%","width":"100%"}});
+            Misc.matchMedia({parent:container,maxWidth:800,cssStyle:{"top":"120%","left":"9%","right":"9%"}});
+            Misc.matchMedia({parent:container,maxWidth:420,cssStyle:{"top":"120%","left":"0%","right":"0%"}});
             parent.appendChild(container);
             Misc.fadeIn({anchor:container,xpos:20,ypos:100,time:700});
             close.addEventListener("click",(e:MouseEvent)=>{
