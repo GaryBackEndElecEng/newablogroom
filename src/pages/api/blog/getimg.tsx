@@ -3,6 +3,8 @@ import { gets3ImgKey } from '@/components/editor/Types';
 import { S3Client, GetObjectCommand } from "@aws-sdk/client-s3";
 import { getSignedUrl } from "@aws-sdk/s3-request-presigner";
 import { getErrorMessage } from "@/lib/errorBoundaries";
+import { PrismaClient } from "@prisma/client";
+const prisma = new PrismaClient();
 
 
 const Bucket = process.env.BUCKET_NAME as string
@@ -37,6 +39,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
                 Key: Key,
 
             }
+            await countImage({ imgKey: Key });
             res.status(200).json(retObj)
         } else {
             res.status(200).json({ img: null, key: Key })
@@ -47,4 +50,18 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         console.error(msg)
     }
 
+}
+
+export async function countImage(item: { imgKey: string }) {
+    const { imgKey } = item;
+    if (!imgKey) return;
+    if (imgKey) {
+        const isImg = await prisma.deletedImg.findUnique({
+            where: { imgKey }
+        });
+        if (isImg) {
+            await prisma.deletedImg.update({ where: { id: isImg.id }, data: { count: isImg.count ? isImg.count + 1 : 1 } });
+        }
+        await prisma.$disconnect();
+    }
 }

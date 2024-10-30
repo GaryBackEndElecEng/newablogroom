@@ -7,8 +7,8 @@ import type { Metadata } from 'next';
 // const prisma = new PrismaClient();
 export const metadata: Metadata = {
     title: {
-        default: "ablogroom Blogs",
-        template: `%s | "ablogroom Blog"}`,
+        default: "ablogroom Posts",
+        template: `%s | "ablogroom Posts"}`,
 
     },
     description: ' Free Blogs by ABLOGROOM -Blogs Creation by Bloggers for You. It provides templates that the user can use to become an effective blogger.',

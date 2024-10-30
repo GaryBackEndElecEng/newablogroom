@@ -2,11 +2,11 @@
 import React from 'react';
 import Index from "@/components/blog/Index";
 import type { ResolvingMetadata, Metadata } from "next";
-import Meta from '@/components/meta/meta';
+// import Meta from '@/components/meta/meta';
 import { PrismaClient } from "@prisma/client"
 import { blogType } from '@/components/editor/Types';
 
-const meta_ = new Meta();
+// const meta_ = new Meta();
 const prisma = new PrismaClient();
 type Props = {
     params: { id: string },

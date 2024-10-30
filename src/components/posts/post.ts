@@ -71,10 +71,31 @@ class Post{
         Misc.matchMedia({parent:injector,maxWidth:1200,cssStyle:{width:"85%"}});
         Misc.matchMedia({parent:injector,maxWidth:1000,cssStyle:{width:"90%"}});
         Misc.matchMedia({parent:injector,maxWidth:900,cssStyle:{width:"100%"}});
-        this.Posts({injector:injector,posts,user});
+        await this.Posts({injector:injector,posts,user}).then(async(res)=>{
+            if(res){
+                if(res.posts && res.posts.length>0){
+                    this.posts=res.posts;
+                    this.posts.map(async(post,index)=>{
+                        if(post){
+                            const col=document.createElement("div");
+                            col.className="col-md-6";
+                            col.id=`posts-col-${index}`;
+                            col.style.cssText="margin-inline:auto;display:flex;flex-direction:column;align-items:center;gap:0.75rem;flex:0 0 50%;background-color:#098ca091;color:white;border-radius:12px;";
+                            res.row.appendChild(col);
+                            this.postCard({row:res.row,col:col,post,user:user,index});
+                            Misc.growIn({anchor:col,scale:1,opacity:0,time:500});
+                            Misc.matchMedia({parent:col,maxWidth:900,cssStyle:{flex:"0 0 100%"}});
+                        }
+                    });
+                    Misc.matchMedia({parent:container,maxWidth:400,cssStyle:{paddingInline:"0px"}})
+                }else{
+                    this.noPosts({parent:container});
+                }
+            }
+        });
     };
     
-    async Posts(item:{injector:HTMLElement,posts:postType[],user:userType}){
+    async Posts(item:{injector:HTMLElement,posts:postType[],user:userType}):Promise<{container:HTMLElement,row:HTMLElement,posts:postType[],user:userType}>{
         const {injector,posts,user}=item;
         Header.cleanUpByID(injector,"inner-post-container");//CLEANING UP
         const css="margin-inline:auto;display:flex;flex-direction:column;justify-content:center;align-items:center;gap:1.5rem;";
@@ -84,30 +105,11 @@ class Post{
         const row=document.createElement("div");
         row.id="posts-row";
         row.className="row";
-        if(posts && posts.length>0){
-            this.posts=posts;
-            this.posts.map(async(post,index)=>{
-                if(post){
-                    const col=document.createElement("div");
-                    col.className="col-md-6";
-                    col.id=`posts-col-${index}`;
-                    col.style.cssText="margin-inline:auto;display:flex;flex-direction:column;align-items:center;gap:0.75rem;flex:0 0 50%;background-color:#098ca091;color:white;border-radius:12px;";
-                    this.postCard({row:row,col:col,post,user:user,index});
-                    row.appendChild(col);
-                    Misc.growIn({anchor:col,scale:1,opacity:0,time:500});
-                    Misc.matchMedia({parent:col,maxWidth:900,cssStyle:{flex:"0 0 100%"}});
-                }
-            });
-            Misc.matchMedia({parent:container,maxWidth:400,cssStyle:{paddingInline:"0px"}})
-        }else{
-            this.noPosts({parent:container});
-        }
         container.appendChild(row);
-        console.log(container,injector)
-        if(injector && container){
-
-            injector.appendChild(container);
-        }
+        injector.appendChild(container);
+        return new Promise(resolve=>{
+            resolve({container,row,posts,user})
+        }) as Promise<{container:HTMLElement,row:HTMLElement,posts:postType[],user:userType}>;
     };
     createPost(item:{parent:HTMLElement,user:userType}){
         const {parent,user}=item;

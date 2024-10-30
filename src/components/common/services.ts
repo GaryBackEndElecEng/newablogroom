@@ -294,7 +294,6 @@ class Service {
                     //GETTING IMAGE URL////////
                     const data:gets3ImgKey|null =await this.getSimpleImg(formdata_key);
                     if(data && data.Key){
-                        // const store_key:deletedImgType={Key:data.Key,del:false}
                         return data as gets3ImgKey|null;
                     }
                     //GETTING IMAGE URL-STORED IMGURL IN IMAGE.SRC////////
@@ -311,6 +310,7 @@ class Service {
     }
     //GETS IMAGE AND POPULATES IMAGE URL FROM AWS TO IMAGE.SRC=>RETURNS(IMGURL,KEY})
     async getImg(parent:HTMLElement,image:HTMLImageElement|null,Key:string):Promise<{img:string|null,Key:string|null}>{
+        //GET ONLY IMAGE KEY =: HANDLER COUNTS IMAGE RETRIEVAL
         return fetch(`${this.urlGetImg}/?Key=${Key}`).then(async(res)=>{
             if(res.ok){
                 const getimg:gets3ImgKey= await res.json();
@@ -441,11 +441,11 @@ class Service {
 
     //THIS GETS IMAGE FROM AWS USING ONLY A KEY
     async getSimpleImg(Key:string):Promise<gets3ImgKey|null>{
+        //GET IMG HTTP AND COUNTS IMAGE UNDER DELETEDIMG
         return fetch(`${this.urlGetImg}/?Key=${Key}`).then(async(res)=>{
             if(res.ok){
                 const getimg:gets3ImgKey= await res.json();
                 const {Key}=getimg;
-                await this.adminImagecount(Key);//count
                 return getimg;
             }else{
                 return null ;
