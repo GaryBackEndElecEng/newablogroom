@@ -78,7 +78,6 @@ export async function retMetadata(item: { title: string | undefined, keywords: s
         referrer: "origin-when-cross-origin",
         keywords: keywords ? keywords.concat(initKeywords) : initKeywords,
         authors: authors ? authors.concat(initAuthors) : initAuthors,
-        // colorScheme:"light",
         creator: "Gary Wallace",
         publisher: "ablogrrom",
         formatDetection: {
@@ -92,9 +91,6 @@ export async function retMetadata(item: { title: string | undefined, keywords: s
             url: url ? url : "www.ablogroom.com",
             siteName: "ablogroom",
             images: images ? images.concat(initImgs) : initImgs,
-            locale: "en-CA",
-            type: "website"
-
         },
     }
     return new Promise((resolve) => {

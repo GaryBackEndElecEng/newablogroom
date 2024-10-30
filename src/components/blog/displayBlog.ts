@@ -155,6 +155,7 @@ _onlyMeta:boolean=false;
         outerContainer.id="display-main";
         outerContainer.style.cssText="margin-inline:auto;margin-block:1rem;padding-block:auto;width:100%;position:relative;min-height:110vh;padding-block:2rem;";
         outerContainer.style.paddingInline=paddingInline;
+        outerContainer.style.opacity="0";
         parent.classList.add("container-fluid");
         parent.classList.add("w-100");
         parent.classList.add("mx-auto");
@@ -162,13 +163,12 @@ _onlyMeta:boolean=false;
         parent.style.cssText="margin-inline:auto;border-radius:12px;position:relative;display:flex;flex-direction:column;padding-inline:1rem;align-items:center;justify-content:center;";
         parent.style.maxWidth="75vw";
         parent.style.backgroundColor="rgb(6 125 243 / 11%)";
-        parent.appendChild(outerContainer);
         
         //-----------BTN CONTAINER FOR FINAL WORK-----------------//
         const btnContainer=document.createElement("div");
         btnContainer.id="btnContainer";
         btnContainer.style.cssText="margin-inline:auto;";
-        parent.appendChild(btnContainer);
+        
         //-----------BTN CONTAINER FOR FINAL WORK-----------------//
         //-----------user info-------------------------------------//
         const userInfo=document.createElement("div");
@@ -189,16 +189,6 @@ _onlyMeta:boolean=false;
         const btnGrp=document.createElement("div");
         btnGrp.style.cssText="display:flex;flex-direction;justify-content:space-between;align-items:center;flex-wrap:wrap;"
         btnGrp.className="btn-group btnGrp justify-content-around gap-2";
-        //SHOWS PAGE
-        await this.saveFinalWork(container,blog);
-        //SHOWS PAGE
-       //RATE SECTION !!!SHOWS RATINGGG
-           this._message.getBlogMsgs(outerContainer,blog.id).then(async(res)=>{
-            if(res && res.messages && res.container){
-                this._message.contactCards(res.container,res.messages);
-            }
-           });
-       //RATE SECTION
         // BUTTON RETURN NAV OPTIONS
             // Main.cleanUp(btnGrp);
         
@@ -273,12 +263,24 @@ _onlyMeta:boolean=false;
                 Misc.growIn({anchor:btnGrp,scale:0,opacity:0,time:800});
             },800);
             
-            //-----------INTRO EFFECT-----------////
-            outerContainer.animate([
-                {opacity:"0"},
-                {opacity:"1"},
-            ],{duration:700,iterations:1});
-            //-----------INTRO EFFECT-----------////
+            //SHOWS PAGE
+            await this.saveFinalWork({outerContainer,innerContainer:container,blog}).then(async(res)=>{
+                if(res){
+
+                    //RATE SECTION !!!SHOWS RATINGGG
+                        this._message.getBlogMsgs(res.outerContainer,blog.id).then(async(res)=>{
+                            if(res && res.messages && res.container){
+                                this._message.contactCards(res.container,res.messages);
+                            }
+                        });
+                    //RATE SECTION
+                    //BTN CONTAINER
+                    res.outerContainer.appendChild(btnContainer);
+                    //BTN CONTAINER
+                }
+            });
+            //SHOWS PAGE
+            
 
             Misc.matchMedia({parent:outerContainer,maxWidth:920,cssStyle:{paddingInline:"1rem",maxWidth:"100%"}});
             Misc.matchMedia({parent:parent,maxWidth:700,cssStyle:{maxWidth:"none",width:"100%"}});
@@ -288,7 +290,16 @@ _onlyMeta:boolean=false;
                 parent.style.maxWidth="100%";
             }
         }
-        
+        parent.appendChild(outerContainer);
+        //-----------INTRO EFFECT-----------////
+        setTimeout(()=>{
+            outerContainer.style.opacity="1";
+            outerContainer.animate([
+                {opacity:"0"},
+                {opacity:"1"},
+            ],{duration:700,iterations:1});
+        },0);
+        //-----------INTRO EFFECT-----------////
      }
 
     async awaitBlog(blog:blogType):Promise<{blog:()=>blogType}>{
@@ -345,56 +356,59 @@ _onlyMeta:boolean=false;
             innerContainer.id="PDFPrint";
             innerContainer.style.cssText="width:100%; padding:1rem;margin:1rem;border-radius:10px;margin-inline:auto;padding-inline:1rem;display:flex;flex-direction:column;justify-content:center;align-items:center;";
             innerContainer.className="mx-auto";
-            
-           await this.saveFinalWork(innerContainer,blog);
-            
-            //BUTTON SELECTION
-            const btnContainer=document.createElement("footer");
-            btnContainer.className="position-relative d-flex flex-column mx-auto width-sm-80 my-3 padding-2";
-            const groupBtn=document.createElement("div");
-            groupBtn.className="w-100 mx-auto gap-5";
-            groupBtn.classList.add("btn-group");
-            groupBtn.classList.add("justify-between");
-            groupBtn.setAttribute("role","group");
-            groupBtn.classList.add("gap-2");
-            const arr=["close","save","print"];
-            arr.forEach(str=>{
-                const button=buttonReturn({parent:groupBtn,text:str,bg:"#13274F",color:"white",type:"button"});
-                groupBtn.appendChild(button);
-                button.addEventListener("click",(e:MouseEvent)=>{
-                    if(e){
-                        if( str==="close"){
-                            parent.style.zIndex="0";
-                            // localStorage.removeItem("blog");
-                            Misc.growOut({anchor:mainContainer,scale:0,opacity:0,time:400});
-                            setTimeout(()=>{parent.removeChild(mainContainer);},398);
-                        }else if( str==="save"){
-                            this._user.saveWork({parent,blog,func:()=>{return undefined}});
-                            Misc.growOut({anchor:mainContainer,scale:0,opacity:0,time:400});
-                            setTimeout(()=>{parent.removeChild(mainContainer);},398);
-
-                        }else if(str==="print"){
-                            this.printThis=true;
-                            const finalWork=parent.querySelector("div#PDFPrint") as HTMLElement;
-                            this._service.promsaveItems(blog).then(async(_blog)=>{
-                                if(_blog){
-                                    finalWork.style.backgroundColor="white";
-                                    finalWork.style.height="auto";
-                                    finalWork.style.overflowY="auto";
-                                    this.htmlTwoCanvassPDF(finalWork,_blog);
-                                }
-                            });
-                            Misc.growOut({anchor:mainContainer,scale:0,opacity:0,time:400});
-                            setTimeout(()=>{parent.removeChild(mainContainer);},398);
-                        }
-                      
-                }
-                });
-            });
-            
-            btnContainer.appendChild(groupBtn);
             mainContainer.appendChild(innerContainer);
-            mainContainer.appendChild(btnContainer);
+           await this.saveFinalWork({outerContainer:mainContainer,innerContainer,blog}).then(async(res)=>{
+            if(res){
+
+                //BUTTON SELECTION
+                const btnContainer=document.createElement("footer");
+                btnContainer.className="position-relative d-flex flex-column mx-auto width-sm-80 my-3 padding-2";
+                const groupBtn=document.createElement("div");
+                groupBtn.className="w-100 mx-auto gap-5";
+                groupBtn.classList.add("btn-group");
+                groupBtn.classList.add("justify-between");
+                groupBtn.setAttribute("role","group");
+                groupBtn.classList.add("gap-2");
+                const arr=["close","save","print"];
+                arr.forEach(str=>{
+                    const button=buttonReturn({parent:groupBtn,text:str,bg:"#13274F",color:"white",type:"button"});
+                    groupBtn.appendChild(button);
+                    button.addEventListener("click",(e:MouseEvent)=>{
+                        if(e){
+                            if( str==="close"){
+                                parent.style.zIndex="0";
+                                // localStorage.removeItem("blog");
+                                Misc.growOut({anchor:mainContainer,scale:0,opacity:0,time:400});
+                                setTimeout(()=>{parent.removeChild(mainContainer);},398);
+                            }else if( str==="save"){
+                                this._user.saveWork({parent,blog,func:()=>{return undefined}});
+                                Misc.growOut({anchor:mainContainer,scale:0,opacity:0,time:400});
+                                setTimeout(()=>{parent.removeChild(mainContainer);},398);
+     
+                            }else if(str==="print"){
+                                this.printThis=true;
+                                const finalWork=parent.querySelector("div#PDFPrint") as HTMLElement;
+                                this._service.promsaveItems(blog).then(async(_blog)=>{
+                                    if(_blog){
+                                        finalWork.style.backgroundColor="white";
+                                        finalWork.style.height="auto";
+                                        finalWork.style.overflowY="auto";
+                                        this.htmlTwoCanvassPDF(finalWork,_blog);
+                                       
+                                    }
+                                });
+                                Misc.growOut({anchor:mainContainer,scale:0,opacity:0,time:400});
+                                setTimeout(()=>{parent.removeChild(mainContainer);},398);
+                            }
+                          
+                    }
+                    });
+                });
+                btnContainer.appendChild(groupBtn);
+                res.outerContainer.appendChild(btnContainer);
+            }
+           });
+            
             modAddEffect(mainContainer);
             parent.appendChild(mainContainer);
             
@@ -402,9 +416,10 @@ _onlyMeta:boolean=false;
         }
     }
     //--PARENT:showFinal(parent)-----------PARENT Edit.editSetup.saveWorkSetup-()---------///
-   async saveFinalWork(parent:HTMLElement,blog:blogType){
-        ShapeOutside.cleanUpByID(parent,"popup");
-        ShapeOutside.cleanUpByID(parent,"setAttributes");
+   async saveFinalWork(item:{outerContainer:HTMLElement,innerContainer:HTMLElement,blog:blogType}):Promise<{outerContainer:HTMLElement}>{
+        const {outerContainer,innerContainer,blog}=item;
+        ShapeOutside.cleanUpByID(innerContainer,"popup");
+        ShapeOutside.cleanUpByID(innerContainer,"setAttributes");
         const rmList=["overflow-y","overflow-x"];
         const addList=["height:auto"];
         blog.cssText=DisplayBlog.removeCleanCss({css:blog.cssText,rmList,addList});
@@ -479,7 +494,10 @@ _onlyMeta:boolean=false;
            await this.showCleanSelector({parent:foot,selector:footer});
             container.appendChild(foot);
         }
-        parent.appendChild(container);
+        innerContainer.appendChild(container);
+        return new Promise(resolve=>{
+            resolve({outerContainer})
+        }) as Promise<{outerContainer:HTMLElement}>;
         
     }
    async showCleanSelector(item:{parent:HTMLElement,selector:selectorType}){

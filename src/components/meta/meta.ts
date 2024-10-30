@@ -4,6 +4,7 @@ import { awsImage, getAllBlogImages, getOnlyBlogImages, getUserImage, getUsersIm
 import { blogType, postType, userType } from '../editor/Types';
 import { getErrorMessage } from '@/lib/errorBoundaries';
 
+const prisma=new PrismaClient();
 export type Props = {
   params: {id:string },
   // searchParams: { [key: string]: string | string[] | undefined }
@@ -45,8 +46,8 @@ class Meta{
 
         ]
         this.params=["blog_id","misc","intent"];
-        this.savegetblog="/api/savegetblog";
-        this.getusers="/api/getusers";
+        this.savegetblog="/api/savegetblog";//needs FULL HTTP PATH!!!
+        this.getusers="/api/getusers"; //needs FULL HTTP PATH!!!
         this.baseUrl=baseUrl;
         this.getblog=this.baseUrl + "/api/blog";
         this.getposts="/api/posts";
@@ -469,7 +470,7 @@ class Meta{
       headers:{"Content-Type":"application/json"},
       method:"GET"
     };
-    console.log("GETUSERS",this.getusers,"BASEURL",this.baseUrl)
+   
     let author:{ name:string, url:string }={name:"ablogroom",url:"https://www.ablogroom.com"}
     return fetch(`http://localhost:3000/api/getusers?user_id=${user_id}`,option).then(async(res)=>{
       if(res){
@@ -510,129 +511,91 @@ class Meta{
         return {image,name,desc,user_id,title};
       });
     }
-   
 
-     async generate_metadata(parent:ResolvingMetadata){
-      const genBlogs=await this.genBlogs();
-      const kwords:string[]=genBlogs && genBlogs.keywords ? genBlogs.keywords as string[]:[];
-      const descs:string=genBlogs && genBlogs.descs  ? genBlogs.descs.join(",") :"";
-      const images:string[]=genBlogs && genBlogs.images ? genBlogs.images as string[]:[];
-      const referrer = (await parent).referrer;
-      const previousImages = (await parent)?.openGraph?.images || []
-      const prevDesc = (await parent).openGraph?.description ||"blogs";
-      const keywords = (await parent).keywords || [];
-      // const authors = (await parent).authors || [];
-      
-      const blogUrl = `/blogs`;
-      const descsJoin=[descs,prevDesc].join(", ");
-      const joinKWords=keywords.concat(kwords);
-      const newImages = previousImages.concat(images);
-      return {
-        title:"blogs",
-          description: descsJoin,
-          keywords: joinKWords,
-          // authors: newAuths,
-          referrer,
-
-          openGraph: {
-              // images: [image, ...newImages],
-              description: descsJoin,
-              url: blogUrl,
-              images:newImages
-          },
-      }
-    }
-    async genposts_metadata(parent:ResolvingMetadata){
-      const genPosts= await this.genPosts();
-      const kwords:string[]=genPosts.map(post=>(post.title));
-      const descs:string=genPosts.map(post=>(post.content?.slice(0,25))).join(",");
-      const images:string[]=genPosts.length > 4 ? 
-      await Promise.all(genPosts.slice(0,4).map(async(post)=>((post && post.imageKey) ? (await awsImage(post.imageKey)):""))):[];
-      const referrer = (await parent).referrer;
-      const previousImages = (await parent)?.openGraph?.images || []
-      const prevDesc = (await parent).openGraph?.description ||"posts";
-      const keywords = (await parent).keywords || [];
-      // const authors = (await parent).authors || [];
-      
-      const postUrl = `/posts`;
-      const descsJoin=[descs,prevDesc].join(", ");
-      const joinKWords=keywords.concat(kwords);
-      const newImages = previousImages.concat(images);
-      return {
-        title: {
-            default: "posts",
-            template: `%s | posts`,
-        
-        },
-        description: descsJoin,
-        keywords:joinKWords,
-        referrer,
-        
-        alternates: {
-            canonical: "/posts",
-            languages: {
-            "en-US": "/en-US",
-            "fr-CA": "/fr-CA"
-            }
-        },
-        openGraph: {
-            title: "Posts",
-            description: descsJoin,
-            url: postUrl,
-            images:newImages
-      }
-      }
-      // const newAuths = authors.concat(getAuths)
-    }
-     async generateSingleMetadata({id,baseUrl}:{id:number,baseUrl:string},parent:ResolvingMetadata){
-      const getBlog= await this.getBlog({baseUrl,blog_id:id}) as unknown as blogType;
-      const referrer = (await parent).referrer;
-      const previousImages = (await parent)?.openGraph?.images || []
-      const prevDesc = (await parent).openGraph?.description;
-      const keywords = (await parent).keywords || [];
-      const authors = (await parent).authors || [];
+    //--------------------------FOR PRISMA POSTS-----------------------------//
+     async  generate_meta_post(item: { parent: ResolvingMetadata }): Promise<Metadata> {
+      const { parent } = item;
+      const logo = "/images/gb_logo.png";
+      const par = (await parent) ? (await parent) : undefined;
+      const url = par && par.metadataBase && par.metadataBase.origin ? par.metadataBase.origin : "https://www.ablogroom.com";
+      const posts = await prisma.post.findMany() as postType[];
+      const users = await prisma.user.findMany({ where: { showinfo: true } }) as userType[];
+      await prisma.$disconnect();
+      const titles: string[] = posts.map(post => (post.title ? post.title : "no title"));
+      const authors = users.map(user => ({ name: user.name ? user.name : "blogger", url }));
+      const imagesOnly = await Promise.all(posts.map(async (post) => (post.imageKey ? await awsImage(post.imageKey) : `${url}${logo}`)));
+      const images = imagesOnly.map(img => {
+          return {
+              url: img,
+              width: 600,
+              height: 600
+          }
+      });
+      return await this.retPostMetadata({ keywords: titles, images, url, authors })
+  };
   
-      const {name,desc,img,user_id,title}=getBlog;
-      const {author,image_,bio}=await this.getUser(user_id as string);
-     
-      const blogUrl = `/blog/${id}`;
-      const descsJoin=[prevDesc,bio,desc].join(", ");
-      keywords.push(name as string);
-      authors.push(author);
-      previousImages.push(img as string);
-      previousImages.push(image_);
-
-      // const newAuths = authors.concat(getAuths)
-      return {
-        title:title,
-          description: descsJoin,
-          keywords: keywords,
-          authors:authors,
-          referrer,
-
-          openGraph: {
-              images: previousImages,
-              description: descsJoin,
-              url: blogUrl,
+   async  retPostMetadata(item: { keywords: string[] | undefined, images: { url: string, width: number, height: number }[] | undefined, url: string | undefined, authors: {     name: string, url: string }[] | undefined }): Promise<Metadata> {
+      const { keywords, images, url, authors } = item;
+      const initKeywords = ["The Blog Room, Free to use", "blogs for you", "web info", "free blog posts", " The World is Your Oyster", " Create Your Own Blog", "Gary's Blogs"]
+      const initImgs: { url: string, width: number, height: number }[] = [
+          {
+              url: "/images/gb_logo.png",
+              width: 600,
+              height: 600
           },
+          {
+              url: "https://new-master.s3.ca-central-1.amazonaws.com/static/masterultils/masterUltils800_400.png",
+              width: 800,
+              height: 400
+          },
+      ];
+      const initAuthors = [{ name: "Gary Wallace", url: "https://www.masterconnect.ca" }]
+  
+      const metaReturn: Metadata = {
+          title: {
+              default: "ablogroom Blogs",
+              template: `%s | "ablogroom Blog"}`,
+  
+          },
+  
+          description: ' Free Blogs by ABLOGROOM -Blogs Creation by Bloggers for You. It provides templates that the user can use to become an effective blogger.',
+          generator: "ablogroom using Next.js",
+          referrer: "origin-when-cross-origin",
+          keywords: keywords ? keywords.concat(initKeywords) : initKeywords,
+          authors: authors ? authors.concat(initAuthors) : initAuthors,
+          // colorScheme:"light",
+          openGraph: {
+              title: "ablogroom",
+              description: 'Generated by www.masterconnect.ca,tools for you',
+              url: url ? url : "www.ablogroom.com",
+              siteName: "ablogroom",
+              images: images ? images.concat(initImgs) : initImgs,
+  
+          },
+          
       }
+      return new Promise((resolve) => {
+          resolve(metaReturn)
+      }) as Promise<Metadata>;
     }
+    //--------------------------FOR PRISMA POSTS-----------------------------//
     
      async genSitemapArray(item:{baseUrl:string}):Promise<MetadataRoute.Sitemap>{
       const {baseUrl}=item;
       let arr:MetadataRoute.Sitemap=[];
       let arr2:MetadataRoute.Sitemap=[];
+      const retBaseUrl=this.sitmapCheckUrl({url:baseUrl});
       try {
         arr=[
-          {url:`${baseUrl}`,lastModified:new Date(),changeFrequency:'weekly',priority:1},
-          {url:`${baseUrl}/blogs`,lastModified:new Date(),changeFrequency:'daily',priority:1},
-          {url:`${baseUrl}/posts`,lastModified:new Date(),changeFrequency:'daily',priority:1},
-          {url:`${baseUrl}/editor`,lastModified:new Date(),changeFrequency:'weekly',priority:1},
-          {url:`${baseUrl}/policy`,lastModified:new Date(),changeFrequency:'monthly',priority:1},
-          {url:`${baseUrl}/register`,lastModified:new Date(),changeFrequency:'yearly',priority:1},
-          {url:`${baseUrl}/termsOfService`,lastModified:new Date(),changeFrequency:'yearly',priority:1},
-          {url:`${baseUrl}/signin`,lastModified:new Date(),changeFrequency:'yearly',priority:1},
-          {url:`${baseUrl}/chart`,lastModified:new Date(),changeFrequency:'monthly',priority:1},
+          {url:`${retBaseUrl}`,lastModified:new Date(),changeFrequency:'weekly',priority:1},
+          {url:`${retBaseUrl}/blogs`,lastModified:new Date(),changeFrequency:'daily',priority:1},
+          {url:`${retBaseUrl}/posts`,lastModified:new Date(),changeFrequency:'daily',priority:1},
+          {url:`${retBaseUrl}/editor`,lastModified:new Date(),changeFrequency:'weekly',priority:1},
+          {url:`${retBaseUrl}/policy`,lastModified:new Date(),changeFrequency:'monthly',priority:1},
+          {url:`${retBaseUrl}/register`,lastModified:new Date(),changeFrequency:'yearly',priority:1},
+          {url:`${retBaseUrl}/termsOfService`,lastModified:new Date(),changeFrequency:'yearly',priority:1},
+          {url:`${retBaseUrl}/signin`,lastModified:new Date(),changeFrequency:'yearly',priority:1},
+          {url:`${retBaseUrl}/chart`,lastModified:new Date(),changeFrequency:'monthly',priority:1},
         ];
         const option={
           headers:{"Content-Type":"application/json"},
@@ -659,19 +622,88 @@ class Meta{
 
     }
     
-    async genPosts():Promise<postType[]>{
-      const option={
-        headers:{"Content-Type":"application/json"},
-        method:"GET"
+    sitmapCheckUrl(item:{url:string}){
+      const {url}=item;
+      //https://main.d2qer3lk2obzqm.amplifyapp.com/
+      const reg:RegExp=/(https\:\/\/main\.)/;
+      const len=url.length;
+      if(reg.test(url)){
+        return url.split("").slice(0,len-1).join("");
       }
-      return await fetch(this.getposts,option).then(async(res)=>{
-        if(res){
-          const posts =await res.json() as postType[];
-          return posts;
-        }
-        return [] as postType[]
-      });
+      return url;
     }
+    
+
+    //--------------------------------------PRISMA-FOR BLOGS--------------------------//
+    
+    async generate_blogs_meta(item: { parent: ResolvingMetadata }): Promise<Metadata> {
+      const { parent } = item;
+      const logo = "/images/gb_logo.png";
+      const par = (await parent) ? (await parent) : undefined;
+      const url = par && par.metadataBase && par.metadataBase.origin ? par.metadataBase.origin : "https://www.ablogroom.com";
+      const blogs = await prisma.blog.findMany({ where: { show: true } }) as blogType[];
+      const users = await prisma.user.findMany({ where: { showinfo: true } }) as userType[];
+      await prisma.$disconnect();
+      const titles: string[] = blogs.map(blog => (blog.title ? blog.title : "no title"));
+      const authors = users.map(user => ({ name: user.name ? user.name : "blogger", url }));
+      const imagesOnly = await Promise.all(blogs.map(async (blog) => (blog.imgKey ? await awsImage(blog.imgKey) : `${url}${logo}`)));
+      const images = imagesOnly.map(img => {
+          return {
+              url: img,
+              width: 600,
+              height: 600
+          }
+      });
+      return await this.retBlogsMetadata({ keywords: titles, images, url, authors })
+  };
+  
+  async  retBlogsMetadata(item: { 
+    keywords: string[] | undefined,
+     images: { url: string, width: number, height: number }[] | undefined,
+     url: string | undefined,
+     authors: { name: string, url: string }[] | undefined
+   }): Promise<Metadata> {
+      const { keywords, images, url, authors } = item;
+      const initKeywords = ["The Blog Room, Free to use", "blogs for you", "web info", "free blog posts", " The World is Your Oyster", " Create Your Own Blog", "Gary's Blogs"];
+      const initImgs: { url: string, width: number, height: number }[] = [
+          {
+              url: "/images/gb_logo.png",
+              width: 600,
+              height: 600
+          },
+          {
+              url: "https://new-master.s3.ca-central-1.amazonaws.com/static/masterultils/masterUltils800_400.png",
+              width: 800,
+              height: 400
+          },
+      ];
+      const initAuthors = [{ name: "Gary Wallace", url: "https://www.masterconnect.ca" }];
+  
+      const metaReturn: Metadata = {
+          title: {
+              default: "ablogroom Blogs",
+              template: `%s | ablogroom Blog`
+            },
+          description: ' Free Blogs by ABLOGROOM -Blogs Creation by Bloggers for You. It provides templates that the user can use to become an effective blogger.',
+          generator: "ablogroom using Next.js",
+          referrer: "origin-when-cross-origin",
+          keywords: keywords ? keywords.concat(initKeywords) : initKeywords,
+          authors: authors ? authors.concat(initAuthors) : initAuthors,
+          // colorScheme:"light",
+          openGraph: {
+              title: "ablogroom",
+              description: 'Generated by www.masterconnect.ca,tools for you',
+              url: url ? url : "www.ablogroom.com",
+              siteName: "ablogroom",
+              images: images ? images.concat(initImgs) : initImgs,
+          },
+  
+      }
+      return new Promise((resolve) => {
+          resolve(metaReturn)
+      }) as Promise<Metadata>;
+  }
+  //--------------------------------------PRISMA-FOR BLOGS--------------------------//
     
 }
 export default Meta;

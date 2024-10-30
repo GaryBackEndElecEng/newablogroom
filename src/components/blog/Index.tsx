@@ -24,7 +24,8 @@ function Index({ id }: { id: number }) {
 
 
     React.useEffect(() => {
-        if (typeof window !== "undefined" && clientRef && id) {
+        if (count > 0) return;
+        if (typeof window !== "undefined" && clientRef.current && id) {
             const url_id = `/api/blog/${id}`;
             const _modSelector = new ModSelector();
             const maxWidth = window.innerWidth < 900 ? "none" : "75%";
@@ -56,14 +57,10 @@ function Index({ id }: { id: number }) {
                         displayBlog._onlyMeta = true;
                         await displayBlog.main({ parent: target, blog: body });
                         count++;
-                    } else {
+                    } else if (count === 0) {
                         DisplayBlog.noBlog({ parent: target })
                     }
                 });
-
-
-
-
             }
         }
 
