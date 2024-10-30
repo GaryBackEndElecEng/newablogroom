@@ -37,6 +37,7 @@ class DisplayBlog{
 mainSection:HTMLElement|null;
 _blog:blogType;
 _codes:codeType[];
+_charts:chartType[];
 _selector:selectorType;
 _selectors:selectorType[];
 _elements:elementType[];
@@ -67,6 +68,7 @@ _onlyMeta:boolean=false;
         DisplayBlog._showOn=true;
         this._blog={} as blogType;
         this._codes=[] as codeType[];
+        this._charts=[] as chartType[];
         this._selector={} as selectorType;
         this._selectors=[] as selectorType[];
         this._elements=[] as elementType[];
@@ -122,6 +124,12 @@ _onlyMeta:boolean=false;
     get codes(){
         return this._codes;
     }
+    set charts(charts:chartType[]){
+        this._charts=charts;
+    }
+    get charts(){
+        return this._charts;
+    }
      //GETTERS SETTERS
      //DATA PARSERS
      parseSelectors(blog:blogType){
@@ -138,9 +146,9 @@ _onlyMeta:boolean=false;
      //MAIN INJECTION DONE @ Index.tsx//id=client_blog
     async main(item:{parent:HTMLElement,blog:blogType}){
         const {parent,blog}=item;
-        this._modSelector.loadBlog(blog);
+        this._modSelector.loadSimpleBlog(blog);
+        await this.awaitBlog(blog);
         this.blog=blog;
-        this.loadBlog(blog);
         const paddingInline=window.innerWidth < 900 ? (window.innerWidth < 420 ? "0rem" : "0.5rem") :"1rem"
         DisplayBlog.cleanUp(parent);//cleansup duplicates
         const outerContainer=document.createElement("article");
@@ -291,7 +299,8 @@ _onlyMeta:boolean=false;
                     this._selectors=blog.selectors;
                     this._elements=blog.elements;
                     this._codes=blog.codes;
-                    this.blog={...blog,selectors:this._selectors,elements:this._elements,codes:this._codes};
+                    this._charts=blog.charts;
+                    this.blog={...blog,selectors:this._selectors,elements:this._elements,codes:this._codes,charts:this.charts};
                     return blog;
                 }
 

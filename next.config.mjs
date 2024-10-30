@@ -141,6 +141,23 @@ const nextConfig = {
       "newmasterconnect.herokuapp.com",
     ],
   },
+  env: {
+    DATABASE_URL_AWS: process.env.DATABASE_URL_AWS,
+    BUCKET_NAME: process.env.BUCKET_NAME,
+    BUCKET_REGION: process.env.BUCKET_REGION,
+    SDK_ACCESS_KEY: process.env.SDK_ACCESS_KEY,
+    SDK_ACCESS_SECRET: process.env.SDK_ACCESS_SECRET,
+    CSRF_SECRET: process.env.CSRF_SECRET,
+    NEXTAUTH_CSRF: process.env.NEXTAUTH_CSRF,
+    NEXTAUTH_SECRET: process.env.NEXTAUTH_SECRET,
+    EMAIL: process.env.EMAIL,
+    EMAIL2: process.env.EMAIL2,
+    NEXTAUTH_URL: process.env.NEXTAUTH_URL,
+    ROOTURL: process.env.ROOTURL,
+    EMAIL_PASS: process.env.EMAIL_PASS,
+    GOOGLE_client_ID: process.env.GOOGLE_client_ID,
+    GOOGLE_client_secret: process.env.GOOGLE_client_secret,
+  },
 };
 
 export default nextConfig;

@@ -1557,6 +1557,14 @@ loadBlog(blog:blogType){
     const max_=ModSelector.maxCount(blog);
     localStorage.setItem("placement",String(max_ + 1));
 }
+loadSimpleBlog(blog:blogType){
+    this._elements=blog.elements;
+    this._selectors=blog.selectors;
+    this._selectCodes=blog.codes;
+    this.charts=blog.charts;
+    this._blog={...blog,name:blog.name,desc:blog.desc,title:blog.title,user_id:blog.user_id,selectors:blog.selectors,elements:blog.elements,codes:blog.codes,charts:this.charts};
+    
+}
    
 
     

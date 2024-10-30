@@ -1,6 +1,4 @@
-"use server"
 import React from 'react';
-import type { Metadata, ResolvingMetadata } from "next";
 import Index from "@/components/blogs/Index";
 
 

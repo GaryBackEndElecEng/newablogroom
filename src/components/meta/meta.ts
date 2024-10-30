@@ -16,7 +16,7 @@ export type getBlogType={
   user_id:string
 }|null
 
-
+const baseUrl=process.env.NODE_ENV !== 'production' ? process.env.NEXTURL as string : "http://localhost:3000";
 
 class Meta{
     pages:{page:string,redir:RegExp,match:RegExp}[];
@@ -47,9 +47,9 @@ class Meta{
         this.params=["blog_id","misc","intent"];
         this.savegetblog="/api/savegetblog";
         this.getusers="/api/getusers";
-        this.getblog="/api/blog";
+        this.baseUrl=baseUrl;
+        this.getblog=this.baseUrl + "/api/blog";
         this.getposts="/api/posts";
-       
         
     }
      checkPathname(){
@@ -469,8 +469,9 @@ class Meta{
       headers:{"Content-Type":"application/json"},
       method:"GET"
     };
+    console.log("GETUSERS",this.getusers,"BASEURL",this.baseUrl)
     let author:{ name:string, url:string }={name:"ablogroom",url:"https://www.ablogroom.com"}
-    return fetch(`${this.getusers}user_id=${user_id}`,option).then(async(res)=>{
+    return fetch(`http://localhost:3000/api/getusers?user_id=${user_id}`,option).then(async(res)=>{
       if(res){
         const newUser=await res.json() as userType;
         const image_=newUser.image ? newUser.image :"/images/gb_logo.png";
@@ -483,7 +484,9 @@ class Meta{
       }
     });
     }
-     async getBlog(blog_id:number): Promise<getBlogType>{
+     async getBlog(item:{blog_id:number,baseUrl:string}): Promise<getBlogType>{
+      const {blog_id,baseUrl}=item;
+      console.log("BASEURL",baseUrl)
       if(!blog_id) return {image:"",name:"",desc:"",user_id:"",title:""};
       const option={
         headers:{"Content-Type":"application/json"},
@@ -494,7 +497,7 @@ class Meta{
       let title:string="no Title";
       let desc:string="no desc";
       let user_id:string="";
-      return fetch(`${this.getblog}/${blog_id}`,option).then(async(res)=>{
+      return fetch(`http://localhost:3000/api/blog/${blog_id}`,option).then(async(res)=>{
         if(res){
           const blog= await res.json() as blogType;
           const newBlog=blog ? await getOnlyBlogImages(blog as unknown as blogType): {} as blogType;
@@ -581,9 +584,8 @@ class Meta{
       }
       // const newAuths = authors.concat(getAuths)
     }
-     async generateSingleMetadata({params}:Props,parent:ResolvingMetadata){
-      const {id}=params;
-      const getBlog= await this.getBlog(parseInt(id)) as unknown as blogType;
+     async generateSingleMetadata({id,baseUrl}:{id:number,baseUrl:string},parent:ResolvingMetadata){
+      const getBlog= await this.getBlog({baseUrl,blog_id:id}) as unknown as blogType;
       const referrer = (await parent).referrer;
       const previousImages = (await parent)?.openGraph?.images || []
       const prevDesc = (await parent).openGraph?.description;
