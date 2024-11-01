@@ -432,7 +432,8 @@ class MainFooter{
     rightSideContent(parent:HTMLElement){
         const container=document.createElement("div");
         container.id="rightSideContent";
-        container.style.cssText="display:flex;height:inherit;overflow-y:scroll;align-items:center;width:100%;justify-content:flex-start;gap:1.5rem;flex-direction:column;"
+        container.style.cssText="display:flex;height:inherit;overflow-y:scroll;align-items:center;width:100%;justify-content:flex-start;flex-direction:column;";
+        container.style.gap=window.innerWidth <900 ? (window.innerWidth<400 ? "0.5rem":"0.65rem") : "1.25rem";
         const text=document.createElement("h6");
         text.textContent="items";
         text.className="text-center text-primary text-decoration-underline text-underline-offset-3 mb-3 ms-auto";

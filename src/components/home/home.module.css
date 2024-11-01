@@ -1,0 +1,21 @@
+.homeIndex {
+  margin-inline: auto;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 1.25rem;
+  padding-inline: 2rem;
+  position: relative;
+}
+@media screen and (max-width: 900px) {
+  .homeIndex {
+    padding-inline: 0px;
+    margin-inline: 2px;
+  }
+}
+@media screen and (max-width: 410px) {
+  .homeIndex {
+    padding-inline: 0px;
+    margin-inline: 0px;
+  }
+}

@@ -15,6 +15,7 @@ class MessageSetup{
     constructor(){}
     contact(parent:HTMLElement): {form:HTMLFormElement,email:HTMLInputElement,textarea:HTMLTextAreaElement,rate:HTMLInputElement,btn:HTMLButtonElement,name:HTMLInputElement,msgEvent:HTMLElement,cont:HTMLElement}{
         Nav.navHeader=document.querySelector("header#navHeader") as HTMLElement;
+        window.scroll(0,0);
         const useParent= parent ? parent :Nav.navHeader;
         useParent.style.zIndex="";
         const cont=document.createElement("div");
@@ -114,6 +115,7 @@ class MessageSetup{
     contact2(parent:HTMLElement):{form:HTMLFormElement,popup:HTMLElement,useParent:HTMLElement,btn:HTMLButtonElement}{
         const css="margin-inline:auto;display:flex;flex-direction:column;justify-content:center;align-items:center;gap:1rem;"
         Nav.navHeader=document.querySelector("header#navHeader") as HTMLElement;
+        window.scroll(0,0);
         const useParent= parent ? parent :Nav.navHeader;
         useParent.style.zIndex="";
         const popup=document.createElement("div");
@@ -365,8 +367,8 @@ class Message{
                         if(res){
                             Misc.fadeOut({anchor:popup,xpos:75,ypos:100,time:400});
                             setTimeout(()=>{useParent.removeChild(popup);},380);
-                            const width=window.innerWidth < 900 ? "0%":"30%";
-                            const cssStyle={"inset":`20% ${width} 60% ${width}`,"box-shadow":"1px 1px 10px 1px #0CAFFF"}
+                            const width=window.innerWidth < 900 ? "0%":"26%";
+                            const cssStyle={inset:`20% ${width} 20% ${width}`,boxShadow:"1px 1px 10px 1px #0CAFFF",display:"flex",flexDirection:"column",alignItems:"center",justifyContent:"center"}
                             Message.thankMsg({parent,thanks:this.thanksMsg,cssStyle});
                             //GETTING CONTAINER
                             if(getParent && blog){
@@ -393,17 +395,21 @@ class Message{
    
     static thankMsg(msgThank:{parent:HTMLElement,thanks:string,cssStyle:{[key:string]:string}}){
         const {parent,thanks,cssStyle}=msgThank;
-        let css:string='';
-        for(const [key,value] of Object.entries(cssStyle)){
-            css +=`${key}:${value};`
-        }
+        window.scroll(0,0);
         const cont=document.createElement("div");
         parent.style.position="relative";
         cont.id="thankyou";
         const text=document.createElement("p");
         text.style.cssText="margin-inline:auto;padding-inline:2rem;color:white;font-size:20px;";
-        cont.style.cssText=`position:absolute;width:fit-content;padding:1rem;background:${Message.btnColor};color:white;margin-inline:auto;display:flex;flex-direction:column;align-items:center;justify-content:center;border-radius:16px;box-shadow:1px 1px 6px 1px aquamarine;${css}`;
+        cont.style.cssText=`position:absolute;width:fit-content;padding:1rem;background:${Message.btnColor};color:white;margin-inline:auto;display:flex;flex-direction:column;align-items:center;justify-content:center;border-radius:16px;box-shadow:1px 1px 6px 1px aquamarine;`;
         text.innerHTML=thanks;
+        for(const key of Object.keys(cont.style)){
+            for(const [key1,value] of Object.entries(cssStyle)){
+                if(key===key1){
+                    cont.style[key]=value;
+                }
+            }
+        }
         cont.appendChild(text);
         parent.appendChild(cont);
         cont.animate([

@@ -74,7 +74,7 @@ message:Message
 //GETTERS SETTERS
 //main injector ---MAIN INJECTION----
    async showBlogs(parent:HTMLElement,home:boolean,blogs:blogType[]){
-    const css_col="display:flex;flex-direction:column;align-items:center;gap:1.25rem;position:relative;";
+    const css_col="display:flex;flex-direction:column;align-items:center;gap:1.25rem;position:relative;width:100%";
     const css_row="display:flex;justify-content:center;align-items:center;gap:1.25rem;position:relative;";
     this.baseUrl=new URL(window.location.href).origin;
     this.blogs=blogs;
@@ -115,10 +115,10 @@ message:Message
         Misc.matchMedia({parent:container,maxWidth:500,cssStyle:{"borderRadius":"16px",border:"1px solid #0E3386"}});
     }
    async generateBlogs(parent:HTMLElement,blogs:blogType[]){
-       Header.cleanUpByID(parent,"mainRow")
+       Header.cleanUpByID(parent,"showBlogs-generateBlogs-mainRow")
         if(blogs && blogs.length>0){
             const mainRow=document.createElement("div");
-            mainRow.id="mainRow";
+            mainRow.id="showBlogs-generateBlogs-mainRow";
             const blogBaseCss=`display:flex; justify-content:center;flex-direction:column;padding-inline:0.25rem;gap:2.5rem;margin-top:2rem;position:relative;`;
                 mainRow.style.cssText=blogBaseCss;
                 mainRow.style.paddingInline=window.innerWidth <900 ? (window.innerWidth <600 ? "0px":"10px"):"1rem";
@@ -130,7 +130,7 @@ message:Message
                     const colBlog=document.createElement("div");
                     colBlog.style.cssText=blogBaseCss;
                     colBlog.className=`text-center`;
-                    colBlog.id="displayCard-container";
+                    colBlog.id="showBlogs-generateBlogs-mainRow-colBlogs";
                     colBlog.style.color=`#00008B`;
                     if(index%2===0){
                         colBlog.style.backgroundImage=`url(${this.bendImg})`;
@@ -144,7 +144,8 @@ message:Message
                     colBlog.style.boxShadow=`1px 1px 4px 1px #0aa2db,-1px -1px 4px 1px #0aa2db`;
                     await this.displayCard(colBlog,blog);
                     await this.allMsgs.blogMsgs({col:colBlog,blog});
-                    const btn=buttonReturn({parent:colBlog,text:"view details",bg:"#0C090A",color:"white",type:"button"})
+                    const {button:btn}=Misc.simpleButton({anchor:colBlog,text:"view details",bg:"#0C090A",color:"white",type:"button",time:400});
+                    btn.id="showBlogs-generateBlogs-btn";
                     colBlog.appendChild(btn);
                     mainRow.appendChild(colBlog);
                     btn.addEventListener("click",(e:MouseEvent)=>{
@@ -155,8 +156,7 @@ message:Message
                             // this._displayBlog.main(parent);
                         }
                     });
-                    const name=blog.title ? `view:${blog.title}` : "view detail";
-                    Misc.buttonMouseoverMsg({btn,cssStyle:{backgroundColor:"black",color:"white",height:"120%",width:"fit-content"},msg:name,time:300});
+                   
                 }));
             
             parent.appendChild(mainRow)
@@ -169,15 +169,15 @@ message:Message
         const flex_between= window.innerWidth < 500 ? "center" : "space-between";
         column.style.position="relative";
         const card=document.createElement("div");
-        card.className="displayCard";
-        card.id="displayCard";
+        card.className="displayCard-card";
+        card.id="displayCard-card";
         card.style.cssText=`width:auto;display:flex; flex-direction:row !important;flex-wrap:nowrap;justify-content:${flex_between};align-items:center;margin:auto;gap:1rem;margin:0;padding;width:100%;position:relative;border-radius:12px;font-family:'Poppins-Regular'`;
         card.style.flexDirection=window.innerWidth < 900 ? "column":"row";
         const textDiv=document.createElement("div");
-        textDiv.id="textDiv";
+        textDiv.id="displayCard-card-textDiv";
         textDiv.style.cssText="margin-inline:auto;margin-block:1rem;display:flex;flex-wrap:nowrap;gap:1.5rem;justify-content:center;align-items:center;width:auto;";
         const text=document.createElement("h6");
-        text.id="text";
+        text.id="displayCard-card-text";
         text.className="text-center  lean mt-2";
         text.style.cssText="color:rgba(8, 4, 249,0.5);text-decoration:underline;text-underline-offset:0.55rem;font-size:130%;"
         text.textContent=blog.title ? blog.title : " your title";
@@ -185,19 +185,23 @@ message:Message
         Misc.thumbsUp({parent:textDiv,cssStyle:{fontSize:"22px",color:"rgba(8, 4, 249,0.5)",zIndex:"200"},time:400,rating:blog.rating,limit:3});
         column.appendChild(textDiv);
         const imgCont=document.createElement("div");
-        imgCont.id="imgCont";
+        imgCont.id="displayCard-card-imgCont";
         imgCont.className="imgCont col-md-6"
         imgCont.style.cssText="padding:0.75rem;display:flex;flex-direction:column;justify-content:center;align-items:center;gap:0.65rem;";
         imgCont.style.flex="flex:1 1 33%";
         const small=document.createElement("small");
+        small.id="displayCard-card-small";
         const date=document.createElement("span");
+        date.id="displayCard-card-date";
         date.textContent= blog.date ? Blogs.tolocalstring(blog.date):"no date";
         small.textContent=blog.username ? blog.username : " blogger";
         const smallCont=document.createElement("div");
+        smallCont.id="displayCard-card-smallCont";
         smallCont.style.cssText="display:flex;flex-wrap:wrap;align-items:center;gap:1rem;font-size:12px;";
         smallCont.appendChild(date);
         smallCont.appendChild(small);
         const img=document.createElement('img');
+        img.id="displayCard-card-imgCont-img";
         img.className="";
         img.alt=`${blog.name}-www.ablogroom.com`;
         img.style.cssText="width:280px;filter:drop-shadow(0 0 0.25rem #0aa2db);background-color:#34282C;padding:5px;";

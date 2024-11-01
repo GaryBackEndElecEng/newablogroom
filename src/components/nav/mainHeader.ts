@@ -113,11 +113,12 @@ count:number=0;
         //DISPLAY A BLOGROOM BLOCK ON LOAD
         const {parent,user}=item;
         parent.style.zIndex="";
+        parent.style.position="relative";
         let word:string;
         const rectangle=document.createElement("div");
         rectangle.id="rectangle";
         rectangle.style.cssText=`margin-inline:auto;position:absolute; background:black;height:150px;display:flex;place-items:center;padding:2rem;padding-inline:6rem;color:white;top:0%;left:0%;right:0%;border-radius:0px 0px 12px 12px;z-index:200;text-wrap:pretty`;
-        rectangle.style.width=window.innerWidth <420 ? "100%":"75%";
+        rectangle.style.width=window.innerWidth<900 ? (window.innerWidth <420 ? "100%":"85%") : "75%";
 
         const text=document.createElement("p");
         if(user && user.id){

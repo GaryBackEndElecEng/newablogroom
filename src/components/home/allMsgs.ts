@@ -43,11 +43,14 @@ class AllMsgs{
     // for individual Card
     blogMsgs(item:{col:HTMLElement,blog:blogType}){
         const {col,blog}=item;
+        const css_col="display:flex;flex-direction:column;align-items:center;justify-content:center;gap:1rem;";
         const msgs=blog.messages ? blog.messages : [] as messageType[];
         if(blog && msgs && msgs.length>0){
             const contScroll=document.createElement("div");
             contScroll.id="blogMsgs-contScroll";
-            contScroll.style.cssText="height:15vh;overflow-y:scroll;margin-block:2rem;padding:1rem;display:flex;flex-direction:column;align-items:center;gap:1rem;";
+            contScroll.style.cssText=css_col + "height:15vh;overflow-y:scroll;padding:1rem;width:100%";
+            contScroll.style.marginBlock=window.innerWidth <420 ? "auto":"2rem";
+            contScroll.style.paddingInline=window.innerWidth<400 ? "1.25rem":"2.75rem";
             col.appendChild(contScroll);
             msgs.map(msg=>{
                 if(msg){
@@ -119,14 +122,16 @@ class AllMsgs{
     }
     singleMsgTwo(item:{col:HTMLElement,contScroll:HTMLElement,msg:messageType,imgKey:string|undefined}){
         const {col,contScroll,msg,imgKey}=item;
+        const css_col="display:flex;flex-direction:column;align-items:center;justify-content:center;gap:1rem;";
+        const css_row="display:flex;flex-direction:row;align-items:center;justify-content:center;gap:1rem;flex-wrap:wrap;";
         Header.cleanUpByID(contScroll,`msg-card-${msg.id}`);
         const card=document.createElement("div");
-        card.id=`msg-card-${msg.id}`;
+        card.id=`singleMsgTwo-msg-card-${msg.id}`;
         card.className="msgCard row";
-        card.style.cssText=`width:100%;display:inline-flex;justify-content:center;box-shadow:1px 1px 5px 1px #00BFFF,-1px -1px 5px 1px #00BFFF;cursor:pointer;`
+        card.style.cssText=css_row +`width:100%;box-shadow:1px 1px 5px 1px #00BFFF,-1px -1px 5px 1px #00BFFF;cursor:pointer;`;
             //ICONDIV && NAME
             const nameCont=document.createElement("span");
-            nameCont.style.cssText="display:flex;flex-wrap:nowrap;justify-content:space-around;align-items:center;margin-block:auto;";
+            nameCont.style.cssText=css_row + "flex-wrap:nowrap;";
             nameCont.id="nameCont";
             nameCont.classList.add("viewCard");
             nameCont.setAttribute("data-link","click to view comment");
@@ -135,25 +140,28 @@ class AllMsgs{
             name.style.cssText="margin-right:0.5rem;margin-block:0.5rem;";
             name.textContent=msg.name;
         const iconDiv=document.createElement("span");
-        iconDiv.id="iconDiv";
-        iconDiv.style.cssText="font-size:40px;width:45px;height:45px;padding:3px;display:flex;"
-        FaCreate({parent:iconDiv,name:SiAnswer,cssStyle:{marginRight:"10px",background:"white",color:"black",zIndex:"100"}});
+        iconDiv.id="singleMsgTwo-iconDiv";
+        iconDiv.style.cssText=css_col + "font-size:40px;width:45px;height:45px;padding:3px;"
+        FaCreate({parent:iconDiv,name:SiAnswer,cssStyle:{marginRight:"10px",background:"white",color:"#00BFFF",zIndex:"100"}});
         //APPENDING ICONDIV && NAME
         nameCont.appendChild(iconDiv);
         nameCont.appendChild(name);
         card.appendChild(nameCont);
-            //APPENDING ICONDIV && NAME
-            //STARS AND RATING
-            const rating=document.createElement("p");
-            rating.id="rating";
-            rating.style.cssText="margin-right:0.5rem;margin-block:auto;padding-block:auto;";
-        rating.textContent=`rating:${msg.rate}`;
+        //APPENDING ICONDIV && NAME
+        //STARS AND RATING
+        const rating=document.createElement("p");
+        rating.id="singleMsgTwo-rating";
+        rating.style.cssText="position:absolute;top:0%;margin-right:0.5rem;text-decoration:underline;text-underline-offset:0.25rem;width:40px;font-size:70%;";
+        rating.style.left=window.innerWidth <900 ? (window.innerWidth <400 ? "-10%" : "0%") : "90%";
+        rating.style.transform=window.innerWidth <900 ? (window.innerWidth <400 ? "translate(-30px,0px)" : "translate(-40px,5px)") : "translate(20px,-5px)";
+       
+        rating.innerHTML=`<span style=color:red;font-size:80%;>R</span> : ${msg.rate}`;
 
         const contStar=document.createElement("span");
-        contStar.id="contStar";
-        contStar.style.cssText="display:flex;flex-wrap:wrap;";
+        contStar.id="singleMsgTwo-contStar";
+        contStar.style.cssText=css_row +"position:relative;";
         contStar.appendChild(rating);
-        Misc.starRating({parent:contStar,rating:msg.rate,cssStyle:{color:"yellow","backgroundColor":"black",padding:"1px",borderRadius:"50%","fontSize":"25px","fill":"yellow","marginInline":"0px"}});
+        Misc.starRating({parent:contStar,rating:msg.rate,cssStyle:{color:"yellow","backgroundColor":"black",padding:"1px",borderRadius:"50%","fontSize":"22px","fill":"yellow","marginInline":"0px"}});
         //APPENDING rating and contStar
         //APPENDING rating and contStar
         nameCont.appendChild(contStar);
@@ -168,16 +176,16 @@ class AllMsgs{
    async viewCard(item:{parent:HTMLElement,msg:messageType,imgKey:string|undefined}){
         const {parent,msg,imgKey}=item;
         const container=document.createElement("div");
-        container.id="viewCard-container";
+        container.id="allMsgs-viewCard-container";
         container.style.cssText ="max-width:800px;padding-inline:1rem;display:flex;flex-direction:column;place-items:center;position:absolute;border-radius:14px;box-shadow:1px 1px 10px 1px #0CAFFF,-1px -1px 10px 1px #0CAFFF;z-index:100;background-color:white;padding-block:1rem;";
-        container.style.inset=window.innerWidth < 900 ? (window.innerWidth < 400 ? "30% 0% 25% 0%" : "30% 10% 25% 10%") :"30% 10% 30% 10%"
+        container.style.inset=window.innerWidth < 900 ? (window.innerWidth < 400 ? "30% 0% 38% 0%" : "30% 10% 25% 10%") :"30% 10% 30% 10%"
         parent.appendChild(container);
         const card=document.createElement("div");
-        card.id="viewCard-card"
+        card.id="allMsgs-viewCard-card"
         card.style.cssText ="padding-inline:1rem;display:flex;justify-content:space-around;flex-wrap:nowrap;align-items:flex-start;position:relative;background-color:white;width:100%;padding-block:1rem;";
         container.appendChild(card);
         const img=document.createElement("img");
-        img.id="viewCard-img";
+        img.id="allMsgs-viewCard-img";
         if(imgKey){
             this._service.getSimpleImg(imgKey).then(async(res)=>{
                 if(res){
@@ -193,21 +201,21 @@ class AllMsgs{
         img.style.cssText="width:50px;height:50px;aspect-ratio:1 / 1;border-radius:50%;filter:drop-shadow(0 0 0.5rem #0CAFFF);background-color:black;";
         card.appendChild(img);
         const cardBody=document.createElement("div");
-        cardBody.id="viewCard-body";
-        cardBody.style.cssText="width:100%; margin-inline:auto;padding:0.5rem;display:flex;flex-direction:column;justify-content:space-around;align-items:flex-start;max-height:15vh;overflow-y:scroll;position:relative;";
+        cardBody.id="allMsgs-viewCard-body";
+        cardBody.style.cssText="width:100%; margin-inline:auto;padding:0.5rem;display:flex;flex-direction:column;align-items:flex-start;max-height:15vh;overflow-y:scroll;position:relative;";
         card.appendChild(cardBody);
         const name=document.createElement("span");
-        name.id="viewCrad-body-name";
+        name.id="allMsgs-viewCrad-body-name";
         name.style.cssText="display:flex;flex-wrap:wrap;";
         const rate=document.createElement("div");
        rate.style.cssText="margin-inline:auto;"
-        rate.id="cardBody-rate";
+        rate.id="allMsgs-cardBody-rate";
         Misc.starRating({parent:rate,rating:msg.rate,cssStyle:{width:"100%",padding:"1px",color:"yellow",backgroundColor:"black",borderRadius:"50%"}});
         name.innerHTML=`<span id="view-cardBody-name" style="display:flex;"><span style="color:black;font-weight:bold;">name: </span> <h6 style="font-size:18px;color:blue;margin-right:0.5rem;"> ${msg.name}</h6></span>`;
         cardBody.appendChild(rate);
         cardBody.appendChild(name);
         const mess=document.createElement("p");
-        mess.id="viewCard-body-mess";
+        mess.id="allMsgs-viewCard-body-mess";
         mess.style.cssText="padding:0.7rem;border:1px solid #0CAFFF;border-radius:7px;width:100%; ";
         mess.textContent=msg.msg;
         cardBody.appendChild(mess);

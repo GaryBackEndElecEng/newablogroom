@@ -65,6 +65,7 @@ class Nav{
     contact(parent:HTMLElement){
         Nav.navHeader=document.querySelector("header#navHeader") as HTMLElement;
         const useParent= parent ? parent :Nav.navHeader;
+        window.scroll(0,0);
         useParent.style.zIndex="";
         const cont=document.createElement("div");
         useParent.style.position="relative";
@@ -466,6 +467,7 @@ class Nav{
         parent.style.zIndex="";
         const width=window.innerWidth < 780 ? 5 :20;
         const cont=document.createElement("div");
+        window.scroll(0,0);
         parent.style.position="relative";
         cont.id="thankyou";
         const text=document.createElement("p");

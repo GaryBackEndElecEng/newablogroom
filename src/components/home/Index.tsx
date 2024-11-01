@@ -6,16 +6,13 @@ import Service from '../common/services';
 import AuthService from '../common/auth';
 import User from '../user/userMain';
 import Nav from '../nav/headerNav';
-import Profile from '../editor/profile';
 import RegSignIn from '../nav/regSignin';
-import NavArrow from '../nav/arrow';
 import AllMsgs from './allMsgs';
 import Message from '../common/message';
 // import MetaBlog from '../editor/metaBlog';
 import Features from './feature';
-import ChartJS from '../chart/chartJS';
-import Post from '../posts/post';
 import Blogs from '../blogs/blogsInjection';
+import styles from "./home.module.css";
 
 export default function Index() {
     const refCheck = React.useRef(null);
@@ -38,7 +35,7 @@ export default function Index() {
 
     }, []);
     return (
-        <div className="container-fluid mx-auto">
+        <div className={styles.homeIndex}>
             <section ref={refCheck} id="home-index"></section>
         </div>
     )

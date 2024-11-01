@@ -350,6 +350,7 @@ class RegSignIn {
     signiMain(section:HTMLElement,providers:providerType[],csrfToken:string|undefined){
         Header.cleanUpByID(section,"signIn-main");
         // const cssGrp="margin:auto;display:flex;flex-direction:column;align-items:center;gap:1rem;";
+        window.scroll(0,0);
         section.style.position="relative";
         section.style.zIndex="20";
         // const width=window.innerWidth <500 ? "0%":"30%";
@@ -371,6 +372,7 @@ class RegSignIn {
 
     signInForm(parent:HTMLElement,signinUrl:string|undefined,csrfToken:string|undefined):{btn:HTMLButtonElement,container:HTMLElement,form:HTMLFormElement,email:HTMLInputElement,password:HTMLInputElement}{
         const user=this._user.user;
+        window.scroll(0,0);
         const cssGrp="margin:auto;display:flex;flex-direction:column;align-items:center;gap:1rem;";
         // const width=window.innerWidth <500 ? "0%":"30%";
         const container=document.createElement("section");

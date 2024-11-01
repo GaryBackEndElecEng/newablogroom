@@ -148,6 +148,8 @@ class Home{
 
     async asyncMain(item:{parent:HTMLElement}): Promise<{showBlogs:HTMLElement,showEffectContainer:HTMLElement,sectionOne:HTMLElement}|undefined>{
         const width=window.innerWidth <900 ? (window.innerWidth <600 ? "100%" :"95%") : "80%" ;
+        window.scroll(0,0);
+        const css_col="margin-inline:auto;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:1.5rem;width:100%;position:relative;";
         const {parent}=item;
         if(!parent)return;
         window.scroll(0,0);
@@ -156,26 +158,26 @@ class Home{
 
         const messageDisplay=document.createElement("div");
         messageDisplay.id="messageDisplay";
-        messageDisplay.style.cssText="margin-inline:auto;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:1.5rem;width:100%;";
+        messageDisplay.style.cssText=css_col;
 
         const showBlogs=document.createElement("div");
-        showBlogs.id="showBlogs";
-        showBlogs.style.cssText="display:flex;flex-direction:column;max-width:1000px;align-items:center;position:relative;width:100%;overflow-x:hidden;";
+        showBlogs.id="asyncmain-showBlogs";
+        showBlogs.style.cssText=css_col + "max-width:1000px;";
         
         const showEffectContainer=document.createElement("div");
-        showEffectContainer.id="showEffectContainer";
-        showEffectContainer.style.cssText="display:flex;flex-direction:column;align-items:center;position:relative;width:100%;overflow-x:hidden;"
+        showEffectContainer.id="asyncmain-showEffectContainer";
+        showEffectContainer.style.cssText=css_col + "overflow-x:hidden;";
 
         const showmsgs=document.createElement("div");
-        showmsgs.id="showmsgs";
-        showmsgs.style.cssText="width:100%;margin-inline:auto;display:flex;flex-direction:column;align-items:center;";
+        showmsgs.id="asyncmain-showmsgs";
+        showmsgs.style.cssText=css_col + "justify-content:flex-start;";
 
         const btnContainer=document.createElement("div");
-        btnContainer.id="btnContainer";
+        btnContainer.id="asyncmain-btnContainer";
         btnContainer.style.cssText="margin-block:2rem;padding:auto;margin-inline:auto;max-width:800px;width:100%;";
         const sectionOne=document.createElement("section");
-        sectionOne.id="sectionOne";
-        sectionOne.style.cssText="width;100%;padding:0rem;border-radius:16px;background-color:aliceblue;min-height:50vh;box-shadow:1px 1px 12px 1px #b4f3f3;margin-inline:auto;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:1.5rem;width:100%;padding-block:2rem;";
+        sectionOne.id="asyncmain-sectionOne";
+        sectionOne.style.cssText=css_col + "width;100%;padding:0rem;padding-block:2rem;border-radius:16px;background-color:aliceblue;min-height:50vh;box-shadow:1px 1px 12px 1px #b4f3f3;";
         sectionOne.style.opacity="0";
         sectionOne.style.backgroundImage=`url(${this.bend1})`;
         sectionOne.style.backgroundSize=`100% 100%`;
@@ -347,9 +349,10 @@ class Home{
         innerCont.style.cssText="display:inline-flex; flex-direction:row; flex-wrap:nowrap;align-items:center;position:absolute;"
         Misc.matchMedia({parent:innerCont,maxWidth:900,cssStyle:{"width":"180%"}});
         Misc.matchMedia({parent:innerCont,maxWidth:500,cssStyle:{"width":"220%"}});
-        innerCont.style.width=window.innerWidth < 900 ? (window.innerWidth < 600 ? "220%" : "180%"):"160%";
+        innerCont.style.width=window.innerWidth < 900 ? (window.innerWidth < 600 ? (window.innerWidth <400 ? "300%":"220%") : "180%"):"160%";
         container.style.width=window.innerWidth <900 ? (window.innerWidth<600 ? "100%" :"80%") :"60%";
         const text=document.createElement("p");
+        text.id="createYourBlogMsg-text"
         text.style.cssText="margin:auto;font-size:120%";
         text.textContent=this.createYourBlogMsg;
         innerCont.appendChild(text);
@@ -365,7 +368,7 @@ class Home{
         parent.style.position="relative";
         const container=document.createElement("section");
         container.id="showBlogs";
-        container.style.cssText="max-width:800px;margin-inline:auto;margin-block:2rem;display:flex;flex-direction:column;gap:4rem;position:relative;width:100%";
+        container.style.cssText="margin-inline:auto;margin-block:2rem;display:flex;flex-direction:column;gap:4rem;position:relative;width:100%";
         parent.appendChild(container);
         Misc.blurIn({anchor:container,blur:"20px",time:600});
         Misc.matchMedia({parent:container,maxWidth:900,cssStyle:{maxWidth:"900px",width:"100%"}});
@@ -448,9 +451,10 @@ class Home{
         //CLOSE----///
         //---------------BUTTON TO GO TO EDITOR-----------///
         const btnCont=document.createElement("div");
-        btnCont.style.cssText="width:100%;margin-inline:auto;margin-block:0.55rem;display:flex;justify-content:center;align-items:center;gap:0.75rem;position:relative;";
+        btnCont.style.cssText="margin-inline:auto;margin-block:0.55rem;display:flex;justify-content:center;align-items:center;gap:2rem;position:relative;";
         btnCont.id="showMaskDetail-popup-btnCont";
         const {button:editor}=Misc.simpleButton({anchor:btnCont,text:"editor",bg:"blue",color:"white",time:400,type:"button"});
+        editor.style.marginInline="auto"
         editor.id="btn-editor-go";
         const icon=document.createElement("div");
         icon.style.cssText="padding:8px;border-radius:50%;background:blue;transform:scale(1.3);"

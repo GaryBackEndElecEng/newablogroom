@@ -398,22 +398,23 @@ class NavArrow{
         useParent.style.zIndex="";
         const cont=document.createElement("div");
         useParent.style.position="relative";
-        cont.id="arrow-contact";
+        cont.id="navArrow-contact";
         cont.style.cssText=`position:absolute;width:fit-content;padding:1rem;background:rgb(3 13 49);color:white;height:fit-content;margin-inline:auto;display:flex;flex-direction:column;align-items:center;justify-content:center;border-radius:16px;width:100%;box-shadow:1px 1px 6px 1px aquamarine;padding:1rem;z-index:1000;`;
         cont.style.inset=window.innerWidth <900 ? (window.innerWidth <400 ? "270% 0% 10% 0%" :"270% 7% 10% 7%") :"270% 37% 10% 37%";
         const form=document.createElement("form");
         form.style.cssText="display:flex;flex-direction:column;align-items:center;justify-content:center;gap:1.5rem;padding:1.5rem;border-radius:inherit;background:white;color:black;margin:1rem;color:white;box-shadow:1px 1px 12px 1px skyblue;";
         const divGrp=document.createElement("div");
-        divGrp.id="contact-welcom-message";
+        divGrp.id="navArrow-contact-welcome-message";
         divGrp.style.cssText="margin-inline:auto;position:relative;display:flex;flex-direction:column;margin-bottom:2rem;padding-inline:2rem;";
         const img=document.createElement("img");
         const imgWidth=170;
+        img.id="navArrow-image"
         img.src=Misc.sourceImage({src:"gb_logo.png",width:imgWidth,quality:75});
         img.alt="www.ablogroom.com";
         img.style.cssText="border-radius:50%;filter:drop-shadow(0 0 0.5rem white);shape-outside:circle(50%);float:right;margin-right:1.5rem;margin-bottom:0px;box-shadow:1px 1px 12px 1px;";
         img.style.width=`${imgWidth}px`;
         const text=document.createElement("p");
-        text.id="contact-text-title"
+        text.id="navArrow-contact-text-title"
         text.className="text-primary";
         text.style.cssText="font-family:'Playwrite';font-size:130%;line-height:2.75rem;";
         text.appendChild(img);
@@ -623,8 +624,8 @@ class NavArrow{
                     parent.style.position="relative";
                     parent.style.zIndex="";
                     const container=document.createElement("div");
-                    container.id="nav-bio-container";
-                    container.style.cssText="width:100%; max-width:400px;box-shadow:1px 1px 10px black;border-radius:16px;position:absolute;box-shadow:1px 1px 10px 1px black;border-radius:16px;z-index:100;display:grid;place-items:center;";
+                    container.id="navArrow-bio-container";
+                    container.style.cssText="width:100%; max-width:400px;box-shadow:1px 1px 10px black;border-radius:16px;position:absolute;box-shadow:1px 1px 10px 1px black;border-radius:16px;z-index:1000;display:grid;place-items:center;";
                     Misc.matchMedia({parent:container,maxWidth:900,cssStyle:{top:"160%",left:"23%",right:"23%"}});
                     Misc.matchMedia({parent:container,maxWidth:400,cssStyle:{top:"160%",left:"1%",right:"1%"}});
                     container.style.top=window.innerWidth <900 ? (window.innerWidth <400 ? "160%" :"160%") :"160%";
