@@ -53,7 +53,6 @@ class Post{
         Header.cleanUpByID(injector,"main-post-container");
         const width=window.innerWidth;
         const css_col="margin-inline:auto;display:flex;flex-direction:column;justify-content:center;align-items:center;gap:0.7rem;";
-        injector.style.cssText=css_col + "gap:1rem;position:relative;width:75%;min-height:100vh;";
         this.injector=injector;
         const user=this._user.user;
         const container=document.createElement("div");
@@ -81,16 +80,18 @@ class Post{
         Misc.matchMedia({parent:injector,maxWidth:1200,cssStyle:{width:"85%"}});
         Misc.matchMedia({parent:injector,maxWidth:1000,cssStyle:{width:"90%"}});
         Misc.matchMedia({parent:injector,maxWidth:900,cssStyle:{width:"100%"}});
-        await this.Posts({injector:injector,posts,user}).then(async(res)=>{
+        await this.Posts({injector:injector,container,posts,user}).then(async(res)=>{
             if(res){
                 if(res.posts && res.posts.length>0){
                     this.posts=res.posts;
                     this.posts.map(async(post,index)=>{
                         if(post){
                             const col=document.createElement("div");
-                            col.className="col-md-6";
+                            col.className=window.innerWidth <900 ? "col-md-12" : "col-md-6";
                             col.id=`posts-col-${index}`;
-                            col.style.cssText="margin-inline:auto;display:flex;flex-direction:column;align-items:center;gap:0.75rem;flex:0 0 50%;background-color:#098ca091;color:white;border-radius:12px;";
+                            col.style.cssText="margin-inline:auto;display:flex;flex-direction:column;justify-content:center;align-items:center;gap:0.75rem;background-color:#098ca091;color:white;border-radius:12px;";
+                            col.style.width=window.innerWidth < 900 ? "100%":"auto";
+                            col.style.flex=window.innerWidth < 900 ? "0 0 100%":"0 0 50%";
                             res.row.appendChild(col);
                             this.postCard({row:res.row,col:col,post,user:user,index});
                             Misc.growIn({anchor:col,scale:1,opacity:0,time:500});
@@ -105,23 +106,31 @@ class Post{
         });
     };
     
-    async Posts(item:{injector:HTMLElement,posts:postType[],user:userType}):Promise<{container:HTMLElement,row:HTMLElement,posts:postType[],user:userType}>{
-        const {injector,posts,user}=item;
+    async Posts(item:{injector:HTMLElement,container:HTMLElement,posts:postType[],user:userType}):Promise<{container:HTMLElement,subDiv:HTMLElement,row:HTMLElement,posts:postType[],user:userType}>{
+        const {injector,container,posts,user}=item;
         Header.cleanUpByID(injector,"inner-post-container");//CLEANING UP
         const css="margin-inline:auto;display:flex;flex-direction:column;justify-content:flex-start;align-items:center;gap:1.5rem;";
-        const container=document.createElement("div");
-        container.id="inner-post-container";
-        container.style.cssText=css + "position:relative;width:100%;padding-inline:2rem;border-radius:12px;height:80vh;overflow-y:scroll;padding-block:2rem;";
+        const subDiv=document.createElement("div");
+        subDiv.id="main-post-container-subDiv";
+        subDiv.style.cssText=css + "position:relative;width:100%;padding-inline:2rem;border-radius:12px;padding-block:2rem;";
+        subDiv.style.paddingInline=window.innerWidth < 900 ? (window.innerWidth <400 ? "0rem" : "0.5rem") : "2rem";
         const row=document.createElement("div");
-        row.id="posts-row";
+        row.id="main-post-container-subDiv-row";
+        row.style.justifyContent="flex-start";
         row.className="row";
-        container.appendChild(row);
-        Misc.matchMedia({parent:container,maxWidth:900,cssStyle:{height:"85vh"}});
-        Misc.matchMedia({parent:container,maxWidth:400,cssStyle:{height:"100vh"}});
-        injector.appendChild(container);
+        if(window.innerWidth <900){
+            row.classList.remove("row");
+            row.style.cssText="margin-inline:auto;width:100%;display:flex;flex-direction:column;align-items:center;gap:2rem;";
+            row.style.height=window.innerWidth <400 ? "100vh" :"70vh";
+            row.style.overflowY="scroll";
+        }
+        subDiv.appendChild(row);
+        Misc.matchMedia({parent:subDiv,maxWidth:900,cssStyle:{height:"85vh"}});
+        Misc.matchMedia({parent:subDiv,maxWidth:400,cssStyle:{height:"100vh"}});
+        container.appendChild(subDiv);
         return new Promise(resolve=>{
-            resolve({container,row,posts,user})
-        }) as Promise<{container:HTMLElement,row:HTMLElement,posts:postType[],user:userType}>;
+            resolve({container,subDiv,row,posts,user})
+        }) as Promise<{container:HTMLElement,subDiv:HTMLElement,row:HTMLElement,posts:postType[],user:userType}>;
     };
     createPost(item:{parent:HTMLElement,user:userType}){
         const {parent,user}=item;
@@ -220,11 +229,12 @@ class Post{
         const {row,col,post,user,index}=item;
         this.post=post;
         Header.cleanUpByID(col,`postcard-card-${index}`);
-        const css_col="margin-inline:auto;display:flex;flex-direction:column;justify-content:center;align-items:center;gap:0.7rem;background-color:inherit;color:inherit;border-radius:inherit;";
+        const css_col="margin-inline:auto;display:flex;flex-direction:column;justify-content:center;align-items:center;gap:0.7rem;background-color:inherit;color:inherit;border-radius:inherit;width:100%";
+        const shapoutside="padding:1rem;text-wrap:wrap;color:black;font-family:'Poppins-Thin';font-weight:bold;font-size:120%;line-height:2.05rem;color:inherit;border-radius:12px;background-color:black;box-shadow:1px 1px 12px white;"
         const css_row="margin-inline:auto;display:flex;flex-direction:row;flex-wrap:wrap;justify-content:center;align-items:center;gap:0.27rem;background-color:inherit;color:inherit;border-radius:inherit;";
         const card=document.createElement("div");
         card.id=`postcard-card-${index}`;
-        card.style.cssText=css_col + "width:100%;padding-block:2rem;";
+        card.style.cssText=css_col;
         const title=document.createElement("p");
         title.id=`card-title-${index}`;
         title.className="post-title";
@@ -233,12 +243,13 @@ class Post{
         card.appendChild(title);
         const shapeOutside=document.createElement("p");
         shapeOutside.id=`shapeOutside-${index}`;
-        shapeOutside.style.cssText="padding:1rem;text-wrap:wrap;color:black;font-family:'Poppins-Thin';font-weight:bold;font-size:120%;line-height:2.05rem;color:inherit;border-radius:12px;background-color:black;box-shadow:1px 1px 12px white;";
+        shapeOutside.style.cssText=window.innerWidth <400 ? shapoutside + css_col :shapoutside;
         const img=document.createElement("img");
         img.id=`shapeOutside-img-${index}`;
         img.src=this.logo;
         img.alt="www.ablogroom.com";
-        img.style.cssText="border-radius:50%;max-width:250px;shape-outside:circle(50%);float:left;margin-right:1.25rem;margin-bottom:2rem;aspect-ratio:1/1;filter:drop-shadow(0 0 0.75rem white);border:none;";
+        img.style.cssText="border-radius:50%;shape-outside:circle(50%);float:left;margin-right:1.25rem;margin-bottom:2rem;aspect-ratio:1/1;filter:drop-shadow(0 0 0.75rem white);border:none;";
+        img.style.width=window.innerWidth <900 ? (window.innerWidth <400 ? "300px" : "310px") :"355px";
         img.style.filter="drop-shadow(0 0 0.75rem white) !important";
         if(post.imageKey){
             await this._service.getSimpleImg(post.imageKey).then(async(res)=>{
@@ -525,7 +536,8 @@ class Post{
                                 },390);
                             }
                         });
-                        await this.Posts({injector:this.injector,posts:this.posts,user});
+                        const getCont=this.injector.querySelector("div#main-post-container") as HTMLElement;
+                        await this.Posts({injector:this.injector,container:getCont,posts:this.posts,user});
                     }
                 });
 
@@ -570,10 +582,12 @@ class Post{
                                     const getScrollCol1=document.querySelector("div#scrollCol1") as HTMLElement;
                                     if(getScrollCol1){
                                         //USED BY Profile: client account
-                                        await this.Posts({injector:getScrollCol1,posts:this.posts,user});
+                                        const getCont=getScrollCol1.querySelector("div#main-post-container") as HTMLElement;
+                                        await this.Posts({injector:getScrollCol1,container:getCont,posts:this.posts,user});
                                         parent.style.height="auto";
                                     }else{
-                                        await this.Posts({injector:this.injector,posts:this.posts,user});
+                                        const getCont=this.injector.querySelector("div#main-post-container") as HTMLElement;
+                                        await this.Posts({injector:this.injector,container:getCont,posts:this.posts,user});
                                     }
                                     Misc.growOut({anchor:popup,scale:0,opacity:0,time:400});
                                     setTimeout(()=>{

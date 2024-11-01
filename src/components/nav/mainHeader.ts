@@ -116,7 +116,9 @@ count:number=0;
         let word:string;
         const rectangle=document.createElement("div");
         rectangle.id="rectangle";
-        rectangle.style.cssText=`margin-inline:auto;width:75%;position:absolute; background:black;height:150px;display:flex;place-items:center;padding:2rem;padding-inline:6rem;color:white;top:0%;left:0%;right:0%;border-radius:0px 0px 12px 12px;z-index:200;text-wrap:pretty`;
+        rectangle.style.cssText=`margin-inline:auto;position:absolute; background:black;height:150px;display:flex;place-items:center;padding:2rem;padding-inline:6rem;color:white;top:0%;left:0%;right:0%;border-radius:0px 0px 12px 12px;z-index:200;text-wrap:pretty`;
+        rectangle.style.width=window.innerWidth <420 ? "100%":"75%";
+
         const text=document.createElement("p");
         if(user && user.id){
             const fontSize=window.innerWidth <900 ? (window.innerWidth < 395 ? "100%" : "225%") :"250%";

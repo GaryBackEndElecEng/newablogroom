@@ -1,6 +1,7 @@
 // "use server"; //EXPORTS ONLY ASYNC FUNCTIONS
 import React from 'react';
 import type { Metadata, ResolvingMetadata } from 'next';
+import styles from "@/components/posts/post.module.css";
 import { PrismaClient } from "@prisma/client";
 // import { postType, userType } from '@/components/editor/Types';
 // import { awsImage } from '@/lib/awsFunctions';
@@ -43,7 +44,7 @@ export default async function postlayout({
     children: React.ReactNode
 }) {
     return (
-        <div className="postslayout mx-auto d-flex w-100 p-0 flex-column">
+        <div className={styles.layoutposts}>
             {children}
         </div>
     )

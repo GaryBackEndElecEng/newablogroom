@@ -170,15 +170,7 @@ _onlyMeta:boolean=false;
         btnContainer.style.cssText="margin-inline:auto;";
         
         //-----------BTN CONTAINER FOR FINAL WORK-----------------//
-        //-----------user info-------------------------------------//
-        const userInfo=document.createElement("div");
-        userInfo.id="userInfo";
-        userInfo.style.cssText="min-height:5vh;width:60%;margin-block:2rem;border-radius:10px;display:flex;justify-content:center;flex-direction:column;align-items:center;margin-block:2rem;padding:1rem;";
-        Header.cleanUpByID(parent,"userInfo");
-        parent.appendChild(userInfo);
-        Misc.matchMedia({parent:userInfo,maxWidth:820,cssStyle:{width:"70%"}});
-        Misc.matchMedia({parent:userInfo,maxWidth:400,cssStyle:{width:"auto",maxWidth:"none",paddingInline:"0rem;"}});
-        //-----------user info-------------------------------------//
+        
         //-----------CONTAINER FOR FINAL WORK-----------------//
         const container=document.createElement("section");
         container.id="section-container";
@@ -277,6 +269,15 @@ _onlyMeta:boolean=false;
                     //BTN CONTAINER
                     res.outerContainer.appendChild(btnContainer);
                     //BTN CONTAINER
+                    //-----------user info-------------------------------------//
+                    const userInfo=document.createElement("div");
+                    userInfo.id="userInfo";
+                    userInfo.style.cssText="min-height:5vh;width:60%;margin-block:2rem;border-radius:10px;display:flex;justify-content:center;flex-direction:column;align-items:center;margin-block:2rem;padding:1rem;";
+                    Header.cleanUpByID(parent,"userInfo");
+                    parent.appendChild(userInfo);
+                    Misc.matchMedia({parent:userInfo,maxWidth:820,cssStyle:{width:"70%"}});
+                    Misc.matchMedia({parent:userInfo,maxWidth:400,cssStyle:{width:"auto",maxWidth:"none",paddingInline:"0rem;"}});
+                    //-----------user info-------------------------------------//
                 }
             });
             //SHOWS PAGE

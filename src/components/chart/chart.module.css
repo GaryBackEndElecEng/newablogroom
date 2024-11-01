@@ -1,0 +1,71 @@
+.chartlayout {
+  margin-inline: auto;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+.chartpage {
+  min-height: 100vh;
+  margin-inline: auto;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 2rem;
+}
+.chartindexcontainer {
+  margin-inline: auto;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 2rem;
+}
+.chart {
+  min-height: 100vh;
+  margin-inline: auto;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 2rem;
+}
+.chart > section {
+  position: relative;
+  width: 100%;
+}
+.chart > section > canvas {
+  width: 100%;
+  position: relative;
+}
+@media screen and (max-width: 900px) {
+  .chart > section > canvas {
+    width: 80%;
+    position: relative;
+  }
+}
+@media screen and (max-width: 400px) {
+  .chart > section > canvas {
+    width: 100%;
+    position: relative;
+  }
+  .chartlayout {
+    margin-inline: 0px;
+    padding: 0px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: 100%;
+  }
+  .chartpage {
+    margin-inline: 0px;
+    padding-inline: 0px;
+  }
+  .chartindexcontainer {
+    margin-inline: 0px;
+    padding-inline: 0px;
+  }
+}

@@ -517,33 +517,34 @@ class Message{
         const {parent,msg}=item;
         const isHome=parent.id==="home-index"? true:false;
         const container=document.createElement("div");
-        container.id="viewCard-container";
-        container.style.cssText ="max-width:800px;padding-inline:1rem;display:grid;place-items:center;position:absolute;border-radius:14px;box-shadow:1px 1px 10px 1px #0CAFFF,-1px -1px 10px 1px #0CAFFF;z-index:100;background-color:white;";
+        container.id="message-viewCard-container";
+        container.style.cssText ="max-width:800px;width:100%;padding-inline:1rem;display:grid;place-items:center;position:absolute;border-radius:14px;box-shadow:1px 1px 10px 1px #0CAFFF,-1px -1px 10px 1px #0CAFFF;z-index:100;background-color:white;";
         if(isHome){
             container.style.top="75%";
             container.style.left="20%";
             container.style.right="20%";
             // window.scrollTo(0,5)
         }else{
-            container.style.top="-100%";
-            container.style.left="20%";
-            container.style.right="20%";
+            container.style.top=window.innerWidth < 900 ? (window.innerWidth <400 ? "-100%" : "-100%") :"-100%";
+            container.style.left=window.innerWidth < 900 ? (window.innerWidth <400 ? "0%" : "10%") :"20%";
+            container.style.right=window.innerWidth < 900 ? (window.innerWidth <400 ? "0%" : "10%") :"20%";
+            
         }
         
         parent.appendChild(container);
         const card=document.createElement("div");
-        card.id="viewCard-card"
+        card.id="message-viewCard-card"
         card.style.cssText ="padding-inline:1rem;display:flex;justify-content:space-around;flex-wrap:nowrap;align-items:flex-start;position:relative;background-color:white;width:100%;padding-block:1rem;";
         container.appendChild(card);
         const img=document.createElement("img");
-        img.id="viewCard-img"
+        img.id="message-viewCard-img"
         img.src=this.logo;
         img.alt="www.ablogroom.ca";
         img.style.cssText="width:50px;height:50%;border-radius:50%;filter:drop-shadow(0 0 0.5rem #0CAFFF);background-color:black;";
         card.appendChild(img);
         const cardBody=document.createElement("div");
-        cardBody.id="viewCard-body";
-        cardBody.style.cssText="width:100%; margin-inline:auto;padding:0.5rem;display:flex;flex-direction:column;justify-content:space-around;align-items:flex-start;max-height:15vh;overflow-y:scroll;position:relative;";
+        cardBody.id="message-viewCard-body";
+        cardBody.style.cssText="width:100%; margin-inline:auto;padding:0.5rem;display:flex;flex-direction:column;justify-content:flex-start;margin-block:1rem;align-items:flex-start;max-height:15vh;overflow-y:scroll;position:relative;";
         card.appendChild(cardBody);
         const name=document.createElement("span");
         name.id="viewCrad-body-name";

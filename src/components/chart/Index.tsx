@@ -8,6 +8,7 @@ import AuthService from '@/components/common/auth';
 import User from '@/components/user/userMain';
 import Header from '../editor/header';
 import Climate from './climate';
+import style from "./chart.module.css"
 
 export default function Index() {
     let count = 0;
@@ -35,13 +36,13 @@ export default function Index() {
 
     }, [count]);
     return (
-        <div className="container-fluid mx-auto" style={{ minHeight: "110vh" }}>
+        <div className={style.chartindexcontainer}>
             <h5 className="mx-auto lean display-5 text-light text-center"> Graphs for you</h5>
             <h6 className="mx-auto px-1 text-center text-light lean display-6 my-6"> Create your own graph</h6>
             <p className="mx-auto px-1 text-center text-light lean my-2">Graph demonstration for you</p>
             <p className="mx-auto px-1 text-center text-light lean my-2">,,,further reading below:</p>
 
-            <div id="chart" ref={refChart} ></div>
+            <div id="chart" ref={refChart} className={style.chart} ></div>
         </div>
     )
 }

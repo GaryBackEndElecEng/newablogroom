@@ -1,6 +1,6 @@
 import React from 'react'
 import Index from "@/components/posts/Index";
-
+import styles from "@/components/posts/post.module.css";
 
 
 type Props = {
@@ -10,7 +10,7 @@ type Props = {
 
 export default async function page() {
     return (
-        <div className="isLocal container-fluid mx-auto">
+        <div className={styles.pageposts}>
             <Index />
         </div>
     )

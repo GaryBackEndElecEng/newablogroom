@@ -398,9 +398,9 @@ class NavArrow{
         useParent.style.zIndex="";
         const cont=document.createElement("div");
         useParent.style.position="relative";
-        cont.id="contact";
-        cont.style.cssText=`position:absolute;width:fit-content;padding:1rem;background:rgb(3 13 49);color:white;inset:270% 0% 0% 0%;height:fit-content;margin-inline:auto;display:flex;flex-direction:column;align-items:center;justify-content:center;border-radius:16px;box-shadow:1px 1px 6px 1px aquamarine;padding:1rem;z-index:200;`;
-        cont.style.inset="270% 37% 10% 37%";
+        cont.id="arrow-contact";
+        cont.style.cssText=`position:absolute;width:fit-content;padding:1rem;background:rgb(3 13 49);color:white;height:fit-content;margin-inline:auto;display:flex;flex-direction:column;align-items:center;justify-content:center;border-radius:16px;width:100%;box-shadow:1px 1px 6px 1px aquamarine;padding:1rem;z-index:1000;`;
+        cont.style.inset=window.innerWidth <900 ? (window.innerWidth <400 ? "270% 0% 10% 0%" :"270% 7% 10% 7%") :"270% 37% 10% 37%";
         const form=document.createElement("form");
         form.style.cssText="display:flex;flex-direction:column;align-items:center;justify-content:center;gap:1.5rem;padding:1.5rem;border-radius:inherit;background:white;color:black;margin:1rem;color:white;box-shadow:1px 1px 12px 1px skyblue;";
         const divGrp=document.createElement("div");
@@ -623,11 +623,13 @@ class NavArrow{
                     parent.style.position="relative";
                     parent.style.zIndex="";
                     const container=document.createElement("div");
-                    container.id="bio-container";
+                    container.id="nav-bio-container";
                     container.style.cssText="width:100%; max-width:400px;box-shadow:1px 1px 10px black;border-radius:16px;position:absolute;box-shadow:1px 1px 10px 1px black;border-radius:16px;z-index:100;display:grid;place-items:center;";
-                    container.style.top="160%";
-                    container.style.left="34%";
-                    container.style.right="34%";
+                    Misc.matchMedia({parent:container,maxWidth:900,cssStyle:{top:"160%",left:"23%",right:"23%"}});
+                    Misc.matchMedia({parent:container,maxWidth:400,cssStyle:{top:"160%",left:"1%",right:"1%"}});
+                    container.style.top=window.innerWidth <900 ? (window.innerWidth <400 ? "160%" :"160%") :"160%";
+                    container.style.left=window.innerWidth <900 ? (window.innerWidth <400 ? "0%" :"16%") :"34%";
+                    container.style.right=window.innerWidth <900 ? (window.innerWidth <400 ? "0%" :"16%") :"34%";
                     Misc.matchMedia({parent:container,maxWidth:600,cssStyle:{"top":"160%","left":"0%","right":"0%"}});
                     const card=document.createElement("div");
                     card.className="card";
@@ -688,8 +690,6 @@ class NavArrow{
                     container.appendChild(card);
                     parent.appendChild(container);
                     Misc.fadeIn({anchor:container,xpos:20,ypos:100,time:700});
-                    Misc.matchMedia({parent:container,maxWidth:900,cssStyle:{top:"160%",left:"23%",right:"23%"}});
-                    Misc.matchMedia({parent:container,maxWidth:400,cssStyle:{top:"160%",left:"1%",right:"1%"}});
                     close.addEventListener("click",(e:MouseEvent)=>{
                         if(e){
                             Misc.fadeOut({anchor:container,xpos:20,ypos:100,time:600});

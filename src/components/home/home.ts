@@ -80,6 +80,12 @@ class Home{
     ////-----------------GETTERS//SETTERS------------------//
     //INJECTION
     async main(parent:HTMLElement){
+        const css_col="display:flex;flex-direction:column;align-items:center;gap:1.5rem;";
+        parent.style.cssText=css_col;
+        Misc.matchMedia({parent,maxWidth:900,cssStyle:{width:"95%",paddingInline:"5px",paddingBlock:"1rem",margin:"0.25rem"}});
+        Misc.matchMedia({parent,maxWidth:600,cssStyle:{width:"100%",paddingInline:"0px",paddingBlock:"1rem",margin:"0px"}});
+        parent.style.paddingInline=window.innerWidth < 900 ? "0px" :"1rem";
+        parent.style.marginInline=window.innerWidth < 900 ? "0px" :"auto";
         await this.asyncMain({parent}).then(async(res)=>{
             if(res){
                 this.images=this.getImages;
@@ -141,14 +147,12 @@ class Home{
     };
 
     async asyncMain(item:{parent:HTMLElement}): Promise<{showBlogs:HTMLElement,showEffectContainer:HTMLElement,sectionOne:HTMLElement}|undefined>{
+        const width=window.innerWidth <900 ? (window.innerWidth <600 ? "100%" :"95%") : "80%" ;
         const {parent}=item;
         if(!parent)return;
         window.scroll(0,0);
         Home.injector=parent;
         Home.cleanUp(parent);
-        parent.style.cssText="margin-inline:auto;padding-block:2rem;min-height:110vh;box-shadow:1px 1px 3px black;border-radius:10px 1px 10px 10px;background:white;display:grid;position:relative;z-index:0;";
-        parent.style.width="80%";
-        parent.style.paddingInline="1rem";
 
         const messageDisplay=document.createElement("div");
         messageDisplay.id="messageDisplay";
@@ -156,7 +160,7 @@ class Home{
 
         const showBlogs=document.createElement("div");
         showBlogs.id="showBlogs";
-        showBlogs.style.cssText="display:flex;flex-direction:column;align-items:center;position:relative;width:100%;overflow-x:hidden;";
+        showBlogs.style.cssText="display:flex;flex-direction:column;max-width:1000px;align-items:center;position:relative;width:100%;overflow-x:hidden;";
         
         const showEffectContainer=document.createElement("div");
         showEffectContainer.id="showEffectContainer";
@@ -171,7 +175,7 @@ class Home{
         btnContainer.style.cssText="margin-block:2rem;padding:auto;margin-inline:auto;max-width:800px;width:100%;";
         const sectionOne=document.createElement("section");
         sectionOne.id="sectionOne";
-        sectionOne.style.cssText="width;100%;padding:1rem;border-radius:16px;background-color:aliceblue;min-height:50vh;box-shadow:1px 1px 12px 1px #b4f3f3;margin-inline:auto;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:1.5rem;width:100%;padding-block:2rem;";
+        sectionOne.style.cssText="width;100%;padding:0rem;border-radius:16px;background-color:aliceblue;min-height:50vh;box-shadow:1px 1px 12px 1px #b4f3f3;margin-inline:auto;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:1.5rem;width:100%;padding-block:2rem;";
         sectionOne.style.opacity="0";
         sectionOne.style.backgroundImage=`url(${this.bend1})`;
         sectionOne.style.backgroundSize=`100% 100%`;
@@ -185,9 +189,8 @@ class Home{
         parent.appendChild(showEffectContainer);
         parent.appendChild(showBlogs);
         
-        Misc.matchMedia({parent,maxWidth:900,cssStyle:{"width":"100%","paddingInline":"2px","maxWidth":"auto"}});
-        Misc.matchMedia({parent,maxWidth:400,cssStyle:{"paddingInline":"1px","maxWidth":"390px"}});
-        Misc.matchMedia({parent,maxWidth:800,cssStyle:{"maxWidth":"790px"}});
+        Misc.matchMedia({parent,maxWidth:900,cssStyle:{width:"95%",paddingInline:"5px",paddingBlock:"1rem",marginInline:"2px",maxWidth:"auto"}});
+        Misc.matchMedia({parent,maxWidth:600,cssStyle:{width:"100%",paddingInline:"0px",marginInline:"0px"}});
         return new Promise(resolve=>{
             resolve({showBlogs,showEffectContainer,sectionOne})
         }) as Promise<{showBlogs:HTMLElement,showEffectContainer:HTMLElement,sectionOne:HTMLElement}>;
@@ -201,7 +204,7 @@ class Home{
         outerContainer.id="mainLinks-outerContainer";
         outerContainer.style.cssText="display:flex;flex-direction:column;justify-content:center;align-items:center;width:100%;position:relative;";
         const container=document.createElement("div");
-        container.style.cssText="width:100%;min-height:10vh;display:inline-flex;justify-content:space-around;align-items:center;gap:1rem;position:relative;max-width:800px;margin-inline:auto;";
+        container.style.cssText="width:100%;min-height:10vh;display:inline-flex;justify-content:space-around;align-items:center;gap:1rem;position:relative;max-width:1000px;margin-inline:auto;";
         container.id="mainLinks-container";
         const divTop=document.createElement("div");
         divTop.style.cssText="width:80%;margin-inline:auto;margin-bottom:2rem;margin-top:3rem;height:4px;background-color:#0E3386;";
@@ -264,11 +267,13 @@ class Home{
         const itemArr:HTMLElement[]=[];
         const outerContainer=document.createElement("div");
         outerContainer.id="editorAttributeDisplay";
-        outerContainer.style.cssText="margin-inline:auto;margin-block:1.5rem;display:flex;flex-direction:column;align-items:center;justify-content:flex-start;padding-inline:5px;max-width:800px;gap:4.5rem;width:100%;position:relative;height:30vh;overflow-y:scroll;padding-block:2rem;margin-block:1.5rem;";
+        outerContainer.style.cssText="margin-inline:auto;margin-block:1.5rem;display:flex;flex-direction:column;align-items:center;justify-content:flex-start;padding-inline:0px;max-width:800px;gap:4.5rem;width:100%;position:relative;height:30vh;overflow-y:scroll;padding-block:2rem;margin-block:1.5rem;";
         outerContainer.style.scrollSnapType="y mandatory";
         outerContainer.style.backgroundColor="#f5f6fa";
-        Misc.matchMedia({parent:outerContainer,maxWidth:900,cssStyle:{"gap":"3rem"}});
-        Misc.matchMedia({parent:outerContainer,maxWidth:420,cssStyle:{"width":"98%","gap":"2.5rem"}});
+        Misc.matchMedia({parent:outerContainer,maxWidth:900,cssStyle:{gap:"3rem"}});
+        Misc.matchMedia({parent:outerContainer,maxWidth:420,cssStyle:{width:"98%",gap:"2.5rem"}});
+        outerContainer.style.width=window.innerWidth < 500 ? "98%" :"100%";
+        outerContainer.style.gap=window.innerWidth < 900 ? (window.innerWidth < 500 ? "2.5rem":"3rem") :"4.5rem";
        
         
         const arrImgs:arrItemType[]=[
@@ -313,13 +318,14 @@ class Home{
             ],{duration:2000,iterations:1});
             Misc.blurIn({anchor:container,blur:"20px",time:600});
             h6.style.fontSize="300%";
+            text.style.fontSize=window.innerWidth <900 ? "160%":"250%";
             Misc.matchMedia({parent:h6,maxWidth:420,cssStyle:{"fontSize":"220%",marginBottom:"auto"}});
-            text.style.fontSize="250%";
             Misc.matchMedia({parent:text,maxWidth:420,cssStyle:{"fontSize":"200%"}});
             outerContainer.appendChild(container);
             itemArr.push(mask)
             mask.onclick=(e:MouseEvent)=>{
                 if(e){
+                    console.log("item",item)
                     this.showMaskDetail({container,item:item,index});
                 }
             };
@@ -339,11 +345,10 @@ class Home{
         container.style.cssText="overflow-x:hidden;min-height:5vh;background:black;color:white;position:relative;margin-inline:auto;display:grid;place-items:center;border-radius:10px;box-shadow:1px 1px 6px 1px #0CAFFF";
         const innerCont=document.createElement("div");
         innerCont.style.cssText="display:inline-flex; flex-direction:row; flex-wrap:nowrap;align-items:center;position:absolute;"
-        innerCont.style.width="160%";
-        container.style.width="60%";
         Misc.matchMedia({parent:innerCont,maxWidth:900,cssStyle:{"width":"180%"}});
         Misc.matchMedia({parent:innerCont,maxWidth:500,cssStyle:{"width":"220%"}});
-        Misc.matchMedia({parent:container,maxWidth:900,cssStyle:{"width":"100%"}});
+        innerCont.style.width=window.innerWidth < 900 ? (window.innerWidth < 600 ? "220%" : "180%"):"160%";
+        container.style.width=window.innerWidth <900 ? (window.innerWidth<600 ? "100%" :"80%") :"60%";
         const text=document.createElement("p");
         text.style.cssText="margin:auto;font-size:120%";
         text.textContent=this.createYourBlogMsg;
@@ -399,7 +404,6 @@ class Home{
         popup.id=`showMaskDetail-popup-${index}`;
         popup.style.cssText="position:absolute;backdrop-filter:blur(20px);inset:-2rem;z-index:300;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:0.7rem;border-radius:12px;box-shadow:1px 1px 12px 1px rgba(12, 175, 255,0.5);padding:0.75rem;border:none;";
         popup.style.position="absolute";
-        popup.style.inset="-1rem";
         const h6=document.createElement("h6");
         h6.textContent=item.desc;
         h6.style.cssText="width:100%;text-wrap:pretty;font-family:'Poppins-Regular';margin-inline:auto !important;padding:7px;background-color:white;font-size:140%;";
@@ -416,9 +420,13 @@ class Home{
         popup.appendChild(imgH6);
         const para=document.createElement("p");
         para.id="showMaskDetail-popup-para";
-        para.style.cssText="font-family:'Poppins-thin';font-weight:600;text-wrap:pretty;padding:7px;border-radius:12px;margin-inline:auto;color:black;font-size:140%;background-color:white;";
+        para.style.cssText="font-family:'Poppins-thin';font-weight:600;text-wrap:pretty;padding:7px;border-radius:12px;margin-inline:auto;color:black;background-color:white;";
+        para.style.fontSize=window.innerWidth < 900 ? (window.innerWidth <500 ? "100%" : "130%") :"140%";
+        h6.style.fontSize=window.innerWidth < 900 ? (window.innerWidth <500 ? "100%" : "130%") :"140%";
         para.textContent=item.detail;
         popup.appendChild(para);
+        popup.style.inset=window.innerWidth < 900 ? (window.innerWidth <500 ? "0%" : "-1rem") :"-1rem";
+        
         Misc.matchMedia({parent:popup,maxWidth:400,cssStyle:{inset:"0%",gap:"5px"}});
         Misc.matchMedia({parent:h6,maxWidth:400,cssStyle:{fontSize:"100%"}});
         Misc.matchMedia({parent:imgH6,maxWidth:400,cssStyle:{flexDirection:"column"}});

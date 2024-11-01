@@ -94,7 +94,7 @@ class ChartJS {
         const {chart,parent}=item;
         await this.cleanChart({chart,parent}).then(async(res)=>{
             if(res){
-                console.log("res.chart.eleId",res.chart.eleId);
+              
                 const getCtx=parent.querySelector(`canvas#${res.ctx.id}`) as HTMLCanvasElement;
                 Misc.matchMedia({parent:getCtx,maxWidth:900,cssStyle:{maxwidth:"900px",width:"100%",height:"750px",minWidth:"600px"}});
                 Misc.matchMedia({parent:getCtx,maxWidth:400,cssStyle:{maxWidth:"380px",height:"400px",width:"100%",minWidth:"340px"}});
@@ -113,7 +113,7 @@ class ChartJS {
         //use await + promise on ctx
         const ctx=document.createElement("canvas") as HTMLCanvasElement;
         ctx.id=chart.eleId;
-        ctx.style.cssText="width:100%;maxWidth:1200px;min-width:900px;height:800px;border-radius:12px;margin-inline:auto;margin-block:2rem;padding-block:1rem;padding:1rem;margin-inline:auto;";
+        ctx.style.cssText="width:100%;maxWidth:1200px;height:800px;border-radius:12px;margin-inline:auto;margin-block:2rem;padding-block:1rem;padding:1rem;margin-inline:auto;";
         ctx.style.minWidth="none";
         parent.appendChild(ctx);
         Misc.matchMedia({parent:ctx,maxWidth:900,cssStyle:{maxwidth:"900px",width:"100%",height:"750px",minWidth:"700px"}});
@@ -150,15 +150,19 @@ class ChartJS {
         const {parent,chart}=item;
         Header.cleanUpByID(parent,`divCont-${chart.eleId}`);
         const divCont=document.createElement("div");
-        divCont.style.cssText="margin-inline:auto;border-radius:20px;width:100%;position:relative;display:flex;justify-content:center;align-items:center;flex-direction:column;gap:1rem;background-color:white;border-radius:12px;overflow-y:scroll;";
+        const width=window.innerWidth <900 ? (window.innerWidth < 600 ? (window.innerWidth <400 ? "340px":"500px") : "600px") : "730px";
+        divCont.style.cssText=`max-width:${width};aspect-ratio:1 /1.6;margin-inline:auto;border-radius:20px;width:100%;position:relative;display:flex;justify-content:center;align-items:center;flex-direction:column;gap:1rem;background-color:white;border-radius:12px;overflow-y:scroll;`;
         divCont.style.height="auto";
+        divCont.style.maxWidth=width;
+        divCont.style.width=width;
         divCont.classList.add("eleContainer");
         divCont.id=`divCont-${chart.eleId}`;
         divCont.style.maxHeight="800px";
         divCont.style.minHeight="auto";
         const ctx=document.createElement("canvas") as HTMLCanvasElement;
         ctx.id=chart.eleId;
-        ctx.style.cssText="max-width:730px;width:100%;height:100%;border-radius:12px;margin-inline:auto;margin-block:2rem;padding-block:1rem";
+        ctx.style.cssText=`max-width:${width};width:100%;aspect-ratio:1/1.6;border-radius:12px;margin-inline:auto;margin-block:2rem;padding-block:1rem`;
+        ctx.style.maxWidth=width
         divCont.appendChild(ctx);
         Misc.matchMedia({parent:ctx,maxWidth:900,cssStyle:{maxWidth:"575px",width:"100%"}});
         Misc.matchMedia({parent:ctx,maxWidth:400,cssStyle:{maxWidth:"340px",width:"100%"}});
@@ -184,6 +188,7 @@ class ChartJS {
         open.onclick=(e:MouseEvent)=>{
             if(e){
                 divCont.style.maxHeight="800px";
+                divCont.style.aspectRatio="auto";
                 divCont.style.height="600px";
                 getCtx.style.height="500px";
                 getCtx.hidden=false;
@@ -199,6 +204,7 @@ class ChartJS {
         close.onclick=(e:MouseEvent)=>{
             if(e){
                 newChart.destroy();
+                divCont.style.aspectRatio="auto";
                 divCont.style.maxHeight="100px";
                 getCtx.style.height="10px";
                 getCtx.hidden=true;
@@ -213,6 +219,7 @@ class ChartJS {
         edit.onclick=(e:MouseEvent)=>{
             if(e){
                 divCont.style.maxHeight="800px";
+                divCont.style.aspectRatio="auto";
                 divCont.style.height="700px";
                 getCtx.style.height="600px";
                 if(!newChart){
@@ -277,10 +284,15 @@ class ChartJS {
     async mainBarChart(item:{injector:HTMLElement,blog:blogType}){
         const {injector,blog}=item;
         const lenId=this.charts.length;
+        const widthMax=window.innerWidth <900 ? (window.innerWidth < 600 ? (window.innerWidth <400 ? "340px":"500px") : "600px") : "800px";
+        const widthMin=window.innerWidth <900 ? (window.innerWidth < 600 ? (window.innerWidth <400 ? "300px":"450px") : "500px") : "700px";
+        injector.style.minWidth=widthMin;
+        injector.style.maxWidth=widthMax;
         Header.cleanUpByID(injector,"ctx-container-target");
         if(injector.id !=="textarea"){
-            injector.style.cssText="min-height:100vh;margin-inline:auto;border-radius:20px;max-width:1000px;min-width:800px;width:100%;position:relative;display:flex;justify-content:center;align-items:center;flex-direction:column;";
+            injector.style.cssText="min-height:80vh;margin-inline:auto;border-radius:20px;max-width:1000px;width:100%;position:relative;display:flex;justify-content:center;align-items:center;flex-direction:column;";
         }
+
         Misc.matchMedia({parent:injector,maxWidth:900,cssStyle:{minWidth:"800px",maxWidth:"890px",width:"100%"}});
         Misc.matchMedia({parent:injector,maxWidth:800,cssStyle:{minWidth:"700px",maxWidth:"790px",width:"100%"}});
         Misc.matchMedia({parent:injector,maxWidth:700,cssStyle:{minWidth:"600px",maxWidth:"690px",width:"100%"}});
@@ -288,9 +300,13 @@ class ChartJS {
         const divCont=document.createElement("section");
         divCont.id="ctx-container-target";
         divCont.style.cssText="margin-inline:auto;margin-block:2rem;padding-inline:2rem; width:100%;display:flex;flex-direction:column;gap:1rem;align-items:center;justify-content:flex-start;gap:1rem;background-color:white;max-width:800px;border-radius:20px;overflow-y:scroll;height:800px;";
+        divCont.style.minWidth=widthMin;
+        divCont.style.maxWidth=widthMax;
         const ctx=document.createElement("canvas") as HTMLCanvasElement;
         ctx.id=`ctx-graph-${lenId}`;
         ctx.style.cssText="width:100%;height:100%;max-height:400px;border-radius:12px;margin-inline:auto;margin-block:2rem;padding-block:1rem;";
+        ctx.style.minWidth=widthMin;
+        ctx.style.maxWidth=widthMax;
         divCont.appendChild(ctx);
         Misc.matchMedia({parent:divCont,maxWidth:900,cssStyle:{width:"100%",maxWidth:"850px",height:"900px"}});
         Misc.matchMedia({parent:divCont,maxWidth:400,cssStyle:{width:"100%",maxWidth:"350px",height:"400px"}});
@@ -347,6 +363,9 @@ class ChartJS {
         const {parent,divCont,getCtx,blog}=item;
         let chart:Chart<"bar", number[], string | number>|Chart<"line", number[], string | number>
         divCont.style.position="relative";
+        const widthMax=window.innerWidth <900 ? (window.innerWidth < 600 ? (window.innerWidth <400 ? "340px":"500px") : "600px") : "800px";
+        const widthMin=window.innerWidth <900 ? (window.innerWidth < 600 ? (window.innerWidth <400 ? "300px":"450px") : "500px") : "700px";
+        getCtx.style.width=widthMin;
         const option=this.bar_options({barData:this.barData,label:"add your data"}) as unknown as optionType;
         await this.addChart({divCont,Ctx:getCtx,option,blog}).then(async(res)=>{
             if(res){

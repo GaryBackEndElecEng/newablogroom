@@ -112,7 +112,7 @@ export default async function RootLayout({
 }>) {
 
 
-  const style: { [key: string]: string } = { minHeight: "90vh", backgroundColor: "white", marginInline: "auto", backgroundImage: `url(${bend})`, backgroundSize: "100% 100%", backgroundPosition: "50% 50%" }
+  const style: { [key: string]: string } = { minHeight: "90vh", backgroundColor: "white", backgroundImage: `url(${bend})`, backgroundSize: "100% 100%", backgroundPosition: "50% 50%" }
   return (
     <html lang="en">
       <body className={inter.className} style={style}>

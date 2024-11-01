@@ -118,25 +118,30 @@ class MainFooter{
     }
     leftSide(col:HTMLElement,size:{width:string,height:string},matches:boolean){
         const {width,height}=size;
+
         const container=document.createElement("div");
-        container.id="left";
+        container.id="left-container-row";
         container.classList.add("row");
         container.style.cssText="margin:0px;padding:0px;position:relative;gap:1rem;justify-content:space-around;display:flex;";
+        //IMAGE AND TEXT WRAPPER
+        const imgWrapper=document.createElement("div");
+        imgWrapper.id="imgWrapper";
+        imgWrapper.style.cssText="margin:auto;display:flex;flex-direction:column;align-items:center;justify-content:center;"
+        imgWrapper.classList.add("col-lg-3");
+        imgWrapper.style.flex=window.innerWidth < 900 ? (window.innerWidth <500 ? "0 0 50%" : "0 0 50%") : "0 0 100%";
         if(matches){
             container.style.flexDirection="row"
         }
-        //IMAGE AND TEXT WRAPPER
-        const imgWrapper=document.createElement("div");
-        imgWrapper.style.cssText="margin:auto;display:flex;flex-direction:column;align-items:center;justify-content:center;"
-        imgWrapper.classList.add("col-lg-3");
         //IMAGE CONTAINER
         const imgDiv=document.createElement("div");
-        imgDiv.style.cssText="border-radius:50%;filter:drop-shadow(0 0 0.75rem white);position:relative;margin:1rem;display:grid;place-items:center;order:-1;border:none;";
+        imgDiv.id="imgDiv";
+        imgDiv.style.cssText="border-radius:50%;filter:drop-shadow(0 0 0.75rem white);position:relative;margin:1rem;display:flex;align-items:center;flex-direction:column;justify-content:center;order:-1;border:none;";
         imgDiv.style.left="0px";
         imgDiv.style.width=width;
         imgDiv.style.height=height;
         //IMAGE
         const img=document.createElement("img");
+        img.id="logo-img";
         img.src=this.logoUrl;
         img.alt="www.ablogroom.com";
         img.style.cssText="margin:auto;width::80px;height:80px;border-radius:inherit;filter:drop-shadow(0 0 0.75rem white);position:absolute;inset:0%;border:none;";
@@ -472,8 +477,14 @@ class MainFooter{
             parent.style.position="relative";
             parent.style.zIndex="";
             const container=document.createElement("div");
-            container.id="bio-container";
-            container.style.cssText="width:100%; max-width:600px;box-shadow:1px 1px 10px black;border-radius:16px;position:absolute;top:100%;left:28%;right:28%;box-shadow:1px 1px 10px 1px black;border-radius:16px;z-index:100;";
+            container.id="mainFooter-bio-container";
+            container.style.cssText="width:100%; max-width:600px;box-shadow:1px 1px 10px black;border-radius:16px;position:absolute;box-shadow:1px 1px 10px 1px black;border-radius:16px;z-index:1000;";
+            Misc.matchMedia({parent:container,maxWidth:900,cssStyle:{"top":"120%","left":"13%","right":"13%","width":"100%"}});
+            Misc.matchMedia({parent:container,maxWidth:800,cssStyle:{"top":"120%","left":"9%","right":"9%"}});
+            Misc.matchMedia({parent:container,maxWidth:420,cssStyle:{"top":"120%","left":"0%","right":"0%"}});
+            container.style.top=window.innerWidth <900 ? (window.innerWidth <400 ? "160%" :"160%") :"160%";
+            container.style.left=window.innerWidth <900 ? (window.innerWidth <400 ? "0%" :"16%") :"34%";
+            container.style.right=window.innerWidth <900 ? (window.innerWidth <400 ? "0%" :"16%") :"34%";
             const card=document.createElement("div");
             card.className="card";
             card.style.cssText="width:100%;border-radius:inherit;";
@@ -500,9 +511,6 @@ class MainFooter{
             cardBody.appendChild(btnGrp);
             card.appendChild(cardBody);
             container.appendChild(card);
-            Misc.matchMedia({parent:container,maxWidth:900,cssStyle:{"top":"120%","left":"13%","right":"13%","width":"100%"}});
-            Misc.matchMedia({parent:container,maxWidth:800,cssStyle:{"top":"120%","left":"9%","right":"9%"}});
-            Misc.matchMedia({parent:container,maxWidth:420,cssStyle:{"top":"120%","left":"0%","right":"0%"}});
             parent.appendChild(container);
             Misc.fadeIn({anchor:container,xpos:20,ypos:100,time:700});
             close.addEventListener("click",(e:MouseEvent)=>{
@@ -548,10 +556,13 @@ class MainFooter{
     storageMsg(item:{parent:HTMLElement,msgCont:HTMLElement,show:boolean,closeInfoMsg:boolean}){
         const {parent,show,msgCont,closeInfoMsg}=item;
         Header.cleanUpByID(parent,"popup-storageMsg");
+        parent.style.position="relative";
         const popup=document.createElement("div");
         popup.id="popup-storageMsg";
         popup.style.cssText="font-family:Poppins-Regular;position:absolute;width:50%;min-height:20vh;display:flex;justify-content:center;flex-direction:column;align-items:center;padding:1rem;background-color:black;color:white;z-index:200;border-radius:12px;box-shadow:1px 1px 12 1px rgba(12, 175, 255,0.5);margin-inline:auto;";
         popup.style.inset="0% 20% 0% 20%";
+        popup.style.width=window.innerWidth <900 ? (window.innerWidth <400 ? "100%" : "80%") :"50%";
+        popup.style.inset=window.innerWidth <900 ? (window.innerWidth <400 ? "0% 2% 40% 2%" : "0% 10% 60% 10%") :"0% 20% 0% 20%";
         const text=document.createElement("p");
         text.innerHTML=this.infoMsg;
         popup.appendChild(text);

@@ -74,11 +74,13 @@ message:Message
 //GETTERS SETTERS
 //main injector ---MAIN INJECTION----
    async showBlogs(parent:HTMLElement,home:boolean,blogs:blogType[]){
+    const css_col="display:flex;flex-direction:column;align-items:center;gap:1.25rem;position:relative;";
+    const css_row="display:flex;justify-content:center;align-items:center;gap:1.25rem;position:relative;";
     this.baseUrl=new URL(window.location.href).origin;
     this.blogs=blogs;
     Header.cleanUp(parent);
     const m_block= window.innerWidth < 500 ? "2rem" : "3.25rem";
-        parent.style.cssText="margin:1rem;margin-inline:auto;position:relative";
+        parent.style.position="relative";
         parent.classList.add("container-fluid");
         parent.classList.add("mx-auto");
         const container=document.createElement("section");
@@ -86,7 +88,10 @@ message:Message
         container.id="blogs-container";
         container.classList.add("container");
         container.classList.add("mx-auto");
-        container.style.cssText=`margin-block:${m_block};`
+        container.style.cssText=css_col;
+        container.style.marginBlock=`${m_block}`;
+        container.style.marginInline=window.innerWidth < 900 ? "0px":"auto";
+        container.style.paddingInline=window.innerWidth < 900 ? (window.innerWidth< 600 ? "0px":"2rem"):"8rem";
         const text=document.createElement("h3");
         text.style.cssText="margin-bottom:1.62rem;"
         if(home){
@@ -99,7 +104,6 @@ message:Message
         div1.style.cssText="margin-block;margin-inline:auto;width:85%;margin-block:1rem;height:3px;background-color:#0804e9;";
         const div2=document.createElement("div");
         div2.style.cssText="margin-block;margin-inline:auto;width:55%;margin-block:1rem;height:3px;background-color:#0804f9;";
-        container.style.cssText=`margin-inline:auto;padding-block:1rem;margin-block:2rem;padding-inline:10rem`;
         container.appendChild(text);
         container.appendChild(div1);
         container.appendChild(div2);
@@ -107,7 +111,7 @@ message:Message
             
             parent.appendChild(container);
         
-        Misc.matchMedia({parent:container,maxWidth:900,cssStyle:{"paddingInline":"0.5rem"}});
+        Misc.matchMedia({parent:container,maxWidth:900,cssStyle:{"paddingInline":"0rem"}});
         Misc.matchMedia({parent:container,maxWidth:500,cssStyle:{"borderRadius":"16px",border:"1px solid #0E3386"}});
     }
    async generateBlogs(parent:HTMLElement,blogs:blogType[]){
@@ -115,16 +119,16 @@ message:Message
         if(blogs && blogs.length>0){
             const mainRow=document.createElement("div");
             mainRow.id="mainRow";
-                mainRow.style.cssText=`display:flex; justify-content:center;flex-direction:column;padding-inline:0.25rem;gap:2.5rem;margin-top:2rem;`;
-                const blogBaseCss="border-radius:12px;position:relative;padding-inline:0rem;width:100%;position:relative;margin-inline:auto;";
+            const blogBaseCss=`display:flex; justify-content:center;flex-direction:column;padding-inline:0.25rem;gap:2.5rem;margin-top:2rem;position:relative;`;
+                mainRow.style.cssText=blogBaseCss;
+                mainRow.style.paddingInline=window.innerWidth <900 ? (window.innerWidth <600 ? "0px":"10px"):"1rem";
                 // mainRow.style.backgroundColor="#e7e8ee";
                 mainRow.style.backgroundColor="whitesmoke";
                 mainRow.style.borderRadius="16px";
-                Misc.matchMedia({parent:mainRow,maxWidth:900,cssStyle:{"gap":"1.5rem"}});
             
                 await Promise.all(blogs && blogs.sort((a,b)=>{if(a.rating > b.rating) return -1; return 1}).map(async(blog,index)=>{
                     const colBlog=document.createElement("div");
-                    colBlog.style.cssText=`${blogBaseCss}`;
+                    colBlog.style.cssText=blogBaseCss;
                     colBlog.className=`text-center`;
                     colBlog.id="displayCard-container";
                     colBlog.style.color=`#00008B`;
@@ -134,6 +138,7 @@ message:Message
                     }else{
                         colBlog.style.backgroundImage=`url(${this.bendImg1})`;
                     }
+                    colBlog.style.paddingInline=window.innerWidth <900 ? (window.innerWidth <600 ? "0px":"10px"):"1rem";
                     colBlog.style.backgroundSize=`100% 100%`;
                     colBlog.style.backgroundPosition=`50% 50%`;
                     colBlog.style.boxShadow=`1px 1px 4px 1px #0aa2db,-1px -1px 4px 1px #0aa2db`;
@@ -167,6 +172,7 @@ message:Message
         card.className="displayCard";
         card.id="displayCard";
         card.style.cssText=`width:auto;display:flex; flex-direction:row !important;flex-wrap:nowrap;justify-content:${flex_between};align-items:center;margin:auto;gap:1rem;margin:0;padding;width:100%;position:relative;border-radius:12px;font-family:'Poppins-Regular'`;
+        card.style.flexDirection=window.innerWidth < 900 ? "column":"row";
         const textDiv=document.createElement("div");
         textDiv.id="textDiv";
         textDiv.style.cssText="margin-inline:auto;margin-block:1rem;display:flex;flex-wrap:nowrap;gap:1.5rem;justify-content:center;align-items:center;width:auto;";
@@ -176,7 +182,7 @@ message:Message
         text.style.cssText="color:rgba(8, 4, 249,0.5);text-decoration:underline;text-underline-offset:0.55rem;font-size:130%;"
         text.textContent=blog.title ? blog.title : " your title";
         textDiv.appendChild(text);
-        Misc.thumbsUp({parent:textDiv,cssStyle:{fontSize:"22px",color:"rgba(8, 4, 249,0.5)"},time:400,rating:blog.rating,limit:3});
+        Misc.thumbsUp({parent:textDiv,cssStyle:{fontSize:"22px",color:"rgba(8, 4, 249,0.5)",zIndex:"200"},time:400,rating:blog.rating,limit:3});
         column.appendChild(textDiv);
         const imgCont=document.createElement("div");
         imgCont.id="imgCont";
@@ -257,7 +263,7 @@ message:Message
         cardBody.appendChild(title);
         card.appendChild(cardBody);
         column.appendChild(card);
-        Misc.matchMedia({parent:card,maxWidth:500,cssStyle:{flexDirection:"column"}});
+        Misc.matchMedia({parent:card,maxWidth:600,cssStyle:{flexDirection:"column"}});
         Misc.matchMedia({parent:cardBody,maxWidth:500,cssStyle:{flex:"1 1 100%"}});
         Misc.matchMedia({parent:imgCont,maxWidth:500,cssStyle:{flex:"1 1 100%"}});
        

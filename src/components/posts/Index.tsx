@@ -5,6 +5,7 @@ import Service from '../common/services';
 import AuthService from '../common/auth';
 import Post from './post';
 import User from '../user/userMain';
+import styles from "./post.module.css"
 
 
 export default function Index() {
@@ -33,7 +34,7 @@ export default function Index() {
         }
     }, [count]);
     return (
-        <section ref={refPosts} id="posts" style={{ minHeight: "100vh !important" }}>
+        <section ref={refPosts} id="posts" className={styles.mainPost}>
 
         </section>
     )

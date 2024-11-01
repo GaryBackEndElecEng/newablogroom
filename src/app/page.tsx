@@ -10,7 +10,7 @@ export default function Home() {
 
 
   return (
-    <main style={styleOne} className="mx-0 my-0 d-flex flex-column align-items-center">
+    <main style={styleOne} className=" my-0 d-flex flex-column align-items-center">
       <Index />
     </main>
   );

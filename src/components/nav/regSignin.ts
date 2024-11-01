@@ -33,8 +33,8 @@ class RegSignIn {
         Header.cleanUpByID(getmainHeader,"container-signin-signin-popup");
         const section=document.createElement("section");
         section.id="container-signin-signin-popup";
-        section.style.cssText="margin:auto;position:absolute;background-color:#10c0b68f;filter:drop-shadow(0 0 0.75rem crimson);border-radius:7px;padding:1rem;;z-index:1000;display:flex;flex-direction:column;align-items:center;gap:2rem;padding:1.5rem;width:clamp(390px,550px,550pc);z-index:20";
-        section.style.inset="150% 0% 0% 0%";
+        section.style.cssText="margin:auto;position:absolute;background-color:#10c0b68f;filter:drop-shadow(0 0 0.75rem crimson);border-radius:7px;padding:1rem;;z-index:1000;display:flex;flex-direction:column;align-items:center;gap:2rem;padding:1.5rem;width:100%;z-index:20";
+        section.style.inset=window.innerWidth < 900 ? (window.innerWidth <400 ? "150% 0% 10% 0%" :"150% 5% 10% 5%") :"150% 25% 0% 25%";
         getmainHeader.appendChild(section);
         Misc.growIn({anchor:section,scale:0,opacity:0,time:400});
         Misc.matchMedia({parent:section,maxWidth:900,cssStyle:{inset:"190% 10% 0% 10%"}});
@@ -355,7 +355,7 @@ class RegSignIn {
         // const width=window.innerWidth <500 ? "0%":"30%";
         const container=document.createElement("section");
         container.id="signIn-main";
-        container.style.cssText="margin:auto;position:relative;background-color:white;filter:drop-shadow(0 0 0.75rem crimson);border-radius:7px;padding:1rem;;z-index:1000;display:flex;flex-direction:column;align-items:center;gap:2rem;padding:1.5rem;";
+        container.style.cssText="margin:auto;position:relative;background-color:white;filter:drop-shadow(0 0 0.75rem crimson);border-radius:7px;padding:1rem;;z-index:1000;display:flex;flex-direction:column;align-items:center;gap:2rem;padding:1.5rem;width:100%;";
         Object.values(providers).map((provider)=>{
             //provider={callbackUrl:string=>https://,,,api/auth/callback/credentials or google,id:string=>"credentials/google",name:string,signinUrl:string=>http://local,,,api/auth/credentials}
             const signInCallBack=provider.callbackUrl as unknown as string;
@@ -376,7 +376,7 @@ class RegSignIn {
         const container=document.createElement("section");
         container.id="container-signIn";
         container.style.cssText="margin:auto;background-color:white;filter:drop-shadow(0 0 0.75rem crimson);border-radius:7px;padding:1rem;;z-index:1000;display:flex;align-items:center;gap:1rem;flex-direction:column;";
-        container.style.width=`clamp(300px,400px,450px)`;
+        container.style.width=`100%`;
         container.style.minHeight=`auto`;
         const form=document.createElement("form");
         form.id="signin-form";

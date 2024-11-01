@@ -53,9 +53,10 @@ class Features{
         popup.id="popup-feature-main";
         popup.style.cssText="margin-inline:auto;position:absolute;display:flex;flex-direction:column;align-items:center;gap:1rem;border-radius:12px;box-shadow:1px 1px 12px 1px black;overflow-y:scroll;overflow-x:hidden;padding-inline:1rem;padding-block:1rem;padding-bottom:2rem;height:80vh;";
         if(name==="body"){
-            popup.style.inset="5% 15% 30% 15%";
+            popup.style.inset=window.innerWidth <900 ? (window.innerWidth <400 ? "5% 0% 0% 0%" : "5% 2% 30% 2%")  : "5% 15% 30% 15%";
             popup.style.zIndex="200";
         }else{
+            popup.style.inset=window.innerWidth <900 ? (window.innerWidth <400 ? "5% 0% 0% 0%" : "5% 2% 20% 2%")  : "5% 15% 20% 15%";
             popup.style.inset="5% 5% 20% 5%";
         }
         const container=document.createElement("div");
@@ -95,8 +96,10 @@ class Features{
     }
     card(item:{parent:HTMLElement,feature:featureType}){
         const {parent,feature}=item;
+        const direction=window.innerWidth <500 ? "column":"row";
         const paddingInline=window.innerWidth <900 ? "0px" :"1rem";
         const css=`margin-inline:auto;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:1rem;padding-inline:${paddingInline};`;
+        const css_flex=`margin-inline:auto;display:flex;flex-direction:${direction};align-items:center;justify-content:center;gap:1rem;padding-inline:${paddingInline};`;
         const flex="margin-inline:auto;width:100%;display:flex !important;align-items:center;gap:2rem;padding-inline:1rem;flex-wrap:nowrap;";
         const container=document.createElement("div");
         container.id="card-container" + `${feature.id}`;
@@ -108,7 +111,7 @@ class Features{
         const card=document.createElement("div");
         card.id="card-"+ `${feature.id}`;
         card.className="d-flex align-items-center";
-        card.style.cssText=flex + "font-family:Poppins-Regular;font-size:120%;";
+        card.style.cssText=css_flex + "font-family:Poppins-Regular;font-size:120%;";
         const img=document.createElement("img");
         img.id=`${feature.name}-${feature.id}-${feature.id}`;
         img.src=feature.img ? feature.img : "/images/gb_logo.png";

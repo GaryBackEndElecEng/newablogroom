@@ -28,6 +28,11 @@
   symbols: "\1F44D";
   suffix: " ";
 }
+* {
+  box-sizing: border-box;
+  padding-inline: 0px;
+  margin-inline: auto;
+}
 :root {
   --background-slate: hsl(210, 13%, 50%);
   --background-lightslate: hsl(210, 13%, 70%);
@@ -1173,5 +1178,29 @@ p.post-title {
   .columns-4 {
     columns: none !important;
     -webkit-columns: none !important;
+  }
+}
+body {
+  width: 100%;
+  position: relative;
+}
+section#home-index {
+  width: 80%;
+  position: relative;
+}
+@media screen and (max-width: 900px) {
+  section#home-index {
+    width: 95%;
+    padding-inline: 5px;
+    padding-block: 1rem;
+    margin-inline: 5px;
+  }
+}
+@media screen and (max-width: 600px) {
+  section#home-index {
+    width: 100%;
+    padding-inline: 0px;
+    padding-block: 1rem;
+    margin-inline: 0px;
   }
 }

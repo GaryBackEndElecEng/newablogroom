@@ -68,13 +68,19 @@ class Nav{
         useParent.style.zIndex="";
         const cont=document.createElement("div");
         useParent.style.position="relative";
-        cont.id="contact";
-        cont.style.cssText=`position:absolute;width:fit-content;padding:1rem;background:rgb(3 13 49);color:white;inset:270% 0% 0% 0%;height:fit-content;margin-inline:auto;display:flex;flex-direction:column;align-items:center;justify-content:center;border-radius:16px;box-shadow:1px 1px 6px 1px aquamarine;padding:1rem;z-index:200;`;
-        cont.style.inset="270% 37% 10% 37%";
+        cont.id="headerNav-contact";
+        cont.style.cssText=`position:absolute;padding:1rem;background:rgb(3 13 49);color:white;inset:270% 30% 0% 30%;height:fit-content;margin-inline:auto;display:flex;flex-direction:column;align-items:center;justify-content:center;border-radius:16px;box-shadow:1px 1px 6px 1px aquamarine;padding:1rem;z-index:200;`;
+        Misc.matchMedia({parent:cont,maxWidth:1400,cssStyle:{inset:"270% 29% 10% 29%"}});
+        Misc.matchMedia({parent:cont,maxWidth:1200,cssStyle:{inset:"270% 25% 10% 25%"}});
+        Misc.matchMedia({parent:cont,maxWidth:900,cssStyle:{inset:"270% 18% 10% 18%"}});
+        Misc.matchMedia({parent:cont,maxWidth:400,cssStyle:{inset:"270% 1% 10% 1%"}});
+        cont.style.inset=window.innerWidth <900 ? (window.innerWidth <410 ? "270% 1% 10% 1%" : "270% 18% 10% 18%") :"270% 37% 10% 37%";
+        cont.style.width=window.innerWidth <900 ? (window.innerWidth <410 ? "100%" : "fit-content") :"fit-content";
+
         const form=document.createElement("form");
         form.style.cssText="display:flex;flex-direction:column;align-items:center;justify-content:center;gap:1.5rem;padding:1.5rem;border-radius:inherit;background:white;color:black;margin:1rem;color:white;box-shadow:1px 1px 12px 1px skyblue;";
         const divGrp=document.createElement("div");
-        divGrp.id="contact-welcom-message";
+        divGrp.id="headerNav-contact-welcom-message";
         divGrp.style.cssText="margin-inline:auto;position:relative;display:flex;flex-direction:column;margin-bottom:2rem;padding-inline:2rem;";
         const img=document.createElement("img");
         const imgWidth=170;
@@ -83,7 +89,7 @@ class Nav{
         img.style.cssText="border-radius:50%;filter:drop-shadow(0 0 0.5rem white);shape-outside:circle(50%);float:right;margin-right:1.5rem;margin-bottom:0px;box-shadow:1px 1px 12px 1px;";
         img.style.width=`${imgWidth}px`;
         const text=document.createElement("p");
-        text.id="contact-text-title"
+        text.id="headerNav-contact-text-title"
         text.className="text-primary";
         text.style.cssText="font-family:'Playwrite';font-size:130%;line-height:2.75rem;";
         text.appendChild(img);
@@ -186,10 +192,8 @@ class Nav{
             btn.style.color="transparent";
             btn.style.backdropFilter="blur(10px)";
         }
-        Misc.matchMedia({parent:cont,maxWidth:1400,cssStyle:{inset:"270% 29% 10% 29%"}});
-        Misc.matchMedia({parent:cont,maxWidth:1200,cssStyle:{inset:"270% 25% 10% 25%"}});
-        Misc.matchMedia({parent:cont,maxWidth:900,cssStyle:{inset:"270% 18% 10% 18%"}});
-        Misc.matchMedia({parent:cont,maxWidth:400,cssStyle:{inset:"270% 1% 10% 1%"}});
+
+        
        cont.animate([
         {transform:"translateY(-100%)",opacity:0},
         {transform:"translateY(0%)",opacity:1},
@@ -263,6 +267,10 @@ class Nav{
             }
         }
        });
+       setTimeout(()=>{
+        const getCont=parent.querySelector("div#headerNav-contact") as HTMLElement;
+        getCont.style.inset=window.innerWidth <900 ? (window.innerWidth <410 ? "270% 1% 10% 1%" : "270% 18% 10% 18%") :"270% 37% 10% 37%";
+       },0);
     }
    
   

@@ -107,27 +107,47 @@ class Dataflow {
     }
     main(parent:HTMLElement){
         window.scroll(0,0);
-        const width_=window.innerWidth < 900 ? (window.innerWidth > 420 ? 400 :350) : 500;
+        const width_=window.innerWidth < 900 ? (window.innerWidth < 400 ? 350 :400) : 800;
+        const size=window.innerWidth < 900 ? (window.innerWidth < 420 ? "xs" :"md") : "lg";
         const padding=window.innerWidth <900 ? "0rem":"1rem";
         parent.style.position="relative";
         const popup=document.createElement("div");
         popup.id="infor-popup";
         popup.className="popup";
-        popup.style.cssText="position:absolute;display:flex;flex-direction:column;justify-content:flex-start;align-items:center;padding:5rem;background-color:#0C090A;color:white;max-width:100%;z-index:300;height:100vh;overflow-y:scroll;gap:2rem;";
+        popup.style.cssText=`position:absolute;width:100%;max-width:${width_}px;display:flex;flex-direction:column;justify-content:flex-start;align-items:center;padding:5rem;background-color:#0C090A;color:white;width:100%;z-index:300;height:100vh;overflow-y:scroll;gap:2rem;`;
+        popup.style.overflowX=size==="xs" ? `hidden`:"auto";
+        popup.style.padding=(size==="xs") ? `0rem`:(size==="md") ? "2rem":"5rem";
         this.slides.map((slide,index)=>{
             const card=document.createElement("div");
-            card.style.cssText="margin:auto;display:flex;flex-direction:column;align-items:center;";
+            card.style.cssText="margin:auto;display:flex;flex-direction:column;align-items:center;width:100%;position:relative;";
+            card.style.maxWidth=window.innerWidth <900 ? (window.innerWidth <400 ? "350px" : "600px"):"800px";
             card.id=`info-card-${index}`;
             const text=document.createElement("h6");
             text.className="text-center text-primary mb-2 text-decoration-underline lean display-6";
+            text.style.cssText="text-align:center; align-self:center;"
             text.textContent=slide.name;
             card.appendChild(text);
             const para=document.createElement("p");
+            para.id=`shapoutside-${index}`;
             para.style.cssText="margin-inline:auto;width:100%;padding-inline:3rem;line-height:2.55rem;font-size:115%;";
             const img=document.createElement("img");
             img.style.cssText=`shape-outside:circle(50%);margin-block:2rem;width:${width_}px;aspect-ratio: 1 / 1;border-radius:50%;padding:${padding};filter:drop-shadow(0 0 0.75rem white);margin-right:4rem;float:left;`;
             img.src=slide.img;
             img.id=`image-round-${index}`;
+            if(size==="xs"){
+                card.style.width="375px";
+                para.style.display= "flex";
+                para.style.flexDirection= "column";
+                para.style.alignItems= "center";
+                para.style.justifyContent="center";
+                para.style.gap="2rem";
+                para.style.width="auto";
+                para.style.marginInline="auto";
+                img.style.float="none";
+                img.style.marginRight="0px";
+                img.style.marginInline="auto";
+                img.style.width="300px"
+            }
             para.appendChild(img);
             para.innerHTML +=slide.desc;
             card.appendChild(para);
@@ -139,8 +159,9 @@ class Dataflow {
             Misc.matchMedia({parent:para,maxWidth:900,cssStyle:{padding:"2rem",lineHeight:"1.80rem"}});
             Misc.matchMedia({parent:para,maxWidth:420,cssStyle:{display:"flex",flexDirection:"column",alignItems:"center",padding:"1rem",lineHeight:"1.5rem",paddingInline:"1.5rem",fontSize:"100%"}});
         });
-        parent.appendChild(popup);
         const {button}=Misc.simpleButton({anchor:popup,bg:Nav.btnColor,color:"white",text:"close",type:"button",time:400});
+        button.style.textAlign="center";
+        button.style.alignSelf="center";
         button.onclick=(e:MouseEvent)=>{
             if(e){
                 Misc.growOut({anchor:popup,scale:0,opacity:0,time:400});
@@ -149,10 +170,11 @@ class Dataflow {
                 },390);
             }
         };
+        parent.appendChild(popup);
         Misc.matchMedia({parent:popup,maxWidth:900,cssStyle:{padding:"3rem"}});
         Misc.matchMedia({parent:popup,maxWidth:400,cssStyle:{padding:"1rem"}});
         Misc.growIn({anchor:popup,scale:2,opacity:0,time:600});
-
+        window.scroll(0,0);
     }
      promStoragMessage(parent:HTMLElement){
         return new Promise(resolve=>{
@@ -246,6 +268,9 @@ class Dataflow {
                 },390);
             }
         };
+        popup.style.top=window.innerWidth <900 ? (window.innerWidth <400 ? "35%" : "30%") : "30%";
+        popup.style.left=window.innerWidth <900 ? (window.innerWidth <400 ? "0%" : "10%") : "30%";
+        popup.style.right=window.innerWidth <900 ? (window.innerWidth <400 ? "0%" : "10%") : "30%";
         Misc.fadeIn({anchor:popup,xpos:50,ypos:100,time:400});
         Misc.matchMedia({parent:popup,maxWidth:900,cssStyle:{top:"30%",left:"10%",right:"10%"}});
         Misc.matchMedia({parent:popup,maxWidth:400,cssStyle:{top:"35%",left:"0%",right:"0%"}});

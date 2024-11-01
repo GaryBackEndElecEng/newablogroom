@@ -169,8 +169,8 @@ class AllMsgs{
         const {parent,msg,imgKey}=item;
         const container=document.createElement("div");
         container.id="viewCard-container";
-        container.style.cssText ="max-width:800px;inset:30% 10% 30% 10%;padding-inline:1rem;display:flex;flex-direction:column;place-items:center;position:absolute;border-radius:14px;box-shadow:1px 1px 10px 1px #0CAFFF,-1px -1px 10px 1px #0CAFFF;z-index:100;background-color:white;padding-block:1rem;";
-        
+        container.style.cssText ="max-width:800px;padding-inline:1rem;display:flex;flex-direction:column;place-items:center;position:absolute;border-radius:14px;box-shadow:1px 1px 10px 1px #0CAFFF,-1px -1px 10px 1px #0CAFFF;z-index:100;background-color:white;padding-block:1rem;";
+        container.style.inset=window.innerWidth < 900 ? (window.innerWidth < 400 ? "30% 0% 25% 0%" : "30% 10% 25% 10%") :"30% 10% 30% 10%"
         parent.appendChild(container);
         const card=document.createElement("div");
         card.id="viewCard-card"

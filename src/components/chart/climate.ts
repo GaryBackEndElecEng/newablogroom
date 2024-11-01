@@ -81,6 +81,7 @@ class Climate{
         this.lineOption=this.genLineOption({xaxis:this.xaxis,yaxis:this.yaxis,bgs,bdrs,label:label});
         const convLineOption=this.lineOption as unknown as lineOptionType;
         const container=document.createElement("section");
+        container.id="climate-generatGraph";
         container.style.cssText="background-color:white;border-radius:16px;box-shadow:1px 1px 12px 1px white;padding:1rem; padding-block:2rem;display:flex;flex-direction:column;justify-content:flex-start;align-items:center;gap:1rem;";
         const mainTitle=document.createElement("h6");
         mainTitle.textContent="climate Change";
@@ -251,7 +252,7 @@ class Climate{
         parent.style.maxWidth="1000px";
         parent.style.position="relative";
         const container=document.createElement("section");
-        container.id="showEvents-container";
+        container.id="climate-showEvents-container";
         container.style.cssText="max-width:1100px;width:100%;padding:lrem;background-color:whitesmoke;border-radius:12px;box-shadow:1px 1px 12px 1px #0CAFFF;position:relative;";
         container.style.padding="1rem;";
         const oilpic=document.createElement("img");
@@ -262,6 +263,7 @@ class Climate{
         container.appendChild(oilpic);
         const getEvents: activityType[]=events.events;
         const row=document.createElement("row");
+        row.id="climate-showEvents-container-row"
         row.className="row";
         row.style.cssText="background-color:white;margin-block:1rem;border-radius:inherit;display:flex;flex-wrap:wrap;align-items:center;";
         container.appendChild(row);
@@ -269,9 +271,10 @@ class Climate{
         getEvents.map((ev,index)=>{
             if(ev){
                 const col=document.createElement("div");
-                col.id=`col-${index}`;
+                col.id=`climate-showEvents-container-row-col-${index}`;
                 col.className="col-md-6";
-                col.style.cssText="margin-inline:auto;margin-block:1rem;display:block;position:relative;flex:0 0 50%;border-radius:inherit;";
+                col.style.cssText="margin-inline:auto;margin-block:1rem;display:block;position:relative;border-radius:inherit;";
+                col.style.flex=window.innerWidth<500 ? "0 0 100%" : "0 0 50%";
                 const title=document.createElement("h6");
                 title.className="text-center text-primary lean text-decoration-underline text-underline-offset-2";
                 title.textContent=ev.year;
@@ -292,7 +295,7 @@ class Climate{
                 });
             }
         });
-        const getContainer=parent.querySelector("section#showEvents-container") as HTMLElement;
+        const getContainer=parent.querySelector("section#climate-showEvents-container") as HTMLElement;
         getContainer.style.padding="1rem";
     }
     showAct(item:{row:HTMLElement,act:{name:string,desc:string},index:number}){

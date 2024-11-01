@@ -16,6 +16,7 @@ import ChartJS from '../chart/chartJS';
 import Post from '../posts/post';
 import { Session } from 'next-auth';
 import { useSession } from 'next-auth/react';
+import styles from "@/components/nav/nav.module.css";
 
 
 function Index() {
@@ -46,7 +47,7 @@ function Index() {
         }
     }, [session]);
     return (
-        <div id="headerInjector" ref={navRef}></div>
+        <div id="headerInjector" ref={navRef} className={styles.headerindex}></div>
     )
 }
 

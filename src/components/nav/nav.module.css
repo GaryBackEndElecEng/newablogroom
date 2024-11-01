@@ -1,0 +1,9 @@
+.headerindex {
+  margin-inline: 0px;
+  display: flex;
+  width: 100%;
+  align-items: center;
+  justify-content: space-between;
+  padding-inline: 5px;
+  height: 5vh;
+}
