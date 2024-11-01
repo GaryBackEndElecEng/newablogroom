@@ -14,6 +14,7 @@ import User from "../user/userMain";
 import NavArrow from "../nav/arrow";
 import Features from "../home/feature";
 import { userType } from "../editor/Types";
+import AllMsgs from "../home/allMsgs";
 
 
 
@@ -31,7 +32,7 @@ class MainFooter{
     termsOfServiceUrl:string="/termsOfService";
     masterultilsUrl:string="https://www.masterultils.com";
     arrUrl:{name:string,link:string}[]
-    constructor(private _modSelector:ModSelector,private _service:Service,private _user:User,private _nav:Nav,private _navArrow:NavArrow,public dataflow:Dataflow,public feature:Features){
+    constructor(private _modSelector:ModSelector,private _service:Service,private _user:User,private _nav:Nav,private _navArrow:NavArrow,public dataflow:Dataflow,public feature:Features,public allMsgs:AllMsgs){
         this.arrUrl=[{name:"masterconnect",link:"https://www.masterconnect.ca"},{name:"masterultils",link:this.masterultilsUrl},{name:"policy",link:"/policy"},{name:"privacy",link:"/termsOfService"},];
         this._regSignin= new RegSignIn(this._modSelector,this._service,this._user);
         this.closeInfoMsg=false;
@@ -70,40 +71,58 @@ class MainFooter{
         container.appendChild(msgCont);
         this.showStorageMsg({parent:container,msgCont:msgCont,user,closeInfoMsg:this.closeInfoMsg});
         const row=document.createElement("div");
+        row.style.cssText="display:flex;justify-content:center;align-items:center;width:100%;"
         row.id="row-mainFooter";
-        row.classList.add("row");
         const arr:string[]=["col-md-4 left-side","col-md-5 center","col-md-3 right-side"];
         Misc.matchMedia({parent:row,maxWidth:900,cssStyle:{"flexDirection":"column","justifyContent":"center","alignItems":"center"}})
-        const matches400=window.matchMedia("(max-width:550px") && window.matchMedia("(orientation:portrait");
+        const matches900=window.innerWidth <900 ? true:false;
         arr.map((str,index)=>{
             const col=document.createElement("div");
             col.id=`col-mainFooter-${index}`;
             col.style.cssText="box-shadow:1px 1px 6px 1px white;position:relative;margin:auto;padding:0.5rem;min-height:15vh;";
-                col.style.height="20vh";
             col.className=str;
-            Misc.matchMedia({parent:col,maxWidth:900,cssStyle:{"minHeight":"20vh","height":"auto","width":"100%"}});
-               
-            if(str==="col-md-5 center" && matches400.matches){
-                col.style.order="3";
+            if(matches900){
+                col.style.minHeight= "20vh";
+                col.style.height="20vh";
+                col.style.flex="0 0 100%";
+                col.style.width="100%";
+                row.style.flexDirection="column";
+                if(str==="col-md-5 center"){
+                    col.style.order="3";
+                }else{
+                    col.style.order=`${index}`;
+                }
             }else{
-                col.style.order=`${index}`;
+                col.style.order="auto";
+                col.style.minHeight= "15vh";
+                col.style.height="15vh";
+                col.className=str;
+                col.style.flex="1 0 auto";
+                row.style.flexDirection="row";
+                row.classList.add("row");
             }
             
-            this.addElement(col,str,matches400.matches);
+            
+            this.addElement(col,str);
             row.appendChild(col);
         });
       
         container.appendChild(row);
        
     }
-    addElement(col:HTMLElement,str:string,matches:boolean){
+    addElement(col:HTMLElement,str:string){
         const size:{width:string,height:string}= window.innerWidth <1000 ? {width:"60px",height:"60px"} : {width:"80px",height:"80px"};
         const container=document.createElement("div");
         container.id="addElement";
         container.style.cssText="margin:0px;padding:0px;position:relative;width:100%;height:100%;";
         switch(true){
             case str==="col-md-4 left-side":
-            this.leftSide(container,size,matches);
+            this.leftSide(container,size).then(async(res)=>{
+                if(res){
+                    // DESCRIPTION
+                    this.description(res.container);
+                }
+            });
             col.appendChild(container);
             return;
             case str==="col-md-5 center":
@@ -116,7 +135,7 @@ class MainFooter{
             return;
         }
     }
-    leftSide(col:HTMLElement,size:{width:string,height:string},matches:boolean){
+    leftSide(col:HTMLElement,size:{width:string,height:string}):Promise<{container:HTMLElement}>{
         const {width,height}=size;
 
         const container=document.createElement("div");
@@ -126,16 +145,13 @@ class MainFooter{
         //IMAGE AND TEXT WRAPPER
         const imgWrapper=document.createElement("div");
         imgWrapper.id="imgWrapper";
-        imgWrapper.style.cssText="margin:auto;display:flex;flex-direction:column;align-items:center;justify-content:center;"
-        imgWrapper.classList.add("col-lg-3");
-        imgWrapper.style.flex=window.innerWidth < 900 ? (window.innerWidth <500 ? "0 0 50%" : "0 0 50%") : "0 0 100%";
-        if(matches){
-            container.style.flexDirection="row"
-        }
+        imgWrapper.style.cssText="margin:auto;display:flex;flex-direction:column;align-items:center;justify-content:center;cursor:pointer";
+        imgWrapper.classList.add("col-lg-6");
+        imgWrapper.style.flex="0 0 45%";
         //IMAGE CONTAINER
         const imgDiv=document.createElement("div");
         imgDiv.id="imgDiv";
-        imgDiv.style.cssText="border-radius:50%;filter:drop-shadow(0 0 0.75rem white);position:relative;margin:1rem;display:flex;align-items:center;flex-direction:column;justify-content:center;order:-1;border:none;";
+        imgDiv.style.cssText="border-radius:50%;filter:drop-shadow(0 0 0.75rem white);position:relative;margin:1rem;display:flex;align-items:center;flex-direction:column;justify-content:center;order:-1;border:none;position:relative;";
         imgDiv.style.left="0px";
         imgDiv.style.width=width;
         imgDiv.style.height=height;
@@ -155,8 +171,7 @@ class MainFooter{
         text.classList.add("text-primary");
         text.style.cssText="font-size:14px;margin-top:0.25rem;";
 
-        // DESCRIPTION
-        this.description(container);
+        
         //APPENDING COMPONENTS
         imgDiv.append(img);
         Misc.btnHover({parent:imgDiv,bg:"white",color:"black",bRadius1:"50%",bRadius2:"25%",time:400})
@@ -164,6 +179,14 @@ class MainFooter{
         imgWrapper.append(text);
         container.appendChild(imgWrapper);
         col.appendChild(container);
+        imgWrapper.onclick=(e:MouseEvent)=>{
+            if(e){
+                this.allMsgs.advertise({col});
+            }
+        };
+        return new Promise(resolve=>{
+            resolve({container});
+        }) as Promise<{container:HTMLElement}>;
     }
     centerSide(parent:HTMLElement){
         const container=document.createElement("div");
@@ -198,8 +221,8 @@ class MainFooter{
         const trans=window.innerWidth <600 ? "translate(10px,-5px)":"translate(0px,-5px)";
         const flexDir=window.innerWidth <600 ? "flex-direction:row" :"flex-direction:column;"
         const overflow=window.innerWidth <600 ? "overflow-x:scroll":"overflow-y:scroll"
-        const width=window.innerWidth <600 ? "175px" :"250px;";
-        const height=window.innerWidth <600 ? "125px" :"105px;";
+        const width=window.innerWidth < 900 ? (window.innerWidth <500 ? "270px" :"290px;") :"300px";
+        const height=window.innerWidth < 900 ? (window.innerWidth <600 ? "175px" :"205px;") :"14vh";
         //CONTAINER
         const container=document.createElement("div");       
         container.style.cssText=`width:${width};max-height:${height};box-shadow:1px 1px 10px 1px white;position:absolute;display:flex;justisfy-content:center;gap:1rem;align-items:center;border-radius:7px;font-size:16px;z-index:2000;padding:1rem;${overflow};${flexDir}`;
@@ -328,12 +351,13 @@ class MainFooter{
     //LEFT SIDE
     description(row:HTMLElement){
         const column=document.createElement("div");
-        column.classList.add("col-lg-9");
         column.style.background="#34282C";
         column.style.color="white";
         column.style.cssText="box-shadow:1px 1px 7px white;padding:1rem;display:flex;justify-content:center;align-items:center;gap:1rem;flex-direction:column;order:1;";
         column.style.width="auto";
         column.style.maxHeight="15vh";
+        column.style.flex=window.innerWidth <900 ? (window.innerWidth<400 ? "0 0 40%" : "0 0 35%") :"0 0 50%" ;
+        column.classList.add("col-lg-6");
         Misc.matchMedia({parent:column,maxWidth:900,cssStyle:{"width":"auto","flexDirection":"row"}});
         //NAME
         const text=document.createElement("h6");
@@ -380,9 +404,11 @@ class MainFooter{
     }
     centerBtns(parent:HTMLElement){
         const container=document.createElement("div");
-        container.style.cssText="width:100%;margin-inline:auto;"
+        const css_row="display:flex;justify-content:center;align-items:center;width:100%;margin-inline:auto;";
+        container.style.cssText=css_row;
+        container.style.maxHeight=window.innerWidth <900 ? "8vh":"6vh";
         const row=document.createElement("div");
-        row.style.cssText="display:flex; justify-content:space-between;align-items:center;";
+        row.style.cssText="display:flex; justify-content:space-between;align-items:center;margin:auto;gap:4rem;";
         const arr=["contact","signup"];
         arr.forEach((item)=>{
             if(item==="contact"){
@@ -525,6 +551,8 @@ class MainFooter{
             });
         }
     }
+
+  
     static cleanUp(parent:HTMLElement){
         if(typeof window !=="undefined" ){
             if((parent && !parent.firstChild)) return;

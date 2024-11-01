@@ -228,24 +228,24 @@ class Post{
     async postCard(item:{row:HTMLElement,col:HTMLElement,post:postType,user:userType,index:number}){
         const {row,col,post,user,index}=item;
         this.post=post;
-        Header.cleanUpByID(col,`postcard-card-${index}`);
+        Header.cleanUpByID(col,`posts-postcard-card-${index}`);
         const css_col="margin-inline:auto;display:flex;flex-direction:column;justify-content:center;align-items:center;gap:0.7rem;background-color:inherit;color:inherit;border-radius:inherit;width:100%";
         const shapoutside="padding:1rem;text-wrap:wrap;color:black;font-family:'Poppins-Thin';font-weight:bold;font-size:120%;line-height:2.05rem;color:inherit;border-radius:12px;background-color:black;box-shadow:1px 1px 12px white;"
         const css_row="margin-inline:auto;display:flex;flex-direction:row;flex-wrap:wrap;justify-content:center;align-items:center;gap:0.27rem;background-color:inherit;color:inherit;border-radius:inherit;";
         const card=document.createElement("div");
-        card.id=`postcard-card-${index}`;
+        card.id=`posts-postcard-card-${index}`;
         card.style.cssText=css_col;
         const title=document.createElement("p");
-        title.id=`card-title-${index}`;
+        title.id=`posts-card-title-${index}`;
         title.className="post-title";
         
         title.textContent=post.title;
         card.appendChild(title);
         const shapeOutside=document.createElement("p");
-        shapeOutside.id=`shapeOutside-${index}`;
+        shapeOutside.id=`posts-shapeOutside-${index}`;
         shapeOutside.style.cssText=window.innerWidth <400 ? shapoutside + css_col :shapoutside;
         const img=document.createElement("img");
-        img.id=`shapeOutside-img-${index}`;
+        img.id=`posts-shapeOutside-img-${index}`;
         img.src=this.logo;
         img.alt="www.ablogroom.com";
         img.style.cssText="border-radius:50%;shape-outside:circle(50%);float:left;margin-right:1.25rem;margin-bottom:2rem;aspect-ratio:1/1;filter:drop-shadow(0 0 0.75rem white);border:none;";
@@ -290,11 +290,11 @@ class Post{
             likes.id=`likes-${index}`;
             likes.style.cssText="background-color:green;font-size:20px;display:flex;justify-content:center;align-items:center:gap:0.5rem;padding-block:2px;border-radius:50%;color:white;padding-inline:12px;";
             const xDiv=document.createElement("div");
-            xDiv.id=`xDiv-thumbs-up-${index}`;
+            xDiv.id=`posts-xDiv-thumbs-up-${index}`;
             xDiv.style.margin="auto";
-            FaCreate({parent:xDiv,name:FaThumbsUp,cssStyle:{fontSize:"25px",padding:"5px",borderRadius:"50%",color:"white",margin:"auto",zIndex:"200"}});
+            FaCreate({parent:xDiv,name:FaThumbsUp,cssStyle:{fontSize:"25px",padding:"5px",borderRadius:"50%",color:"white",margin:"auto",zIndex:"1"}});
             const subLike=document.createElement("small");
-            subLike.id=`subLike-${index}`;
+            subLike.id=`posts-likes-subLike-${index}`;
             subLike.style.color="#23f803";
             subLike.textContent=`: ${post && post.likes ? post.likes :0}`;
             likes.appendChild(xDiv);
@@ -307,7 +307,7 @@ class Post{
         if(post.link){
             const anchor=document.createElement("a");
             anchor.style.cssText="align-self:center;justify-self:center;font-weight:800;margin-inline:auto;color:white;"
-            anchor.id=`post-anchor-${index}`;
+            anchor.id=`posts-post-anchor-${index}`;
             anchor.href=post.link;
             anchor.textContent=post.link;
             cardBody.appendChild(anchor);
@@ -325,9 +325,9 @@ class Post{
         card.appendChild(cardBody);
         col.appendChild(card);
         Misc.growIn({anchor:card,scale:1,opacity:0,time:500});
-        const getShapeOutside=card.querySelector("p#shapeOutside") as HTMLElement;
+        const getShapeOutside=card.querySelector("p#posts-shapeOutside") as HTMLElement;
         if(!getShapeOutside) return;
-        const getImg=getShapeOutside.querySelector("img#shapeOutside-img") as HTMLElement;
+        const getImg=getShapeOutside.querySelector(`posts-shapeOutside-img-${index}`) as HTMLElement;
         if(!getImg) return;
         Misc.matchMedia({parent:getShapeOutside,maxWidth:400,cssStyle:{display:"flex",flexDirection:"column",alignItems:"center"}});
         Misc.matchMedia({parent:getImg,maxWidth:400,cssStyle:{shapeOutside:"none"}});

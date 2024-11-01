@@ -7,14 +7,21 @@ import ModSelector from "../editor/modSelector";
 import { blogType, messageType } from "../editor/Types";
 import Header from "../editor/header";
 import { buttonReturn } from "../common/tsFunctions";
+import Nav from "../nav/headerNav";
 
 
 class AllMsgs{
     logo:string;
+    bcard:string;
+    brief:string;
+    assistant:string;
     _msgs:messageType[];
     constructor(private _modSelector:ModSelector,private _service:Service,public message:Message){
         this._msgs=[];
         this.logo="/images/gb_logo.png";
+        this.bcard="/images/bcard.png";
+        this.brief=" Thank you for the visit. Ablogroom is a free site for all users. Ablogroom allows you to create a website, blog or post to enhance your means to connect with your viewers. This free site contains the best editor means possible, giving the tools to the user to build a professional web-site, with nested complex structures.";
+        this.assistant="<span> Hello, we develop sites for you. if you need a site and own a buisness, just let us what you want or similarly, open an account with us, build your site, then let us know what you want. We will kick into gear to serve you well.</span><br/><span>Hello, I'm Gary,I am a full stack developer and ex Captain/Engineer with over 30 years experience in Hightech and would assist with your needs.</span> ";
     }
     get msgs(){
         return this._msgs;
@@ -142,7 +149,7 @@ class AllMsgs{
         const iconDiv=document.createElement("span");
         iconDiv.id="singleMsgTwo-iconDiv";
         iconDiv.style.cssText=css_col + "font-size:40px;width:45px;height:45px;padding:3px;"
-        FaCreate({parent:iconDiv,name:SiAnswer,cssStyle:{marginRight:"10px",background:"white",color:"#00BFFF",zIndex:"100"}});
+        FaCreate({parent:iconDiv,name:SiAnswer,cssStyle:{marginRight:"10px",background:"white",color:"#00BFFF",zIndex:"1"}});
         //APPENDING ICONDIV && NAME
         nameCont.appendChild(iconDiv);
         nameCont.appendChild(name);
@@ -236,6 +243,83 @@ class AllMsgs{
         });
 
     }
+    advertise(item:{col:HTMLElement}){
+        const {col}=item;
+        window.scrollBy(0,300);
+        const parent=col.parentElement as HTMLElement;
+        const grandParent=parent.parentElement as HTMLElement;
+        const closeIcon=document.querySelector("span#singleMsgTwo-iconDiv") as HTMLElement;
+        grandParent.style.position="relative";
+        const popup=document.createElement("div");
+        popup.id="allMsgs-advertise-popup";
+        const css_col="margin-inline:auto;display:flex;flex-direction:column;justify-content:center;align-items:center;gap:1rem;height:auto;";
+        const css_row="margin-inline:auto;display:flex;flex-direction:row;justify-content:center;align-items:center;gap:1rem;flex-wrap:wrap;height:auto;";
+        const css="position:absolute;border-radius:20px;backdrop-filter:blur(20px);box-shadow:1px 1px 12px rgb(0, 191, 255);z-index:1000;color:black; ";
+        const css_img="margin:auto;margin-inline:1rem;border-radius:26px;filter:drop-shadow(0 0 0.75rem black);padding:0.5rem;";
+        const css_textP="text-align:center;text-wrap:pretty;padding-inline:0.5rem;font-family:'Poppins-Thin';font-weight:bold;line-height:2.75rem;font-weight:700;";
+        const css_textL="text-align:center;text-wrap:pretty;padding-inline:0.5rem;font-family:'LobsterTwo-Regular';line-height:2.75rem;";
+        popup.style.cssText=css + css_col;
+        popup.style.paddingInline=window.innerWidth < 900 ? (window.innerWidth < 400 ? "0.25rem" : "1rem") : "3rem";
+        popup.style.inset=window.innerWidth < 900 ? (window.innerWidth < 400 ? "0% 0% -235% 0%" : "0% 0% -70% 0%") : "0% 0% -500% 0%";
+        popup.style.transform=window.innerWidth <900 ? (window.innerWidth <400 ? "translateY(-80%)" : "translateY(-55%)") : "translateY(-90%)";
+        const transform=popup.style.transform;
+
+        const container=document.createElement("section");
+        container.id="allMsgs-advertise-popup-container";
+        container.style.cssText=css_col + "margin-block:1rem;min-height:5vh;background-color:white;border-radius:inherit;box-shadow:1px 1px 12px black;padding:0.5rem;gap:2rem;color:black;";
+        //--------------------------CONTENT---------------/////
+        const upperCard=document.createElement("div");
+        upperCard.style.cssText=css_row + "padding-inline:1rem;padding-block:1rem;flex-wrap:nowrap;";
+        upperCard.style.flexDirection=window.innerWidth <400 ? "column":"row";
+        const imgUpper=document.createElement("img");
+        imgUpper.style.cssText=css_img;
+        imgUpper.src=this.logo;
+        imgUpper.alt="www.ablogroom.com";
+        imgUpper.style.width=window.innerWidth <900 ? (window.innerWidth <400 ? "300px" : "325px") : "350px";
+        upperCard.appendChild(imgUpper);//APPENDING
+        const uppertext=document.createElement("p");
+        uppertext.textContent=this.brief;
+        uppertext.style.cssText=css_textL;
+        uppertext.style.fontSize=window.innerWidth <900 ? (window.innerWidth<400 ? "120%" : "120%"): "150%";
+        upperCard.appendChild(uppertext);//APPENDING
+        //----------DIVIDER------------------------//
+        const hr=document.createElement("div");
+        hr.style.cssText="width:80%;height:3px;background-color:black;margin-block:1rem;";
+        //----------DIVIDER------------------------//
+        const lowerCard=document.createElement("div");
+        lowerCard.style.cssText=css_row + "padding-inline:1rem;padding-block:1rem;flex-wrap:nowrap;";
+        lowerCard.style.flexDirection=window.innerWidth <400 ? "column":"row";
+        const imgLower=document.createElement("img");
+        imgLower.style.cssText=css_img;
+        imgLower.src=this.bcard;
+        imgLower.alt="www.ablogroom.com";
+        imgLower.style.width=window.innerWidth <900 ? (window.innerWidth <400 ? "300px" : "325px") : "350px";
+        lowerCard.appendChild(imgLower);//APPENDING
+        const lowertext=document.createElement("p");
+        lowertext.innerHTML=this.assistant;
+        lowertext.style.cssText=css_textP;
+        lowertext.style.fontSize=window.innerWidth <900 ? (window.innerWidth<400 ? "120%" : "120%"): "150%";
+        lowerCard.appendChild(lowertext);//APPENDING
+        container.appendChild(upperCard);
+        container.appendChild(hr);
+        container.appendChild(lowerCard);
+        //--------------------------CONTENT---------------/////
+        popup.appendChild(container);
+        grandParent.appendChild(popup);
+        popup.animate([
+            {transform:`translateY(0%) scale(0.5)`,opacity:"0.3",backdropFilter:"blur(0px)",boxShadow:"1px 3px 20px black"},
+            {transform:`${transform} scale(1)`,opacity:"0.3",backdropFilter:"blur(20px)",boxShadow:"1px 1px 12px rgb(0, 191, 255)"},
+        ],{duration:800,iterations:1});
+        const {button:close}=Misc.simpleButton({anchor:popup,text:"close",bg:Nav.btnColor,color:"white",time:400,type:"button"});
+        close.style.alignSelf="center";
+        close.onclick=(e:MouseEvent)=>{
+            if(e){
+                Misc.fadeOut({anchor:popup,xpos:0,ypos:100,time:400});
+                setTimeout(()=>{grandParent.removeChild(popup)},380);
+                if(closeIcon){closeIcon.hidden=false}
+            }
+        };
+    };
     
 }
 export default AllMsgs;

@@ -14,6 +14,8 @@ import Features from '../home/feature';
 import MetaBlog from '../editor/metaBlog';
 import ChartJS from '../chart/chartJS';
 import Post from '../posts/post';
+import AllMsgs from '../home/allMsgs';
+import Message from '../common/message';
 
 
 
@@ -24,7 +26,9 @@ export default function Index() {
         if (typeof window !== "undefined") {
             const modSelector = new ModSelector();
             const service = new Service(modSelector);
+            const message = new Message(modSelector, service, modSelector.blog);
             const dataflow = new Dataflow(service);
+            const allMsgs = new AllMsgs(modSelector, service, message)
             const user = new User(modSelector, service);
             const auth = new AuthService(modSelector, service, user);
             const post = new Post(modSelector, service, user);
@@ -36,7 +40,7 @@ export default function Index() {
             const navArrow = new NavArrow(user, regSignin, service, profile, modSelector, feature);
             const nav = new Nav(modSelector, auth, service, user, regSignin)
             const footerInjector = document.querySelector("section#footerInjector") as HTMLElement;
-            const mainFooter = new MainFooter(modSelector, service, user, nav, navArrow, dataflow, feature);
+            const mainFooter = new MainFooter(modSelector, service, user, nav, navArrow, dataflow, feature, allMsgs);
             mainFooter.main(footerInjector);
 
         }

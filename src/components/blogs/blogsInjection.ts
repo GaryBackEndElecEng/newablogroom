@@ -91,7 +91,7 @@ message:Message
         container.style.cssText=css_col;
         container.style.marginBlock=`${m_block}`;
         container.style.marginInline=window.innerWidth < 900 ? "0px":"auto";
-        container.style.paddingInline=window.innerWidth < 900 ? (window.innerWidth< 600 ? "0px":"2rem"):"8rem";
+        container.style.paddingInline=window.innerWidth < 900 ? "0px":"2rem";
         const text=document.createElement("h3");
         text.style.cssText="margin-bottom:1.62rem;"
         if(home){
@@ -139,6 +139,7 @@ message:Message
                         colBlog.style.backgroundImage=`url(${this.bendImg1})`;
                     }
                     colBlog.style.paddingInline=window.innerWidth <900 ? (window.innerWidth <600 ? "0px":"10px"):"1rem";
+                    colBlog.style.marginBlock=window.innerWidth <400 ? "1rem":"0.5rem";
                     colBlog.style.backgroundSize=`100% 100%`;
                     colBlog.style.backgroundPosition=`50% 50%`;
                     colBlog.style.boxShadow=`1px 1px 4px 1px #0aa2db,-1px -1px 4px 1px #0aa2db`;
@@ -182,7 +183,7 @@ message:Message
         text.style.cssText="color:rgba(8, 4, 249,0.5);text-decoration:underline;text-underline-offset:0.55rem;font-size:130%;"
         text.textContent=blog.title ? blog.title : " your title";
         textDiv.appendChild(text);
-        Misc.thumbsUp({parent:textDiv,cssStyle:{fontSize:"22px",color:"rgba(8, 4, 249,0.5)",zIndex:"200"},time:400,rating:blog.rating,limit:3});
+        Misc.thumbsUp({parent:textDiv,cssStyle:{fontSize:"22px",color:"rgba(8, 4, 249,0.5)",zIndex:"1"},time:400,rating:blog.rating,limit:3});
         column.appendChild(textDiv);
         const imgCont=document.createElement("div");
         imgCont.id="displayCard-card-imgCont";

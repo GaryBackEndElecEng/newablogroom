@@ -298,7 +298,7 @@ class Home{
             mask.style.cssText=`position:absolute;inset:0%;z-index:0;border-radius:inherit;`;
             mask.style.backgroundImage=`url(${item.image})`;
             mask.style.backgroundPosition="50% 50%";
-            mask.style.backgroundSize="50% 50%";
+            mask.style.backgroundSize="100% 100%";
             container.appendChild(mask);
             const h6=document.createElement("h6");
             h6.id="h6"+ index;
@@ -327,7 +327,7 @@ class Home{
             itemArr.push(mask)
             mask.onclick=(e:MouseEvent)=>{
                 if(e){
-                    console.log("item",item)
+                    
                     this.showMaskDetail({container,item:item,index});
                 }
             };
