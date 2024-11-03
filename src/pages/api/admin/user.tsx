@@ -4,8 +4,9 @@ import { userType } from "@/components/editor/Types";
 import { getErrorMessage } from "@/lib/errorBoundaries";
 import { genHash } from "@/lib/ultils/bcrypt";
 import { getUserImage, } from "@/lib/awsFunctions";
+import prisma from "@/prisma/prismaclient";
 
-const prisma = new PrismaClient();
+
 const EMAIL = process.env.EMAIL as string;
 const EMAIL2 = process.env.EMAIL2 as string;
 // const PASSWORD = process.env.PASSWORD as string;

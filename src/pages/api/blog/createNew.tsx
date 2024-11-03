@@ -4,8 +4,9 @@ import { blogType, selectorType, elementType, codeType, chartType, } from "@/com
 import { getErrorMessage } from "@/lib/errorBoundaries";
 import "@aws-sdk/signature-v4-crt";
 import { getUserBlogsImgs } from "@/lib/awsFunctions"
+import prisma from "@/prisma/prismaclient";
 
-const prisma = new PrismaClient();
+
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
 

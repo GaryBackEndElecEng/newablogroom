@@ -3,10 +3,10 @@ import { NextApiRequest, NextApiResponse } from "next";
 import { adminImageType, } from "@/components/editor/Types";
 import { getErrorMessage } from "@/lib/errorBoundaries";
 import { awsDel, awsImage } from "@/lib/awsFunctions";
+import prisma from "@/prisma/prismaclient";
 
 
 
-const prisma = new PrismaClient();
 const EMAIL = process.env.EMAIL;
 const EMAIL2 = process.env.EMAIL2;
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {

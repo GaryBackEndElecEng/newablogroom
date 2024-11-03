@@ -30,6 +30,9 @@
       ],
       "@editor/*": [
         "./src/components/editor/*"
+      ],
+      "@/prisma/*": [
+        "./prisma/*"
       ]
     },
     "strictNullChecks": true

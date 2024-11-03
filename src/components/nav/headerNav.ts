@@ -1,5 +1,5 @@
 
-import { buttonCheckType, navLinkBtnType, userType, blogType, messageType,saveProcessType } from "../editor/Types";
+import { buttonCheckType, navLinkBtnType, userType, blogType, messageType,saveProcessType, gets3ImgKey } from "../editor/Types";
 
 import AuthService from "../common/auth";
 import Service from "../common/services";
@@ -275,7 +275,7 @@ class Nav{
     }
    
   
-    signInDisplay(parent:HTMLElement,user:userType|null): Promise<{
+   async signInDisplay(parent:HTMLElement,user:userType|null): Promise<{
         user: userType | null;
         parent: HTMLElement;
     }>{
@@ -287,7 +287,16 @@ class Nav{
         container.style.maxWidth="300px;";
         const img=document.createElement("img");
         img.style.cssText="width:55px;border-radius:50%;filter:drop-shadow(0 0 0.25 white);";
-        img.src=user.image ? user.image : Nav.logo;
+        if(user.imgKey){
+            const res3key:gets3ImgKey | null= await this._service.getSimpleImg(user.imgKey)
+            if(res3key && res3key.img){
+                img.src=res3key.img;
+                img.alt=res3key.Key;
+            }
+        }else{
+            img.src=user.image ? user.image : Nav.logo;
+            img.alt="www.ablogroom.com";
+        }
         const para=document.createElement("p");
         const name=user.name ? user.name : "blogger"
         para.innerHTML=Nav.splitWord({parent:para,str:name,splitCount:4});

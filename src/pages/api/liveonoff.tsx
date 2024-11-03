@@ -2,9 +2,7 @@ import { PrismaClient } from "@prisma/client";
 import { NextApiRequest, NextApiResponse } from "next";
 import { blogType } from "@/components/editor/Types";
 import { getErrorMessage } from "@/lib/errorBoundaries";
-
-
-const prisma = new PrismaClient();
+import prisma from "@/prisma/prismaclient";
 
 
 

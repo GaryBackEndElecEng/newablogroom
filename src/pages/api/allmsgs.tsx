@@ -1,8 +1,8 @@
 import { PrismaClient } from "@prisma/client";
 import { NextApiRequest, NextApiResponse } from "next";
 import { getErrorMessage } from "@/lib/errorBoundaries";
+import prisma from "@/prisma/prismaclient";
 
-const prisma = new PrismaClient();
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
     //  THIS SAVES MESSAGES AND , IF BLOG_ID && RATE UPDATES BLOG RATE

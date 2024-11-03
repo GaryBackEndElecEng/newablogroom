@@ -17,6 +17,7 @@ import Post from '../posts/post';
 import { Session } from 'next-auth';
 import { useSession } from 'next-auth/react';
 import styles from "@/components/nav/nav.module.css";
+import Misc from '../common/misc';
 
 
 function Index() {
@@ -38,7 +39,10 @@ function Index() {
             const navArrow = new NavArrow(user, regSignin, service, profile, modSelector, feature);
             const nav = new Nav(modSelector, auth, service, user, regSignin);
             if (session) {
-                auth.getUser({ session: session });
+                const confirmed = auth.getUser({ session: session });
+                if (!confirmed) {
+                    Misc.message({ parent: inject, type_: "error", msg: "no user", time: 800 });
+                }
             }
             const mainHeader = new MainHeader(modSelector, auth, service, user, nav, regSignin, profile, navArrow);
             mainHeader.main(inject as HTMLElement)

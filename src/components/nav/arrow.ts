@@ -65,6 +65,8 @@ class NavArrow{
     }
     slideMenu(item:{navHeader:HTMLElement,show:boolean,time:number}){
         const {navHeader,show,time}=item;
+        const less900=window.innerWidth <900;
+        const less400=window.innerWidth <400;
         this.checkUser=(this._user.user && this._user.user.id && this._user.user.email) ? true :false;
         const header_height=window.innerWidth < 420 ? 195 :150;
         const headerHeight=this.checkUser ? header_height + 67 : header_height;
@@ -72,7 +74,7 @@ class NavArrow{
         const popup=document.createElement("div");
         popup.id="slide-menu";
         popup.style.cssText="margin-block:auto;position:absolute;padding-inline:1rem;border-radius:8px;box-shadow:1px 1px 12px 1px rgba(12, 175, 255,0.5);background-color:#0C090A;top:65px;color:white;font-size:16px;width:350px;height:800px;z-index:400;border-radius:12px;box-shadow:1px 1px 12px 1px black;align-items:center;flex-direction:column;padding-block:1rem;";
-        popup.style.width="400px";
+        popup.style.width=less400 ? "350px":"400px";
         popup.style.minHeight="800px";
         popup.style.height="auto";
         popup.style.transform="translateX(-100%)";
@@ -101,9 +103,12 @@ class NavArrow{
     header(item:{parent:HTMLElement,show:boolean,time:number,headerHeight:number,checkUser:boolean}){
         const {parent,show,time,headerHeight,checkUser}=item;
         // Header.cleanUpByID(parent,"header-logo");
+        const less900=window.innerWidth < 900;
+        const less400=window.innerWidth < 400;
+        const width=less400 ? "375px":"400px";
         const container=document.createElement("div");
         container.id="header-logo";
-        container.style.cssText=`width:100%;height:${headerHeight}px;padding:10px;border-radius:12px;margin-inline:auto;display:flex;place-items:center;background-color:white;color:black;position:absolute;top:0%;left:0%;box-shadow:1px 1px 6px 1px white;`;
+        container.style.cssText=`width:100%;max-width:${width}height:${headerHeight}px;padding:10px;border-radius:12px;margin-inline:auto;display:flex;place-items:center;background-color:white;color:black;position:absolute;top:0%;left:0%;box-shadow:1px 1px 6px 1px white;`;
         const para=document.createElement("p");
         para.id="para-header";
         const img=document.createElement("img");
@@ -194,7 +199,8 @@ class NavArrow{
             this.checkUser=(this._user.user && this._user.user.id && this._user.user.email) ? true:false;
             this._isAdmin=(this.checkUser && this._user.user.admin) ? true:false;
             MainHeader.header=document.querySelector("header#navHeader") as HTMLElement;
-            if(!MainHeader.header) return;
+            const getHeaderInjector=document.querySelector("div#headerInjector") as HTMLElement;
+            if(!MainHeader.header || !getHeaderInjector) return;
             // Header.cleanUpByID(MainHeader.header,"list-items-container");
             this.btnArray=[
                 {id:0,name:"home",color:"pink",link:"/",func:()=>Nav.navHistory("/"),icon:FaHome,show:true,isEditor:false,save:async()=>null},
@@ -206,7 +212,7 @@ class NavArrow{
                 {id:6,name:"signin",color:"#00FF00",link:null,func:()=> this._regSignin.signIn(),icon:FaSign,show:!this.checkUser,isEditor:false,save:()=>null},
                 {id:7,name:"logout",color:"#00FF00",link:null,func:()=> this.logout(),icon:FaSign,show:this.checkUser,isEditor:false,save:()=>null},
                 {id:8,name:"contact",color:"#00FF00",link:null,func:()=> this.contact(MainHeader.header as HTMLElement),icon:FaMedapps,show:true,isEditor:false,save:()=>null},
-                {id:9,name:"profile",color:"#800000",link:null,func:()=> this._profile.main(MainHeader.header as HTMLElement),icon:FaAccessibleIcon,show:this.checkUser,isEditor:false,save:()=>null},
+                {id:9,name:"profile",color:"#800000",link:null,func:()=> this._profile.main(getHeaderInjector),icon:FaAccessibleIcon,show:this.checkUser,isEditor:false,save:()=>null},
                 {id:10,name:"general-Info",color:"#00FF00",link:null,func:()=> this.generalInfo(MainHeader.header as HTMLElement),icon:FaInfo,show:true,isEditor:false,save:()=>null},
                 {id:11,name:"features",color:"#00FF00",link:null,func:()=> this.feature.feature(document.body as HTMLElement),icon:FaFilePowerpoint,show:true,isEditor:false,save:()=>null},
             ]
@@ -396,16 +402,27 @@ class NavArrow{
         Nav.navHeader=headerInject.querySelector("header#navHeader") as HTMLElement;
         const useParent=headerInject.querySelector("header#navHeader") as HTMLElement;
         useParent.style.zIndex="";
+        const less900=window.innerWidth <900;
+        const less400=window.innerWidth <400;
         const cont=document.createElement("div");
         useParent.style.position="relative";
         cont.id="navArrow-contact";
-        cont.style.cssText=`position:absolute;width:fit-content;padding:1rem;background:rgb(3 13 49);color:white;height:fit-content;margin-inline:auto;display:flex;flex-direction:column;align-items:center;justify-content:center;border-radius:16px;width:100%;box-shadow:1px 1px 6px 1px aquamarine;padding:1rem;z-index:1000;`;
-        cont.style.inset=window.innerWidth <900 ? (window.innerWidth <400 ? "270% 0% 10% 0%" :"270% 7% 10% 7%") :"270% 37% 10% 37%";
+        cont.style.cssText=`position:absolute;width:fit-content;padding:1rem;background:rgb(3 13 49);color:white;height:fit-content;margin-inline:auto;display:flex;flex-direction:column;align-items:center;justify-content:center;border-radius:16px;width:100%;box-shadow:1px 1px 6px 1px aquamarine;padding:1rem;z-index:1000;inset:270% 0% 20% 0%`;
+        cont.style.width=less900 ? (less400 ? "100%" :"75%") :"50%";
         const form=document.createElement("form");
         form.style.cssText="display:flex;flex-direction:column;align-items:center;justify-content:center;gap:1.5rem;padding:1.5rem;border-radius:inherit;background:white;color:black;margin:1rem;color:white;box-shadow:1px 1px 12px 1px skyblue;";
         const divGrp=document.createElement("div");
         divGrp.id="navArrow-contact-welcome-message";
         divGrp.style.cssText="margin-inline:auto;position:relative;display:flex;flex-direction:column;margin-bottom:2rem;padding-inline:2rem;";
+        if(less900){
+            if(less400){
+                window.scroll(0,0);
+            }else{
+                window.scroll(0,0);
+            }
+        }else{
+            window.scroll(0,0);
+        }
         const img=document.createElement("img");
         const imgWidth=170;
         img.id="navArrow-image"

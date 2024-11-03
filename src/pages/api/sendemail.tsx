@@ -4,8 +4,8 @@ import { PrismaClient } from "@prisma/client";
 import { sendEmailMsgType, userType } from "@/components/editor/Types";
 import { clientMsgHTML, clientMsgText } from "@/components/emails/templates";
 import { getErrorMessage } from "@/lib/errorBoundaries";
+import prisma from "@/prisma/prismaclient";
 
-const prisma = new PrismaClient();
 
 const handler = async (req: NextApiRequest, res: NextApiResponse) => {
     if (req.method === "POST") {

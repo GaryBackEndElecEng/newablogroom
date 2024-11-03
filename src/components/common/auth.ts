@@ -49,7 +49,7 @@ class AuthService {
     get admin(){
         return this._admin;
     }
-    async getUser(item:{session:Session}){
+    async getUser(item:{session:Session}):Promise<boolean|undefined>{
         const {session}=item;
         const email=session && session.user?.email ? session.user.email:null;
         if(!email) return;
@@ -63,6 +63,9 @@ class AuthService {
             this.user=body;
             this._service.isSignedOut=false;
             this.isSignedOut=false;
+            return true
+        }else{
+            return false
         }
 
     }

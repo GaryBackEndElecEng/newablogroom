@@ -1,9 +1,8 @@
 import { PrismaClient } from "@prisma/client";
 import { NextApiRequest, NextApiResponse } from "next";
 import { getErrorMessage } from "@/lib/errorBoundaries";
+import prisma from "@/prisma/prismaclient";
 
-
-const prisma = new PrismaClient();
 // const EMAIL = process.env.EMAIL as string;
 // const PASSWORD = process.env.PASSWORD as string;
 
@@ -22,13 +21,15 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
                     select: {
                         id: true,
                         blogs: true,
+                        posts: true,
                         email: true,
                         password: false,
                         imgKey: true,
                         image: true,
                         bio: true,
                         showinfo: true,
-                        admin: true
+                        admin: true,
+                        username: true
                     }
 
                 });

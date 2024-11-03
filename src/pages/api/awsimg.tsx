@@ -3,9 +3,9 @@ import { NextApiRequest, NextApiResponse } from "next";
 import { img_keyType, deletedImgType } from "@/components/editor/Types";
 import { getErrorMessage } from "@/lib/errorBoundaries";
 import { getSingleImage } from "@/lib/awsFunctions"
+import prisma from "@/prisma/prismaclient";
 
 
-const prisma = new PrismaClient();
 
 
 const EMAIL = process.env.EMAIL as string;

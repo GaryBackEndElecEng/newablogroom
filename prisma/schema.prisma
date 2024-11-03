@@ -91,7 +91,8 @@ model Blog {
   messages   Message[]
   user       User        @relation(fields: [user_id], references: [id], onDelete: Cascade, onUpdate: Cascade)
   user_id    String
-  date       DateTime    @updatedAt
+  update     DateTime?   @updatedAt
+  date       DateTime    @default(now())
   show       Boolean
   username   String?
   rating     Int

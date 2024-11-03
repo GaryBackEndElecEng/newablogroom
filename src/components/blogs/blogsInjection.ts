@@ -74,12 +74,12 @@ message:Message
 //GETTERS SETTERS
 //main injector ---MAIN INJECTION----
    async showBlogs(parent:HTMLElement,home:boolean,blogs:blogType[]){
-    const css_col="display:flex;flex-direction:column;align-items:center;gap:1.25rem;position:relative;width:100%";
+    const css_col="display:flex;flex-direction:column;align-items:center;gap:1rem;position:relative;width:100%";
     const css_row="display:flex;justify-content:center;align-items:center;gap:1.25rem;position:relative;";
     this.baseUrl=new URL(window.location.href).origin;
     this.blogs=blogs;
     Header.cleanUp(parent);
-    const m_block= window.innerWidth < 500 ? "2rem" : "3.25rem";
+    const m_block= window.innerWidth < 500 ? "0rem" : "0.25rem";
         parent.style.position="relative";
         parent.classList.add("container-fluid");
         parent.classList.add("mx-auto");
@@ -101,9 +101,9 @@ message:Message
         }
         text.className=` text-center text-primary my-2 mb-4 mx-auto lean display-3`;
         const div1=document.createElement("div");
-        div1.style.cssText="margin-block;margin-inline:auto;width:85%;margin-block:1rem;height:3px;background-color:#0804e9;";
+        div1.style.cssText="margin-inline:auto;width:85%;height:3px;background-color:#0804e9;";
         const div2=document.createElement("div");
-        div2.style.cssText="margin-block;margin-inline:auto;width:55%;margin-block:1rem;height:3px;background-color:#0804f9;";
+        div2.style.cssText="margin-block;margin-inline:auto;width:55%;height:3px;background-color:#0804f9;";
         container.appendChild(text);
         container.appendChild(div1);
         container.appendChild(div2);
@@ -126,7 +126,9 @@ message:Message
                 mainRow.style.backgroundColor="whitesmoke";
                 mainRow.style.borderRadius="16px";
             
-                await Promise.all(blogs && blogs.sort((a,b)=>{if(a.rating > b.rating) return -1; return 1}).map(async(blog,index)=>{
+                await Promise.all(
+                    blogs && blogs.sort((a,b)=>{if(a.rating > b.rating) return -1; return 1}).
+                        sort((a,b)=>{if(a.update > b.update) return -1; return 1}).map(async(blog,index)=>{
                     const colBlog=document.createElement("div");
                     colBlog.style.cssText=blogBaseCss;
                     colBlog.className=`text-center`;
@@ -140,6 +142,7 @@ message:Message
                     }
                     colBlog.style.paddingInline=window.innerWidth <900 ? (window.innerWidth <600 ? "0px":"10px"):"1rem";
                     colBlog.style.marginBlock=window.innerWidth <400 ? "1rem":"0.5rem";
+                    colBlog.style.borderRadius=`inherit`;
                     colBlog.style.backgroundSize=`100% 100%`;
                     colBlog.style.backgroundPosition=`50% 50%`;
                     colBlog.style.boxShadow=`1px 1px 4px 1px #0aa2db,-1px -1px 4px 1px #0aa2db`;
@@ -147,6 +150,7 @@ message:Message
                     await this.allMsgs.blogMsgs({col:colBlog,blog});
                     const {button:btn}=Misc.simpleButton({anchor:colBlog,text:"view details",bg:"#0C090A",color:"white",type:"button",time:400});
                     btn.id="showBlogs-generateBlogs-btn";
+                    btn.style.marginBottom="1rem";
                     colBlog.appendChild(btn);
                     mainRow.appendChild(colBlog);
                     btn.addEventListener("click",(e:MouseEvent)=>{
@@ -180,7 +184,8 @@ message:Message
         const text=document.createElement("h6");
         text.id="displayCard-card-text";
         text.className="text-center  lean mt-2";
-        text.style.cssText="color:rgba(8, 4, 249,0.5);text-decoration:underline;text-underline-offset:0.55rem;font-size:130%;"
+        text.style.cssText="color:rgb(7, 4, 125);text-decoration:underline;text-decoration-style:wavy;text-underline-offset:0.55rem;text-decoration-thickness:5%;text-transform:capitalize;";
+        text.style.fontSize=window.innerWidth<900 ? (window.innerWidth<400 ? "120%" : "185%") : "230%";
         text.textContent=blog.title ? blog.title : " your title";
         textDiv.appendChild(text);
         Misc.thumbsUp({parent:textDiv,cssStyle:{fontSize:"22px",color:"rgba(8, 4, 249,0.5)",zIndex:"1"},time:400,rating:blog.rating,limit:3});
@@ -241,10 +246,10 @@ message:Message
         cardBody.className="C";
         cardBody.style.cssText=`padding-inline:5px;flex:1 1 auto;border-radius:6px;margin-inline:auto;`;
         cardBody.style.flex="1 1 67%";
-        const title=document.createElement("small");
-        title.style.cssText="margin-inline:auto;margin-block:0.5rem;margin-bottom:1rem;margin-bottom:1rem;";
-        title.className="text-primary";
-        title.textContent=blog.title ? blog.title :" no title";
+        const update=document.createElement("small");
+        update.style.cssText="margin-inline:auto;margin-block:0.5rem;margin-bottom:1rem;margin-bottom:1rem;";
+        update.className="text-primary";
+        update.textContent=blog.update ? `update: ${Blogs.tolocalstring(blog.date)}`:"no date";
         const desc=document.createElement("div");
         const descHeight=window.innerWidth < 900 ? (window.innerWidth <400 ? "20vh": "15vh") :"12vh";
         desc.id=`blog-desc-${blog.id}`;
@@ -265,7 +270,7 @@ message:Message
         }
         card.appendChild(imgCont);
         cardBody.appendChild(desc);
-        cardBody.appendChild(title);
+        cardBody.appendChild(update);
         card.appendChild(cardBody);
         column.appendChild(card);
         Misc.matchMedia({parent:card,maxWidth:600,cssStyle:{flexDirection:"column"}});

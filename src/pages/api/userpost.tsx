@@ -2,9 +2,9 @@ import { PrismaClient } from "@prisma/client";
 import { NextApiRequest, NextApiResponse } from "next";
 import { getErrorMessage } from "@/lib/errorBoundaries";
 import { postType, userType } from "@/components/editor/Types";
+import prisma from "@/prisma/prismaclient";
 
 
-const prisma = new PrismaClient();
 // const EMAIL = process.env.EMAIL as string;
 // const PASSWORD = process.env.PASSWORD as string;
 

@@ -27,14 +27,42 @@ class RegSignIn {
         //parent=MainHeader.header
         const getmainHeader=document.querySelector("header#navHeader") as HTMLElement;
         if(!getmainHeader) return;
+        const less900=window.innerWidth < 900 ? true:false;
+        const less400=window.innerWidth < 400 ? true:false;
+        const less380=window.innerWidth < 380 ? true:false;
         getmainHeader.style.zIndex="";
         getmainHeader.style.position="relative";
         getmainHeader.style.justifyContent="space-between";
         Header.cleanUpByID(getmainHeader,"container-signin-signin-popup");
         const section=document.createElement("section");
         section.id="container-signin-signin-popup";
-        section.style.cssText="margin:auto;position:absolute;background-color:#10c0b68f;filter:drop-shadow(0 0 0.75rem crimson);border-radius:7px;padding:1rem;;z-index:1000;display:flex;flex-direction:column;align-items:center;gap:2rem;padding:1.5rem;width:100%;z-index:20";
-        section.style.inset=window.innerWidth < 900 ? (window.innerWidth <400 ? "150% 0% 10% 0%" :"150% 5% 10% 5%") :"150% 25% 0% 25%";
+        section.style.cssText="margin:auto;position:absolute;background-color:#10c0b68f;filter:drop-shadow(0 0 0.75rem crimson);border-radius:7px;padding:1rem;;z-index:1000;display:flex;flex-direction:column;align-items:center;gap:2rem;padding:1.5rem;z-index:20;backdrop-filter:blur(20px);";
+        // section.style.inset=less900? (less400 ? (less380 ? "150% 0% 10% 0%":"150% 0% 10% 0%") :"150% 5% 10% 5%") :"150% 15% 0% 15%";
+        if(less900){
+            section.style.top="150%";
+            // section.style.left="5%";
+            // section.style.right="5%";
+            section.style.maxWidth="600px";
+            section.style.width="100%";
+        };
+        if(less400){
+            section.style.top="150%";
+            section.style.left="-1%";
+            // section.style.right="4%";
+            section.style.maxWidth="380px";
+            section.style.width="100%";
+        };
+        if(less380){
+            section.style.top="150%";
+            section.style.left="0%";
+            section.style.right="0%";
+            section.style.maxWidth="380px";
+            section.style.width="100%";
+        }else{
+            section.style.top="150%";
+            section.style.maxWidth="600px";
+            section.style.width="100%";
+        };
         getmainHeader.appendChild(section);
         Misc.growIn({anchor:section,scale:0,opacity:0,time:400});
         Misc.matchMedia({parent:section,maxWidth:900,cssStyle:{inset:"190% 10% 0% 10%"}});

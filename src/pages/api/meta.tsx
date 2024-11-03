@@ -4,8 +4,8 @@ import { NextApiRequest, NextApiResponse } from "next";
 import { blogType } from "@/components/editor/Types";
 import { getErrorMessage } from "@/lib/errorBoundaries";
 import { getAllBlogImages, getUsersImage } from "@/lib/awsFunctions";
+import prisma from "@/prisma/prismaclient";
 
-const prisma = new PrismaClient();
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
     //  THIS SAVES MESSAGES AND , IF BLOG_ID && RATE UPDATES BLOG RATE

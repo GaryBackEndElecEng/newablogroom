@@ -326,6 +326,7 @@ export type blogType={
     rating:number,
     barOptions:barOptionType[],
     date: Date,
+    update: Date,
     pageCounts:pageCountType[],
     messages:messageType[]
 }

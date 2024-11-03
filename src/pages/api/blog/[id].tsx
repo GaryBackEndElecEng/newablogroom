@@ -3,8 +3,8 @@ import { PrismaClient } from "@prisma/client";
 import { NextApiRequest, NextApiResponse } from "next";
 import { blogType } from "@/components/editor/Types";
 import { findCountKeys, generateMarkImgkey } from "@/lib/ultils/functions";
+import prisma from "@/prisma/prismaclient";
 
-const prisma = new PrismaClient();
 //--------( /API/BLOG/ID ) OR ( /API/BLOG/USER_ID )---------///
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
     const { id } = req.query as { id: string };

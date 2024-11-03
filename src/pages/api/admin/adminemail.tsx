@@ -3,11 +3,12 @@ import { NextApiRequest, NextApiResponse } from "next";
 import { PrismaClient } from "@prisma/client";
 import { userType, adminReplyMsgType } from "@/components/editor/Types";
 import { adminMsgHTML, adminMsgText } from "@/components/emails/templates";
+import prisma from "@/prisma/prismaclient";
 
 const EMAIL = process.env.EMAIL as string;
 const EMAIL2 = process.env.EMAIL2 as string;
 
-const prisma = new PrismaClient();
+
 
 const handler = async (req: NextApiRequest, res: NextApiResponse) => {
 

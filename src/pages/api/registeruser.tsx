@@ -3,9 +3,8 @@ import { NextApiRequest, NextApiResponse } from "next";
 import { userType } from "@/components/editor/Types";
 import { getErrorMessage } from "@/lib/errorBoundaries";
 import { genHash } from "@/lib/ultils/bcrypt";
+import prisma from "@/prisma/prismaclient";
 
-
-const prisma = new PrismaClient();
 // const PASSWORD = process.env.PASSWORD as string;
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
     const user = req.body as userType;

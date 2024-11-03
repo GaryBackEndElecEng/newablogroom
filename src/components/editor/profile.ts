@@ -68,21 +68,36 @@ class Profile{
         return this._modSelector._blog;
     }
     //----------SETTER/GETTERS---------/////
-    //injector: MainHeader.header
+    //parent: MainHeader.header,id="navHeader"
    async main(parent:HTMLElement){
+        const less900=window.innerWidth <900;
+        const less400=window.innerWidth <400;
         Profile.cleanUpByID(parent,"div#headerAnchor")
         parent.style.position="relative";
-        parent.style.justifyContent="space-between";
+        // parent.style.justifyContent="space-between";
         parent.style.zIndex="";
         const headerAnchor=document.createElement("div");
         headerAnchor.id="headerAnchor";
-        headerAnchor.style.cssText="width:100%;display:grid;place-items:center;";
+        headerAnchor.style.cssText="width:100%;display:flex;place-items:center;padding-block:1rem;padding-inline:0px;position:relative;flex-direction:column;";
         const outerMain=document.createElement("article");
-        outerMain.style.cssText="position:absolute;height:auto;z-index:3000;margin:auto;display:grid;place-items:center;border-radius:11px;box-shadow:1px 1px 12px 1px #1F305E;";
+        outerMain.style.cssText="position:absolute;height:auto;z-index:300;margin:auto;display:flex;place-items:center;flex-direction:column;border-radius:11px;box-shadow:1px 1px 12px 1px #1F305E;";
+        outerMain.style.top="100%";
+        outerMain.style.left="0%";
+        outerMain.style.right="0%";
+        if(less900){
+            outerMain.style.top="100%";
+            outerMain.style.left="0%";
+            outerMain.style.right="0%";
+        }
+        if(less400){
+            outerMain.style.top="100%";
+            outerMain.style.left="0%";
+            outerMain.style.right="0%";
+        }
         outerMain.id="profileMain";
         Profile.main=document.createElement("div");
         Profile.main.id="profileInnermain";
-        Profile.main.style.cssText="position:relative;margin:auto;width:100%;min-height:100vh;overflow-y:scroll;";
+        Profile.main.style.cssText="position:relative;margin:auto;width:100%;min-height:80vh;overflow-y:scroll;";
         outerMain.appendChild(Profile.main);
         ////--------------row -------------------------///
         const row=document.createElement("section");
@@ -993,7 +1008,7 @@ class Profile{
         popup.appendChild(container);
         //APPENDING POPUPU TO GRANDROW
         grandRow.appendChild(popup);
-        await this._displayBlog.saveFinalWork(container,blog);
+        await this._displayBlog.saveFinalWork({outerContainer:container,innerContainer:container,blog});
         Misc.fadeIn({anchor:popup,xpos:50,ypos:100,time:400});
         const btnGrp=document.createElement("div");
         btnGrp.classList.add("profile-showFinalWork-btnGrp");
@@ -1306,6 +1321,8 @@ class Profile{
     async userposts(item:{row:HTMLElement,user:userType,cols:number}){
         const {row,user,cols}=item;
         const css_row="display:flex;flex-direction:row;flex-wrap:wrap;align-items:center;justify-content:center;width:100%;position:relative;padding-block:2rem;";
+        const less900=window.innerWidth <900;
+        const less400=window.innerWidth <400;
         const section =document.createElement("section");
         section.id="userposts-section";
         section.style.cssText=css_row + "width:100%;";
@@ -1313,11 +1330,25 @@ class Profile{
         row.appendChild(section);
         const scrollCol1=document.createElement("div");
         scrollCol1.id="scrollCol1";
-        scrollCol1.style.cssText="height:400px;overflow-y:scroll;flex:0 0 50%;display:flex;flex-direction:column;align-items:center;width:100%;position:relative;";
+        scrollCol1.style.cssText="height:400px;overflow-y:scroll;display:flex;flex-direction:column;align-items:center;width:100%;position:relative;";
         scrollCol1.className=`col-md-${12/cols}`;
         section.appendChild(scrollCol1);
         const displayCol2=document.createElement("div");
-        displayCol2.style.cssText="height:inherit;min-height:5vh;margin-block:1rem;flex:0 0 50%;display:flex;flex-direction:column;align-items:center;width:100%;position:relative;";
+        displayCol2.style.cssText="height:inherit;min-height:5vh;margin-block:1rem;display:flex;flex-direction:column;align-items:center;width:100%;position:relative;";
+        if(less900){
+            section.style.flexDirection="row";
+            scrollCol1.style.flex="0 0 46%";
+            displayCol2.style.flex="0 0 46%";
+            if(less400){
+                section.style.flexDirection="column";
+                scrollCol1.style.flex="0 0 100%";
+                displayCol2.style.flex="0 0 100%";
+            };
+        }else{
+            section.style.flexDirection="row";
+            scrollCol1.style.flex="0 0 50%";
+            displayCol2.style.flex="0 0 50%";
+        };
         const labelDisplay2=document.createElement("p");
         labelDisplay2.id="labelDisplay2";
         labelDisplay2.style.cssText="position:absolute;z-index:200;background-color:black;color:white;font-Family:'Poppins-Thin';font-weight:800;font-size:180%;padding-inline:6rem;padding-block:1.5rem;border-radius:42px;box-shadow:1px 1px 12px 1px blue;display:flex;justify-content:center;align-items:center;";

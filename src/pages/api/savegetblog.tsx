@@ -3,8 +3,8 @@ import { NextApiRequest, NextApiResponse } from "next";
 import { blogType, selectorType, element_selType, elementType, codeType, rowType, colType, chartType } from "@/components/editor/Types";
 import { getErrorMessage } from "@/lib/errorBoundaries";
 import { findCountKeys } from "@/lib/ultils/functions";
+import prisma from "@/prisma/prismaclient";
 
-const prisma = new PrismaClient();
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
 
@@ -218,9 +218,11 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
                     rating: true,
                     imgKey: true,
                     date: true,
+                    update: true,
                     show: true,
                     username: true,
-                    messages: true
+                    messages: true,
+
 
                 }
             }) as unknown[] as blogType[];

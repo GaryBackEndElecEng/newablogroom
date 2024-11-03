@@ -11,6 +11,7 @@ import Nav from "../nav/headerNav";
 
 
 class AllMsgs{
+    signed:string;
     logo:string;
     bcard:string;
     brief:string;
@@ -21,7 +22,8 @@ class AllMsgs{
         this.logo="/images/gb_logo.png";
         this.bcard="/images/bcard.png";
         this.brief=" Thank you for the visit. Ablogroom is a free site for all users. Ablogroom allows you to create a website, blog or post to enhance your means to connect with your viewers. This free site contains the best editor means possible, giving the tools to the user to build a professional web-site, with nested complex structures.";
-        this.assistant="<span> Hello, we develop sites for you. if you need a site and own a buisness, just let us what you want or similarly, open an account with us, build your site, then let us know what you want. We will kick into gear to serve you well.</span><br/><span>Hello, I'm Gary,I am a full stack developer and ex Captain/Engineer with over 30 years experience in Hightech and would assist with your needs.</span> ";
+        this.assistant="<span> We help develop sites for you. if you need a site and own a buisness, just let us know what you want or similarly, open an account with us, build your site, then show us what you want. We will kick into gear to serve you well.</span><br/><span style=font-family:'LobsterTwo-Regular'>Hello, I'm Gary,I am a full stack developer and ex Captain/Engineer with over 30 years experience in Hightech and can easily attain a class 3 secret in case of sensitive info.</span><br/><span style=color:rgba(8, 4, 249,0.5);> I would be honored to assist with your needs.</span><pre> contact me and I will serve you Well...Gary</pre> ";
+        this.signed="/images/signed.png";
     }
     get msgs(){
         return this._msgs;
@@ -57,7 +59,7 @@ class AllMsgs{
             contScroll.id="blogMsgs-contScroll";
             contScroll.style.cssText=css_col + "height:15vh;overflow-y:scroll;padding:1rem;width:100%";
             contScroll.style.marginBlock=window.innerWidth <420 ? "auto":"2rem";
-            contScroll.style.paddingInline=window.innerWidth<400 ? "1.25rem":"2.75rem";
+            contScroll.style.paddingInline=window.innerWidth < 900 ? (window.innerWidth<400 ? "1.25rem":"2.75rem"):"5.5rem";
             col.appendChild(contScroll);
             msgs.map(msg=>{
                 if(msg){
@@ -80,6 +82,17 @@ class AllMsgs{
     singleMsg(item:{container:HTMLElement,msg:messageType}){
         const {container,msg}=item;
         Header.cleanUpByID(container,`msg-card-${msg.id}`);
+        const less900=window.innerWidth <900 ? true:false;
+        const less400=window.innerWidth <400 ? true:false;
+        const less375=window.innerWidth <375 ? true:false;
+        if(less900){
+            window.scrollBy(0,-200)
+        }else if(less400){
+            window.scrollBy(0,-500)
+        }else{
+            window.scrollBy(0,-80);
+
+        }
         const card=document.createElement("div");
         card.id=`msg-card-${msg.id}`;
         card.className="msgCard row";
@@ -182,10 +195,18 @@ class AllMsgs{
     }
    async viewCard(item:{parent:HTMLElement,msg:messageType,imgKey:string|undefined}){
         const {parent,msg,imgKey}=item;
+        const less900=window.innerWidth <900 ? true:false;
+        const less400=window.innerWidth <400 ? true:false;
+        const less375=window.innerWidth <375 ? true:false;
+        if(less900){
+            window.scrollBy(0,-80)
+        }else if(less400){
+            window.scrollBy(0,-100)
+        }
         const container=document.createElement("div");
         container.id="allMsgs-viewCard-container";
         container.style.cssText ="max-width:800px;padding-inline:1rem;display:flex;flex-direction:column;place-items:center;position:absolute;border-radius:14px;box-shadow:1px 1px 10px 1px #0CAFFF,-1px -1px 10px 1px #0CAFFF;z-index:100;background-color:white;padding-block:1rem;";
-        container.style.inset=window.innerWidth < 900 ? (window.innerWidth < 400 ? "30% 0% 38% 0%" : "30% 10% 25% 10%") :"30% 10% 30% 10%"
+        container.style.inset=less900 ? (less400 ? "30% 0% 38% 0%" : "30% 10% 45% 10%") :"30% 10% 30% 10%"
         parent.appendChild(container);
         const card=document.createElement("div");
         card.id="allMsgs-viewCard-card"
@@ -245,7 +266,17 @@ class AllMsgs{
     }
     advertise(item:{col:HTMLElement}){
         const {col}=item;
-        window.scrollBy(0,300);
+        const less900=window.innerWidth <900 ? true:false;
+        const less400=window.innerWidth <400 ? true:false;
+        const less375=window.innerWidth <375 ? true:false;
+        if(less900){
+            window.scrollBy(0,-200)
+        }else if(less400){
+            window.scrollBy(0,-500)
+        }else{
+            window.scrollBy(0,-80);
+
+        }
         const parent=col.parentElement as HTMLElement;
         const grandParent=parent.parentElement as HTMLElement;
         const closeIcon=document.querySelector("span#singleMsgTwo-iconDiv") as HTMLElement;
@@ -253,56 +284,77 @@ class AllMsgs{
         const popup=document.createElement("div");
         popup.id="allMsgs-advertise-popup";
         const css_col="margin-inline:auto;display:flex;flex-direction:column;justify-content:center;align-items:center;gap:1rem;height:auto;";
-        const css_row="margin-inline:auto;display:flex;flex-direction:row;justify-content:center;align-items:center;gap:1rem;flex-wrap:wrap;height:auto;";
+        const css_row="margin-inline:auto;display:flex;flex-direction:row;justify-content:center;align-items:center;gap:1rem;flex-wrap:wrap;height:auto;position:relative;width:100%;";
         const css="position:absolute;border-radius:20px;backdrop-filter:blur(20px);box-shadow:1px 1px 12px rgb(0, 191, 255);z-index:1000;color:black; ";
-        const css_img="margin:auto;margin-inline:1rem;border-radius:26px;filter:drop-shadow(0 0 0.75rem black);padding:0.5rem;";
+        const css_img="margin:auto;margin-inline:1rem;border-radius:26px;filter:drop-shadow(0 0 0.75rem #343504);padding:0.5rem;";
         const css_textP="text-align:center;text-wrap:pretty;padding-inline:0.5rem;font-family:'Poppins-Thin';font-weight:bold;line-height:2.75rem;font-weight:700;";
         const css_textL="text-align:center;text-wrap:pretty;padding-inline:0.5rem;font-family:'LobsterTwo-Regular';line-height:2.75rem;";
         popup.style.cssText=css + css_col;
-        popup.style.paddingInline=window.innerWidth < 900 ? (window.innerWidth < 400 ? "0.25rem" : "1rem") : "3rem";
-        popup.style.inset=window.innerWidth < 900 ? (window.innerWidth < 400 ? "0% 0% -235% 0%" : "0% 0% -70% 0%") : "0% 0% -500% 0%";
-        popup.style.transform=window.innerWidth <900 ? (window.innerWidth <400 ? "translateY(-80%)" : "translateY(-55%)") : "translateY(-90%)";
+        popup.style.top="0%";
+        // popup.style.left="0%";
+        popup.style.width="100%";
+        if(less900){
+                popup.style.paddingInline="1rem";
+                popup.style.transform="translateY(-55%)";
+            if(less400){
+                popup.style.paddingInline="0.25rem";
+                popup.style.transform="translateY(-80%)";
+            }
+        }else{
+                popup.style.paddingInline="3rem";
+                popup.style.transform="translateY(-90%)";
+        }
         const transform=popup.style.transform;
 
         const container=document.createElement("section");
         container.id="allMsgs-advertise-popup-container";
-        container.style.cssText=css_col + "margin-block:1rem;min-height:5vh;background-color:white;border-radius:inherit;box-shadow:1px 1px 12px black;padding:0.5rem;gap:2rem;color:black;";
+        container.style.cssText=css_col + "margin-block:1rem;min-height:5vh;background-color:white;border-radius:inherit;box-shadow:1px 1px 12px black;padding:0.5rem;gap:2rem;color:black;position:relative;width:100%;";
+        container.style.height=less900 ? (less400 ? "100vh" : "80vh") :"auto";
+        container.style.overflowY=less900 ? "scroll":"auto";
+        container.style.justifyContent=less900 ? "flex-start":"center";
         //--------------------------CONTENT---------------/////
         const upperCard=document.createElement("div");
-        upperCard.style.cssText=css_row + "padding-inline:1rem;padding-block:1rem;flex-wrap:nowrap;";
-        upperCard.style.flexDirection=window.innerWidth <400 ? "column":"row";
+        upperCard.style.cssText=css_row + "padding-inline:1rem;padding-block:1rem;flex-wrap:nowrap;width:100%;position:relative;";
+        upperCard.style.flexDirection=less900 ? "column":"row";
         const imgUpper=document.createElement("img");
         imgUpper.style.cssText=css_img;
         imgUpper.src=this.logo;
         imgUpper.alt="www.ablogroom.com";
-        imgUpper.style.width=window.innerWidth <900 ? (window.innerWidth <400 ? "300px" : "325px") : "350px";
+        imgUpper.style.width=less900 ? (less400 ? "300px" : "325px") : "350px";
         upperCard.appendChild(imgUpper);//APPENDING
         const uppertext=document.createElement("p");
         uppertext.textContent=this.brief;
         uppertext.style.cssText=css_textL;
-        uppertext.style.fontSize=window.innerWidth <900 ? (window.innerWidth<400 ? "120%" : "120%"): "150%";
+        uppertext.style.width="100%";
+        uppertext.style.fontSize=less900 ? (less400 ? "120%" : "120%"): "150%";
         upperCard.appendChild(uppertext);//APPENDING
         //----------DIVIDER------------------------//
         const hr=document.createElement("div");
-        hr.style.cssText="width:80%;height:3px;background-color:black;margin-block:1rem;";
+        hr.style.cssText="width:80%;height:3px;background-color:black;";
         //----------DIVIDER------------------------//
         const lowerCard=document.createElement("div");
-        lowerCard.style.cssText=css_row + "padding-inline:1rem;padding-block:1rem;flex-wrap:nowrap;";
-        lowerCard.style.flexDirection=window.innerWidth <400 ? "column":"row";
+        lowerCard.style.cssText=css_row + "padding-inline:1rem;padding-block:1rem;flex-wrap:nowrap;width:100%;position:relative;";
+        lowerCard.style.flexDirection=less900 ? "column":"row";
         const imgLower=document.createElement("img");
         imgLower.style.cssText=css_img;
         imgLower.src=this.bcard;
         imgLower.alt="www.ablogroom.com";
-        imgLower.style.width=window.innerWidth <900 ? (window.innerWidth <400 ? "300px" : "325px") : "350px";
+        imgLower.style.width=less900 ? (less400 ? "300px" : "325px") : "350px";
         lowerCard.appendChild(imgLower);//APPENDING
         const lowertext=document.createElement("p");
         lowertext.innerHTML=this.assistant;
         lowertext.style.cssText=css_textP;
-        lowertext.style.fontSize=window.innerWidth <900 ? (window.innerWidth<400 ? "120%" : "120%"): "150%";
-        lowerCard.appendChild(lowertext);//APPENDING
+        lowertext.style.width="100%";
+        lowertext.style.fontSize=less900 ? (less400 ? "120%" : "120%"): "150%";
+        lowerCard.appendChild(lowertext);//appending
+        const signed=document.createElement("img");
+        signed.style.cssText="width:150px;aspect-ratio:16 / 9;align-self:center;margin-bottom:1rem;";
+        signed.src=this.signed;
+        signed.alt="Gary Wallace";
         container.appendChild(upperCard);
         container.appendChild(hr);
         container.appendChild(lowerCard);
+        container.appendChild(signed);
         //--------------------------CONTENT---------------/////
         popup.appendChild(container);
         grandParent.appendChild(popup);

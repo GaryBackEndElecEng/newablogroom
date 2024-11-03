@@ -3,9 +3,10 @@ import { NextApiRequest, NextApiResponse } from "next";
 import { userType } from "@/components/editor/Types";
 import { getErrorMessage } from "@/lib/errorBoundaries";
 import { getUserImage } from "@/lib/awsFunctions";
+import prisma from "@/prisma/prismaclient";
 const EMAIL = process.env.EMAIL as string;
 const EMAIL2 = process.env.EMAIL2 as string;
-const prisma = new PrismaClient();
+
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
 
     if (req.method === "GET") {

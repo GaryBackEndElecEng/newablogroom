@@ -2,10 +2,9 @@ import { PrismaClient } from "@prisma/client";
 import { NextApiRequest, NextApiResponse } from "next";
 import {  userType } from "@/components/editor/Types";
 import { getErrorMessage } from "@/lib/errorBoundaries";
-// import {  getUserImage } from "@/lib/awsFunctions";
-// import { hashComp } from "@/lib/ultils/bcrypt";
+import prisma from "@/prisma/prismaclient";
 
-const prisma = new PrismaClient();
+
 const EMAIL=process.env.EMAIL as string;
 const EMAIL2=process.env.EMAIL2 as string;
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {

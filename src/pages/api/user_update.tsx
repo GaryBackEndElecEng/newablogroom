@@ -3,9 +3,10 @@ import { NextApiRequest, NextApiResponse } from "next";
 import { userType } from "@/components/editor/Types";
 import { getErrorMessage } from "@/lib/errorBoundaries";
 import { genHash, hashComp } from "@/lib/ultils/bcrypt";
-import { getUserImage } from "@/lib/awsFunctions";
+import { getUserImage, getUsersImage } from "@/lib/awsFunctions";
+import prisma from "@/prisma/prismaclient";
 
-const prisma = new PrismaClient();
+
 export type passwordType = { passNew: string, passOld: string } | null;
 export type emailType = { emailNew: string, emailOld: string } | null;
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
@@ -138,6 +139,38 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         }
 
 
+    }
+    if (req.method === "GET") {
+        const email = req.query.email as string;
+        if (!email) return;
+        try {
+            const user = await prisma.user.findUnique({
+                where: { email },
+                select: {
+                    id: true,
+                    email: true,
+                    name: true,
+                    image: true,
+                    imgKey: true,
+                    bio: true,
+                    showinfo: true,
+                    admin: true,
+                    username: true
+                }
+            });
+            if (user) {
+                const userImage = await getUserImage(user as unknown as userType)
+                res.status(200).json(userImage)
+            } else {
+                res.status(307).json({ msg: "user could not be found" });
+            }
+        } catch (error) {
+            const msg = getErrorMessage(error);
+            console.log(msg);
+            res.status(400).json({ msg: "coul not sign in, something went wrong" });
+        } finally {
+            return await prisma.$disconnect();
+        }
     }
 
 
