@@ -177,7 +177,7 @@ class  Main  {
         {id:"28",attr:false, name: "show", display: "show work", class_: "show", isIcon: false, isElement: false },
         {id:"29",attr:false, name: "final", display: "show final", class_: "final", isIcon: false, isElement: false },
     ];
-    constructor(private _modSelector:ModSelector,private _service:Service,private _auth:AuthService,private _profile:Profile,mainInject:HTMLElement,public edit:Edit,private _user:User,private _code:NewCode,private _flexbox:Flexbox,private _htmlElement:HtmlElement,private _footer:Footer,header:Header,public customHeader:CustomHeader,displayBlog:DisplayBlog,public shapeOutside:ShapeOutside, private _nav:Nav,private _navArrow:NavArrow ) {
+    constructor(private _modSelector:ModSelector,private _service:Service,mainInject:HTMLElement,public edit:Edit,private _user:User,private _flexbox:Flexbox,private _htmlElement:HtmlElement,private _footer:Footer,header:Header,public customHeader:CustomHeader,displayBlog:DisplayBlog,public shapeOutside:ShapeOutside,private _navArrow:NavArrow ) {
         this._regSignin=new RegSignIn(this._modSelector,this._service,this._user);
         Main.mainInjection=mainInject;
         this._displayBlog=displayBlog;

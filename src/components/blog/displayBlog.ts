@@ -266,18 +266,15 @@ _onlyMeta:boolean=false;
                             }
                         });
                     //RATE SECTION
-                    //BTN CONTAINER
-                    res.outerContainer.appendChild(btnContainer);
-                    //BTN CONTAINER
-                    //-----------user info-------------------------------------//
-                    const userInfo=document.createElement("div");
-                    userInfo.id="userInfo";
-                    userInfo.style.cssText="min-height:5vh;width:60%;margin-block:2rem;border-radius:10px;display:flex;justify-content:center;flex-direction:column;align-items:center;margin-block:2rem;padding:1rem;";
-                    Header.cleanUpByID(parent,"userInfo");
-                    parent.appendChild(userInfo);
-                    Misc.matchMedia({parent:userInfo,maxWidth:820,cssStyle:{width:"70%"}});
-                    Misc.matchMedia({parent:userInfo,maxWidth:400,cssStyle:{width:"auto",maxWidth:"none",paddingInline:"0rem;"}});
-                    //-----------user info-------------------------------------//
+                    this.getUserInfo({htmlUserInfo:res.outerContainer,blog}).then(async(_res)=>{
+                        if(_res && _res.outerContainer){
+
+                            //BTN CONTAINER
+                            _res.outerContainer.appendChild(btnContainer);
+                            //BTN CONTAINER
+                        }
+                    });
+                   
                 }
             });
             //SHOWS PAGE
@@ -585,6 +582,9 @@ _onlyMeta:boolean=false;
                 ele.setAttribute("name",element.name);
                 ele.id=element.eleId;
                 ele.style.cssText=element.cssText;
+                if(element.name==="p"){
+                    ele.style.lineHeight="1.75rem";
+                }
                 ele.innerHTML=element.inner_html;
                 col.appendChild(ele);
                 if(element.attr==="data-backgroundImage" && element.imgKey){
@@ -900,6 +900,9 @@ _onlyMeta:boolean=false;
         ele.className=element.class.split(" ").filter(cl=>(cl !=="box-shadow")).join(" ");
         ele.classList.remove("isActive");
         ele.style.cssText=element.cssText;
+        if(element.name==="p"){
+            ele.style.lineHeight="1.75rem";
+        }
         ele.style.marginInline="auto";
         const divCont=document.createElement("div");
         divCont.id="eleContainer";
@@ -1062,14 +1065,14 @@ _onlyMeta:boolean=false;
         
     
     }
-   async getUserInfo(htmlUserInfo:HTMLElement,blog:blogType): Promise<userType | undefined>{
+   async getUserInfo(item:{htmlUserInfo:HTMLElement,blog:blogType}): Promise<{user:userType | null,outerContainer:HTMLElement}>{
+    const {htmlUserInfo,blog}=item;
     Header.cleanUpByID(htmlUserInfo,"user-container");
         htmlUserInfo.style.position="relative";
         const container=document.createElement("div");
         container.id="user-container";
         container.style.cssText="margin-inline:auto;margin-block:1.25rem;display:flex;align-items:center;justify-content:space-around;flex-warp:wrap;background-color:white;width:100%;border-radius:11px;padding-block:1.5rem;padding-inline:1.25rem;box-shadow:1px 1px 12px 2px #10c7e9ab,-1px -1px 12px 1px #10c7e9ab;";
-        if(!blog) return;
-        if(!(blog.user_id)) return;
+        if(!(blog && blog.user_id)) return {user:null,outerContainer:htmlUserInfo};
         return this._service.getUserInfo(blog.user_id).then(async(user)=>{
             if(user && user.showinfo){
                 const img=document.createElement("img");
@@ -1097,7 +1100,9 @@ _onlyMeta:boolean=false;
                     container.appendChild(divCont);
               
                 htmlUserInfo.appendChild(container);
-                return user
+                return {user,outerContainer:htmlUserInfo}
+            }else{
+                return {user:null,outerContainer:htmlUserInfo}
             }
         });
     }

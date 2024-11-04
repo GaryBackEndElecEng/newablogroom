@@ -14,6 +14,7 @@ import Nav from './headerNav';
 import MainHeader from './mainHeader';
 import Profile from '../editor/profile';
 import Features from '../home/feature';
+import AuthService from "../common/auth";
 
 class NavArrow{
     logo:string;
@@ -30,6 +31,7 @@ class NavArrow{
         rotateArrow(item:{button:HTMLElement,time:number}){
         const {button,time}=item;
         const heightWidth=36;
+        let getPageCount:HTMLElement|null;
         button.style.cssText=`position:relative;display:flex;justify:content:center;align-items:center;border-radius:50%;padding:5px;background-color:transparent;box-shadow:1px 1px 12px 1px white;color:white;transform:rotate(180deg);width:${heightWidth}px;height:${heightWidth}px;padding:1px;margin-block:auto;`
         button.style.color="white";
         button.id="rotateArrow-btn";
@@ -37,6 +39,15 @@ class NavArrow{
         button.onclick=(e:MouseEvent)=>{
             if(e){
                 const getNavHeader=button.parentElement as HTMLElement;
+                if(getNavHeader){
+                    getPageCount=getNavHeader.querySelector("div#genPageCount-main") as HTMLElement;
+                    if(getPageCount){
+                        const marginLeft=getPageCount.style.marginLeft;
+                        const left=getPageCount.style.left;
+                       const cssStyle={marginLeft,left}as any as {[key:string]:string}
+                       this.fadeOutIn({target:getPageCount,time:400,cssStyle});
+                    }
+                }
                 if(!getNavHeader) return;
                 if(button.style.transform==="" || button.style.transform==="rotate(180deg)"){
                     this.imageAfterEffect({button,heightWidth,time:600,show:true})
@@ -822,6 +833,37 @@ class NavArrow{
                 });
             }) as Promise<{blog:()=>blogType|null}>;
         
+    }
+    fadeOutIn(item:{target:HTMLElement,time:number,cssStyle:{[key:string]:string}}){
+        const {target,time,cssStyle}=item;
+        if(target.hidden===false){
+            target.animate([
+                {transform:"scale(1)",opacity:"1"},
+                {transform:"scale(0)",opacity:"0"},
+            ],{duration:time,iterations:1});
+            setTimeout(()=>{
+                target.hidden=true;
+            },time-10);
+        }else{
+            target.hidden=false;
+            for(const key of Object.keys(target.style)){
+                for(const [key1,value] of Object.entries(cssStyle)){
+                    if(key===key1){
+                        target.style[key]=value;
+                    }
+                };
+            };
+            target.style.opacity="1";
+            target.animate([
+                {transform:"scale(0)",opacity:"0"},
+                {transform:"scale(1)",opacity:"1"},
+            ],{duration:time,iterations:1});
+            setTimeout(()=>{
+                target.hidden=false;
+                target.style.opacity="1";
+            },time-10);
+            
+        }
     }
 
 }

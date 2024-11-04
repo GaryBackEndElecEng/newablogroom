@@ -113,7 +113,9 @@ class MessageSetup{
         return {form,email,textarea:msg,name,rate,btn,msgEvent:msg_e,cont}
     }
     contact2(parent:HTMLElement):{form:HTMLFormElement,popup:HTMLElement,useParent:HTMLElement,btn:HTMLButtonElement}{
-        const css="margin-inline:auto;display:flex;flex-direction:column;justify-content:center;align-items:center;gap:1rem;"
+        const css="margin-inline:auto;display:flex;flex-direction:column;justify-content:center;align-items:center;gap:1rem;";
+        const less900=window.innerWidth < 900;
+        const less400=window.innerWidth < 400;
         Nav.navHeader=document.querySelector("header#navHeader") as HTMLElement;
         window.scroll(0,0);
         const useParent= parent ? parent :Nav.navHeader;
@@ -121,9 +123,10 @@ class MessageSetup{
         const popup=document.createElement("div");
         useParent.style.position="relative";
         popup.id="contact2-message";
-        popup.style.cssText=`position:absolute;width:fit-content;padding:1rem;background:white;color:black;height:fit-content;margin-inline:auto;display:flex;flex-direction:column;align-items:center;justify-content:center;border-radius:16px;box-shadow:1px 1px 6px 1px aquamarine;padding:1rem;z-index:200;background-color:black;padding-block:1rem;`;
-        popup.style.inset="20% 0% 0% 0%";
-        popup.style.width="390px";
+        popup.style.cssText=`position:absolute;min-width:fit-content;padding:1rem;background:white;color:black;height:fit-content;margin-inline:auto;display:flex;flex-direction:column;align-items:center;justify-content:center;border-radius:16px;box-shadow:1px 1px 6px 1px aquamarine;padding:1rem;z-index:200;background-color:black;padding-block:1rem;align-self:center`;
+        popup.style.inset=less900 ? (less400 ? "0% 0% 0% 0%" :"0% 15% 0% 15%" ) : "10% 25% 20% 25%";
+        popup.style.width="100%";
+        popup.style.maxWidth=less900 ? (less400 ? "390px" :"450px" ) : "600px";
         const img=document.createElement("img");
         img.style.cssText="shape-outside:circle(50%);margin-right:1rem;width:125px;height:125px;border-radius:50%;box-shadow:1px 1px 12px 1px white;filter:drop-shadow(0 0 0.75rem white);float:left;";
         img.src=this.logo;
@@ -247,8 +250,6 @@ class MessageSetup{
             }
         };
         Misc.fadeIn({anchor:popup,xpos:50,ypos:100,time:500});
-        Misc.matchMedia({parent:popup,maxWidth:900,cssStyle:{top:"22%"}});
-        Misc.matchMedia({parent:popup,maxWidth:400,cssStyle:{top:"30%",width:"auto"}});
         window.scroll(0,0);
         return {form,popup,useParent,btn}
     }
@@ -347,7 +348,6 @@ class Message{
 
     contact(parent:HTMLElement,blog:blogType|null){
         const  {form,popup,useParent} =this.msgSetup.contact2(parent)
-        popup.style.inset="20% 0% 0% 0%";
        form.addEventListener("submit",(e:SubmitEvent) =>{
         if(e){
             e.preventDefault();
@@ -491,7 +491,7 @@ class Message{
         const iconDiv=document.createElement("span");
         iconDiv.id="iconDiv";
         iconDiv.style.cssText="font-size:40px;width:45px;height:45px;padding:3px;display:flex;"
-        FaCreate({parent:iconDiv,name:SiAnswer,cssStyle:{marginRight:"10px",background:"white",color:"black",zIndex:"100"}});
+        FaCreate({parent:iconDiv,name:SiAnswer,cssStyle:{marginRight:"10px",background:"white",color:"black",zIndex:"1"}});
         //APPENDING ICONDIV && NAME
         nameCont.appendChild(iconDiv);
         nameCont.appendChild(name);

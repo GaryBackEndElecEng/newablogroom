@@ -163,7 +163,7 @@ class Service {
         this._modSelector._selectors=[] as selectorType[];
         this._modSelector.selectCodes=[] as codeType[];
         this._modSelector.charts=[] as chartType[];
-        blog={id:0,name:undefined,desc:undefined,user_id:"",class:ModSelector.main_class,inner_html:undefined,cssText:ModSelector.main_css,img:undefined,imgKey:undefined,show:false,username:undefined,rating:0,selectors:[] as selectorType[],elements:[] as elementType[],codes:[] as codeType[],pageCounts:[] as pageCountType[],messages:[] as messageType[],charts:[] as chartType[],date:new Date(),attr:"circle",barOptions:[]};
+        blog={id:0,name:undefined,desc:undefined,user_id:"",class:ModSelector.main_class,inner_html:undefined,cssText:ModSelector.main_css,img:undefined,imgKey:undefined,show:false,username:undefined,rating:0,selectors:[] as selectorType[],elements:[] as elementType[],codes:[] as codeType[],pageCounts:[] as pageCountType[],messages:[] as messageType[],charts:[] as chartType[],date:new Date(),update:new Date(),attr:"circle",barOptions:[]};
         this._modSelector._blog=blog;
         this._modSelector.blog=this._modSelector._blog;
     }

@@ -4,13 +4,15 @@ import React from 'react'
 import ChartJS from "@/components/chart/chartJS";
 import ModSelector from '@/components/editor/modSelector';
 import Service from '@/components/common/services';
-import AuthService from '@/components/common/auth';
 import User from '@/components/user/userMain';
 import Header from '../editor/header';
 import Climate from './climate';
-import style from "./chart.module.css"
+import style from "./chart.module.css";
+import { useSession } from 'next-auth/react';
+
 
 export default function Index() {
+    const { data: session, status } = useSession();
     let count = 0;
     const refChart = React.useRef(null);
     React.useEffect(() => {
@@ -22,6 +24,7 @@ export default function Index() {
             const user = new User(modSelector, service);
             const chart = new ChartJS(modSelector, service, user);
             const docChart = document.getElementById("chart") as HTMLElement;
+
             Header.cleanUp(docChart);
             // console.log(docChart)//works
             if (count === 0) {

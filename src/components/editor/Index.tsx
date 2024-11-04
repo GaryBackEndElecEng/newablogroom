@@ -11,7 +11,6 @@ import Main from "@/components/editor/main";
 import User from '../user/userMain';
 import DisplayBlog from '../blog/displayBlog';
 import Service from "@/components/common/services";
-import AuthService from '../common/auth';
 import Flexbox from './flexBox';
 import HtmlElement from './htmlElement';
 import Profile from './profile';
@@ -25,14 +24,16 @@ import NewCode from './newCode';
 import ChartJS from '../chart/chartJS';
 import Message from '../common/message';
 import Post from '../posts/post';
+// import { Session } from "next-auth";
+// import { useSession } from 'next-auth/react';
 
 
 function Index() {
-    // const { setBlog_ } = useEditor();
+    // const { data: session, status } = useSession();
     const styleOne = { Background: "white", color: "black", width: "100%", minHeight: "100vh", marginInline: "0px" }
-    let count = 0;
+
     React.useEffect(() => {
-        if (count > 1) return;
+
         if (typeof window !== "undefined") {
             const mainInjection = document.querySelector("section#mainInjection") as HTMLElement;
             const side_bar = document.querySelector("aside#sidebar") as HTMLElement;
@@ -41,7 +42,6 @@ function Index() {
                 const modSelector = new ModSelector();
                 const service = new Service(modSelector);
                 const _user = new User(modSelector, service);
-                const _auth = new AuthService(modSelector, service, _user);
                 const post = new Post(modSelector, service, _user);
                 const chart = new ChartJS(modSelector, service, _user);
                 const shapeOutside = new ShapeOutside(modSelector, service, _user);
@@ -54,22 +54,21 @@ function Index() {
                 const message = new Message(modSelector, service, modSelector.blog);
                 const displayBlog = new DisplayBlog(modSelector, service, _user, shapeOutside, newCode, chart, message);
                 const metablog = new MetaBlog(modSelector, service, _user);
-                const profile = new Profile(modSelector, service, _auth, _user, metablog, chart, post);
+                const profile = new Profile(modSelector, service, _user, metablog, chart, post);
                 const regSignin = new RegSignIn(modSelector, service, _user);
                 const feature = new Features();
                 const navArrow = new NavArrow(_user, regSignin, service, profile, modSelector, feature);
-                const nav = new Nav(modSelector, _auth, service, _user, regSignin);
-                const _edit = new Edit(modSelector, _auth, service, mainInjection, _user, _flexbox, _htmlElement, _header, customHeader, _footer, displayBlog, newCode, chart, shapeOutside);
-                const main = new Main(modSelector, service, _auth, profile, mainInjection, _edit, _user, newCode, _flexbox, _htmlElement, _footer, _header, customHeader, displayBlog, shapeOutside, nav, navArrow);
+                const _edit = new Edit(modSelector, service, mainInjection, _user, _flexbox, _htmlElement, _header, customHeader, _footer, displayBlog, newCode, chart, shapeOutside);
+                const main = new Main(modSelector, service, mainInjection, _edit, _user, _flexbox, _htmlElement, _footer, _header, customHeader, displayBlog, shapeOutside, navArrow);
                 const sidebar = new Sidebar(modSelector, service, main, _flexbox, newCode, _header, customHeader, _footer, _edit, _user, regSignin, displayBlog, chart, shapeOutside, metablog);
                 sidebar.onclickHideShowSideBar(side_bar);
                 main.mainContainer(mainInjection);
-                count++;
+
             }
 
         }
 
-    }, [count]);
+    }, []);
 
     return (
 

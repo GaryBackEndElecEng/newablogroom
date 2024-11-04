@@ -26,7 +26,7 @@ class Nav{
     btnArray:navLinkBtnType[];
     navList:{id:number,name:string,svg:string}[];
    static thanksMsg:"<span> Thank you for messsaging us. We will get back to you within one day. please send us a message for any other requests.</span> <blockquote><pre>Enjoy!, Gary</pre></blockquote> ";
-    constructor(private _modSelector:ModSelector, private _auth:AuthService,private _service:Service,private _user:User,_regSignin:RegSignIn){
+    constructor(private _modSelector:ModSelector,private _service:Service,private _user:User,_regSignin:RegSignIn){
         this.navList=[{id:0,name:"signin",svg:""},{id:1,name:"contact",svg:""},{id:2,name:"blogs",svg:""},]
         this.urlBlog="/blogs";
         Nav.logo="/images/gb_logo.png";
@@ -279,34 +279,39 @@ class Nav{
         user: userType | null;
         parent: HTMLElement;
     }>{
-        Header.cleanUpByID(parent,"user-signature");
         if(user && user.id){
-        const container=document.createElement("div");
-        container.id="user-signature";
-        container.style.cssText="display:flex;justify-content:space-around;align-items:center;margin-inline:1rem;box-shadow:1px 1px 12px 1px white;padding-inline:0.5rem;border-radius:10px;color:white;background-color:#0a2351;overflow:hidden;position:relative;right:20px";
-        container.style.maxWidth="300px;";
-        const img=document.createElement("img");
-        img.style.cssText="width:55px;border-radius:50%;filter:drop-shadow(0 0 0.25 white);";
-        if(user.imgKey){
-            const res3key:gets3ImgKey | null= await this._service.getSimpleImg(user.imgKey)
-            if(res3key && res3key.img){
-                img.src=res3key.img;
-                img.alt=res3key.Key;
+            Header.cleanUpByID(parent,"user-signature")
+            const container=document.createElement("div");
+            const less900=window.innerWidth <900;
+            const less400=window.innerWidth <400;
+            container.id="user-signature";
+            container.className="user-signature";
+            container.style.cssText="display:flex;justify-content:space-around;align-items:center;margin-inline:1rem;box-shadow:1px 1px 12px 1px white;padding-inline:0.5rem;border-radius:10px;color:white;background-color:#0a2351;overflow:hidden;position:relative;right:20px;justify-self:end;margin-right:10px;order:3;";
+            container.style.marginRight=less900 ? (less400 ? "1px":"4px") :"10px";
+            container.style.right=less900 ? (less400 ? "-28px":"-10px") :"20px";
+            container.style.transform=less900 ? (less400 ? "scale(0.6)":"scale(0.7)") :"scale(1)";
+            container.style.maxWidth="300px;";
+            const img=document.createElement("img");
+            img.style.cssText="width:55px;border-radius:50%;filter:drop-shadow(0 0 0.25 white);";
+            if(user.imgKey){
+                const res3key:gets3ImgKey | null= await this._service.getSimpleImg(user.imgKey)
+                if(res3key && res3key.img){
+                    img.src=res3key.img;
+                    img.alt=res3key.Key;
+                }
+            }else{
+                img.src=user.image ? user.image : Nav.logo;
+                img.alt="www.ablogroom.com";
             }
-        }else{
-            img.src=user.image ? user.image : Nav.logo;
-            img.alt="www.ablogroom.com";
-        }
-        const para=document.createElement("p");
-        const name=user.name ? user.name : "blogger"
-        para.innerHTML=Nav.splitWord({parent:para,str:name,splitCount:4});
-        container.appendChild(img);
-        container.appendChild(para);
-        parent.appendChild(container);
-        Misc.matchMedia({parent:img,maxWidth:420,cssStyle:{width:"35px"}});
-        Misc.matchMedia({parent:container,maxWidth:420,cssStyle:{maxWidth:"155px",marginInline:"0rem",paddingInline:"5px;"}});
-        Misc.matchMedia({parent:para,maxWidth:420,cssStyle:{fontSize:"12px"}});
-        Misc.growIn({anchor:container,scale:0.2,opacity:0,time:500});
+            const para=document.createElement("p");
+            const name=user.name ? user.name : "blogger"
+            para.innerHTML=Nav.splitWord({parent:para,str:name,splitCount:4});
+            container.appendChild(img);
+            container.appendChild(para);
+            parent.appendChild(container);
+            Misc.matchMedia({parent:img,maxWidth:420,cssStyle:{width:"35px"}});
+            Misc.matchMedia({parent:para,maxWidth:420,cssStyle:{fontSize:"12px"}});
+            Misc.growIn({anchor:container,scale:0.2,opacity:0,time:500});
         }
         return new Promise((resolve)=>{
             if(user && user.id){

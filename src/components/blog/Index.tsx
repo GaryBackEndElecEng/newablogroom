@@ -5,7 +5,6 @@ import { blogType } from '../editor/Types';
 import DisplayBlog from "@/components/blog/displayBlog";
 import ModSelector from "@/components/editor/modSelector";
 import Service from '../common/services';
-import AuthService from "@/components/common/auth";
 import User from '../user/userMain';
 // import Message from '@/components/common/message';
 import ShapeOutside from '../editor/shapeOutside';
@@ -13,11 +12,14 @@ import Misc from '../common/misc';
 import NewCode from '../editor/newCode';
 import ChartJS from '../chart/chartJS';
 import Message from '../common/message';
+import { useSession } from 'next-auth/react';
+// import { Session } from 'next-auth';
 
 // const url = process.env.BASE_URL as string;
 
 function Index({ id }: { id: number }) {
     const clientRef = React.useRef(null);
+    // const { data: session, status } = useSession();
     let count: number = 0;
     // const { blog_, setBlog_ } = useEditor();
 

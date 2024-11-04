@@ -36,37 +36,16 @@ class RegSignIn {
         Header.cleanUpByID(getmainHeader,"container-signin-signin-popup");
         const section=document.createElement("section");
         section.id="container-signin-signin-popup";
-        section.style.cssText="margin:auto;position:absolute;background-color:#10c0b68f;filter:drop-shadow(0 0 0.75rem crimson);border-radius:7px;padding:1rem;;z-index:1000;display:flex;flex-direction:column;align-items:center;gap:2rem;padding:1.5rem;z-index:20;backdrop-filter:blur(20px);";
-        // section.style.inset=less900? (less400 ? (less380 ? "150% 0% 10% 0%":"150% 0% 10% 0%") :"150% 5% 10% 5%") :"150% 15% 0% 15%";
-        if(less900){
-            section.style.top="150%";
-            // section.style.left="5%";
-            // section.style.right="5%";
-            section.style.maxWidth="600px";
-            section.style.width="100%";
-        };
-        if(less400){
-            section.style.top="150%";
-            section.style.left="-1%";
-            // section.style.right="4%";
-            section.style.maxWidth="380px";
-            section.style.width="100%";
-        };
-        if(less380){
-            section.style.top="150%";
-            section.style.left="0%";
-            section.style.right="0%";
-            section.style.maxWidth="380px";
-            section.style.width="100%";
-        }else{
-            section.style.top="150%";
-            section.style.maxWidth="600px";
-            section.style.width="100%";
-        };
+        section.style.cssText="margin:auto;position:absolute;background-color:#10c0b68f;filter:drop-shadow(0 0 0.75rem crimson);border-radius:7px;padding:1rem;z-index:100;display:flex;flex-direction:column;align-items:center;gap:2rem;padding:1.5rem;z-index:20;backdrop-filter:blur(20px);";
+        section.style.top="150%";
+        section.style.left=less900 ? (less400 ? (less380 ? "0%" :"1%"):"15%") :"25%";
+        section.style.right=less900 ? (less400 ? (less380 ? "0%" :"1%"):"15%") :"25%";
+        section.style.maxWidth=less900 ? (less400 ? (less380 ? "378px" :"400px"):"600px") :"600px";
+        section.style.width="100%";
         getmainHeader.appendChild(section);
         Misc.growIn({anchor:section,scale:0,opacity:0,time:400});
-        Misc.matchMedia({parent:section,maxWidth:900,cssStyle:{inset:"190% 10% 0% 10%"}});
-        Misc.matchMedia({parent:section,maxWidth:400,cssStyle:{inset:"250% 2% 20% 2%"}});
+        // Misc.matchMedia({parent:section,maxWidth:900,cssStyle:{inset:"190% 10% 0% 10%"}});
+        // Misc.matchMedia({parent:section,maxWidth:400,cssStyle:{inset:"250% 2% 20% 2%"}});
         const url=window.location.pathname;
         const hasBlog=await this.hasStorage();
         if(hasBlog){
@@ -83,16 +62,12 @@ class RegSignIn {
         this.removeItem({parent:getmainHeader,target:section})
         const {button}=Misc.simpleButton({anchor:section,bg:Nav.btnColor,color:"white",text:"register",time:400,type:"button"});
         button.id="signIn-main-register-btn";
-        Misc.matchMedia({parent:section,maxWidth:900,cssStyle:{width:"100%",inset:"1100% 0% 0% 0%",position:"absolute",height:"100vh"}});
-        Misc.matchMedia({parent:section,maxWidth:400,cssStyle:{width:"100%",inset:"1100% 0% 0% 0%",position:"absolute",height:"100vh"}});
         button.onclick=(e:MouseEvent)=>{
             if(e){
                 getmainHeader.style.position="absolute";
                 this.register(getmainHeader,section);
             }
          };
-        //  Misc.matchMedia({parent:section,maxWidth:400,cssStyle:{width:"100%",height:"100vh"}})
-
     }
     hasStorage():Promise<boolean>{
         return new Promise(resolve=>{
@@ -379,7 +354,6 @@ class RegSignIn {
         Header.cleanUpByID(section,"signIn-main");
         // const cssGrp="margin:auto;display:flex;flex-direction:column;align-items:center;gap:1rem;";
         window.scroll(0,0);
-        section.style.position="relative";
         section.style.zIndex="20";
         // const width=window.innerWidth <500 ? "0%":"30%";
         const container=document.createElement("section");

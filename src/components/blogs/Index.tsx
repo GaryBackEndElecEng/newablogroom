@@ -5,17 +5,20 @@ import Blogs from "@/components/blogs/blogsInjection";
 import { blogType, } from '../editor/Types';
 import ModSelector from "@/components/editor/modSelector";
 import Service from "@/components/common/services";
+import { useSession } from 'next-auth/react';
+import User from '../user/userMain';
 
 
 
 export default function Index() {
-    // let window: CustomWindow
+    // const { data: session, status } = useSession();
     const inRef = React.useRef(null);
     React.useEffect(() => {
         if (typeof window !== "undefined" && inRef.current) {
             const url = `/api/savegetblog`;
             const modSelector = new ModSelector();
             const service = new Service(modSelector);
+            const user = new User(modSelector, service);
             const initBlogs = new Blogs(modSelector, service);
             const injectBlogs = document.getElementById("injectBlogs") as HTMLElement;
             const option = {

@@ -35,7 +35,7 @@ class Profile{
     static main:HTMLElement | null;
 
 
-    constructor(private _modSelector:ModSelector,private _service:Service,private _auth:AuthService,private _user:User,private _metaBlog:MetaBlog,private chart:ChartJS,private _post:Post){
+    constructor(private _modSelector:ModSelector,private _service:Service,private _user:User,private _metaBlog:MetaBlog,public chart:ChartJS,private _post:Post){
         this.bgColor=this._modSelector._bgColor;
         this.btnColor=this._modSelector.btnColor;
         this.userUrlUpdate=baseUrl + "/api/user_update";

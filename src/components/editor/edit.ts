@@ -210,7 +210,7 @@ class Edit {
     _regSignin:RegSignIn;
     css:string="min-height:100vh;height:auto;box-shadow:1px 1px 12px 2px black;border-radius:10px;padding-inline:0px;padding-block:0px;margin:0px;z-index:0;position:relative;width:100%;display:flex;flex-direction:column;justify-content:flex-start;align-items:center;gap:1rem;";
   
-    constructor(public modSelector:ModSelector,private _auth:AuthService,private _service:Service,public _mainInjection:HTMLElement | null,private _user:User,public _flexbox:Flexbox,public _htmlElement:HtmlElement,public header:Header, public customHeader:CustomHeader,public footer:Footer,public displayBlog:DisplayBlog,private _code:NewCode,public chart:ChartJS,private _shapeOutside:ShapeOutside){
+    constructor(public modSelector:ModSelector,private _service:Service,public _mainInjection:HTMLElement | null,private _user:User,public _flexbox:Flexbox,public _htmlElement:HtmlElement,public header:Header, public customHeader:CustomHeader,public footer:Footer,public displayBlog:DisplayBlog,private _code:NewCode,public chart:ChartJS,private _shapeOutside:ShapeOutside){
         this._modSelector=modSelector;
         this.flexbox=_flexbox;
         this._footer=footer;
@@ -458,7 +458,7 @@ class Edit {
         container.style.zIndex="";
         const innerContainer=document.createElement("div");
         innerContainer.style.cssText="width:100%;position:absolute;z-index:200;background:white;";
-        await this.displayBlog.saveFinalWork(innerContainer,blog);
+        await this.displayBlog.saveFinalWork({outerContainer:parent,innerContainer,blog});
         const btnCont=document.createElement("div");
         btnCont.style.cssText="display:flex;flex-direction:row;padding-inline:margin;margin-block:1.5rem;gap:1.5rem;justify-content:space-around;align-items:center;";
         const {button:close}=Misc.simpleButton({anchor:btnCont,type:"button",bg:Nav.btnColor,color:"white",text:"close",time:400});
