@@ -4,6 +4,8 @@ import { Session } from "next-auth";
 import User from "../user/userMain";
 import Service from "./services";
 import MainHeader from "../nav/mainHeader";
+import Footer from "../editor/footer";
+import MainFooter from "../footer/mainFooter";
 
 
 class AuthService {
@@ -17,8 +19,9 @@ class AuthService {
     _admin:string[];
     isSignedOut:boolean;
     __user:userType;
+    _status:"authenticated" | "loading" | "unauthenticated";
 
-    constructor(private _modSelector:ModSelector,private _service:Service,private _user:User,private _mainHeader: MainHeader,private session:Session |null){
+    constructor(private _modSelector:ModSelector,private _service:Service,private _user:User,private _mainHeader: MainHeader,private _mainFooter:MainFooter,private session:Session |null,public status_ :"authenticated" | "loading" | "unauthenticated"){
         this.__user={} as userType;
         this.bgColor=this._modSelector._bgColor;
         this.btnColor=this._modSelector.btnColor;
@@ -28,8 +31,19 @@ class AuthService {
         this.adminEmail= "" as string;
         this.usersignin="/api/usersignin";
         this.isSignedOut=false;
-        
+        this.status=status_;
     }
+    ///-------------------GETTER SETTERS-------------------------//
+    get status(){
+        return this._status
+    }
+    set status(status:"authenticated" | "loading" | "unauthenticated"){
+        this._status=status;
+        this._user.status=status;
+        // this._mainFooter.status=status;
+    }
+   
+    ///-------------------GETTER SETTERS-------------------------//
 
     set user(user:userType){
         this._user.user=user;
@@ -57,33 +71,38 @@ class AuthService {
     get admin(){
         return this._admin;
     }
-    async getUser(item:{session:Session|null,injector:HTMLElement}):Promise<{user:userType,injector:HTMLElement}| {user:null,injector:HTMLElement}>{
-        const {session,injector}=item;
+
+
+    async getUser(item:{session:Session|null,injector:HTMLElement,count:number}):Promise<{count:number|null}>{
+        const {session,injector,count}=item;
         //MAIN HEADER INJECTOR GOES THROUGH THIS
         const email=session && session.user?.email ? session.user.email:null;
         let user_={} as userType;
-        if(!email)return {user:null,injector};
-        user_={...user_,email:email}
-        const option={
-            headers:{"Content-Type":"application/json"},
-            method:"POST",
-            body:JSON.stringify(user_)
-        }
-        const res = await fetch(this.usersignin,option)
-        if(res){
-            const body= await res.json() as userType
-            this.user=body;
-            this.__user=body
-            this._service.isSignedOut=false;
-            this.isSignedOut=false;
-            this.storeLocal(body).then(async(res)=>{
-                res()
-            });
-            
-            return {user:body as userType,injector}
+        if(!email){
+            this._mainHeader.showRectDropDown({ parent: injector, user: null, count: count });
+            return {count:null}
         }else{
-            
-            return {user:null,injector}
+            user_={...user_,email:email}
+            return this._service.getUsersignin({user:user_}).then(async(res)=>{
+                if(res && count===0){
+                    this.user=res;
+                    this._user.status=this._status;
+                    this._mainFooter.status=this._status;
+                    this._mainHeader.status=this._status;
+                    const footerCenterBtns=document.querySelector("div#footer-centerBtns-container") as HTMLElement;
+                    if(footerCenterBtns){
+                        this._mainFooter.centerBtnsRow({container:footerCenterBtns});
+                    };
+                    if(this.status==="authenticated"){
+                        this._service.isSignedOut=false;
+                    }
+                    this._mainHeader.showRectDropDown({ parent: injector, user: res, count: count });
+                    return {count:count+1}
+                }else{
+                    this._mainHeader.showRectDropDown({ parent: injector, user: null, count: count });
+                    return {count:null};
+                }
+            });
         }
 
     }

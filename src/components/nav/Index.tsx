@@ -20,6 +20,11 @@ import styles from "@/components/nav/nav.module.css";
 import Misc from '../common/misc';
 import Header from '../editor/header';
 import BrowserType from '../common/browserType';
+import Footer from '../footer/Footer';
+import MainFooter from '../footer/mainFooter';
+import Dataflow from '../common/dataflow';
+import AllMsgs from '../home/allMsgs';
+import Message from '../common/message';
 
 
 function Index() {
@@ -32,6 +37,9 @@ function Index() {
             const browserType = new BrowserType();
             const modSelector = new ModSelector();
             const service = new Service(modSelector);
+            const message = new Message(modSelector, service, modSelector.blog);
+            const allMsgs = new AllMsgs(modSelector, service, message)
+            const dataflow = new Dataflow(service);
             const user = new User(modSelector, service);
             const chart = new ChartJS(modSelector, service, user);
             const feature = new Features();
@@ -42,20 +50,24 @@ function Index() {
             const navArrow = new NavArrow(user, regSignin, service, profile, modSelector, feature);
             const nav = new Nav(modSelector, service, user, regSignin);
             const mainHeader = new MainHeader(modSelector, service, user, nav, navArrow);
-            const auth = new AuthService(modSelector, service, user, mainHeader, session);
+            const mainFooter = new MainFooter(modSelector, service, user, nav, navArrow, dataflow, feature, allMsgs);
+            const auth = new AuthService(modSelector, service, user, mainHeader, mainFooter, session, status);
             Header.cleanUp(inject);
             mainHeader.main({ parent: inject });
             //getting USER AFTER SIGNIN
-            auth.getUser({ session: session, injector: inject }).then(async (res) => {
-                if (res && count === 0) {
-                    mainHeader.showRectDropDown({ parent: res.injector, user: res.user, count: count });
-                    count++;
+
+            auth.getUser({ session: session, injector: inject, count }).then(async (res) => {
+                if (res.count) {
+                    count = res.count;
+                } else {
+                    count = 1;
                 }
             });
             const keyword = window.navigator.userAgent
+            //browserType sends message of browser incompatibility if issues
             const retList = browserType.main({ parent: inject, navigator: keyword })
         }
-    }, [session]);
+    }, [session, status]);
     return (
         <div id="headerInjector" ref={navRef} className={styles.headerindex}></div>
     )

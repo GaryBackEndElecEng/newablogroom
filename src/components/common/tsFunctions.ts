@@ -116,7 +116,13 @@ export function smallbtnReturn(message:btnReturnType):HTMLButtonElement{
     return btn;
 }
 export  function imageLoader({ src, width, quality }) {
-    const append=`/images/${src}`;
+    const test_:RegExp=/(\/images\/[a-zA-Z0-9\.]+)/;
+    let append:string=''
+    if(test_.test(src)){
+        append=src;
+    }else{
+        append=`/images/${src}`;
+    }
     const url=new URL(window.location.href);
     const newUrl=new URL(append,url.origin);
     newUrl.searchParams.set("w",width.toString());

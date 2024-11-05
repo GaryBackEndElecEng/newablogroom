@@ -27,7 +27,8 @@ static links:linkType[]=[{name:"home",link:"/"},{name:"editor",link:"/editor"},{
 pic="/images/gb_logo.png";
 count:number;
 pageCount:number;
-
+textFlow:string;
+_status:"authenticated" | "loading" | "unauthenticated";
     constructor(private _modSelector:ModSelector,private _service:Service,private _user:User,private nav:Nav,private _navArrow:NavArrow){
         this.bgColor="#0C090A";
         this.btnColor=this._modSelector.btnColor;
@@ -38,8 +39,17 @@ pageCount:number;
         this.meta=new Meta();
        this.count=0;
        this.pageCount=0;
+       this.textFlow="Create your own flexible page to download."
+       this._status="unauthenticated";
     }
-    textFlow="Create your own flexible page to download."
+    //---------------------GETTER SETTERS-----------------------//
+    get status(){
+        return this._status;
+    }
+    set status(status:"authenticated" | "loading" | "unauthenticated"){
+        this._status=status;
+    }
+    //---------------------GETTER SETTERS-----------------------//
     //INJECTOR:headerInjector)
       main(item:{parent:HTMLElement}){
         const {parent}=item;
@@ -87,15 +97,15 @@ pageCount:number;
                             await this.ablogroom({parent:res.parent,user:null});//SHOWS IF USER===NULL
                         }
                         
-                        this.genPageCount(res.parent);
-                        if(!res.user) return;
-                        MainHeader.removeAllClass({parent:res.parent,class_:"user-signature"});//removing duplicates
+                        this.genPageCount({parent:res.parent,count});
                         await this.nav.signInDisplay(res.parent,res.user).then(async(res_)=>{
                             //ONLY GENERATES IF USER EXIST ( user !==null)
                             if(res_ && res_.user){
-                                    const admin=res_.user.admin;
-                                    if(admin){
-                                        Misc.msgSourceImage({parent:res_.parent,msg:"You have admin Rights",src:this.logo,width:125,quality:75,time:2200,cssStyle:{boxShadow:"1px 1px 12px 1px white",backgroundColor:"black",color:"white",inset:"680% 0% 70% 0%"}});
+                                    if(res_.user && res_.parent){
+                                        const admin=res_.user.admin;
+                                        if(admin){
+                                            Misc.msgSourceImage({parent:res_.parent,msg:"You have admin Rights",src:this.logo,width:125,quality:75,time:2200,cssStyle:{boxShadow:"1px 1px 12px 1px white",backgroundColor:"black",color:"white",inset:"680% 0% 70% 0%"}});
+                                        }
                                     }
                             }
                             });
@@ -209,12 +219,13 @@ pageCount:number;
         }) as Promise<{parent:HTMLElement}>;
         
     }
-    genPageCount(parent:HTMLElement):void{
+    genPageCount(item:{parent:HTMLElement,count:number}):void{
+        const {parent,count}=item;
         if(typeof window ==="undefined") return;
         const less900=window.innerWidth <900;
         const less400=window.innerWidth <400;
         const pg=window.location.pathname;
-        if(!pg) return;
+        if(!pg || count >0) return;
         //ensuring to count page based on landed pages from match RegExp
         const blog_id=pg.split("/")[2] ? parseInt(pg.split("/")[2]) as number : undefined
         this.meta.pages.map(page=>{
@@ -250,6 +261,7 @@ pageCount:number;
                             div.appendChild(count);
                             container.appendChild(div);
                             parent.appendChild(container);
+                            Misc.matchMedia({parent:container,maxWidth:400,cssStyle:{transform:"scale(0.6)",left:"0px"}})
                             Misc.growIn({anchor:container,scale:0.2,opacity:0,time:500});
                         }
                     });

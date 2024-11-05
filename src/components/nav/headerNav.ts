@@ -8,9 +8,11 @@ import Header from "@/components/editor/header";
 import Misc from "../common/misc";
 import User from "../user/userMain";
 import Profile from "../editor/profile";
-import { getCsrfToken } from "next-auth/react"
+import { getCsrfToken, signIn } from 'next-auth/react';
 import RegSignIn from "./regSignin";
 import NavArrow from "./arrow";
+import { FaCreate } from "../common/ReactIcons";
+import { FaSign } from "react-icons/fa";
 
 
 class Nav{
@@ -26,7 +28,7 @@ class Nav{
     btnArray:navLinkBtnType[];
     navList:{id:number,name:string,svg:string}[];
    static thanksMsg:"<span> Thank you for messsaging us. We will get back to you within one day. please send us a message for any other requests.</span> <blockquote><pre>Enjoy!, Gary</pre></blockquote> ";
-    constructor(private _modSelector:ModSelector,private _service:Service,private _user:User,_regSignin:RegSignIn){
+    constructor(private _modSelector:ModSelector,private _service:Service,private _user:User,private _regSignin:RegSignIn){
         this.navList=[{id:0,name:"signin",svg:""},{id:1,name:"contact",svg:""},{id:2,name:"blogs",svg:""},]
         this.urlBlog="/blogs";
         Nav.logo="/images/gb_logo.png";
@@ -278,14 +280,16 @@ class Nav{
    async signInDisplay(parent:HTMLElement,user:userType|null): Promise<{
         user: userType | null;
         parent: HTMLElement;
+        container:HTMLElement;
     }>{
+        const url=new URL(window.location.href);
+        Header.cleanUpByID(parent,"headerNav-user-signature")
+        const container=document.createElement("div");
+        const less900=window.innerWidth <900;
+        const less400=window.innerWidth <400;
+        container.id="headerNav-user-signature";
+        container.className="user-signature";
         if(user && user.id){
-            Header.cleanUpByID(parent,"user-signature")
-            const container=document.createElement("div");
-            const less900=window.innerWidth <900;
-            const less400=window.innerWidth <400;
-            container.id="user-signature";
-            container.className="user-signature";
             container.style.cssText="display:flex;justify-content:space-around;align-items:center;margin-inline:1rem;box-shadow:1px 1px 12px 1px white;padding-inline:0.5rem;border-radius:10px;color:white;background-color:#0a2351;overflow:hidden;position:relative;right:20px;justify-self:end;margin-right:10px;order:3;";
             container.style.marginRight=less900 ? (less400 ? "1px":"4px") :"10px";
             container.style.right=less900 ? (less400 ? "-28px":"-10px") :"20px";
@@ -312,14 +316,38 @@ class Nav{
             Misc.matchMedia({parent:img,maxWidth:420,cssStyle:{width:"35px"}});
             Misc.matchMedia({parent:para,maxWidth:420,cssStyle:{fontSize:"12px"}});
             Misc.growIn({anchor:container,scale:0.2,opacity:0,time:500});
+        }else if(!user && url.pathname !=="/register"){
+            container.style.cssText="display:flex;justify-content:space-around;align-items:center;margin-inline:1rem;box-shadow:1px 1px 12px 1px #05f7d1;padding-inline:0.75rem;border-radius:50%;color:white;background-color:black;position:relative;right:20px;justify-self:end;margin-right:10px;order:3;padding-block:0rem;cursor:pointer";
+            container.style.marginRight=less900 ? (less400 ? "1px":"4px") :"10px";
+            container.style.right=less900 ? (less400 ? "-28px":"-10px") :"20px";
+            container.style.transform=less900 ? (less400 ? "scale(0.6)":"scale(0.7)") :"scale(0.85)";
+            const xDiv=document.createElement("span");
+            xDiv.id="signInDisplay-xDiv-login-icon";
+            xDiv.style.cssText="padding:0.3rem;margin:auto;border-radius:50%;padding:2px;font-size:28px;";
+            FaCreate({parent:xDiv,name:FaSign,cssStyle:{borderRadius:"50%",fontSize:"inherit;",color:"white",zIndex:"2"}});
+            const xDivCont=document.createElement("div");
+            xDivCont.style.cssText="place-self:center;display:flex;place-items:center;gap:0.36rem;";
+            const spanText=document.createElement("span");
+            spanText.style.cssText="place-self:center;"
+            spanText.textContent="login";
+            xDivCont.appendChild(spanText);
+            xDivCont.appendChild(xDiv);
+            container.appendChild(xDivCont);
+            parent.appendChild(container);
+            this.hoverEffect({target:container,time:1300});
+            container.onclick=(e:MouseEvent)=>{
+                if(e){
+                    this._regSignin.signIn()
+                }
+            };
         }
         return new Promise((resolve)=>{
             if(user && user.id){
-                resolve({user:user,parent:parent});
+                resolve({user:user,parent:parent,container});
             }else{
-                resolve({user:null,parent:parent});
+                resolve({user:null,parent:parent,container});
             }
-        })as Promise<{user:userType|null,parent:HTMLElement}> ;
+        })as Promise<{user:userType|null,parent:HTMLElement,container:HTMLElement}> ;
     }
  
 
@@ -443,6 +471,33 @@ class Nav{
                 parent.removeChild(child);
             }
         });
+    }
+    hoverEffect(item:{target:HTMLElement,time:number}){
+        const {target,time}=item;
+        const boxshadow1=target.style.boxShadow;
+        const transform1=target.style.transform;
+        const boxshadow2="1px 1px 20px 1px white";
+        const transform2="scale(1)";
+        target.onmouseover=(e:Event)=>{
+            if(e){
+                target.animate([
+                    {transform:transform1,boxShadow:boxshadow1},
+                    {transform:transform2,boxShadow:boxshadow2},
+                    {transform:transform2,boxShadow:boxshadow2},
+                    {transform:transform1,boxShadow:boxshadow1},
+                ],{duration:time,iterations:1,"easing":"ease-in-out"})
+            }
+        };
+        target.onmouseout=(e:Event)=>{
+            if(e){
+                target.animate([
+                    {transform:transform2,boxShadow:boxshadow2},
+                    {transform:transform1,boxShadow:boxshadow1},
+                ],{duration:time,iterations:1,"easing":"ease-in-out"})
+            }
+        };
+        
+        
     }
    
    static regTest({item,value}:{item:string,value:string}):{item:string,value:string}{

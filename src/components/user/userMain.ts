@@ -325,7 +325,7 @@ class User{
     signin:string="/api/user";
     userUrl:string="/api/user";
     userUrlUpdate:string="/api/user_update";
-
+    _status:"authenticated" | "loading" | "unauthenticated"
     _user:userType={
         id:"",
         email:"",
@@ -347,6 +347,7 @@ class User{
     hasSignedIn:boolean;
     userSetups:UserSetups;
     constructor(private _modSelector:ModSelector,private _service:Service){
+        this._status="unauthenticated";
         this.logo=`gb_logo.png`
         this._signIn={} as userSignInType;
         this.bgColor=this._modSelector._bgColor;
@@ -370,6 +371,12 @@ class User{
 
    
     //GETTER SETTERS
+    get status(){
+        return this._status
+    }
+    set status(status:"authenticated" | "loading" | "unauthenticated"){
+        this._status=status;
+    }
     get signUp(){
         return {email:this._signIn.email,user_id:this._signIn.user_id}
     }

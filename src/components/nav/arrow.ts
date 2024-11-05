@@ -15,9 +15,12 @@ import MainHeader from './mainHeader';
 import Profile from '../editor/profile';
 import Features from '../home/feature';
 import AuthService from "../common/auth";
+import { buttonReturn } from "../common/tsFunctions";
 
 class NavArrow{
     logo:string;
+    centerBtnsParent:HTMLElement | null;
+    mainHeader:HTMLElement | null;
     checkUser:boolean;
     _isAdmin:boolean=false;
     btnArray:navLinkBtnType[];
@@ -26,11 +29,14 @@ class NavArrow{
         this._isAdmin=this._user.user.admin ? this._user.user.admin:false;
         this.checkUser=false;
         this.btnArray=[];
+        this.centerBtnsParent=document.querySelector("div#footer-centerBtns-container");
+        this.mainHeader=document.querySelector("header#navHeader");
     }
    
         rotateArrow(item:{button:HTMLElement,time:number}){
         const {button,time}=item;
         const heightWidth=36;
+        this.mainHeader=document.querySelector("header#navHeader") as HTMLElement;
         let getPageCount:HTMLElement|null;
         button.style.cssText=`position:relative;display:flex;justify:content:center;align-items:center;border-radius:50%;padding:5px;background-color:transparent;box-shadow:1px 1px 12px 1px white;color:white;transform:rotate(180deg);width:${heightWidth}px;height:${heightWidth}px;padding:1px;margin-block:auto;`
         button.style.color="white";
@@ -206,6 +212,7 @@ class NavArrow{
     }
     listItems(item:{parent:HTMLElement,headerHeight:number}){
         const {parent,headerHeight}=item;
+        this.centerBtnsParent=document.querySelector("div#footer-centerBtns-container") as HTMLElement;
         if( typeof window !=="undefined"){
             this.checkUser=(this._user.user && this._user.user.id && this._user.user.email) ? true:false;
             this._isAdmin=(this.checkUser && this._user.user.admin) ? true:false;
@@ -221,7 +228,7 @@ class NavArrow{
                 {id:4,name:"posts",color:"#00BFFF",link:"/posts",func:()=>Nav.navHistory("/posts"),icon:Icons.FaDropbox,show:true,isEditor:true,save:()=>null},
                 {id:5,name:"chart",color:"#00BFFF",link:"/chart",func:()=>Nav.navHistory("/chart"),icon:Icons.FaChartBar,show:true,isEditor:true,save:()=>null},
                 {id:6,name:"signin",color:"#00FF00",link:null,func:()=> this._regSignin.signIn(),icon:FaSign,show:!this.checkUser,isEditor:false,save:()=>null},
-                {id:7,name:"logout",color:"#00FF00",link:null,func:()=> this.logout(),icon:FaSign,show:this.checkUser,isEditor:false,save:()=>null},
+                {id:7,name:"logout",color:"#00FF00",link:null,func:()=>this.logout({func:()=>this.centerBtnsRow({container:this.centerBtnsParent})}),icon:FaSign,show:this.checkUser,isEditor:false,save:()=>null},
                 {id:8,name:"contact",color:"#00FF00",link:null,func:()=> this.contact(MainHeader.header as HTMLElement),icon:FaMedapps,show:true,isEditor:false,save:()=>null},
                 {id:9,name:"profile",color:"#800000",link:null,func:()=> this._profile.main(getHeaderInjector),icon:FaAccessibleIcon,show:this.checkUser,isEditor:false,save:()=>null},
                 {id:10,name:"general-Info",color:"#00FF00",link:null,func:()=> this.generalInfo(MainHeader.header as HTMLElement),icon:FaInfo,show:true,isEditor:false,save:()=>null},
@@ -302,8 +309,8 @@ class NavArrow{
                                 await this.navigateSaveBlog({parent:MainHeader.header as HTMLElement,link:"/"})
                             
                         }else{
-
-                           await this.logout()
+                            this.centerBtnsParent=document.querySelector("div#footer-centerBtns-container");
+                           await this.logout({func:()=>this.centerBtnsRow({container:this.centerBtnsParent})})
                         }
 
                     }else{
@@ -353,7 +360,8 @@ class NavArrow{
                                                     const navigateSaveBtnGrp=parent.querySelector("div#navigateSaveBtnGrp") as HTMLElement;
                                                     Misc.fadeOut({anchor:navigateSaveBtnGrp,xpos:50,ypos:100,time:400});
                                                     setTimeout(async()=>{
-                                                       await this.logout()
+                                                        this.centerBtnsParent=document.querySelector("div#footer-centerBtns-container");
+                                                       await this.logout({func:()=>this.centerBtnsRow({container:this.centerBtnsParent})})
                                                        parent.removeChild(navigateSaveBtnGrp);
                                                     },380);
                                                 },380);
@@ -373,7 +381,8 @@ class NavArrow{
                                                             const navigateSaveBtnGrp=parent.querySelector("div#navigateSaveBtnGrp") as HTMLElement;
                                                             Misc.fadeOut({anchor:navigateSaveBtnGrp,xpos:50,ypos:100,time:400});
                                                             setTimeout(async()=>{
-                                                               await this.logout();
+                                                                this.centerBtnsParent=document.querySelector("div#footer-centerBtns-container");
+                                                               await this.logout({func:()=>this.centerBtnsRow({container:this.centerBtnsParent})});
                                                                 parent.removeChild(navigateSaveBtnGrp);
                                                             },380);
                                                         },380);
@@ -393,7 +402,8 @@ class NavArrow{
                                 Misc.fadeOut({anchor:btnGrp,xpos:50,ypos:100,time:400});
                                 setTimeout(async()=>{
                                     parent.removeChild(btnGrp);
-                                   await this.logout()
+                                    this.centerBtnsParent=document.querySelector("div#footer-centerBtns-container");
+                                   await this.logout({func:()=>this.centerBtnsRow({container:this.centerBtnsParent})})
                                 },380);
                             }
                         });
@@ -404,7 +414,8 @@ class NavArrow{
                 Misc.message({parent,msg:"could not find your blog to save",type_:"error",time:800});
                }
             }else{
-                await this.logout();
+                this.centerBtnsParent=document.querySelector("div#footer-centerBtns-container");
+                await this.logout({func:()=>this.centerBtnsRow({container:this.centerBtnsParent})});
             }
         });
     }
@@ -623,9 +634,21 @@ class NavArrow{
         }
        });
     }
-    async logout(): Promise<void>{
-        MainHeader.header=document.querySelector("header#navHeader") as HTMLElement;
+    async logout(item:{func:()=>Promise<void>|void|undefined}): Promise<void>{
+        const {func}=item;
+        this.asyncLogout({func}).then(async(res)=>{
+            if(res){
+                    setTimeout(()=>{
+                    res.mainHeader=document.querySelector("header#navHeader") as HTMLElement;
+                    Misc.msgSourceImage({parent:res.mainHeader,msg:"Thanks for comming",src:this.logo,width:125,quality:75,time:2200,cssStyle:{boxShadow:"1px 1px 12px 1px white",backgroundColor:"black",color:"white",inset:"680% 0% 70% 0%"}});
+                    },1000);
+                }
+            });
+    }
+    async asyncLogout(item:{func:()=>Promise<void>|void|undefined}):Promise<{mainHeader:HTMLElement | null}>{
+        const {func}=item;
         this._user.user={} as userType;
+        MainHeader.header=document.querySelector("header#navHeader") as HTMLElement;
         localStorage.removeItem("user");
         localStorage.removeItem("user_id");
         localStorage.removeItem("email");
@@ -640,9 +663,48 @@ class NavArrow{
         this._user.user=this._user._user;
         this.checkUser=false;
         window.scroll(0,0);
-        return this._service.signout();
+        func();//calling function void
+        this._service.signout()
+        return new Promise(resolver=>{
+            resolver({mainHeader:MainHeader.header})
+        }) as Promise<{mainHeader:HTMLElement|null}>;
+
     }
-   
+    centerBtnsRow(item:{container:HTMLElement|null}){
+        //!!! NOTE:THIS GETS TOGGLED TO LOGOUT FROM auth.getUser()
+        const {container}=item;
+        if(!container) return;
+        Header.cleanUpByID(container,"footer-centerBtns-row")
+        const row=document.createElement("div");
+        row.id="footer-centerBtns-row";
+        row.style.cssText="display:flex; justify-content:space-between;align-items:center;margin:auto;gap:4rem;";
+        const arr=["contact","signup"];
+        arr.forEach(async(item)=>{
+            if(item==="contact"){
+                const btn=buttonReturn({parent:row,text:item,bg:"#34282C",color:"white",type:"button"});
+                const getHeader=document.querySelector("header#navHeader") as HTMLElement;
+                // if(!getHeader) return
+                btn.addEventListener("click",(e:MouseEvent)=>{
+                    if(e){
+                           window.scroll(0,0);
+                           this.contact(getHeader)
+                        }
+                });
+            }else if(item==="signup"){
+                        const btn=buttonReturn({parent:row,text:"signin",bg:"#34282C",color:"white",type:"button"});
+                        btn.id="btn-footer-logout";
+                        btn.addEventListener("click",(e:MouseEvent)=>{
+                            if(e){
+                                   window.scroll(0,0);
+                                   this._regSignin.signIn();
+                                }
+                        });
+                    
+                
+            }
+        });
+        container.appendChild(row);
+    }
     generalInfo(parent:HTMLElement){
         const container=document.createElement("div");
         container.style.cssText="margin-inline:auto;position:absolute;max-width:600px;width:100%;top:160%;left:35%;";

@@ -21,6 +21,7 @@ import AllMsgs from "../home/allMsgs";
 class MainFooter{
     baseUrl:URL;
     closeInfoMsg:boolean;
+    centerBtnsParent:HTMLElement|null;
     infoMsg:string;
     bioPhrase:string;
     _regSignin:RegSignIn;
@@ -29,6 +30,7 @@ class MainFooter{
     privacyUlr:string="/policy";
     policyUrl:string="/policy";
     logoUrl:string;
+    _status:"authenticated" | "loading" | "unauthenticated";
     termsOfServiceUrl:string="/termsOfService";
     masterultilsUrl:string="https://www.masterultils.com";
     arrUrl:{name:string,link:string}[]
@@ -36,6 +38,8 @@ class MainFooter{
         this.arrUrl=[{name:"masterconnect",link:"https://www.masterconnect.ca"},{name:"masterultils",link:this.masterultilsUrl},{name:"policy",link:"/policy"},{name:"privacy",link:"/termsOfService"},];
         this._regSignin= new RegSignIn(this._modSelector,this._service,this._user);
         this.closeInfoMsg=false;
+        this.centerBtnsParent=document.querySelector("div#footer-centerBtns-container");
+        this._status="unauthenticated";
         this.infoMsg="The site uses both cookies and browser storage to ensure that your work is temporaryily saved and secure during your editing before saving your work to the server. <br/><span style='color:blue;font-weight:bold;background-color:white;padding-inline:2rem;border-radius:12px;line-height:2rem;'> We believe in securing your interests.</span> <br/><span style='font-size:120%;font-weight:bold;margin-top:1.25rem;padding-left:4rem;'> The Team.</span>"
         this.baseUrl=new URL(window.location.href);
         this.bioPhrase=`I am an ex Military Officer /Engineer turned developer who enjoys providing you with the best means of creating a great web-page and or a poster or advertising with the tools of exporting your work to suit your purpose. If you desire additional tools, then please don't hesitate on contacting us with your request.
@@ -54,7 +58,13 @@ class MainFooter{
     }
 
     //-------GETTERS ------SETTERS------///
-    
+    get status(){
+        return this._status;
+    }
+    set status(status:"authenticated" | "loading" | "unauthenticated"){
+        this._status=status;
+        console.log("SET STATUS",status);
+    }
     //-------GETTERS ------SETTERS------///
 
     main(injector:HTMLElement){
@@ -126,7 +136,7 @@ class MainFooter{
             col.appendChild(container);
             return;
             case str==="col-md-5 center":
-            await this.centerSide(container);
+             this.centerSide(container);
             col.appendChild(container);
             return;
             case str==="col-md-3 right-side":
@@ -403,12 +413,18 @@ class MainFooter{
         Misc.matchMedia({parent:container,maxWidth:900,cssStyle:{"top":"98%"}});
     }
     async centerBtns(parent:HTMLElement){
-        Header.cleanUpByID(parent,"footer-centerBtns-container");
         const container=document.createElement("div");
         container.id="footer-centerBtns-container";
         const css_row="display:flex;justify-content:center;align-items:center;width:100%;margin-inline:auto;";
         container.style.cssText=css_row;
         container.style.maxHeight=window.innerWidth <900 ? "8vh":"6vh";
+        this.centerBtnsRow({container});
+        parent.appendChild(container);
+    }
+    centerBtnsRow(item:{container:HTMLElement}){
+        //!!! NOTE:THIS GETS TOGGLED TO LOGOUT FROM auth.getUser() AND A DUPLICATE FUNCTION IS ATTACHED TO NAVARROW.CENTERBTNSROW() FOR LOGOUT
+        const {container}=item;
+        Header.cleanUpByID(container,"footer-centerBtns-row")
         const row=document.createElement("div");
         row.id="footer-centerBtns-row";
         row.style.cssText="display:flex; justify-content:space-between;align-items:center;margin:auto;gap:4rem;";
@@ -425,15 +441,19 @@ class MainFooter{
                         }
                 });
             }else if(item==="signup"){
-                await this.getUser().then(async(res)=>{
-                    console.log("RES",res);
-                    if(res){
+                
+                    if(this.status==="authenticated"){
                         const btn=buttonReturn({parent:row,text:"logout",bg:"#34282C",color:"white",type:"button"});
                         btn.id="btn-footer-signin";
                         btn.addEventListener("click",(e:MouseEvent)=>{
                             if(e){
                                    window.scroll(0,0);
-                                   this._navArrow.logout();
+                                   this._navArrow.logout({func:()=>undefined}).then(()=>{
+                                    const getRedue=document.querySelector("div#footer-centerBtns-container") as HTMLElement;
+                                    this.status="unauthenticated";
+                                    this.centerBtnsParent=getRedue;
+                                    this.centerBtnsRow({container:getRedue});
+                                   });
                                 }
                         });
                     }else{
@@ -446,11 +466,10 @@ class MainFooter{
                                 }
                         });
                     }
-                });
+                
             }
         });
         container.appendChild(row);
-        parent.appendChild(container);
     }
     centerSideContent(parent:HTMLElement){
         const container=document.createElement("div");

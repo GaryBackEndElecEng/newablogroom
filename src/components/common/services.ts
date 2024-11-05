@@ -13,6 +13,7 @@ import Nav from "../nav/headerNav";
 import MainHeader from "../nav/mainHeader";
 
 class Service {
+    usersignin="/api/usersignin";
     awsimgUrl:string="/api/awsimg";
     postlike:string="/api/postlike";
     liveonoffUrl:string="/api/liveonoff";
@@ -57,6 +58,7 @@ class Service {
     isSignedOut:boolean;
     // getInitBlog:blogType;
     constructor(private _modSelector:ModSelector){
+        this.usersignin="/api/usersignin";
         this.awsimgUrl="/api/awsimg";
         this.liveonoffUrl="/api/liveonoff";
         this.newBlogUrl="/api/blog/createNew";
@@ -97,9 +99,25 @@ class Service {
         this.bgColor=this._modSelector._bgColor;
         this.btnColor=this._modSelector.btnColor;
         this.user=this._modSelector._user;
-        this.isSignedOut=false;
+        this.isSignedOut=true;
     }
 ///GETTERS SETTERS///////////////////
+ async getUsersignin(item:{user:userType}):Promise<userType|undefined>{
+    const {user}=item;
+    if(user.email){
+        const option={
+            headers:{"Content-Type":"application/json"},
+            method:"POST",
+            body:JSON.stringify(user)
+        }
+        const res = await fetch(this.usersignin,option)
+        if(res){
+           this.isSignedOut=false;
+            const body= await res.json() as userType
+            return body;
+           }
+    }
+ }
     saveItems(blog:blogType):blogType{
         const show=blog.show;
         const username=blog.username;
