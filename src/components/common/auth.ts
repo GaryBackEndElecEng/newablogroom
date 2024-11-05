@@ -13,7 +13,7 @@ class AuthService {
     bgColor:string;
     btnColor:string;
     adminEmail:string;
-    userupdate:string;
+    usersignin:string;
     _admin:string[];
     isSignedOut:boolean;
     __user:userType;
@@ -26,7 +26,7 @@ class AuthService {
         this._admin=[];
         this.blog={} as blogType;
         this.adminEmail= "" as string;
-        this.userupdate="/api/user_update";
+        this.usersignin="/api/usersignin";
         this.isSignedOut=false;
         
     }
@@ -61,12 +61,15 @@ class AuthService {
         const {session,injector}=item;
         //MAIN HEADER INJECTOR GOES THROUGH THIS
         const email=session && session.user?.email ? session.user.email:null;
+        let user_={} as userType;
         if(!email)return {user:null,injector};
+        user_={...user_,email:email}
         const option={
             headers:{"Content-Type":"application/json"},
-            method:"GET"
+            method:"POST",
+            body:JSON.stringify(user_)
         }
-        const res = await fetch(`${this.userupdate}?email=${email}`,option)
+        const res = await fetch(this.usersignin,option)
         if(res){
             const body= await res.json() as userType
             this.user=body;

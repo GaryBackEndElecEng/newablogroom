@@ -118,7 +118,7 @@ class Post{
         subDiv.style.cssText=css + "position:relative;width:100%;padding-inline:2rem;border-radius:12px;";
         subDiv.style.paddingInline=less900 ? (less400 ? "0rem" : "0.5rem") : "2rem";
         subDiv.style.paddingBottom=less900 ? (less400 ? "2rem" : "1.5rem") :"2rem";
-        subDiv.style.height=less900 ? (less400 ? "100vh" : "80vh") :"70vh";
+        subDiv.style.minHeight=less900 ? (less400 ? "100vh" : "80vh") :"70vh";
         const row=document.createElement("div");
         row.id="main-post-container-subDiv-row";
         row.style.justifyContent="flex-start";
@@ -126,8 +126,6 @@ class Post{
         if(window.innerWidth <900){
             row.classList.remove("row");
             row.style.cssText="margin-inline:auto;width:100%;display:flex;flex-direction:column;align-items:center;gap:2rem;";
-            row.style.height=window.innerWidth <400 ? "100vh" :"70vh";
-            row.style.overflowY="scroll";
         }
         subDiv.appendChild(row);
         container.appendChild(subDiv);

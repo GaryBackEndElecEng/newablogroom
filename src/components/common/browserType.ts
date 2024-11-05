@@ -1,3 +1,4 @@
+import Header from "../editor/header";
 import Misc from "./misc";
 
 
@@ -33,9 +34,9 @@ class BrowserType {
             }
         }
         if(retName.length>0){
-            this.showMessage({parent});
             return true
         }else{
+            this.showMessage({parent});
             return false
         }
        
@@ -43,10 +44,13 @@ class BrowserType {
 
     showMessage(item:{parent:HTMLElement}){
         const {parent}=item;
+        const time=10200;
         const less900=window.innerWidth <900;
         const less400=window.innerWidth <400;
         const container=document.createElement("div");
-        container.style.cssText="position:absolute;margin-inline:auto;height:10vh;background-color:black;color:white;display:flex;place-items:center;box-shadow:1px 1px 12px 1px black;border-radius:12px;";
+        Header.cleanUpByID(parent,"browser-showMessage-container");
+        container.id="browser-showMessage-container";
+        container.style.cssText="position:absolute;margin-inline:auto;height:10vh;background-color:black;color:white;display:flex;place-items:center;box-shadow:1px 1px 12px 1px black;border-radius:12px;z-index:200";
         container.style.width=less900 ? (less400 ? "100%":"75%"):"50%";
         container.style.maxWidth=less900 ? (less400 ? "400px":"800px"):"900px";
         container.style.padding=less900 ? (less400 ? "1rem":"2rem"):"3rem";
@@ -59,19 +63,23 @@ class BrowserType {
             {transform:"translateY(-100%)",opacity:"0"},
             {transform:"translateY(-10%)",opacity:"0.3"},
             {transform:"translateY(10%)",opacity:"0.7"},
-            {transform:"translateY(20%)",opacity:"1"},
-            {transform:"translateY(20%)",opacity:"1"},
-            {transform:"translateY(20%)",opacity:"1"},
-            {transform:"translateY(20%)",opacity:"1"},
-            {transform:"translateY(20%)",opacity:"1"},
-            {transform:"translateY(20%)",opacity:"1"},
-            {transform:"translateY(10%)",opacity:"0.7"},
-            {transform:"translateY(-10%)",opacity:"0.3"},
+            {transform:"translateY(30%)",opacity:"1"},
+            {transform:"translateY(80%)",opacity:"1"},
+            {transform:"translateY(120%)",opacity:"1"},
+            {transform:"translateY(120%)",opacity:"1"},
+            {transform:"translateY(120%)",opacity:"1"},
+            {transform:"translateY(80%)",opacity:"1"},
+            {transform:"translateY(30%)",opacity:"0.7"},
+            {transform:"translateY(10%)",opacity:"0.5"},
+            {transform:"translateY(0%)",opacity:"0.5"},
             {transform:"translateY(-100%)",opacity:"0"},
-        ],{duration:5200,iterations:1});
+        ],{duration:time,iterations:1});
         setTimeout(()=>{
-            parent.removeChild(container);
-        },5170);
+            const isCont=parent.querySelector("div#browser-showMessage-container") as HTMLElement;
+            if(isCont){
+                parent.removeChild(isCont);
+            }
+        },time-100);
     }
 
     agentHas(keyword:string) {

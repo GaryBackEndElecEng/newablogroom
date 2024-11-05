@@ -1067,11 +1067,15 @@ _onlyMeta:boolean=false;
     }
    async getUserInfo(item:{htmlUserInfo:HTMLElement,blog:blogType}): Promise<{user:userType | null,outerContainer:HTMLElement}>{
     const {htmlUserInfo,blog}=item;
+    const less900=window.innerWidth <900;
+    const less400=window.innerWidth <400;
     Header.cleanUpByID(htmlUserInfo,"user-container");
         htmlUserInfo.style.position="relative";
         const container=document.createElement("div");
         container.id="user-container";
-        container.style.cssText="margin-inline:auto;margin-block:1.25rem;display:flex;align-items:center;justify-content:space-around;flex-warp:wrap;background-color:white;width:100%;border-radius:11px;padding-block:1.5rem;padding-inline:1.25rem;box-shadow:1px 1px 12px 2px #10c7e9ab,-1px -1px 12px 1px #10c7e9ab;";
+        container.style.cssText="margin-inline:auto;margin-block:1.25rem;display:flex;align-items:center;justify-content:space-around;flex-warp:wrap;background-color:white;border-radius:11px;padding-block:1.5rem;padding-inline:1.25rem;box-shadow:1px 1px 12px 2px #10c7e9ab,-1px -1px 12px 1px #10c7e9ab;";
+        container.style.width=less900 ? (less400 ? "100%" :"85%" ) : "67%";
+        container.style.paddingInline=less900 ? (less400 ? "1rem" :"1.5rem" ) : "2rem";
         if(!(blog && blog.user_id)) return {user:null,outerContainer:htmlUserInfo};
         return this._service.getUserInfo(blog.user_id).then(async(user)=>{
             if(user && user.showinfo){
@@ -1081,23 +1085,31 @@ _onlyMeta:boolean=false;
                 img.alt=user.name ? user.name: "blogger";
                 Misc.blurIn({anchor:img,blur:"10px",time:600});
                 container.appendChild(img);
-                    const divCont=document.createElement("ul");
-                    divCont.id="showinfo";
-                    divCont.style.cssText="margin:auto;display:flex;flex-direction:column;align-items:stretch;justify-content:center;";
+                const innerContainer=document.createElement("div");
+                innerContainer.style.cssText="display:flex;justify-content:center;flex-direction:center;align-items:center;gap:0.5rem;height:120px;overflow-y:scroll;"
+                    const ulCont=document.createElement("ul");
+                    ulCont.id="showinfo";
+                    ulCont.style.cssText="margin:auto;display:flex;flex-direction:column;align-items:stretch;justify-content:center;";
                     const text=document.createElement("h6");
                     text.className="text-primary";
                     text.innerHTML=user.name ? `<span style="color:blue;text-decoration:underline;">name: </span><span>${user.name}<span>`:"";
+                    text.style.textWrap="pretty";
                     text.style.display=user.name ? "block":"none";
-                    divCont.appendChild(text);
+                    ulCont.appendChild(text);
                     const li1=document.createElement("li");
                     li1.innerHTML=user.email ? `<span style="color:blue;text-decoration:underline;">email: </span><span>${user.email}<span>`:"";
                     li1.style.display=user.email ? "block":"none";
-                    divCont.appendChild(li1);
+                    ulCont.appendChild(li1);
                     const li2=document.createElement("li");
                     li2.innerHTML=user.bio ? `<span style="color:blue;text-decoration:underline;">bio: </span><span>${user.bio}<span>`:"";
                     li2.style.display=user.bio ? "block":"none";
-                    divCont.appendChild(li2);
-                    container.appendChild(divCont);
+                    li1.style.display="flex";
+                    li1.style.flexWrap="wrap";
+                    li2.style.display="flex";
+                    li2.style.flexWrap="wrap";
+                    ulCont.appendChild(li2);
+                    innerContainer.appendChild(ulCont)
+                    container.appendChild(innerContainer);
               
                 htmlUserInfo.appendChild(container);
                 return {user,outerContainer:htmlUserInfo}

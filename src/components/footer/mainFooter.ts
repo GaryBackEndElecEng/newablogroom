@@ -110,7 +110,7 @@ class MainFooter{
         container.appendChild(row);
        
     }
-    addElement(col:HTMLElement,str:string){
+    async addElement(col:HTMLElement,str:string){
         const size:{width:string,height:string}= window.innerWidth <1000 ? {width:"60px",height:"60px"} : {width:"80px",height:"80px"};
         const container=document.createElement("div");
         container.id="addElement";
@@ -126,7 +126,7 @@ class MainFooter{
             col.appendChild(container);
             return;
             case str==="col-md-5 center":
-            this.centerSide(container);
+            await this.centerSide(container);
             col.appendChild(container);
             return;
             case str==="col-md-3 right-side":
@@ -402,15 +402,18 @@ class MainFooter{
         Misc.matchMedia({parent:container,maxWidth:500,cssStyle:{"top":"95%"}});
         Misc.matchMedia({parent:container,maxWidth:900,cssStyle:{"top":"98%"}});
     }
-    centerBtns(parent:HTMLElement){
+    async centerBtns(parent:HTMLElement){
+        Header.cleanUpByID(parent,"footer-centerBtns-container");
         const container=document.createElement("div");
+        container.id="footer-centerBtns-container";
         const css_row="display:flex;justify-content:center;align-items:center;width:100%;margin-inline:auto;";
         container.style.cssText=css_row;
         container.style.maxHeight=window.innerWidth <900 ? "8vh":"6vh";
         const row=document.createElement("div");
+        row.id="footer-centerBtns-row";
         row.style.cssText="display:flex; justify-content:space-between;align-items:center;margin:auto;gap:4rem;";
         const arr=["contact","signup"];
-        arr.forEach((item)=>{
+        arr.forEach(async(item)=>{
             if(item==="contact"){
                 const btn=buttonReturn({parent:row,text:item,bg:"#34282C",color:"white",type:"button"});
                 const getHeader=document.querySelector("header#navHeader") as HTMLElement;
@@ -421,13 +424,28 @@ class MainFooter{
                            this._navArrow.contact(getHeader)
                         }
                 });
-            }else if(item==="signup" && !(this._user.user && this._user.user.id && this._user.user.email)){
-                const btn=buttonReturn({parent:row,text:item,bg:"#34282C",color:"white",type:"button"});
-                btn.addEventListener("click",(e:MouseEvent)=>{
-                    if(e){
-                           window.scroll(0,0);
-                           this._regSignin.signIn();
-                        }
+            }else if(item==="signup"){
+                await this.getUser().then(async(res)=>{
+                    console.log("RES",res);
+                    if(res){
+                        const btn=buttonReturn({parent:row,text:"logout",bg:"#34282C",color:"white",type:"button"});
+                        btn.id="btn-footer-signin";
+                        btn.addEventListener("click",(e:MouseEvent)=>{
+                            if(e){
+                                   window.scroll(0,0);
+                                   this._navArrow.logout();
+                                }
+                        });
+                    }else{
+                        const btn=buttonReturn({parent:row,text:"signin",bg:"#34282C",color:"white",type:"button"});
+                        btn.id="btn-footer-logout";
+                        btn.addEventListener("click",(e:MouseEvent)=>{
+                            if(e){
+                                   window.scroll(0,0);
+                                   this._regSignin.signIn();
+                                }
+                        });
+                    }
                 });
             }
         });
@@ -648,6 +666,18 @@ class MainFooter{
             },790);
         }
 
+    }
+    async getUser():Promise<userType | undefined>{
+       return this.asyncGetUser().then(async(value)=>{
+            if(value && typeof(value)==="string"){
+                return JSON.parse(value as string) as userType;
+            }
+        }) as Promise<userType | undefined>;
+    }
+    asyncGetUser(){
+        return new Promise(resolver=>{
+            resolver(localStorage.getItem("user"));
+        });
     }
    
 }
