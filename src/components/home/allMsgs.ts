@@ -56,9 +56,9 @@ class AllMsgs{
         const msgs=blog.messages ? blog.messages : [] as messageType[];
         if(blog && msgs && msgs.length>0){
             const contScroll=document.createElement("div");
-            contScroll.id="blogMsgs-contScroll";
+            contScroll.id="allMsgs-blogMsgs-contScroll";
             contScroll.style.cssText=css_col + "height:15vh;overflow-y:scroll;padding:1rem;width:100%";
-            contScroll.style.marginBlock=window.innerWidth <420 ? "auto":"2rem";
+            contScroll.style.marginBlock=window.innerWidth <420 ? "0px":"auto";
             contScroll.style.paddingInline=window.innerWidth < 900 ? (window.innerWidth<400 ? "1.25rem":"2.75rem"):"5.5rem";
             col.appendChild(contScroll);
             msgs.map(msg=>{
@@ -144,9 +144,9 @@ class AllMsgs{
         const {col,contScroll,msg,imgKey}=item;
         const css_col="display:flex;flex-direction:column;align-items:center;justify-content:center;gap:1rem;";
         const css_row="display:flex;flex-direction:row;align-items:center;justify-content:center;gap:1rem;flex-wrap:wrap;";
-        Header.cleanUpByID(contScroll,`msg-card-${msg.id}`);
+        Header.cleanUpByID(contScroll,`allMsgs-singleMsgTwo-msg-card-${msg.id}`);
         const card=document.createElement("div");
-        card.id=`singleMsgTwo-msg-card-${msg.id}`;
+        card.id=`allMsgs-singleMsgTwo-msg-card-${msg.id}`;
         card.className="msgCard row";
         card.style.cssText=css_row +`width:100%;box-shadow:1px 1px 5px 1px #00BFFF,-1px -1px 5px 1px #00BFFF;cursor:pointer;`;
             //ICONDIV && NAME

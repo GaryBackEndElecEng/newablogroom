@@ -47,27 +47,30 @@ class Features{
     }
     feature(parent:HTMLElement){
         const name=parent.nodeName.toLowerCase();
+        window.scroll(0,0);
         parent.style.position="relative";
-        parent.style.zIndex="1";
+        parent.style.zIndex="0";
+        const less900=window.innerWidth < 900 ;
+        const less400=window.innerWidth < 400 ;
         const popup=document.createElement("div");
         popup.id="popup-feature-main";
         popup.style.cssText="margin-inline:auto;position:absolute;display:flex;flex-direction:column;align-items:center;gap:1rem;border-radius:12px;box-shadow:1px 1px 12px 1px black;overflow-y:scroll;overflow-x:hidden;padding-inline:1rem;padding-block:0.5rem;padding-bottom:2rem;height:80vh;";
         if(name==="body"){
-            popup.style.inset=window.innerWidth <900 ? (window.innerWidth <400 ? "5% 0% 0% 0%" : "5% 2% 30% 2%")  : "5% 15% 30% 15%";
+            popup.style.inset=less900 ? (less400 ? "5% 0% 0% 0%" : "5% 2% 30% 2%")  : "5% 15% 30% 15%";
             popup.style.zIndex="1000";
         }else{
-            popup.style.inset=window.innerWidth <900 ? (window.innerWidth <400 ? "5% 0% 0% 0%" : "5% 2% 20% 2%")  : "5% 15% 20% 15%";
+            popup.style.inset=less900 ? (less400 ? "5% 0% 0% 0%" : "5% 2% 20% 2%")  : "5% 15% 20% 15%";
             popup.style.zIndex="1000";
         }
         const container=document.createElement("div");
         container.id="feature-popup-feature-main-container";
         container.style.cssText="width:100%;margin-inline:center;background-color:white;border-radius:inherit;position:relative;padding-inline:0.5rem;";
+        container.style.paddingInline=less900 ? (less400 ? "0rem":"0.35rem"):"0.5rem";
         const mainTitle=document.createElement("h4");
         mainTitle.id="feature-mainTitle"
         mainTitle.className="text-center text-primary lean display-4 mb-3";
         mainTitle.textContent="Features";
         container.appendChild(mainTitle);
-        parent.appendChild(popup);
         window.scroll(0,0);
         this.backgroundEffect({parent:container,time:30000});//background-effects;
         Misc.matchMedia({parent:popup,maxWidth:400,cssStyle:{inset:"5% 2% 50% 2%"}});
@@ -78,12 +81,13 @@ class Features{
         }
         this.removeElement({parent,target:popup});
         Misc.growIn({anchor:popup,scale:1,opacity:0,time:400});
-
+        
         
         this.featureList.map((feature)=>{
             this.card({parent:container,feature});
         });
         popup.appendChild(container);
+        parent.appendChild(popup);
         const {button:close}=Misc.simpleButton({anchor:popup,bg:Nav.btnColor,color:"white",text:"close features",time:400,type:"button"});
         close.onclick=(e:MouseEvent)=>{
             if(e){

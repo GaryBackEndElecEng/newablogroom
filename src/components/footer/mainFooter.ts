@@ -508,6 +508,7 @@ class MainFooter{
         button.onclick=(e:MouseEvent)=>{
             if(e){
                 if(!MainHeader.header) return;
+                window.scroll(0,0);
                 this.dataflow.main(MainHeader.header);
                 
             }

@@ -127,29 +127,21 @@ _status:"authenticated" | "loading" | "unauthenticated";
         const less900=window.innerWidth < 900;
         const less700=window.innerWidth < 700;
         const less400=window.innerWidth < 400;
-        if(window.location.pathname===pathname && count===0){
+        if(window.location.pathname===pathname && count===0 && user){
             this.count=count + 1;
             Header.cleanUpByID(parent,"rectangle");
             parent.style.zIndex="";
             parent.style.position="relative";
-            let word:string;
             rectangle=document.createElement("div");
             rectangle.id="rectangle";
             rectangle.style.cssText=`margin-inline:auto;position:absolute; background:black;height:150px;display:flex;place-items:center;padding:2rem;padding-inline:6rem;color:white;top:0%;left:0%;right:0%;border-radius:0px 0px 12px 12px;z-index:200;text-wrap:pretty`;
             rectangle.style.width=less900 ? (less700 ? (less400 ? "100%":"85%") :"80%") : "75%";
     
             const text=document.createElement("p");
-            if(user && user.id){
-                const fontSize=less900 ? (less400 ? "100%" : "225%") :"250%";
-                word=user.name ? ` welcome ${user.name.split(" ")[0]}` : `welcome ${user.email.split("@")[0]}`;
+            const fontSize=less900 ? (less400 ? "100%" : "225%") :"250%";
+               const word=user.name ? ` welcome ${user.name.split(" ")[0]}` : `welcome ${user.email.split("@")[0]}`;
                 text.textContent=word.toUpperCase();
                 text.style.cssText=`font-size:${fontSize};text-wrap:pretty;margin-inline:auto;`
-            }else{
-                const fontSize=less900 ? (less400 ? "150%" : "225%") :"300%";
-                word="A Blog Room";
-                text.textContent=word.toUpperCase();
-                 text.style.cssText=`font-size:${fontSize};text-wrap:pretty;margin-inline:auto;`
-            }
             rectangle.appendChild(text);
             const cssStyle={width:"100%",background:"#0C090A",color:"blue","border-radius":"0px 0px 40px 40px","paddingInline":"1rem"}
             parent.appendChild(rectangle);

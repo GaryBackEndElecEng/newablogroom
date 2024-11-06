@@ -111,11 +111,11 @@ export default async function RootLayout({
   children: React.ReactNode;
 }>) {
 
-
+  //className={inter.className}
   const style: { [key: string]: string } = { minHeight: "90vh", backgroundColor: "white", backgroundImage: `url(${bend})`, backgroundSize: "100% 100%", backgroundPosition: "50% 50%" }
   return (
     <html lang="en">
-      <body className={inter.className} style={style}>
+      <body >
         <Providers>
           {/* <EditorContextProvider> */}
           <Header />

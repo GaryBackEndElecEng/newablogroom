@@ -4,8 +4,9 @@
   align-items: center;
   justify-content: center;
   gap: 1.25rem;
-  padding-inline: 2rem;
+  padding-inline: 1rem;
   position: relative;
+  width: 100%;
 }
 @media screen and (max-width: 900px) {
   .homeIndex {

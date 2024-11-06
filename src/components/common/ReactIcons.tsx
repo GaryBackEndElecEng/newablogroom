@@ -8,15 +8,6 @@ export const FaCreate = ({ parent, name, cssStyle }: { parent: HTMLElement, name
     const css = { ...cssStyle, display: "block", cursor: "pointer" }
     const IconComponent = name as IconType;
     const Icon = <IconComponent style={css} /> as React.ReactNode;
-    parent.onmouseover = (e: MouseEvent) => {
-        if (e) {
-            parent.animate([
-                { fontSize: "100%" },
-                { fontSize: "105%" },
-                { fontSize: "100%" },
-            ], { duration: 500, iterations: 1 });
-        }
-    };
     const doc = createRoot(parent);
     doc.render(Icon);
 
@@ -25,15 +16,6 @@ export const FaBtn = ({ parent, icon, cssStyle }: { parent: HTMLElement, icon: I
     const css = { ...cssStyle, display: "block", cursor: "pointer" };
     const IconComponent = icon as IconType;
     const Icon = <IconComponent style={css} /> as React.ReactNode;
-    parent.onmouseover = (e: MouseEvent) => {
-        if (e) {
-            parent.animate([
-                { background: "inherit" },
-                { background: "black", color: "white" },
-                { background: "inherit" },
-            ], { duration: 700, iterations: 1 });
-        }
-    };
     const doc = createRoot(parent);
     doc.render(Icon);
 

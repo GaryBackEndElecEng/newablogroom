@@ -75,7 +75,7 @@ message:Message
 //main injector ---MAIN INJECTION----
    async showBlogs(parent:HTMLElement,home:boolean,blogs:blogType[]){
     const css_col="display:flex;flex-direction:column;align-items:center;gap:1rem;position:relative;width:100%";
-    const css_row="display:flex;justify-content:center;align-items:center;gap:1.25rem;position:relative;";
+    const css_row="display:flex;justify-content:center;align-items:center;gap:0.5rem;position:relative;";
     this.baseUrl=new URL(window.location.href).origin;
     this.blogs=blogs;
     Header.cleanUp(parent);
@@ -99,11 +99,14 @@ message:Message
         }else{
             text.textContent="Articles && Blogs";
         }
-        text.className=` text-center text-primary my-2 mb-4 mx-auto lean display-3`;
+        text.className=` text-center text-light my-2 mb-4 mx-auto lean display-3`;
+        text.id="showBlogs-title";
+        text.style.textTransform="capitalize";
         const div1=document.createElement("div");
-        div1.style.cssText="margin-inline:auto;width:85%;height:3px;background-color:#0804e9;";
+        //#0804e9
+        div1.style.cssText="margin-inline:auto;width:85%;height:3px;background-color:white;";
         const div2=document.createElement("div");
-        div2.style.cssText="margin-block;margin-inline:auto;width:55%;height:3px;background-color:#0804f9;";
+        div2.style.cssText="margin-block;margin-inline:auto;width:55%;height:3px;background-color:white;";
         container.appendChild(text);
         container.appendChild(div1);
         container.appendChild(div2);
@@ -119,7 +122,7 @@ message:Message
         if(blogs && blogs.length>0){
             const mainRow=document.createElement("div");
             mainRow.id="showBlogs-generateBlogs-mainRow";
-            const blogBaseCss=`display:flex; justify-content:center;flex-direction:column;padding-inline:0.25rem;gap:2.5rem;margin-top:2rem;position:relative;`;
+            const blogBaseCss=`display:flex; justify-content:center;flex-direction:column;padding-inline:0.25rem;gap:0.25rem;margin-top:2rem;position:relative;`;
                 mainRow.style.cssText=blogBaseCss;
                 mainRow.style.paddingInline=window.innerWidth <900 ? (window.innerWidth <600 ? "0px":"10px"):"1rem";
                 // mainRow.style.backgroundColor="#e7e8ee";
@@ -188,7 +191,7 @@ message:Message
         text.style.fontSize=window.innerWidth<900 ? (window.innerWidth<400 ? "120%" : "185%") : "230%";
         text.textContent=blog.title ? blog.title : " your title";
         textDiv.appendChild(text);
-        Misc.thumbsUp({parent:textDiv,cssStyle:{fontSize:"22px",color:"rgba(8, 4, 249,0.5)",zIndex:"1"},time:400,rating:blog.rating,limit:3});
+        // Misc.thumbsUp({parent:textDiv,cssStyle:{fontSize:"22px",color:"rgba(8, 4, 249,0.5)",zIndex:"1"},time:400,rating:blog.rating,limit:3});
         column.appendChild(textDiv);
         const imgCont=document.createElement("div");
         imgCont.id="displayCard-card-imgCont";
@@ -255,19 +258,7 @@ message:Message
         desc.id=`blog-desc-${blog.id}`;
         desc.textContent=blog.desc ? `${(blog.desc as string)}`:" no description";
         desc.style.cssText=`margin-inline:auto; padding:1.25rem; text-align:center; margin-block:1rem;border-radius:inherit;background-color:black;color:white;filter:none;box-shadow:1px 1px 12px 1px #0aa2db;height:${descHeight};overflow-y:scroll;text-wrap:pretty;`;
-        if(blog.rating){
-            const div=document.createElement("div");
-            div.style.cssText="display:flex;justify-content:center;gap:1rem;align-items:center;cursor:none;";
-            if(blog.rating > 2){
-                const span=document.createElement("span");
-                span.style.cssText="align-items:center;gap:1rem;width:fit-content;"
-                FaCreate({parent:span,name:BsHandThumbsUpFill,cssStyle:{fontSize:"12px",color:"blue"}});
-                span.innerHTML=`<span style="margin-block:1rem;margin-right:1rem;">:${blog.rating}</span>`;
-                div.appendChild(span);
-            }
-            Misc.starRating({parent:div,rating:blog.rating,cssStyle:{fontSize:"18px",color:"yellow",backgroundColor:"#34282C",padding:"3px",borderRadius:"50%",cursor:"none"}});
-            cardBody.appendChild(div);
-        }
+        this.thumbsUpStartRating({parent:cardBody,rating:blog.rating,minRating:3});
         card.appendChild(imgCont);
         cardBody.appendChild(desc);
         cardBody.appendChild(update);
@@ -278,6 +269,21 @@ message:Message
         Misc.matchMedia({parent:imgCont,maxWidth:500,cssStyle:{flex:"1 1 100%"}});
        
 
+    }
+
+    thumbsUpStartRating(item:{parent:HTMLElement,rating:number,minRating:number}){
+        const {parent,rating,minRating}=item;
+        const div=document.createElement("div");
+            div.style.cssText="display:flex;justify-content:center;gap:1rem;align-items:center;cursor:none;";
+            if(rating > minRating){
+                const span=document.createElement("span");
+                span.style.cssText="align-items:center;gap:1rem;width:fit-content;"
+                FaCreate({parent:span,name:BsHandThumbsUpFill,cssStyle:{fontSize:"12px",color:"blue"}});
+                span.innerHTML=`<span style="margin-block:1rem;margin-right:1rem;">:${rating}</span>`;
+                div.appendChild(span);
+            }
+            Misc.starRating({parent:div,rating:rating,cssStyle:{fontSize:"18px",color:"yellow",backgroundColor:"#34282C",padding:"3px",borderRadius:"50%",cursor:"none"}});
+            parent.appendChild(div);
     }
      static noBlogs(parent:HTMLElement){
         const container=document.createElement("section");

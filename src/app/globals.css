@@ -50,6 +50,7 @@
   --bg-image-timely: url("/images/display/timely.png");
   --bg-image-graphic: url("/images/display/graphic.png");
   --bg-image-colors: url("/images/colors.png");
+  --bg-image-body: url("/images/main.png");
 }
 @media screen and (max-width: 400px) {
   .client_blog {
@@ -76,7 +77,31 @@
 }
 body {
   color: black;
-  background-color: hsl(0, 0%, 80%);
+  z-index: 0;
+  background-image: var(--bg-image-body);
+  min-height: 90vh;
+  background-size: "100% 100%";
+  background-position: "50% 50%";
+  width: 100%;
+  position: relative;
+}
+body::after {
+  display: block;
+  content: "";
+  position: absolute;
+  inset: 0%;
+  z-index: -1;
+  background: hsla(0, 18.5%, 94.7%, 0.23);
+  animation: fadeIn 1.25s ease-in-out;
+}
+/* hsla(0, 18.5%, 94.7%, 0.13) */
+@keyframes fadeIn {
+  from {
+    backround: hsla(0, 18.5%, 94.7%, 0.93);
+  }
+  to {
+    backround: hsla(0, 18.5%, 94.7%, 0.13);
+  }
 }
 
 .color {
@@ -1172,6 +1197,45 @@ p.post-title {
     background-position: 50% 50%;
   }
 }
+.lineStyleOne {
+  background: linear-gradient(to bottom, #0212fa, rgb(245, 242, 242) 70.71%);
+  background-clip: border-box;
+  -webkit-background-clip: border-box;
+  color: transparent;
+  -webkit-text-stroke: 1.5px white;
+  width: 100%;
+}
+.titleStyleOne {
+  background: linear-gradient(
+    to bottom,
+    rgb(238, 18, 2),
+    rgb(245, 242, 242) 70.71%
+  );
+  background-clip: text;
+  -webkit-background-clip: text;
+  color: transparent;
+  -webkit-text-stroke: 1.5px white;
+}
+.titleStyleTwo {
+  background: linear-gradient(
+    to bottom,
+    rgba(21, 255, 0, 0.8),
+    rgba(236, 232, 232, 0.856) 70.71%
+  );
+  background-clip: text;
+  -webkit-background-clip: text;
+  color: transparent;
+  -webkit-text-stroke: 1.5px white;
+}
+.subTitleStyleThree {
+  background: linear-gradient(to bottom, white, rgb(160, 158, 158) 85.71%);
+  background-clip: text;
+  -webkit-background-clip: text;
+  color: transparent;
+  border-radius: 12px;
+  box-shadow: 1px 1px 12px 1px white;
+  margin-block: 0.25rem;
+}
 @media screen and (max-width: 500px) {
   .columns-2,
   .columns-3,
@@ -1180,10 +1244,7 @@ p.post-title {
     -webkit-columns: none !important;
   }
 }
-body {
-  width: 100%;
-  position: relative;
-}
+
 section#home-index {
   width: 80%;
   position: relative;
@@ -1192,9 +1253,9 @@ section#home-index {
 @media screen and (max-width: 900px) {
   section#home-index {
     width: 95%;
-    padding-inline: 5px;
+    padding-inline: 0px;
     padding-block: 1rem;
-    margin-inline: 5px;
+    margin-inline: auto;
   }
 }
 @media screen and (max-width: 600px) {

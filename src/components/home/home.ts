@@ -6,7 +6,7 @@ import Misc from "../common/misc";
 import MainHeader from "../nav/mainHeader";
 import Blogs from "../blogs/blogsInjection";
 import Nav from "../nav/headerNav";
-import { buttonReturn } from "../common/tsFunctions";
+import { buttonReturn, imageLoader } from "../common/tsFunctions";
 import HomeIntro from "./intro";
 import AllMsgs from './allMsgs';
 import Features from "./feature";
@@ -32,6 +32,7 @@ export type arrItemType={
 
 
 class Home{
+    logo:string;
     bend1:string;
     count:number=0;
     bgColor:string;
@@ -68,6 +69,7 @@ class Home{
             {id:9,name:"earth",image:"https://images.unsplash.com/photo-1657832034979-e2f9c5b0a2fc?crop=fit&h=900",desc:"alone"},
             
         ]
+        this.logo="/images/gb_logo.png";
     }
 
     ////-----------------GETTERS//SETTERS------------------//
@@ -80,11 +82,11 @@ class Home{
     ////-----------------GETTERS//SETTERS------------------//
     //INJECTION
     async main(parent:HTMLElement){
-        const css_col="display:flex;flex-direction:column;align-items:center;gap:1.5rem;";
+        const css_col="display:flex;flex-direction:column;align-items:center;gap:1.5rem;width:100%";
         parent.style.cssText=css_col;
-        Misc.matchMedia({parent,maxWidth:900,cssStyle:{width:"95%",paddingInline:"5px",paddingBlock:"1rem",margin:"0.25rem"}});
-        Misc.matchMedia({parent,maxWidth:600,cssStyle:{width:"100%",paddingInline:"0px",paddingBlock:"1rem",margin:"0px"}});
-        parent.style.paddingInline=window.innerWidth < 900 ? "0px" :"1rem";
+        Misc.matchMedia({parent,maxWidth:900,cssStyle:{paddingInline:"5px",paddingBlock:"1rem",margin:"0.25rem"}});
+        Misc.matchMedia({parent,maxWidth:600,cssStyle:{paddingInline:"0px",paddingBlock:"1rem",margin:"0px"}});
+        parent.style.paddingInline=window.innerWidth < 900 ? "0px" :"0rem";
         parent.style.marginInline=window.innerWidth < 900 ? "0px" :"auto";
         await this.asyncMain({parent}).then(async(res)=>{
             if(res){
@@ -94,10 +96,13 @@ class Home{
             Header.cleanUp(res.sectionOne);//clean up
                 const {button:openFeatures}=Misc.simpleButton({anchor:res.sectionOne,bg:Nav.btnColor,color:"white",text:"open features",type:"button",time:400});
                 openFeatures.style.marginInline="auto";
+                openFeatures.style.marginBlock="1rem";
+                //----------------------SHOW HOME SECTION-------------------------//
+
                 const arrReveal:{html:HTMLElement}[]=[
                     {html:res.sectionOne},
                     {html:openFeatures},
-                    {html:res.showEffectContainer},
+                    {html:res.titleShowDisplay},
                     {html:res.showBlogs},
 
                 ]
@@ -112,20 +117,23 @@ class Home{
                             html.html.animate([
                                 {opacity:"0"},
                                 {opacity:"1"},
-                            ],{duration:1500,iterations:1});
+                            ],{duration:1000,iterations:1});
                         }
                     });
                 //opacity=1
                 this.signoutFromEditor();//signout message from /editor
 
-                },3200);
+                },100);
 
+                //----------------------SHOW HOME SECTION-------------------------//
                 // show attributes
                 openFeatures.onclick=(e:MouseEvent)=>{
                     if(e){
                         this.feature.feature(parent);//features
                     }
                 };
+                const show=true;
+                this.introTitleDisplay({parent:res.titleShowDisplay,show,time:1200});
                 this.normalCreateYourBlog(res.sectionOne);//SCROLL DISPLAY
                 this.editorAttributeDisplay(res.sectionOne);
                 //Main editor/Blogs links
@@ -138,35 +146,38 @@ class Home{
                             
                         }
                     });
-                    ///-----------display Blogs-------////
-                      
-                   
                 }
         });
     
     };
 
-    async asyncMain(item:{parent:HTMLElement}): Promise<{showBlogs:HTMLElement,showEffectContainer:HTMLElement,sectionOne:HTMLElement}|undefined>{
-        const width=window.innerWidth <900 ? (window.innerWidth <600 ? "100%" :"95%") : "80%" ;
+    async asyncMain(item:{parent:HTMLElement}): Promise<{showBlogs:HTMLElement,titleShowDisplay:HTMLElement,sectionOne:HTMLElement}|undefined>{
+        const less900=window.innerWidth < 900;
+        const less600=window.innerWidth < 600;
+        const less400=window.innerWidth < 400;
+
         window.scroll(0,0);
-        const css_col="margin-inline:auto;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:1.5rem;width:100%;position:relative;";
+        const css_col="margin-inline:auto;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:0rem;position:relative;";
         const {parent}=item;
         if(!parent)return;
         window.scroll(0,0);
         Home.injector=parent;
         Home.cleanUp(parent);
 
-        const messageDisplay=document.createElement("div");
-        messageDisplay.id="messageDisplay";
-        messageDisplay.style.cssText=css_col;
+        
 
         const showBlogs=document.createElement("div");
         showBlogs.id="asyncmain-showBlogs";
         showBlogs.style.cssText=css_col + "max-width:1000px;";
         
-        const showEffectContainer=document.createElement("div");
-        showEffectContainer.id="asyncmain-showEffectContainer";
-        showEffectContainer.style.cssText=css_col + "overflow-x:hidden;";
+        const titleShowDisplay=document.createElement("div");
+        titleShowDisplay.id="asyncmain-titleShowDisplay";
+        titleShowDisplay.style.cssText=css_col ;
+        titleShowDisplay.style.width=less900 ? "100%":"80%";
+
+        const messageDisplay=document.createElement("div");
+        messageDisplay.id="messageDisplay";
+        messageDisplay.style.cssText=css_col;
 
         const showmsgs=document.createElement("div");
         showmsgs.id="asyncmain-showmsgs";
@@ -177,25 +188,26 @@ class Home{
         btnContainer.style.cssText="margin-block:2rem;padding:auto;margin-inline:auto;max-width:800px;width:100%;";
         const sectionOne=document.createElement("section");
         sectionOne.id="asyncmain-sectionOne";
-        sectionOne.style.cssText=css_col + "width;100%;padding:0rem;padding-block:2rem;border-radius:16px;background-color:aliceblue;min-height:50vh;box-shadow:1px 1px 12px 1px #b4f3f3;";
+        sectionOne.style.cssText=css_col + "width:100%;padding:0rem;padding-block:2rem;border-radius:16px;background-color:aliceblue;min-height:50vh;box-shadow:1px 1px 12px 1px #b4f3f3;";
+        sectionOne.style.maxWidth="1000px";
         sectionOne.style.opacity="0";
         sectionOne.style.backgroundImage=`url(${this.bend1})`;
         sectionOne.style.backgroundSize=`100% 100%`;
         sectionOne.style.backgroundPosition=`50% 50%`;
         sectionOne.style.backgroundColor=`aliceblue`;
         sectionOne.appendChild(messageDisplay);
+        parent.appendChild(titleShowDisplay);
         sectionOne.appendChild(showmsgs);
         sectionOne.appendChild(btnContainer);
         parent.appendChild(sectionOne);
         Misc.matchMedia({parent:sectionOne,maxWidth:900,cssStyle:{padding:"0px",backgroundImage:"none"}});
-        parent.appendChild(showEffectContainer);
         parent.appendChild(showBlogs);
         
-        Misc.matchMedia({parent,maxWidth:900,cssStyle:{width:"95%",paddingInline:"5px",paddingBlock:"1rem",marginInline:"2px",maxWidth:"auto"}});
+        Misc.matchMedia({parent,maxWidth:900,cssStyle:{width:"100%",paddingInline:"5px",paddingBlock:"1rem",marginInline:"2px",maxWidth:"auto"}});
         Misc.matchMedia({parent,maxWidth:600,cssStyle:{width:"100%",paddingInline:"0px",marginInline:"0px"}});
         return new Promise(resolve=>{
-            resolve({showBlogs,showEffectContainer,sectionOne})
-        }) as Promise<{showBlogs:HTMLElement,showEffectContainer:HTMLElement,sectionOne:HTMLElement}>;
+            resolve({showBlogs,titleShowDisplay,sectionOne})
+        }) as Promise<{showBlogs:HTMLElement,titleShowDisplay:HTMLElement,sectionOne:HTMLElement}>;
     }
 
   
@@ -273,7 +285,7 @@ class Home{
         outerContainer.style.scrollSnapType="y mandatory";
         outerContainer.style.backgroundColor="#f5f6fa";
         Misc.matchMedia({parent:outerContainer,maxWidth:900,cssStyle:{gap:"3rem"}});
-        Misc.matchMedia({parent:outerContainer,maxWidth:420,cssStyle:{width:"98%",gap:"2.5rem"}});
+        Misc.matchMedia({parent:outerContainer,maxWidth:420,cssStyle:{gap:"0.25rem"}});
         outerContainer.style.width=window.innerWidth < 500 ? "98%" :"100%";
         outerContainer.style.gap=window.innerWidth < 900 ? (window.innerWidth < 500 ? "2.5rem":"3rem") :"4.5rem";
        
@@ -483,6 +495,166 @@ class Home{
         Misc.growIn({anchor:popup,scale:0.2,opacity:0.2,time:500});
 
     }
+
+    introTitleDisplay(item:{parent:HTMLElement,show:boolean,time:number}){
+        const {parent,show,time}=item;
+        const bgColor= show ? "#0b0a0a7a":"transparent";
+        parent.style.backgroundColor=bgColor;
+        const less900=window.innerWidth <900;
+        const less600=window.innerWidth <600;
+        const less400=window.innerWidth <400;
+        const container=document.createElement("div");
+        container.id="home-introTitleDisplay-container";
+        container.style.cssText="margin-inline:auto;width:100%;height:auto;display:flex;flex-direction:column;place-items:center";
+        container.style.opacity=bgColor;
+        container.style.paddingInline=less900 ? (less600 ? (less400 ? "0.5rem":"1rem") :"1.75rem"): "2rem";
+        container.style.gap="0px";
+        //----------------titleOneLineCont-------------------------//
+        const lineHeight=this.titleOneLine({parent:container,text:"blog",show:show,time:time,less900,less600,less400});
+        //----------------titleOneLineCont-------------------------//
+        //----------------titleTwo-------------------------//
+        this.titleTwoOnLine({parent:container,text:"ablogroom",show:show,time:time*1.62,less900,less600,less400});
+        //----------------titleTwo-------------------------//
+        //----------------titleThree-------------------------//
+        this.titleThreeOnLine({parent:container,text:"Blogs",show:show,time:(time*1.62)*1.62,less900,less600,less400});
+        //----------------titleThree-------------------------//
+        //----------------underline-------------------------//
+        this.underline({parent:container,time,show,lineHeight});
+        //----------------underline-------------------------//
+        //----------------subTitle-------------------------//
+        this.subTitle({parent:container,text:" the best blog editor in canada",show:show,time:(time*1.62)*1.62*1.62,less900,less600,less400});
+        //----------------subTitle-------------------------//
+        parent.appendChild(container);
+        
+    }
+    titleOneLine(item:{parent:HTMLElement,text:string,show:boolean,time:number,less900:boolean,less600:boolean,less400:boolean}):number{
+        const {parent,show,time,text,less900,less600,less400}=item;
+        const lineHeightratio=0.4;
+        const timeDiff=time + 1000;
+        const opacity=show ? "1":"0";
+        const titleOneLineCont=document.createElement("div");
+        titleOneLineCont.id="container-titleOneLineCont";
+        titleOneLineCont.style.cssText="margin-inline:auto;display:flex;place-items:center;padding:auto;width:100%;";
+        titleOneLineCont.style.gap=less900 ? (less600 ? (less400 ? "0.25rem":"0.75rem") :"1.25rem"): "0.75rem";
+        titleOneLineCont.style.opacity=opacity;
+        const logo=document.createElement("img");
+        logo.id="titleOneLineCont-img";
+        logo.style.cssText="aspect-ration: 1 / 1;filter:drop-shadow(0 0 0.5rem rgba(12, 175, 255,0.5));border-radius:50%;align-self:center;";
+        const titleOne=document.createElement("p");
+        titleOne.id="titleOneLineCont-titleOne";
+        titleOne.style.cssText="text-transform:uppercase;color:white;";
+        titleOne.style.lineHeight=less900 ? (less600 ? (less400 ? "0.75rem":"1.15rem"):"1.5rem"):"1.75rem";
+        logo.style.width=less900 ? (less600 ? (less400 ? "22px":"26px") : "32px") : "37px";
+        const logoWidth=less900 ? (less600 ? (less400 ? 22:26) : 32) : 37;
+        logo.src=imageLoader({src:this.logo,width:logoWidth,quality:75});
+        titleOne.style.fontSize=less900 ? (less600 ? (less400 ? "22px":"26px") : "32px") : "37px";
+        const calcHeight=lineHeightratio*(parseInt(titleOne.style.fontSize.split("px")[0]));
+        titleOne.textContent=text;
+        const line1=document.createElement("div");
+        line1.style.cssText="width:100%";
+        line1.id="titleOneLineCont-line1";
+        line1.className="lineStyleOne";
+        line1.style.height=`${calcHeight}px`;//calculated height
+        line1.style.minWidth=`100px`;//calculated height
+        const line2=document.createElement("div");
+        line2.style.cssText="width:100%";
+        line2.id="titleOneLineCont-line2";
+        line2.className="lineStyleOne";
+        line2.style.height=`${calcHeight}px`;//calculated height
+        line2.style.minWidth=`100px`;//calculated height
+        titleOneLineCont.appendChild(line1);//append
+        titleOneLineCont.appendChild(logo);//append
+        titleOneLineCont.appendChild(titleOne);//append
+        titleOneLineCont.appendChild(line2);//append
+        if(show){
+            titleOneLineCont.animate([
+                {transform:"translateX(-50%)",opacity:"0"},
+                {transform:"translateX(0%)",opacity:"1"},
+            ],{duration:timeDiff,iterations:1,"easing":"ease-in-out"});
+        }
+        parent.appendChild(titleOneLineCont);//append
+        return calcHeight;
+    }
+    titleTwoOnLine(item:{parent:HTMLElement,text:string,less900:boolean,less600:boolean,less400:boolean,show:boolean,time:number}){
+        const {parent,show,time,text,less900,less600,less400}=item;
+        const timeDiff=time + 1000;
+        const opacity=show ? "1":"0";
+        const titleTwo=document.createElement("p");
+        titleTwo.id="container-titleTwo";
+        titleTwo.style.cssText="margin-inline:auto;text-transform:uppercase;";
+        titleTwo.style.opacity=opacity;
+        titleTwo.textContent=text;
+        titleTwo.style.fontSize=less900 ? (less600 ? (less400 ? "40px":"50px"): "60px") : "70px";
+        titleTwo.style.lineHeight=less900 ? (less600 ? (less400 ? "1.75rem":"2.1rem"): "2.55rem") : "2.95rem";
+        titleTwo.className="titleStyleOne";
+        if(show){
+            titleTwo.animate([
+                {transform:"translateX(-50%)",opacity:"0"},
+                {transform:"translateX(0%)",opacity:"1"},
+            ],{duration:timeDiff,iterations:1,"easing":"ease-in-out"});
+        }
+        parent.appendChild(titleTwo);
+    }
+    titleThreeOnLine(item:{parent:HTMLElement,text:string,less900:boolean,less600:boolean,less400:boolean,show:boolean,time:number}){
+        const {parent,time,text,less900,less600,less400,show}=item;
+        const timeDiff=time + 1000;
+        const opacity=show ? "1":"0";
+        const titleThree=document.createElement("p");
+        titleThree.id="container-titleThree";
+        titleThree.style.cssText="margin-inline:auto;text-transform:uppercase;";
+        titleThree.textContent=text;
+        titleThree.style.fontSize=less900 ? (less600 ? (less400 ? "70px":"80px"): "100px") : "120px";
+        titleThree.style.lineHeight=less900 ? (less600 ? (less400 ? "1.25rem":"1.75rem"): "4.95rem") : "5.15rem";
+        titleThree.style.opacity=opacity;
+        titleThree.className="titleStyleTwo";
+        if(show){
+            titleThree.animate([
+                {transform:"translateX(-50%)",opacity:"0"},
+                {transform:"translateX(0%)",opacity:"1"},
+            ],{duration:timeDiff,iterations:1,"easing":"ease-in-out"});
+        }
+        parent.appendChild(titleThree);
+    }
+    
+    underline(item:{parent:HTMLElement,show:boolean,time:number,lineHeight:number}){
+        const {parent,time,show,lineHeight}=item;
+        const timeDiff=time + 1000;
+        const opacity=show ? "1":"0";
+        const underline=document.createElement("div");
+        underline.id="container-underline";
+        underline.style.height=`${lineHeight}px`;
+        underline.style.opacity=opacity;
+        underline.className="lineStyleOne";
+        if(show){
+            underline.animate([
+                {transform:"translateX(-50%)",opacity:"0"},
+                {transform:"translateX(0%)",opacity:"1"},
+            ],{duration:timeDiff,iterations:1,"easing":"ease-in-out"});
+        }
+        parent.appendChild(underline);
+    }
+    subTitle(item:{parent:HTMLElement,text:string,less900:boolean,less600:boolean,less400:boolean,show:boolean,time:number}){
+        const {parent,show,time,text,less900,less600,less400}=item;
+        const timeDiff=time + 1000;
+        const opacity=show ? "1":"0";
+        const subTitle=document.createElement("p");
+        subTitle.id="container-subTitle";
+        subTitle.style.cssText="margin-inline:auto;text-transform:uppercase;text-wrap:pretty;";
+        subTitle.style.opacity=opacity;
+        subTitle.textContent=text;
+        subTitle.style.fontSize=less900 ? (less600 ? (less400 ? "18px":"22px"): "24px") : "30px";
+        subTitle.style.paddingInline=less900 ? (less600 ? (less400 ? "1.25rem":"1.5rem"): "2rem") : "3rem";
+        subTitle.className="subTitleStyleThree";
+        if(show){
+            subTitle.animate([
+                {transform:"translateX(-50%)",opacity:"0"},
+                {transform:"translateX(0%)",opacity:"1"},
+            ],{duration:timeDiff,iterations:1,"easing":"ease-in-out"});
+        }
+        parent.appendChild(subTitle);
+    }
+   
+
 
 
     //NOT USED!! BUTTON FOR INTRODUCTION

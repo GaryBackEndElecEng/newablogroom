@@ -107,20 +107,25 @@ class Dataflow {
     }
     main(parent:HTMLElement){
         window.scroll(0,0);
-        const width_=window.innerWidth < 900 ? (window.innerWidth < 400 ? 350 :400) : 800;
+        const less900=window.innerWidth < 900;
+        const less600=window.innerWidth < 600;
+        const less400=window.innerWidth < 400;
+        const width_=window.innerWidth < 900 ? (window.innerWidth < 400 ? 375 :420) : 800;
         const size=window.innerWidth < 900 ? (window.innerWidth < 420 ? "xs" :"md") : "lg";
         const padding=window.innerWidth <900 ? "0rem":"1rem";
         parent.style.position="relative";
         const popup=document.createElement("div");
         popup.id="infor-popup";
         popup.className="popup";
-        popup.style.cssText=`position:absolute;width:100%;max-width:${width_}px;display:flex;flex-direction:column;justify-content:flex-start;align-items:center;padding:5rem;background-color:#0C090A;color:white;width:100%;z-index:300;height:100vh;overflow-y:scroll;gap:2rem;`;
+        popup.style.cssText=`position:absolute;display:flex;flex-direction:column;justify-content:flex-start;align-items:center;padding:5rem;background-color:#0C090A;color:white;width:100%;z-index:300;height:100vh;overflow-y:scroll;gap:2rem;`;
+        popup.style.width=less400 ? "102%":"100%";
         popup.style.overflowX=size==="xs" ? `hidden`:"auto";
         popup.style.padding=(size==="xs") ? `0rem`:(size==="md") ? "2rem":"5rem";
+        popup.style.inset=less900 ? (less600 ? (less400 ? "0%" :"5% 0% 0% 0%"): "0%") : "0%";
         this.slides.map((slide,index)=>{
             const card=document.createElement("div");
             card.style.cssText="margin:auto;display:flex;flex-direction:column;align-items:center;width:100%;position:relative;";
-            card.style.maxWidth=window.innerWidth <900 ? (window.innerWidth <400 ? "350px" : "600px"):"800px";
+            // card.style.maxWidth=window.innerWidth <900 ? (window.innerWidth <400 ? "350px" : "600px"):"800px";
             card.id=`info-card-${index}`;
             const text=document.createElement("h6");
             text.className="text-center text-primary mb-2 text-decoration-underline lean display-6";
@@ -135,7 +140,7 @@ class Dataflow {
             img.src=slide.img;
             img.id=`image-round-${index}`;
             if(size==="xs"){
-                card.style.width="375px";
+                card.style.width="100%";
                 para.style.display= "flex";
                 para.style.flexDirection= "column";
                 para.style.alignItems= "center";
