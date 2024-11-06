@@ -32,6 +32,15 @@ class NavArrow{
         this.centerBtnsParent=document.querySelector("div#footer-centerBtns-container");
         this.mainHeader=document.querySelector("header#navHeader");
     }
+
+    //////------------------------GETTERS/SETTERS--------------------------///
+get user(){
+    return this._user.user
+}
+set user(user:userType){
+    this._user.user=user;
+}
+    //////------------------------GETTERS/SETTERS--------------------------///
    
         rotateArrow(item:{button:HTMLElement,time:number}){
         const {button,time}=item;
@@ -647,7 +656,7 @@ class NavArrow{
     }
     async asyncLogout(item:{func:()=>Promise<void>|void|undefined}):Promise<{mainHeader:HTMLElement | null}>{
         const {func}=item;
-        this._user.user={} as userType;
+        this.user={} as userType;
         MainHeader.header=document.querySelector("header#navHeader") as HTMLElement;
         localStorage.removeItem("user");
         localStorage.removeItem("user_id");
@@ -658,10 +667,10 @@ class NavArrow{
         localStorage.removeItem("email");
         },1000);
         this._service.isSignedOut=true;
-        const user=this._user.user;
-        this._user._user={...user,id:"",email:"",blogs:[] as blogType[],name:undefined,bio:undefined,admin:false,showinfo:false} as userType;
+        this._user._user={...this.user,id:"",email:"",blogs:[] as blogType[],name:undefined,bio:undefined,admin:false,showinfo:false} as userType;
         this._user.user=this._user._user;
         this.checkUser=false;
+        MainHeader.removeAllClass({parent:MainHeader.header,class_:"ablogroom"});
         window.scroll(0,0);
         func();//calling function void
         this._service.signout()

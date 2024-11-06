@@ -1,4 +1,4 @@
-import {userType,userSignInType,blogType, flexType, elementType, element_selType, gets3ImgKey, colType, rowType, selectorType, arrImgType2, accountType, sessionType, saveProcessType} from "@/components/editor/Types";
+import {userType,userSignInType,blogType, flexType, elementType, element_selType, gets3ImgKey, colType, rowType, selectorType, arrImgType2, accountType, sessionType, saveProcessType, postType} from "@/components/editor/Types";
 import ModSelector from "../editor/modSelector";
 import DisplayBlog from "../blog/displayBlog";
 import Misc, { btnOptionMsgType, btnOptionType, btnOptionType2 } from "../common/misc";
@@ -336,6 +336,7 @@ class User{
         imgKey:undefined,
         bio:undefined,
         blogs:[] as blogType[],
+        posts:[] as postType[],
         accounts:[] as accountType[],
         sessions:[] as sessionType[],
         admin:false,

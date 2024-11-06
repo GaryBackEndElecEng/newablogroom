@@ -14,21 +14,20 @@ import MetaBlog from '../editor/metaBlog';
 import Features from '../home/feature';
 import ChartJS from '../chart/chartJS';
 import Post from '../posts/post';
-import { Session } from 'next-auth';
+// import { Session } from 'next-auth';
 import { useSession } from 'next-auth/react';
 import styles from "@/components/nav/nav.module.css";
-import Misc from '../common/misc';
 import Header from '../editor/header';
 import BrowserType from '../common/browserType';
-import Footer from '../footer/Footer';
 import MainFooter from '../footer/mainFooter';
 import Dataflow from '../common/dataflow';
 import AllMsgs from '../home/allMsgs';
 import Message from '../common/message';
 
 
-function Index() {
+function Index({ _user_ }: { _user_: userType | null }) {
     const { data: session, status } = useSession()
+    const sessionGroup = { session: session, status };
     const navRef = React.useRef(null);
     React.useEffect(() => {
         let count = 0;
@@ -51,12 +50,13 @@ function Index() {
             const nav = new Nav(modSelector, service, user, regSignin);
             const mainHeader = new MainHeader(modSelector, service, user, nav, navArrow);
             const mainFooter = new MainFooter(modSelector, service, user, nav, navArrow, dataflow, feature, allMsgs);
-            const auth = new AuthService(modSelector, service, user, mainHeader, mainFooter, session, status);
+            const sess_ = null
+            const stat = (_user_ && _user_.id) ? "authenticated" : "unauthenticated";
+            const auth = new AuthService(modSelector, service, user, mainHeader, mainFooter, sess_, stat);
             Header.cleanUp(inject);
             mainHeader.main({ parent: inject });
             //getting USER AFTER SIGNIN
-
-            auth.getUser({ session: session, injector: inject, count }).then(async (res) => {
+            auth.getUser({ session: null, injector: inject, count, user: _user_ }).then(async (res) => {
                 if (res.count) {
                     count = res.count;
                 } else {
@@ -67,7 +67,7 @@ function Index() {
             //browserType sends message of browser incompatibility if issues
             const retList = browserType.main({ parent: inject, navigator: keyword })
         }
-    }, [session, status]);
+    }, [_user_]);
     return (
         <div id="headerInjector" ref={navRef} className={styles.headerindex}></div>
     )

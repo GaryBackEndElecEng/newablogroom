@@ -45,7 +45,7 @@ const nextConfig = {
           {
             key: "Access-Control-Allow-Origin",
             value:
-              "newmasterconnect.herokuapp.com,www.masterconnect.ca,ww.master-connect.ca,compute-1.amazonaws.com,master-sale.herokuapp.com, www.masterconnect.ca,www.masterultils.com,masterultils-postimages.s3.us-east-1.amazonaws.com,localhost:3000,www.masterultils.com",
+              "newmasterconnect.herokuapp.com,www.masterconnect.ca,ww.master-connect.ca,compute-1.amazonaws.com,master-sale.herokuapp.com, www.masterconnect.ca,www.masterultils.com,masterultils-postimages.s3.us-east-1.amazonaws.com,localhost:3000,www.masterultils.com,main.d2qer3lk2obzqm.amplifyapp.com",
           },
         ],
         source: "/:path*",
@@ -62,7 +62,7 @@ const nextConfig = {
           {
             key: "Access-Control-Allow-Origin",
             value:
-              "newmasterconnect.herokuapp.com,www.masterconnect.ca,ww.master-connect.ca,compute-1.amazonaws.com,master-sale.herokuapp.com, www.masterconnect.ca,www.masterultils.com,masterultils-postimages.s3.us-east-1.amazonaws.com,localhost:3000,main.d1qeikuwg9b9l6.amplifyapp.com/,newmasterconnect.herokuapp.com",
+              "newmasterconnect.herokuapp.com,www.masterconnect.ca,ww.master-connect.ca,compute-1.amazonaws.com,master-sale.herokuapp.com, www.masterconnect.ca,www.masterultils.com,masterultils-postimages.s3.us-east-1.amazonaws.com,localhost:3000,main.d2qer3lk2obzqm.amplifyapp.com,newmasterconnect.herokuapp.com",
           },
         ],
       },
@@ -139,6 +139,7 @@ const nextConfig = {
       "masterultils-postimages.s3.us-east-1.amazonaws.com",
       "new-master.s3.ca-central-1.amazonaws.com",
       "newmasterconnect.herokuapp.com",
+      "main.d2qer3lk2obzqm.amplifyapp.com",
     ],
   },
   env: {

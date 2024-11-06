@@ -1,4 +1,4 @@
-import {blogType, userType, jwtPayload} from "@/components/editor/Types";
+import {blogType, userType, jwtPayload, accountType, sessionType, postType} from "@/components/editor/Types";
 import ModSelector from "@/components/editor/modSelector";
 import { Session } from "next-auth";
 import User from "../user/userMain";
@@ -9,6 +9,7 @@ import MainFooter from "../footer/mainFooter";
 
 
 class AuthService {
+    static headerInjector:HTMLElement|null;
     _jwtPayload:jwtPayload={} as jwtPayload
     logo:string;
     blog:blogType;
@@ -19,10 +20,39 @@ class AuthService {
     _admin:string[];
     isSignedOut:boolean;
     __user:userType;
+    userInit:userType={
+        id:"",
+        email:"",
+        name:undefined,
+        password:undefined,
+        emailVerified:undefined,
+        image:undefined,
+        imgKey:undefined,
+        bio:undefined,
+        blogs:[] as blogType[],
+        posts:[] as postType[],
+        accounts:[] as accountType[],
+        sessions:[] as sessionType[],
+        admin:false,
+    } as userType;
     _status:"authenticated" | "loading" | "unauthenticated";
 
     constructor(private _modSelector:ModSelector,private _service:Service,private _user:User,private _mainHeader: MainHeader,private _mainFooter:MainFooter,private session:Session |null,public status_ :"authenticated" | "loading" | "unauthenticated"){
-        this.__user={} as userType;
+        this.__user={
+            id:"",
+            email:"",
+            name:undefined,
+            password:undefined,
+            emailVerified:undefined,
+            image:undefined,
+            imgKey:undefined,
+            bio:undefined,
+            blogs:[] as blogType[],
+            posts:[] as postType[],
+            accounts:[] as accountType[],
+            sessions:[] as sessionType[],
+            admin:false,
+        } as userType;
         this.bgColor=this._modSelector._bgColor;
         this.btnColor=this._modSelector.btnColor;
         this.logo=`gb_logo.png`;
@@ -48,10 +78,11 @@ class AuthService {
     set user(user:userType){
         this._user.user=user;
         this.__user=user;
+        if(!(user && user.id)) return
+        this.isSignedOut=false;
         this.storeLocal(user).then(async(res)=>{
             res(); //stores user_id && email to localStorage
         });
-        this.isSignedOut=false;
     }
     get user(){
         return this.__user;
@@ -73,36 +104,37 @@ class AuthService {
     }
 
 
-    async getUser(item:{session:Session|null,injector:HTMLElement,count:number}):Promise<{count:number|null}>{
-        const {session,injector,count}=item;
+    async getUser(item:{session:Session|null,injector:HTMLElement,user:userType|null,count:number}):Promise<{count:number}>{
+        const {session,injector,count,user}=item;
         //MAIN HEADER INJECTOR GOES THROUGH THIS
+        AuthService.headerInjector=injector;
         const email=session && session.user?.email ? session.user.email:null;
-        let user_={} as userType;
-        if(!email){
-            this._mainHeader.showRectDropDown({ parent: injector, user: null, count: count });
-            return {count:null}
+        this.user={} as userType;
+        if(user && count===0){
+            this.user=user;
+            this._user.status="authenticated";
+            this._mainFooter.status="authenticated";
+            this._mainHeader.status="authenticated";
+            this._service.isSignedOut=false;
+            const footerCenterBtns=document.querySelector("div#footer-centerBtns-container") as HTMLElement;
+            if(footerCenterBtns){
+                this._mainFooter.centerBtnsRow({container:footerCenterBtns});
+            };
+            this._mainHeader.showRectDropDown({ parent: injector, user: user, count: count });
+            return {count:count+1}
+            
         }else{
-            user_={...user_,email:email}
-            return this._service.getUsersignin({user:user_}).then(async(res)=>{
-                if(res && count===0){
-                    this.user=res;
-                    this._user.status=this._status;
-                    this._mainFooter.status=this._status;
-                    this._mainHeader.status=this._status;
-                    const footerCenterBtns=document.querySelector("div#footer-centerBtns-container") as HTMLElement;
-                    if(footerCenterBtns){
-                        this._mainFooter.centerBtnsRow({container:footerCenterBtns});
-                    };
-                    if(this.status==="authenticated"){
-                        this._service.isSignedOut=false;
-                    }
-                    this._mainHeader.showRectDropDown({ parent: injector, user: res, count: count });
-                    return {count:count+1}
-                }else{
-                    this._mainHeader.showRectDropDown({ parent: injector, user: null, count: count });
-                    return {count:null};
-                }
-            });
+            this.user=this.userInit;
+            this._user.status="authenticated";
+            this._mainFooter.status="authenticated";
+            this._mainHeader.status="authenticated";
+            this._service.isSignedOut=false;
+            localStorage.removeItem("user");
+            localStorage.removeItem("user_id");
+            localStorage.removeItem("userBlogs");
+            localStorage.removeItem("email");
+            this._mainHeader.showRectDropDown({ parent: injector, user: null, count: count });
+            return {count:count+1};
         }
 
     }
