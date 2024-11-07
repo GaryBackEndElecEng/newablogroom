@@ -287,7 +287,7 @@ class Nav{
         const container=document.createElement("div");
         const less900=window.innerWidth <900;
         const less400=window.innerWidth <400;
-        container.id="headerNav-user-signature";
+        container.id="headerNav-signInDisplay-container";
         container.className="user-signature";
         if(user && user.id){
             container.style.cssText="display:flex;justify-content:space-around;align-items:center;margin-inline:1rem;box-shadow:1px 1px 12px 1px white;padding-inline:0.5rem;border-radius:10px;color:white;background-color:#0a2351;overflow:hidden;position:relative;right:20px;justify-self:end;margin-right:10px;order:3;";
@@ -296,6 +296,7 @@ class Nav{
             container.style.transform=less900 ? (less400 ? "scale(0.6)":"scale(0.7)") :"scale(1)";
             container.style.maxWidth="300px;";
             const img=document.createElement("img");
+            img.id="para-img";
             img.style.cssText="width:55px;border-radius:50%;filter:drop-shadow(0 0 0.25 white);";
             if(user.imgKey){
                 const res3key:gets3ImgKey | null= await this._service.getSimpleImg(user.imgKey)
@@ -308,6 +309,7 @@ class Nav{
                 img.alt="www.ablogroom.com";
             }
             const para=document.createElement("p");
+            para.id="container-para";
             const name=user.name ? user.name : "blogger"
             para.innerHTML=Nav.splitWord({parent:para,str:name,splitCount:4});
             container.appendChild(img);
@@ -322,12 +324,13 @@ class Nav{
             container.style.right=less900 ? (less400 ? "-28px":"-10px") :"20px";
             container.style.transform=less900 ? (less400 ? "scale(0.6)":"scale(0.7)") :"scale(0.85)";
             const xDiv=document.createElement("span");
-            xDiv.id="signInDisplay-xDiv-login-icon";
+            xDiv.id="xDivCont-xDiv-login-icon";
             xDiv.style.cssText="padding:0.3rem;margin:auto;border-radius:50%;padding:2px;font-size:28px;";
             FaCreate({parent:xDiv,name:FaSign,cssStyle:{borderRadius:"50%",fontSize:"inherit;",color:"white",zIndex:"2"}});
             const xDivCont=document.createElement("div");
             xDivCont.style.cssText="place-self:center;display:flex;place-items:center;gap:0.36rem;";
             const spanText=document.createElement("span");
+            spanText.id="xDivCont-spanText";
             spanText.style.cssText="place-self:center;"
             spanText.textContent="login";
             xDivCont.appendChild(spanText);

@@ -35,25 +35,23 @@ class RegSignIn {
         getmainHeader.style.justifyContent="space-between";
         Header.cleanUpByID(getmainHeader,"container-signin-signin-popup");
         const section=document.createElement("section");
-        section.id="container-signin-signin-popup";
+        section.id="regSignin-signIn-section-popup";
         section.style.cssText="margin:auto;position:absolute;background-color:#10c0b68f;filter:drop-shadow(0 0 0.75rem crimson);border-radius:7px;padding:1rem;z-index:100;display:flex;flex-direction:column;align-items:center;gap:2rem;padding:1.5rem;z-index:20;backdrop-filter:blur(20px);";
-        section.style.top="150%";
-        // section.style.left=less900 ? (less400 ? (less380 ? "0%" :"1%"):"15%") :"25%";
-        // section.style.right=less900 ? (less400 ? (less380 ? "0%" :"1%"):"15%") :"25%";
-        section.style.inset=less900 ? (less400 ? (less380 ? "150% 0% -2210% 0%" :"150% 0% -2200% 0%"):"150% 15% -1295% 15%") :"150% 15% -905% 15%";
+        section.style.top=less900 ? (less400 ? "100%" :"150%") :"150%";
+        section.style.left=less900 ? (less400 ? "0%" :"15%") :"25%";
+        section.style.right=less900 ? (less400 ? "0%" :"15%") :"25%";
+        // section.style.inset=less900 ? (less400 ? (less380 ? "none" :"none"):"none") :"150% 15% -905% 15%";
         section.style.maxWidth=less900 ? (less400 ? (less380 ? "378px" :"400px"):"500px") :"600px";
         section.style.width="100%";
         getmainHeader.appendChild(section);
         Misc.growIn({anchor:section,scale:0,opacity:0,time:400});
-        // Misc.matchMedia({parent:section,maxWidth:900,cssStyle:{inset:"190% 10% 0% 10%"}});
-        // Misc.matchMedia({parent:section,maxWidth:400,cssStyle:{inset:"250% 2% 20% 2%"}});
         const url=window.location.pathname;
         const hasBlog=await this.hasStorage();
         if(hasBlog){
             const blog=this._modSelector.blog;
            await this._service.promsaveItems(blog).then(async(res)=>{
             if(res){
-                Misc.message({parent:section,msg:"your items are temporarily saved",type_:"success",time:600});
+                Misc.message({parent:section,msg:"your items are temporarily saved",type_:"success",time:1000});
             }
            });
         }
