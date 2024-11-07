@@ -4,10 +4,11 @@ import Index from "@/components/blog/Index";
 import type { ResolvingMetadata, Metadata } from "next";
 // import Meta from '@/components/meta/meta';
 import { PrismaClient } from "@prisma/client"
-import { blogType } from '@/components/editor/Types';
+import { blogType, userType } from '@/components/editor/Types';
+import { getErrorMessage } from '@/lib/errorBoundaries';
+import prisma from "@/prisma/prismaclient";
 
 
-const prisma = new PrismaClient();
 type Props = {
     params: { id: string },
     searchParams: { [key: string]: string | string[] | undefined },
@@ -21,11 +22,13 @@ export async function generateMetadata({ params, searchParams }: Props, parent: 
 
 export default async function page({ params }: { params: { id: string } }) {
     const id = Number(params.id as string);
+    const blog = await getBlog({ id }) ? await getBlog({ id }) : null;
+    const user = blog ? await getUser({ user_id: blog.user_id as string }) : null;
     const style: { [key: string]: string } = { minHeight: "100vh", height: "100%" };
 
     return (
         <div style={style} className="isLocal">
-            <Index id={id} />
+            <Index blog={blog} user={user} />
         </div>
     )
 
@@ -34,16 +37,15 @@ export default async function page({ params }: { params: { id: string } }) {
 export async function genMetadata(item: { id: number, parent: ResolvingMetadata }): Promise<Metadata> {
     const { id, parent } = item;
     const par = (await parent);
-    const blog = await prisma.blog.findUnique({
-        where: { id }
-    }) as blogType;
+    const blog = await getBlog({ id: id });
     const title = blog && blog.title ? blog.title as string : "Ablogroom blogs";
     const keywds = blog && blog.desc ? await genKeywords({ desc: blog.desc, title }) : [];
     const url = (par && par.metadataBase && par.metadataBase.origin) ? par.metadataBase.origin : "www.ablogroom.com";
-    const user = blog ? await prisma.user.findUnique({
-        where: { id: blog.user_id }
-    }) : null;
-    const authors = user ? [{ name: user.name as string, url }] : undefined
+    const user = blog ? await getUser({ user_id: blog.user_id as string }) : null;
+    const authors = user ? [{ name: user.name as string, url }] : undefined;
+    if (user && user.name) {
+        keywds.push(user.name)
+    };
     await prisma.$disconnect();
     return await retMetadata({ title, keywords: keywds, images: undefined, url, authors });
 
@@ -112,6 +114,75 @@ export async function genKeywords(item: { desc: string, title: string }): Promis
     });
     return new Promise(resolve => { resolve(words_) });
 }
+export async function getBlog(item: { id: number }): Promise<blogType | null> {
+    const { id } = item;
+    let blog: blogType | null = null;
+    try {
+        blog = await prisma.blog.findUnique({
+            where: { id: id },
+            include: {
+                selectors: {
+                    include: {
+                        colAttr: true,
+                        rows: {
+                            include: {
+                                cols: {
+                                    include: {
+                                        elements: true
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                messages: true,
+                elements: true,
+                codes: {
+                    include: {
+                        linecode: true
+                    }
+                },
+                pageCounts: true,
+                charts: true
+            }
+        }) as unknown as blogType;
+
+    } catch (error) {
+        const msg = getErrorMessage(error);
+        console.error(msg);
+    } finally {
+        await prisma.$disconnect();
+        return blog;
+    }
+}
+export async function getUser(item: { user_id: string }): Promise<userType | null> {
+    const { user_id } = item;
+    let user: userType | null = null;
+    try {
+        user = await prisma.user.findUnique({
+            where: { id: user_id },
+            select: {
+                id: true,
+                name: true,
+                email: true,
+                password: false,
+                image: true,
+                imgKey: true,
+                bio: true,
+                showinfo: true,
+                admin: true,
+                username: true
+            }
+        }) as unknown as userType;
+    } catch (error) {
+        const msg = getErrorMessage(error);
+        console.error(msg);
+
+    } finally {
+        await prisma.$disconnect();
+        return user;
+    }
+};
 
 
 

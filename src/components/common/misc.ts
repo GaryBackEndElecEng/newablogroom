@@ -1471,16 +1471,15 @@ class Misc{
     }
     static starRating(starRate:{parent:HTMLElement,rating:number,cssStyle:{[key:string]:string}}){
         const width=window.innerWidth <420 ? 22 :30;
-        const fontSize=window.innerWidth <420 ? 22 :30;
+        const less900=window.innerWidth <900;
+        const less400=window.innerWidth <400;
         const cssGen=(anchor:HTMLElement,cssStyle:{[key:string]:string})=>{
             for(const key of Object.keys(anchor.style)){
                 for(const [key1,value1] of Object.entries(cssStyle)){
-                    if(key===key1 && key !=="width" && key !=="fontSize" ){
+                    if(key===key1 && key !=="backgroundColor"){
                         anchor.style[key]=value1;
-                    }else if(key==="width"){
-                        anchor.style.width=`${width}px`;
-                    }else if(key==="fontSize"){
-                        anchor.style.width=`${fontSize}px`;
+                    }else if(key==="backgroundColor"){
+                        anchor.style.backgroundColor="black";
                     }
                 }
             }
@@ -1490,8 +1489,10 @@ class Misc{
         const container=document.createElement("div");
         container.style.cssText="display:flex;flex-direction:column;justify-content:center;align-items:center;gap:1rem;";
         const row=document.createElement("div");
-        row.style.cssText="display:inline-flex;flex-direction:row;align-items:center;gap:0.5rem;flex-wrap:nowrap;";
-        const cssStyle2={...cssStyle,width:`100%`,fontSize:`${fontSize-3}px`};
+        row.style.cssText="display:inline-flex;flex-direction:row;align-items:center;flex-wrap:nowrap;";
+        row.style.gap=less900 ?(less400 ? "0.25rem":"0.35rem"):"0.5rem";
+        const fontSize=less900 ?(less400 ? "14px":"16px"):"18px";
+        const cssStyle2={fontSize,color:"yellow",fill:"yellow"};
         Array.from(Array(5).keys()).map((num)=>{
             if(num +1  <= rating){
                 const faDiv=document.createElement("span");

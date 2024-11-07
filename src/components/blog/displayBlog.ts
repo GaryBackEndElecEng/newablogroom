@@ -7,7 +7,7 @@ import User from "@/components/user/userMain"
 import Misc, {  mediaQueryType} from "../common/misc";
 import Edit from "../editor/edit";
 import Service from "@/components/common/services";
-import {AWSImageLoader, btnReturnType, buttonReturn, imageLoader, smallbtnReturn } from '../common/tsFunctions';
+import { AWSImageLoader, btnReturnType, buttonReturn, imageLoader, smallbtnReturn } from '../common/tsFunctions';
 import Main from "../editor/main";
 import Message from "@/components/common/message";
 import { FaPython, FaHtml5} from "react-icons/fa";
@@ -144,160 +144,160 @@ _onlyMeta:boolean=false;
      //DATA PARSERS
 
      //MAIN INJECTION DONE @ Index.tsx//id=client_blog
-    async main(item:{parent:HTMLElement,blog:blogType}){
-        const {parent,blog}=item;
-        this._modSelector.loadSimpleBlog(blog);
-        await this.awaitBlog(blog);
-        this.blog=blog;
-        const paddingInline=window.innerWidth < 900 ? (window.innerWidth < 420 ? "0rem" : "0.5rem") :"1rem"
-        DisplayBlog.cleanUp(parent);//cleansup duplicates
-        const outerContainer=document.createElement("article");
-        outerContainer.id="display-main";
-        outerContainer.style.cssText="margin-inline:auto;margin-block:1rem;padding-block:auto;width:100%;position:relative;min-height:110vh;padding-block:2rem;";
-        outerContainer.style.paddingInline=paddingInline;
-        outerContainer.style.opacity="0";
-        parent.classList.add("container-fluid");
-        parent.classList.add("w-100");
-        parent.classList.add("mx-auto");
-        parent.classList.add("px-0");
-        parent.style.cssText="margin-inline:auto;border-radius:12px;position:relative;display:flex;flex-direction:column;padding-inline:1rem;align-items:center;justify-content:center;";
-        parent.style.maxWidth="75vw";
-        parent.style.backgroundColor="rgb(6 125 243 / 11%)";
-        
-        //-----------BTN CONTAINER FOR FINAL WORK-----------------//
-        const btnContainer=document.createElement("div");
-        btnContainer.id="btnContainer";
-        btnContainer.style.cssText="margin-inline:auto;";
-        
-        //-----------BTN CONTAINER FOR FINAL WORK-----------------//
-        
-        //-----------CONTAINER FOR FINAL WORK-----------------//
-        const container=document.createElement("section");
-        container.id="section-container";
-        container.className="section-container container"
-        container.style.cssText="margin-inline:auto;padding-block:1rem; height:100vh;overflow-y:scroll;position:relative;background-color:white;border-radius:11px;";
-        outerContainer.appendChild(container);
-        //-----------CONTAINER FOR FINAL WORK-----------------//
-        const btnGrp=document.createElement("div");
-        btnGrp.style.cssText="display:flex;flex-direction;justify-content:space-between;align-items:center;flex-wrap:wrap;"
-        btnGrp.className="btn-group btnGrp justify-content-around gap-2";
-        // BUTTON RETURN NAV OPTIONS
-            // Main.cleanUp(btnGrp);
-        
-            const btnBack=buttonReturn({parent:btnGrp,text:"back",bg:"#0C090A",color:"white",type:"button"})
-            btnBack.className=""
-            btnBack.addEventListener("click",(e:MouseEvent)=>{
-            if(e){
-                window.history.go(-1)
-            }
-            });
-            const btn=buttonReturn({parent:btnGrp,text:"main",bg:"#0C090A",color:"white",type:"button"})
-            btn.className=""
-            btn.addEventListener("click",(e:MouseEvent)=>{
-            if(e){
-                this.baseUrl=new URL(window.location.href);
-                const blogsUrl=new URL("/",this.baseUrl.origin);
-                window.location.href=blogsUrl.href;
-            }
-            });
-            const sendMsg=buttonReturn({parent:btnGrp,text:"sendMsg",bg:"#0C090A",color:"white",type:"button"})
-            sendMsg.className=""
-            sendMsg.addEventListener("click",(e:MouseEvent)=>{
-            if(e){
-                this._message.contact(parent,this.blog);
-            }
-            });
-            await this._user.getLocalUserID().then(async(user_id)=>{
-                //SHOWS EDIT BUTTON IF USER.ID===BLOG.USER_ID
-                if(user_id){
-
-                    if(user_id===blog.user_id){
-                        // console.log("blog",this._blog)//works
-                        const {button}=Misc.simpleButton({anchor:btnGrp,text:"edit your blog",bg:"#34282C",color:"white",type:"button",time:600});
-                        btn.className=""
-                        button.addEventListener("click",(e:MouseEvent)=>{
-                        if(e){
-                            this._service.promsaveItems(blog).then(async(blog:blogType)=>{
-                                if(blog){
-                                    localStorage.setItem("blog",JSON.stringify(blog));
-                                    localStorage.setItem("user_id",user_id);
-
-                                    setTimeout(()=>{
-                                        this.baseUrl=new URL(window.location.href);
-                                        const blogsUrl=new URL("/editor",this.baseUrl.origin);
-                                        window.location.href=blogsUrl.href;
-                                    },200);
-                                }
-                            });
-        
-                        }
-                        });
-                    }
+    async main(item:{parent:HTMLElement,blog:blogType|null,user:userType|null}){
+        const {parent,blog,user}=item;
+        if(blog && user){
+            const paddingInline=window.innerWidth < 900 ? (window.innerWidth < 420 ? "0rem" : "0.5rem") :"1rem"
+            DisplayBlog.cleanUp(parent);//cleansup duplicates
+            const outerContainer=document.createElement("article");
+            outerContainer.id="display-main";
+            outerContainer.style.cssText="margin-inline:auto;margin-block:1rem;padding-block:auto;width:100%;position:relative;min-height:110vh;padding-block:2rem;";
+            outerContainer.style.paddingInline=paddingInline;
+            outerContainer.style.opacity="0";
+            parent.classList.add("container-fluid");
+            parent.classList.add("w-100");
+            parent.classList.add("mx-auto");
+            parent.classList.add("px-0");
+            parent.style.cssText="margin-inline:auto;border-radius:12px;position:relative;display:flex;flex-direction:column;padding-inline:1rem;align-items:center;justify-content:center;";
+            parent.style.maxWidth="75vw";
+            parent.style.backgroundColor="rgb(6 125 243 / 11%)";
+            
+            //-----------BTN CONTAINER FOR FINAL WORK-----------------//
+            const btnContainer=document.createElement("div");
+            btnContainer.id="btnContainer";
+            btnContainer.style.cssText="margin-inline:auto;";
+            
+            //-----------BTN CONTAINER FOR FINAL WORK-----------------//
+            
+            //-----------CONTAINER FOR FINAL WORK-----------------//
+            const container=document.createElement("section");
+            container.id="section-container";
+            container.className="section-container container"
+            container.style.cssText="margin-inline:auto;padding-block:1rem; height:100vh;overflow-y:scroll;position:relative;background-color:white;border-radius:11px;";
+            outerContainer.appendChild(container);
+            //-----------CONTAINER FOR FINAL WORK-----------------//
+            const btnGrp=document.createElement("div");
+            btnGrp.style.cssText="display:flex;flex-direction;justify-content:space-between;align-items:center;flex-wrap:wrap;"
+            btnGrp.className="btn-group btnGrp justify-content-around gap-2";
+            // BUTTON RETURN NAV OPTIONS
+                // Main.cleanUp(btnGrp);
+            
+                const btnBack=buttonReturn({parent:btnGrp,text:"back",bg:"#0C090A",color:"white",type:"button"})
+                btnBack.className=""
+                btnBack.addEventListener("click",(e:MouseEvent)=>{
+                if(e){
+                    window.history.go(-1)
                 }
-               
-                
-            });
-        
-            const btn1=buttonReturn({parent:btnGrp,text:"editor",bg:"#0C090A",color:"white",type:"button"});
-            btn1.className=""
-            btn1.addEventListener("click",(e:MouseEvent)=>{
+                });
+                const btn=buttonReturn({parent:btnGrp,text:"main",bg:"#0C090A",color:"white",type:"button"})
+                btn.className=""
+                btn.addEventListener("click",(e:MouseEvent)=>{
                 if(e){
                     this.baseUrl=new URL(window.location.href);
-                    const blogsUrl=new URL("/editor",this.baseUrl.origin);
+                    const blogsUrl=new URL("/",this.baseUrl.origin);
                     window.location.href=blogsUrl.href;
                 }
                 });
-
-            btnContainer.appendChild(btnGrp);
-            setTimeout(()=>{
-                this.count++;
-                // console.log("btnGrp",btnGrp,"count",this.count)
-                Misc.growIn({anchor:btnGrp,scale:0,opacity:0,time:800});
-            },800);
+                const sendMsg=buttonReturn({parent:btnGrp,text:"sendMsg",bg:"#0C090A",color:"white",type:"button"})
+                sendMsg.className=""
+                sendMsg.addEventListener("click",(e:MouseEvent)=>{
+                if(e){
+                    this._message.contact(parent,blog);
+                }
+                });
+                await this._user.getLocalUserID().then(async(user_id)=>{
+                    //SHOWS EDIT BUTTON IF USER.ID===BLOG.USER_ID HAS SIGNED IN AND LOADS BLOG=>MODSELECTOR
+                    const isUser=this._user.user;
+                    if((user_id && user_id ===user.id) ||(isUser.id ===user.id)){
+                        this._modSelector.loadSimpleBlog(blog);//loading blog=>modSelector
+                        await this.awaitBlog(blog);//loading blog=>here
+                            // console.log("blog",this._blog)//works
+                            const {button}=Misc.simpleButton({anchor:btnGrp,text:"edit your blog",bg:"#34282C",color:"white",type:"button",time:600});
+                            btn.className=""
+                            button.addEventListener("click",(e:MouseEvent)=>{
+                            if(e){
+                                this._service.promsaveItems(blog).then(async(blog:blogType)=>{
+                                    if(blog){
+                                        localStorage.setItem("blog",JSON.stringify(blog));
+                                        localStorage.setItem("user_id",user.id);
+    
+                                        setTimeout(()=>{
+                                            this.baseUrl=new URL(window.location.href);
+                                            const blogsUrl=new URL("/editor",this.baseUrl.origin);
+                                            window.location.href=blogsUrl.href;
+                                        },200);
+                                    }
+                                });
             
-            //SHOWS PAGE
-            await this.saveFinalWork({outerContainer,innerContainer:container,blog}).then(async(res)=>{
-                if(res){
-
-                    //RATE SECTION !!!SHOWS RATINGGG
-                        this._message.getBlogMsgs(res.outerContainer,blog.id).then(async(res)=>{
-                            if(res && res.messages && res.container){
-                                this._message.contactCards(res.container,res.messages);
+                            }
+                            });
+                        
+                    }
+                   
+                    
+                });
+            
+                const btn1=buttonReturn({parent:btnGrp,text:"editor",bg:"#0C090A",color:"white",type:"button"});
+                btn1.className=""
+                btn1.addEventListener("click",(e:MouseEvent)=>{
+                    if(e){
+                        this.baseUrl=new URL(window.location.href);
+                        const blogsUrl=new URL("/editor",this.baseUrl.origin);
+                        window.location.href=blogsUrl.href;
+                    }
+                    });
+    
+                btnContainer.appendChild(btnGrp);
+                setTimeout(()=>{
+                    this.count++;
+                    // console.log("btnGrp",btnGrp,"count",this.count)
+                    Misc.growIn({anchor:btnGrp,scale:0,opacity:0,time:800});
+                },800);
+                
+                //SHOWS PAGE
+                await this.saveFinalWork({outerContainer,innerContainer:container,blog}).then(async(res)=>{
+                    if(res){
+    
+                        //RATE SECTION !!!SHOWS RATINGGG
+                            this._message.getBlogMsgs(res.outerContainer,blog.id).then(async(res)=>{
+                                if(res && res.messages && res.container){
+                                    this._message.contactCards(res.container,res.messages);
+                                }
+                            });
+                        //RATE SECTION
+                        this.getUserInfo({htmlUserInfo:res.outerContainer,user}).then(async(_res)=>{
+                            if(_res && _res.outerContainer){
+    
+                                //BTN CONTAINER
+                                _res.outerContainer.appendChild(btnContainer);
+                                //BTN CONTAINER
                             }
                         });
-                    //RATE SECTION
-                    this.getUserInfo({htmlUserInfo:res.outerContainer,blog}).then(async(_res)=>{
-                        if(_res && _res.outerContainer){
-
-                            //BTN CONTAINER
-                            _res.outerContainer.appendChild(btnContainer);
-                            //BTN CONTAINER
-                        }
-                    });
-                   
+                       
+                    }
+                });
+                //SHOWS PAGE
+                
+    
+                Misc.matchMedia({parent:outerContainer,maxWidth:920,cssStyle:{paddingInline:"1rem",maxWidth:"100%"}});
+                Misc.matchMedia({parent:parent,maxWidth:700,cssStyle:{maxWidth:"none",width:"100%"}});
+            Misc.matchMedia({parent:outerContainer,maxWidth:420,cssStyle:{paddingInline:"0px",maxWidth:"100%",width:"100%"}});
+            for(const key of Object.keys(parent.style)){
+                if(key==="maxWidth"){
+                    parent.style.maxWidth="100%";
                 }
-            });
-            //SHOWS PAGE
-            
-
-            Misc.matchMedia({parent:outerContainer,maxWidth:920,cssStyle:{paddingInline:"1rem",maxWidth:"100%"}});
-            Misc.matchMedia({parent:parent,maxWidth:700,cssStyle:{maxWidth:"none",width:"100%"}});
-        Misc.matchMedia({parent:outerContainer,maxWidth:420,cssStyle:{paddingInline:"0px",maxWidth:"100%",width:"100%"}});
-        for(const key of Object.keys(parent.style)){
-            if(key==="maxWidth"){
-                parent.style.maxWidth="100%";
             }
+            parent.appendChild(outerContainer);
+            //-----------INTRO EFFECT-----------////
+            setTimeout(()=>{
+                outerContainer.style.opacity="1";
+                outerContainer.animate([
+                    {opacity:"0"},
+                    {opacity:"1"},
+                ],{duration:700,iterations:1});
+            },0);
+            //-----------INTRO EFFECT-----------////
         }
-        parent.appendChild(outerContainer);
-        //-----------INTRO EFFECT-----------////
-        setTimeout(()=>{
-            outerContainer.style.opacity="1";
-            outerContainer.animate([
-                {opacity:"0"},
-                {opacity:"1"},
-            ],{duration:700,iterations:1});
-        },0);
-        //-----------INTRO EFFECT-----------////
      }
 
     async awaitBlog(blog:blogType):Promise<{blog:()=>blogType}>{
@@ -1065,24 +1065,33 @@ _onlyMeta:boolean=false;
         
     
     }
-   async getUserInfo(item:{htmlUserInfo:HTMLElement,blog:blogType}): Promise<{user:userType | null,outerContainer:HTMLElement}>{
-    const {htmlUserInfo,blog}=item;
+   async getUserInfo(item:{htmlUserInfo:HTMLElement,user:userType|null}): Promise<{user:userType | null,outerContainer:HTMLElement}>{
+    const {htmlUserInfo,user}=item;
     const less900=window.innerWidth <900;
     const less400=window.innerWidth <400;
     Header.cleanUpByID(htmlUserInfo,"user-container");
         htmlUserInfo.style.position="relative";
         const container=document.createElement("div");
-        container.id="user-container";
+        container.id="displayBlog-user-container";
         container.style.cssText="margin-inline:auto;margin-block:1.25rem;display:flex;align-items:center;justify-content:space-around;flex-warp:wrap;background-color:white;border-radius:11px;padding-block:1.5rem;padding-inline:1.25rem;box-shadow:1px 1px 12px 2px #10c7e9ab,-1px -1px 12px 1px #10c7e9ab;";
         container.style.width=less900 ? (less400 ? "100%" :"85%" ) : "67%";
         container.style.paddingInline=less900 ? (less400 ? "1rem" :"1.5rem" ) : "2rem";
-        if(!(blog && blog.user_id)) return {user:null,outerContainer:htmlUserInfo};
-        return this._service.getUserInfo(blog.user_id).then(async(user)=>{
-            if(user && user.showinfo){
+        if(!(user && user.id)) return {user:null,outerContainer:htmlUserInfo};
                 const img=document.createElement("img");
-                img.style.cssText="max-width:120px;border-radius:50%;aspect-ratio: 1 / 1;box-shadow:1px 1px 10px 1px black;float:left; ";
-                img.src=user.image ? user.image: imageLoader({src:this.logo2,quality:75,width:120});
-                img.alt=user.name ? user.name: "blogger";
+                const maximgwidth=120;
+                img.style.cssText=`max-width:${maximgwidth}px;border-radius:50%;aspect-ratio: 1 / 1;box-shadow:1px 1px 10px 1px black;float:left; `;
+                if(user.imgKey){
+                    this._service.getSimpleImg(user.imgKey).then(async(res_)=>{
+                        if(res_){
+                            console.log(res_.img)
+                            img.src=res_.img;
+                            img.alt=res_.Key;
+                        }
+                    });
+                }else{
+                    img.src=user.image ? user.image: imageLoader({src:this.logo2,quality:75,width:maximgwidth});
+                    img.alt=user.name ? user.name: "blogger";
+                }
                 Misc.blurIn({anchor:img,blur:"10px",time:600});
                 container.appendChild(img);
                 const innerContainer=document.createElement("div");
@@ -1113,10 +1122,8 @@ _onlyMeta:boolean=false;
               
                 htmlUserInfo.appendChild(container);
                 return {user,outerContainer:htmlUserInfo}
-            }else{
-                return {user:null,outerContainer:htmlUserInfo}
-            }
-        });
+            
+      
     }
     //PARENT MAIN: INJECTOR ON show button
     cleanAttributes(parent:HTMLElement,showOn:boolean){

@@ -137,6 +137,7 @@ export  function httpImageLoader(item:{ src:string, width:number, quality:number
     return url.href
   }
 export  function AWSImageLoader(item:{ url:string, width:number, quality:number }) {
+    //THIS DOES NOT WORK WITH SIGNED IMAGES!!!=> IT RETURS ONLY THE FILE NAME AND NOT THE HTTPS://URL REQUIRED, GIVEN A MANIPULATION OF THE URL;
     const {url,width,quality}=item;
     const url_ = new URL(url)
     url_.searchParams.set('format', 'auto')

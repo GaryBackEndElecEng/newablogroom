@@ -1,7 +1,7 @@
 "use client"
 import React from 'react'
 // import { useEditor } from '../context/editorContext';
-import { blogType } from '../editor/Types';
+import { blogType, userType } from '../editor/Types';
 import DisplayBlog from "@/components/blog/displayBlog";
 import ModSelector from "@/components/editor/modSelector";
 import Service from '../common/services';
@@ -17,56 +17,39 @@ import { useSession } from 'next-auth/react';
 
 // const url = process.env.BASE_URL as string;
 
-function Index({ id }: { id: number }) {
+function Index({ blog, user }: { blog: blogType | null, user: userType | null }) {
     const clientRef = React.useRef(null);
-    // const { data: session, status } = useSession();
-    let count: number = 0;
-    // const { blog_, setBlog_ } = useEditor();
+    const countRef = React.useRef(0);
+
 
 
 
     React.useEffect(() => {
-        if (count > 0) return;
-        if (typeof window !== "undefined" && clientRef.current && id) {
-            const url_id = `/api/blog/${id}`;
+        if (countRef.current > 0) return;
+        if (typeof window !== "undefined" && clientRef.current) {
             const _modSelector = new ModSelector();
-            const maxWidth = window.innerWidth < 900 ? "none" : "75%";
+            const maxWidth = window.innerWidth < 900 ? "100%" : "75%";
             const target = document.querySelector("section#client_blog") as HTMLElement;
             if (target) {
                 const _service = new Service(_modSelector);
-                const user = new User(_modSelector, _service);
-                const shapeOutside = new ShapeOutside(_modSelector, _service, user);
-                const code = new NewCode(_modSelector, _service, user);
-                const chart = new ChartJS(_modSelector, _service, user);
+                const _user = new User(_modSelector, _service);
+                const shapeOutside = new ShapeOutside(_modSelector, _service, _user);
+                const code = new NewCode(_modSelector, _service, _user);
+                const chart = new ChartJS(_modSelector, _service, _user);
                 if (target) {
                     target.style.maxWidth = "auto";
                     Misc.matchMedia({ parent: target, maxWidth: 420, cssStyle: { maxWidth: maxWidth, width: "100%", paddngInline: "0rem" } })
                 };
                 // GET BLOG
-                const option = {
-                    headers: {
-                        "Content-Type": "application/json",
-                    },
-                    method: "GET"
-                }
-
-                fetch(url_id, option).then(async (res) => {
-                    if (res && target && count === 0) {
-                        const body = await res.json() as blogType;
-                        // const message = new Message(_modSelector, _service, body);
-                        const message = new Message(_modSelector, _service, body);
-                        const displayBlog = new DisplayBlog(_modSelector, _service, user, shapeOutside, code, chart, message);
-                        displayBlog._onlyMeta = true;
-                        await displayBlog.main({ parent: target, blog: body });
-                        count++;
-                    } else if (count === 0) {
-                        DisplayBlog.noBlog({ parent: target })
-                    }
-                });
+                const message = new Message(_modSelector, _service, blog);
+                const displayBlog = new DisplayBlog(_modSelector, _service, _user, shapeOutside, code, chart, message);
+                displayBlog._onlyMeta = true;
+                displayBlog.main({ parent: target, blog: blog, user: user });
+                countRef.current++;
             }
         }
 
-    }, [count, id]);
+    }, [countRef, blog, user]);
 
 
     return (

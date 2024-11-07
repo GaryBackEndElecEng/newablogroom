@@ -1,12 +1,12 @@
 
 import Service from "../common/services";
 import ModSelector from "../editor/modSelector";
-import {blogType, imageType} from "@/components/editor/Types";
+import {blogType, imageType, messageType} from "@/components/editor/Types";
 import Misc from "../common/misc";
 import MainHeader from "../nav/mainHeader";
 import Blogs from "../blogs/blogsInjection";
 import Nav from "../nav/headerNav";
-import { buttonReturn, imageLoader } from "../common/tsFunctions";
+import { AWSImageLoader, buttonReturn, imageLoader } from "../common/tsFunctions";
 import HomeIntro from "./intro";
 import AllMsgs from './allMsgs';
 import Features from "./feature";
@@ -15,6 +15,7 @@ import { FaCrosshairs } from "react-icons/fa";
 import { FaCreate } from "../common/ReactIcons";
 import { IoArrowRedoSharp } from "react-icons/io5";
 import { img_keyType } from '../editor/Types';
+import { SiAnswer } from "react-icons/si";
 
 export type imageType2={
     id:number,
@@ -34,6 +35,7 @@ export type arrItemType={
 
 class Home{
     logo:string;
+    colors:string;
     bend1:string;
     count:number=0;
     bgColor:string;
@@ -71,6 +73,7 @@ class Home{
             
         ]
         this.logo="/images/gb_logo.png";
+        this.colors="/images/colors.png";
     }
 
     ////-----------------GETTERS//SETTERS------------------//
@@ -392,10 +395,37 @@ class Home{
     }
     async listBlogs(parent:HTMLElement): Promise<{blogs:blogType[] | undefined,container:HTMLElement}>{
         //MAXIMUM OF QTY=4 && RATING > 3
+        const less900=window.innerWidth <900;
+        const less400=window.innerWidth <400;
         parent.style.position="relative";
+        const css_col="margin-inline:auto;margin-block:2rem;display:flex;flex-direction:column;";
         const container=document.createElement("section");
-        container.id="showBlogs";
-        container.style.cssText="margin-inline:auto;margin-block:2rem;display:flex;flex-direction:column;gap:4rem;position:relative;width:100%";
+        container.id="home-listBlogs-showBlogs";
+        container.style.cssText=css_col + "gap:1rem;position:relative;width:100%";
+        const textCont=document.createElement("div");
+        textCont.id="container-textCont";
+        textCont.style.cssText=css_col + "gap:0.25rem;width:100%;margin-block:1rem;";
+        textCont.style.marginBlock=less900 ? (less400 ? "2rem":"1.25rem") : "1rem";
+        textCont.style.marginTop=less900 ? (less400 ? "1rem":"0.25rem") : "0rem";
+        const text=document.createElement("h6");
+        text.className="subTitleStyleThreeNoBorder";
+        text.id="textCont-text";
+        text.textContent= "top blogs";
+        text.style.cssText="margin:auto;text-transform:uppercase;font-family:'Poppins-Regular';";
+        text.style.fontSize=less900 ? (less400 ? "280%":"350%") : "360%";
+        const line1=document.createElement("div");
+        line1.className="lineStyleOne";
+        line1.id="textCont-line1";
+        line1.style.cssText="width:100%;line-height:20px;height:8px;margin:auto;border-radius:30%;";
+        const line2=document.createElement("div");
+        line2.className="lineStyleOne";
+        line2.id="textCont-line2";
+        const width=100/1.62;
+        line2.style.cssText=`width:${width}%;line-height:20px;height:5.5px;margin:auto;border-radius:30%;`;
+        textCont.appendChild(text);
+        textCont.appendChild(line1);
+        textCont.appendChild(line2);
+        container.appendChild(textCont);
         parent.appendChild(container);
         Misc.blurIn({anchor:container,blur:"20px",time:600});
         Misc.matchMedia({parent:container,maxWidth:900,cssStyle:{maxWidth:"900px",width:"100%"}});
@@ -421,12 +451,13 @@ class Home{
         const {parent,blog}=item;
         const less900=window.innerWidth <900;
         const less400=window.innerWidth <400;
+        const url=new URL(window.location.href);
         const css_col="margin-inline:auto;display:flex;flex-direction:column;place-items:center;";
         const css_row="margin-inline:auto;display:flex;flex-direction:row;flex-wrap:wrap;place-items:center;gap:0.5rem;width:100%;";
         const card=document.createElement("div");
         card.className="card";
         card.id=`home-blogCard-${blog.id}`;
-        card.style.cssText=css_col;
+        card.style.cssText=css_col + "position:relative;";
         card.style.paddingBlock=less900 ? (less400 ? "1rem" : "0.75rem"):"0.5rem";
         const cardTopHeight=less900 ? (less400 ? 75 : 110):150;
         //--------------STAR CONTAINER ---------------------//
@@ -494,16 +525,182 @@ class Home{
         msgCont.style.cssText=css_col + "padding-inline:0.25rem";
             
         // all messages--------///
-        this.allmsgs.blogMsgs({col:cardBottom,blog});
+        this.blogMsgs({col:cardBottom,blog});
         // all messages--------///
         ///////-------------msgsCONTAINER--------/////
         card.appendChild(cardBottom);
+        const {button}=Misc.simpleButton({anchor:card,type:"button",bg:Nav.btnColor,color:"white",time:400,text:"view detail"});
+        button.style.placeSelf="center";
+        button.style.margin="auto";
+        button.onclick=(e:MouseEvent)=>{
+            if(e){
+                const newUrl=new URL(`/blog/${blog.id}`,url.origin);
+                window.location.href=newUrl.href;
+            }
+        };
 
         //--------------CARD BOTTOM ---------------------//
 
 
         parent.appendChild(card);
     }
+    blogMsgs(item:{col:HTMLElement,blog:blogType}){
+        const {col,blog}=item;
+        const less900=window.innerWidth <900;
+        const less400=window.innerWidth <400;
+        const url=new URL(window.location.href);
+
+        const css_col="display:flex;flex-direction:column;align-items:center;justify-content:center;gap:1rem;";
+        const msgs=blog.messages ? blog.messages : [] as messageType[];
+        if(blog && msgs && msgs.length>0){
+            const contScroll=document.createElement("div");
+            contScroll.id="home-blogMsgs-contScroll";
+            contScroll.style.cssText=css_col + "height:15vh;overflow-y:scroll;padding:1rem;width:100%";
+            contScroll.style.marginBlock=less900 ? (less400 ? "3rem": "1rem") : "0.5rem";
+            contScroll.style.marginBlock=window.innerWidth <420 ? "0px":"auto";
+            contScroll.style.paddingInline=window.innerWidth < 900 ? (window.innerWidth<400 ? "1.25rem":"2.75rem"):"5.5rem";
+            col.appendChild(contScroll);
+            msgs.map(msg=>{
+                if(msg){
+                    
+                    this.singleMsgTwo({col:col,contScroll:contScroll,msg,imgKey:blog.imgKey})
+                }
+            });
+        }
+    }
+    singleMsgTwo(item:{col:HTMLElement,contScroll:HTMLElement,msg:messageType,imgKey:string|undefined}){
+        const {col,contScroll,msg,imgKey}=item;
+        const less900=window.innerWidth <900 ? true:false;
+        const less600=window.innerWidth <600 ? true:false;
+        const less400=window.innerWidth <400 ? true:false;
+        const less375=window.innerWidth <375 ? true:false;
+        const css_col="display:flex;flex-direction:column;align-items:center;justify-content:center;";
+        const css_row="display:flex;flex-direction:row;align-items:center;justify-content:center;gap:1rem;flex-wrap:wrap;";
+        Header.cleanUpByID(contScroll,`allMsgs-singleMsgTwo-msg-card-${msg.id}`);
+        const card=document.createElement("div");
+        card.id=`home-singleMsgTwo-msg-card-${msg.id}`;
+        card.className="msgCard row";
+        card.style.cssText=css_row +`width:100%;box-shadow:1px 1px 5px 1px #00BFFF,-1px -1px 5px 1px #00BFFF;cursor:pointer;`;
+            //ICONDIV && NAME
+            const nameCont=document.createElement("span");
+            nameCont.style.cssText=css_row + "flex-wrap:nowrap;";
+            nameCont.id="card-nameCont";
+            nameCont.classList.add("viewCard");
+            nameCont.setAttribute("data-link","click to view comment");
+            const name=document.createElement("p");
+            name.id="card-nameCont-name";
+            name.style.cssText="margin-right:0.5rem;margin-block:0.5rem;";
+            name.textContent=msg.name;
+        const iconDiv=document.createElement("span");
+        iconDiv.id="card-nameCont-iconDiv";
+        iconDiv.style.cssText=css_col + "font-size:40px;width:45px;height:45px;padding:3px;"
+        FaCreate({parent:iconDiv,name:SiAnswer,cssStyle:{marginRight:"10px",background:"white",color:"#00BFFF",zIndex:"1"}});
+        //APPENDING ICONDIV && NAME
+        nameCont.appendChild(iconDiv);
+        nameCont.appendChild(name);
+        card.appendChild(nameCont);
+        //APPENDING ICONDIV && NAME
+        //STARS AND RATING
+        const rating=document.createElement("p");
+        rating.id="contStar-rating";
+        rating.style.cssText="position:absolute;top:0%;margin-right:0.5rem;text-decoration:underline;text-underline-offset:0.25rem;width:40px;font-size:70%;";
+        rating.style.top=less900 ?(less600 ? "0%":"0%"):"10%"
+        rating.style.left=less900 ? (less600 ? (less400 ? "65%":"10%"):"10%"):"88%";
+        rating.style.fontSize=less900 ? (less600 ? (less400 ? "90&":"100%"):"100%"):"110%";
+        rating.style.transform=window.innerWidth <900 ? (window.innerWidth <400 ? "translate(-30px,0px)" : "translate(-40px,5px)") : "translate(20px,-5px)";
+       
+        rating.innerHTML=`<span style=color:red;font-size:80%;>R</span> : ${msg.rate}`;
+
+        const contStar=document.createElement("span");
+        contStar.id="nameCont-contStar";
+        contStar.style.cssText=css_row;
+        contStar.appendChild(rating);
+        Misc.starRating({parent:contStar,rating:msg.rate,cssStyle:{color:"yellow",padding:"1px",borderRadius:"50%","marginInline":"0px"}});
+        //APPENDING rating and contStar
+        //APPENDING rating and contStar
+        nameCont.appendChild(contStar);
+        contScroll.appendChild(card);
+        card.addEventListener("click",(e:MouseEvent)=>{
+            if(e){
+                this.viewCard({parent:col,msg,imgKey});
+            }
+        });
+       
+    }
+   async viewCard(item:{parent:HTMLElement,msg:messageType,imgKey:string|undefined}){
+        const {parent,msg,imgKey}=item;
+        parent.style.position="relative";
+        const url=new URL(window.location.href);
+        const less900=window.innerWidth <900 ? true:false;
+        const less600=window.innerWidth <600 ? true:false;
+        const less400=window.innerWidth <400 ? true:false;
+        const less375=window.innerWidth <375 ? true:false;
+        if(less900){
+            window.scrollBy(0,-80)
+        }else if(less400){
+            window.scrollBy(0,-100)
+        }
+        const container=document.createElement("div");
+        container.id="home-viewCard-container";
+        container.style.cssText ="max-width:800px;padding-inline:1rem;display:flex;flex-direction:column;place-items:center;position:absolute;border-radius:14px;box-shadow:1px 1px 10px 1px #0CAFFF,-1px -1px 10px 1px #0CAFFF;z-index:100;background-color:white;padding-block:1rem;";
+        container.style.inset=less900 ? (less400 ? "-133% 0% 85% 0%" : "-135% 5% 80% 5%") :"-130% 10% 80% 10%";
+        parent.appendChild(container);
+        const card=document.createElement("div");
+        card.id="home-viewCard-card"
+        card.style.cssText ="padding-inline:1rem;display:flex;justify-content:space-around;flex-wrap:nowrap;align-items:flex-start;position:relative;background-color:white;width:100%;padding-block:1rem;";
+        container.appendChild(card);
+        const width=less900 ? (less600 ? (less400 ? 50 : 60) :80) : 100;
+        const img=document.createElement("img");
+        img.id="viewCard-card-img";
+        if(imgKey){
+            this._service.getSimpleImg(imgKey).then(async(res)=>{
+                if(res){
+                    img.src=AWSImageLoader({url:res.img,width,quality:70});
+                    img.alt="www.ablogroom.ca";
+                }
+            });
+        }else{
+            img.src=imageLoader({src:this.colors,width,quality:75});
+            img.alt="www.ablogroom.ca";
+        }
+        
+        img.style.cssText=`width:${width}px;height:50px;aspect-ratio:1 / 1;border-radius:50%;filter:drop-shadow(0 0 0.5rem #0CAFFF);background-color:black;`;
+        card.appendChild(img);
+        const cardBody=document.createElement("div");
+        cardBody.id="card-cardBody";
+        cardBody.style.cssText="width:100%; margin-inline:auto;padding:0.5rem;display:flex;flex-direction:column;align-items:flex-start;max-height:15vh;overflow-y:scroll;position:relative;";
+        card.appendChild(cardBody);
+        const name=document.createElement("span");
+        name.id="cardBody-name";
+        name.style.cssText="display:flex;flex-wrap:wrap;";
+        const rate=document.createElement("div");
+       rate.style.cssText="margin-inline:auto;"
+        rate.id="cardBody-rate";
+        Misc.starRating({parent:rate,rating:msg.rate,cssStyle:{width:"100%",padding:"1px",color:"yellow",backgroundColor:"black",borderRadius:"50%"}});
+        name.innerHTML=`<span id="view-cardBody-name" style="display:flex;"><span style="color:black;font-weight:bold;">name: </span> <h6 style="font-size:18px;color:blue;margin-right:0.5rem;"> ${msg.name}</h6></span>`;
+        cardBody.appendChild(rate);
+        cardBody.appendChild(name);
+        const mess=document.createElement("p");
+        mess.id="cardBody-mess";
+        mess.style.cssText="padding:0.7rem;border:1px solid #0CAFFF;border-radius:7px;width:100%; ";
+        mess.textContent=msg.msg;
+        cardBody.appendChild(mess);
+        Misc.fadeIn({anchor:container,xpos:70,ypos:100,time:400});
+        Misc.matchMedia({parent:rate,maxWidth:500,cssStyle:{width:"8px;"}});
+        
+        const btn=buttonReturn({parent:container,bg:"black",color:"white",text:"close",type:"button"});
+        btn.id="viewCard-container-btn";
+        btn.addEventListener("click",(e:MouseEvent)=>{
+            if(e){
+                Misc.fadeOut({anchor:container,xpos:30,ypos:100,time:400});
+                setTimeout(()=>{
+                    parent.removeChild(container);
+                },380);
+            }
+        });
+
+    }
+
     signoutFromEditor(){
         const url=new URL(window.location.href);
         const isSignout=url.searchParams.get("signout");

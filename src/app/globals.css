@@ -1236,6 +1236,12 @@ p.post-title {
   box-shadow: 1px 1px 12px 1px white;
   margin-block: 0.25rem;
 }
+.subTitleStyleThreeNoBorder {
+  background: linear-gradient(to bottom, white, #06e9f7);
+  background-clip: text;
+  -webkit-background-clip: text;
+  color: transparent;
+}
 @media screen and (max-width: 500px) {
   .columns-2,
   .columns-3,
