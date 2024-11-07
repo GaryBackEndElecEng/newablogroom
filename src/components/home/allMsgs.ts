@@ -52,17 +52,23 @@ class AllMsgs{
     // for individual Card
     blogMsgs(item:{col:HTMLElement,blog:blogType}){
         const {col,blog}=item;
+        const less900=window.innerWidth <900;
+        const less400=window.innerWidth <400;
+        const url=new URL(window.location.href);
+
         const css_col="display:flex;flex-direction:column;align-items:center;justify-content:center;gap:1rem;";
         const msgs=blog.messages ? blog.messages : [] as messageType[];
         if(blog && msgs && msgs.length>0){
             const contScroll=document.createElement("div");
             contScroll.id="allMsgs-blogMsgs-contScroll";
             contScroll.style.cssText=css_col + "height:15vh;overflow-y:scroll;padding:1rem;width:100%";
+            contScroll.style.marginBlock=less900 ? (less400 ? "3rem": "1rem") : "0.5rem";
             contScroll.style.marginBlock=window.innerWidth <420 ? "0px":"auto";
             contScroll.style.paddingInline=window.innerWidth < 900 ? (window.innerWidth<400 ? "1.25rem":"2.75rem"):"5.5rem";
             col.appendChild(contScroll);
             msgs.map(msg=>{
                 if(msg){
+                    
                     this.singleMsgTwo({col:col,contScroll:contScroll,msg,imgKey:blog.imgKey})
                 }
             });
@@ -195,6 +201,7 @@ class AllMsgs{
     }
    async viewCard(item:{parent:HTMLElement,msg:messageType,imgKey:string|undefined}){
         const {parent,msg,imgKey}=item;
+        const url=new URL(window.location.href);
         const less900=window.innerWidth <900 ? true:false;
         const less400=window.innerWidth <400 ? true:false;
         const less375=window.innerWidth <375 ? true:false;
@@ -206,7 +213,12 @@ class AllMsgs{
         const container=document.createElement("div");
         container.id="allMsgs-viewCard-container";
         container.style.cssText ="max-width:800px;padding-inline:1rem;display:flex;flex-direction:column;place-items:center;position:absolute;border-radius:14px;box-shadow:1px 1px 10px 1px #0CAFFF,-1px -1px 10px 1px #0CAFFF;z-index:100;background-color:white;padding-block:1rem;";
-        container.style.inset=less900 ? (less400 ? "30% 0% 38% 0%" : "30% 10% 45% 10%") :"30% 10% 30% 10%"
+        if( url.pathname==="/"){
+            container.style.inset=less900 ? (less400 ? "30% 0% 38% 0%" : "-95% 5% 40% 5%") :"0% 10% 30% 10%";
+        }else{
+            container.style.inset=less900 ? (less400 ? "30% 0% 38% 0%" : "30% 10% 45% 10%") :"30% 10% 30% 10%";
+
+        }
         parent.appendChild(container);
         const card=document.createElement("div");
         card.id="allMsgs-viewCard-card"

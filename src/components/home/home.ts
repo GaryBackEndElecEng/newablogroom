@@ -14,6 +14,7 @@ import Header from "../editor/header";
 import { FaCrosshairs } from "react-icons/fa";
 import { FaCreate } from "../common/ReactIcons";
 import { IoArrowRedoSharp } from "react-icons/io5";
+import { img_keyType } from '../editor/Types';
 
 export type imageType2={
     id:number,
@@ -84,10 +85,17 @@ class Home{
     async main(parent:HTMLElement){
         const css_col="display:flex;flex-direction:column;align-items:center;gap:1.5rem;width:100%";
         parent.style.cssText=css_col;
+        Header.cleanUp(parent);
         Misc.matchMedia({parent,maxWidth:900,cssStyle:{paddingInline:"5px",paddingBlock:"1rem",margin:"0.25rem"}});
         Misc.matchMedia({parent,maxWidth:600,cssStyle:{paddingInline:"0px",paddingBlock:"1rem",margin:"0px"}});
         parent.style.paddingInline=window.innerWidth < 900 ? "0px" :"0rem";
         parent.style.marginInline=window.innerWidth < 900 ? "0px" :"auto";
+        const show=true;
+        await this.introTitleDisplay({parent,show,time:500}).then(async(container)=>{
+            if(container){
+                await this.sleep({time:1200});
+            }
+            });
         await this.asyncMain({parent}).then(async(res)=>{
             if(res){
                 this.images=this.getImages;
@@ -102,7 +110,6 @@ class Home{
                 const arrReveal:{html:HTMLElement}[]=[
                     {html:res.sectionOne},
                     {html:openFeatures},
-                    {html:res.titleShowDisplay},
                     {html:res.showBlogs},
 
                 ]
@@ -133,25 +140,32 @@ class Home{
                     }
                 };
                 const show=true;
-                this.introTitleDisplay({parent:res.titleShowDisplay,show,time:1200});
-                this.normalCreateYourBlog(res.sectionOne);//SCROLL DISPLAY
-                this.editorAttributeDisplay(res.sectionOne);
-                //Main editor/Blogs links
-                this.mainLinks(res.sectionOne);
-                    // show attributes
-                    ///-----------display Blogs-------////
-                        await this.listBlogs(res.showBlogs).then(async(_res)=>{
-                        if(_res && _res.blogs && _res.blogs.length>0){
-                            this._blogs.showBlogs(_res.container,true,_res.blogs);
-                            
-                        }
-                    });
+                
+                        this.normalCreateYourBlog(res.sectionOne);//SCROLL DISPLAY
+                        this.editorAttributeDisplay(res.sectionOne);
+                        //Main editor/Blogs links
+                        this.mainLinks(res.sectionOne);
+                            // show attributes
+                            ///-----------display Blogs-------////
+                                await this.listBlogs(res.showBlogs).then(async(_res)=>{
+                                if(_res && _res.blogs && _res.blogs.length>0){
+                                    _res.blogs.map(async(blog)=>{
+                                        if(blog){
+                                            this.blogCard({parent:_res.container,blog})
+                                        }
+                                    });
+                                    // this._blogs.showBlogs(_res.container,true,_res.blogs);
+                                    
+                                }
+                            });
+                        
+                
                 }
         });
     
     };
 
-    async asyncMain(item:{parent:HTMLElement}): Promise<{showBlogs:HTMLElement,titleShowDisplay:HTMLElement,sectionOne:HTMLElement}|undefined>{
+    async asyncMain(item:{parent:HTMLElement}): Promise<{showBlogs:HTMLElement,sectionOne:HTMLElement}|undefined>{
         const less900=window.innerWidth < 900;
         const less600=window.innerWidth < 600;
         const less400=window.innerWidth < 400;
@@ -162,18 +176,14 @@ class Home{
         if(!parent)return;
         window.scroll(0,0);
         Home.injector=parent;
-        Home.cleanUp(parent);
-
-        
-
         const showBlogs=document.createElement("div");
         showBlogs.id="asyncmain-showBlogs";
         showBlogs.style.cssText=css_col + "max-width:1000px;";
         
-        const titleShowDisplay=document.createElement("div");
-        titleShowDisplay.id="asyncmain-titleShowDisplay";
-        titleShowDisplay.style.cssText=css_col ;
-        titleShowDisplay.style.width=less900 ? "100%":"80%";
+        // const titleShowDisplay=document.createElement("div");
+        // titleShowDisplay.id="asyncmain-titleShowDisplay";
+        // titleShowDisplay.style.cssText=css_col ;
+        // titleShowDisplay.style.width=less900 ? "100%":"80%";
 
         const messageDisplay=document.createElement("div");
         messageDisplay.id="messageDisplay";
@@ -196,7 +206,6 @@ class Home{
         sectionOne.style.backgroundPosition=`50% 50%`;
         sectionOne.style.backgroundColor=`aliceblue`;
         sectionOne.appendChild(messageDisplay);
-        parent.appendChild(titleShowDisplay);
         sectionOne.appendChild(showmsgs);
         sectionOne.appendChild(btnContainer);
         parent.appendChild(sectionOne);
@@ -206,8 +215,14 @@ class Home{
         Misc.matchMedia({parent,maxWidth:900,cssStyle:{width:"100%",paddingInline:"5px",paddingBlock:"1rem",marginInline:"2px",maxWidth:"auto"}});
         Misc.matchMedia({parent,maxWidth:600,cssStyle:{width:"100%",paddingInline:"0px",marginInline:"0px"}});
         return new Promise(resolve=>{
-            resolve({showBlogs,titleShowDisplay,sectionOne})
-        }) as Promise<{showBlogs:HTMLElement,titleShowDisplay:HTMLElement,sectionOne:HTMLElement}>;
+            resolve({showBlogs,sectionOne})
+        }) as Promise<{showBlogs:HTMLElement,sectionOne:HTMLElement}>;
+    }
+    sleep(item:{time:number}){
+        const {time}=item;
+        return new Promise((resolve)=>{
+            setTimeout(resolve,time)
+        });
     }
 
   
@@ -402,6 +417,93 @@ class Home{
 
         
     }
+    async blogCard(item:{parent:HTMLElement,blog:blogType}){
+        const {parent,blog}=item;
+        const less900=window.innerWidth <900;
+        const less400=window.innerWidth <400;
+        const css_col="margin-inline:auto;display:flex;flex-direction:column;place-items:center;";
+        const css_row="margin-inline:auto;display:flex;flex-direction:row;flex-wrap:wrap;place-items:center;gap:0.5rem;width:100%;";
+        const card=document.createElement("div");
+        card.className="card";
+        card.id=`home-blogCard-${blog.id}`;
+        card.style.cssText=css_col;
+        card.style.paddingBlock=less900 ? (less400 ? "1rem" : "0.75rem"):"0.5rem";
+        const cardTopHeight=less900 ? (less400 ? 75 : 110):150;
+        //--------------STAR CONTAINER ---------------------//
+        this._blogs.thumbsUpStartRating({parent:card,rating:blog.rating,minRating:3});
+        //--------------STAR CONTAINER ---------------------//
+        //--------------CARD TOP ---------------------//
+        //--------------CARD TOP ---------------------//
+        
+        const cardTop=document.createElement("div");
+        cardTop.id=`home-blogCard-cardTop`;
+        cardTop.style.cssText=css_row + `height:${cardTopHeight}px;margin-block:1rem;`;
+        //-----------------------IMG--------------------//
+        const img=document.createElement("img");
+        img.id=`cardTop-img-${blog.id}`;
+        img.style.cssText=`border-radius:50%;height:${cardTopHeight}px;aspect-ratio:1 / 1;filter:drop-shadow(0 0 0.75rem black);padding:0px;`;
+        if(blog.imgKey){
+            this._service.getSimpleImg(blog.imgKey).then(async(res_)=>{
+                if(res_){
+                    img.src=res_.img;
+                    img.alt=res_.Key;
+                }
+            });
+        }else{
+            img.src=imageLoader({src:this.logo,width:cardTopHeight,quality:75});
+            img.alt="www.ablogroom.com"
+        }
+        cardTop.appendChild(img);
+        //-----------------------IMG--------------------//
+        //-----------------------DESC--------------------//
+        const descContainer=document.createElement("div");
+        descContainer.id=`cardTop-descContainer-${blog.id}`;
+        descContainer.style.cssText=css_col + `height:${cardTopHeight}px;overflow-y:scroll;background-color:black;color:white;font-family:'Poppins-Regular';padding-inline:0.25rem;margin-block:auto;width:50%;border-radius:12px;box-shadow:1px 1px 12px 1px black;`;
+        descContainer.style.width=less900 ? (less400 ? "100%":"50%") : "50%";
+        const desc=document.createElement("p");
+        desc.id=`descContainer-desc-${blog.id}`;
+        desc.style.cssText="text-wrap:pretty;";
+        desc.textContent=blog.desc ? blog.desc :"missing content";
+        descContainer.appendChild(desc);
+        //-----smallCont----------///
+        const small=document.createElement("small");
+        small.id="cardBottom-small-" + `${blog.id}`;
+        const date=document.createElement("span");
+        date.id="cardBottom-date-" + `${blog.id}`;
+        date.textContent= blog.date ? Blogs.tolocalstring(blog.date):"no date";
+        small.textContent=blog.username ? blog.username : " blogger";
+        const smallCont=document.createElement("div");
+        smallCont.id="cardBottom-smallCont-" + `${blog.id}`;
+        smallCont.style.cssText="display:flex;flex-wrap:wrap;align-items:center;gap:0rem;font-size:12px;";
+        smallCont.style.paddingInline=less900 ?(less400 ? "1rem":"1.5rem") :"3rem";
+        smallCont.appendChild(date);
+        smallCont.appendChild(small);
+        descContainer.appendChild(smallCont);
+        cardTop.appendChild(descContainer);
+        //---------smallCont-----//
+        //-----------------------DESC--------------------//
+        card.appendChild(cardTop);
+        //--------------CARD TOP ---------------------//
+        //--------------CARD BOTTOM ---------------------//
+        const cardBottom=document.createElement("div");
+        cardBottom.id=`home-blogCard-cardBottom`;
+        cardBottom.style.cssText=css_col + "width:100%;position:relative;";
+        cardBottom.style.paddingTop=less900 ? (less400 ? "4rem":"1rem"):"0.5rem";
+        ///////-------------msgsCONTAINER--------/////
+        const msgCont=document.createElement("div");
+        msgCont.style.cssText=css_col + "padding-inline:0.25rem";
+            
+        // all messages--------///
+        this.allmsgs.blogMsgs({col:cardBottom,blog});
+        // all messages--------///
+        ///////-------------msgsCONTAINER--------/////
+        card.appendChild(cardBottom);
+
+        //--------------CARD BOTTOM ---------------------//
+
+
+        parent.appendChild(card);
+    }
     signoutFromEditor(){
         const url=new URL(window.location.href);
         const isSignout=url.searchParams.get("signout");
@@ -496,7 +598,7 @@ class Home{
 
     }
 
-    introTitleDisplay(item:{parent:HTMLElement,show:boolean,time:number}){
+    introTitleDisplay(item:{parent:HTMLElement,show:boolean,time:number}):Promise<HTMLElement>{
         const {parent,show,time}=item;
         const bgColor= show ? "#0b0a0a7a":"transparent";
         parent.style.backgroundColor=bgColor;
@@ -507,7 +609,7 @@ class Home{
         container.id="home-introTitleDisplay-container";
         container.style.cssText="margin-inline:auto;width:100%;height:auto;display:flex;flex-direction:column;place-items:center";
         container.style.opacity=bgColor;
-        container.style.paddingInline=less900 ? (less600 ? (less400 ? "0.5rem":"1rem") :"1.75rem"): "2rem";
+        container.style.paddingInline=less900 ? (less600 ? (less400 ? "0rem":"1.5rem") :"1.75rem"): "6rem";
         container.style.gap="0px";
         //----------------titleOneLineCont-------------------------//
         const lineHeight=this.titleOneLine({parent:container,text:"blog",show:show,time:time,less900,less600,less400});
@@ -525,7 +627,9 @@ class Home{
         this.subTitle({parent:container,text:" the best blog editor in canada",show:show,time:(time*1.62)*1.62*1.62,less900,less600,less400});
         //----------------subTitle-------------------------//
         parent.appendChild(container);
-        
+        return new Promise((resolver=>{
+            resolver(parent)
+        })) as Promise<HTMLElement>;
     }
     titleOneLine(item:{parent:HTMLElement,text:string,show:boolean,time:number,less900:boolean,less600:boolean,less400:boolean}):number{
         const {parent,show,time,text,less900,less600,less400}=item;
@@ -603,8 +707,8 @@ class Home{
         titleThree.id="container-titleThree";
         titleThree.style.cssText="margin-inline:auto;text-transform:uppercase;";
         titleThree.textContent=text;
-        titleThree.style.fontSize=less900 ? (less600 ? (less400 ? "70px":"80px"): "100px") : "120px";
-        titleThree.style.lineHeight=less900 ? (less600 ? (less400 ? "1.25rem":"1.75rem"): "4.95rem") : "5.15rem";
+        titleThree.style.fontSize=less900 ? (less600 ? (less400 ? "85px":"95px"): "120px") : "150px";
+        titleThree.style.lineHeight=less900 ? (less600 ? (less400 ? "2.25rem":"3rem"): "4.25rem") : "6.15rem";
         titleThree.style.opacity=opacity;
         titleThree.className="titleStyleTwo";
         if(show){

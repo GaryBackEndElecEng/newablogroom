@@ -101,8 +101,10 @@ class Features{
     }
     card(item:{parent:HTMLElement,feature:featureType}){
         const {parent,feature}=item;
+        const less900=window.innerWidth < 900;
+        const less400=window.innerWidth < 400;
         const direction=window.innerWidth <500 ? "column":"row";
-        const paddingInline=window.innerWidth <900 ? "0px" :"1rem";
+        const paddingInline=window.innerWidth <900 ? "0.5rem" :"1rem";
         const css=`margin-inline:auto;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:1rem;padding-inline:${paddingInline};`;
         const css_flex=`margin-inline:auto;display:flex;flex-direction:${direction};align-items:center;justify-content:center;gap:1rem;padding-inline:${paddingInline};`;
         const flex="margin-inline:auto;width:100%;display:flex !important;align-items:center;gap:2rem;padding-inline:1rem;flex-wrap:nowrap;";
@@ -128,6 +130,7 @@ class Features{
         cardBody.style.cssText=css + "max-width:600px;font-family:'Poppins-Regular';";
         const summary=document.createElement("p");
         summary.style.cssText="padding:1rem;border-radius:12px;margin:auto;text-wrap:pretty;";
+        summary.style.paddingInline=less900 ? (less400 ? "0.5rem" : "0.75rem") : "1rem";
         summary.textContent=feature.summary;
         const descContainer=document.createElement("div");
         descContainer.style.cssText=css;

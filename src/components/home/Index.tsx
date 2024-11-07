@@ -18,7 +18,6 @@ import { Session } from 'next-auth';
 
 
 export default function Index() {
-    const { data: session, status } = useSession()
     const refCheck = React.useRef(null);
     React.useEffect(() => {
         if (typeof window !== "undefined" && refCheck.current) {
@@ -37,7 +36,7 @@ export default function Index() {
             _home.main(home as HTMLElement);
         }
 
-    }, [session]);
+    }, []);
     return (
         <div className={styles.homeIndex}>
             <section ref={refCheck} id="home-index"></section>
