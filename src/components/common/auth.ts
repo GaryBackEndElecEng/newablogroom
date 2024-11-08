@@ -37,7 +37,7 @@ class AuthService {
     } as userType;
     _status:"authenticated" | "loading" | "unauthenticated";
 
-    constructor(private _modSelector:ModSelector,private _service:Service,private _user:User,private _mainHeader: MainHeader,private _mainFooter:MainFooter,private session:Session |null,public status_ :"authenticated" | "loading" | "unauthenticated"){
+    constructor(private _modSelector:ModSelector,private _service:Service,private _user:User,private _mainHeader: MainHeader,private _mainFooter:MainFooter){
         this.__user={
             id:"",
             email:"",
@@ -61,7 +61,6 @@ class AuthService {
         this.adminEmail= "" as string;
         this.usersignin="/api/usersignin";
         this.isSignedOut=false;
-        this.status=status_;
     }
     ///-------------------GETTER SETTERS-------------------------//
     get status(){
@@ -104,35 +103,39 @@ class AuthService {
     }
 
 
-    async getUser(item:{session:Session|null,injector:HTMLElement,user:userType|null,count:number}):Promise<{count:number}>{
-        const {session,injector,count,user}=item;
+    async getUser(item:{injector:HTMLElement,user:userType|null,count:number}):Promise<{count:number}>{
+        const {injector,count,user}=item;
         //MAIN HEADER INJECTOR GOES THROUGH THIS
         AuthService.headerInjector=injector;
-        const email=session && session.user?.email ? session.user.email:null;
+        const footerCenterBtns=document.querySelector("div#footer-centerBtns-container") as HTMLElement;
         this.user={} as userType;
         if(user && count===0){
             this.user=user;
             this._user.status="authenticated";
             this._mainFooter.status="authenticated";
             this._mainHeader.status="authenticated";
+            this.status="authenticated";
             this._service.isSignedOut=false;
-            const footerCenterBtns=document.querySelector("div#footer-centerBtns-container") as HTMLElement;
             if(footerCenterBtns){
-                this._mainFooter.centerBtnsRow({container:footerCenterBtns});
+                this._mainFooter.centerBtnsRow({container:footerCenterBtns,status:"authenticated"});
             };
             this._mainHeader.showRectDropDown({ parent: injector, user: user, count: count });
             return {count:count+1}
             
         }else{
             this.user=this.userInit;
-            this._user.status="authenticated";
-            this._mainFooter.status="authenticated";
-            this._mainHeader.status="authenticated";
+            this._user.status="unauthenticated";
+            this._mainFooter.status="unauthenticated";
+            this._mainHeader.status="unauthenticated";
+            this.status="unauthenticated";
             this._service.isSignedOut=false;
             localStorage.removeItem("user");
             localStorage.removeItem("user_id");
             localStorage.removeItem("userBlogs");
             localStorage.removeItem("email");
+            if(footerCenterBtns){
+                this._mainFooter.centerBtnsRow({container:footerCenterBtns,status:"unauthenticated"});
+            };
             this._mainHeader.showRectDropDown({ parent: injector, user: null, count: count });
             return {count:count+1};
         }

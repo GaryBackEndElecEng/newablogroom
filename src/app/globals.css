@@ -54,9 +54,9 @@
 }
 @media screen and (max-width: 400px) {
   .client_blog {
-    padding-inline: 5px !important;
-    margin-inline: 2px !important;
-    width: none !important;
+    padding-inline: 2px !important;
+    margin-inline: 1px !important;
+    width: 100% !important;
     max-width: none !important;
   }
 }

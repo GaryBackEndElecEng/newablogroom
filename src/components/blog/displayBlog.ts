@@ -158,8 +158,8 @@ _onlyMeta:boolean=false;
             parent.classList.add("w-100");
             parent.classList.add("mx-auto");
             parent.classList.add("px-0");
-            parent.style.cssText="margin-inline:auto;border-radius:12px;position:relative;display:flex;flex-direction:column;padding-inline:1rem;align-items:center;justify-content:center;";
-            parent.style.maxWidth="75vw";
+            parent.style.cssText="margin-inline:auto;border-radius:12px;position:relative;display:flex;flex-direction:column;padding-inline:1rem;align-items:center;justify-content:center;width:100%";
+            parent.style.maxWidth="1000px";
             parent.style.backgroundColor="rgb(6 125 243 / 11%)";
             
             //-----------BTN CONTAINER FOR FINAL WORK-----------------//

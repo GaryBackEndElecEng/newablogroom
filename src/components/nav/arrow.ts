@@ -1,6 +1,6 @@
 
 import { FaAccessibleIcon, FaBlog,FaInfo,FaEdit,FaHome,FaMedapps,FaSign,FaFilePowerpoint,FaFacebookF,FaInstagramSquare,FaGithub,FaLinkedin,FaSitemap,FaMailBulk } from "react-icons/fa";
-import { navLinkBtnType, userType, blogType, messageType, } from "../editor/Types";
+import { navLinkBtnType, userType, blogType, messageType, gets3ImgKey, } from "../editor/Types";
 import { FaArrowRight } from 'react-icons/fa';
 import { FaBtn, FaCreate } from "../common/ReactIcons";
 import * as Icons from "react-icons/fa";
@@ -22,6 +22,7 @@ class NavArrow{
     centerBtnsParent:HTMLElement | null;
     mainHeader:HTMLElement | null;
     checkUser:boolean;
+    nav:Nav;
     _isAdmin:boolean=false;
     btnArray:navLinkBtnType[];
     constructor(private _user:User,private _regSignin:RegSignIn,private _service:Service,private _profile:Profile,private _modSelector:ModSelector,public feature:Features){
@@ -31,6 +32,7 @@ class NavArrow{
         this.btnArray=[];
         this.centerBtnsParent=document.querySelector("div#footer-centerBtns-container");
         this.mainHeader=document.querySelector("header#navHeader");
+        this.nav=new Nav(this._modSelector,this._service,this._user,this._regSignin);
     }
 
     //////------------------------GETTERS/SETTERS--------------------------///
@@ -237,7 +239,7 @@ set user(user:userType){
                 {id:4,name:"posts",color:"#00BFFF",link:"/posts",func:()=>Nav.navHistory("/posts"),icon:Icons.FaDropbox,show:true,isEditor:true,save:()=>null},
                 {id:5,name:"chart",color:"#00BFFF",link:"/chart",func:()=>Nav.navHistory("/chart"),icon:Icons.FaChartBar,show:true,isEditor:true,save:()=>null},
                 {id:6,name:"signin",color:"#00FF00",link:null,func:()=> this._regSignin.signIn(),icon:FaSign,show:!this.checkUser,isEditor:false,save:()=>null},
-                {id:7,name:"logout",color:"#00FF00",link:null,func:()=>this.logout({func:()=>this.centerBtnsRow({container:this.centerBtnsParent})}),icon:FaSign,show:this.checkUser,isEditor:false,save:()=>null},
+                {id:7,name:"logout",color:"#00FF00",link:null,func:()=>this.logout({func:()=>undefined}),icon:FaSign,show:this.checkUser,isEditor:false,save:()=>null},
                 {id:8,name:"contact",color:"#00FF00",link:null,func:()=> this.contact(MainHeader.header as HTMLElement),icon:FaMedapps,show:true,isEditor:false,save:()=>null},
                 {id:9,name:"profile",color:"#800000",link:null,func:()=> this._profile.main(getHeaderInjector),icon:FaAccessibleIcon,show:this.checkUser,isEditor:false,save:()=>null},
                 {id:10,name:"general-Info",color:"#00FF00",link:null,func:()=> this.generalInfo(MainHeader.header as HTMLElement),icon:FaInfo,show:true,isEditor:false,save:()=>null},
@@ -651,23 +653,32 @@ set user(user:userType){
                     res.mainHeader=document.querySelector("header#navHeader") as HTMLElement;
                     Misc.msgSourceImage({parent:res.mainHeader,msg:"Thanks for comming",src:this.logo,width:125,quality:75,time:2200,cssStyle:{boxShadow:"1px 1px 12px 1px white",backgroundColor:"black",color:"white",inset:"680% 0% 70% 0%"}});
                     },1000);
+                    MainHeader.header=document.querySelector("header#navHeader") as HTMLElement;
+                    this.signInDisplay(MainHeader.header,null).then(async(res_)=>{
+                        //ONLY GENERATES IF USER EXIST ( user !==null)
+                        if(res_){
+                            this.centerBtnsRow({container:res.centerBtnCont});
+
+                        }
+                        });
                 }
             });
     }
-    async asyncLogout(item:{func:()=>Promise<void>|void|undefined}):Promise<{mainHeader:HTMLElement | null}>{
+    async asyncLogout(item:{func:()=>Promise<void>|void|undefined}):Promise<{mainHeader:HTMLElement | null,centerBtnCont:HTMLElement}>{
         const {func}=item;
         this.user={} as userType;
         MainHeader.header=document.querySelector("header#navHeader") as HTMLElement;
+        const centerBtnCont=document.querySelector("div#footer-centerBtns-container") as HTMLElement;
         localStorage.removeItem("user");
         localStorage.removeItem("user_id");
         localStorage.removeItem("email");
         setTimeout(()=>{
             localStorage.removeItem("user");
-        localStorage.removeItem("user_id");
-        localStorage.removeItem("email");
+            localStorage.removeItem("user_id");
+            localStorage.removeItem("email");
         },1000);
         this._service.isSignedOut=true;
-        this._user._user={...this.user,id:"",email:"",blogs:[] as blogType[],name:undefined,bio:undefined,admin:false,showinfo:false} as userType;
+        this._user.user=this._user.init
         this._user.user=this._user._user;
         this.checkUser=false;
         MainHeader.removeAllClass({parent:MainHeader.header,class_:"ablogroom"});
@@ -675,9 +686,86 @@ set user(user:userType){
         func();//calling function void
         this._service.signout()
         return new Promise(resolver=>{
-            resolver({mainHeader:MainHeader.header})
-        }) as Promise<{mainHeader:HTMLElement|null}>;
+            resolver({mainHeader:MainHeader.header,centerBtnCont})
+        }) as Promise<{mainHeader:HTMLElement|null,centerBtnCont:HTMLElement}>;
 
+    }
+    async signInDisplay(parent:HTMLElement,user:userType|null): Promise<{
+        user: userType | null;
+        parent: HTMLElement;
+        container:HTMLElement;
+        centerBtnCont:HTMLElement;
+    }>{
+        const centerBtnCont=document.querySelector("div#footer-centerBtns-container") as HTMLElement;
+        const url=new URL(window.location.href);
+        Header.cleanUpByID(parent,"headerNav-signInDisplay-container")
+        const container=document.createElement("div");
+        const less900=window.innerWidth <900;
+        const less400=window.innerWidth <400;
+        container.id="headerNav-signInDisplay-container";
+        container.className="user-signature";
+        if(user && user.id){
+            container.style.cssText="display:flex;justify-content:space-around;align-items:center;margin-inline:1rem;box-shadow:1px 1px 12px 1px white;padding-inline:0.5rem;border-radius:10px;color:white;background-color:#0a2351;overflow:hidden;position:relative;right:20px;justify-self:end;margin-right:10px;order:3;";
+            container.style.marginRight=less900 ? (less400 ? "1px":"4px") :"10px";
+            container.style.right=less900 ? (less400 ? "-28px":"-10px") :"20px";
+            container.style.transform=less900 ? (less400 ? "scale(0.6)":"scale(0.7)") :"scale(1)";
+            container.style.maxWidth="300px;";
+            const img=document.createElement("img");
+            img.id="para-img";
+            img.style.cssText="width:55px;border-radius:50%;filter:drop-shadow(0 0 0.25 white);";
+            if(user.imgKey){
+                const res3key:gets3ImgKey | null= await this._service.getSimpleImg(user.imgKey)
+                if(res3key && res3key.img){
+                    img.src=res3key.img;
+                    img.alt=res3key.Key;
+                }
+            }else{
+                img.src=user.image ? user.image : Nav.logo;
+                img.alt="www.ablogroom.com";
+            }
+            const para=document.createElement("p");
+            para.id="container-para";
+            const name=user.name ? user.name : "blogger"
+            para.innerHTML=Nav.splitWord({parent:para,str:name,splitCount:4});
+            container.appendChild(img);
+            container.appendChild(para);
+            parent.appendChild(container);
+            Misc.matchMedia({parent:img,maxWidth:420,cssStyle:{width:"35px"}});
+            Misc.matchMedia({parent:para,maxWidth:420,cssStyle:{fontSize:"12px"}});
+            Misc.growIn({anchor:container,scale:0.2,opacity:0,time:500});
+        }else if(!user && url.pathname !=="/register"){
+            container.style.cssText="display:flex;justify-content:space-around;align-items:center;margin-inline:1rem;box-shadow:1px 1px 12px 1px #05f7d1;padding-inline:0.75rem;border-radius:50%;color:white;background-color:black;position:relative;right:20px;justify-self:end;margin-right:10px;order:3;padding-block:0rem;cursor:pointer";
+            container.style.marginRight=less900 ? (less400 ? "1px":"4px") :"10px";
+            container.style.right=less900 ? (less400 ? "-28px":"-10px") :"20px";
+            container.style.transform=less900 ? (less400 ? "scale(0.6)":"scale(0.7)") :"scale(0.85)";
+            const xDiv=document.createElement("span");
+            xDiv.id="xDivCont-xDiv-login-icon";
+            xDiv.style.cssText="padding:0.3rem;margin:auto;border-radius:50%;padding:2px;font-size:28px;";
+            FaCreate({parent:xDiv,name:FaSign,cssStyle:{borderRadius:"50%",fontSize:"inherit",color:"white",zIndex:"2"}});
+            const xDivCont=document.createElement("div");
+            xDivCont.style.cssText="place-self:center;display:flex;place-items:center;gap:0.36rem;";
+            const spanText=document.createElement("span");
+            spanText.id="xDivCont-spanText";
+            spanText.style.cssText="place-self:center;"
+            spanText.textContent="login";
+            xDivCont.appendChild(spanText);
+            xDivCont.appendChild(xDiv);
+            container.appendChild(xDivCont);
+            parent.appendChild(container);
+            // this.hoverEffect({target:container,time:1300});
+            container.onclick=(e:MouseEvent)=>{
+                if(e){
+                    this._regSignin.signIn()
+                }
+            };
+        }
+        return new Promise((resolve)=>{
+            if(user && user.id){
+                resolve({user:user,parent:parent,container,centerBtnCont});
+            }else{
+                resolve({user:null,parent:parent,container,centerBtnCont});
+            }
+        })as Promise<{user:userType|null,parent:HTMLElement,container:HTMLElement,centerBtnCont:HTMLElement}> ;
     }
     centerBtnsRow(item:{container:HTMLElement|null}){
         //!!! NOTE:THIS GETS TOGGLED TO LOGOUT FROM auth.getUser()

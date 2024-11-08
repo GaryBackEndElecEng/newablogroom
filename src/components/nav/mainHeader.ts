@@ -12,6 +12,7 @@ import Meta from "../meta/meta";
 import NavArrow from "./arrow";
 import RegSignIn from "./regSignin";
 import { Session } from "next-auth";
+import MainFooter from "../footer/mainFooter";
 
 class MainHeader{
     meta:Meta
@@ -29,7 +30,7 @@ count:number;
 pageCount:number;
 textFlow:string;
 _status:"authenticated" | "loading" | "unauthenticated";
-    constructor(private _modSelector:ModSelector,private _service:Service,private _user:User,private nav:Nav,private _navArrow:NavArrow){
+    constructor(private _modSelector:ModSelector,private _service:Service,private _user:User,private _navArrow:NavArrow,private footer:MainFooter){
         this.bgColor="#0C090A";
         this.btnColor=this._modSelector.btnColor;
         MainHeader.mainHeader_css=`width:100%;height:5vh;box-shadow:1px 1px 5px 1px black,-1px -1px 5px -1px black;margin-block:0px;position:relative;background:${this.bgColor};display:flex;justify-content:space-between;`;
@@ -83,7 +84,7 @@ _status:"authenticated" | "loading" | "unauthenticated";
             MainHeader.header=parent.querySelector("header#navHeader") as HTMLElement;
             if(!MainHeader.header && count >0) return
             this.asyncShowRectDrpDown({parent:MainHeader.header as HTMLElement,user,count,pathname,time}).then(async(res)=>{
-                if(res){
+                if(res && res.count===1){
                     //IF PATHNAME DOES NOT MATCH THEN RES.RECT DOES NOT EXIST
                     setTimeout(async()=>{
                         //RES.RECT EXIST IF PATHNAME MATCH
@@ -95,10 +96,13 @@ _status:"authenticated" | "loading" | "unauthenticated";
                             // Header.cleanUpByID(parent,"ablogroom");
                             MainHeader.removeAllClass({parent:res.parent,class_:"ablogroom"});
                             await this.ablogroom({parent:res.parent,user:null});//SHOWS IF USER===NULL
+                        }else{
+                            //remove user-icom in header
+                            console.log("ELSE,genPageCount");
                         }
                         
                         this.genPageCount({parent:res.parent,count});
-                        await this.nav.signInDisplay(res.parent,res.user).then(async(res_)=>{
+                        await this._navArrow.signInDisplay(res.parent,res.user).then(async(res_)=>{
                             //ONLY GENERATES IF USER EXIST ( user !==null)
                             if(res_ && res_.user){
                                     if(res_.user && res_.parent){
@@ -106,6 +110,9 @@ _status:"authenticated" | "loading" | "unauthenticated";
                                         if(admin){
                                             Misc.msgSourceImage({parent:res_.parent,msg:"You have admin Rights",src:this.logo,width:125,quality:75,time:2200,cssStyle:{boxShadow:"1px 1px 12px 1px white",backgroundColor:"black",color:"white",inset:"680% 0% 70% 0%"}});
                                         }
+                                        this.footer.centerBtnsRow({container:res_.centerBtnCont,status:"authenticated"});
+                                    }else{
+                                        this.footer.centerBtnsRow({container:res_.centerBtnCont,status:"unauthenticated"});
                                     }
                             }
                             });
@@ -119,6 +126,7 @@ _status:"authenticated" | "loading" | "unauthenticated";
         parent: HTMLElement;
         rect: HTMLElement|undefined;
         user: userType | null;
+        count:number
     }> {
         //DISPLAY A BLOGROOM BLOCK ON LOAD
         //BLOGROOM BLOCK SHOWS ONLY @ HOME
@@ -157,9 +165,9 @@ _status:"authenticated" | "loading" | "unauthenticated";
         }
         return new Promise((resolve)=>{
            
-                resolve({parent,rect:rectangle,user})
+                resolve({parent,rect:rectangle,user,count:count+1})
             
-        }) as Promise<{parent:HTMLElement,rect:HTMLElement|undefined,user:userType|null}>;
+        }) as Promise<{parent:HTMLElement,rect:HTMLElement|undefined,user:userType|null,count:number}>;
         
     }
     matches(target:HTMLElement,width:number,cssStyle:{[key:string]:string}){

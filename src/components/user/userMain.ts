@@ -325,8 +325,8 @@ class User{
     signin:string="/api/user";
     userUrl:string="/api/user";
     userUrlUpdate:string="/api/user_update";
-    _status:"authenticated" | "loading" | "unauthenticated"
-    _user:userType={
+    _status:"authenticated" | "loading" | "unauthenticated";
+    init:userType={
         id:"",
         email:"",
         name:undefined,
@@ -341,6 +341,7 @@ class User{
         sessions:[] as sessionType[],
         admin:false,
     } as userType;
+    _user:userType=this.init;
 
     _signIn:userSignInType;
     _blogs:blogType[];

@@ -19,8 +19,9 @@ import { Session } from 'next-auth';
 
 export default function Index() {
     const refCheck = React.useRef(null);
+    const countRef = React.useRef(0);
     React.useEffect(() => {
-        if (typeof window !== "undefined" && refCheck.current) {
+        if (typeof window !== "undefined" && refCheck.current && countRef.current === 0) {
             const home = document.querySelector("section#home-index");
             const modSelector = new ModSelector();
             // const features = new Features();
@@ -34,6 +35,7 @@ export default function Index() {
             const allmsgs = new AllMsgs(modSelector, service, message);
             const _home = new Home(modSelector, service, nav, allmsgs, feature, blogs);
             _home.main(home as HTMLElement);
+            countRef.current++;
         }
 
     }, []);

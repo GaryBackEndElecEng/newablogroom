@@ -24,7 +24,7 @@ export default async function page({ params }: { params: { id: string } }) {
     const id = Number(params.id as string);
     const blog = await getBlog({ id }) ? await getBlog({ id }) : null;
     const user = blog ? await getUser({ user_id: blog.user_id as string }) : null;
-    const style: { [key: string]: string } = { minHeight: "100vh", height: "100%" };
+    const style: { [key: string]: string } = { minHeight: "100vh", height: "100%", marginInline: "auto" };
 
     return (
         <div style={style} className="isLocal">

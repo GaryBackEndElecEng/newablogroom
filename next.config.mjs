@@ -4,7 +4,6 @@ const nextConfig = {
     ignoreDuringBuilds: false,
   },
   reactStrictMode: true,
-
   pageExtensions: ["js", "jsx", "mdx", "tsx", "ts", "md"],
   experimental: {
     // serverActions: true,

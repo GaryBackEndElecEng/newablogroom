@@ -418,12 +418,13 @@ class MainFooter{
         const css_row="display:flex;justify-content:center;align-items:center;width:100%;margin-inline:auto;";
         container.style.cssText=css_row;
         container.style.maxHeight=window.innerWidth <900 ? "8vh":"6vh";
-        this.centerBtnsRow({container});
+        this.centerBtnsRow({container,status:this.status});
         parent.appendChild(container);
     }
-    centerBtnsRow(item:{container:HTMLElement}){
+    centerBtnsRow(item:{container:HTMLElement,status:"authenticated"|"unauthenticated"|"loading"}){
         //!!! NOTE:THIS GETS TOGGLED TO LOGOUT FROM auth.getUser() AND A DUPLICATE FUNCTION IS ATTACHED TO NAVARROW.CENTERBTNSROW() FOR LOGOUT
-        const {container}=item;
+        const {container,status}=item;
+        const getHeader=document.querySelector("header#navHeader") as HTMLElement;
         Header.cleanUpByID(container,"footer-centerBtns-row")
         const row=document.createElement("div");
         row.id="footer-centerBtns-row";
@@ -432,7 +433,6 @@ class MainFooter{
         arr.forEach(async(item)=>{
             if(item==="contact"){
                 const btn=buttonReturn({parent:row,text:item,bg:"#34282C",color:"white",type:"button"});
-                const getHeader=document.querySelector("header#navHeader") as HTMLElement;
                 // if(!getHeader) return
                 btn.addEventListener("click",(e:MouseEvent)=>{
                     if(e){
@@ -442,7 +442,7 @@ class MainFooter{
                 });
             }else if(item==="signup"){
                 
-                    if(this.status==="authenticated"){
+                    if(status==="authenticated"){
                         const btn=buttonReturn({parent:row,text:"logout",bg:"#34282C",color:"white",type:"button"});
                         btn.id="btn-footer-signin";
                         btn.addEventListener("click",(e:MouseEvent)=>{
@@ -450,9 +450,15 @@ class MainFooter{
                                    window.scroll(0,0);
                                    this._navArrow.logout({func:()=>undefined}).then(()=>{
                                     const getRedue=document.querySelector("div#footer-centerBtns-container") as HTMLElement;
-                                    this.status="unauthenticated";
-                                    this.centerBtnsParent=getRedue;
-                                    this.centerBtnsRow({container:getRedue});
+                                    this._navArrow.signInDisplay(getHeader,null).then(async(res_)=>{
+                                        if(res_){
+
+                                            this.status="unauthenticated";
+                                            this.centerBtnsParent=getRedue;
+                                            this.status="unauthenticated";
+                                            this.centerBtnsRow({container:getRedue,status:this.status});
+                                        }
+                                    });
                                    });
                                 }
                         });

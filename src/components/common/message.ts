@@ -124,7 +124,9 @@ class MessageSetup{
         useParent.style.position="relative";
         popup.id="contact2-message";
         popup.style.cssText=`position:absolute;padding:1rem;background:white;color:black;height:fit-content;margin-inline:auto;display:flex;flex-direction:column;align-items:center;justify-content:center;border-radius:16px;box-shadow:1px 1px 6px 1px aquamarine;padding:1rem;z-index:200;background-color:black;padding-block:1rem;align-self:center`;
-        popup.style.inset=less900 ? (less400 ? "-35% 0% 0% 0%" :"-40% 15% 0% 15%" ) : "-10% 25% 20% 25%";
+        popup.style.top=less900 ? (less400 ? "5%" :"5%" ) : "5%";
+        popup.style.left=less900 ? (less400 ? "0%" :"15%" ) : "25%";
+        popup.style.right=less900 ? (less400 ? "0%" :"15%" ) : "25%";
         popup.style.width="100%";
         popup.style.maxWidth=less900 ? (less400 ? "375px" :"400px" ) : "420px";
         const img=document.createElement("img");

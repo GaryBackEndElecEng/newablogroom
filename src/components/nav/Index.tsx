@@ -26,12 +26,11 @@ import Message from '../common/message';
 
 
 function Index({ _user_ }: { _user_: userType | null }) {
-    const { data: session, status } = useSession()
-    const sessionGroup = { session: session, status };
+    const countRef = React.useRef(0);
     const navRef = React.useRef(null);
     React.useEffect(() => {
-        let count = 0;
-        if (typeof window !== "undefined" && navRef.current) {
+
+        if (typeof window !== "undefined" && navRef.current && countRef.current === 0) {
             const inject = document.getElementById("headerInjector") as HTMLElement;
             const browserType = new BrowserType();
             const modSelector = new ModSelector();
@@ -48,19 +47,15 @@ function Index({ _user_ }: { _user_: userType | null }) {
             const profile = new Profile(modSelector, service, user, metaBlog, chart, post);
             const navArrow = new NavArrow(user, regSignin, service, profile, modSelector, feature);
             const nav = new Nav(modSelector, service, user, regSignin);
-            const mainHeader = new MainHeader(modSelector, service, user, nav, navArrow);
             const mainFooter = new MainFooter(modSelector, service, user, nav, navArrow, dataflow, feature, allMsgs);
-            const sess_ = null
-            const stat = (_user_ && _user_.id) ? "authenticated" : "unauthenticated";
-            const auth = new AuthService(modSelector, service, user, mainHeader, mainFooter, sess_, stat);
+            const mainHeader = new MainHeader(modSelector, service, user, navArrow, mainFooter);
+            const auth = new AuthService(modSelector, service, user, mainHeader, mainFooter);
             Header.cleanUp(inject);
             mainHeader.main({ parent: inject });
             //getting USER AFTER SIGNIN
-            auth.getUser({ session: null, injector: inject, count, user: _user_ }).then(async (res) => {
-                if (res.count) {
-                    count = res.count;
-                } else {
-                    count = 1;
+            auth.getUser({ injector: inject, count: countRef.current, user: _user_ }).then(async (res) => {
+                if (res) {
+                    countRef.current++;
                 }
             });
             const keyword = window.navigator.userAgent
