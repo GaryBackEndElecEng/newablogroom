@@ -351,9 +351,7 @@ class Service {
         if(imgKey){
            return this.getSimpleImg(imgKey).then(async(res:gets3ImgKey|null)=>{
                 if(res){
-                    let index=0;
                     for ( const key of Object.keys(target.style)){
-                        index++;
                         if(key==="backgroundImage"){
                             target.style.backgroundImage="url(" + res.img + ")";
                             Misc.blurIn({anchor:target,blur:"20px",time:500});

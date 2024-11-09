@@ -61,9 +61,24 @@ export const metadata: Metadata = {
         height: 600
       },
       {
+        url: "https://new-master.s3.ca-central-1.amazonaws.com/ablogroom/gb_logo_600.png",
+        width: 600,
+        height: 600
+      },
+      {
         url: "/images/gb_logo_800_400.png",
         width: 800,
         height: 400
+      },
+      {
+        url: "https://new-master.s3.ca-central-1.amazonaws.com/ablogroom/gb_logo_800_400.png",
+        width: 800,
+        height: 400
+      },
+      {
+        url: "https://new-master.s3.ca-central-1.amazonaws.com/ablogroom/thankYou.png",
+        width: 600,
+        height: 900
       },
     ],
     locale: "en-CA",

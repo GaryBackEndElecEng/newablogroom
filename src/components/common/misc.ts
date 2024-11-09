@@ -1469,7 +1469,7 @@ class Misc{
         }
         return false;
     }
-    static starRating(starRate:{parent:HTMLElement,rating:number,cssStyle:{[key:string]:string}}){
+    static starRating(starRate:{parent:HTMLElement,rating:number,cssStyle:{[key:string]:string},rowCssStyle:{[key:string]:string}}){
         const width=window.innerWidth <420 ? 22 :30;
         const less900=window.innerWidth <900;
         const less400=window.innerWidth <400;
@@ -1484,18 +1484,29 @@ class Misc{
                 }
             }
         }
-        const {parent,rating,cssStyle}=starRate;
+        const {parent,rating,cssStyle,rowCssStyle}=starRate;
         if(!rating) return Misc.message({parent,msg:"no rating",type_:"error",time:700});
         const container=document.createElement("div");
         container.style.cssText="display:flex;flex-direction:column;justify-content:center;align-items:center;gap:1rem;";
         const row=document.createElement("div");
+        row.id="Misc-starRating-row";
         row.style.cssText="display:inline-flex;flex-direction:row;align-items:center;flex-wrap:nowrap;";
         row.style.gap=less900 ?(less400 ? "0.25rem":"0.35rem"):"0.5rem";
         const fontSize=less900 ?(less400 ? "14px":"16px"):"18px";
+        //------------ROW-----------------------//
+        for (const key of Object.keys(row.style)){
+            for (const [key2, value2] of Object.entries(rowCssStyle)){
+                if(key===key2){
+                    row.style[key]=value2;
+                }
+            }
+        }
+        //------------ROW-----------------------//
         const cssStyle2={fontSize,color:"yellow",fill:"yellow"};
         Array.from(Array(5).keys()).map((num)=>{
             if(num +1  <= rating){
                 const faDiv=document.createElement("span");
+                faDiv.id="row-faDiv-span";
                 const icon:IconType|undefined=Misc.stars.find(name=>(name.name==="full"))?.icon
                 FaCreate({parent:faDiv,name:icon,cssStyle:cssStyle2});
                 cssGen(faDiv,cssStyle);

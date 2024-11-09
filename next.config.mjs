@@ -61,7 +61,7 @@ const nextConfig = {
           {
             key: "Access-Control-Allow-Origin",
             value:
-              "newmasterconnect.herokuapp.com,www.masterconnect.ca,ww.master-connect.ca,compute-1.amazonaws.com,master-sale.herokuapp.com, www.masterconnect.ca,www.masterultils.com,masterultils-postimages.s3.us-east-1.amazonaws.com,localhost:3000,main.d2qer3lk2obzqm.amplifyapp.com,newmasterconnect.herokuapp.com",
+              "newmasterconnect.herokuapp.com,www.masterconnect.ca,ww.master-connect.ca,compute-1.amazonaws.com,master-sale.herokuapp.com, www.masterconnect.ca,www.masterultils.com,masterultils-postimages.s3.us-east-1.amazonaws.com,localhost:3000,main.d2qer3lk2obzqm.amplifyapp.com,newmasterconnect.herokuapp.com,new-master.s3.ca-central-1.amazonaws.com",
           },
         ],
       },
@@ -84,14 +84,8 @@ const nextConfig = {
         pathname: "./images/**",
       },
       {
-        protocol: "http",
-        hostname: "localhost:3000",
-        port: "",
-        pathname: "./images/display/**",
-      },
-      {
         protocol: "https",
-        hostname: "ablogroom.com",
+        hostname: "www.ablogroom.com",
         port: "",
         pathname: "./images/**",
       },
@@ -99,7 +93,7 @@ const nextConfig = {
         protocol: "https",
         hostname: "ablogroom.com",
         port: "",
-        pathname: "./images/display/**",
+        pathname: "./images/**",
       },
       {
         protocol: "https",
@@ -129,7 +123,7 @@ const nextConfig = {
         protocol: "https",
         hostname: "newmasterconnect.herokuapp.com",
         port: "",
-        pathname: "/api/**",
+        // pathname: "/**",
       },
     ],
     domains: [

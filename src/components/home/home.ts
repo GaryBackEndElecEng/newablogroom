@@ -614,7 +614,10 @@ class Home{
         contStar.id="nameCont-contStar";
         contStar.style.cssText=css_row;
         contStar.appendChild(rating);
-        Misc.starRating({parent:contStar,rating:msg.rate,cssStyle:{color:"yellow",padding:"1px",borderRadius:"50%","marginInline":"0px"}});
+        //,boxShadow:"1px 1px 3px #07f9e2"
+        const cssStyle={color:"yellow",padding:"1px",borderRadius:"50%"};
+        const rowCssStyle={filter:"drop-shadow(0 0 0.25rem black)",backgroundColor:"#0c0326",borderRadius:"8px"};
+        Misc.starRating({parent:contStar,rating:msg.rate,cssStyle,rowCssStyle});
         //APPENDING rating and contStar
         //APPENDING rating and contStar
         nameCont.appendChild(contStar);
@@ -675,7 +678,9 @@ class Home{
         const rate=document.createElement("div");
        rate.style.cssText="margin-inline:auto;"
         rate.id="cardBody-rate";
-        Misc.starRating({parent:rate,rating:msg.rate,cssStyle:{width:"100%",padding:"1px",color:"yellow",backgroundColor:"black",borderRadius:"50%"}});
+        const cssStyle={width:"100%",padding:"1px",color:"yellow",backgroundColor:"black",borderRadius:"50%"};
+        const rowCssStyle={width:"100%",gap:"2px",borderRadius:"8px",filter:"drop-shadow(0 0 0.25rem black)"};
+        Misc.starRating({parent:rate,rating:msg.rate,cssStyle,rowCssStyle});
         name.innerHTML=`<span id="view-cardBody-name" style="display:flex;"><span style="color:black;font-weight:bold;">name: </span> <h6 style="font-size:18px;color:blue;margin-right:0.5rem;"> ${msg.name}</h6></span>`;
         cardBody.appendChild(rate);
         cardBody.appendChild(name);

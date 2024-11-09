@@ -10,35 +10,23 @@ import User from '../user/userMain';
 
 
 
-export default function Index() {
+export default function Index({ blogs }: { blogs: blogType[] }) {
     // const { data: session, status } = useSession();
     const inRef = React.useRef(null);
+    const countRef = React.useRef(0);
     React.useEffect(() => {
-        if (typeof window !== "undefined" && inRef.current) {
+        if (typeof window !== "undefined" && inRef.current && countRef.current === 0) {
             const url = `/api/savegetblog`;
             const modSelector = new ModSelector();
             const service = new Service(modSelector);
             const user = new User(modSelector, service);
             const initBlogs = new Blogs(modSelector, service);
             const injectBlogs = document.getElementById("injectBlogs") as HTMLElement;
-            const option = {
-                Headers: { "Content-Type": "application/json" },
-                method: "GET"
-            }
-            fetch(url, option).then(async (res) => {
-
-                if (res) {
-                    const body = await res.json() as blogType[];
-                    modSelector._blogs = body;
-                    if (injectBlogs && body) {
-                        modSelector._blogs = body;
-                        await initBlogs.showBlogs(injectBlogs, false, body);
-                    }
-                    return
-                }
+            initBlogs.showBlogs(injectBlogs, false, blogs).then(() => {
+                countRef.current++;
             });
         }
-    }, []);
+    }, [blogs]);
 
     return (
         <div className="container-fuid mx-auto">

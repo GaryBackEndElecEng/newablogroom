@@ -1004,7 +1004,9 @@ _onlyMeta:boolean=false;
             title.className="text-primary";
             title.style.cssText="align-text:center;text-decoration:underline;text-underline-offset:0.5rem;";
             container.appendChild(title);
-            Misc.starRating({parent:container,rating:rating,cssStyle:{"color":"yellow","fontSize":"28px"}});
+            const cssStyle={"color":"yellow","fontSize":"28px"};
+            const rowCssStyle={backgroundColor:"black",borderRadius:"8px",filter:"drop-shadow(0 0 0.25rem black)"};
+            Misc.starRating({parent:container,rating:rating,cssStyle,rowCssStyle});
             parent.appendChild(container);
         }
     }

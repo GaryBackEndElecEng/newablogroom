@@ -274,16 +274,24 @@ message:Message
     thumbsUpStartRating(item:{parent:HTMLElement,rating:number,minRating:number}){
         const {parent,rating,minRating}=item;
         const div=document.createElement("div");
+        div.id="thumbsUpStartRating-div"
             div.style.cssText="display:flex;justify-content:center;gap:1rem;align-items:center;cursor:none;";
+            const cssStyle={fontSize:"18px",color:"yellow",padding:"3px",borderRadius:"50%",cursor:"none"}
+            const rowCssStyle1={filter:"drop-shadow(0 0 0.25rem black)",boxShadow:"1px 1px 3px #07f9e2",backgroundColor:"#0c0326",borderRadius:"8px"};
+            const rowCssStyle2={backgroundColor:"#0c0326",borderRadius:"8px"};
             if(rating > minRating){
                 const span=document.createElement("span");
+                span.id="div-span-thumbsUp";
                 span.style.cssText="align-items:center;gap:1rem;width:fit-content;"
                 FaCreate({parent:span,name:BsHandThumbsUpFill,cssStyle:{fontSize:"12px",color:"blue"}});
                 span.innerHTML=`<span style="margin-block:1rem;margin-right:1rem;">:${rating}</span>`;
                 div.appendChild(span);
+                Misc.starRating({parent:div,rating:rating,cssStyle,rowCssStyle:rowCssStyle1});
+                parent.appendChild(div);
+            }else{
+                Misc.starRating({parent:div,rating:rating,cssStyle,rowCssStyle:rowCssStyle2});
+                parent.appendChild(div);
             }
-            Misc.starRating({parent:div,rating:rating,cssStyle:{fontSize:"18px",color:"yellow",backgroundColor:"#34282C",padding:"3px",borderRadius:"50%",cursor:"none"}});
-            parent.appendChild(div);
     }
      static noBlogs(parent:HTMLElement){
         const container=document.createElement("section");
