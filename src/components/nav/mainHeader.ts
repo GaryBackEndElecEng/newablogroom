@@ -79,7 +79,7 @@ _status:"authenticated" | "loading" | "unauthenticated";
         const {parent,user,count}=item;
         const url=new URL(window.location.href);
         const pathname="/";
-        const time=url.pathname === "/" ? 5000 : 1000; //if home=> after drop-down (5000) else 1000
+        const time=url.pathname === "/" && user ? 5000 : 1000; //if home=> after drop-down (5000) else 1000
         setTimeout(()=>{
             MainHeader.header=parent.querySelector("header#navHeader") as HTMLElement;
             if(!MainHeader.header && count >0) return
@@ -88,6 +88,7 @@ _status:"authenticated" | "loading" | "unauthenticated";
                     //IF PATHNAME DOES NOT MATCH THEN RES.RECT DOES NOT EXIST
                     setTimeout(async()=>{
                         //RES.RECT EXIST IF PATHNAME MATCH
+                        
                         if(res.rect){
                             const check=res.parent.querySelector(`div#${res.rect.id}`) as HTMLElement;
                             if(check){
@@ -95,28 +96,28 @@ _status:"authenticated" | "loading" | "unauthenticated";
                             }
                             // Header.cleanUpByID(parent,"ablogroom");
                             MainHeader.removeAllClass({parent:res.parent,class_:"ablogroom"});
-                            await this.ablogroom({parent:res.parent,user:null});//SHOWS IF USER===NULL
                         }else{
-                            //remove user-icom in header
-                            console.log("ELSE,genPageCount");
+                            //NOT SIGNED IN 
+                            await this.ablogroom({parent:res.parent,user:null});//SHOWS IF USER===NULL
                         }
-                        
-                        this.genPageCount({parent:res.parent,count});
+                        //signedin/not signed in BELOW
+                        this.genPageCount({parent:res.parent,count});//PAGE COUNT ON HEADER
                         await this._navArrow.signInDisplay(res.parent,res.user).then(async(res_)=>{
-                            //ONLY GENERATES IF USER EXIST ( user !==null)
-                            if(res_ && res_.user){
+                            //SHOWS LOGIN/USERNAME ON HEADER
+                            //if user:shows user else shows LOGIN PAGE
+                            if(res_ ){
                                     if(res_.user && res_.parent){
                                         const admin=res_.user.admin;
                                         if(admin){
                                             Misc.msgSourceImage({parent:res_.parent,msg:"You have admin Rights",src:this.logo,width:125,quality:75,time:2200,cssStyle:{boxShadow:"1px 1px 12px 1px white",backgroundColor:"black",color:"white",inset:"680% 0% 70% 0%"}});
                                         }
-                                        this.footer.centerBtnsRow({container:res_.centerBtnCont,status:"authenticated"});
+                                        this.footer.centerBtnsRow({container:res_.centerBtnCont,status:"authenticated"});//footer shows logout
                                     }else{
-                                        this.footer.centerBtnsRow({container:res_.centerBtnCont,status:"unauthenticated"});
+                                        this.footer.centerBtnsRow({container:res_.centerBtnCont,status:"unauthenticated"});//footer shows signin
                                     }
                             }
                             });
-                    },time-20);
+                    },time-500);
     
                 }
             });

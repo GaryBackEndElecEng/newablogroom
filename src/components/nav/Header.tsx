@@ -6,7 +6,8 @@ import prisma from "@/prisma/prismaclient";
 import { getErrorMessage } from '@/lib/errorBoundaries';
 import { userType } from '../editor/Types';
 
-
+const EMAIL = process.env.EMAIL;
+const EMAIL2 = process.env.EMAIL2;
 export default async function Header() {
     const session = await getServerSession();
     const user = await getuser({ session })
@@ -35,7 +36,9 @@ export async function getuser(item: { session: Session | null }): Promise<userTy
                 username: true
             }
         }) as unknown as userType;
-
+        if (user && (user.email === EMAIL || user.email === EMAIL2)) {
+            user.admin = true;
+        }
     } catch (error) {
         const msg = getErrorMessage(error);
         console.log(msg);

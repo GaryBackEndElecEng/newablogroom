@@ -107,13 +107,13 @@ const authOptions: NextAuthOptions = {
         GoogleProvider({
             clientId: process.env.GOOGLE_client_ID as string,
             clientSecret: process.env.GOOGLE_client_secret as string,
-            // authorization: {
-            //   params: {
-            //     prompt: "consent",
-            //     access_type: "offline",
-            //     response_type: "code"
-            //   }
-            // }
+            authorization: {
+                params: {
+                    prompt: "consent",
+                    access_type: "offline",
+                    response_type: "code"
+                }
+            }
 
         }),
         CredentialsProvider({

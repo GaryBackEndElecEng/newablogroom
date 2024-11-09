@@ -1,6 +1,6 @@
 import Service from "../common/services";
 import ModSelector from "../editor/modSelector";
-import { adminImageType, adminReplyMsgType, delteUserType, messageType, pageCountType, userType } from "../editor/Types";
+import { adminImageType, adminReplyMsgType, blogType, delteUserType, messageType, pageCountType, postType, userType } from "../editor/Types";
 import User from "../user/userMain";
 import Header from "../editor/header";
 import Misc from "../common/misc";
@@ -13,15 +13,27 @@ import { FaCrosshairs } from "react-icons/fa";
 
 class Admin{
     _adminimgs:adminImageType[];
-    _pagecounts:pageCountType[]
+    _pagecounts:pageCountType[];
+    _admin:userType;
     _users:userType[];
+    _posts:postType[];
+    _blogs:blogType[];
     _messages:messageType[];
     logo:string="./images/gb_logo.png";
     nofilePara:string=" no files";
-    constructor(private _service:Service,private _modSelector:ModSelector,private _auth:AuthService,private _user:User){
+    constructor(private _service:Service,private _modSelector:ModSelector,private _user:User,private clients:userType[],admin:userType|null){
         this._adminimgs=[] as adminImageType[];
-        this._users=[] as userType[];
         this._messages=[];
+        this.posts=[] as postType[];
+        this.blogs=[] as blogType[];
+        this.clients.map(user=>{
+            if(user){
+                this._posts=this._posts.concat(user.posts);
+                this._blogs=this._blogs.concat(user.blogs);
+            }
+        });
+        
+        this._admin=admin ? admin : {} as userType;
     }
     //--------GETTER SETTERS------////
     get adminimgs(){
@@ -31,16 +43,16 @@ class Admin{
         this._adminimgs=adminimgs;
     }
     get adminUser(){
-        return this._user.user
+        return this._admin
     }
     set adminuser(user:userType){
-        this._user.user=user;
+        this._admin=user;
     }
     get users(){
-        return this._users
+        return this.clients
     }
     set users(users:userType[]){
-        this._users=users;
+        this.clients=users;
     }
     set messages(messages:messageType[]){
         this._messages=messages;
@@ -54,59 +66,64 @@ class Admin{
     set pagecounts(pagecounts:pageCountType[]){
         this._pagecounts=pagecounts;
     }
+    get posts(){
+        return this._posts
+    }
+    set posts(posts:postType[]){
+        this._posts=posts
+    }
+    get blogs(){
+        return this._blogs
+    }
+    set blogs(blogs:blogType[]){
+        this._blogs=blogs
+    }
     get admin(){
-        return this._auth.admin
+        return this._user.user.admin
     }
     //--------GETTER SETTERS------////
     // :INJECTOR : id="admin-injection"
-    async main(parent:HTMLElement){
-        Header.cleanUpByID(parent,"mainContainer");
-        const adminUser=this._user.user;
+    async main(item:{injector:HTMLElement,count:number}):Promise<number>{
+        const {injector,count}=item;
+        Header.cleanUpByID(injector,"mainContainer");
+        const adminUser=this.adminUser;
+        const adminEmail=adminUser.email;
         const css="display:flex;flex-direction:column;align-items:center;margin:auto;padding-inline:1rem;width:100%;position:relative;";
-        const mainContainer=document.createElement("div");
-        mainContainer.id="mainContainer";
-        mainContainer.style.cssText = css + "height:auto;";
-        mainContainer.style.minHeight = "100vh";
-
-        const innerImage=document.createElement("div");
-            innerImage.id="innerImage";
-            innerImage.style.cssText=css + "height:auto;";
-            innerImage.style.height="auto";
-            mainContainer.appendChild(innerImage);
-        const innerUser=document.createElement("div");
-            innerUser.id="innerUser";
-            innerUser.style.cssText=css + "height:auto;" ;
-            innerUser.style.height="auto";
-            mainContainer.appendChild(innerUser);
-        const btnGrp=document.createElement("div");
-            btnGrp.id="btnGrp";
-            btnGrp.style.cssText="display:flex;justify-content:space-around;align-items:center;flex-wrap:wrap; gap:1rem;"
-            mainContainer.appendChild(btnGrp);
-            parent.appendChild(mainContainer);
+        const css_row="display:flex;place-items:center;margin-inline:auto;padding-inline:1rem;width:100%;position:relative;";
+        const viewport=document.createElement("div");
+        viewport.id="viewport";
+        viewport.style.cssText=css + "margin-inline:auto; width:100%;min-height:70vh;padding-inline:auto;box-shadow:1px 1px 12px 1px white;backdrop-filter:blur(4px);";
+        injector.appendChild(viewport);
+        const btnContainer=document.createElement("div");
+        btnContainer.id="btnContainer";
+        btnContainer.style.cssText = css_row + "margin-block:2rem;margin-inline:auto;justify-content:center;";
+        injector.appendChild(btnContainer);
             
-        const {button:btnImages}=Misc.simpleButton({anchor:btnGrp,text:"open images",type:"button",time:400,bg:Nav.btnColor,color:"white"});
+        const {button:btnImages}=Misc.simpleButton({anchor:btnContainer,text:"open images",type:"button",time:400,bg:Nav.btnColor,color:"white"});
             btnImages.onclick=(e:MouseEvent)=>{
                 if(e){
                     // GET IMAGES!!
+                    const target="images";
+                    this.openClean({parent:viewport});
                     const row=document.createElement("div");
                     row.style.cssText="display:flex;margin-inline:auto;flex-direction:row;flex-wrap:wrap;align-items:center;";
                     row.id="row-images";
-                    innerImage.appendChild(row)
+                    viewport.appendChild(row)
                     // Header.cleanUpByID(innerCont,"btnGrp");
                         if(!(this._adminimgs && this._adminimgs.length>0)){
                             this._service.adminImages(adminUser).then(async(res)=>{
                                 if(res && res.length>0){
                                         this.adminimgs=res;
-                                        this.searchImg(parent,this.adminimgs);
-                                            this.adminimgs.sort((a,b)=>{if(a.id<b.id) return -1;return 1}).map(adminimg=>{
-                                                if(adminimg){
-                                                    this.imgCard(row,adminimg);
-                            
-                                                }
-                                            });
+                                        this.adminimgs.sort((a,b)=>{if(a.id<b.id) return -1;return 1}).map(adminimg=>{
+                                            if(adminimg){
+                                                this.imgCard(row,adminimg);
+                                                
+                                            }
+                                        });
+                                        this.searchImg(viewport,this.adminimgs);
                                 }
                                 else{
-                                    this.noFiles(parent);
+                                    this.noFiles(injector);
                                 }
                             });
                         
@@ -115,96 +132,125 @@ class Admin{
                             if(adminimg){
                                 this.imgCard(row,adminimg);
         
+                                
                             }
                         });
                     }
                 }
             };
-        const {button:usersBtn}=Misc.simpleButton({anchor:btnGrp,text:"open users",type:"button",time:400,bg:Nav.btnColor,color:"white"});
+        const {button:usersBtn}=Misc.simpleButton({anchor:btnContainer,text:"open users",type:"button",time:400,bg:Nav.btnColor,color:"white"});
             usersBtn.onclick=(e:MouseEvent)=>{
                 if(e){
                     //GET USERS
-                   this.getUsers(innerUser,css,adminUser);
-                   if(window.innerWidth <900){
-                    innerUser.style.height="70vh";
-                    innerUser.style.overflowY="scroll";
-                    }else{
-                        innerUser.style.height="auto";
-                    }
+                    this.openClean({parent:viewport});
+                   this.getUsers({parent:viewport,css,users:this.clients,adminUser});
+                  
                 }
             };
-        const {button:messBtn}=Misc.simpleButton({anchor:btnGrp,text:"open msgs",type:"button",time:400,bg:Nav.btnColor,color:"white"});
+        const {button:postBtn}=Misc.simpleButton({anchor:btnContainer,text:"open posts",type:"button",time:400,bg:Nav.btnColor,color:"white"});
+            postBtn.onclick=(e:MouseEvent)=>{
+                if(e){
+                    //GET USERS
+                    const target="users";
+                    this.openClean({parent:viewport});
+                   this.getPosts({parent:viewport,posts:this.posts});
+                  
+                }
+            };
+        const {button:blogBtn}=Misc.simpleButton({anchor:btnContainer,text:"open blogs",type:"button",time:400,bg:Nav.btnColor,color:"white"});
+            blogBtn.onclick=(e:MouseEvent)=>{
+                if(e){
+                    //GET USERS
+                    const target="users";
+                    this.openClean({parent:viewport});
+                   this.getBlogs({parent:viewport,blogs:this.blogs});
+                  
+                }
+            };
+        const {button:messBtn}=Misc.simpleButton({anchor:btnContainer,text:"open msgs",type:"button",time:400,bg:Nav.btnColor,color:"white"});
             messBtn.onclick=(e:MouseEvent)=>{
                 if(e){
                     //GET MESSAGES
-                   this.getMessages(mainContainer,this.adminUser);
+                    const target="messages";
+                    this.openClean({parent:viewport});
+                   this.getMessages(viewport,this.adminUser);
                 }
             };
-        const {button:closeMsg}=Misc.simpleButton({anchor:btnGrp,text:"close msgs",type:"button",time:400,bg:Nav.btnColor,color:"white"});
-            closeMsg.onclick=(e:MouseEvent)=>{
-                if(e){
-                    //GET MESSAGES
-                   const getmsgsContainer=document.querySelector("div#messages-container") as HTMLElement;
-                   if(getmsgsContainer){
-                    mainContainer.removeChild(getmsgsContainer);
-                   
-                   }
-                }
-            };
-        const {button:close}=Misc.simpleButton({anchor:btnGrp,text:"close images",type:"button",time:400,bg:Nav.btnColor,color:"white"});
-            close.onclick=(e:MouseEvent)=>{
-                if(e){
 
-                    // Header.cleanUpByID(mainContainer,"innerImage");
-                    const getrowImages=innerImage.querySelector("div#row-images") as HTMLElement;
-                        Misc.fadeOut({anchor:getrowImages,xpos:100,ypos:100,time:400});
-                        setTimeout(()=>{Header.cleanUp(innerImage)},398);
-                        Header.cleanUpByID(parent,"search-container");
-                }
-                
-            };
-        const {button:closeUser}=Misc.simpleButton({anchor:btnGrp,text:"close users",type:"button",time:400,bg:Nav.btnColor,color:"white"});
-            closeUser.onclick=(e:MouseEvent)=>{
-                if(e){
-
-                    // Header.cleanUpByID(mainContainer,"innerUser");
-                    const getUsers=innerUser.querySelector("div#getUsers-row") as HTMLElement ;
-                    if(getUsers){
-                        if(window.innerWidth <900){
-                            innerUser.style.height="0px";
-                        }else{
-                            innerUser.style.height="auto";
-                        }
-                        Misc.fadeOut({anchor:getUsers,xpos:100,ypos:100,time:400});
-                        setTimeout(()=>{innerUser.removeChild(getUsers)},398);
-                    }
-                }
-            };
-        const {button:openpgcounts}=Misc.simpleButton({anchor:btnGrp,text:"open pg-counts",type:"button",time:400,bg:Nav.btnColor,color:"white"});
+        const {button:openpgcounts}=Misc.simpleButton({anchor:btnContainer,text:"open pg-counts",type:"button",time:400,bg:Nav.btnColor,color:"white"});
             openpgcounts.onclick=(e:MouseEvent)=>{
                 if(e){
-
+                    const target="page-counts";
+                    this.openClean({parent:viewport});
                     // Header.cleanUpByID(mainContainer,"innerUser");
                     const user_id=this._user.user.id;
-                    this.getPagecounts(parent,user_id);
+                    this.getPagecounts(viewport,user_id);
                 }
             }
-        const {button:closepgcounts}=Misc.simpleButton({anchor:btnGrp,text:"close pg-counts",type:"button",time:400,bg:Nav.btnColor,color:"white"});
-        closepgcounts.onclick=(e:MouseEvent)=>{
+        const {button:close}=Misc.simpleButton({anchor:btnContainer,text:"close",type:"button",time:400,bg:Nav.btnColor,color:"white"});
+        close.onclick=(e:MouseEvent)=>{
             if(e){
 
                 // Header.cleanUpByID(mainContainer,"innerUser");
-                const getpgCounts=parent.querySelector("div#pg-counts-main") as HTMLElement ;
+                const searchContainer=viewport.querySelector("div#search-container") as HTMLElement;
+                const getmsgsContainer=document.querySelector("div#messages-container") as HTMLElement;
+                const getUsers=viewport.querySelector("div#getUsers-row") as HTMLElement ;
+                const getpgCounts=injector.querySelector("div#pg-counts-main") as HTMLElement ;
+                const getrowImages=viewport.querySelector("div#row-images") as HTMLElement;
+                const get_posts=viewport.querySelector("div#getPosts-container") as HTMLElement;
+                const get_blogs=viewport.querySelector("div#getBlogs-container") as HTMLElement;
+                const arr:{name:string,html:HTMLElement}[]=[{name:"messages",html:getmsgsContainer},{name:"users",html:getUsers},{name:"pagecounts",html:getpgCounts},{name:"images",html:getrowImages},{name:"search",html:searchContainer},{name:"get_posts",html:get_posts},{name:"get_blogs",html:get_blogs},] as {name:string,html:HTMLElement}[]
+                [...arr].map(item=>{
+                    if(item.html){
+                        const ID=item.html.id;
+                        const check=([...viewport.children as any] as HTMLElement[]).map(html=>html.id).includes(ID)
+                        if(check){
+
+                            if(!(item.name==="images")){
+                                Misc.fadeOut({anchor:item.html,xpos:100,ypos:100,time:400});
+                                setTimeout(()=>{
+                                    viewport.removeChild(item.html);
+    
+                                },398);
+                            }else{
+                                Misc.fadeOut({anchor:item.html,xpos:100,ypos:100,time:400});
+                                setTimeout(()=>{
+                                    viewport.removeChild(item.html);
+                                    if(searchContainer){
+                                        viewport.removeChild(searchContainer)
+                                    }
+                                },398);
+                            }
+                        }
+                    }
+                });
                 if(getpgCounts){
                     
                     Misc.fadeOut({anchor:getpgCounts,xpos:100,ypos:100,time:400});
-                    setTimeout(()=>{parent.removeChild(getpgCounts)},398);
+                    setTimeout(()=>{viewport.removeChild(getpgCounts)},398);
                 }
             }
             };
-            Misc.matchMedia({parent:mainContainer,maxWidth:900,cssStyle:{maxWidth:"900px",width:"100%",paddingInline:"5px;"}});
-            Misc.matchMedia({parent:innerUser,maxWidth:900,cssStyle:{paddingInline:"5px;"}});
+            return new Promise(resolve=>{
+                resolve(count+1);
+            }) as Promise<number>;
     
+    }
+
+    openClean(item:{parent:HTMLElement}){
+        const {parent}=item
+        const IDs:{name:string,id:string}[]=[
+            {name:"images",id:"row-images"},
+            {name:"users",id:"getUsers-row"},
+            {name:"messages",id:"messages-container"},
+            {name:"page-counts",id:"pg-counts-main"},
+            {name:"page-posts",id:"getPosts-container"},
+            {name:"page-blogs",id:"getBlogs-container"},
+            {name:"search",id:"search-container"},
+        ]
+        IDs.map(item=>{
+            Header.cleanUpByID(parent,item.id);
+        });
     }
 
   
@@ -213,7 +259,8 @@ class Admin{
         col.style.cssText="margin:auto;background:white;border-radius:12px;box-shadow:1px 1px 12px 1px black;display:flex;flex-direction:column;align-items:center;gap:1.5rem;margin-bottom:1rem;overflow-x:hidden;";
         col.className="col-md-4 mx-auto";
         const div=document.createElement("div");
-        div.id="div-container";
+        div.className="imgCard-container";
+        div.id="imgCard-container";
         div.style.cssText="margin:auto;display:flex;justify-content:center;align-items:center;gap:1rem;flex-wrap:wrap;";
         const img=document.createElement("img");
         // img.src=Misc.AWSSourceImage({url:adminimg.img,width:175,quality:50});
@@ -320,52 +367,51 @@ class Admin{
         cont.appendChild(para);
         parent.appendChild(cont);
     }
-    async getUsers(inneruser:HTMLElement,css:string,adminUser:userType){
+    async getUsers(item:{parent:HTMLElement,css:string,users:userType[],adminUser:userType}){
+        const {parent,css,users,adminUser}=item;
         const display=window.innerWidth <400 ? "block":"flex";
-        Header.cleanUpByID(inneruser,"getUsers-row");
+        Header.cleanUpByID(parent,"getUsers-row");
         const containerRow=document.createElement("div");
         containerRow.id="getUsers-row";
-            containerRow.style.cssText=`display:${display};flex-direction:row;flex-wrap:wrap;width:100%;position:relative;justify-content:space-around;align-items:center;`;
+        containerRow.style.cssText=`display:${display};flex-direction:row;flex-wrap:wrap;width:100%;position:relative;justify-content:space-around;align-items:center;`;
+        parent.appendChild(containerRow);
             
-        if(!(this._users && this._users.length>0)){
-
-            return await this._service.adminUsers(adminUser.email,adminUser.id).then(async(res)=>{
-                if(res){
-                    inneruser.appendChild(containerRow);
-                    this._users=res.users;
-                    this._users.sort((a,b)=>{if(a.id<b.id) return -1;return 1}).map((user,index)=>{
-                        // console.log("user:first time",user);//works
-                        this.userCard(inneruser,containerRow,user,css,index,adminUser);
-                    });
-                }
-            });
-        } else{
-            inneruser.appendChild(containerRow);
-            this._users.sort((a,b)=>{if(a.id<b.id) return -1;return 1}).map((user,index)=>{
-                // console.log(parent);//works
-                this.userCard(inneruser,containerRow,user,css,index,adminUser);
-            });
-        };
+           users.sort((a,b)=>{if(a.id<b.id) return -1;return 1}).map((user,index)=>{
+               if(user){
+                this.userCard({parent,containerRow,user,css,index,adminUser});
+               }
+           });
+        
            Misc.matchMedia({parent:containerRow,maxWidth:400,cssStyle:{display:"block",flexDirection:"column",justifyContent:"flex-start",alignItems:"center",gap:"1.5rem"}});
        
     }
-    userCard(inneruser:HTMLElement,containerRow:HTMLElement,user:userType,css:string,index:number,adminUser:userType){
-        // Header.cleanUpByID(containerRow,`card-${index}`);
-        // console.log("user: inside",user)//works
-        const users=this._users;
+    userCard(item:{parent:HTMLElement,containerRow:HTMLElement,user:userType,css:string,index:number,adminUser:userType}){
+        const { parent,containerRow,user,index,adminUser}=item;
+        const css_col="margin-inline:auto;display:flex;flex-direction:column;place-items:center;gap:0px;"
         const nameStyle="color:red;margin-right:1rem;font-size:110%;font-weight:bold;"
         const card=document.createElement("div");
         card.className="card";
         card.id=`card-${index}`;
-        card.style.cssText=css;
+        card.style.cssText=css_col;
         card.style.borderRadius="15px";
         card.style.backgroundColor="white";
         card.style.position="relative";
         card.style.alignItems="stretch";
-        card.style.flex="1 1 33%";
+        card.style.flex="1 1 25%";
         const img=document.createElement("img");
         img.style.cssText="width:130px;aspect-ratio: 1/1;box-shadow:1px 1px 12px 1px;border-radius:50%;align-self:center;";
-        img.src=user.image? user.image : this.logo;
+        if(user.imgKey){
+            this._service.getSimpleImg(user.imgKey).then(async(res)=>{
+                if(res){
+                    img.src=res.img;
+                    img.alt=res.Key;
+                }
+            });
+        }else{
+
+            img.src=user.image? user.image : this.logo;
+            img.alt="www.ablogroom.com";
+        }
         img.className="card-img-top";
         img.alt=user.name ? user.name : " blogger";
         card.appendChild(img);
@@ -406,7 +452,7 @@ class Admin{
                 const item:delteUserType={adminemail:adminUser.email,adminId:adminUser.id,delete_id:user.id};
                 this._service.adminDelUser(item).then(async(res)=>{
                     if(res && res.id){
-                        this.deleteUser(inneruser,users,css,adminUser,item);
+                        this.deleteUser({parent,user,adminUser,item});
                     }
                 });
             }
@@ -416,24 +462,24 @@ class Admin{
         Misc.matchMedia({parent:containerRow,maxWidth:400,cssStyle:{flexDirection:"column"}});
 
     }
-    deleteUser(inneruser:HTMLElement,users:userType[],css:string,adminUser:userType,item:delteUserType){
+    deleteUser(items:{parent:HTMLElement,user:userType,adminUser:userType,item:delteUserType}){
+        const {parent,user,adminUser,item}=items;
         //it deletes user and then redoes the user row
-      
-        this._users=users;
+        const css_col="margin-inline:auto;display:flex;flex-direction:column;place-items:center;gap:0px;"
         this._service.adminDelUser(item).then(async(res)=>{
             if(res && res.id){
-                users.map((user_,ind)=>{
+                this.clients.map((user_,ind)=>{
                     if(user_ && (user_.id !==item.delete_id)){
-                        this._users.splice(ind,1)
+                        this.clients.splice(ind,1)
                     }
                 });
 
-                const getRow=inneruser.querySelector("div#getUsers-row") as HTMLElement;
+                const getRow=parent.querySelector("div#getUsers-row") as HTMLElement;
                 if(getRow){
                     Header.cleanUp(getRow);
                     this._users.map((user_,index_)=>{
                         if(user_){
-                            this.userCard(inneruser,getRow,user_,css,index_,adminUser);
+                            this.userCard({parent,containerRow:getRow,user:user_,css:css_col,index:index_,adminUser});
                         }
                     });
                 }
@@ -514,6 +560,202 @@ class Admin{
                 Header.cleanUp(results);
             }
         };
+    }
+    getPosts(item:{parent:HTMLElement,posts:postType[]}){
+        const {parent,posts}=item;
+        Header.cleanUpByID(parent,"getPosts-container");
+        const css_col="margin-inline:auto;display:flex;flex-direction:column;place-items:center;gap:0px;";
+        const css_row="margin-inline:auto;display:flex;place-items:center;gap:10px;flex-wrap:wrap;";
+        const container=document.createElement("div");
+        container.id="getPosts-container";
+        container.style.cssText=css_col;
+        const row=document.createElement("div");
+        row.id="container-row";
+        row.style.cssText=css_row;
+        container.appendChild(row);
+        posts.map(post=>{
+            if(post){
+                this.postcard({parent,row,post});
+
+            }
+        });
+        parent.appendChild(container);
+
+    };
+    getBlogs(item:{parent:HTMLElement,blogs:blogType[]}){
+        const {parent,blogs}=item;
+        Header.cleanUpByID(parent,"getBlogs-container");
+        const css_col="margin-inline:auto;display:flex;flex-direction:column;place-items:center;gap:0px;";
+        const css_row="margin-inline:auto;display:flex;place-items:center;gap:10px;";
+        const container=document.createElement("div");
+        container.id="getBlogs-container";
+        container.style.cssText=css_col;
+        const row=document.createElement("div");
+        row.id="getBlogs-container-row";
+        row.style.cssText=css_row;
+        container.appendChild(row);
+        blogs.map(blog=>{
+            if(blog){
+                this.blogcard({parent,row,blog});
+
+            }
+        });
+        parent.appendChild(container);
+
+    };
+    blogcard(item:{parent:HTMLElement,row:HTMLElement,blog:blogType}){
+        const {parent,row,blog}=item;
+        const less400=window.innerWidth <400;
+        const css_col="margin-inline:auto;display:flex;flex-direction:column;place-items:center;padding-inline:0.25rem;padding-block:1rem;flex:1 0 33%;";
+        const css_row="margin-inline:auto;display:flex;place-items:center;padding-inline:0.25rem;flex-wrap:wrap;";
+        const col=document.createElement("div");
+        col.id="row-col"+ `${blog.id}`;
+        col.style.cssText=css_col + "background-color:white;color:black;flex:1 0 25%;";
+        col.style.width=less400 ? "100%":"33%";
+        const user=this.clients.find(user=>(user.id===blog.user_id));
+        const ul=document.createElement("ul");
+        ul.id="col"+ `${blog.id}-ul`;
+        this.postUser({ul,user});
+        const ID=document.createElement("span");
+        ID.textContent=String(blog.id);
+        const title=document.createElement("h6");
+        title.style.cssText="margin-inline:auto;text-align:center;";
+        title.textContent=`title:${blog.title}`;
+        const content=document.createElement("p");
+        content.style.cssText="margin-inline:auto;text-wrap:pretty;";
+        content.textContent=`desc: ${blog.desc ? blog.desc : " no desc"}`;
+        const rating=document.createElement("small");
+        rating.textContent=`ratings:${String(blog.rating)}`;
+        const messages=document.createElement("small");
+        messages.textContent=`msgs#:${String(blog.messages ? blog.messages.length:0)}`;
+        const contLikes=document.createElement("div");
+        contLikes.style.cssText=css_row;
+        const pageCounts=document.createElement("small");
+        pageCounts.textContent=`pageCounts:${blog.pageCounts ? blog.pageCounts[0].count : 0}`;
+        contLikes.appendChild(messages);
+        contLikes.appendChild(pageCounts);
+        [ID,title,content,contLikes,rating].map((html,index)=>{
+            const li=document.createElement("li");
+            li.id="ul-li-"+String(index);
+            li.style.listStyle="circular";
+            li.appendChild(html);
+            ul.appendChild(li);
+        });
+       
+        col.appendChild(ul);
+        this.delBlog({parent,row,col,blog});
+        row.appendChild(col);
+    }
+    postcard(item:{parent:HTMLElement,row:HTMLElement,post:postType}){
+        const {parent,row,post}=item;
+        const less400=window.innerWidth <400;
+        const css_col="margin-inline:auto;display:flex;flex-direction:column;place-items:center;padding-inline:0.25rem;padding-block:1rem;flex:1 0 33%;";
+        const col=document.createElement("div");
+        col.id="row-col"+ `${post.id}`;
+        col.style.cssText=css_col + "background-color:white;color:black;flex:1 0 25%;";
+        col.style.width=less400 ? "100%":"33%";
+        const user=this.clients.find(user=>(user.id===post.userId));
+        const ul=document.createElement("ul");
+        ul.id="col"+ `${post.id}-ul`;
+        this.postUser({ul,user});
+        const ID=document.createElement("span");
+        ID.textContent=String(post.id);
+        const title=document.createElement("h6");
+        title.style.cssText="margin-inline:auto;text-align:center;";
+        title.textContent=`title:${post.title}`;
+        const content=document.createElement("p");
+        content.style.cssText="margin-inline:auto;text-wrap:pretty;";
+        content.textContent=`desc: ${post.content ? post.content : " no desc"}`;
+        const likes=document.createElement("small");
+        likes.textContent=`likes:${String(post.likes)}`
+        const contLikes=document.createElement("div");
+        const link=document.createElement("small");
+        link.textContent=`link:${post.link ? post.link : " no link"}`;
+        [ID,title,content,likes,contLikes,link].map((html,index)=>{
+            const li=document.createElement("li");
+            li.id="ul-li-"+String(index);
+            li.style.listStyle="circular";
+            li.appendChild(html);
+            ul.appendChild(li);
+        });
+       
+        col.appendChild(ul);
+        this.delPost({parent,row,col,post});
+        row.appendChild(col);
+    }
+    postUser(item:{ul:HTMLUListElement,user:userType|undefined}){
+        const {ul,user}=item;
+        const css_col="margin-inline:auto;display:flex;flex-direction:column;place-items:center;padding-inline:0.25rem;";
+        if(user){
+
+            const cont=document.createElement("div");
+            cont.id="ul-user-cont";
+            cont.style.cssText=css_col;
+            const id=document.createElement("h6");
+            id.textContent=user.id;
+            const name=document.createElement("li");
+            name.textContent=user.name ? user.name : " no name";
+            const email=document.createElement("li");
+            email.textContent=user.email;
+            [id,name,email].map((item,index)=>{
+                item.id=`user-${item.nodeName}-${index}`;
+                cont.appendChild(item);
+                ul.appendChild(cont);
+            });
+        }
+
+    }
+    delBlog(item:{parent:HTMLElement,row:HTMLElement,col:HTMLElement,blog:blogType}){
+        const {parent,row,col,blog}=item;
+        col.style.position="relative";
+        const xDiv=document.createElement("div");
+        xDiv.style.cssText="position:absolute;top:0%;right:0%;transform:translate(-10px,10px);max-width:20px;width:100%;background-color:black;color:white;border-radius:50%;padding:2px;";
+        FaCreate({parent:xDiv,name:FaCrosshairs,cssStyle:{fontSize:"16px",color:"white"}});
+        col.appendChild(xDiv);
+        xDiv.onclick=(e:MouseEvent)=>{
+            if(e){
+                this._service.deleteBlog(blog).then(async(res)=>{
+                    if(res){
+                        
+                        this._blogs.map((blog_,index)=>{
+                            if(blog_.id===blog.id){
+                                this._blogs.splice(index,1);
+                                // const viewport=document.querySelector("div#viewport") as HTMLElement;
+                                // if(!viewport) return;
+                                this.getBlogs({parent:parent,blogs:this._blogs});
+                            }
+                        });
+                    }
+                });
+            }
+        };
+
+    }
+    delPost(item:{parent:HTMLElement,row:HTMLElement,col:HTMLElement,post:postType}){
+        const {parent,row,col,post}=item;
+        col.style.position="relative";
+        const xDiv=document.createElement("div");
+        xDiv.style.cssText="position:absolute;top:0%;right:0%;transform:translate(-10px,10px);max-width:20px;width:100%;background-color:black;color:white;border-radius:50%;padding:2px;";
+        FaCreate({parent:xDiv,name:FaCrosshairs,cssStyle:{fontSize:"16px",color:"white"}});
+        col.appendChild(xDiv);
+        xDiv.onclick=(e:MouseEvent)=>{
+            if(e){
+                this._service.delpost({id:post.id}).then(async(res)=>{
+                    if(res){
+                        
+                        this.posts.map((post_,index)=>{
+                            if(post_.id===res.id){
+                                this._posts.splice(index,1);
+                                const viewport=document.querySelector("div#viewport") as HTMLElement;
+                                if(!viewport) return;
+                                this.getPosts({parent:viewport,posts:this.posts});
+                            }
+                        });
+                    }
+                });
+            }
+        };
+
     }
     getMessages(parent:HTMLElement,user:userType):void{
         if(!( user && user.admin)) return
@@ -663,7 +905,7 @@ class Admin{
         //DELETE
         const xDiv=document.createElement("div");
         xDiv.style.cssText="position:absolute;top:0%;right:0%;transform:translate(-10px,10px);width:22px;height:22px;border-radius:50%;background:black;display:flex;place-items:center;";
-        FaCreate({parent:xDiv,name:FaCrosshairs,cssStyle:{fontSize:"20px",color:"white",borderRadius:"18px;"}});
+        FaCreate({parent:xDiv,name:FaCrosshairs,cssStyle:{fontSize:"20px",color:"white",borderRadius:"18px"}});
         col.appendChild(xDiv);
         xDiv.onclick=(e:MouseEvent)=>{
             if(e){

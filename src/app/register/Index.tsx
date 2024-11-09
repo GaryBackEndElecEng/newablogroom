@@ -7,10 +7,10 @@ import User from '@/components/user/userMain';
 import Register from './register';
 
 export default function Index() {
-    let count = 0;
     const readyRef = React.useRef(null);
+    const countRef = React.useRef(0);
     React.useEffect(() => {
-        if (readyRef.current && count === 0) {
+        if (readyRef.current && countRef.current === 0) {
             if (typeof window !== "undefined") {
                 const parent = document.querySelector("div#register_page") as HTMLElement;
 
@@ -20,12 +20,16 @@ export default function Index() {
                     const user = new User(modSelector, service);
                     // const auth = new AuthService(modSelector, service, user);
                     const error_ = new Register(modSelector, service, user);
-                    error_.main(parent)
-                    count++;
+                    error_.main({ parent, count: countRef.current }).then(async (res) => {
+                        if (res) {
+                            countRef.current++;
+
+                        }
+                    });
                 }
             }
         }
-    }, [count]);
+    }, []);
     return (
         <div id="register_page" className="mx-auto" ref={readyRef}></div>
     )

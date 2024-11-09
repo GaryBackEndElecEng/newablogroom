@@ -95,8 +95,9 @@ class Home{
         parent.style.marginInline=window.innerWidth < 900 ? "0px" :"auto";
         const show=true;
         await this.introTitleDisplay({parent,show,time:500}).then(async(container)=>{
+            //SHOWS ABLOGROOM DISPLAY
             if(container){
-                await this.sleep({time:1200});
+                await this.sleep({time:1200});//waits
             }
             });
         await this.asyncMain({parent}).then(async(res)=>{
@@ -130,10 +131,7 @@ class Home{
                             ],{duration:1000,iterations:1});
                         }
                     });
-                //opacity=1
-                this.signoutFromEditor();//signout message from /editor
-
-                },100);
+                },200);
 
                 //----------------------SHOW HOME SECTION-------------------------//
                 // show attributes
@@ -145,12 +143,13 @@ class Home{
                 const show=true;
                 
                         this.normalCreateYourBlog(res.sectionOne);//SCROLL DISPLAY
-                        this.editorAttributeDisplay(res.sectionOne);
+                        this.editorAttributeDisplay(res.sectionOne);//SNAP-SCROLL IMAGES
                         //Main editor/Blogs links
-                        this.mainLinks(res.sectionOne);
+                        this.mainLinks(res.sectionOne);//EDITOR/BLOGS LINK
                             // show attributes
                             ///-----------display Blogs-------////
                                 await this.listBlogs(res.showBlogs).then(async(_res)=>{
+                                    //MAX 4 BLOGS SCROLLING
                                 if(_res && _res.blogs && _res.blogs.length>0){
                                     _res.blogs.map(async(blog)=>{
                                         if(blog){
@@ -700,7 +699,7 @@ class Home{
         });
 
     }
-
+//SIGNOUTFROMEDITOR NOT USED:=> MESSAGE IS EXECUTED FROM navArrow.logout()
     signoutFromEditor(){
         const url=new URL(window.location.href);
         const isSignout=url.searchParams.get("signout");
@@ -711,6 +710,7 @@ class Home{
             console.log("533:signedOutFromEditor:isSignout",isSignout)
         }
     }
+    //SIGNOUTFROMEDITOR NOT USED:=> MESSAGE IS EXECUTED FROM navArrow.logout()
     showMaskDetail(_item:{container:HTMLElement,item:arrItemType,index:number}){
         const {container,item,index}=_item;
         Header.cleanUpByID(container,`showMaskDetail-popup-${index}`);

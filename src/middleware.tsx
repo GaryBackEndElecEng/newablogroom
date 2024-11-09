@@ -5,19 +5,19 @@ import { NextResponse, NextRequest } from "next/server";
 export function middleware(req: NextRequest) {
     const pages = ['/', '/blog/', '/blogs', "/register", "/editor", "/policy", "/termsOfService", "/admin", "/chart", "/posts"];
     // const csrf = req.cookies.get("next-auth.csrf-token")?.value;
-    if (req && req.url) {
-        const baseUrl = req.nextUrl;
-        // const url = new URL(req.url);
-        const checkUrl = pages.find(pathname => (pathname !== baseUrl.pathname));
-        const getError = baseUrl.searchParams.get("error")
-        if (getError) {
-            return NextResponse.redirect(new URL(`/register`, baseUrl.basePath))
-        } else if (!checkUrl) {
-            return NextResponse.redirect(new URL(`/error_page?misc=${baseUrl.pathname}`, baseUrl.basePath))
-        } else {
-            return NextResponse.next()
-        }
-    }
+    // if (req && req.url) {
+    //     const baseUrl = req.nextUrl;
+    //     // const url = new URL(req.url);
+    //     const checkUrl = pages.find(pathname => (pathname !== baseUrl.pathname));
+    //     const getError = baseUrl.searchParams.get("error")
+    //     if (getError) {
+    //         return NextResponse.redirect(new URL(`/register`, baseUrl.basePath))
+    //     } else if (!checkUrl) {
+    //         return NextResponse.redirect(new URL(`/error_page?misc=${baseUrl.pathname}`, baseUrl.basePath))
+    //     } else {
+    //         return NextResponse.next()
+    //     }
+    // }
 }
 export const config = {
     matcher: [
