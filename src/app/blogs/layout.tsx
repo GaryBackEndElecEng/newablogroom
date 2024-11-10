@@ -23,14 +23,19 @@ export const metadata: Metadata = {
         siteName: "ablogroom",
         images: [
             {
-                url: "/images/gb_logo.png",
+                url: "https://www.ablogroom.com/images/gb_logo.png",
                 width: 600,
                 height: 600
             },
             {
-                url: "https://new-master.s3.ca-central-1.amazonaws.com/static/masterultils/masterUltils800_400.png",
-                width: 800,
-                height: 400
+                url: "https://www.ablogroom.com/images/thankYou.png",
+                width: 600,
+                height: 900
+            },
+            {
+                url: "https://new-master.s3.ca-central-1.amazonaws.com/ablogroom/thankYou.png",
+                width: 600,
+                height: 900
             },
         ],
     },

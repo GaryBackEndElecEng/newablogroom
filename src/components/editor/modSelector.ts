@@ -18,6 +18,7 @@ class ModSelector {
     static mainFooter_css:string="width:100%;padding-inline:5px;margin-inline:0px;";
     urlUpload="/api/uploadImage";
     btnColor="#0C090A";
+    _status:"authenticated" | "loading" | "unauthenticated";
     _count=1;
     _placement=1;
     _chart:chartType;
@@ -72,6 +73,7 @@ class ModSelector {
     {
         // this.main=document.querySelector("section#main");//covers teaxtarea and btns
         // this._blog.header=this._Header.selector;
+        this._status="unauthenticated";
         this._bgColor="rgb(233, 236, 242)" 
         this._nameSelected=false;
         this._header={} as selectorType;
@@ -147,6 +149,13 @@ class ModSelector {
             }
         });
     };
+
+get status(){
+    return this._status;
+}
+set status(status:"authenticated" | "loading" | "unauthenticated"){
+    this._status=status;
+}
 
 get count(){
     const getCount=localStorage.getItem("count");

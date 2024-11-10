@@ -58,20 +58,6 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         } else {
             res.status(400).json({ err: "no user_id: blog creation was not created" })
         }
-    } else if (req.method === "GET") {
-        //-------------( GETS ALL BLOGS ) -------------//
-        try {
-            const blogs = await prisma.blog.findMany() as unknown[] as blogType[];
-            const blogsWithImgs = await getUserBlogsImgs(blogs);
-            res.status(200).json(blogsWithImgs)
-        } catch (error) {
-            const msg = getErrorMessage(error);
-            console.log("error: ", msg)
-            res.status(400).json({ message: msg })
-        } finally {
-            await prisma.$disconnect();
-        }
-
     }
 }
 

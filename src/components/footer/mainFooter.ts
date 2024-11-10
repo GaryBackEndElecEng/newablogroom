@@ -69,31 +69,33 @@ class MainFooter{
 
     main(injector:HTMLElement){
         const user=this._user.user;
+        const less900=window.innerWidth < 900;
+        const less400= window.innerWidth < 400;
         const css="position:relative;margin:auto;width:100%;"
         injector.style.width="100%";
         injector.style.marginBottom="0";
         MainFooter.cleanUp(injector);
         const container=document.createElement("section");
-        container.style.cssText="width:100%;height:100%;color:white;box-shadow:1px 1px 6px 1px white;position:relative;margin:auto;z-index:30;background:black;margin-top:1.5rem;margin-bottom:0;";
+        container.style.cssText="width:100%;height:auto;color:white;box-shadow:1px 1px 6px 1px white;position:relative;margin:auto;z-index:30;background:black;margin-top:1.5rem;margin-bottom:0;";
         injector.appendChild(container);
         const msgCont=document.createElement("div");
         msgCont.style.cssText=css + "margin-inline:auto;background:transparent;";
         container.appendChild(msgCont);
         this.showStorageMsg({parent:container,msgCont:msgCont,user,closeInfoMsg:this.closeInfoMsg});
         const row=document.createElement("div");
-        row.style.cssText="display:flex;justify-content:center;align-items:center;width:100%;"
+        row.style.cssText="display:flex;justify-content:center;align-items:center;width:100%;min-height:15vh;height:auto;"
         row.id="row-mainFooter";
         const arr:string[]=["col-md-4 left-side","col-md-5 center","col-md-3 right-side"];
-        Misc.matchMedia({parent:row,maxWidth:900,cssStyle:{"flexDirection":"column","justifyContent":"center","alignItems":"center"}})
-        const matches900=window.innerWidth <900 ? true:false;
+        Misc.matchMedia({parent:row,maxWidth:900,cssStyle:{flexDirection:"column",justifyContent:"center",alignItems:"center"}})
+
         arr.map((str,index)=>{
             const col=document.createElement("div");
             col.id=`col-mainFooter-${index}`;
-            col.style.cssText="box-shadow:1px 1px 6px 1px white;position:relative;margin:auto;padding:0.5rem;min-height:15vh;";
+            col.style.cssText="box-shadow:1px 1px 6px 1px white;position:relative;margin:auto;padding:0.5rem;";
             col.className=str;
-            if(matches900){
+            if(less900){
                 col.style.minHeight= "20vh";
-                col.style.height="20vh";
+                col.style.height="auto";
                 col.style.flex="0 0 100%";
                 col.style.width="100%";
                 row.style.flexDirection="column";
@@ -104,8 +106,8 @@ class MainFooter{
                 }
             }else{
                 col.style.order="auto";
-                col.style.minHeight= "15vh";
-                col.style.height="15vh";
+                col.style.minHeight= "20vh";
+                col.style.height="auto";
                 col.className=str;
                 col.style.flex="1 0 auto";
                 row.style.flexDirection="row";
@@ -208,19 +210,21 @@ class MainFooter{
         parent.appendChild(container);
     }
     rightSide(parent:HTMLElement){
+        const less900=window.innerWidth < 900;
+        const less400=window.innerWidth < 400;
         const container=document.createElement("div");
         container.id="right";
         container.style.cssText="margin:0px;padding:0px;position:relative;";
         const innerContainer=document.createElement("div");
         innerContainer.id="innerContainer-rightSide";
         innerContainer.style.cssText="position:absolute; inset:0% 0% 0% 20%;box-shadow:1px 1px 6px 1px white;min-height:10vh;margin-right:0.25rem;min-height:15vh;display:flex;flex-direction:column;justify-content:center;align-items:center;padding-inline:1rem;";
+        innerContainer.style.minHeight=less900 ? (less400 ? "18vh" :"16vh") :"16vh";
         this.rightSideContent(innerContainer);
         container.appendChild(innerContainer);
         Misc.matchMedia({parent:innerContainer,maxWidth:900,cssStyle:{"position":"absolute","inset":"1.5rem 0% 0% 10%","width":"auto"}});
         Misc.matchMedia({parent:container,maxWidth:900,cssStyle:{"position":"relative","width":"100%","flexDirection":"column"}});
         Misc.matchMedia({parent:container,maxWidth:800,cssStyle:{"position":"relative","width":"100%","flexDirection":"row"}});
         Misc.matchMedia({parent:innerContainer,maxWidth:770,cssStyle:{"position":"absolute","inset":"0% 0% 0% 15%","marginRight":"0.5rem","width":"auto"}});
-        Misc.matchMedia({parent:innerContainer,maxWidth:400,cssStyle:{minHeight:"20vh"}});
         this.privacy(container)
         parent.appendChild(container);
        

@@ -25,7 +25,7 @@ export default function Index({ posts }: { posts: postType[] }) {
 
             });
         }
-    }, [posts]);
+    }, [posts, refPosts, countRef]);
     return (
         <section ref={refPosts} id="posts" className={styles.mainPost}>
 

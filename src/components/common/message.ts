@@ -441,7 +441,9 @@ class Message{
                 divAvg.classList.add("showAnchor");
                 divAvg.setAttribute("data-link","Average rating");
                 divAvg.style.cssText="margin-block:1rem;margin-inline:auto;"
-                Misc.starRating({parent:divAvg,rating:avg,cssStyle:{fontSize:"22px",color:"yellow",backgroundColor:"black",padding:"3px",borderRadius:"50%"}});
+                const cssStyle={fontSize:"22px",color:"yellow",backgroundColor:"black",padding:"3px",borderRadius:"50%"};
+                const rowCssStyle={backgroundColor:"black",padding:"3px",borderRadius:"8px"};
+                Misc.starRating({parent:divAvg,rating:avg,cssStyle,rowCssStyle});
                 this.messages=msgs;
                 const hr=document.createElement("hr");
                 hr.style.cssText="width:75%;margin-inline:auto;color:#00BFFF;background:#00BFFF;margin-top:0rem;"
@@ -509,7 +511,9 @@ class Message{
         contStar.id="contStar";
         contStar.style.cssText="display:flex;flex-wrap:wrap;width:100%;align-items:center;justify-content:space-around;";
         contStar.appendChild(rating);
-        Misc.starRating({parent:contStar,rating:msg.rate,cssStyle:{color:"yellow","backgroundColor":"black",padding:"3px",borderRadius:"50%","fontSize":"25px","fill":"yellow","marginInline":"0px"}});
+       const cssStyle={color:"yellow",padding:"3px",borderRadius:"50%","fontSize":"25px","fill":"yellow","marginInline":"0px"};
+       const rowCssStyle={color:"yellow","backgroundColor":"black",padding:"3px",borderRadius:"8px"};
+        Misc.starRating({parent:contStar,rating:msg.rate,cssStyle,rowCssStyle});
         //APPENDING rating and contStar
         //APPENDING rating and contStar
         nameCont.appendChild(contStar);
@@ -560,7 +564,9 @@ class Message{
         const rate=document.createElement("div");
        rate.style.cssText="margin-inline:auto;"
         rate.id="cardBody-rate";
-        Misc.starRating({parent:rate,rating:msg.rate,cssStyle:{width:"100%",padding:"1px",color:"yellow",backgroundColor:"black",borderRadius:"50%"}});
+        const cssStyle={fontSize:"22px",color:"yellow",backgroundColor:"black",padding:"3px",borderRadius:"50%"};
+        const rowCssStyle={backgroundColor:"black",padding:"3px",borderRadius:"8px"};
+        Misc.starRating({parent:rate,rating:msg.rate,cssStyle,rowCssStyle});
         name.innerHTML=`<span id="view-cardBody-name" style="display:flex;"><span style="color:black;font-weight:bold;">name: </span> <h6 style="font-size:18px;color:blue;margin-right:0.5rem;"> ${msg.name}</h6></span>`;
         cardBody.appendChild(rate);
         cardBody.appendChild(name);

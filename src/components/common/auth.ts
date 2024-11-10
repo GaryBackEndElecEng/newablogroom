@@ -115,6 +115,7 @@ class AuthService {
             this._mainFooter.status="authenticated";
             this._mainHeader.status="authenticated";
             this.status="authenticated";
+            this._modSelector.status="authenticated";
             this._service.isSignedOut=false;
             if(footerCenterBtns){
                 this._mainFooter.centerBtnsRow({container:footerCenterBtns,status:"authenticated"});
@@ -127,6 +128,7 @@ class AuthService {
             this._user.status="unauthenticated";
             this._mainFooter.status="unauthenticated";
             this._mainHeader.status="unauthenticated";
+            this._modSelector.status="unauthenticated";
             this.status="unauthenticated";
             this._service.isSignedOut=false;
             localStorage.removeItem("user");

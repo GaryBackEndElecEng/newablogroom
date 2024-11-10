@@ -107,6 +107,7 @@ _status:"authenticated" | "loading" | "unauthenticated";
                             //if user:shows user else shows LOGIN PAGE
                             if(res_ ){
                                     if(res_.user && res_.parent){
+                                        this._navArrow.cleanUpByQueryKeep(res_.parent,"div#headerNav-signInDisplay-container"); //this cleans up but one
                                         const admin=res_.user.admin;
                                         if(admin){
                                             Misc.msgSourceImage({parent:res_.parent,msg:"You have admin Rights",src:this.logo,width:125,quality:75,time:2200,cssStyle:{boxShadow:"1px 1px 12px 1px white",backgroundColor:"black",color:"white",inset:"680% 0% 70% 0%"}});

@@ -84,15 +84,10 @@ class Home{
         this._images=images;
     }
     ////-----------------GETTERS//SETTERS------------------//
-    //INJECTION
+    //INJECTION !! STYLE FOR PARENT IS DONE VIA home.module.css
     async main(parent:HTMLElement){
         const css_col="display:flex;flex-direction:column;align-items:center;gap:1.5rem;width:100%";
-        parent.style.cssText=css_col;
         Header.cleanUp(parent);
-        Misc.matchMedia({parent,maxWidth:900,cssStyle:{paddingInline:"5px",paddingBlock:"1rem",margin:"0.25rem"}});
-        Misc.matchMedia({parent,maxWidth:600,cssStyle:{paddingInline:"0px",paddingBlock:"1rem",margin:"0px"}});
-        parent.style.paddingInline=window.innerWidth < 900 ? "0px" :"0rem";
-        parent.style.marginInline=window.innerWidth < 900 ? "0px" :"auto";
         const show=true;
         await this.introTitleDisplay({parent,show,time:500}).then(async(container)=>{
             //SHOWS ABLOGROOM DISPLAY
@@ -153,7 +148,7 @@ class Home{
                                 if(_res && _res.blogs && _res.blogs.length>0){
                                     _res.blogs.map(async(blog)=>{
                                         if(blog){
-                                            this.blogCard({parent:_res.container,blog})
+                                            this.blogCard({parent:_res.blogMsgCont,blog})
                                         }
                                     });
                                     // this._blogs.showBlogs(_res.container,true,_res.blogs);
@@ -207,15 +202,12 @@ class Home{
         sectionOne.style.backgroundSize=`100% 100%`;
         sectionOne.style.backgroundPosition=`50% 50%`;
         sectionOne.style.backgroundColor=`aliceblue`;
+        sectionOne.style.paddingBlock=less900 ? (less400 ? "2.5rem":"2rem") : "2rem";
         sectionOne.appendChild(messageDisplay);
         sectionOne.appendChild(showmsgs);
         sectionOne.appendChild(btnContainer);
         parent.appendChild(sectionOne);
-        Misc.matchMedia({parent:sectionOne,maxWidth:900,cssStyle:{padding:"0px",backgroundImage:"none"}});
         parent.appendChild(showBlogs);
-        
-        Misc.matchMedia({parent,maxWidth:900,cssStyle:{width:"100%",paddingInline:"5px",paddingBlock:"1rem",marginInline:"2px",maxWidth:"auto"}});
-        Misc.matchMedia({parent,maxWidth:600,cssStyle:{width:"100%",paddingInline:"0px",marginInline:"0px"}});
         return new Promise(resolve=>{
             resolve({showBlogs,sectionOne})
         }) as Promise<{showBlogs:HTMLElement,sectionOne:HTMLElement}>;
@@ -392,7 +384,7 @@ class Home{
             {transform:"translateX(-100%)"},
         ],{duration:20000,iterations:Infinity});
     }
-    async listBlogs(parent:HTMLElement): Promise<{blogs:blogType[] | undefined,container:HTMLElement}>{
+    async listBlogs(parent:HTMLElement): Promise<{blogs:blogType[] | undefined,blogMsgCont:HTMLElement}>{
         //MAXIMUM OF QTY=4 && RATING > 3
         const less900=window.innerWidth <900;
         const less400=window.innerWidth <400;
@@ -401,6 +393,7 @@ class Home{
         const container=document.createElement("section");
         container.id="home-listBlogs-showBlogs";
         container.style.cssText=css_col + "gap:1rem;position:relative;width:100%";
+        //----------textCont-----------------//
         const textCont=document.createElement("div");
         textCont.id="container-textCont";
         textCont.style.cssText=css_col + "gap:0.25rem;width:100%;margin-block:1rem;";
@@ -425,6 +418,13 @@ class Home{
         textCont.appendChild(line1);
         textCont.appendChild(line2);
         container.appendChild(textCont);
+        //----------textCont-----------------//
+        //----------blogCont-----------------//
+        const blogMsgCont=document.createElement("div");
+        blogMsgCont.id="container-blogMsgCont";
+        blogMsgCont.style.cssText=css_col + "height:50vh;overflow-y:scroll;width:100%;box-shadow:1px 1px 12px 1px #01d1f7;";
+        //----------blogCont-----------------//
+        container.appendChild(blogMsgCont);
         parent.appendChild(container);
         Misc.blurIn({anchor:container,blur:"20px",time:600});
         Misc.matchMedia({parent:container,maxWidth:900,cssStyle:{maxWidth:"900px",width:"100%"}});
@@ -437,12 +437,12 @@ class Home{
                 this._modSelector.blogs=blogs;
                 if(blogs.length>0){
                     const limitBlogs=blogs.filter(bl=>(bl.rating >3)).slice(0,4);
-                 return {container:container,blogs:limitBlogs};
+                 return {blogMsgCont:blogMsgCont,blogs:limitBlogs};
                 }else{
                     // return Blogs.noBlogs(container);
                 }
             }
-        }) as Promise<{container:HTMLElement,blogs:blogType[] | undefined}>;
+        }) as Promise<{blogMsgCont:HTMLElement,blogs:blogType[] | undefined}>;
 
         
     }
@@ -531,6 +531,7 @@ class Home{
         const {button}=Misc.simpleButton({anchor:card,type:"button",bg:Nav.btnColor,color:"white",time:400,text:"view detail"});
         button.style.placeSelf="center";
         button.style.margin="auto";
+        button.style.marginBlock=less900 ? (less400 ? "1.5rem":"1rem") : "0.75rem";
         button.onclick=(e:MouseEvent)=>{
             if(e){
                 const newUrl=new URL(`/blog/${blog.id}`,url.origin);
@@ -554,9 +555,10 @@ class Home{
         if(blog && msgs && msgs.length>0){
             const contScroll=document.createElement("div");
             contScroll.id="home-blogMsgs-contScroll";
-            contScroll.style.cssText=css_col + "height:15vh;overflow-y:scroll;padding:1rem;width:100%";
+            contScroll.style.cssText=css_col + "overflow-y:scroll;padding:1rem;width:100%";
+            contScroll.style.height=less900 ? (less400 ? "12vh":"15vh") :"18vh";
             contScroll.style.marginBlock=less900 ? (less400 ? "3rem": "1rem") : "0.5rem";
-            contScroll.style.marginBlock=window.innerWidth <420 ? "0px":"auto";
+            contScroll.style.marginBlock=less400 ? "2rem":"auto";
             contScroll.style.paddingInline=window.innerWidth < 900 ? (window.innerWidth<400 ? "1.25rem":"2.75rem"):"5.5rem";
             col.appendChild(contScroll);
             msgs.map(msg=>{

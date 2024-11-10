@@ -30,7 +30,8 @@ function Index({ _user_ }: { _user_: userType | null }) {
     const navRef = React.useRef(null);
     React.useEffect(() => {
 
-        if (typeof window !== "undefined" && navRef.current && countRef.current === 0) {
+        if (countRef && countRef.current > 0 && !(navRef && navRef.current)) return
+        if (typeof window !== "undefined") {
             const inject = document.getElementById("headerInjector") as HTMLElement;
             const browserType = new BrowserType();
             const modSelector = new ModSelector();
@@ -62,7 +63,7 @@ function Index({ _user_ }: { _user_: userType | null }) {
             //browserType sends message of browser incompatibility if issues
             const retList = browserType.main({ parent: inject, navigator: keyword })
         }
-    }, [_user_]);
+    }, [_user_, navRef, countRef]);
     return (
         <div id="headerInjector" ref={navRef} className={styles.headerindex}></div>
     )

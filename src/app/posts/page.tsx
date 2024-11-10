@@ -4,7 +4,7 @@ import Index from "@/components/posts/Index";
 import styles from "@/components/posts/post.module.css";
 import prisma from "@/prisma/prismaclient";
 import { getErrorMessage } from '@/lib/errorBoundaries';
-import { blogType, postType } from '@/components/editor/Types';
+import { postType } from '@/components/editor/Types';
 import { Metadata, ResolvingMetadata } from 'next';
 
 type Props = {
@@ -56,7 +56,7 @@ export async function genMetadata(parent: ResolvingMetadata, { posts }: { posts:
     const par = await parent;
     let keywords: string[] = [];
     keywords = posts.map(post => (post.title));
-    const contentArr = posts.map(post => (post.content ? `${post.content.split(" ").slice(0, 10).join(" ")}...` : "ablogroom post"));
+    const contentArr = posts.sort((a, b) => { if (a.likes > b.likes) return -1; return 1 }).map(post => (post.content ? `${post.content.split(" ").slice(0, 10).join(" ")}...` : "ablogroom post")).slice(0, 4);
     keywords = keywords.concat(contentArr);
     const images = [{ url: "https://new-master.s3.ca-central-1.amazonaws.com/ablogroom/posts.png" }, { url: "https://www.ablogroom.com/images/posts.png" }]
     const desc = `Free Posts && Blogs by ABLOGROOM -Blogs Creation by Bloggers for You, such as:${contentArr.join(",")}`;

@@ -13,11 +13,11 @@ import { useSession } from 'next-auth/react';
 
 export default function Index() {
     const { data: session, status } = useSession();
-    let count = 0;
     const refChart = React.useRef(null);
+    const countRef = React.useRef(0);
     React.useEffect(() => {
 
-        if (typeof window !== "undefined" && refChart.current) {
+        if (typeof window !== "undefined" && refChart.current && countRef.current === 0) {
             const climate = new Climate();
             const modSelector = new ModSelector();
             const service = new Service(modSelector);
@@ -27,17 +27,17 @@ export default function Index() {
 
             Header.cleanUp(docChart);
             // console.log(docChart)//works
-            if (count === 0) {
-                setTimeout(async () => {
-                    const blog = modSelector.blog;
-                    await chart.mainChart(docChart, blog);
-                    await climate.generateGraph({ parent: docChart })
-                }, 0)
-                count++;
-            }
+            setTimeout(async () => {
+                const blog = modSelector.blog;
+                await chart.mainChart(docChart, blog).then(() => {
+                    countRef.current++;
+                });
+                climate.generateGraph({ parent: docChart })
+            }, 0)
+
         }
 
-    }, [count]);
+    }, [refChart, countRef]);
     return (
         <div className={style.chartindexcontainer}>
             <h5 className="mx-auto lean display-5 text-light text-center"> Graphs for you</h5>

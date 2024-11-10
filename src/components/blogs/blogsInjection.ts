@@ -10,6 +10,7 @@ import { FaCreate } from "../common/ReactIcons";
 import { BsHandThumbsUpFill } from "react-icons/bs";
 import AllMsgs from "../home/allMsgs";
 import Message from "../common/message";
+import Nav from "../nav/headerNav";
 
 const base_url="http://localhost:3000";
 // const base_url=process.env.BASE_URL as string;
@@ -78,7 +79,7 @@ message:Message
     const css_row="display:flex;justify-content:center;align-items:center;gap:0.5rem;position:relative;";
     this.baseUrl=new URL(window.location.href).origin;
     this.blogs=blogs;
-    Header.cleanUp(parent);
+   
     const m_block= window.innerWidth < 500 ? "0rem" : "0.25rem";
         parent.style.position="relative";
         parent.classList.add("container-fluid");

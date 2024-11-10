@@ -38,10 +38,10 @@ export default function Index() {
             countRef.current++;
         }
 
-    }, []);
+    }, [refCheck, countRef]);
     return (
-        <div className={styles.homeIndex}>
-            <section ref={refCheck} id="home-index"></section>
+        <div className={styles.homeIndexContainer}>
+            <section ref={refCheck} id="home-index" className={styles.homeIndex}></section>
         </div>
     )
 }

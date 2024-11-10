@@ -393,13 +393,6 @@ class Nav{
             };
         }) as Promise<string | null>;
     }
-    cleanUpByQuery(parent:HTMLElement,target:HTMLElement){
-        ([...parent.children as any] as HTMLElement[]).map(child=>{
-            if(child.id ===target.id){
-                parent.removeChild(child);
-            }
-        });
-    }
     hoverEffect(item:{target:HTMLElement,time:number}){
         const {target,time}=item;
         const boxshadow1=target.style.boxShadow;
@@ -504,18 +497,13 @@ class Nav{
     static cleanUpByQuery(parent:HTMLElement,query:string){
         const getContainers=parent.querySelectorAll(query);
         const elements=([...getContainers as any] as Element[])
-        if(getContainers){
-            ([...parent.children as any] as HTMLElement[]).map(child=>{
-                if(child && elements.length>0){
-                    elements.map(child2=>{
-                        if(child2.id===child.id){
-                            parent.removeChild(child);
+        if(getContainers && elements.length>0){
+                elements.map(child=>{
+                    if(child){
+                        parent.removeChild(child);
+                    }
+                });
 
-                        }
-                    });
-
-                }
-            });
         }
     }
     static navHistory(url_:string){
@@ -709,6 +697,19 @@ class Nav{
     static cleanUp(parent:HTMLElement){
         while(parent.firstChild){
             parent.removeChild(parent.lastChild as ChildNode)
+        }
+    }
+    static cleanUpByQueryKeep(parent:HTMLElement,query:string){
+        //THIS REMOVES ALL BUT ONE CHILD BY QUERY ( CLASS OR ID);
+        const getContainers=parent.querySelectorAll(query);
+        const elements=([...getContainers as any] as Element[]);
+        if(getContainers && elements.length>1){
+                elements.map((child,index)=>{
+                    if(child && index>0){
+                        parent.removeChild(child);
+                    }
+                });
+
         }
     }
 }

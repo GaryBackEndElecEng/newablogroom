@@ -181,29 +181,53 @@ _onlyMeta:boolean=false;
             btnGrp.className="btn-group btnGrp justify-content-around gap-2";
             // BUTTON RETURN NAV OPTIONS
                 // Main.cleanUp(btnGrp);
-            
-                const btnBack=buttonReturn({parent:btnGrp,text:"back",bg:"#0C090A",color:"white",type:"button"})
-                btnBack.className=""
-                btnBack.addEventListener("click",(e:MouseEvent)=>{
-                if(e){
-                    window.history.go(-1)
-                }
-                });
-                const btn=buttonReturn({parent:btnGrp,text:"main",bg:"#0C090A",color:"white",type:"button"})
-                btn.className=""
-                btn.addEventListener("click",(e:MouseEvent)=>{
-                if(e){
-                    this.baseUrl=new URL(window.location.href);
-                    const blogsUrl=new URL("/",this.baseUrl.origin);
-                    window.location.href=blogsUrl.href;
-                }
-                });
-                const sendMsg=buttonReturn({parent:btnGrp,text:"sendMsg",bg:"#0C090A",color:"white",type:"button"})
-                sendMsg.className=""
-                sendMsg.addEventListener("click",(e:MouseEvent)=>{
-                if(e){
-                    this._message.contact(parent,blog);
-                }
+                const btnBack=buttonReturn({parent:btnGrp,text:"back",bg:"#0C090A",color:"white",type:"button"});
+                btnBack.id="btnBack";
+                const btnMain=buttonReturn({parent:btnGrp,text:"main",bg:"#0C090A",color:"white",type:"button"});
+                btnMain.id="btnMain";
+                const sendMsg=buttonReturn({parent:btnGrp,text:"sendMsg",bg:"#0C090A",color:"white",type:"button"});
+                sendMsg.id="sendMsg";
+                const btnEditor=buttonReturn({parent:btnGrp,text:"editor",bg:"#0C090A",color:"white",type:"button"});
+                btnEditor.id="btnEditor";
+                [btnBack,btnMain,sendMsg,btnEditor].map(async(btn)=>{
+                    if(btn){
+                        if(btn.id==="btnBack"){
+                            btn.className=""
+                            btn.addEventListener("click",(e:MouseEvent)=>{
+                            if(e){
+                                window.history.go(-1)
+                            }
+                            });
+                        }else if(btn.id==="btnMain"){
+                            btn.className=""
+                            btn.addEventListener("click",(e:MouseEvent)=>{
+                            if(e){
+                                this.baseUrl=new URL(window.location.href);
+                                const blogsUrl=new URL("/",this.baseUrl.origin);
+                                window.location.href=blogsUrl.href;
+                            }
+                            });
+
+                        }else if(btn.id==="sendMsg"){
+                            btn.className=""
+                            btn.addEventListener("click",(e:MouseEvent)=>{
+                            if(e){
+                                this._message.contact(parent,blog);
+                            }
+                            });
+
+                        }else if(btn.id==="btnEditor"){
+                            btn.className=""
+                            btn.addEventListener("click",(e:MouseEvent)=>{
+                                if(e){
+                                    this.baseUrl=new URL(window.location.href);
+                                    const blogsUrl=new URL("/editor",this.baseUrl.origin);
+                                    window.location.href=blogsUrl.href;
+                                }
+                                });
+                        }
+
+                    }
                 });
                 await this._user.getLocalUserID().then(async(user_id)=>{
                     //SHOWS EDIT BUTTON IF USER.ID===BLOG.USER_ID HAS SIGNED IN AND LOADS BLOG=>MODSELECTOR
@@ -212,9 +236,9 @@ _onlyMeta:boolean=false;
                         this._modSelector.loadSimpleBlog(blog);//loading blog=>modSelector
                         await this.awaitBlog(blog);//loading blog=>here
                             // console.log("blog",this._blog)//works
-                            const {button}=Misc.simpleButton({anchor:btnGrp,text:"edit your blog",bg:"#34282C",color:"white",type:"button",time:600});
-                            btn.className=""
-                            button.addEventListener("click",(e:MouseEvent)=>{
+                            const {button:btnEditBlog}=Misc.simpleButton({anchor:btnGrp,text:"edit your blog",bg:"#34282C",color:"white",type:"button",time:600});
+                            btnEditBlog.className=""
+                            btnEditBlog.addEventListener("click",(e:MouseEvent)=>{
                             if(e){
                                 this._service.promsaveItems(blog).then(async(blog:blogType)=>{
                                     if(blog){
@@ -236,18 +260,8 @@ _onlyMeta:boolean=false;
                    
                     
                 });
-            
-                const btn1=buttonReturn({parent:btnGrp,text:"editor",bg:"#0C090A",color:"white",type:"button"});
-                btn1.className=""
-                btn1.addEventListener("click",(e:MouseEvent)=>{
-                    if(e){
-                        this.baseUrl=new URL(window.location.href);
-                        const blogsUrl=new URL("/editor",this.baseUrl.origin);
-                        window.location.href=blogsUrl.href;
-                    }
-                    });
-    
                 btnContainer.appendChild(btnGrp);
+
                 setTimeout(()=>{
                     this.count++;
                     // console.log("btnGrp",btnGrp,"count",this.count)

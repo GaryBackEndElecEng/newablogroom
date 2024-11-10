@@ -698,7 +698,7 @@ set user(user:userType){
     }>{
         const centerBtnCont=document.querySelector("div#footer-centerBtns-container") as HTMLElement;
         const url=new URL(window.location.href);
-        Header.cleanUpByID(parent,"headerNav-signInDisplay-container")
+        Nav.cleanUpByQuery(parent,"div#headerNav-signInDisplay-container");
         const container=document.createElement("div");
         const less900=window.innerWidth <900;
         const less400=window.innerWidth <400;
@@ -1022,6 +1022,19 @@ set user(user:userType){
                 target.style.opacity="1";
             },time-10);
             
+        }
+    }
+    cleanUpByQueryKeep(parent:HTMLElement,query:string){
+        //THIS REMOVES ALL BUT ONE CHILD BY QUERY ( CLASS OR ID);
+        const getContainers=parent.querySelectorAll(query);
+        const elements=([...getContainers as any] as Element[]);
+        if(getContainers && elements.length>1){
+                elements.map((child,index)=>{
+                    if(child && index>0){
+                        parent.removeChild(child);
+                    }
+                });
+
         }
     }
 

@@ -49,7 +49,7 @@ function Index({ blog, user }: { blog: blogType | null, user: userType | null })
             }
         }
 
-    }, [countRef, blog, user]);
+    }, [countRef, clientRef, blog, user]);
 
 
     return (
