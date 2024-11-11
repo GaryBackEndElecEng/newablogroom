@@ -416,6 +416,7 @@ class HtmlElement {
     }
     addImage(parent:HTMLElement,btnClicked:HTMLButtonElement,icon:iconType):void{
         const width=window.innerWidth <900 ? 100 : 80;
+        const rand=Math.round(Math.random()*1000);
         parent.style.position="relative";
         btnClicked.classList.add("active");
         btnClicked.classList.add(icon.display);
@@ -427,13 +428,13 @@ class HtmlElement {
         floatContainer.classList.add("select-image-container");
         floatContainer.classList.add("flexCol");
         const form=document.createElement("form");
-        form.id="add-image";
+        form.id=`add-image-${rand}`;
         form.classList.add("group-form");
         form.classList.add("flexCol");
         const input=document.createElement("input") as HTMLInputElement;
         input.type="file";
         input.name="file";
-        input.id="file";
+        input.id="file-image";
         form.appendChild(input);
         buttonReturn({parent:form,bg:this.btnColor,color:"white",type:"submit",text:"submit"});
         floatContainer.appendChild(form);

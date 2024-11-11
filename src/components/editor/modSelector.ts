@@ -140,7 +140,7 @@ class ModSelector {
         };
         this._charts=[];
         this._pageCounts=[] as pageCountType[];
-        this._blog={id:0,name:"",desc:"",title:"title",img:undefined,eleId:undefined,class:ModSelector.main_class,cssText:ModSelector.main_css,imgKey:undefined,selectors:this._selectors,elements:this._elements,codes:this._codes,messages:[] as messageType[],show:false,rating:0,pageCounts:this._pageCounts,username:"username",date:new Date(),update:new Date(),attr:"square",charts:this._charts,barOptions:[]};
+        this._blog={id:0,user_id:"",name:"",desc:"",title:"title",img:undefined,eleId:undefined,class:ModSelector.main_class,cssText:ModSelector.main_css,imgKey:undefined,selectors:this._selectors,elements:this._elements,codes:this._codes,messages:[] as messageType[],show:false,rating:0,pageCounts:this._pageCounts,username:"username",date:new Date(),update:new Date(),attr:"square",charts:this._charts,barOptions:[]};
         this._afterSignIn={} as saveProcessType;
         this.promAfterSignIn().then(async(res:saveProcessType)=>{
             if(res){
@@ -1331,7 +1331,7 @@ blogInitializer(user:userType|null){
     this._selectors=[] as selectorType[];
     this._codes=[] as codeType[];
     this._charts=[] as chartType[];
-    this._blog={id:0,name:"",desc:"",img:undefined,eleId:undefined,class:undefined,cssText:undefined,imgKey:undefined,selectors:this._selectors,elements:this._elements,codes:this._codes,show:false,rating:0,pageCounts:this.pageCounts,date:new Date(),update:new Date(),attr:"square",charts:this.charts,barOptions:[],messages:[] as messageType[]};
+    this._blog={id:0,user_id:"",name:"",desc:"",img:undefined,eleId:undefined,class:undefined,cssText:undefined,imgKey:undefined,selectors:this._selectors,elements:this._elements,codes:this._codes,show:false,rating:0,pageCounts:this.pageCounts,date:new Date(),update:new Date(),attr:"square",charts:this.charts,barOptions:[],messages:[] as messageType[]};
     if(!user){
         this._blog={...this._blog,user_id:""}
     }

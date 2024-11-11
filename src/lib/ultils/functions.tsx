@@ -1,7 +1,7 @@
-import { blogType, codeType, elementType, selectorType } from "@/components/editor/Types";
+import { blogType, codeType, elementType, postType, selectorType } from "@/components/editor/Types";
 import { PrismaClient } from "@prisma/client";
 import { getErrorMessage } from "../errorBoundaries";
-
+import prisma from "@/prisma/prismaclient";
 
 export function insertHtml(item: { str: string, startReg: RegExp, endReg: RegExp, insert: string }): string {
     const { str, startReg, endReg, insert } = item;
@@ -162,7 +162,6 @@ export async function findCountKeys(blog: blogType): Promise<void> {
 };
 
 export async function MarkCountKeys(item: { keys: { key: string }[] }) {
-    const prisma = new PrismaClient();
     const { keys } = item;
     try {
         await Promise.all(keys.map(async (res) => {
@@ -185,4 +184,116 @@ export async function MarkCountKeys(item: { keys: { key: string }[] }) {
     } finally {
         await prisma.$disconnect();
     }
+}
+export async function markUserBlogsPosts(item: { user_id: string }) {
+    //MARKS ALL IMGKEY:IMAGES FOR BLOGS AND POSTS
+    const { user_id } = item;
+    try {
+        const blogs = await prisma.blog.findMany({
+            where: { user_id: user_id },
+        });
+        if (blogs && blogs.length > 0) {
+            blogs.map(async (blog) => {
+                if (blog) {
+                    await markBlogImgs({ blog: blog as unknown as blogType });
+                }
+            });
+        }
+        const posts = await prisma.post.findMany({
+            where: { userId: user_id },
+        });
+        if (posts && posts.length > 0) {
+            await markPostsImg({ posts: posts as unknown as postType[] })
+        }
+
+
+    } catch (error) {
+        const msg = getErrorMessage(error);
+        console.log(msg);
+    } finally {
+        await prisma.$disconnect();
+    }
+}
+
+
+export async function markDelete(item: { imgKey: string }) {
+    const { imgKey } = item;
+    try {
+        await prisma.deletedImg.update({
+            where: { imgKey: imgKey },
+            data: {
+                del: true
+            }
+        });
+    } catch (error) {
+        const msg = getErrorMessage(error);
+        console.log(msg);
+    } finally {
+        await prisma.$disconnect();
+    }
+};
+export async function markBlogImgs(item: { blog: blogType }) {
+    const { blog } = item;
+    await markSelectors({ selectors: blog.selectors });
+    await markElements({ elements: blog.elements });
+}
+export async function markSelectors(item: { selectors: selectorType[] }) {
+    const { selectors } = item;
+    if (!(selectors && selectors.length > 0)) return;
+    selectors.map(async (selector) => {
+        if (selector) {
+            await markSelectorImg({ selector });
+        }
+    });
+}
+
+export async function markSelectorImg(item: { selector: selectorType }) {
+    const { selector } = item;
+    try {
+        selector.rows.map(async (row) => {
+            if (row) {
+                if (row.imgKey) {
+                    await markDelete({ imgKey: row.imgKey })
+                }
+                row.cols.map(async (col) => {
+                    if (col) {
+                        if (col.imgKey) {
+                            await markDelete({ imgKey: col.imgKey });
+                        }
+                        col.elements.map(async (ele) => {
+                            if (ele) {
+                                if (ele.imgKey) {
+                                    await markDelete({ imgKey: ele.imgKey });
+                                }
+                            }
+                        });
+                    }
+                });
+            }
+        });
+    } catch (error) {
+        const msg = getErrorMessage(error);
+        console.log(msg);
+    } finally {
+        await prisma.$disconnect();
+    }
+}
+export async function markElements(item: { elements: elementType[] }) {
+    const { elements } = item;
+    elements.map(async (ele) => {
+        if (ele) {
+            if (ele.imgKey) {
+                await markDelete({ imgKey: ele.imgKey });
+            }
+        }
+    });
+}
+export async function markPostsImg(item: { posts: postType[] }) {
+    const { posts } = item;
+    posts.map(async (post) => {
+        if (post && post.imageKey) {
+            await markDelete({ imgKey: post.imageKey });
+        }
+    });
+
 }

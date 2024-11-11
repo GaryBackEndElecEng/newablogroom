@@ -305,7 +305,7 @@ export type chartType={
 }
 export type blogType={
     id:number,
-    user_id?:string,
+    user_id:string,
     title?:string,
     name?:string,
     desc?:string,

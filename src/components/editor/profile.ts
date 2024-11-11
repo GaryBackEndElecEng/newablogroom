@@ -25,7 +25,7 @@ class Profile{
     bgColor:string;
     btnColor:string;
     userUrlUpdate:string;
-    logo:string=baseUrl +"/images/gb_logo.png";
+    logo:string="/images/gb_logo.png";
     blogUrl:string=baseUrl + "/api/blog";
     _messages:messageType[];
     _displayBlog:DisplayBlog;
@@ -38,7 +38,7 @@ class Profile{
     constructor(private _modSelector:ModSelector,private _service:Service,private _user:User,private _metaBlog:MetaBlog,public chart:ChartJS,private _post:Post){
         this.bgColor=this._modSelector._bgColor;
         this.btnColor=this._modSelector.btnColor;
-        this.userUrlUpdate=baseUrl + "/api/user_update";
+        this.userUrlUpdate="/api/user_update";
         this._messages=[];
         this.newCode=new NewCode(this._modSelector,this._service,this._user);
         this.shapeOutside=new ShapeOutside(this._modSelector,this._service,this._user);
@@ -128,7 +128,7 @@ class Profile{
         this.updateImageBio(row,user,1)
         this.emailForm(row,2);
         this.passwordForm(row,2);
-        this.userBlogs(row,1);//row.id=row-profile
+        this.userBlogs({row,column:1});//row.id=row-profile
         await this.messages(row,user,2);
         await this.userposts({row,user,cols:2})
         headerAnchor.appendChild(outerMain);
@@ -372,19 +372,23 @@ class Profile{
     //PARENT::updateImageBio()
     bio(row:HTMLElement,user:userType){
         //parent.id=row-profile
+        const rand=Math.round(Math.random()*1000);
         Header.cleanUpByID(row,"col-bio-column");
         const col=document.createElement("div");
         col.className="col-lg-6";
-        col.id=`col-bio-column`;
+        col.id=`bio-col`;
         col.style.cssText="display:flex;justify-content:center;flex-direction:column;gap:1rem;align-items:center;position:relative;";
         const form =document.createElement("form");
+        form.id=`col-form-${rand}`
         form.style.cssText="display:flex;justify-content:center;align-items:center;flex-direction:column;width:100%";
         const {input,label:inLabel} =Nav.inputComponent(form);
+        input.id=`form-name-${rand}`;
         inLabel.textContent="name";
-        input.id="name-change";
+        input.id=`name-change-${rand}`;
         input.name="name";
         input.value=user.name ? user.name :"";
         const {textarea,label}=Nav.textareaComponent(form);
+        textarea.id=`form-textarea-${rand}`;
         label.textContent="Bio";
         textarea.name="textarea";
         label.classList.add("display-6");
@@ -395,15 +399,17 @@ class Profile{
         textarea.style.width="100%";
         const {input:usern,label:userLabel} =Nav.inputComponent(form);
         userLabel.textContent="username";
-        usern.id="username-change";
+        usern.id=`form-username-change-${rand}`;
         usern.name="username";
         usern.placeholder="username";
+        usern.autocomplete="username";
         userLabel.setAttribute("for",usern.id);
         //showinfo
         const grpShow=document.createElement("div");
         grpShow.className="form-group";
         grpShow.style.cssText="display:flex;flex-direction:column;align-items:center;justify-content:center;";
         const showinfo=document.createElement("input");
+        showinfo.id=`chaeckbox-showinfo-${rand}`;
         showinfo.type="checkbox";
         showinfo.name="showWork";
         showinfo.style.width="50px";
@@ -416,6 +422,7 @@ class Profile{
         //showinfo
         form.appendChild(grpShow);
         const btn=buttonReturn({parent:form,text:"submit",bg:"#00008B",color:"white",type:"submit"});
+        btn.id=`bio-form-btn-submit-${rand}`;
         btn.disabled=true;
         col.appendChild(form);
         row.appendChild(col);
@@ -474,6 +481,7 @@ class Profile{
     }
     uploadImageForm(parent:HTMLElement,user:userType){
         const rand=Math.round(Math.random()*100);
+        
         const col=document.createElement("div");
         col.id=`col-uploadImageForm-${rand}`;
         col.className="col-lg-6";
@@ -482,16 +490,26 @@ class Profile{
          const img=document.createElement("img");
          img.style.cssText="margin:auto;max-width:175px;height:175px;border-radius:50%;filter:drop-shadow(0 0 0.75rem #800000);aspect-ratio: 1 / 1;"
          img.id="profile_pic";
-         img.src=user.image ? user.image : this.logo;
-         img.alt=user.name ? user.name: "www.ablogroom.com";
+         if(user.imgKey){
+            this._service.getSimpleImg(user.imgKey).then(async(res)=>{
+                if(res){
+                    img.src=res.img;
+                    img.alt=res.Key;
+                }
+            });
+         }else{
+
+             img.src=user.image ? user.image : this.logo;
+             img.alt=user.name ? user.name: "www.ablogroom.com";
+         }
          col.appendChild(img);
          //------IMAGE Creation----------//
         const form=document.createElement("form");
-        form.id="profile-image-form"
+        form.id=`profile-image-form-rand`;
         form.style.cssText="display:flex;flex-direction:column;justify-content:center;align-items:center;gap:0.75rem;"
         const input=document.createElement("input");
         input.type="file";
-        input.id="file";
+        input.id=`file-${rand}`;
         input.name="file";
         form.appendChild(input);
         const btn=buttonReturn({parent:form,bg:this.btnColor,text:"upload",color:"white",type:"submit"});
@@ -550,9 +568,10 @@ class Profile{
             }
         });
     }
-    userBlogs(row:HTMLElement,colNum:number){
+    userBlogs(item:{row:HTMLElement,column:number}){
+        const {row,column}=item;
         Profile.cleanUpByID(row,"section#contID")
-        const partition=Math.round(12/colNum);
+        const partition=Math.round(12/column);
         const cont=document.createElement("section");
         cont.id="contID";
         cont.className=`col-md-${partition}`;
@@ -572,14 +591,15 @@ class Profile{
         cont.appendChild(inner_row);
         ///---------------DISPLAY BLOGS------------------------//
         const user_id=this._user.user.id;
-        this._service.userWithBlogs(user_id).then(async(user:userType)=>{
-            if(user){
-                this._user.user=user;
-                const blogs=(user.blogs && user.blogs.length>0) ? user.blogs : null;
-                if(blogs){
+        this._service.userBlogs(user_id).then(async(blogs:blogType[])=>{
+            if(blogs){
+                console.log("blogs",blogs)
+                this._user.user={...this._user.user,blogs:blogs};
+                if(blogs.length>0){
                     this._modSelector.blogs=blogs;
-                    this._modSelector.blogs.map((blog,index)=>{
-                        this.showBlog(row,inner_row,blog,index)
+                    localStorage.setItem("userBlogs",JSON.stringify(blogs));
+                    blogs.map((blog,index)=>{
+                        this.showBlog({grandRow:row,innerRow:inner_row,blog,index})
 
                     });
                 }else{
@@ -743,7 +763,9 @@ class Profile{
         //MESSAGE BODY
         const commentDiv=document.createElement("div");
         commentDiv.style.cssText="margin:auto;display:flex;flex-direction:column;align-items:center;justify-content:center;flex:1 1 60%;cursore:pointer";
-        Misc.starRating({parent:commentDiv,rating:msg.rate,cssStyle:{fontSize:"10px",padding:"2px",color:"yellow",backgroundColor:"black",borderRadius:"50%"}});
+        const cssStyle={fontSize:"10px",padding:"2px",color:"yellow",borderRadius:"50%"};
+        const rowCssStyle={backgroundColor:"black",borderRadius:"5px"};
+        Misc.starRating({parent:commentDiv,rating:msg.rate,cssStyle,rowCssStyle});
         const comment=document.createElement("p");
         comment.style.cssText="margin:auto; text-wrap:wrap;";
         comment.textContent=msg.msg;
@@ -908,8 +930,9 @@ class Profile{
             }
         };
     }
-    async showBlog(grandRow:HTMLElement,row:HTMLElement,blog:blogType,index:number){
-            Profile.cleanUpByID(row,`div#column-${blog.id}`);
+    async showBlog(item:{grandRow:HTMLElement,innerRow:HTMLElement,blog:blogType,index:number}){
+        const {grandRow,innerRow,blog,index}=item;
+            Profile.cleanUpByID(innerRow,`div#column-${blog.id}`);
             const flex=window.innerWidth < 900 ? (window.innerWidth < 410 ? "none":"1 0 50%") :"1 0 33%";
             const col=document.createElement("div");
             // console.log("index",index)//works
@@ -955,14 +978,14 @@ class Profile{
             //APPENDING CARD TO COL
             col.appendChild(card);
             //APPENDING COL TO ROW;
-            row.appendChild(col);
+            innerRow.appendChild(col);
             this.showOnline({parent:col,show:blog.show});
             Misc.matchMedia({parent:col,maxWidth:900,cssStyle:{"flex":"1 0 50%"}});
             Misc.matchMedia({parent:col,maxWidth:412,cssStyle:{"flex":"1 0 100%"}});
             const btn=buttonReturn({parent:card,text:"option",bg:this.btnColor,color:"white",type:"button"});
             btn.addEventListener("click",(e:MouseEvent)=>{
                 if(e){
-                    this.viewChoice(grandRow,row,col,card,blog,index);
+                    this.viewChoice({grandRow,innerRow,col,card,blog,index});
                     
                 }
             });
@@ -1062,7 +1085,8 @@ class Profile{
             }
         });
     }
-    viewChoice(grandRow:HTMLElement,innerRow:HTMLElement,col:HTMLElement,card:HTMLElement,blog:blogType,index:number){
+    viewChoice(item:{grandRow:HTMLElement,innerRow:HTMLElement,col:HTMLElement,card:HTMLElement,blog:blogType,index:number}){
+        const {grandRow,innerRow,col,card,blog,index}=item;
         Profile.cleanUpByID(card,`div#choice`);
         let liveOnOff:HTMLButtonElement;
         col.style.position="relative";
@@ -1096,7 +1120,7 @@ class Profile{
                         //redue view
                        res.blogs.map(_blog=>{
                             if(_blog){
-                                this.showBlog(grandRow,innerRow,_blog,index);
+                                this.showBlog({grandRow,innerRow,blog:_blog,index});
                             }
                         });
                     }
@@ -1207,7 +1231,7 @@ class Profile{
                         Misc.message({parent:grandRow,msg:`marked: ${JSON.stringify(ids)} as delete`,type_:"success",time:1000});
                         remainderBlogs.map((blog_,index)=>{
                             if(blog_){
-                                this.showBlog(grandRow,innerRow,blog_,index)
+                                this.showBlog({grandRow,innerRow,blog:blog_,index})
                             }
                         });
                     }
@@ -1264,7 +1288,7 @@ class Profile{
                         Misc.message({parent:grandRow,msg:`marked: ${JSON.stringify(ids)} as delete`,type_:"success",time:1000});
                         remainderBlogs.map((blog_,index)=>{
                             if(blog_){
-                                this.showBlog(grandRow,innerRow,blog_,index)
+                                this.showBlog({grandRow,innerRow,blog:blog_,index})
                             }
                         });
                     }

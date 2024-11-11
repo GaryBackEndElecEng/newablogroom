@@ -20,13 +20,13 @@ class Register {
         Header.cleanUpByID(parent,"register-page-main");
         Header.cleanUpByID(parent,"button-signin");
         Header.cleanUpByID(parent,"register-page-main-text");
-        parent.style.cssText="margin-inline:auto;padding-inline:10rem;padding-block:1rem;height:110vh;width:100%;display:flex;flex-direction:column;width:100%;align-items:center;justify-content:flex-start;z-index:20;";
+        parent.style.cssText="margin-inline:auto;padding-inline:10rem;padding-block:1rem;height:auto;width:100%;display:flex;flex-direction:column;width:100%;align-items:center;justify-content:flex-start;z-index:20;";
         const container=document.createElement("section");
         container.id="register-page-main";
-        container.style.cssText="padding-inline:2rem;margin-inline:2rem;margin-block:3rem;display:flex;flex-direction:column;justify-content:flex-start;align-items:center;gap:1.5rem;background-color:black;border-radius:12px;z-index:2;width:100%;min-height:100vh;";
+        container.style.cssText="padding-inline:2rem;margin-inline:2rem;margin-block:3rem;display:flex;flex-direction:column;justify-content:flex-start;align-items:center;gap:1.5rem;background-color:black;border-radius:12px;z-index:2;width:100%;height:auto;";
         const innerContainer=document.createElement("div");
         innerContainer.id="register-page-main-sub";
-        innerContainer.style.cssText="padding:5rem;border-radius:12px;background-color:#0000ff70;z-index:2;width:100%;height:90vh;display:flex;align-items:center;flex-direction:column;justify-content:flex-start;";
+        innerContainer.style.cssText="padding:5rem;border-radius:12px;background-color:#0000ff70;z-index:2;width:100%;min-height:90vh;display:flex;align-items:center;flex-direction:column;justify-content:flex-start;";
         this.displayFailedSignin({parent:innerContainer});
         container.appendChild(innerContainer);
         this.register(container,innerContainer);

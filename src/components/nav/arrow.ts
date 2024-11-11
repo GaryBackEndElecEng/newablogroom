@@ -661,6 +661,7 @@ set user(user:userType){
 
                         }
                         });
+                        func();//executing the function
                 }
             });
     }

@@ -14,10 +14,10 @@ const EMAIL2 = process.env.EMAIL2 as string;
 export default async function page() {
     const session = await getServerSession() ? await getServerSession() : null;
     const isEmail = (session && session.user && session.user.email) ? session.user.email : null as string | null;
-    const email = isEmail ? isEmail : null;
+    const email = (isEmail === EMAIL) || (isEmail === EMAIL2) ? isEmail : null;
     const users = await getUsers();
     const admin = await adminUser({ email });
-    if (isEmail) {
+    if (email) {
         return (
             <Index users={users} admin={admin} />
         )

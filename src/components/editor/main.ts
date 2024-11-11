@@ -268,23 +268,17 @@ class  Main  {
                     this._modSelector.blog={...this._modSelector.blog,name:filename,title:title,desc:desc,user_id:user.id,eleId:parent.id};
                     const blog=this._modSelector.blog;
                     this._service.newBlog(blog).then(async(blog_)=>{
-                        if(blog_ && typeof(blog_)==="object"){
+                        if(blog_ && blog_.user_id){
                             this._modSelector.blog={...blog,id:blog_.id,class:Main.main_class,cssText:Main.main_css,eleId:parent.id}
                             this._service.promsaveItems(this._modSelector._blog).then(async(_blog_)=>{
                                 if(_blog_){
-                                    localStorage.setItem("blog",JSON.stringify(_blog_));
                                     const max_=ModSelector.maxCount(_blog_);
                                     localStorage.setItem("placement",String(max_+1));
                                     func();
                                     Misc.message({parent,msg:"created",type_:"success",time:400})
                                     Misc.fadeOut({anchor:container,xpos:50,ypos:100,time:400});
                                     setTimeout(()=>{
-                                        ([...parent.children as any] as HTMLElement[]).map(child=>{
-                                            if(child && child.id==="newBlogSetup"){
-                                                parent.removeChild(child);
-                                            }
-                                        });
-        
+                                        Header.cleanUpByID(parent,"newBlogSetup");
                                     },380);
                                 }
                             });
@@ -299,7 +293,6 @@ class  Main  {
                     const _blog_=this._modSelector.blog;
                     this._service.promsaveItems(_blog_).then(async(resBlog)=>{
                         if(resBlog){
-                            localStorage.setItem("blog",JSON.stringify(resBlog));
                             const max_=ModSelector.maxCount(resBlog);
                             localStorage.setItem("placement",String(max_+1));
                         }

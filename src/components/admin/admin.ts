@@ -96,7 +96,7 @@ class Admin{
         injector.appendChild(viewport);
         const btnContainer=document.createElement("div");
         btnContainer.id="btnContainer";
-        btnContainer.style.cssText = css_row + "margin-block:2rem;margin-inline:auto;justify-content:center;";
+        btnContainer.style.cssText = css_row + "margin-block:2rem;margin-inline:auto;justify-content:center;flex-wrap:wrap;";
         injector.appendChild(btnContainer);
             
         const {button:btnImages}=Misc.simpleButton({anchor:btnContainer,text:"open images",type:"button",time:400,bg:Nav.btnColor,color:"white"});
@@ -144,6 +144,7 @@ class Admin{
                     //GET USERS
                     this.openClean({parent:viewport});
                    this.getUsers({parent:viewport,css,users:this.clients,adminUser});
+                   this.searchUser({viewport:viewport,users:this.clients,adminUser});
                   
                 }
             };
@@ -199,7 +200,8 @@ class Admin{
                 const getrowImages=viewport.querySelector("div#row-images") as HTMLElement;
                 const get_posts=viewport.querySelector("div#getPosts-container") as HTMLElement;
                 const get_blogs=viewport.querySelector("div#getBlogs-container") as HTMLElement;
-                const arr:{name:string,html:HTMLElement}[]=[{name:"messages",html:getmsgsContainer},{name:"users",html:getUsers},{name:"pagecounts",html:getpgCounts},{name:"images",html:getrowImages},{name:"search",html:searchContainer},{name:"get_posts",html:get_posts},{name:"get_blogs",html:get_blogs},] as {name:string,html:HTMLElement}[]
+                const userSearchCont=viewport.querySelector("div#userSearch-container") as HTMLElement;
+                const arr:{name:string,html:HTMLElement}[]=[{name:"messages",html:getmsgsContainer},{name:"users",html:getUsers},{name:"pagecounts",html:getpgCounts},{name:"images",html:getrowImages},{name:"search",html:searchContainer},{name:"get_posts",html:get_posts},{name:"get_blogs",html:get_blogs},{name:"user-search",html:userSearchCont}] as {name:string,html:HTMLElement}[]
                 [...arr].map(item=>{
                     if(item.html){
                         const ID=item.html.id;
@@ -246,7 +248,8 @@ class Admin{
             {name:"page-counts",id:"pg-counts-main"},
             {name:"page-posts",id:"getPosts-container"},
             {name:"page-blogs",id:"getBlogs-container"},
-            {name:"search",id:"search-container"},
+            {name:"search image",id:"searchImg-container"},
+            {name:"search user",id:"userSearch-container"},
         ]
         IDs.map(item=>{
             Header.cleanUpByID(parent,item.id);
@@ -473,11 +476,11 @@ class Admin{
                         this.clients.splice(ind,1)
                     }
                 });
-
+                this.users=this.clients;
                 const getRow=parent.querySelector("div#getUsers-row") as HTMLElement;
                 if(getRow){
                     Header.cleanUp(getRow);
-                    this._users.map((user_,index_)=>{
+                    this.clients.map((user_,index_)=>{
                         if(user_){
                             this.userCard({parent,containerRow:getRow,user:user_,css:css_col,index:index_,adminUser});
                         }
@@ -486,20 +489,187 @@ class Admin{
             }
         });
     }
+    searchUser(item:{viewport:HTMLElement,users:userType[],adminUser:userType}){
+        const {viewport,users,adminUser}=item;
+        Header.cleanUpByID(viewport,"userSearch-container");
+        const container=document.createElement("div");
+        const text=document.createElement("h6");
+        text.className="text-center text-underline text-primary my-2";
+        text.textContent="search user";
+        container.id="userSearch-container";
+        container.style.cssText="width:100%;box-shadow:1px 1px 12px 1px black;padding:1.rem;margin-inline:auto;margin-block:2rem;display:flex;flex-direction:row;align-items:center;padding:1rem;background-color:#dedeec;";
+        const searchUser=document.createElement("div");
+        searchUser.id="searchUser";
+        searchUser.style.cssText="box-shadow:1px 1px 12px 1px black;padding:1.rem;margin-inline:auto;margin-block:2rem;display:flex;flex-direction:column;align-items:center;flex:1 1 33%";
+        const results=document.createElement("div");
+        results.id="User-results";
+        results.style.cssText="box-shadow:1px 1px 12px 1px black;padding:1.rem;margin-inline:auto;margin-block:2rem;display:flex;flex-direction:row;flex-wrap:wrap;align-items:center;flex:1 1 67%;height:40vh; overflow-y:scroll;";
+        const resultText=document.createElement("h6");
+        resultText.className="text-center text-underline text-primary my-2";
+        resultText.textContent="Found - items";
+        const {input,label,formGrp}=Nav.inputComponent(searchUser);
+        const {button:clear}=Misc.simpleButton({anchor:searchUser,bg:"black",color:"white",text:"clear",time:400,type:"button"});
+        input.type="text";
+        input.name="search-user";
+        input.id="search-user";
+        formGrp.style.cssText="display:flex;flex-direction:row;justify-content:center;gap:1rem; align-items:center;";
+        label.setAttribute("for",input.id);
+        label.textContent="search keys";
+        input.placeholder="search";
+        searchUser.appendChild(text);
+        container.appendChild(searchUser);
+        results.appendChild(resultText);
+        container.appendChild(results);
+        viewport.appendChild(container);
+        input.oninput=(e:Event)=>{
+            if(e){
+                const value=(e.currentTarget as HTMLInputElement).value.toLowerCase();
+                const userOnes=users.filter(user=>(user.name?.toLowerCase().includes(value) || user.email.toLowerCase().includes(value)));
+                if(userOnes && value){
+                    this.getSearchUser({viewport,container,results,users:userOnes,adminUser});
+                    
+                }else{
+                    Header.cleanUpByID(viewport,"getSearchUser-results-row");
+                }
+            };
+        };
+        clear.onclick=(e:MouseEvent)=>{
+            if(e){
+
+            }
+        };
+
+    }
+    getSearchUser(item:{viewport:HTMLElement,container:HTMLElement,results:HTMLElement,users:userType[],adminUser:userType}){
+        const {viewport,container,results,users,adminUser}=item;
+        const less900=window.innerWidth <900;
+        const less400=window.innerWidth <400;
+        Header.cleanUpByID(viewport,"getSearchUser-results-row");
+        const css="margin-inline;padding-inline:1rem;padding-block:1.5rem;";
+        const css_row="margin-inline:auto;display:flex;flex-wrap:wrap;justify-content:flex-start;align-items:center;";
+        const css_col="margin-inline:auto;display:flex;flex-direction:center;flex-wrap:wrap;justify-content:center;align-items:center;";
+        const row=document.createElement("div");
+        row.id="getSearchUser-results-row";
+        row.style.cssText=css_row ;
+        results.appendChild(row);
+        if(users && users.length>0){
+            users.map((user,index)=>{
+                if(user){
+                    this.searchUserItem({viewport,results,row,user,index,adminUser})
+                    
+                }
+            });
+        }
+    }
+    searchUserItem(item:{viewport:HTMLElement,results:HTMLElement,row:HTMLElement,user:userType,index:number,adminUser:userType}){
+        const {viewport,results,row,user,index,adminUser}=item;
+        const less900=window.innerWidth <900;
+        const less400=window.innerWidth <400;
+        const css="margin-inline;padding-inline:1rem;padding-block:1.5rem;";
+        const css_row="margin-inline:auto;display:flex;flex-wrap:wrap;justify-content:center;align-items:center;";
+        const css_col="margin-inline:auto;display:flex;flex-direction:column;flex-wrap:wrap;justify-content:center;align-items:center;";
+        const col=document.createElement("div");
+        col.id="row-col-" + index;
+        col.style.cssText=css_col + "flex:1 0 25%;padding:1rem;background-color:white;";
+        col.style.flex=less900 ? (less400 ? "1 0 100%" : "1 0 50%"): "1 0 25%";
+        const topCont=document.createElement("div");
+        topCont.id="col-topCont";
+        topCont.style.cssText=css_col + "padding:0.25rem;box-shadow:1px 1px 12px 1px black;";
+        const topTitle=document.createElement("h6");
+        topTitle.className="text-primary text-center mb-2 text-underline";
+        topTitle.textContent="user";
+        const name=document.createElement("p");
+        name.id="results-name";
+        name.style.cssText=css;
+        name.textContent=user.name ? user.name :"no user name";
+        const email=document.createElement("p");
+        email.id="results-name";
+        email.style.cssText=css;
+        email.textContent=user.email ? user.email :"no user name";
+        topCont.appendChild(name);
+        topCont.appendChild(email);
+        col.appendChild(topTitle);
+        col.appendChild(topCont);
+        const blogCont=document.createElement("div");
+        blogCont.id="col-blogCont";
+        blogCont.style.cssText=css_row + "padding:0.25rem;box-shadow:1px 1px 12px 1px black;";
+        const blogContTitle=document.createElement("h6");
+        blogContTitle.id="blogCont-blogContTitle";
+        blogContTitle.className="text-primary text-center text-underline mb-2";
+        blogContTitle.textContent="blog";
+        col.appendChild(blogContTitle);
+        const postCont=document.createElement("div");
+        postCont.id="col-postCont";
+        postCont.style.cssText=css_row + "padding:0.25rem;box-shadow:1px 1px 12px 1px black;";
+        const postContTitle=document.createElement("h6");
+        postContTitle.id="blogCont-blogContTitle";
+        postContTitle.className="text-primary text-center text-underline mb-2";
+        postContTitle.textContent="post";
+        if(user.blogs && user.blogs.length>0){
+            user.blogs.map((blog,index)=>{
+                if(blog){
+                    const blogItem=document.createElement("div");
+                    blogItem.id="blogCont-blogItem"+index;
+                    blogItem.style.cssText=css_col + "padding:3px;flex:1 0 50%;";
+                    const blogname=document.createElement("p");
+                    blogname.id="blogCont-blogname";
+                    blogname.textContent=`name: ${blog.name ? blog.name : " no blog name"}`;
+                    const blogtitle=document.createElement("p");
+                    blogtitle.id="blogCont-blogtitle";
+                    blogtitle.style.cssText="text-wrap:pretty;"
+                    blogtitle.textContent=`name: ${blog.name ? blog.name : " no blog name"}`;
+                    blogItem.appendChild(blogname);
+                    blogItem.appendChild(blogtitle);
+                    blogCont.appendChild(blogItem);
+                }
+            });
+            col.appendChild(blogCont);
+        }
+        if( user.posts && user.posts.length>0){
+            user.posts.map((post,index)=>{
+                if(post){
+                    const postItem=document.createElement("div");
+                    postItem.id="postCont-blogItem"+index;
+                    postItem.style.cssText=css_col + "padding:3px;flex:1 0 50%;";
+                    const posttitle=document.createElement("p");
+                    posttitle.id="postCont-posttitle";
+                    posttitle.textContent=`name: ${post.title ? post.title : " no post title"}`;
+                    const postLikes=document.createElement("p");
+                    postLikes.id="postCont-postlikes";
+                    postLikes.style.cssText="text-wrap:pretty;"
+                    postLikes.textContent=`likes#: ${post.likes ? String(post.likes ): " no post likes"}`;
+                    postItem.appendChild(posttitle);
+                    postItem.appendChild(postLikes);
+                    postCont.appendChild(postItem);
+                    
+                }
+            });
+            col.appendChild(postContTitle);
+            col.appendChild(postCont);
+            const {button:delUser}=Misc.simpleButton({anchor:col,bg:Nav.btnColor,text:"delete",color:"white",type:"button",time:400});
+            delUser.onclick=(e:MouseEvent)=>{
+                if(e){
+                    const item:delteUserType={adminemail:adminUser.email,adminId:adminUser.id,delete_id:user.id}
+                    this.deleteUser({parent:results,user,adminUser,item});
+                }
+            };
+            row.appendChild(col);
+        }
+    }
     searchImg(parent:HTMLElement,adminimgs:adminImageType[]){
-        Header.cleanUpByID(parent,"search-container");
+        Header.cleanUpByID(parent,"searchImg-container");
         const container=document.createElement("div");
         const text=document.createElement("h6");
         text.className="text-center text-underline text-primary my-2";
         text.textContent="search keys";
-        container.id="search-container";
+        container.id="searchImg-container";
         container.style.cssText="width:100%;box-shadow:1px 1px 12px 1px black;padding:1.rem;margin-inline:auto;margin-block:2rem;display:flex;flex-direction:row;align-items:center;padding:1rem;";
         const searchCont=document.createElement("div");
         searchCont.id="searchCont";
         searchCont.style.cssText="box-shadow:1px 1px 12px 1px black;padding:1.rem;margin-inline:auto;margin-block:2rem;display:flex;flex-direction:column;align-items:center;flex:1 1 33%";
         const results=document.createElement("div");
-        results.id="search-results";
-        results.style.cssText="box-shadow:1px 1px 12px 1px black;padding:1.rem;margin-inline:auto;margin-block:2rem;display:flex;flex-direction:row;flex-wrap:wrap;align-items:center;flex:1 1 67%;height:30vh; overflow-y:scroll;";
+        results.id="searchImg-results";
+        results.style.cssText="box-shadow:1px 1px 12px 1px black;padding:1.rem;margin-inline:auto;margin-block:2rem;display:flex;flex-direction:row;flex-wrap:wrap;align-items:center;flex:1 1 67%;height:40vh; overflow-y:scroll;";
         const resultText=document.createElement("h6");
         resultText.className="text-center text-underline text-primary my-2";
         resultText.textContent="Found - items";

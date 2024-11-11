@@ -78,7 +78,7 @@ message:Message
     const css_col="display:flex;flex-direction:column;align-items:center;gap:1rem;position:relative;width:100%";
     const css_row="display:flex;justify-content:center;align-items:center;gap:0.5rem;position:relative;";
     this.baseUrl=new URL(window.location.href).origin;
-    this.blogs=blogs;
+    this.blogs=blogs.sort((a,b)=>{if(a.rating > b.rating) return -1;return 1});
    
     const m_block= window.innerWidth < 500 ? "0rem" : "0.25rem";
         parent.style.position="relative";
@@ -123,7 +123,7 @@ message:Message
         if(blogs && blogs.length>0){
             const mainRow=document.createElement("div");
             mainRow.id="showBlogs-generateBlogs-mainRow";
-            const blogBaseCss=`display:flex; justify-content:center;flex-direction:column;padding-inline:0.25rem;gap:0.25rem;margin-top:2rem;position:relative;`;
+            const blogBaseCss=`display:flex; justify-content:center;flex-direction:column;padding-inline:0.25rem;gap:0.25rem;margin-top:2rem;position:relative;width:100%;`;
                 mainRow.style.cssText=blogBaseCss;
                 mainRow.style.paddingInline=window.innerWidth <900 ? (window.innerWidth <600 ? "0px":"10px"):"1rem";
                 // mainRow.style.backgroundColor="#e7e8ee";
@@ -134,7 +134,7 @@ message:Message
                     blogs && blogs.sort((a,b)=>{if(a.rating > b.rating) return -1; return 1}).
                         sort((a,b)=>{if(a.update > b.update) return -1; return 1}).map(async(blog,index)=>{
                     const colBlog=document.createElement("div");
-                    colBlog.style.cssText=blogBaseCss;
+                    colBlog.style.cssText=blogBaseCss ;
                     colBlog.className=`text-center`;
                     colBlog.id="showBlogs-generateBlogs-mainRow-colBlogs";
                     colBlog.style.color=`#00008B`;

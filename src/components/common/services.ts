@@ -61,7 +61,7 @@ class Service {
         this.usersignin="/api/usersignin";
         this.awsimgUrl="/api/awsimg";
         this.liveonoffUrl="/api/liveonoff";
-        this.newBlogUrl="/api/blog/createNew";
+        this.newBlogUrl="/api/blog/createnew";
         this.urlUpload="/api/uploadImage";
         this.urlBlog="/api/blog";
         this.urlsaveBlog="/api/savegetblog";
@@ -451,8 +451,7 @@ class Service {
             }
             await signOut({redirect:false});
         }
-        const reParent= MainHeader.header ? MainHeader.header as HTMLElement : document.querySelector("header#navHeader") as HTMLElement;    
-        Misc.msgSourceImage({parent:reParent,msg:"thanks for comming!!",width:175,quality:75,time:3500,src:"gb_logo.png",cssStyle:{borderRadius:"20px",backgroundColor:"black",color:"white",boxShadow:"1px 1px 12px 1px rgb(8, 4, 249);",inset:"-760% 0% -1600% 0%",zIndex:"4000"}});
+      
         return;
     }
 
@@ -478,7 +477,7 @@ class Service {
                     if(!blog.user_id && user){
                         const pass=user.password ? user.password :undefined
                             const credent:credentialType={id:user.id,email:user.email,password:pass,admin:false};
-                            if(credent){
+                            if(credent && credent.id){
                                 user={...user,id:credent.id as string,email:credent.email}
                                 blog={...blog,user_id:credent.id}
                                 const newBlog= await this.saveBlog(blog);
@@ -781,16 +780,16 @@ class Service {
         });
     }
 
-    async userWithBlogs(user_id:string){
+    async userBlogs(user_id:string):Promise<blogType[]|void>{
+        //GETS ALL USER BLOGS (/api/user_blogs)
         const option={
             headers:{"Content-Type":"application/json"},
             method:"GET"
         }
         return fetch(`${this.user_blogs}?user_id=${user_id}`,option).then(async(res)=>{
             if(res){
-                const user= await res.json() as userType; // !! with blogs
-                localStorage.setItem("userBlogs",JSON.stringify(user.blogs));
-                return user;
+                const blogs= await res.json() as blogType[]; // !! with blogs
+                return blogs;
             }
         });
     }
@@ -825,7 +824,7 @@ class Service {
             }).catch((err)=>{const msg=getErrorMessage(err);console.log(msg);return msg});
         }
     }
-    async newBlog(blog:blogType){
+    async newBlog(blog:blogType):Promise<blogType | void>{
         blog={...blog,id:0};
         const option={
             headers:{
@@ -836,9 +835,10 @@ class Service {
         }
         return fetch(this.newBlogUrl,option).then(async(res)=>{
             if(res){
-                return await res.json() as blogType;
+                blog= await res.json() as blogType;
+                return blog;
             }
-        }).catch((err)=>{const msg=getErrorMessage(err);console.error(msg);return msg});
+        }).catch((err)=>{const msg=getErrorMessage(err);console.error(msg);console.log(msg)});
     }
    async deleteBlog(blog:blogType):Promise<number|void |undefined>{
         const option={
@@ -1111,6 +1111,7 @@ class Service {
         }).catch((err)=>{const msg=getErrorMessage(err);console.error(msg)});
     }
     async adminUsers(email:string,user_id:string):Promise<{users: userType[]} | undefined>{
+        //"/api/admin/users"
         const option={
             headers:{
                 "Content-Type":"application/json",
@@ -1125,6 +1126,7 @@ class Service {
         });
     }
     async adminDelUser(item:{adminemail:string,adminId:string,delete_id:string}):Promise<{id:string} | undefined>{
+        // api/admin/users
         const {adminemail,adminId,delete_id}=item as delteUserType;
         const option={
             headers:{

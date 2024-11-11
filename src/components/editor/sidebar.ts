@@ -725,7 +725,7 @@ listThemeTypes:{name:string}[]=[{name:"background"},{name:"fonts"},{name:"colors
         container.id="main";
         container.className = "";
         container.style.cssText="margin:auto;display:flex;flex-direction:column;justify-content:flex-start;align-items:stretch;width:100%;position:absolute;inset:-5% 0%;height:auto;background-color:white;padding:1rem;padding-block:2rem;z-index:100;"
-           await  this._displayBlog.saveFinalWork(container,blog);
+           await  this._displayBlog.saveFinalWork({outerContainer:container,innerContainer:container,blog});
             //BUTTON SELECTION
             const btnDiv=document.createElement("div");
             btnDiv.style.cssText="display:flex;flex-direction:column;margin:auto;align-items:center;justify-content:center;";

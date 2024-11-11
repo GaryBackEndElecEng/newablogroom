@@ -1,9 +1,10 @@
 import { PrismaClient } from "@prisma/client";
 import { NextApiRequest, NextApiResponse } from "next";
-import { userType } from "@/components/editor/Types";
+import { blogType, elementType, postType, selectorType, userType } from "@/components/editor/Types";
 import { getErrorMessage } from "@/lib/errorBoundaries";
 import { getUserImage } from "@/lib/awsFunctions";
 import prisma from "@/prisma/prismaclient";
+import { markUserBlogsPosts } from "@/lib/ultils/functions"
 // import { hashComp } from "@/lib/ultils/bcrypt";
 
 
@@ -75,7 +76,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
                 if (!(adminUser.email === EMAIL || adminUser.email === EMAIL2)) { res.status(400).json({ msg: "not authorized" }); return await prisma.$disconnect(); }
                 //safe
                 // console.log("user.id", delete_id)
-                const user = await prisma.user.delete({
+                const user = await prisma.user.findUnique({
                     where: {
                         id: delete_id as string,
                     }
@@ -90,7 +91,12 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
                             }
                         });
                     }
-
+                    //DELETING USER
+                    await markUserBlogsPosts({ user_id: user.id });
+                    await prisma.user.delete({
+                        where: { id: user.id }
+                    });
+                    //DELETING USER
                     res.status(200).json({ id: user.id });
                     return await prisma.$disconnect();
                 } else {

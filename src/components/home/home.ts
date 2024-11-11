@@ -399,6 +399,7 @@ class Home{
         textCont.style.cssText=css_col + "gap:0.25rem;width:100%;margin-block:1rem;";
         textCont.style.marginBlock=less900 ? (less400 ? "2rem":"1.25rem") : "1rem";
         textCont.style.marginTop=less900 ? (less400 ? "1rem":"0.25rem") : "0rem";
+        textCont.style.marginBottom=less900 ? (less400 ? "7rem":"5rem"):"4rem";
         const text=document.createElement("h6");
         text.className="subTitleStyleThreeNoBorder";
         text.id="textCont-text";
@@ -424,7 +425,6 @@ class Home{
         blogMsgCont.id="container-blogMsgCont";
         blogMsgCont.style.cssText=css_col + "height:50vh;overflow-y:scroll;width:100%;box-shadow:1px 1px 12px 1px #01d1f7;";
         //----------blogCont-----------------//
-        container.appendChild(blogMsgCont);
         parent.appendChild(container);
         Misc.blurIn({anchor:container,blur:"20px",time:600});
         Misc.matchMedia({parent:container,maxWidth:900,cssStyle:{maxWidth:"900px",width:"100%"}});
@@ -433,7 +433,11 @@ class Home{
         Misc.matchMedia({parent:container,maxWidth:400,cssStyle:{maxWidth:"375px",width:"100%"}});
         
         return this._service.fetchBlogs().then(async(blogs)=>{
-            if(blogs){
+            if(blogs && blogs.length>0){
+                container.appendChild(blogMsgCont);
+                const len=blogs.length;
+                blogMsgCont.style.height= len > 1 ? "50vh" :"auto";
+                blogMsgCont.style.overflowY= len > 1 ? "scroll" :"auto";
                 this._modSelector.blogs=blogs;
                 if(blogs.length>0){
                     const limitBlogs=blogs.filter(bl=>(bl.rating >3)).slice(0,4);
