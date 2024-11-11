@@ -1882,7 +1882,7 @@ class Sidebar{
         btnContainer.className="flexCol text-center";
         btnContainer.style.cssText="box-shadow:1px 1px 12px 1px white;border-radius:10px;padding-inline:0.5rem;padding-block:1rem;text-align:center;align-items:center;width:100%;";
         const H5=document.createElement("h5");
-        H5.textContent="Load free Images";
+        H5.textContent="Load third party Images";
         H5.style.cssText="margin:auto;text-decoration:underline;text-underline-offset:1rem;";
         H5.className="text-info lean";
         btnContainer.appendChild(H5);

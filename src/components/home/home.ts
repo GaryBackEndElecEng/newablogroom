@@ -175,7 +175,7 @@ class Home{
         Home.injector=parent;
         const showBlogs=document.createElement("div");
         showBlogs.id="asyncmain-showBlogs";
-        showBlogs.style.cssText=css_col + "max-width:1000px;";
+        showBlogs.style.cssText=css_col + "max-width:1000px;width:100%;";
         
         // const titleShowDisplay=document.createElement("div");
         // titleShowDisplay.id="asyncmain-titleShowDisplay";
@@ -423,7 +423,7 @@ class Home{
         //----------blogCont-----------------//
         const blogMsgCont=document.createElement("div");
         blogMsgCont.id="container-blogMsgCont";
-        blogMsgCont.style.cssText=css_col + "height:50vh;overflow-y:scroll;width:100%;box-shadow:1px 1px 12px 1px #01d1f7;";
+        blogMsgCont.style.cssText=css_col + "width:100%;box-shadow:1px 1px 12px 1px #01d1f7;";
         //----------blogCont-----------------//
         parent.appendChild(container);
         Misc.blurIn({anchor:container,blur:"20px",time:600});
@@ -435,16 +435,15 @@ class Home{
         return this._service.fetchBlogs().then(async(blogs)=>{
             if(blogs && blogs.length>0){
                 container.appendChild(blogMsgCont);
-                const len=blogs.length;
+                const limitBlogs=blogs.filter(bl=>(bl.rating >3)).slice(0,4);
+                const len=limitBlogs.length;
                 blogMsgCont.style.height= len > 1 ? "50vh" :"auto";
                 blogMsgCont.style.overflowY= len > 1 ? "scroll" :"auto";
                 this._modSelector.blogs=blogs;
-                if(blogs.length>0){
-                    const limitBlogs=blogs.filter(bl=>(bl.rating >3)).slice(0,4);
                  return {blogMsgCont:blogMsgCont,blogs:limitBlogs};
-                }else{
+                
                     // return Blogs.noBlogs(container);
-                }
+                
             }
         }) as Promise<{blogMsgCont:HTMLElement,blogs:blogType[] | undefined}>;
 
@@ -455,7 +454,7 @@ class Home{
         const less900=window.innerWidth <900;
         const less400=window.innerWidth <400;
         const url=new URL(window.location.href);
-        const css_col="margin-inline:auto;display:flex;flex-direction:column;place-items:center;";
+        const css_col="margin-inline:auto;display:flex;flex-direction:column;place-items:center;width:100%;";
         const css_row="margin-inline:auto;display:flex;flex-direction:row;flex-wrap:wrap;place-items:center;gap:0.5rem;width:100%;";
         const card=document.createElement("div");
         card.className="card";
@@ -554,7 +553,7 @@ class Home{
         const less400=window.innerWidth <400;
         const url=new URL(window.location.href);
 
-        const css_col="display:flex;flex-direction:column;align-items:center;justify-content:center;gap:1rem;";
+        const css_col="display:flex;flex-direction:column;align-items:center;justify-content:flex-start;gap:1rem;";
         const msgs=blog.messages ? blog.messages : [] as messageType[];
         if(blog && msgs && msgs.length>0){
             const contScroll=document.createElement("div");
@@ -563,9 +562,9 @@ class Home{
             contScroll.style.height=less900 ? (less400 ? "12vh":"15vh") :"18vh";
             contScroll.style.marginBlock=less900 ? (less400 ? "3rem": "1rem") : "0.5rem";
             contScroll.style.marginBlock=less400 ? "2rem":"auto";
-            contScroll.style.paddingInline=window.innerWidth < 900 ? (window.innerWidth<400 ? "1.25rem":"2.75rem"):"5.5rem";
+            contScroll.style.paddingInline=less900 ? (less400 ? "1.25rem":"7.75rem"):"10.5rem";
             col.appendChild(contScroll);
-            msgs.map(msg=>{
+            msgs.slice(0,3).sort((a,b)=>{if(a.rate > b.rate) return -1;else return 1}).map(msg=>{
                 if(msg){
                     
                     this.singleMsgTwo({col:col,contScroll:contScroll,msg,imgKey:blog.imgKey})

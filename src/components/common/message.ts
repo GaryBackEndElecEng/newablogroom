@@ -257,6 +257,7 @@ class MessageSetup{
     }
     eleMsg(item:{parent:HTMLElement,msg:string,close:boolean,color:string}){
         const {parent,msg,close,color}=item;
+        Header.cleanUpByID(parent,"element-msg");
         const classColor=(color==="red" ? "danger" : "primary"); 
         parent.style.position="relative";
         parent.style.zIndex="2";
@@ -370,7 +371,7 @@ class Message{
                             Misc.fadeOut({anchor:popup,xpos:75,ypos:100,time:400});
                             setTimeout(()=>{useParent.removeChild(popup);},380);
                             const width=window.innerWidth < 900 ? "0%":"26%";
-                            const cssStyle={inset:`20% ${width} 20% ${width}`,boxShadow:"1px 1px 10px 1px #0CAFFF",display:"flex",flexDirection:"column",alignItems:"center",justifyContent:"center"}
+                            const cssStyle={boxShadow:"1px 1px 10px 1px #0CAFFF",display:"flex",flexDirection:"column",alignItems:"center",justifyContent:"center"}
                             Message.thankMsg({parent,thanks:this.thanksMsg,cssStyle});
                             //GETTING CONTAINER
                             if(getParent && blog){
@@ -398,6 +399,8 @@ class Message{
     static thankMsg(msgThank:{parent:HTMLElement,thanks:string,cssStyle:{[key:string]:string}}){
         const {parent,thanks,cssStyle}=msgThank;
         window.scroll(0,0);
+        const less900=window.innerWidth < 900;
+        const less400=window.innerWidth < 400;
         const cont=document.createElement("div");
         parent.style.position="relative";
         cont.id="thankyou";
@@ -412,6 +415,9 @@ class Message{
                 }
             }
         }
+        cont.style.width=less900 ? ( less400 ? "100%" : "75%"):"50%";
+        cont.style.inset="";
+        cont.style.marginInline="auto";
         cont.appendChild(text);
         parent.appendChild(cont);
         cont.animate([

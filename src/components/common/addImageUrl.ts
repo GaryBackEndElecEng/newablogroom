@@ -255,13 +255,12 @@ class AddImageUrl {
         parent.appendChild(popup);
         Misc.matchMedia({parent:popup,maxWidth:900,cssStyle:{top:"20%",left:"0%",right:"0%"}});
         Misc.matchMedia({parent:popup,maxWidth:400,cssStyle:{top:"25%"}});
-        form.onsubmit=(e:SubmitEvent)=>{
+        form.onsubmit=async(e:SubmitEvent)=>{
             if(e){
                 e.preventDefault();
                 const formdata=new FormData(e.currentTarget as HTMLFormElement);
                 const url=formdata.get("url") as string;
                 if(url ){
-                    console.log("URL",url)
                     if(targetImg.level==="element"){
                         (targetImg.img as HTMLImageElement).src=url;
                     }else if(targetImg.level==="col"){
@@ -274,12 +273,13 @@ class AddImageUrl {
                             let flex=parsed as flexType;
                             if(flex.imgKey){
                                 const markDel:deletedImgType={imgKey:flex.imgKey,del:true,date:new Date()};
-                                this._service.markDelKey(markDel)
+                               await  this._service.markDelKey(markDel)
 
                             }
                             flex={...flex,imgKey:undefined};
                             targetImg.img.setAttribute("flex",JSON.stringify(flex));
                             if(targetImg.level==="element"){
+                                targetImg.img.removeAttribute("imgKey");
                                 this._modSelector.updateElement(targetImg.img);
                             }else if(targetImg.level==="col"){
                                 this._modSelector.updateColumn(targetImg.img,flex)
@@ -290,7 +290,7 @@ class AddImageUrl {
                             const imgKey=targetImg.img.getAttribute("imgKey");
                                 if(imgKey){
                                     const markDel:deletedImgType={imgKey:imgKey,del:true,date:new Date()};
-                                    this._service.markDelKey(markDel)
+                                    await this._service.markDelKey(markDel);
                                 }
                             targetImg.img.removeAttribute("imgKey");
                             this._modSelector.updateElement(targetImg.img);
