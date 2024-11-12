@@ -2,8 +2,9 @@ import type { Metadata,ResolvingMetadata,MetadataRoute } from 'next';
 import { awsImage, getAllBlogImages, getOnlyBlogImages, getUserImage, getUsersImage } from '@/lib/awsFunctions';
 import { blogType, postType, userType } from '../editor/Types';
 import { getErrorMessage } from '@/lib/errorBoundaries';
-import prisma from "@/prisma/prismaclient"
-
+import prisma from "@/prisma/prismaclient";
+// import {PrismaClient} from "@prisma/client";
+// const prisma=new PrismaClient();
 
 export type Props = {
   params: {id:string },
@@ -583,6 +584,7 @@ class Meta{
           where:{show:true},
           select:{id:true}
         }) as {id:number}[];
+        await prisma.$disconnect();
         if(blogIds && blogIds.length>0){
           blogIds.map(blog=>{
             arr.push({url:`${retBaseUrl}/blog/${blog.id}`,lastModified:new Date(),changeFrequency:'always',priority:1})
@@ -594,7 +596,6 @@ class Meta{
         console.log(msg);
         
       }finally{
-        await prisma.$disconnect();
         return arr;
       }
 

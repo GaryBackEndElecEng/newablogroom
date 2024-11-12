@@ -75,11 +75,12 @@ message:Message
 //GETTERS SETTERS
 //main injector ---MAIN INJECTION----
    async showBlogs(parent:HTMLElement,home:boolean,blogs:blogType[]){
+    const less900=window.innerWidth < 900;
+    const less400=window.innerWidth < 400;
     const css_col="display:flex;flex-direction:column;align-items:center;gap:1rem;position:relative;width:100%";
     const css_row="display:flex;justify-content:center;align-items:center;gap:0.5rem;position:relative;";
     this.baseUrl=new URL(window.location.href).origin;
     this.blogs=blogs.sort((a,b)=>{if(a.rating > b.rating) return -1;return 1});
-   
     const m_block= window.innerWidth < 500 ? "0rem" : "0.25rem";
         parent.style.position="relative";
         parent.classList.add("container-fluid");
@@ -93,30 +94,84 @@ message:Message
         container.style.marginBlock=`${m_block}`;
         container.style.marginInline=window.innerWidth < 900 ? "0px":"auto";
         container.style.paddingInline=window.innerWidth < 900 ? "0px":"2rem";
-        const text=document.createElement("h3");
-        text.style.cssText="margin-bottom:1.62rem;"
-        if(home){
-            text.textContent="top Blogs";
-        }else{
-            text.textContent="Articles && Blogs";
-        }
-        text.className=` text-center text-light my-2 mb-4 mx-auto lean display-3`;
-        text.id="showBlogs-title";
-        text.style.textTransform="capitalize";
-        const div1=document.createElement("div");
-        //#0804e9
-        div1.style.cssText="margin-inline:auto;width:85%;height:3px;background-color:white;";
-        const div2=document.createElement("div");
-        div2.style.cssText="margin-block;margin-inline:auto;width:55%;height:3px;background-color:white;";
-        container.appendChild(text);
-        container.appendChild(div1);
-        container.appendChild(div2);
-        await this.generateBlogs(container,this.blogs)
+        await this.titlePage({container,home,time:1200}).then(async(res)=>{
+            if(res){
+                const paraSize=less900 ? (less400 ? "130%":"150%"):"175%";
+                await this.generateBlogs(container,this.blogs);
+                res.textContainer.style.opacity="1";
+                res.textContainer.style.transform="scale(1)";
+                res.textContainer.animate([
+                    {transform:"scale(0.8)",opacity:"0"},
+                    {transform:"scale(1)",opacity:"1"},
+                ],{duration:res.time,iterations:1,"easing":"ease-in-out"});
+                setTimeout(()=>{
+                    res.para.style.opacity="1";
+                    res.para.style.backgroundColor="rgb(212 229 225 / 33%)";
+                    res.para.style.borderRadius="12px";
+                    res.para.animate([
+                        {transform:"translateX(-75%)",opacity:"0",fontSize:"300%",backgroundColor:"black"},
+                        {transform:"translateX(0%)",opacity:"1",fontSize:paraSize,backgroundColor:"rgb(212 229 225 / 33%)"},
+                    ],{duration:res.time,iterations:1,"easing":"ease-in-out"});
+                },res.time);
+            }
+        });
             
             parent.appendChild(container);
         
         Misc.matchMedia({parent:container,maxWidth:900,cssStyle:{"paddingInline":"0rem"}});
         Misc.matchMedia({parent:container,maxWidth:500,cssStyle:{"borderRadius":"16px",border:"1px solid #0E3386"}});
+    }
+    titlePage(item:{container:HTMLElement,home:boolean,time:number}):Promise<{textContainer:HTMLElement,container:HTMLElement,para:HTMLElement,time:number}>{
+        const {container,home,time}=item;
+        const less900=window.innerWidth < 900;
+        const less400=window.innerWidth < 400;
+        const css_col="margin-inline:auto;display:flex;flex-direction:column;justify-content:center;align-items:center;";
+        const textContainer=document.createElement("div");
+        textContainer.id="titlepage-textContainer";
+        textContainer.style.cssText=css_col + "background-color:black;border-radius:12px;margin-top:1rem;filter:drop-shadow(0 0 0.5rem white);";
+        textContainer.style.width=less900 ? (less400 ? "100%":"80%") : "70%";
+        textContainer.style.paddingBottom=less900 ? (less400 ? "2rem":"2.5rem") : "2rem";
+        textContainer.style.paddingInline=less900 ? (less400 ? "1rem":"1rem") : "2rem";
+        const text=document.createElement("p");
+        text.id="container-mainTitle";
+        text.className="subTitleStyleThreeNoBorder text-center  my-2 mb-4 mx-auto lean";
+        text.style.cssText="margin-bottom:1.62rem;linear-gradient(to bottom, white, rgb(160, 158, 158) 85.71%);background-clip:text;-webkit-background-clip:text;";
+        text.style.fontSize=less900 ? (less400 ? "200%":"300%"):"375%";
+        if(home){
+            text.textContent="top Blogs";
+        }else{
+            text.textContent="Articles && Blogs";
+        }
+        text.id="showBlogs-title";
+        text.style.textTransform="capitalize";
+        const div1=document.createElement("div");
+        div1.id="textContainer-div1";
+        //#0804e9
+        div1.style.cssText="margin-inline:auto;width:85%;height:3px;filter:drop-shadow(0 0 0.25rem blue);";
+        div1.style.height=less900 ? (less400 ? "5px":"8px"):"9px";
+        div1.className="lineStyleOne";
+        const div2=document.createElement("div");
+        div2.id="textContainer-div1";
+        div2.className="lineStyleOne";
+        div2.style.cssText="margin-block;margin-inline:auto;width:55%;height:3px;filter:drop-shadow(0 0 0.25rem blue);";
+        div2.style.height=less900 ? (less400 ? "5px":"8px"):"9px";
+        const para=document.createElement("p");
+        para.id="textContainer-para";
+        para.textContent="for your leisure to view.";
+        para.style.cssText="padding-block:1rem;padding-inline:1rem;color:white;margin-inline:auto;margin-top:0.5rem";
+        para.style.fontSize=less900 ? (less400 ? "130%":"150%"):"175%";
+        textContainer.appendChild(text);
+        textContainer.appendChild(div1);
+        textContainer.appendChild(div2);
+        textContainer.appendChild(para);
+        textContainer.style.opacity="0";
+        para.style.opacity="0";
+        textContainer.style.transform="scale(0.8)";
+        
+        container.appendChild(textContainer);
+        return new Promise(resolve=>{
+            resolve({textContainer,container,para,time});
+        }) as Promise<{textContainer:HTMLElement,container:HTMLElement,para:HTMLElement,time:number}>;
     }
    async generateBlogs(parent:HTMLElement,blogs:blogType[]){
        Header.cleanUpByID(parent,"showBlogs-generateBlogs-mainRow")

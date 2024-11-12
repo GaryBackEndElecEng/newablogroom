@@ -85,7 +85,7 @@ class ErrorClass {
             }
 
         });
-        para.innerHTML+="try again or usee the buttons below to redirect you appropriately."
+        para.innerHTML+="try again or use the buttons below to redirect you appropriately."
         div.appendChild(para);
         innerContainer.appendChild(div);
         //OTHER SITES
