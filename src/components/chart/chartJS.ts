@@ -275,11 +275,80 @@ class ChartJS {
 
 
     }
+    
     async mainChart(injector:HTMLElement,blog:blogType){
         this._modSelector.blog={...blog};
-        Misc.matchMedia({parent:injector,maxWidth:900,cssStyle:{paddingInline:"1rem"}})
-        await this.mainBarChart({injector,blog});
+        Misc.matchMedia({parent:injector,maxWidth:900,cssStyle:{paddingInline:"1rem"}});
+        await this.titlePage({container:injector,time:1200}).then(async(res)=>{
+            if(res){
+                await this.mainBarChart({injector,blog});
+        
+                    res.textContainer.style.opacity="1";
+                    res.para.style.opacity="1";
+                    res.para.style.marginTop="1rem";
+                    res.para.style.transform="translateX(0%)";
+                    res.textContainer.animate([
+                        {transform:"translateY(-100%)",opacity:"0"},
+                        {transform:"translateY(0%)",opacity:"1"},
+                    ],{duration:res.time,iterations:1,"easing":"ease-in-out"});
+                    res.para.animate([
+                        {transform:"translateX(-75%)",opacity:"0.3",color:"white"},
+                        {transform:"translateX(-0%)",opacity:"1",color:res.para.style.color},
+                    ],{duration:res.time + 700,iterations:1,"easing":"ease-in-out"});
+        
 
+            }
+        });
+
+    }
+   async titlePage(item:{container:HTMLElement,time:number}):Promise<{textContainer:HTMLElement,container:HTMLElement,para:HTMLElement,time:number}>{
+        const {container,time}=item;
+        const less900=window.innerWidth < 900;
+        const less400=window.innerWidth < 400;
+        const css_col="margin-inline:auto;display:flex;flex-direction:column;justify-content:center;align-items:center;";
+        const textContainer=document.createElement("div");
+        textContainer.id="chart-titlepage-textContainer";
+        textContainer.style.cssText=css_col + "background-color:black;border-radius:12px;margin-top:1rem;filter:drop-shadow(0 0 0.5rem white);";
+        textContainer.style.width=less900 ? (less400 ? "100%":"80%") : "70%";
+        textContainer.style.paddingBottom=less900 ? (less400 ? "2rem":"2.5rem") : "2rem";
+        textContainer.style.paddingInline=less900 ? (less400 ? "1rem":"1rem") : "2rem";
+        const text=document.createElement("p");
+        text.id="container-mainTitle";
+        text.className=" text-center  my-2 mb-4 mx-auto lean";
+        text.style.cssText="margin-bottom:1.62rem;background:linear-gradient(180deg, #fff, #0668f7);background-clip:text;-webkit-background-clip:text;color:transparent;";
+        text.style.fontSize=less900 ? (less400 ? "200%":"300%"):"375%";
+        text.textContent="Create Your Graph";
+        text.id="showBlogs-title";
+        text.style.textTransform="capitalize";
+        const div1=document.createElement("div");
+        div1.id="textContainer-div1";
+        const dividerStyle="background-clip:border-box;-webkit-background-clip:border-box;background:linear-gradient(180deg, #fff, #0668f7);"
+        div1.style.cssText="margin-inline:auto;width:85%;height:3px;filter:drop-shadow(0 0 0.25rem blue);" + dividerStyle;
+        div1.style.height=less900 ? (less400 ? "5px":"8px"):"9px";
+        // div1.className="lineStyleOne";
+        const div2=document.createElement("div");
+        div2.id="textContainer-div1";
+        div2.className="lineStyleOne";
+        div2.style.cssText="margin-block;margin-inline:auto;width:55%;height:3px;filter:drop-shadow(0 0 0.25rem blue);" + dividerStyle;
+        div2.style.height=less900 ? (less400 ? "5px":"8px"):"9px";
+        const para=document.createElement("p");
+        para.id="textContainer-para";
+        para.textContent="for you to test and play with.";
+        para.style.cssText="padding-block:1rem;padding-inline:1rem;margin-inline:auto;margin-top:0.5rem;text-wrap:wrap;text-align:center;box-shadow:1px 1px 3px 1px rgb(29, 203, 251)";
+        para.style.fontSize=less900 ? (less400 ? "130%":"150%"):"175%";
+        para.style.color="#0668f7";
+        textContainer.appendChild(text);
+        textContainer.appendChild(div1);
+        textContainer.appendChild(div2);
+        textContainer.appendChild(para);
+        textContainer.style.opacity="0";
+        para.style.opacity="0";
+        textContainer.style.transform="scale(0.8)";
+        
+        container.appendChild(textContainer);
+        return new Promise(resolve=>{
+            resolve({textContainer,container,para,time});
+        }) as Promise<{textContainer:HTMLElement,container:HTMLElement,para:HTMLElement,time:number}>;
     }
     async mainBarChart(item:{injector:HTMLElement,blog:blogType}){
         const {injector,blog}=item;
@@ -298,6 +367,7 @@ class ChartJS {
         Misc.matchMedia({parent:injector,maxWidth:700,cssStyle:{minWidth:"600px",maxWidth:"690px",width:"100%"}});
         Misc.matchMedia({parent:injector,maxWidth:400,cssStyle:{minWidth:"300px",maxWidth:"390px",width:"100%"}});
         const divCont=document.createElement("section");
+        divCont.className="mainBarChart-divCont";
         divCont.id="ctx-container-target";
         divCont.style.cssText="margin-inline:auto;margin-block:2rem;padding-inline:2rem; width:100%;display:flex;flex-direction:column;gap:1rem;align-items:center;justify-content:flex-start;gap:1rem;background-color:white;max-width:800px;border-radius:20px;overflow-y:scroll;height:800px;";
         divCont.style.minWidth=widthMin;
@@ -311,6 +381,7 @@ class ChartJS {
         Misc.matchMedia({parent:divCont,maxWidth:900,cssStyle:{width:"100%",maxWidth:"850px",height:"900px"}});
         Misc.matchMedia({parent:divCont,maxWidth:400,cssStyle:{width:"100%",maxWidth:"350px",height:"400px"}});
         injector.appendChild(divCont);
+        this.cleanUpKeepOne({parent:injector,class_:"mainBarChart-divCont"});
         const getCtx=document.getElementById(`ctx-graph-${lenId}`) as HTMLCanvasElement;
         if(!getCtx)return;
         Misc.matchMedia({parent:getCtx,maxWidth:900,cssStyle:{maxWidth:"890px",width:"100%",minWidth:"575px"}});
@@ -369,6 +440,8 @@ class ChartJS {
         const option=this.bar_options({barData:this.barData,label:"add your data"}) as unknown as optionType;
         await this.addChart({divCont,Ctx:getCtx,option,blog}).then(async(res)=>{
             if(res){
+                // chart.destroy();
+                this.cleanUpKeepOne({parent,class_:res.divCont.className});
                 this.barOption=res.option as barOptionType;
                 chart=new Chart(res.Ctx,this.barOption)
                 res.divCont.setAttribute("data-placement",String(this.placement));
@@ -781,6 +854,17 @@ class ChartJS {
             resolve({option,divCont,Ctx});
         }) as Promise<{option:optionType,divCont:HTMLElement,Ctx:HTMLCanvasElement}>;
     }
+    cleanUpKeepOne(item:{parent:HTMLElement,class_:string}){
+        const {parent,class_}=item;
+        const getEles=parent.querySelectorAll(`.${class_}`) as any as HTMLElement[];
+        if(getEles && getEles.length>0) {
+            ([...getEles as any] as HTMLElement[]).map((ele,index)=>{
+                if( ele && index>1){
+                    parent.removeChild(ele);
+                }
+            });
+        }
+    };
     static setGenerator(item:{count:number}):{xaxis:string[],yaxis:number[]}{
         const {count}=item;
         const arrx:string[]=[];

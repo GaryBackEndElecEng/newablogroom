@@ -97,6 +97,7 @@ message:Message
         await this.titlePage({container,home,time:1200}).then(async(res)=>{
             if(res){
                 const paraSize=less900 ? (less400 ? "130%":"150%"):"175%";
+                const preParaSize=less900 ? (less400 ? "130%":"170%"):"200%";
                 await this.generateBlogs(container,this.blogs);
                 res.textContainer.style.opacity="1";
                 res.textContainer.style.transform="scale(1)";
@@ -109,8 +110,8 @@ message:Message
                     res.para.style.backgroundColor="rgb(212 229 225 / 33%)";
                     res.para.style.borderRadius="12px";
                     res.para.animate([
-                        {transform:"translateX(-75%)",opacity:"0",fontSize:"300%",backgroundColor:"black"},
-                        {transform:"translateX(0%)",opacity:"1",fontSize:paraSize,backgroundColor:"rgb(212 229 225 / 33%)"},
+                        {transform:"translateX(-75%)",opacity:"0",fontSize:preParaSize,backgroundColor:"black",color:"white"},
+                        {transform:"translateX(0%)",opacity:"1",fontSize:paraSize,backgroundColor:"rgb(212 229 225 / 33%)",color:"#1dcbfb"},
                     ],{duration:res.time,iterations:1,"easing":"ease-in-out"});
                 },res.time);
             }
@@ -135,7 +136,7 @@ message:Message
         const text=document.createElement("p");
         text.id="container-mainTitle";
         text.className="subTitleStyleThreeNoBorder text-center  my-2 mb-4 mx-auto lean";
-        text.style.cssText="margin-bottom:1.62rem;linear-gradient(to bottom, white, rgb(160, 158, 158) 85.71%);background-clip:text;-webkit-background-clip:text;";
+        text.style.cssText="margin-bottom:1.62rem;background:linear-gradient(180deg,#fff,#06e9f7);background-clip:text;-webkit-background-clip:text;";
         text.style.fontSize=less900 ? (less400 ? "200%":"300%"):"375%";
         if(home){
             text.textContent="top Blogs";
@@ -158,8 +159,9 @@ message:Message
         const para=document.createElement("p");
         para.id="textContainer-para";
         para.textContent="for your leisure to view.";
-        para.style.cssText="padding-block:1rem;padding-inline:1rem;color:white;margin-inline:auto;margin-top:0.5rem";
+        para.style.cssText="padding-block:1rem;padding-inline:1rem;margin-inline:auto;margin-top:0.5rem;text-wrap:wrap;text-align:center;box-shadow:1px 1px 3px 1px rgb(29, 203, 251);background-color:rgb(133 147 150 / 33%);";
         para.style.fontSize=less900 ? (less400 ? "130%":"150%"):"175%";
+        para.style.color="#1dcbfb";
         textContainer.appendChild(text);
         textContainer.appendChild(div1);
         textContainer.appendChild(div2);

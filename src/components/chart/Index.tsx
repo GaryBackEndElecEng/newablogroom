@@ -18,20 +18,22 @@ export default function Index() {
     React.useEffect(() => {
 
         if (typeof window !== "undefined" && refChart.current && countRef.current === 0) {
+            const docChart = document.getElementById("chart") as HTMLElement;
+            Header.cleanUp(docChart);
             const climate = new Climate();
             const modSelector = new ModSelector();
             const service = new Service(modSelector);
             const user = new User(modSelector, service);
             const chart = new ChartJS(modSelector, service, user);
-            const docChart = document.getElementById("chart") as HTMLElement;
+            const blog = modSelector.blog;
 
-            Header.cleanUp(docChart);
-            // console.log(docChart)//works
+            chart.mainChart(docChart, blog).then(() => {
+                countRef.current = 2;
+                // Header.cleanUp(docChart);// cleans up:works
+                // chart.cleanUpKeepOne({ parent: docChart, class_: "mainBarChart-divCont" });//doesnt work
+            });
+
             setTimeout(async () => {
-                const blog = modSelector.blog;
-                await chart.mainChart(docChart, blog).then(() => {
-                    countRef.current++;
-                });
                 climate.generateGraph({ parent: docChart })
             }, 0)
 
@@ -40,11 +42,6 @@ export default function Index() {
     }, [refChart, countRef]);
     return (
         <div className={style.chartindexcontainer}>
-            <h5 className="mx-auto lean display-5 text-light text-center"> Graphs for you</h5>
-            <h6 className="mx-auto px-1 text-center text-light lean display-6 my-6"> Create your own graph</h6>
-            <p className="mx-auto px-1 text-center text-light lean my-2">Graph demonstration for you</p>
-            <p className="mx-auto px-1 text-center text-light lean my-2">,,,further reading below:</p>
-
             <div id="chart" ref={refChart} className={style.chart} ></div>
         </div>
     )

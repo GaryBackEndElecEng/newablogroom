@@ -50,6 +50,8 @@ class Post{
 
     async main(item:{injector:HTMLElement,posts:postType[]}){
         const {injector,posts}=item;
+        const less900=window.innerWidth < 900;
+        const less400=window.innerWidth < 400;
         Header.cleanUpByID(injector,"main-post-container");
         const width=window.innerWidth;
         const css_col="margin-inline:auto;display:flex;flex-direction:column;justify-content:center;align-items:center;";
@@ -58,16 +60,6 @@ class Post{
         const container=document.createElement("div");
         container.id="main-post-container";
         container.style.cssText=css_col + " width:100%;";
-        const title=document.createElement("h4");
-        title.textContent="Posts";
-        title.className="text-center my-2 text-primary lean display-4";
-        const div=document.createElement("div");
-        div.style.cssText=`height:3px;width:${(0.8*width)}px;background-color:blue;margin-block:1rem;border-radius:10px;`;
-        const div1=document.createElement("div");
-        div1.style.cssText=`height:3px;width:${(0.8*width/1.62)}px;background-color:lightblue;margin-bottom:1rem;border-radius:10px;`;
-        container.appendChild(title);
-        container.appendChild(div);
-        container.appendChild(div1);
         injector.appendChild(container);
         if(user && user.id && user.email){
             const {button:createpost}=Misc.simpleButton({anchor:container,type:"button",bg:Nav.btnColor,color:"white",time:400,text:"create a post"});
@@ -81,31 +73,106 @@ class Post{
         Misc.matchMedia({parent:injector,maxWidth:1200,cssStyle:{width:"85%"}});
         Misc.matchMedia({parent:injector,maxWidth:1000,cssStyle:{width:"90%"}});
         Misc.matchMedia({parent:injector,maxWidth:900,cssStyle:{width:"100%"}});
-        await this.Posts({injector:injector,container,posts,user}).then(async(res)=>{
+        this.titlePage({container,time:1200}).then(async(res)=>{
             if(res){
-                if(res.posts && res.posts.length>0){
-                    this.posts=res.posts.sort((a,b)=>{if(a.likes > b.likes)return -1;return 1}).map(post=>(post));
-                    this.posts.map(async(post,index)=>{
-                        if(post){
-                            const col=document.createElement("div");
-                            col.className=window.innerWidth <900 ? "col-md-12" : "col-md-6";
-                            col.id=`posts-col-${index}`;
-                            col.style.cssText="margin-inline:auto;display:flex;flex-direction:column;justify-content:center;align-items:center;gap:0.75rem;background-color:#098ca091;color:white;border-radius:12px;";
-                            col.style.width=window.innerWidth < 900 ? "100%":"auto";
-                            col.style.flex=window.innerWidth < 900 ? "0 0 100%":"0 0 50%";
-                            res.row.appendChild(col);
-                            this.postCard({row:res.row,col:col,post,user:user,index});
-                            Misc.growIn({anchor:col,scale:1,opacity:0,time:500});
-                            Misc.matchMedia({parent:col,maxWidth:900,cssStyle:{flex:"0 0 100%"}});
+                const paraSize=less900 ? (less400 ? "130%":"150%"):"135%";
+                const preParaSize=less900 ? (less400 ? "130%":"170%"):"150%";
+                await this.Posts({injector:injector,container,posts,user}).then(async(res_)=>{
+                    if(res_){
+                        if(res_.posts && res_.posts.length>0){
+                            this.posts=res_.posts.sort((a,b)=>{if(a.likes > b.likes)return -1;return 1}).map(post=>(post));
+                            this.posts.map(async(post,index)=>{
+                                if(post){
+                                    const col=document.createElement("div");
+                                    col.className=less900 ? "col-md-12" : "col-md-6";
+                                    col.id=`posts-col-${index}`;
+                                    col.style.cssText="margin-inline:auto;display:flex;flex-direction:column;justify-content:center;align-items:center;gap:0.75rem;background-color:#098ca091;color:white;border-radius:12px;";
+                                    col.style.width=less900 ? "100%":"auto";
+                                    col.style.flex=less900 ? "0 0 100%":"0 0 50%";
+                                    res_.row.style.marginBlock=less900 ? "2rem":"1rem";
+                                    res_.row.appendChild(col);
+                                    this.postCard({row:res_.row,col:col,post,user:user,index});
+                                    Misc.growIn({anchor:col,scale:1,opacity:0,time:500});
+                                    Misc.matchMedia({parent:col,maxWidth:900,cssStyle:{flex:"0 0 100%"}});
+                                }
+                            });
+                            Misc.matchMedia({parent:container,maxWidth:400,cssStyle:{paddingInline:"0px"}})
+                        }else{
+                            this.noPosts({parent:container});
                         }
-                    });
-                    Misc.matchMedia({parent:container,maxWidth:400,cssStyle:{paddingInline:"0px"}})
-                }else{
-                    this.noPosts({parent:container});
-                }
+                        ///--------------------------title display ----------------------///
+                        res.textContainer.style.opacity="1";
+                        res.textContainer.style.transform="scale(1)";
+                        res.textContainer.animate([
+                            {transform:"scale(0.8)",opacity:"0"},
+                            {transform:"scale(1)",opacity:"1"},
+                        ],{duration:res.time,iterations:1,"easing":"ease-in-out"});
+                        setTimeout(()=>{
+                            res.para.style.opacity="1";
+                            res.para.style.backgroundColor="rgb(212 229 225 / 33%)";
+                            res.para.style.borderRadius="12px";
+                            res.para.animate([
+                                {transform:"translateX(-75%)",opacity:"0",fontSize:preParaSize,backgroundColor:"black",color:"white"},
+                                {transform:"translateX(0%)",opacity:"1",fontSize:paraSize,backgroundColor:"rgb(212 229 225 / 33%)",color:"#1dcbfb"},
+                            ],{duration:res.time,iterations:1,"easing":"ease-in-out"});
+                        },res.time);
+                        ///--------------------------title display ----------------------///
+                    }
+                });
+                
+
             }
         });
     };
+    titlePage(item:{container:HTMLElement,time:number}):Promise<{textContainer:HTMLElement,container:HTMLElement,para:HTMLElement,time:number}>{
+        const {container,time}=item;
+        const less900=window.innerWidth < 900;
+        const less400=window.innerWidth < 400;
+        const css_col="margin-inline:auto;display:flex;flex-direction:column;justify-content:center;align-items:center;";
+        const textContainer=document.createElement("div");
+        textContainer.id="post-titlepage-textContainer";
+        textContainer.style.cssText=css_col + "background-color:black;border-radius:12px;margin-top:1rem;filter:drop-shadow(0 0 0.5rem white);";
+        textContainer.style.width=less900 ? (less400 ? "100%":"80%") : "70%";
+        textContainer.style.paddingBottom=less900 ? (less400 ? "2rem":"2.5rem") : "2rem";
+        textContainer.style.paddingInline=less900 ? (less400 ? "1rem":"1rem") : "2rem";
+        const text=document.createElement("p");
+        text.id="textContainer-mainTitle";
+        text.className="subTitleStyleThreeNoBorder text-center  my-2 mb-4 mx-auto lean";
+        text.style.cssText="margin-bottom:1.62rem;background:linear-gradient(180deg, #fff, #06a4f7);background-clip:text;-webkit-background-clip:text;";
+        text.style.fontSize=less900 ? (less400 ? "200%":"300%"):"375%";
+        text.textContent="quick posts";
+        text.id="showBlogs-title";
+        text.style.textTransform="capitalize";
+        const div1=document.createElement("div");
+        div1.id="textContainer-div1";
+        //#0804e9
+        div1.style.cssText="margin-inline:auto;width:85%;height:3px;filter:drop-shadow(0 0 0.25rem blue);";
+        div1.style.height=less900 ? (less400 ? "5px":"8px"):"9px";
+        div1.className="lineStyleOne";
+        const div2=document.createElement("div");
+        div2.id="textContainer-div1";
+        div2.className="lineStyleOne";
+        div2.style.cssText="margin-block;margin-inline:auto;width:55%;height:3px;filter:drop-shadow(0 0 0.25rem blue);";
+        div2.style.height=less900 ? (less400 ? "5px":"8px"):"9px";
+        const para=document.createElement("p");
+        para.id="textContainer-para";
+        para.textContent="updates and comments for your pleasure.";
+        para.style.cssText="padding-block:1rem;padding-inline:1rem;margin-inline:auto;margin-top:0.5rem;text-wrap:wrap;text-align:center;box-shadow:1px 1px 3px 1px #06a4f7;background-color:rgb(212 229 225 / 20%);";
+        para.style.fontSize=less900 ? (less400 ? "130%":"150%"):"175%";
+        para.style.color="#06a4f7";
+        textContainer.appendChild(text);
+        textContainer.appendChild(div1);
+        textContainer.appendChild(div2);
+        textContainer.appendChild(para);
+        textContainer.style.opacity="0";
+        para.style.opacity="0";
+        textContainer.style.transform="scale(0.8)";
+        
+        container.appendChild(textContainer);
+        return new Promise(resolve=>{
+            resolve({textContainer,container,para,time});
+        }) as Promise<{textContainer:HTMLElement,container:HTMLElement,para:HTMLElement,time:number}>;
+    }
     
     async Posts(item:{injector:HTMLElement,container:HTMLElement,posts:postType[],user:userType}):Promise<{container:HTMLElement,subDiv:HTMLElement,row:HTMLElement,posts:postType[],user:userType}>{
         const {injector,container,posts,user}=item;
@@ -230,9 +297,9 @@ class Post{
         const {row,col,post,user,index}=item;
         this.post=post;
         Header.cleanUpByID(col,`posts-postcard-card-${index}`);
-        const css_col="margin-inline:auto;display:flex;flex-direction:column;justify-content:center;align-items:center;gap:0.7rem;background-color:inherit;color:inherit;border-radius:inherit;width:100%";
-        const shapoutside="padding:1rem;text-wrap:wrap;color:black;font-family:'Poppins-Thin';font-weight:bold;font-size:120%;line-height:2.05rem;color:inherit;border-radius:12px;background-color:black;box-shadow:1px 1px 12px white;"
-        const css_row="margin-inline:auto;display:flex;flex-direction:row;flex-wrap:wrap;justify-content:center;align-items:center;gap:0.27rem;background-color:inherit;color:inherit;border-radius:inherit;";
+        const css_col="margin-inline:auto;display:flex;flex-direction:column;justify-content:center;align-items:center;gap:0.7rem;color:inherit;border-radius:inherit;width:100%";
+        const shapoutside="padding:1rem;text-wrap:wrap;color:black;font-family:'Poppins-Thin';font-weight:bold;font-size:120%;line-height:2.05rem;color:inherit;border-radius:12px;box-shadow:1px 1px 12px white;"
+        const css_row="margin-inline:auto;display:flex;flex-direction:row;flex-wrap:wrap;justify-content:center;align-items:center;gap:0.27rem;color:inherit;border-radius:inherit;";
         const card=document.createElement("div");
         card.id=`posts-postcard-card-${index}`;
         card.style.cssText=css_col;
