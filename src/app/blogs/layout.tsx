@@ -49,7 +49,7 @@ type Props = {
 }
 
 
-export default function bloglayout({
+export default function blogslayout({
     children,
 }: {
     children: React.ReactNode

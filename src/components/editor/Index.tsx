@@ -13,7 +13,7 @@ import DisplayBlog from '../blog/displayBlog';
 import Service from "@/components/common/services";
 import Flexbox from './flexBox';
 import HtmlElement from './htmlElement';
-import Profile from './profile';
+import Profile from '../profile/profile';
 import Nav from '../nav/headerNav';
 import ShapeOutside from './shapeOutside';
 import RegSignIn from '../nav/regSignin';

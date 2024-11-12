@@ -1,10 +1,10 @@
 import type { Metadata,ResolvingMetadata,MetadataRoute } from 'next';
-import {PrismaClient } from '@prisma/client';
 import { awsImage, getAllBlogImages, getOnlyBlogImages, getUserImage, getUsersImage } from '@/lib/awsFunctions';
 import { blogType, postType, userType } from '../editor/Types';
 import { getErrorMessage } from '@/lib/errorBoundaries';
+import prisma from "@/prisma/prismaclient"
 
-const prisma=new PrismaClient();
+
 export type Props = {
   params: {id:string },
   // searchParams: { [key: string]: string | string[] | undefined }
@@ -564,41 +564,38 @@ class Meta{
      async genSitemapArray(item:{baseUrl:string}):Promise<MetadataRoute.Sitemap>{
       const {baseUrl}=item;
       let arr:MetadataRoute.Sitemap=[];
-      let arr2:MetadataRoute.Sitemap=[];
       const retBaseUrl=this.sitmapCheckUrl({url:baseUrl});
+      // console.log(retBaseUrl)//works
       try {
         arr=[
           {url:`${retBaseUrl}`,lastModified:new Date(),changeFrequency:'weekly',priority:1},
           {url:`${retBaseUrl}/blogs`,lastModified:new Date(),changeFrequency:'daily',priority:1},
           {url:`${retBaseUrl}/posts`,lastModified:new Date(),changeFrequency:'daily',priority:1},
           {url:`${retBaseUrl}/editor`,lastModified:new Date(),changeFrequency:'weekly',priority:1},
+          {url:`${retBaseUrl}/profile`,lastModified:new Date(),changeFrequency:'weekly',priority:1},
           {url:`${retBaseUrl}/policy`,lastModified:new Date(),changeFrequency:'monthly',priority:1},
           {url:`${retBaseUrl}/register`,lastModified:new Date(),changeFrequency:'yearly',priority:1},
           {url:`${retBaseUrl}/termsOfService`,lastModified:new Date(),changeFrequency:'yearly',priority:1},
           {url:`${retBaseUrl}/signin`,lastModified:new Date(),changeFrequency:'yearly',priority:1},
           {url:`${retBaseUrl}/chart`,lastModified:new Date(),changeFrequency:'monthly',priority:1},
         ];
-        const option={
-          headers:{"Content-Type":"application/json"},
-          method:"GET"
+        const blogIds =await prisma.blog.findMany({
+          where:{show:true},
+          select:{id:true}
+        }) as {id:number}[];
+        if(blogIds && blogIds.length>0){
+          blogIds.map(blog=>{
+            arr.push({url:`${retBaseUrl}/blog/${blog.id}`,lastModified:new Date(),changeFrequency:'always',priority:1})
+          });
         }
-        arr2= await fetch(this.savegetblog,option).then(async(res)=>{
-          if(res){
-            const blogs= await res.json() as blogType[];
-            blogs.map(blog=>{
-              arr.push({url:`${baseUrl}/blog/${blog.id}`,lastModified:new Date(),changeFrequency:'always',priority:1})
-            });
-            return arr;
-          }
-          return arr
-        });
        
       } catch (error) {
         const msg=getErrorMessage(error)
         console.log(msg);
         
       }finally{
-        return arr2;
+        await prisma.$disconnect();
+        return arr;
       }
 
     }

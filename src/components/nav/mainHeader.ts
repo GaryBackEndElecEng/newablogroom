@@ -4,7 +4,7 @@ import ModSelector from "../editor/modSelector";
 import AuthService from "../common/auth";
 import Service from "../common/services";
 import User from "../user/userMain";
-import Profile from "../editor/profile";
+import Profile from "../profile/profile";
 import Misc from "../common/misc";
 import Header from "../editor/header";
 import Dataflow from "../common/dataflow";

@@ -7,7 +7,7 @@ import ModSelector from "../editor/modSelector";
 import Header from "@/components/editor/header";
 import Misc from "../common/misc";
 import User from "../user/userMain";
-import Profile from "../editor/profile";
+import Profile from "../profile/profile";
 import { getCsrfToken, signIn } from 'next-auth/react';
 import RegSignIn from "./regSignin";
 import NavArrow from "./arrow";

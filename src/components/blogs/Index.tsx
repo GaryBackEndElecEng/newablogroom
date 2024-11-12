@@ -22,8 +22,8 @@ export default function Index({ blogs }: { blogs: blogType[] }) {
             const initBlogs = new Blogs(modSelector, service);
             const injectBlogs = document.getElementById("injectBlogs") as HTMLElement;
             initBlogs.showBlogs(injectBlogs, false, blogs).then(() => {
-                countRef.current++;
-                Nav.cleanUpByQueryKeep(injectBlogs, "section#blogs-container");
+                countRef.current++; //controls run once
+                Nav.cleanUpByQueryKeep(injectBlogs, "section#blogs-container");//removes duplicates on useEffect() double execution on run dev
             });
         }
     }, [blogs, inRef, countRef]);

@@ -12,7 +12,7 @@ import ModSelector from '../editor/modSelector';
 import Misc from '../common/misc';
 import Nav from './headerNav';
 import MainHeader from './mainHeader';
-import Profile from '../editor/profile';
+import Profile from '../profile/profile';
 import Features from '../home/feature';
 import AuthService from "../common/auth";
 import { buttonReturn } from "../common/tsFunctions";
@@ -236,12 +236,13 @@ set user(user:userType){
                 {id:1,name:"blogs",color:"#00BFFF",link:"/blogs",func:()=>Nav.navHistory("/blogs"),icon:FaBlog,show:true,isEditor:false,save:async()=>null},
                 {id:2,name:"admin",color:"red",link:"/admin",func:()=> Nav.navHistory("/admin"),icon:FaSign,show:this._isAdmin,isEditor:false,save:async()=>null},
                 {id:3,name:"editor",color:"#00BFFF",link:"/editor",func:()=>Nav.navHistory("/editor"),icon:FaEdit,show:true,isEditor:true,save:()=>null},
-                {id:4,name:"posts",color:"#00BFFF",link:"/posts",func:()=>Nav.navHistory("/posts"),icon:Icons.FaDropbox,show:true,isEditor:true,save:()=>null},
-                {id:5,name:"chart",color:"#00BFFF",link:"/chart",func:()=>Nav.navHistory("/chart"),icon:Icons.FaChartBar,show:true,isEditor:true,save:()=>null},
+                {id:4,name:"posts",color:"#00BFFF",link:"/posts",func:()=>Nav.navHistory("/posts"),icon:Icons.FaDropbox,show:true,isEditor:false,save:()=>null},
+                {id:5,name:"chart",color:"#00BFFF",link:"/chart",func:()=>Nav.navHistory("/chart"),icon:Icons.FaChartBar,show:true,isEditor:false,save:()=>null},
                 {id:6,name:"signin",color:"#00FF00",link:null,func:()=> this._regSignin.signIn(),icon:FaSign,show:!this.checkUser,isEditor:false,save:()=>null},
                 {id:7,name:"logout",color:"#00FF00",link:null,func:()=>this.logout({func:()=>undefined}),icon:FaSign,show:this.checkUser,isEditor:false,save:()=>null},
                 {id:8,name:"contact",color:"#00FF00",link:null,func:()=> this.contact(MainHeader.header as HTMLElement),icon:FaMedapps,show:true,isEditor:false,save:()=>null},
-                {id:9,name:"profile",color:"#800000",link:null,func:()=> this._profile.main(getHeaderInjector),icon:FaAccessibleIcon,show:this.checkUser,isEditor:false,save:()=>null},
+                {id:9,name:"profile on demand",color:"#800000",link:null,func:()=> this._profile.main(getHeaderInjector),icon:FaAccessibleIcon,show:this.checkUser,isEditor:false,save:()=>null},
+                {id:10,name:"profile page",color:"#00FF00",link:"/profile",func:()=> Nav.navHistory("/profile"),icon:FaAccessibleIcon,show:this.checkUser,isEditor:false,save:()=>null},
                 {id:10,name:"general-Info",color:"#00FF00",link:null,func:()=> this.generalInfo(MainHeader.header as HTMLElement),icon:FaInfo,show:true,isEditor:false,save:()=>null},
                 {id:11,name:"features",color:"#00FF00",link:null,func:()=> this.feature.feature(document.body as HTMLElement),icon:FaFilePowerpoint,show:true,isEditor:false,save:()=>null},
             ]

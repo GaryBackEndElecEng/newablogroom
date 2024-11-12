@@ -5,7 +5,7 @@ import ModSelector from '../editor/modSelector';
 import Service from '../common/services';
 import AuthService from '../common/auth';
 import User from '../user/userMain';
-import Profile from '../editor/profile';
+import Profile from '../profile/profile';
 import { userType } from '../editor/Types';
 import RegSignIn from './regSignin';
 import Nav from './headerNav';

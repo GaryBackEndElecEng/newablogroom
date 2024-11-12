@@ -423,7 +423,7 @@ class Home{
         //----------blogCont-----------------//
         const blogMsgCont=document.createElement("div");
         blogMsgCont.id="container-blogMsgCont";
-        blogMsgCont.style.cssText=css_col + "width:100%;box-shadow:1px 1px 12px 1px #01d1f7;";
+        blogMsgCont.style.cssText=css_col + "width:100%;box-shadow:1px 1px 12px 1px #01d1f7;border-radius:12px";
         //----------blogCont-----------------//
         parent.appendChild(container);
         Misc.blurIn({anchor:container,blur:"20px",time:600});

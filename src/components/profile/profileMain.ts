@@ -1,7 +1,7 @@
 import AuthService from "../common/auth";
 import Service from "../common/services";
-import {blogType, gets3ImgKey, userType, messageType,sendEmailMsgType, postType} from "./Types";
-import ModSelector from "./modSelector";
+import {blogType, gets3ImgKey, userType, messageType,sendEmailMsgType, postType} from "../editor/Types";
+import ModSelector from "../editor/modSelector";
 import {FaCreate} from "@/components/common/ReactIcons";
 import { FaCrosshairs,FaSignal } from "react-icons/fa";
 import User from "../user/userMain";
@@ -10,28 +10,30 @@ import { buttonReturn } from '../common/tsFunctions';
 import Nav from '../nav/headerNav';
 import { getErrorMessage } from "@/lib/errorBoundaries";
 import DisplayBlog from "../blog/displayBlog";
-import Header from "./header";
-import ShapeOutside from "./shapeOutside";
+import Header from "../editor/header";
+import ShapeOutside from "../editor/shapeOutside";
 import Message from "../common/message";
-import MetaBlog from "./metaBlog";
-import NewCode from "./newCode";
+import MetaBlog from "../editor/metaBlog";
+import NewCode from "../editor/newCode";
 import ChartJS from "../chart/chartJS";
 import Post from "../posts/post";
 import Blogs from "../blogs/blogsInjection";
 
-const baseUrl="http://localhost:3000";
 
-class Profile{
+
+class ProfileMain{
     bgColor:string;
     btnColor:string;
     userUrlUpdate:string;
     logo:string="/images/gb_logo.png";
-    blogUrl:string=baseUrl + "/api/blog";
+    blogUrl:string="/api/blog";
     _messages:messageType[];
     _displayBlog:DisplayBlog;
     shapeOutside:ShapeOutside;
     classMsg:Message;
     newCode:NewCode;
+    _posts:postType[];
+    _blogs:blogType[];
     static main:HTMLElement | null;
 
 
@@ -40,6 +42,8 @@ class Profile{
         this.btnColor=this._modSelector.btnColor;
         this.userUrlUpdate="/api/user_update";
         this._messages=[];
+        this._posts=[] as postType[];
+        this._blogs=[] as blogType[];
         this.newCode=new NewCode(this._modSelector,this._service,this._user);
         this.shapeOutside=new ShapeOutside(this._modSelector,this._service,this._user);
         const message=new Message(this._modSelector,this._service,this._modSelector.blog);
@@ -48,6 +52,12 @@ class Profile{
 
     }
     //----------SETTER/GETTERS---------/////
+    get user(){
+        return this._user.user;
+    }
+    set user(user:userType){
+        this._user.user=user;
+    }
     get msgs(){
         return this._messages;
     }
@@ -56,7 +66,8 @@ class Profile{
     }
     set blogs(blogs:blogType[]){
         this._modSelector._blogs=blogs
-        this._user.blogs=blogs
+        this._user.blogs=blogs;
+        this._blogs=blogs;
     }
     get blogs(){
         return this._modSelector._blogs;
@@ -67,96 +78,64 @@ class Profile{
     get blog(){
         return this._modSelector._blog;
     }
+    get posts(){
+        return this._posts;
+    }
+    set posts(posts:postType[]){
+        this._posts=posts;
+    }
     //----------SETTER/GETTERS---------/////
     //parent: MainHeader.header,id="navHeader"
-   async main(parent:HTMLElement){
+   async main(item:{parent:HTMLElement,user:userType}){
+    const {parent,user}=item;
+        parent.style.position="relative";
+        parent.style.width="100%";
+        const css_col="position:relative;height:auto;margin:auto;display:flex;place-items:center;flex-direction:column;border-radius:11px;";
+        const css_row="position:relative;height:auto;margin:auto;display:flex;place-items:center;border-radius:11px;flex-wrap:wrap;";
+        this.user=user;
+        this.blogs=user.blogs;
+        this.posts=user.posts;
         const less900=window.innerWidth <900;
         const less400=window.innerWidth <400;
-        Profile.cleanUpByID(parent,"div#headerAnchor")
+        ProfileMain.cleanUpByID(parent,"section#main-outerMain")
         parent.style.position="relative";
         // parent.style.justifyContent="space-between";
-        parent.style.zIndex="";
-        const headerAnchor=document.createElement("div");
-        headerAnchor.id="headerAnchor";
-        headerAnchor.style.cssText="width:100%;display:flex;place-items:center;padding-block:1rem;padding-inline:0px;position:relative;flex-direction:column;";
-        const outerMain=document.createElement("article");
-        outerMain.style.cssText="position:absolute;height:auto;z-index:300;margin:auto;display:flex;place-items:center;flex-direction:column;border-radius:11px;box-shadow:1px 1px 12px 1px #1F305E;";
-        outerMain.style.top="100%";
-        outerMain.style.left="0%";
-        outerMain.style.right="0%";
-        if(less900){
-            outerMain.style.top="100%";
-            outerMain.style.left="0%";
-            outerMain.style.right="0%";
-        }
-        if(less400){
-            outerMain.style.top="100%";
-            outerMain.style.left="0%";
-            outerMain.style.right="0%";
-        }
-        outerMain.id="profileMain";
-        Profile.main=document.createElement("div");
-        Profile.main.id="profileInnermain";
-        Profile.main.style.cssText="position:relative;margin:auto;width:100%;min-height:80vh;overflow-y:scroll;";
-        outerMain.appendChild(Profile.main);
-        ////--------------row -------------------------///
-        const row=document.createElement("section");
-        row.style.cssText="margin:auto;position:relative;justify-content:center;align-items:center;width:100%;padding-inline:1.25rem;";
-        row.id="row-profile";
-        //---------SMALL FORM FORMAT---------/////
-        Misc.matchMinMedia({parent:outerMain,minWidth:905,cssStyle:{"width":"auto","top":"-490%","left":"0%","right":"0%","transform":"translateY(31vh)"}});
-        Misc.matchMedia({parent:outerMain,maxWidth:900,cssStyle:{"width":"100%","top":"270%","left":"0%","right":"0%"}});
-        Misc.matchMedia({parent:outerMain,maxWidth:500,cssStyle:{"width":"100%","minHeight":"100vh","top":"180%","left":"0%","right":"0%","display":"flex","flexDirection":"column",gap:"1rem"}});
-        if(window.innerWidth >500){
-            Profile.main.style.height="85vh";
-            row.classList.add("row");
-           
-        }else{
-            Profile.main.style.minHeight="85vh";
-        }
-         //---------SMALL FORM FORMAT---------/////
+        const outerMain=document.createElement("section");
+        outerMain.id="main-outerMain";
+        outerMain.style.cssText=css_col + "box-shadow:1px 1px 12px 1px #1F305E;width:100%;";
         outerMain.style.backgroundColor="#34282C";
-        Profile.main.style.backgroundColor="rgb(229, 250, 255)";
-        //USER //
-        const user= this._user.user;
-        //USER //
+        outerMain.id="profileMain";
+        ProfileMain.main=outerMain;
+        ////--------------row -------------------------///
+        const mainRow=document.createElement("div");
+        mainRow.style.cssText="margin:auto;position:relative;justify-content:center;align-items:center;width:100%;padding-inline:1.25rem;";
+        mainRow.id="outerMain-row";
         //EMAIL SECTION colNum=2 => two section
         ////--------------row -------------------------///
-         //APPENDING ROW TO MAIN
-         Profile.main.appendChild(row);
-        //APPENDING MAIN
-        this.updateImageBio(row,user,1)
-        this.emailForm(row,2);
-        this.passwordForm(row,2);
-        this.userBlogs({row,column:1});//row.id=row-profile
-        await this.messages(row,user,2);
-        await this.userposts({row,user,cols:2})
-        headerAnchor.appendChild(outerMain);
-        //APPENDING TO PARENT
-        parent.appendChild(headerAnchor);
-        const btnMain=document.createElement("div");
-        btnMain.style.cssText="height:5vh;width:100%;background:black;display:flex;justify-content:center;align-items:center;gap:2rem;";
-        outerMain.appendChild(btnMain);
-        const {button:btnRollUp}=Misc.simpleButton({anchor:btnMain,text:"close",color:"white",bg:this.btnColor,type:"button",time:400});
-        Misc.growDown({anchor:outerMain,xpos:80,ypos:70,time:500});
-        btnRollUp.addEventListener("click",(e:MouseEvent)=>{
-            if(e){
-                Misc.growUp({anchor:outerMain,xpos:80,ypos:70,time:500});
-                setTimeout(()=>{
-                    parent.removeChild(headerAnchor)
-                },480);
-            }
-        });
-        const getProfileMain=parent.querySelector("article#profileMain") as HTMLElement;
-        getProfileMain.style.width="100%";
+        this.updateImageBio({mainRow,user,column:1})
+        const emailPassword=document.createElement("div");
+        emailPassword.style.cssText=css_row;
+        mainRow.appendChild(emailPassword);
+        this.emailForm({mainRow,innerRow:emailPassword,column:2,user});
+        this.passwordForm({mainRow,innerRow:emailPassword,column:2,user});
+        this.userBlogs({mainRow,column:1,blogs:this.blogs});//row.id=row-profile
+        await this.messages({mainRow,user,column:2});
+        await this.userposts({mainRow,user,cols:2,posts:this.posts})
+       outerMain.appendChild(mainRow);
+        parent.appendChild(outerMain);//MAIN INJECTION
+        Misc.slideIn({anchor:outerMain,xpos:0,ypos:70,time:500});
     }
 
     //EMAIL FORM
-    emailForm(row:HTMLElement,colNum:number){
-        const partition=Math.round(12/colNum);
+    emailForm(item:{mainRow:HTMLElement,innerRow:HTMLElement,column:number,user:userType}){
+        const {mainRow,innerRow,column,user}=item;
+        const partition=Math.round(12/column);
+        const less900=window.innerWidth < 900;
+        const less400=window.innerWidth < 400;
         const col=document.createElement("section");
         col.style.cssText="margin:auto;display:flex;flex-direction:column;aligm-items:center;justify-content:center;align-items:center;";
         col.classList.add(`col-md-${partition}`);
+        col.style.flex=less900 ? (less400 ? "1 0 100%" : "1 0 50%"): "1 0 50%";
         const title=document.createElement("h6");
         title.className="text-primary text-center lean mx-auto";
         title.textContent="email changeout";
@@ -174,7 +153,7 @@ class Profile{
         //APPENDING FORM TO COL
         col.appendChild(form);
         //APPENDING COL TO ROW
-        row.appendChild(col);
+        innerRow.appendChild(col);
         emailNew.addEventListener("change",(e:Event)=>{
             if(e){
                 const em=(e.currentTarget as HTMLInputElement).value
@@ -198,18 +177,17 @@ class Profile{
                 const emailNew_=newForm.get("emailNew") as string;
                 const emailOld_=newForm.get("emailOld") as string;
                 if(emailOld_ && emailNew_){
-                    const user=this._user.user;
                     if(user && user.id){
                         const emails={emailNew:emailNew_,emailOld:emailOld_};
-                        this._user.changeEmail(row,user,emails).then(async(user)=>{
+                        this._user.changeEmail(mainRow,user,emails).then(async(user)=>{
                             if(user){
                                 emailNew.value="";
                                 emailOld.value="";
-                                Misc.message({parent:row,msg:"updated",type_:"success",time:400});
+                                Misc.message({parent:mainRow,msg:"updated",type_:"success",time:400});
                             }
                         });
                     }else{
-                        Misc.message({parent:row,msg:"please sign-in again",type_:"error",time:700})
+                        Misc.message({parent:mainRow,msg:"please sign-in again",type_:"error",time:700})
                     }
 
                 }
@@ -243,10 +221,14 @@ class Profile{
     }
 
     //PASSWORD FORM
-    passwordForm(row:HTMLElement,colNum:number){
-        const partition=Math.round(12/colNum);
+    passwordForm(item:{mainRow:HTMLElement,innerRow:HTMLElement,column:number,user:userType}){
+        const {mainRow,innerRow,column,user}=item;
+        const less900=window.innerWidth < 900;
+        const less400=window.innerWidth < 400;
+        const partition=Math.round(12/column);
         const col=document.createElement("section");
         col.style.cssText="margin:auto;display:flex;flex-direction:column;aligm-items:center;justify-content:center;align-items:center;";
+        col.style.flex=less900 ? (less400 ? "1 0 100%" : "1 0 50%"): "1 0 50%";
         col.classList.add(`col-md-${partition}`);
         const title=document.createElement("h6");
         title.textContent="password changeout";
@@ -265,7 +247,7 @@ class Profile{
         //APPENDING FORM TO COL
         col.appendChild(form);
         //APPENDING COL TO ROW
-        row.appendChild(col);
+        innerRow.appendChild(col);
         passNew.addEventListener("input",(e:Event)=>{
             if(e){
                 const em=(e.currentTarget as HTMLInputElement).value;
@@ -294,23 +276,22 @@ class Profile{
                 const newForm=new FormData(e.currentTarget as HTMLFormElement);
                 const passNew_=newForm.get("passNew") as string;
                 const passOld_=newForm.get("passOld") as string;
-                console.log(passNew_,passOld_)
+                // console.log(passNew_,passOld_)
                 if(passNew_ && passOld_){
-                    const user=this._user.user;
                     if(user && user.id){
                         const passwords={passNew:passNew_,passOld:passOld_}
-                        this._user.changePassword(row,user,passwords).then(async(user)=>{
+                        this._user.changePassword(mainRow,user,passwords).then(async(user)=>{
                             if(user){
                                 passNew.value="";
                                 passOld.value="";
-                                Misc.message({parent:row,msg:"updated",type_:"success",time:400});
+                                Misc.message({parent:mainRow,msg:"updated",type_:"success",time:400});
                             }
                         }).catch((err)=>{
                             const msg=getErrorMessage(err); console.error(msg)
-                            Misc.message({parent:row,msg:msg,type_:"error",time:700})
+                            Misc.message({parent:mainRow,msg:msg,type_:"error",time:700})
                         });
                     }else{
-                        Misc.message({parent:row,msg:"please sign-in again",type_:"error",time:700})
+                        Misc.message({parent:mainRow,msg:"please sign-in again",type_:"error",time:700})
                     }
 
                 }
@@ -344,9 +325,10 @@ class Profile{
         
         return {passNew,passOld}
     }
-    updateImageBio(parent:HTMLElement,user:userType,colNum:number){
+    updateImageBio(item:{mainRow:HTMLElement,user:userType,column:number}){
+        const {mainRow,user,column}=item;
         const rowClass=window.innerWidth < 600 ? "" : "row";
-        const partition=Math.round(12/colNum);
+        const partition=Math.round(12/column);
         const cont=document.createElement("section");
         cont.className=`col-lg-${partition}`;
         cont.style.cssText="margin-inline:auto;background-color:#bdc5c9;width:100%;position:relative;";
@@ -366,7 +348,7 @@ class Profile{
         this.bio(row,user);
         //-APENDING ROW TO CONT---////
         cont.appendChild(row);
-        parent.appendChild(cont);
+        mainRow.appendChild(cont);
     }
 
     //PARENT::updateImageBio()
@@ -459,12 +441,13 @@ class Profile{
                 const textarea=formdata.get("textarea") as string;
                 const showWork=formdata.get("showWork") as string;
                 const username=formdata.get("username") as string;
-                this._user.user={...this._user.user,bio:textarea,name:name,username:username,showinfo:Boolean(showWork)};
-                const user=this._user.user;
+                this._user.user={...user,bio:textarea,name:name,username:username,showinfo:Boolean(showWork)};
+                user=this._user.user;
                 if((name || textarea) && user){
                     localStorage.setItem("user",JSON.stringify(user));
                     this._user.userUpdate(row,user).then(async(user_)=>{
                         if(user_){
+                            user_={...user_,blogs:user.blogs,posts:user.posts}
                             localStorage.setItem("user",JSON.stringify(user_));
                             this._user.user=user_;
                             
@@ -568,9 +551,9 @@ class Profile{
             }
         });
     }
-    userBlogs(item:{row:HTMLElement,column:number}){
-        const {row,column}=item;
-        Profile.cleanUpByID(row,"section#contID")
+    userBlogs(item:{mainRow:HTMLElement,column:number,blogs:blogType[]}){
+        const {mainRow,column,blogs}=item;
+        ProfileMain.cleanUpByID(mainRow,"section#contID");
         const partition=Math.round(12/column);
         const cont=document.createElement("section");
         cont.id="contID";
@@ -591,36 +574,31 @@ class Profile{
         cont.appendChild(inner_row);
         ///---------------DISPLAY BLOGS------------------------//
         const user_id=this._user.user.id;
-        this._service.userBlogs(user_id).then(async(blogs:blogType[])=>{
-            if(blogs){
-                console.log("blogs",blogs)
-                this._user.user={...this._user.user,blogs:blogs};
                 if(blogs.length>0){
                     this._modSelector.blogs=blogs;
                     localStorage.setItem("userBlogs",JSON.stringify(blogs));
                     blogs.map((blog,index)=>{
-                        this.showBlog({grandRow:row,innerRow:inner_row,blog,index})
+                        this.showBlog({mainRow,innerRow:inner_row,blog,index})
 
                     });
                 }else{
                     this.noBlogs(cont);
                 }
-            }
-        });
+    
         ///---------------DISPLAY BLOGS------------------------//
         
         //APPEND CONT TO PARENT
-        const getInnerRow=row.querySelector("div#user-blogs") as HTMLElement;
+        const getInnerRow=mainRow.querySelector("div#user-blogs") as HTMLElement;
         Misc.matchMedia({parent:getInnerRow,maxWidth:400,cssStyle:{flexDirection:"column"}});
-        row.appendChild(cont);
+        mainRow.appendChild(cont);
         Misc.matchMedia({parent:cont,maxWidth:400,cssStyle:{aspectRatio:"1 / 1.5"}});
     }
-   async messages(row:HTMLElement,user:userType,colNum:number){
-        
-        row.style.position="relative";
-        const partition=Math.round(12/colNum);
-        const cssLeft=`flex:1 0 ${(1/colNum)*100}%;`;
-        const cssRight=`flex:1 0 ${(1/colNum)*100}%;min-height:23vh;position:relative;`;
+   async messages(item:{mainRow:HTMLElement,user:userType,column:number}){
+    const {mainRow,user,column}=item;
+        mainRow.style.position="relative";
+        const partition=Math.round(12/column);
+        const cssLeft=`flex:1 0 ${(1/column)*100}%;`;
+        const cssRight=`flex:1 0 ${(1/column)*100}%;min-height:23vh;position:relative;`;
         const css=`height:15vh;margin-inline:2px;background-color:white;margin-block:1.5rem;overflow-y:scroll;`;
         //LEFT SIDE
         const colLeft=document.createElement("section");
@@ -696,13 +674,13 @@ class Profile{
         colLeft.appendChild(msgList);
         
         //APPENDING LEFT
-        row.appendChild(colLeft);
+        mainRow.appendChild(colLeft);
         //APPENDING RIGHT
-        row.appendChild(colRight);
+        mainRow.appendChild(colRight);
    
     }
     msgRightCard(colRight:HTMLElement,user:userType,msg:messageType){
-        Profile.cleanUpByID(colRight,"div#card-right");
+        ProfileMain.cleanUpByID(colRight,"div#card-right");
         const card=document.createElement("div");
         card.className="card";
         card.id="card-right";
@@ -930,9 +908,9 @@ class Profile{
             }
         };
     }
-    async showBlog(item:{grandRow:HTMLElement,innerRow:HTMLElement,blog:blogType,index:number}){
-        const {grandRow,innerRow,blog,index}=item;
-            Profile.cleanUpByID(innerRow,`div#column-${blog.id}`);
+    async showBlog(item:{mainRow:HTMLElement,innerRow:HTMLElement,blog:blogType,index:number}){
+        const {mainRow,innerRow,blog,index}=item;
+            ProfileMain.cleanUpByID(innerRow,`div#column-${blog.id}`);
             const flex=window.innerWidth < 900 ? (window.innerWidth < 410 ? "none":"1 0 50%") :"1 0 33%";
             const col=document.createElement("div");
             // console.log("index",index)//works
@@ -985,7 +963,7 @@ class Profile{
             const btn=buttonReturn({parent:card,text:"option",bg:this.btnColor,color:"white",type:"button"});
             btn.addEventListener("click",(e:MouseEvent)=>{
                 if(e){
-                    this.viewChoice({grandRow,innerRow,col,card,blog,index});
+                    this.viewChoice({mainRow,innerRow,col,card,blog,index});
                     
                 }
             });
@@ -1016,10 +994,12 @@ class Profile{
     }
     async showFinalWork(grandRow:HTMLElement,blog:blogType){
         const popup=document.createElement("section");
+        const less900=window.innerWidth < 900;
+        const less400=window.innerWidth < 400;
         grandRow.style.width="100%";
-        popup.style.cssText="position:absolute;background:white;width:100%;height:auto;z-index:200;"
-        popup.style.inset="0%";
         popup.id="profile-show-final-work-popup";
+        popup.style.cssText="position:absolute;background:white;width:100%;height:auto;z-index:200;overflow-y:scroll;"
+        popup.style.inset=less900 ? (less400 ? "0% 0% 40% 0%" : "0% 0% 50% 0%") : "0%";
         const container=document.createElement("div");
         container.id="profile-show-final-work-container";
         container.className="profile-show-final-work-container";
@@ -1069,7 +1049,8 @@ class Profile{
                 Misc.fadeOut({anchor:popup,xpos:50,ypos:100,time:400});
                 setTimeout(()=>{
                     grandRow.removeChild(popup);
-                    const newUrl=new URL("/editor",baseUrl);
+                    const url=new URL(window.location.href);
+                    const newUrl=new URL("/editor",url.origin);
                     window.location.href=newUrl.href;
                 },380);
                 
@@ -1085,9 +1066,9 @@ class Profile{
             }
         });
     }
-    viewChoice(item:{grandRow:HTMLElement,innerRow:HTMLElement,col:HTMLElement,card:HTMLElement,blog:blogType,index:number}){
-        const {grandRow,innerRow,col,card,blog,index}=item;
-        Profile.cleanUpByID(card,`div#choice`);
+    viewChoice(item:{mainRow:HTMLElement,innerRow:HTMLElement,col:HTMLElement,card:HTMLElement,blog:blogType,index:number}){
+        const {mainRow,innerRow,col,card,blog,index}=item;
+        ProfileMain.cleanUpByID(card,`div#choice`);
         let liveOnOff:HTMLButtonElement;
         col.style.position="relative";
         col.style.zIndex="";
@@ -1120,7 +1101,7 @@ class Profile{
                         //redue view
                        res.blogs.map(_blog=>{
                             if(_blog){
-                                this.showBlog({grandRow,innerRow,blog:_blog,index});
+                                this.showBlog({mainRow,innerRow,blog:_blog,index});
                             }
                         });
                     }
@@ -1131,14 +1112,13 @@ class Profile{
             if(e){
                 const blog_id=blog.id;
                     this._service.getBlog(blog_id as number).then(async(blog:blogType)=>{
-                        if(blog && Profile.main){
+                        if(blog && ProfileMain.main){
                             localStorage.setItem("blog",JSON.stringify(blog));
                             const max_=ModSelector.maxCount(blog);
                             localStorage.setItem("placement",String(max_));
                             this._modSelector.loadBlog(blog);
-                            Profile.cleanUpByID(grandRow,"section#show-final-popup");
-                            grandRow.style.width="100%";
-                            await this.showFinalWork(grandRow,blog);
+                            ProfileMain.cleanUpByID(mainRow,"section#show-final-popup");
+                            await this.showFinalWork(mainRow,blog);
                             Misc.fadeOut({anchor:popup,xpos:100,ypos:50,time:400});
                             setTimeout(()=>{
                                 col.removeChild(popup);
@@ -1149,7 +1129,7 @@ class Profile{
         });
         editmetaBtn.addEventListener("click",(e:MouseEvent)=>{
             if(e){
-                this.editMeta({grandRow:grandRow,blog:blog});
+                this.editMeta({mainRow,blog:blog});
                 Misc.fadeOut({anchor:popup,xpos:100,ypos:50,time:400});
                 setTimeout(()=>{
                     col.removeChild(popup);
@@ -1158,7 +1138,7 @@ class Profile{
         });
         delBtn.addEventListener("click",(e:MouseEvent)=>{
             if(e){
-                this.verifyDeleteChoice(grandRow,innerRow,col,blog);
+                this.verifyDeleteChoice({mainRow,innerRow,col,blog});
             }
         });
         cancel.addEventListener("click",(e:MouseEvent)=>{
@@ -1188,7 +1168,8 @@ class Profile{
         }).catch((err)=>{const msg=getErrorMessage(err);console.error(msg);Misc.message({parent:card,msg:msg,type_:"error",time:700})});
     }
 
-    verifyDeleteChoice(grandRow:HTMLElement,innerRow:HTMLElement,col:HTMLElement,blog:blogType){
+    verifyDeleteChoice(item:{mainRow:HTMLElement,innerRow:HTMLElement,col:HTMLElement,blog:blogType}){
+        const {mainRow,innerRow,col,blog}=item;
         Header.cleanUpByID(col,"verifyDeleteChoice");
         const popup=document.createElement("div");
         popup.id="verifyDeleteChoice";
@@ -1219,7 +1200,7 @@ class Profile{
                         this._modSelector._blogs=this._modSelector._blogs.filter(bl=>(bl.id !==blog.id));
                         this._user.blogs=this._modSelector.blogs;
                         const remainderBlogs=this._modSelector.blogs;
-                        Misc.message({parent:grandRow,msg:`deleted id=${blog.id}`,type_:"success",time:600});
+                        Misc.message({parent:mainRow,msg:`deleted id=${blog.id}`,type_:"success",time:600});
                         setTimeout(()=>{
                             Misc.fadeOut({anchor:col,xpos:100,ypos:50,time:400});
                             setTimeout(()=>{
@@ -1228,14 +1209,14 @@ class Profile{
                         },580);
                         const arrimgs=ModSelector.getAllImgKeys(blog);
                         const ids=arrimgs.map(ar=>(ar.id));
-                        Misc.message({parent:grandRow,msg:`marked: ${JSON.stringify(ids)} as delete`,type_:"success",time:1000});
+                        Misc.message({parent:mainRow,msg:`marked: ${JSON.stringify(ids)} as delete`,type_:"success",time:1000});
                         remainderBlogs.map((blog_,index)=>{
                             if(blog_){
-                                this.showBlog({grandRow,innerRow,blog:blog_,index})
+                                this.showBlog({mainRow,innerRow,blog:blog_,index})
                             }
                         });
                     }
-                }).catch((err)=>{Misc.message({parent:grandRow,msg:err,type_:"error",time:700})});
+                }).catch((err)=>{Misc.message({parent:mainRow,msg:err,type_:"error",time:700})});
                 Misc.fadeOut({anchor:col,xpos:100,ypos:50,time:400});
                 setTimeout(()=>{
                     col.removeChild(popup);
@@ -1288,7 +1269,7 @@ class Profile{
                         Misc.message({parent:grandRow,msg:`marked: ${JSON.stringify(ids)} as delete`,type_:"success",time:1000});
                         remainderBlogs.map((blog_,index)=>{
                             if(blog_){
-                                this.showBlog({grandRow,innerRow,blog:blog_,index})
+                                this.showBlog({mainRow:grandRow,innerRow,blog:blog_,index})
                             }
                         });
                     }
@@ -1308,8 +1289,8 @@ class Profile{
             }
         }) as Promise<messageType[]>;
     }
-    async editMeta(item:{grandRow:HTMLElement,blog:blogType}){
-        const {grandRow,blog}=item;
+    async editMeta(item:{mainRow:HTMLElement,blog:blogType}){
+        const {mainRow,blog}=item;
         const user=this._user.user;
         const isSelects=(blog && blog.selectors && blog.selectors.length>0)? true:false;
         const isElements=(blog && blog.elements && blog.elements.length>0)? true:false;
@@ -1317,20 +1298,18 @@ class Profile{
             this._service.getUserBlog({user_id:user.id,blog_id:blog.id}).then(async(resBlog)=>{
                 if(resBlog && !(typeof(resBlog)==="string") ){
                     this._modSelector.blog=resBlog;
-                
-                    grandRow.style.zIndex="2";
                     const container=document.createElement("div");
                     container.id="profile-editMeta-main";
                     container.style.cssText="position:relative;z-index:3;display:flex;justify-content:space-around;flex-direction:column;width:80%;background-color:white;box-shadow:1px 1px 12px 1px black;height:70vh;overflow-y:scroll;border-radius:12px;";
                     container.style.inset="20% 0% 65% 0%";
                     const {button:saveClose}=Misc.simpleButton({anchor:container,bg:Nav.btnColor,color:"white",text:"close",type:"button",time:400});
-                    grandRow.appendChild(container);
-                    this.removeChild(grandRow,container);
-                    this._metaBlog.metablog({grandParent:grandRow,parent:container,blog:resBlog,type:"profile"});
+                    mainRow.appendChild(container);
+                    this.removeChild(mainRow,container);
+                    this._metaBlog.metablog({grandParent:mainRow,parent:container,blog:resBlog,type:"profile"});
                     saveClose.onclick=(e:MouseEvent)=>{
                         if(e){
                             Misc.growOut({anchor:container,scale:0,opacity:0,time:400});
-                            setTimeout(()=>{grandRow.removeChild(container)},390);
+                            setTimeout(()=>{mainRow.removeChild(container)},390);
 
                         }
                     };
@@ -1342,8 +1321,8 @@ class Profile{
 
 
     }
-    async userposts(item:{row:HTMLElement,user:userType,cols:number}){
-        const {row,user,cols}=item;
+    async userposts(item:{mainRow:HTMLElement,user:userType,cols:number,posts:postType[]}){
+        const {mainRow,user,cols,posts}=item;
         const css_row="display:flex;flex-direction:row;flex-wrap:wrap;align-items:center;justify-content:center;width:100%;position:relative;padding-block:2rem;";
         const less900=window.innerWidth <900;
         const less400=window.innerWidth <400;
@@ -1351,7 +1330,7 @@ class Profile{
         section.id="userposts-section";
         section.style.cssText=css_row + "width:100%;";
         section.className="col-md-12 row";
-        row.appendChild(section);
+        mainRow.appendChild(section);
         const scrollCol1=document.createElement("div");
         scrollCol1.id="scrollCol1";
         scrollCol1.style.cssText="height:400px;overflow-y:scroll;display:flex;flex-direction:column;align-items:center;width:100%;position:relative;";
@@ -1398,11 +1377,9 @@ class Profile{
         // Misc.matchMedia({parent:section,maxWidth:900,cssStyle:{flexDirection:"column",flexWrap:"noWrap"}});
         Misc.matchMedia({parent:scrollCol1,maxWidth:900,cssStyle:{flex:"0 0 100%",order:"-1"}});
         Misc.matchMedia({parent:displayCol2,maxWidth:900,cssStyle:{flex:"0 0 100%",order:"2"}});
-        this._service.getUserposts({user:user}).then(async(_posts)=>{
-            if(_posts && _posts.length>0){
-                this._post.posts=_posts;
-                this._user.user.posts=_posts;
-                this._post.posts.map(async(post,index)=>{
+            if(posts && posts.length>0){
+                this._user.user.posts=posts;
+                posts.map(async(post,index)=>{
                     if(post){
                         const col1=document.createElement("div");
                         // col1.className=`col-md-${12/cols}`;
@@ -1429,10 +1406,21 @@ class Profile{
 
             }else{
                 scrollCol1.style.height="auto";
+                this.noPosts({scrollCol1})
             }
-        });
 
     };
+    noPosts(item:{scrollCol1:HTMLElement}){
+        const {scrollCol1}=item;
+        const container=document.createElement("div");
+        container.id="noPosts-container";
+        container.style.cssText="padding:1.5rem;background-color:white;display:flex;place-items:center;border-radius:12px;";
+        const para=document.createElement("p");
+        para.style.cssText="padding:0.5rem;background-color:white";
+        para.textContent="  you have no posts. Press create post to creat a post."
+        container.appendChild(para);
+        scrollCol1.appendChild(container);
+    }
     async postCard(item:{scrollCol1:HTMLElement,col:HTMLElement,post:postType,user:userType,index:number}):Promise<{card:HTMLElement}>{
         const {scrollCol1,col,post,user,index}=item;
         Header.cleanUpByID(col,`postcard-card-${index}`);
@@ -1880,4 +1868,4 @@ class Profile{
     }
 
 }
-export default Profile;
+export default ProfileMain;

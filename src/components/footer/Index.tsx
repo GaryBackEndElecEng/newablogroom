@@ -6,7 +6,7 @@ import Service from '../common/services';
 import AuthService from '../common/auth';
 import Nav from '../nav/headerNav';
 import User from '../user/userMain';
-import Profile from '../editor/profile';
+import Profile from '../profile/profile';
 import Dataflow from '../common/dataflow';
 import NavArrow from '../nav/arrow';
 import RegSignIn from '../nav/regSignin';

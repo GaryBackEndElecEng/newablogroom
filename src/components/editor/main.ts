@@ -21,7 +21,7 @@ import Misc, { mediaQueryType } from "../common/misc";
 import MainHeader from '@/components/nav/mainHeader';
 import Nav from "../nav/headerNav";
 import AuthService from "../common/auth";
-import Profile from "./profile";
+import Profile from "../profile/profile";
 import { getErrorMessage } from "@/lib/errorBoundaries";
 import ShapeOutside from "./shapeOutside";
 import RegSignIn from "../nav/regSignin";

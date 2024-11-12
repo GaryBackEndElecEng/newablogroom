@@ -1,0 +1,23 @@
+.profileLayout {
+  width: 80%;
+  display: flex;
+  margin-inline: auto;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-start;
+  padding: 1rem;
+  min-height: 100vh;
+  height: auto;
+}
+
+@media screen and (max-width: 900px) {
+  .profileLayout {
+    width: 100%;
+    padding-inline: 10px;
+  }
+}
+@media screen and (max-width: 400px) {
+  .profileLayout {
+    padding-inline: 2px;
+  }
+}
