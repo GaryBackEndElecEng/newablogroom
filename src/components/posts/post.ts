@@ -574,7 +574,7 @@ class Post{
             img.alt="www.ablogroom.com";
             shapeOutside.appendChild(img);
             Misc.blurIn({anchor:img,blur:"20px",time:700});
-            shapeOutside.innerHTML+=post.content ? `${post.content.slice(0,500)}...` : "";
+            shapeOutside.innerHTML+=post.content ? `${post.content.slice(0,250)}...see detail` : "";
         }else if(post.imageKey){
             await this._service.getSimpleImg(post.imageKey).then(async(res)=>{
                 if(res){
@@ -582,7 +582,7 @@ class Post{
                     img.alt=res.Key;
                     shapeOutside.appendChild(img);
                     Misc.blurIn({anchor:img,blur:"20px",time:700});
-                    shapeOutside.innerHTML+=post.content ? `${post.content.slice(0,500)}...`  : "";
+                    shapeOutside.innerHTML+=post.content ? `${post.content.slice(0,250)}...see detail`  : "";
                 }
             });
         }else{
@@ -590,7 +590,7 @@ class Post{
              img.alt="www.ablogroom.com";
             shapeOutside.appendChild(img);
             Misc.blurIn({anchor:img,blur:"20px",time:700});
-            shapeOutside.innerHTML+=post.content ? `${post.content.slice(0,500)}...`  : "";
+            shapeOutside.innerHTML+=post.content ? `${post.content.slice(0,250)}...see detail`  : "";
         }
         Misc.matchMedia({parent:img,maxWidth:400,cssStyle:{maxWidth:"300px",shapeOutside:""}});
         card.appendChild(shapeOutside);

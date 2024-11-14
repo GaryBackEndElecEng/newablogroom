@@ -34,7 +34,7 @@ class PostDetail{
         const less400=window.innerWidth < 400;
         Header.cleanUpByID(injector,`postdetail-main-container`);
         const css_col="margin-inline:auto;display:flex;flex-direction:column;justify-content:center;align-items:center;gap:0.7rem;color:inherit;border-radius:inherit;";
-        const shapoutside="padding:1rem;text-wrap:wrap;color:black;font-family:'Poppins-Thin';font-weight:bold;font-size:120%;line-height:2.05rem;color:inherit;border-radius:12px;box-shadow:1px 1px 12px white;"
+        const shapoutside="padding:1rem;text-wrap:wrap;font-family:'Poppins-Thin';font-weight:bold;inherit;border-radius:12px;box-shadow:1px 1px 12px white;"
         const css_row="margin-inline:auto;display:flex;flex-direction:row;flex-wrap:wrap;justify-content:center;align-items:center;gap:0.27rem;color:inherit;border-radius:inherit;";
         const container=document.createElement("div");
         container.id="postdetail-main-container";
@@ -66,6 +66,8 @@ class PostDetail{
         const shapeOutside=document.createElement("p");
         shapeOutside.id=`posts-shapeOutside-${post.id}`;
         shapeOutside.style.cssText=window.innerWidth <400 ? shapoutside + css_col :shapoutside;
+        shapeOutside.style.lineHeight=less900 ? (less400 ? "2.05rem":"2.25rem") :"2.85rem";
+        shapeOutside.style.fontSize=less900 ? (less400 ? "120%":"126%") :"150%";
         const img=document.createElement("img");
         img.id=`posts-shapeOutside-img-${post.id}`;
         img.style.cssText="border-radius:50%;shape-outside:circle(50%);float:left;margin-right:1.25rem;margin-bottom:2rem;aspect-ratio:1/1;filter:drop-shadow(0 0 0.75rem white);border:none;";
