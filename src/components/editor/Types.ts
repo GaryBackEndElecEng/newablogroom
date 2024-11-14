@@ -333,6 +333,7 @@ export type blogType={
 export type postType={
     id:number,
     title:string,
+    image?:string,
     imageKey?:string,
     content?:string,
     link?:string,

@@ -11,21 +11,34 @@ import { FaCreate } from "../common/ReactIcons";
 import Blogs from "../blogs/blogsInjection";
 import { FaThumbsUp } from "react-icons/fa";
 import { FaHandBackFist } from "react-icons/fa6";
+import { imageLoader } from "../common/tsFunctions";
+import AddImageUrl from "../common/addImageUrl";
+import PostDetail from "../postDetail/postdetail";
 
 
 class Post{
     no_posts:string;
+    addImageClass:AddImageUrl
     logo:string;
+    postLogo:string;
     _post:postType;
+    initPost:postType;
     _posts:postType[];
     injector:HTMLElement;
     _like:boolean;
+    postDetail:PostDetail;
+    _usersinfo:userType[];
     constructor(private _modSelector:ModSelector,private _service:Service,private _user:User){
         this.logo="/images/gb_logo.png";
+        this.postLogo="/images/posts.png";
         this.no_posts="Sorry there are no posts,,,try again later,, then add advertising to get contracts;";
-        this._post={id:0,title:"",imgKey:"",content:"",link:"",published:true,userId:"",date:{} as Date,likes:0} as postType;
+        this.initPost={id:0,title:"",imageKey:undefined,image:undefined,content:undefined,link:undefined,published:true,userId:"",date:{} as Date,likes:0} as postType;
+        this._post=this.initPost;
         this._posts=[] as postType[];
         this._like=false;
+        this._usersinfo=[] as userType[];
+        this.addImageClass= new AddImageUrl(this._modSelector,this._service);
+        this.postDetail=new PostDetail(this._modSelector,this._service);
     }
     //----GETTERS SETTERS----////
     get post(){
@@ -46,27 +59,39 @@ class Post{
     set like(like:boolean){
         this._like=like;
     }
+    get usersinfo(){
+        return this._usersinfo;
+    }
+    set usersinfo(usersinfo:userType[]){
+        this._usersinfo=usersinfo;
+    }
+    get user(){
+        return this._user.user;
+    }
+    
     //----GETTERS SETTERS----////
 
-    async main(item:{injector:HTMLElement,posts:postType[]}){
-        const {injector,posts}=item;
+    async main(item:{injector:HTMLElement,posts:postType[],usersinfo:userType[]}){
+        const {injector,posts,usersinfo}=item;
         const less900=window.innerWidth < 900;
         const less400=window.innerWidth < 400;
+        this.usersinfo=usersinfo;
+        this.posts=posts;
         Header.cleanUpByID(injector,"main-post-container");
         const width=window.innerWidth;
-        const css_col="margin-inline:auto;display:flex;flex-direction:column;justify-content:center;align-items:center;";
+        const css_col="margin-inline:auto;display:flex;flex-direction:column;justify-content:center;align-items:center;margin-block:1.65rem;";
         this.injector=injector;
-        const user=this._user.user;
         const container=document.createElement("div");
         container.id="main-post-container";
         container.style.cssText=css_col + " width:100%;";
+        container.style.gap=less900 ? (less400 ? "3rem":"2.5rem"):"2rem";
         injector.appendChild(container);
-        if(user && user.id && user.email){
-            const {button:createpost}=Misc.simpleButton({anchor:container,type:"button",bg:Nav.btnColor,color:"white",time:400,text:"create a post"});
-            createpost.style.marginBottom="1rem;"
-            createpost.onclick=(e:MouseEvent) =>{
+        if(this.user && this.user.id && this.user.email){
+            const {button:create_post}=Misc.simpleButton({anchor:container,type:"button",bg:Nav.btnColor,color:"white",time:400,text:"create a post"});
+            create_post.style.marginBottom="1rem;"
+            create_post.onclick=(e:MouseEvent) =>{
                 if(e){
-                    this.createPost({parent:injector,user});
+                    this.createPost({parent:injector,user:this.user});
                 }
             };
         }
@@ -77,26 +102,17 @@ class Post{
             if(res){
                 const paraSize=less900 ? (less400 ? "130%":"150%"):"135%";
                 const preParaSize=less900 ? (less400 ? "130%":"170%"):"150%";
-                await this.Posts({injector:injector,container,posts,user}).then(async(res_)=>{
+                await this.Posts({injector:injector,container,posts:this.posts,user:this.user}).then(async(res_)=>{
                     if(res_){
                         if(res_.posts && res_.posts.length>0){
                             this.posts=res_.posts.sort((a,b)=>{if(a.likes > b.likes)return -1;return 1}).map(post=>(post));
                             this.posts.map(async(post,index)=>{
                                 if(post){
-                                    const col=document.createElement("div");
-                                    col.className=less900 ? "col-md-12" : "col-md-6";
-                                    col.id=`posts-col-${index}`;
-                                    col.style.cssText="margin-inline:auto;display:flex;flex-direction:column;justify-content:center;align-items:center;gap:0.75rem;background-color:#098ca091;color:white;border-radius:12px;";
-                                    col.style.width=less900 ? "100%":"auto";
-                                    col.style.flex=less900 ? "0 0 100%":"0 0 50%";
-                                    res_.row.style.marginBlock=less900 ? "2rem":"1rem";
-                                    res_.row.appendChild(col);
-                                    this.postCard({row:res_.row,col:col,post,user:user,index});
-                                    Misc.growIn({anchor:col,scale:1,opacity:0,time:500});
-                                    Misc.matchMedia({parent:col,maxWidth:900,cssStyle:{flex:"0 0 100%"}});
+                                    const userinfo=usersinfo.find(user_=>(user_.id===post.userId));
+                                    this.postCard({row:res_.row,post,user:this.user,userinfo,index});
                                 }
                             });
-                            Misc.matchMedia({parent:container,maxWidth:400,cssStyle:{paddingInline:"0px"}})
+                            Misc.matchMedia({parent:res_.container,maxWidth:400,cssStyle:{paddingInline:"0px"}})
                         }else{
                             this.noPosts({parent:container});
                         }
@@ -176,10 +192,12 @@ class Post{
     
     async Posts(item:{injector:HTMLElement,container:HTMLElement,posts:postType[],user:userType}):Promise<{container:HTMLElement,subDiv:HTMLElement,row:HTMLElement,posts:postType[],user:userType}>{
         const {injector,container,posts,user}=item;
+        console.log("Posts():=>POSTS",posts)
         const less900=window.innerWidth < 900 ? true:false;
         const less400=window.innerWidth < 400 ? true:false;
-        Header.cleanUpByID(injector,"inner-post-container");//CLEANING UP
+        Header.cleanUpByID(container,"main-post-container-subDiv");//CLEANING UP
         const css="margin-inline:auto;display:flex;flex-direction:column;justify-content:flex-start;align-items:center;gap:1.5rem;";
+        const css_row="margin-inline:auto;display:flex;justify-content:flex-start;align-items:flex-start;flex-wrap:wrap;width:100%;";
         const subDiv=document.createElement("div");
         subDiv.id="main-post-container-subDiv";
         subDiv.style.cssText=css + "position:relative;width:100%;padding-inline:2rem;border-radius:12px;";
@@ -188,11 +206,13 @@ class Post{
         subDiv.style.minHeight=less900 ? (less400 ? "100vh" : "80vh") :"70vh";
         const row=document.createElement("div");
         row.id="main-post-container-subDiv-row";
+        row.style.cssText=css_row + "gap:1rem;";
         row.style.justifyContent="flex-start";
         row.className="row";
         if(window.innerWidth <900){
             row.classList.remove("row");
-            row.style.cssText="margin-inline:auto;width:100%;display:flex;flex-direction:column;align-items:center;gap:2rem;";
+            row.style.flexDirection="column";
+            row.style.gap="2rem";
         }
         subDiv.appendChild(row);
         container.appendChild(subDiv);
@@ -202,28 +222,34 @@ class Post{
     };
     createPost(item:{parent:HTMLElement,user:userType}){
         const {parent,user}=item;
+        const less900= window.innerWidth < 900;
+        const less400= window.innerWidth < 400;
         parent.style.position="relative";
         const css_col="margin-inline:auto;display:flex;flex-direction:column;justify-content:center;align-items:center;gap:0.7rem;";
         Header.cleanUpByID(parent,`createPost-popup`);
         const popup=document.createElement("div");
         popup.id=`createPost-popup`;
-        popup.style.cssText=css_col + "position:absolute;width:375px;min-height:400px;gap:1rem;box-shadow:1px 1px 12px 1px blue;border-radius:12px;backdrop-filter:blur(20px);border:none;";
+        popup.style.cssText=css_col + "position:absolute;min-height:400px;gap:1rem;box-shadow:1px 1px 12px 1px blue;border-radius:12px;backdrop-filter:blur(20px);border:none;";
+        popup.style.width=less900 ? (less400 ? "375px":"575px"):"675px";
         const form=document.createElement("form");
         form.id="createPost-form";
         form.style.cssText=css_col + "width:100%;padding-inline:1rem;margin-block:1.5rem;";
         const {input:inTitle,label:lTitle,formGrp:grpTitle}=Nav.inputComponent(form);
+        grpTitle.style.cssText=css_col + "width:100% !important;";
         grpTitle.style.width="100% !important";
         inTitle.id="title";
+        inTitle.style.cssText="width:100%;margin-inline:auto;padding-inline:1rem;"
         inTitle.name="title";
         inTitle.placeholder="Your Title";
         lTitle.textContent="Title";
         lTitle.style.cssText="font-size:140%;text-decoration:underline;text-underline-offset:0.5rem;margin-bottom:1rem;";
         lTitle.setAttribute("for",inTitle.id);
         const {textarea:incontent,label:lcontent,formGrp:grpContent}=Nav.textareaComponent(form);
-        grpContent.style.width="100% !important";
+        grpContent.style.cssText=css_col + "width:100%;";
+        grpContent.style.width="100%";
         incontent.id="content";
         incontent.rows=4;
-        incontent.style.cssText="width:100% !important";
+        incontent.style.cssText="width:100%";
         incontent.name="content";
         incontent.placeholder="Your Thoughts";
         lcontent.textContent="content";
@@ -277,14 +303,15 @@ class Post{
         form.onsubmit=(e:SubmitEvent)=>{
             if(e){
                 e.preventDefault();
+                submit.disabled=true;
                 const formdata=new FormData(e.currentTarget as HTMLFormElement);
                 const content=formdata.get("content") as string;
                 const title=formdata.get("title") as string;
                 const pub=formdata.get("pub") as string;
                 const link=formdata.get("link") as string;
                 if(content && title){
-                    this.post={...this._post,title:title as string,content:content as string,published:Boolean(pub),link}
-                    this.uploadPic({parent,popup:popup,post:this.post,user});
+                    const post:postType={...this.initPost,userId:user.id,title:title as string,content:content as string,published:Boolean(pub),link}
+                    this.uploadFreeNone({parent,popup:popup,post,user});
                     const labelDisplay2=parent.querySelector("div#labelDisplay2") as HTMLElement;
                     if(labelDisplay2){
                         labelDisplay2.hidden=false;
@@ -293,13 +320,237 @@ class Post{
             }
         };
     }
-    async postCard(item:{row:HTMLElement,col:HTMLElement,post:postType,user:userType,index:number}){
-        const {row,col,post,user,index}=item;
-        this.post=post;
-        Header.cleanUpByID(col,`posts-postcard-card-${index}`);
+    uploadFreeNone(item:{parent:HTMLElement,popup:HTMLElement,post:postType,user:userType}){
+        const {parent,popup,post,user}=item;
+        const less900= window.innerWidth < 900;
+        const less400= window.innerWidth < 400;
+        const btnContainer=document.createElement("div");
+        btnContainer.id="uploadFreeNone-btn";
+        btnContainer.style.cssText="margin-inline:auto;display:flex;justify-content:center:align-items:center;gap:0.75rem;";
+        btnContainer.style.paddingInline=less900 ? (less400 ? "1rem":"2rem") :"3rem";
+        const {button:uploadBtn}=Misc.simpleButton({anchor:btnContainer,type:"button",bg:Nav.btnColor,color:"white",text:"upload",time:400});
+        const {button:freePicBtn}=Misc.simpleButton({anchor:btnContainer,type:"button",bg:Nav.btnColor,color:"white",text:"free-pics",time:400});
+        const {button:noPic}=Misc.simpleButton({anchor:btnContainer,type:"button",bg:Nav.btnColor,color:"white",text:"no pic",time:400});
+        popup.appendChild(btnContainer);
+        uploadBtn.onclick=(e:MouseEvent)=>{
+            if(e){
+                this.uploadPic({parent,popup,post,user});
+                uploadBtn.disabled=true;
+                popup.removeChild(btnContainer);
+            }
+        };
+        freePicBtn.onclick=(e:MouseEvent)=>{
+            if(e){
+                //import  class for image selection
+                this.freePic({parent,popup,post,user});
+                uploadBtn.disabled=true;
+                popup.removeChild(btnContainer);
+            }
+        };
+        noPic.onclick=async(e:MouseEvent)=>{
+            if(e){
+                //import different logo on post /images/posts.png
+                uploadBtn.disabled=true;
+                const post_:postType={...post,userId:user.id,imageKey:undefined,image:undefined};
+               await this._service.saveUpdatepost({post:post_}).then(async(res)=>{
+                    if(res){
+                        this.posts=[...this._posts,res];
+
+                        const getScrollCol1=document.querySelector("div#scrollCol1") as HTMLElement;
+                        if(getScrollCol1){
+                            //USED BY Profile: client account
+                            const getCont=getScrollCol1.querySelector("div#main-post-container") as HTMLElement;
+                            await this.Posts({injector:getScrollCol1,container:getCont,posts:this.posts,user}).then(async(res_)=>{
+                                if(res_.posts && res_.posts.length>0){
+                                    this.posts=res_.posts.sort((a,b)=>{if(a.likes > b.likes)return -1;return 1}).map(post=>(post));
+                                    this.posts.map(async(post,index)=>{
+                                        if(post){
+                                            const userinfo=this.usersinfo.find(user_=>(user_.id===post.userId));
+                                            this.postCard({row:res_.row,post,user:this.user,userinfo,index});
+                                        }
+                                    });
+                                    Misc.matchMedia({parent:res_.container,maxWidth:400,cssStyle:{paddingInline:"0px"}})
+                                }
+                            });
+                            parent.style.height="auto";
+                        }else{
+                            const getCont=this.injector.querySelector("div#main-post-container") as HTMLElement;
+                            await this.Posts({injector:this.injector,container:getCont,posts:this.posts,user}).then(async(res_)=>{
+                                if(res_.posts && res_.posts.length>0){
+                                    this.posts=res_.posts.sort((a,b)=>{if(a.likes > b.likes)return -1;return 1}).map(post=>(post));
+                                    this.posts.map(async(post,index)=>{
+                                        if(post){
+                                            const userinfo=this.usersinfo.find(user_=>(user_.id===post.userId));
+                                            this.postCard({row:res_.row,post,user:this.user,userinfo,index});
+                                        }
+                                    });
+                                    Misc.matchMedia({parent:res_.container,maxWidth:400,cssStyle:{paddingInline:"0px"}})
+                                }
+                            });
+                        }
+                        Misc.growOut({anchor:popup,scale:0,opacity:0,time:400});
+                        setTimeout(()=>{
+                            const labelDisplay2=parent.querySelector("div#labelDisplay2") as HTMLElement;
+                            if(labelDisplay2){
+                                labelDisplay2.hidden=true;
+                            }
+                            parent.removeChild(popup);
+                        },390);
+                    }
+                });
+            }
+        };
+    }
+    freePic(item:{parent:HTMLElement,popup:HTMLElement,post:postType,user:userType}){
+        const {parent,popup,post,user}=item;
+        //get class
+        this.addImageClass.asyncPicImage({parent}).then(async(res)=>{
+            if(res){
+                res.arr.map((btnUrl,index)=>{
+                    if(btnUrl){
+                        const getBtnEle=parent.querySelector(`button#${btnUrl.btn.id}`) as HTMLButtonElement;
+                        if(!getBtnEle) return;
+                        getBtnEle.onclick=async(e:MouseEvent)=>{
+                            if(e){
+                                this.post=this.initPost;
+                                const image=res.arr[index].imageUrl;
+                                this.post={...post,userId:user.id,image:image};
+                                console.log(this.post)
+                                await this._service.saveUpdatepost({post:this.post}).then(async(post_)=>{
+                                    if(post_){
+                                        this.posts=[...this._posts,post_];
+                                        const getScrollCol1=document.querySelector("div#scrollCol1") as HTMLElement;
+                                        if(getScrollCol1){
+                                            //USED BY Profile: client account
+                                            const getCont=getScrollCol1.querySelector("div#main-post-container") as HTMLElement;
+                                            await this.Posts({injector:getScrollCol1,container:getCont,posts:this.posts,user}).then(async(res_)=>{
+                                                if(res_.posts && res_.posts.length>0){
+                                                    this.posts=res_.posts.sort((a,b)=>{if(a.likes > b.likes)return -1;return 1}).map(post=>(post));
+                                                    this.posts.map(async(post,index)=>{
+                                                        if(post){
+                                                            const userinfo=this.usersinfo.find(user_=>(user_.id===post.userId));
+                                                            this.postCard({row:res_.row,post,user:this.user,userinfo,index});
+                                                        }
+                                                    });
+                                                    Misc.matchMedia({parent:res_.container,maxWidth:400,cssStyle:{paddingInline:"0px"}})
+                                                }
+                                            });
+                                            parent.style.height="auto";
+                                        }else{
+                                            const getCont=this.injector.querySelector("div#main-post-container") as HTMLElement;
+                                            await this.Posts({injector:this.injector,container:getCont,posts:this.posts,user}).then(async(res_)=>{
+                                                if(res_.posts && res_.posts.length>0){
+                                                    this.posts=res_.posts.sort((a,b)=>{if(a.likes > b.likes)return -1;return 1}).map(post=>(post));
+                                                    this.posts.map(async(post,index)=>{
+                                                        if(post){
+                                                            const userinfo=this.usersinfo.find(user_=>(user_.id===post.userId));
+                                                            this.postCard({row:res_.row,post,user:this.user,userinfo,index});
+                                                        }
+                                                    });
+                                                    Misc.matchMedia({parent:res_.container,maxWidth:400,cssStyle:{paddingInline:"0px"}})
+                                                }
+                                            });
+                                        }
+                                        Misc.growOut({anchor:popup,scale:0,opacity:0,time:400});
+                                        setTimeout(()=>{
+                                            const labelDisplay2=parent.querySelector("div#labelDisplay2") as HTMLElement;
+                                            if(labelDisplay2){
+                                                labelDisplay2.hidden=true;
+                                            }
+                                            parent.removeChild(popup);
+                                            const pop_id=res.popup.id
+                                            const getPopup=res.reParent.querySelector(`div#${pop_id}`) as HTMLElement;
+                                            if(!getPopup) return;
+                                            parent.removeChild(getPopup);
+                                        },390);
+                                    }
+                                });
+
+                            }
+                        };
+                    }
+                });
+            }
+        });
+    }
+    uploadPic(item:{parent:HTMLElement,popup:HTMLElement,post:postType,user:userType}){
+        const {user,post,parent,popup}=item;
+        this.post={...post,userId:user.id};
+        const css_col="margin-inline:auto;display:flex;flex-direction:column;justify-content:center;align-items:center;gap:0.7rem;";
+        const form=document.createElement("form");
+        form.style.cssText=css_col;
+        const {input:file,label:lfile}=Nav.inputComponent(form);
+        file.id="file";
+        file.type="file";
+        file.name="file";
+        file.placeholder="";
+        lfile.textContent="Upload a Pic";
+        lfile.setAttribute("for",file.id);
+        const {button:submitBtn}=Misc.simpleButton({anchor:form,type:"submit",text:"submit",bg:Nav.btnColor,color:"white",time:400});
+        submitBtn.disabled=true;
+        file.onchange=(e:Event)=>{
+            if(e){
+                submitBtn.disabled=false;
+            }
+        };
+        form.onsubmit=async(e:SubmitEvent)=>{
+            if(e){
+                e.preventDefault();
+                const formdata=new FormData(e.currentTarget as HTMLFormElement);
+                const file=formdata.get("file") as File | null;
+                if(file ){
+                    submitBtn.disabled=true;
+                    const urlImg=URL.createObjectURL(file as File);
+                    this._service.generatePostImgKey(formdata,post) as {Key:string};
+                   await this._service.simpleImgUpload(parent,formdata).then(async(res)=>{
+                        if(res){
+                            this.post={...post,imageKey:res.Key};
+                           await this._service.saveUpdatepost({post:this.post}).then(async(post_)=>{
+                                if(post_){
+                                    this.posts=[...this._posts,post_];
+                                    const getScrollCol1=document.querySelector("div#scrollCol1") as HTMLElement;
+                                    if(getScrollCol1){
+                                        //USED BY Profile: client account
+                                        const getCont=getScrollCol1.querySelector("div#main-post-container") as HTMLElement;
+                                        await this.Posts({injector:getScrollCol1,container:getCont,posts:this.posts,user});
+                                        parent.style.height="auto";
+                                    }else{
+                                        const getCont=this.injector.querySelector("div#main-post-container") as HTMLElement;
+                                        await this.Posts({injector:this.injector,container:getCont,posts:this.posts,user});
+                                    }
+                                    Misc.growOut({anchor:popup,scale:0,opacity:0,time:400});
+                                    setTimeout(()=>{
+                                        const labelDisplay2=parent.querySelector("div#labelDisplay2") as HTMLElement;
+                                        if(labelDisplay2){
+                                            labelDisplay2.hidden=true;
+                                        }
+                                        parent.removeChild(popup);
+                                    },390);
+                                }
+                            });
+                        }
+                    });
+
+                };
+            }
+        };
+        popup.appendChild(form);
+        parent.appendChild(popup)
+    }
+    async postCard(item:{row:HTMLElement,post:postType,user:userType,userinfo:userType |undefined,index:number}){
+        const {row,post,user,userinfo,index}=item;
+        const less900=window.innerWidth < 900;
+        const less400=window.innerWidth < 400;
+        Header.cleanUpByID(row,`posts-postcard-col-${index}`);
         const css_col="margin-inline:auto;display:flex;flex-direction:column;justify-content:center;align-items:center;gap:0.7rem;color:inherit;border-radius:inherit;width:100%";
         const shapoutside="padding:1rem;text-wrap:wrap;color:black;font-family:'Poppins-Thin';font-weight:bold;font-size:120%;line-height:2.05rem;color:inherit;border-radius:12px;box-shadow:1px 1px 12px white;"
         const css_row="margin-inline:auto;display:flex;flex-direction:row;flex-wrap:wrap;justify-content:center;align-items:center;gap:0.27rem;color:inherit;border-radius:inherit;";
+        const col=document.createElement("div");
+        col.id=`posts-postcard-col-${index}`;
+        col.className=less900 ? "col-md-12" : "col-md-6";
+        col.style.cssText="margin-inline:auto;display:flex;flex-direction:column;justify-content:flex-start;align-items:center;gap:0.75rem;background-color:#098ca091;color:white;border-radius:12px;box-shadow:1px 1px 6px 1px white;padding-inline:1rem;";
+        col.style.width=less900 ? "100%":"auto";
+        col.style.flex=less900 ? "1 0 100%":"1 0 47%";
         const card=document.createElement("div");
         card.id=`posts-postcard-card-${index}`;
         card.style.cssText=css_col;
@@ -314,25 +565,32 @@ class Post{
         shapeOutside.style.cssText=window.innerWidth <400 ? shapoutside + css_col :shapoutside;
         const img=document.createElement("img");
         img.id=`posts-shapeOutside-img-${index}`;
-        img.src=this.logo;
-        img.alt="www.ablogroom.com";
         img.style.cssText="border-radius:50%;shape-outside:circle(50%);float:left;margin-right:1.25rem;margin-bottom:2rem;aspect-ratio:1/1;filter:drop-shadow(0 0 0.75rem white);border:none;";
-        img.style.width=window.innerWidth <900 ? (window.innerWidth <400 ? "300px" : "310px") :"355px";
         img.style.filter="drop-shadow(0 0 0.75rem white) !important";
-        if(post.imageKey){
+        img.style.width=window.innerWidth <900 ? (window.innerWidth <400 ? "300px" : "310px") :"355px";
+        const widthConv=parseInt(img.style.width.split("px")[0]) as number;
+        if(post.image){
+            img.src=imageLoader({src:post.image,width:widthConv,quality:75});
+            img.alt="www.ablogroom.com";
+            shapeOutside.appendChild(img);
+            Misc.blurIn({anchor:img,blur:"20px",time:700});
+            shapeOutside.innerHTML+=post.content ? `${post.content.slice(0,500)}...` : "";
+        }else if(post.imageKey){
             await this._service.getSimpleImg(post.imageKey).then(async(res)=>{
                 if(res){
                     img.src=res.img;
                     img.alt=res.Key;
                     shapeOutside.appendChild(img);
                     Misc.blurIn({anchor:img,blur:"20px",time:700});
-                    shapeOutside.innerHTML+=post.content ? post.content : "";
+                    shapeOutside.innerHTML+=post.content ? `${post.content.slice(0,500)}...`  : "";
                 }
             });
         }else{
+            img.src=imageLoader({src:this.postLogo,width:widthConv,quality:75});
+             img.alt="www.ablogroom.com";
             shapeOutside.appendChild(img);
             Misc.blurIn({anchor:img,blur:"20px",time:700});
-            shapeOutside.innerHTML+=post.content ? post.content : "";
+            shapeOutside.innerHTML+=post.content ? `${post.content.slice(0,500)}...`  : "";
         }
         Misc.matchMedia({parent:img,maxWidth:400,cssStyle:{maxWidth:"300px",shapeOutside:""}});
         card.appendChild(shapeOutside);
@@ -341,19 +599,19 @@ class Post{
         const cardBody=document.createElement("div");
         cardBody.id=`cardBody-${index}`;
         cardBody.style.cssText=css_col +"gap:2rem;padding:1rem;" ;
-        const dateEmailCont=document.createElement("div");
-        dateEmailCont.id=`dateEmailCont-${index}`;
-        dateEmailCont.style.cssText=css_row + "position:relative;gap:1.5rem;"
+        const datePosterCont=document.createElement("div");
+        datePosterCont.id=`datePosterCont-${index}`;
+        datePosterCont.style.cssText=css_row + "position:relative;gap:1.5rem;"
         const date=document.createElement("small");
         date.id=`date-${index}`;
-        const email=document.createElement("small");
-        email.id=`email-${index}`;
-        email.textContent=user.email;
+        const poster=document.createElement("small");
+        poster.id=`userinfo-poster-name-${index}`;
+        poster.textContent=(userinfo && userinfo.name) ? userinfo.name :"blogger";
         date.textContent= post.date ? Blogs.tolocalstring(post.date):"no date";
-        dateEmailCont.appendChild(date);
-        dateEmailCont.appendChild(email);
-        this.likepost({parent:dateEmailCont,post});
-        cardBody.appendChild(dateEmailCont);
+        datePosterCont.appendChild(date);
+        datePosterCont.appendChild(poster);
+        this.likepost({parent:datePosterCont,post});
+        cardBody.appendChild(datePosterCont);
         if(post.link){
             const anchor=document.createElement("a");
             anchor.style.cssText="align-self:center;justify-self:center;font-weight:800;margin-inline:auto;color:white;"
@@ -363,21 +621,35 @@ class Post{
             cardBody.appendChild(anchor);
         }
         this.removePost({parent:row,target:col,post,user});
+        const btnContainer=document.createElement("div");
+        btnContainer.id="card-btnContainer";
+        btnContainer.style.cssText=css_row + "gap:2rem;margin-block:1rem;";
         if(post.userId===user.id){
-            const {button:edit}=Misc.simpleButton({anchor:cardBody,bg:Nav.btnColor,color:"white",type:"button",time:400,text:"update"});
+            const {button:edit}=Misc.simpleButton({anchor:btnContainer,bg:Nav.btnColor,color:"white",type:"button",time:400,text:"update"});
             edit.disabled=false;
             edit.onclick=(e:MouseEvent)=>{
                 if(e){
                     this.editPost({parent:row,col,post,user,index});
+                    edit.disabled=true;
                 }
             };
         }
+        const {button:detail}=Misc.simpleButton({anchor:btnContainer,bg:Nav.btnColor,color:"white",type:"button",time:400,text:"quick detail"});
+        detail.onclick=(e:MouseEvent)=>{
+            if(e){
+                detail.disabled=true;
+                const _userinfo:userType=userinfo as userType;
+                this.postDetail.main({injector:col,post,count:0,poster:_userinfo,isPage:false});
+            }
+        };
         card.appendChild(cardBody);
+        card.appendChild(btnContainer);
         col.appendChild(card);
+        row.appendChild(col);
         Misc.growIn({anchor:card,scale:1,opacity:0,time:500});
-        const getShapeOutside=card.querySelector("p#posts-shapeOutside") as HTMLElement;
+        const getShapeOutside=card.querySelector(`div#posts-shapeOutside-${index}`) as HTMLElement;
         if(!getShapeOutside) return;
-        const getImg=getShapeOutside.querySelector(`posts-shapeOutside-img-${index}`) as HTMLElement;
+        const getImg=getShapeOutside.querySelector(`img#posts-shapeOutside-img-${index}`) as HTMLElement;
         if(!getImg) return;
         Misc.matchMedia({parent:getShapeOutside,maxWidth:400,cssStyle:{display:"flex",flexDirection:"column",alignItems:"center"}});
         Misc.matchMedia({parent:getImg,maxWidth:400,cssStyle:{shapeOutside:"none"}});
@@ -553,7 +825,8 @@ class Post{
                                 },390);
 
                             }
-                            this.postCard({row:parent,col,post:this.post,user,index:index});
+                            const userinfo=this.usersinfo.find(user_=>(user_.id===post.userId));
+                            this.postCard({row:parent,post:this.post,user,userinfo,index:index});
                         // }
                     });
 
@@ -606,18 +879,29 @@ class Post{
             if(e){
                 this._service.delpost({id:post.id}).then(async(res)=>{
                     if(res){
-                        this.posts.map((_post,ind)=>{
+                      await  Promise.all(this.posts.map(async(_post,ind)=>{
                             if(_post && _post.id===post.id){
                                 this._posts.splice(ind,1);
-                                this.posts=this._posts;
+                                const getCont=this.injector.querySelector("div#main-post-container") as HTMLElement;
+                                if(!getCont) return;
+                                await this.Posts({injector:this.injector,container:getCont,posts:this.posts,user}).then(async(res_)=>{
+                                    if(res_.posts && res_.posts.length>0){
+                                        this.posts=res_.posts.sort((a,b)=>{if(a.likes > b.likes)return -1;return 1}).map(post=>(post));
+                                        this.posts.map(async(post,index)=>{
+                                            if(post){
+                                                const userinfo=this.usersinfo.find(user_=>(user_.id===post.userId));
+                                                this.postCard({row:res_.row,post,user:this.user,userinfo,index});
+                                            }
+                                        });
+                                        Misc.matchMedia({parent:res_.container,maxWidth:400,cssStyle:{paddingInline:"0px"}})
+                                    }
+                                });
                                 Misc.growOut({anchor:target,scale:0,opacity:0,time:400});
                                 setTimeout(()=>{
                                     parent.removeChild(target);
                                 },390);
                             }
-                        });
-                        const getCont=this.injector.querySelector("div#main-post-container") as HTMLElement;
-                        await this.Posts({injector:this.injector,container:getCont,posts:this.posts,user});
+                        }));
                     }
                 });
 
@@ -626,68 +910,7 @@ class Post{
 
 
     }
-    uploadPic(item:{parent:HTMLElement,popup:HTMLElement,post:postType,user:userType}){
-        const {user,post,parent,popup}=item;
-        this.post={...post,userId:user.id};
-        const css_col="margin-inline:auto;display:flex;flex-direction:column;justify-content:center;align-items:center;gap:0.7rem;";
-        const form=document.createElement("form");
-        form.style.cssText=css_col;
-        const {input:file,label:lfile}=Nav.inputComponent(form);
-        file.id="file";
-        file.type="file";
-        file.name="file";
-        file.placeholder="";
-        lfile.textContent="Upload a Pic";
-        lfile.setAttribute("for",file.id);
-        const {button:submit}=Misc.simpleButton({anchor:form,type:"submit",text:"submit",bg:Nav.btnColor,color:"white",time:400});
-        file.onchange=(e:Event)=>{
-            if(e){
-                submit.disabled=false;
-            }
-        };
-        form.onsubmit=async(e:SubmitEvent)=>{
-            if(e){
-                e.preventDefault();
-                const formdata=new FormData(e.currentTarget as HTMLFormElement);
-                const file=formdata.get("file") as File;
-                if(file ){
-                    const urlImg=URL.createObjectURL(file as File);
-                    this._service.generatePostImgKey(formdata,post) as {Key:string};
-                   await this._service.simpleImgUpload(parent,formdata).then(async(res)=>{
-                        if(res){
-                            this.post={...this._post,imageKey:res.Key};
-                           await this._service.saveUpdatepost({post:this.post}).then(async(post_)=>{
-                                if(post_){
-                                    this.posts=[...this._posts,post_];
-                                    const getScrollCol1=document.querySelector("div#scrollCol1") as HTMLElement;
-                                    if(getScrollCol1){
-                                        //USED BY Profile: client account
-                                        const getCont=getScrollCol1.querySelector("div#main-post-container") as HTMLElement;
-                                        await this.Posts({injector:getScrollCol1,container:getCont,posts:this.posts,user});
-                                        parent.style.height="auto";
-                                    }else{
-                                        const getCont=this.injector.querySelector("div#main-post-container") as HTMLElement;
-                                        await this.Posts({injector:this.injector,container:getCont,posts:this.posts,user});
-                                    }
-                                    Misc.growOut({anchor:popup,scale:0,opacity:0,time:400});
-                                    setTimeout(()=>{
-                                        const labelDisplay2=parent.querySelector("div#labelDisplay2") as HTMLElement;
-                                        if(labelDisplay2){
-                                            labelDisplay2.hidden=true;
-                                        }
-                                        parent.removeChild(popup);
-                                    },390);
-                                }
-                            });
-                        }
-                    });
-
-                };
-            }
-        };
-        popup.appendChild(form);
-        parent.appendChild(popup)
-    }
+   
     
 };
 export default Post;

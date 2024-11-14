@@ -211,6 +211,7 @@ class Service {
         };
     } | null | undefined>{
         // console.log(formData,formData.get("file"),formData.get("Key"));
+        // headers:{"Content-Type":"multipart/form-data"}=>DOES NOT WORK,
         const option={
             method: "PUT",
             body: formData
@@ -294,6 +295,7 @@ class Service {
     //RETURNS PROMISE<{KEY,IMG}>
     async simpleImgUpload(parent:HTMLElement,formData:FormData):Promise<gets3ImgKey|null>{
         //UPLOADS FILE AND THEN GETS IMAGE WITH IMAGEKEY
+        // // headers:{"Content-Type":"multipart/form-data"},=>causes issue,
         const file=formData.get("file") as string;
         const Key=formData.get("Key") as string;
         if(file && Key){
@@ -599,6 +601,7 @@ class Service {
 
         }
     }
+   
     async storeKey(store:deletedImgType):Promise<void | deletedImgType>{
         //EXECUTES ONLY IF DEL=FALSE && KEY EXIST.IT STORES KEY IN DeletedImg table
         const {imgKey,del}=store;
@@ -1324,7 +1327,7 @@ class Service {
         if(!file)return;
         if(!getKey){
             const rand=uuidv4().split("-")[0];
-            const name=post.title ? post.title:"postTitle";
+            const name=post.title ? post.title.split(" ").join("-"):"postTitle";
             const user_id=post.userId ? post.userId : "ananomous"
             const Key=`${user_id}-${name}/${rand}-${file.name}`;
             const Key_=Key.trim();

@@ -1,0 +1,24 @@
+.postdetail {
+  margin-inline: auto;
+  margin-block: 1rem;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  padding-inline: 1rem;
+  padding-block: 1.5rem;
+  width: 50%;
+  position: relative;
+}
+@media screen and (max-width: 900) {
+  .postdetail {
+    width: 70%;
+    padding-inline: 2rem;
+  }
+}
+@media screen and (max-width: 900) {
+  .postdetail {
+    width: 100%;
+    padding-inline: 1rem;
+  }
+}

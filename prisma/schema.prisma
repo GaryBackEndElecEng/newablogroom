@@ -258,6 +258,7 @@ model Post {
   title     String
   content   String?
   link      String?
+  image     String?
   imageKey  String?
   published Boolean  @default(false)
   date      DateTime @default(now())

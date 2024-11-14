@@ -4,7 +4,7 @@ import Index from "@/components/posts/Index";
 import styles from "@/components/posts/post.module.css";
 import prisma from "@/prisma/prismaclient";
 import { getErrorMessage } from '@/lib/errorBoundaries';
-import { postType } from '@/components/editor/Types';
+import { postType, userSignInType, userType } from '@/components/editor/Types';
 import { Metadata, ResolvingMetadata } from 'next';
 
 type Props = {
@@ -21,12 +21,34 @@ export async function generateMetadata({ params, searchParams }: Props, parent: 
 
 export default async function page() {
     const posts = await getPosts() ? await getPosts() : [];
+    const usersinfo = await getUsersinfo() ? await getUsersinfo() : [];
     return (
         <div className={styles.pageposts}>
-            <Index posts={posts} />
+            <Index posts={posts} usersinfo={usersinfo} />
         </div>
     )
 }
+export async function getUsersinfo(): Promise<userType[]> {
+    let users: userType[] = [];
+    try {
+        users = await prisma.user.findMany({
+            where: {
+                showinfo: true
+            },
+            select: {
+                id: true,
+                name: true,
+                email: true
+            }
+        }) as unknown as userType[];
+    } catch (error) {
+        const msg = getErrorMessage(error);
+        console.log(msg);
+    } finally {
+        await prisma.$disconnect()
+        return users;
+    }
+};
 export async function getPosts(): Promise<postType[]> {
     let posts: postType[] = [];
     try {
@@ -40,6 +62,7 @@ export async function getPosts(): Promise<postType[]> {
                 content: true,
                 link: true,
                 imageKey: true,
+                image: true,
                 date: true,
                 likes: true,
                 userId: true
@@ -49,6 +72,7 @@ export async function getPosts(): Promise<postType[]> {
         const msg = getErrorMessage(error);
         console.log(msg);
     } finally {
+        await prisma.$disconnect();
         return posts;
     }
 }

@@ -710,7 +710,7 @@ set user(user:userType){
             container.style.cssText="display:flex;justify-content:space-around;align-items:center;margin-inline:1rem;box-shadow:1px 1px 12px 1px white;padding-inline:0.5rem;border-radius:10px;color:white;background-color:#0a2351;overflow:hidden;position:relative;right:20px;justify-self:end;margin-right:10px;order:3;";
             container.style.marginRight=less900 ? (less400 ? "1px":"4px") :"10px";
             container.style.right=less900 ? (less400 ? "-28px":"-10px") :"20px";
-            container.style.transform=less900 ? (less400 ? "scale(0.6)":"scale(0.7)") :"scale(1)";
+            container.style.transform=less900 ? (less400 ? "scale(0.5)":"scale(0.6)") :"scale(0.7)";
             container.style.maxWidth="300px;";
             const img=document.createElement("img");
             img.id="para-img";

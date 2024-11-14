@@ -390,6 +390,54 @@ class AddImageUrl {
         });
     
     }
+    asyncPicImage(item:{parent:HTMLElement}):Promise<{arr:{btn:HTMLButtonElement,imageUrl:string}[],popup:HTMLElement,reParent:HTMLElement}>{
+        const {parent}=item;
+        const arr:{btn:HTMLButtonElement,imageUrl:string}[]=[];
+        const popup=document.createElement("div");
+        popup.id="addImageUrl-asyncPicImag-popup";
+        popup.style.cssText="position:absolute;max-width:800px;width:100%;min-height:5vh;height:auto;border-radius:12px;box-shadow:1px 1px 12px 1px black;display:flex;flex-direction:column;padding:1rem;gap:1.5rem;background-color:black;color:white;left:20%;right:20%";
+        const title=document.createElement("h6");
+        title.textContent="insert Image";
+        title.className="text-center text-primary my-2";
+        popup.appendChild(title);
+        const row=document.createElement("div");
+        row.id="popup-main-row"
+        row.className="row";
+        row.style.cssText="padding-inline:1rem;";
+        popup.appendChild(row);
+        parent.appendChild(popup);
+        this.removePopup({parent,target:popup});
+        this.imageUrls.map((insertImg,index)=>{
+            if(insertImg){
+
+                const divCont=document.createElement("div");
+                const title=document.createElement("h6");
+                title.className="text-primary text-center my-2";
+                title.textContent=insertImg.name;
+                divCont.id=`main-row-divCont-${index}`;
+                divCont.style.cssText="padding:1rem;position:relative;flex:0 0 25%;display:flex;flex-direction:column;align-items:center;gap:1rem;";
+                divCont.appendChild(title);
+                const img=document.createElement("img");
+                img.id="divCont-" + index + "-image";
+                img.style.cssText="border-radius:50%;width:100px;height:100px;filter:drop-shadow(0 0 0.75rem black);";
+                const image=AWSImageLoader({url:insertImg.url,width:100,quality:60});
+                img.src=image;
+                img.alt=insertImg.name;
+                divCont.appendChild(img);
+                const {button:imgBtn}=Misc.simpleButton({anchor:divCont,bg:Nav.btnColor,color:"white",text:"insert",time:400,type:"button"});
+                imgBtn.id=`imgBtn-${index}`;
+                arr.push({btn:imgBtn,imageUrl:insertImg.url});//PUSHING
+                row.appendChild(divCont);
+                Misc.matchMedia({parent:divCont,maxWidth:900,cssStyle:{flex:"0 0 50%"}});
+                Misc.matchMedia({parent:divCont,maxWidth:400,cssStyle:{flex:"0 0 100%"}});
+                
+            }
+        });
+        return new Promise(resolve=>{
+            resolve({arr,popup,reParent:parent});
+        }) as Promise<{arr:{btn:HTMLButtonElement,imageUrl:string}[],popup:HTMLElement,reParent:HTMLElement}>;
+    
+    }
     async extractImg(item:{ele:HTMLElement}):Promise<string|undefined>{
         const {ele}=item;
         const urlStr=ele.style.backgroundImage;

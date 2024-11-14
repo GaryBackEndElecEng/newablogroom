@@ -1,3 +1,4 @@
+"use client";
 import { createRoot } from 'react-dom/client';
 import { IconType } from "react-icons";
 // import * as Icons from "react-icons/fa";

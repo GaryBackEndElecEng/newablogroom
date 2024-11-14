@@ -584,10 +584,19 @@ class Meta{
           where:{show:true},
           select:{id:true}
         }) as {id:number}[];
+        const postIds =await prisma.post.findMany({
+          where:{published:true},
+          select:{id:true}
+        }) as {id:number}[];
         await prisma.$disconnect();
         if(blogIds && blogIds.length>0){
           blogIds.map(blog=>{
             arr.push({url:`${retBaseUrl}/blog/${blog.id}`,lastModified:new Date(),changeFrequency:'always',priority:1})
+          });
+        }
+        if(postIds && postIds.length>0){
+          postIds.map(post=>{
+            arr.push({url:`${retBaseUrl}/post/${post.id}`,lastModified:new Date(),changeFrequency:'always',priority:1})
           });
         }
        

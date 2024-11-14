@@ -10,7 +10,7 @@ import prisma from "@/prisma/prismaclient";
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
     const get_id = Number(req.query.id);
-    const { id, title, content, link, imageKey, published, userId, likes } = req.body as postType;
+    const { id, title, content, link, imageKey, published, userId, likes, image } = req.body as postType;
     const ID = id ? id : 0;
 
 
@@ -28,7 +28,8 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
                         published,
                         userId,
                         link,
-                        likes
+                        likes,
+                        image
                     },
                     update: {
                         title,
@@ -36,7 +37,8 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
                         imageKey,
                         published,
                         link,
-                        likes
+                        likes,
+                        image
                     }
 
                 });
@@ -67,6 +69,18 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
                 const post = await prisma.post.findUnique({
                     where: {
                         id: get_id
+                    },
+                    select: {
+                        id: true,
+                        title: true,
+                        content: true,
+                        link: true,
+                        image: true,
+                        imageKey: true,
+                        published: true,
+                        date: true,
+                        userId: true,
+                        likes: true
                     }
                 });
                 if (post) {
@@ -87,6 +101,18 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
                 const posts = await prisma.post.findMany({
                     where: {
                         published: true
+                    },
+                    select: {
+                        id: true,
+                        title: true,
+                        content: true,
+                        link: true,
+                        image: true,
+                        imageKey: true,
+                        published: true,
+                        date: true,
+                        userId: true,
+                        likes: true
                     }
                 });
                 if (posts) {

@@ -1,3 +1,4 @@
+"use client";
 import Misc from "./misc";
 export const baseUrl="http://localhost:3000";
  export const DOMAIN=process.env.DOMAIN ? process.env.DOMAIN : baseUrl;
@@ -116,18 +117,36 @@ export function smallbtnReturn(message:btnReturnType):HTMLButtonElement{
     return btn;
 }
 export  function imageLoader({ src, width, quality }) {
-    const test_:RegExp=/(\/images\/[a-zA-Z0-9\.]+)/;
+    const test_1:RegExp=/(\/images\/[a-zA-Z0-9\.]+)/;
+    const test_2:RegExp=/(https\:\/\/)[a-zA-Z0-9\.\-\?\&]+/;
+    const test_3:RegExp=/[a-zA-Z0-9\.]{3,}[a-z]{1,3}/;
+    const test_aws:RegExp=/(https\:\/\/master)[a-zA-Z0-9\.\-\?\&]+/;
     let append:string=''
-    if(test_.test(src)){
+    if(test_1.test(src)){
         append=src;
-    }else{
+    }else if(test_2.test(src)){
+        append=src;
+    }else if(test_3.test(src)){
         append=`/images/${src}`;
+    }else if(test_aws.test(src)){
+        append=src;
     }
-    const url=new URL(window.location.href);
-    const newUrl=new URL(append,url.origin);
-    newUrl.searchParams.set("w",width.toString());
-    newUrl.searchParams.set("q",(quality || 75).toString());
-    return newUrl.href
+    if(!test_2.test(src)){
+
+        const url=new URL(window.location.href);
+        const newUrl=new URL(append,url.origin);
+        newUrl.searchParams.set("w",width.toString());
+        newUrl.searchParams.set("q",(quality || 75).toString());
+        return newUrl.href;
+    }else if(test_2.test(src)){
+        const url= new URL(append);
+        url.searchParams.set('format', 'auto')
+        url.searchParams.set('width', width.toString())
+        url.searchParams.set('quality', (quality || 75).toString());
+        return url.href;
+    }else{
+        return append;
+    }
   }
 export  function httpImageLoader(item:{ src:string, width:number, quality:number }) {
     const {src,width,quality}=item;

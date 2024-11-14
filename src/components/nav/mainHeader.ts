@@ -245,7 +245,7 @@ _status:"authenticated" | "loading" | "unauthenticated";
                             container.id="genPageCount-main";
                             container.style.cssText="position:relative;width:auto;height:auto;display:flex;justify-content:center;flex-direction:column;align-items:center;border-left:1px solid white;border-right:1px solid white;margin-left:5px;justify-self:start;";
                             container.style.left=less900 ? (less400 ? "0px" :"50px"):"90px";
-                            container.style.transform=less900 ? (less400 ? "scale(0.6)" :"scale(0.7)"):"scale(1)";
+                            container.style.transform=less900 ? (less400 ? "scale(0.6)" :"scale(0.7)"):"scale(0.8)";
                             const div=document.createElement("div");
                             div.id="genPageCount-inner";
                             div.style.cssText="margin:auto;display:flex;justify-content:center;gap:1rem;align-items:center;flex-direction:row;flex-wrap:wrap;"
