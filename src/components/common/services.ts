@@ -426,7 +426,8 @@ class Service {
         Misc.signiMain(useParent,providers,csrfToken);
         
     }
-    async signout(){
+    async signout(item:{redirect:boolean}){
+        const {redirect}=item;
         Nav.navHeader=document.querySelector("header#navHeader") as HTMLElement;
         const url=new URL(window.location.href);
         this.initializeBlog();
@@ -451,7 +452,12 @@ class Service {
                     Header.cleanUp(Main._mainHeader as HTMLElement);
                 }
             }
-            await signOut({redirect:false});
+            if(redirect){
+                await signOut({redirect:true});
+            }else{
+                await signOut({redirect:false});
+
+            }
         }
       
         return;
@@ -1187,12 +1193,13 @@ class Service {
             return null
         }).catch((err)=>{const msg=getErrorMessage(err);console.error(msg)});
     }
-    async getPageCount(page:string,id:number|undefined): Promise<void |  pageCountType | null>{
+    async getPageCount(item:{page:string,blog_id:number|undefined,post_id:number|undefined}): Promise<void |  pageCountType | null>{
+        const {page,blog_id,post_id}=item;
         const option={
             Headers:{"Content-Type":"application/json"},
             method:"GET"
         }
-        return fetch(`${this.pageCountUrl}?name=${page}&blog_id=${id}`,option).then(async(res)=>{
+        return fetch(`${this.pageCountUrl}?name=${page}&blog_id=${blog_id}&post_id=${post_id}`,option).then(async(res)=>{
             if(res){
                 const pageCount= await res.json() as pageCountType;
                 return pageCount;

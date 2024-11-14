@@ -5,22 +5,24 @@ import { postType, userType } from '../editor/Types'
 import ModSelector from '../editor/modSelector';
 import Service from '../common/services';
 import PostDetail from './postdetail';
+import Header from '../editor/header';
 
 export default function Index({ post, user }: { post: postType | null, user: userType | null }) {
     const countRef = React.useRef(0);
     const docRef = React.useRef(null);
     React.useEffect(() => {
-        if (typeof window !== "undefined" && docRef.current && countRef.current === 0 && post && user) {
+        if (typeof window !== "undefined" && docRef.current && countRef.current === 0 && post) {
             const injector = document.querySelector("section#postdetail") as HTMLElement;
             const modSelector = new ModSelector();
             const service = new Service(modSelector);
             const _post = new PostDetail(modSelector, service);
             _post.main({ injector, post, count: countRef.current, poster: user, isPage: true }).then((count) => {
                 countRef.current = count;
+                _post.cleaupKeepOne({ parent: injector, class_: `postdetail-main-container` });
             });
         }
     }, [countRef, docRef, post, user]);
     return (
-        <section ref={docRef} id="postdetail" className={style.postdetail}>Index</section>
+        <section ref={docRef} id="postdetail" className={style.postdetail}></section>
     )
 }

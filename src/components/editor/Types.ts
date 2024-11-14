@@ -237,7 +237,8 @@ export type pageCountType={
     id?:number,
     count:number,
     name:string,
-    blog_id?:number
+    blog_id?:number,
+    post_id?:number,
 }
 
 export type styleType={
@@ -340,7 +341,8 @@ export type postType={
     published: boolean,
     date:Date,
     userId:string,
-    likes:number
+    likes:number,
+    pageCounts:pageCountType[],
 };
 export type sessionType={
     id:string,

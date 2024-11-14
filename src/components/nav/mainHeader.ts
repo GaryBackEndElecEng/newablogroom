@@ -226,14 +226,16 @@ _status:"authenticated" | "loading" | "unauthenticated";
         if(typeof window ==="undefined") return;
         const less900=window.innerWidth <900;
         const less400=window.innerWidth <400;
+        const regBlog_id:RegExp=/(\/blog\/)[0-9]+/;
         const pg=window.location.pathname;
         if(!pg || count >0) return;
         //ensuring to count page based on landed pages from match RegExp
-        const blog_id=pg.split("/")[2] ? parseInt(pg.split("/")[2]) as number : undefined
+        const blog_id=MainHeader.getBlogPostID({pathname:pg}).name==="blog" ? MainHeader.getBlogPostID({pathname:pg}).num : undefined;
+        const post_id=MainHeader.getBlogPostID({pathname:pg}).name==="post" ? MainHeader.getBlogPostID({pathname:pg}).num : undefined;
         this.meta.pages.map(page=>{
             if((page.match.test(pg)) && this.pageCount===0){
                 this.pageCount++;
-                this._service.getPageCount(pg,blog_id).then(async(res)=>{
+                this._service.getPageCount({page:pg,blog_id,post_id}).then(async(res)=>{
                     if(res){
                             Header.cleanUpByID(parent,"genPageCount-main");
                             let name=(res && res && res.name) ? res.name : "";
@@ -354,6 +356,29 @@ _status:"authenticated" | "loading" | "unauthenticated";
                 html.remove();
             }
         });
+    }
+    static getBlogPostID(item:{pathname:string}):{name:string,num:number|undefined}{
+        //THIS RETURNS A THE ID TO THE PAGE (BLOG/ID) OR POST/ID IF EXIST: NUMBER ELSE UNDEFINED
+        const {pathname}=item;
+        let num:{name:string,num:number|undefined}={} as {name:string,num:undefined};
+        const regBlog_id:RegExp=/\/(blog)\/[0-9]+/;
+        const regPost_id:RegExp=/\/(post)\/[0-9]+/;
+        const match_num:RegExp=/[0-9]+/;
+        const arr:{name:string,reg:RegExp,match:RegExp,id:number|undefined}[]=[
+            {name:"blog",reg:regBlog_id,match:match_num,id:undefined},
+            {name:"post",reg:regPost_id,match:match_num,id:undefined}
+        ];
+        arr.map(item_=>{
+            if(item_.reg.test(pathname)){
+                const match_s=pathname.match(item_.reg) as any;
+                const match_number=match_s[0].match(item_.match) as any;
+                const int_=parseInt(match_number[0])
+                    if(!isNaN(int_)){
+                        num={name:item_.name,num:int_};
+                    }
+            }
+        });
+        return num
     }
     
     

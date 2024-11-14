@@ -239,7 +239,7 @@ set user(user:userType){
                 {id:4,name:"posts",color:"#00BFFF",link:"/posts",func:()=>Nav.navHistory("/posts"),icon:Icons.FaDropbox,show:true,isEditor:false,save:()=>null},
                 {id:5,name:"chart",color:"#00BFFF",link:"/chart",func:()=>Nav.navHistory("/chart"),icon:Icons.FaChartBar,show:true,isEditor:false,save:()=>null},
                 {id:6,name:"signin",color:"#00FF00",link:null,func:()=> this._regSignin.signIn(),icon:FaSign,show:!this.checkUser,isEditor:false,save:()=>null},
-                {id:7,name:"logout",color:"#00FF00",link:null,func:()=>this.logout({func:()=>undefined}),icon:FaSign,show:this.checkUser,isEditor:false,save:()=>null},
+                {id:7,name:"logout",color:"#00FF00",link:null,func:()=>this.logout({func:()=>undefined,redirect:false}),icon:FaSign,show:this.checkUser,isEditor:false,save:()=>null},
                 {id:8,name:"contact",color:"#00FF00",link:null,func:()=> this.contact(MainHeader.header as HTMLElement),icon:FaMedapps,show:true,isEditor:false,save:()=>null},
                 {id:9,name:"profile on demand",color:"#800000",link:null,func:()=> this._profile.main(getHeaderInjector),icon:FaAccessibleIcon,show:this.checkUser,isEditor:false,save:()=>null},
                 {id:10,name:"profile page",color:"#00FF00",link:"/profile",func:()=> Nav.navHistory("/profile"),icon:FaAccessibleIcon,show:this.checkUser,isEditor:false,save:()=>null},
@@ -320,9 +320,18 @@ set user(user:userType){
                             
                                 await this.navigateSaveBlog({parent:MainHeader.header as HTMLElement,link:"/"})
                             
+                        }else if(url.pathname==="/posts"){
+            
+                            await this.logout({
+                                func:()=>{
+                                this.centerBtnsRow({container:this.centerBtnsParent});
+                                },
+                                redirect:true
+                            })
+
                         }else{
                             this.centerBtnsParent=document.querySelector("div#footer-centerBtns-container");
-                           await this.logout({func:()=>this.centerBtnsRow({container:this.centerBtnsParent})})
+                           await this.logout({func:()=>this.centerBtnsRow({container:this.centerBtnsParent}),redirect:false})
                         }
 
                     }else{
@@ -373,7 +382,7 @@ set user(user:userType){
                                                     Misc.fadeOut({anchor:navigateSaveBtnGrp,xpos:50,ypos:100,time:400});
                                                     setTimeout(async()=>{
                                                         this.centerBtnsParent=document.querySelector("div#footer-centerBtns-container");
-                                                       await this.logout({func:()=>this.centerBtnsRow({container:this.centerBtnsParent})})
+                                                       await this.logout({func:()=>this.centerBtnsRow({container:this.centerBtnsParent}),redirect:false})
                                                        parent.removeChild(navigateSaveBtnGrp);
                                                     },380);
                                                 },380);
@@ -394,7 +403,7 @@ set user(user:userType){
                                                             Misc.fadeOut({anchor:navigateSaveBtnGrp,xpos:50,ypos:100,time:400});
                                                             setTimeout(async()=>{
                                                                 this.centerBtnsParent=document.querySelector("div#footer-centerBtns-container");
-                                                               await this.logout({func:()=>this.centerBtnsRow({container:this.centerBtnsParent})});
+                                                               await this.logout({func:()=>this.centerBtnsRow({container:this.centerBtnsParent}),redirect:false});
                                                                 parent.removeChild(navigateSaveBtnGrp);
                                                             },380);
                                                         },380);
@@ -415,7 +424,7 @@ set user(user:userType){
                                 setTimeout(async()=>{
                                     parent.removeChild(btnGrp);
                                     this.centerBtnsParent=document.querySelector("div#footer-centerBtns-container");
-                                   await this.logout({func:()=>this.centerBtnsRow({container:this.centerBtnsParent})})
+                                   await this.logout({func:()=>this.centerBtnsRow({container:this.centerBtnsParent}),redirect:false})
                                 },380);
                             }
                         });
@@ -427,7 +436,7 @@ set user(user:userType){
                }
             }else{
                 this.centerBtnsParent=document.querySelector("div#footer-centerBtns-container");
-                await this.logout({func:()=>this.centerBtnsRow({container:this.centerBtnsParent})});
+                await this.logout({func:()=>this.centerBtnsRow({container:this.centerBtnsParent}),redirect:false});
             }
         });
     }
@@ -646,9 +655,9 @@ set user(user:userType){
         }
        });
     }
-    async logout(item:{func:()=>Promise<void>|void|undefined}): Promise<void>{
-        const {func}=item;
-        this.asyncLogout({func}).then(async(res)=>{
+    async logout(item:{func:()=>Promise<void>|void|undefined,redirect:boolean}): Promise<void>{
+        const {func,redirect}=item;
+        this.asyncLogout({func,redirect}).then(async(res)=>{
             if(res){
                     setTimeout(()=>{
                     res.mainHeader=document.querySelector("header#navHeader") as HTMLElement;
@@ -666,8 +675,8 @@ set user(user:userType){
                 }
             });
     }
-    async asyncLogout(item:{func:()=>Promise<void>|void|undefined}):Promise<{mainHeader:HTMLElement | null,centerBtnCont:HTMLElement}>{
-        const {func}=item;
+    async asyncLogout(item:{func:()=>Promise<void>|void|undefined,redirect:boolean}):Promise<{mainHeader:HTMLElement | null,centerBtnCont:HTMLElement}>{
+        const {func,redirect}=item;
         this.user={} as userType;
         MainHeader.header=document.querySelector("header#navHeader") as HTMLElement;
         const centerBtnCont=document.querySelector("div#footer-centerBtns-container") as HTMLElement;
@@ -686,7 +695,7 @@ set user(user:userType){
         MainHeader.removeAllClass({parent:MainHeader.header,class_:"ablogroom"});
         window.scroll(0,0);
         func();//calling function void
-        this._service.signout()
+        this._service.signout({redirect})
         return new Promise(resolver=>{
             resolver({mainHeader:MainHeader.header,centerBtnCont})
         }) as Promise<{mainHeader:HTMLElement|null,centerBtnCont:HTMLElement}>;

@@ -28,8 +28,9 @@ class PostDetail{
         this._poster=poster;
     }
 
-   async main(item:{injector:HTMLElement,post:postType,count:number,poster:userType,isPage:boolean}):Promise<number>{
+   async main(item:{injector:HTMLElement,post:postType,count:number,poster:userType |null,isPage:boolean}):Promise<number>{
         const {injector,post,poster,count,isPage}=item;
+        const less1550=window.innerWidth < 1550;
         const less900=window.innerWidth < 900;
         const less400=window.innerWidth < 400;
         Header.cleanUpByID(injector,`postdetail-main-container`);
@@ -37,6 +38,7 @@ class PostDetail{
         const shapoutside="padding:1rem;text-wrap:wrap;font-family:'Poppins-Thin';font-weight:bold;inherit;border-radius:12px;box-shadow:1px 1px 12px white;"
         const css_row="margin-inline:auto;display:flex;flex-direction:row;flex-wrap:wrap;justify-content:center;align-items:center;gap:0.27rem;color:inherit;border-radius:inherit;";
         const container=document.createElement("div");
+        container.className="postdetail-main-container";
         container.id="postdetail-main-container";
         container.style.cssText=css_col + "background-color:black;color:white;font-family:'Poppins-Regular';position:realtive;";
         if(!isPage){
@@ -45,13 +47,13 @@ class PostDetail{
             container.style.position="absolute";
             container.style.zIndex="200";
             container.style.top="0%";
-            container.style.left=less900 ? (less400 ? "0%" :"-2.5%"): "-50%";
-            container.style.right=less900 ? (less400 ? "0%" :"-2.5%"): "-50%";
-            container.style.maxWidth=less900 ? (less400 ? "375px" :"800px"): "auto";
+            container.style.left=less1550 ? (less900 ? (less400 ? "0%" :"-2.5%"): "-30%"):"-50%";
+            container.style.right=less1550 ? (less900 ? (less400 ? "0%" :"-2.5%"): "-30%"):"-50%";
+            container.style.maxWidth=less1550 ? (less900 ? (less400 ? "375px" :"800px"): "1200px") :"auto";
             container.style.width=less400 ? "100%":"auto";
         }else{
             this.injector=injector as HTMLElement;
-            container.style.width="100%";
+            this.injector.style.width=less1550 ? (less900 ? (less400 ? "100%" :"100%"): "65%"):"50%";;
         }
        
         const card=document.createElement("div");
@@ -107,7 +109,9 @@ class PostDetail{
         date.style.cssText="padding-inline:1rem;margin-inline:auto;";
         date.textContent= post.date ? Blogs.tolocalstring(post.date):"no date";
         cardBody.appendChild(date);
+        if(poster){
         this.showPoster({parent:card,poster});
+        }
         if(!isPage){
             const {button:btnClose}=Misc.simpleButton({anchor:card,text:"close",type:"button",bg:Nav.btnColor,color:"white",time:400});
             btnClose.onclick=(e:MouseEvent)=>{
@@ -119,6 +123,13 @@ class PostDetail{
                 }
             };
             
+        }else{
+            const {button:btnBack}=Misc.simpleButton({anchor:card,text:"back",type:"button",bg:Nav.btnColor,color:"white",time:400});
+            btnBack.onclick=(e:MouseEvent)=>{
+                if(e){
+                    window.history.go(-1);
+                }
+            };
         }
         
         card.appendChild(cardBody);
@@ -144,7 +155,7 @@ class PostDetail{
         parent.style.position="relative";
         const container=document.createElement("div");
         container.id="showPoster-user-container";
-        container.style.cssText="margin-inline:auto;margin-block:1.25rem;display:flex;align-items:center;justify-content:space-around;flex-warp:wrap;background-color:white;border-radius:11px;padding-block:1.5rem;padding-inline:1.25rem;box-shadow:1px 1px 12px 2px #10c7e9ab,-1px -1px 12px 1px #10c7e9ab;";
+        container.style.cssText="margin-inline:auto;margin-block:1.25rem;display:flex;align-items:center;justify-content:space-around;flex-warp:wrap;background-color:white;color:black;border-radius:11px;padding-block:1.5rem;padding-inline:1.25rem;box-shadow:1px 1px 12px 2px #10c7e9ab,-1px -1px 12px 1px #10c7e9ab;";
         container.style.width=less900 ? (less400 ? "100%" :"85%" ) : "67%";
         container.style.paddingInline=less900 ? (less400 ? "1rem" :"1.5rem" ) : "2rem";
         const img=document.createElement("img");
@@ -194,6 +205,18 @@ class PostDetail{
         container.appendChild(innerContainer);
         
         parent.appendChild(container);
+    }
+    cleaupKeepOne(item:{parent:HTMLElement,class_:string}){
+        const {parent,class_}=item;
+        const eles=parent.querySelectorAll(`.${class_}`) as any as HTMLElement[];
+        if(eles.length > 0){
+            ([...eles as any] as HTMLElement[]).map((ele,index)=>{
+                if(ele && index > 0){
+                    parent.removeChild(ele);
+                }
+            });
+        }
+
     }
 };
 export default PostDetail;

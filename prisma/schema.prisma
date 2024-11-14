@@ -243,26 +243,29 @@ model DeletedImg {
   @@unique([imgKey, id])
 }
 
+model Post {
+  id         Int         @id @default(autoincrement())
+  title      String
+  content    String?
+  link       String?
+  image      String?
+  imageKey   String?
+  published  Boolean     @default(false)
+  date       DateTime    @default(now())
+  user       User        @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId     String
+  likes      Int?
+  pagecounts PageCount[]
+}
+
 model PageCount {
   id      Int    @id @default(autoincrement())
   name    String @unique
   count   Int    @default(autoincrement())
   blog    Blog?  @relation(fields: [blog_id], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  post    Post?  @relation(fields: [post_id], references: [id], onDelete: Cascade, onUpdate: Cascade)
   blog_id Int?
+  post_id Int?
 
   @@unique([name, id])
-}
-
-model Post {
-  id        Int      @id @default(autoincrement())
-  title     String
-  content   String?
-  link      String?
-  image     String?
-  imageKey  String?
-  published Boolean  @default(false)
-  date      DateTime @default(now())
-  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-  userId    String
-  likes     Int?
 }

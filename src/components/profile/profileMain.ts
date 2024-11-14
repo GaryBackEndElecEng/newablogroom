@@ -358,7 +358,7 @@ class ProfileMain{
         Header.cleanUpByID(row,"col-bio-column");
         const col=document.createElement("div");
         col.className="col-lg-6";
-        col.id=`bio-col`;
+        col.id=`bio-col-column`;
         col.style.cssText="display:flex;justify-content:center;flex-direction:column;gap:1rem;align-items:center;position:relative;";
         const form =document.createElement("form");
         form.id=`col-form-${rand}`
@@ -444,7 +444,6 @@ class ProfileMain{
                 this._user.user={...user,bio:textarea,name:name,username:username,showinfo:Boolean(showWork)};
                 user=this._user.user;
                 if((name || textarea) && user){
-                    localStorage.setItem("user",JSON.stringify(user));
                     this._user.userUpdate(row,user).then(async(user_)=>{
                         if(user_){
                             user_={...user_,blogs:user.blogs,posts:user.posts}

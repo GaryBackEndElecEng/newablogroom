@@ -942,6 +942,7 @@ class User{
         }
         //HAVE TO CREATE USER PASSWORD AND EMAIL CHANGE OUTS
         return await fetch(this.userUrlUpdate,option).then(async(res)=>{
+            "/api/user_update"
             if(res.ok){
                 const user= await res.json() as userType;
                 this.user=user;
@@ -964,6 +965,7 @@ class User{
         }
         //HAVE TO CREATE USER PASSWORD AND EMAIL CHANGE OUTS
         return await fetch(this.userUrlUpdate,option).then(async(res)=>{
+            "/api/user_update"
             if(res.ok){
                 const user= await res.json() as userType;
                 this.user=user;
@@ -986,6 +988,7 @@ class User{
         }
         //HAVE TO CREATE USER PASSWORD AND EMAIL CHANGE OUTS
         return await fetch(this.userUrlUpdate,option).then(async(res)=>{
+            "/api/user_update"
             if(res.ok){
                 const user= await res.json() as userType;
                 this.user=user;

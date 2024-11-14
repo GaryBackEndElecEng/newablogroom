@@ -20,7 +20,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         const passOld: string | null = passwords ? passwords.passOld as string : null;
         const emailNew: string | null = emails ? emails.emailNew as string : null;
         const emailOld: string | null = emails ? emails.emailOld as string : null;
-
+        // console.log("user", user, "passwords", passwords, "emails", emails)//works
         if (passwords) {
             try {
                 const getUser = await prisma.user.findUnique({
@@ -107,6 +107,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
                         email: true,
                         bio: true,
                         imgKey: true,
+                        image: true,
                         id: true,
                         showinfo: true,
                         name: true,

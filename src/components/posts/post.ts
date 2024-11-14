@@ -76,6 +76,7 @@ class Post{
         const less900=window.innerWidth < 900;
         const less400=window.innerWidth < 400;
         this.usersinfo=usersinfo;
+        console.log(this.usersinfo);
         this.posts=posts;
         Header.cleanUpByID(injector,"main-post-container");
         const width=window.innerWidth;
@@ -192,7 +193,6 @@ class Post{
     
     async Posts(item:{injector:HTMLElement,container:HTMLElement,posts:postType[],user:userType}):Promise<{container:HTMLElement,subDiv:HTMLElement,row:HTMLElement,posts:postType[],user:userType}>{
         const {injector,container,posts,user}=item;
-        console.log("Posts():=>POSTS",posts)
         const less900=window.innerWidth < 900 ? true:false;
         const less400=window.innerWidth < 400 ? true:false;
         Header.cleanUpByID(container,"main-post-container-subDiv");//CLEANING UP
@@ -512,11 +512,33 @@ class Post{
                                     if(getScrollCol1){
                                         //USED BY Profile: client account
                                         const getCont=getScrollCol1.querySelector("div#main-post-container") as HTMLElement;
-                                        await this.Posts({injector:getScrollCol1,container:getCont,posts:this.posts,user});
+                                        await this.Posts({injector:getScrollCol1,container:getCont,posts:this.posts,user}).then(async(res_)=>{
+                                            if(res_.posts && res_.posts.length>0){
+                                                this.posts=res_.posts.sort((a,b)=>{if(a.likes > b.likes)return -1;return 1}).map(post=>(post));
+                                                this.posts.sort((a,b)=>{if(a.likes > b.likes)return -1;return 1}).map(async(post,index)=>{
+                                                    if(post){
+                                                        const userinfo=this.usersinfo.find(user_=>(user_.id===post.userId));
+                                                        this.postCard({row:res_.row,post,user:this.user,userinfo,index});
+                                                    }
+                                                });
+                                                Misc.matchMedia({parent:res_.container,maxWidth:400,cssStyle:{paddingInline:"0px"}})
+                                            }
+                                        });
                                         parent.style.height="auto";
                                     }else{
                                         const getCont=this.injector.querySelector("div#main-post-container") as HTMLElement;
-                                        await this.Posts({injector:this.injector,container:getCont,posts:this.posts,user});
+                                        await this.Posts({injector:this.injector,container:getCont,posts:this.posts,user}).then(async(res_)=>{
+                                            if(res_.posts && res_.posts.length>0){
+                                                this.posts=res_.posts.sort((a,b)=>{if(a.likes > b.likes)return -1;return 1}).map(post=>(post));
+                                                this.posts.sort((a,b)=>{if(a.likes > b.likes)return -1;return 1}).map(async(post,index)=>{
+                                                    if(post){
+                                                        const userinfo=this.usersinfo.find(user_=>(user_.id===post.userId));
+                                                        this.postCard({row:res_.row,post,user:this.user,userinfo,index});
+                                                    }
+                                                });
+                                                Misc.matchMedia({parent:res_.container,maxWidth:400,cssStyle:{paddingInline:"0px"}})
+                                            }
+                                        });;
                                     }
                                     Misc.growOut({anchor:popup,scale:0,opacity:0,time:400});
                                     setTimeout(()=>{
@@ -638,8 +660,17 @@ class Post{
         detail.onclick=(e:MouseEvent)=>{
             if(e){
                 detail.disabled=true;
-                const _userinfo:userType=userinfo as userType;
+                const _userinfo:userType|null=userinfo ? userinfo as userType : null;
                 this.postDetail.main({injector:col,post,count:0,poster:_userinfo,isPage:false});
+            }
+        };
+        const {button:pageDetail}=Misc.simpleButton({anchor:btnContainer,bg:Nav.btnColor,color:"white",type:"button",time:400,text:"page detail"});
+        pageDetail.onclick=(e:MouseEvent)=>{
+            if(e){
+                detail.disabled=true;
+                const url=new URL(window.location.href);
+                const newUrl=new URL(`/post/${post.id}`,url.origin)
+                window.location.href=newUrl.href;
             }
         };
         card.appendChild(cardBody);
@@ -844,7 +875,7 @@ class Post{
         if(post.userId===user.id){
             const xDiv=document.createElement("div");
             xDiv.id=`delete-${post.id}`;
-            xDiv.style.cssText=css_row + "position:absolute;padding:0.37rem;background:black;color:white;top:0%;right:0%;transform:translate(-18px,32px);z-index:200;border-radius:50%;";
+            xDiv.style.cssText=css_row + "position:absolute;padding:0.37rem;background:black;color:white;top:0%;right:0%;transform:translate(-18px,32px);z-index:1;border-radius:50%;";
             FaCreate({parent:xDiv,name:FaCrosshairs,cssStyle:{color:"white",fontSize:"22px"}});
             target.appendChild(xDiv);
             xDiv.onclick=(e:MouseEvent) =>{

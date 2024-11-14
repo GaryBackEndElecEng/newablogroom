@@ -38,7 +38,12 @@ export async function getUsersinfo(): Promise<userType[]> {
             select: {
                 id: true,
                 name: true,
-                email: true
+                email: true,
+                image: true,
+                imgKey: true,
+                bio: true,
+                admin: true,
+                username: true
             }
         }) as unknown as userType[];
     } catch (error) {

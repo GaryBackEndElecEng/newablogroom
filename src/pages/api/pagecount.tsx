@@ -7,14 +7,15 @@ import prisma from "@/prisma/prismaclient";
 //--------( /API/BLOG/ID ) OR ( /API/BLOG/USER_ID )---------///
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
     if (req.method === "POST") {
-        const { name, blog_id, count } = req.body as pageCountType;
+        const { name, blog_id, post_id, count } = req.body as pageCountType;
         if (!req.body) return res.status(400).json({ msg: " missing req.body" })
         try {
             const pageCount = await prisma.pageCount.upsert({
                 where: { name: name },
                 create: {
                     name: name,
-                    blog_id: blog_id ? blog_id : undefined,
+                    blog_id: blog_id ? blog_id : null,
+                    post_id: post_id ? post_id : null,
                     count: count ? count : 1
                 },
                 update: {
@@ -34,8 +35,9 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
             await prisma.$disconnect();
         }
     } else if (req.method === "GET") {
-        const { name, blog_id } = req.query as { name: string, blog_id: string | undefined };
+        const { name, blog_id, post_id } = req.query as { name: string, blog_id: string | undefined, post_id: string | undefined };
         const getBlog_id = blog_id && !isNaN(parseInt(blog_id)) ? parseInt(blog_id) : undefined;
+        const getPost_id = post_id && !isNaN(parseInt(post_id)) ? parseInt(post_id) : undefined;
         if (!name) res.status(400).json({ msg: "query has no name" });
         try {
             const pageCount = await prisma.pageCount.findUnique({
@@ -45,7 +47,8 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
                 const getPage = await prisma.pageCount.create({
                     data: {
                         name: name,
-                        blog_id: getBlog_id,
+                        blog_id: getBlog_id ? getBlog_id : undefined,
+                        post_id: getPost_id ? getPost_id : undefined,
                         count: 1
                     }
                 });

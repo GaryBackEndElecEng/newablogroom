@@ -36,6 +36,7 @@ class Meta{
         this.pages=[
           {page:'/az',redir:/\/[a-z]{1,3}\//,match:/\//},
           {page:'/blog/',redir:/\/(blog)\/[0-9]+[a-z\/]+/,match:/\/(blog)\/[0-9]+/},
+          {page:'/post/',redir:/\/(post)\/[0-9]+[a-z\/]+/,match:/\/(post)\/[0-9]+/},
           {page:'/blogs',redir:/\/(blogs)[a-zA-Z\/]+/,match:/\/(blogs)/},
           {page:"/register",redir:/\/(register)[a-zA-Z\/]+/,match:/\/(register)/},
           {page:"/editor",redir:/\/(editor)[a-zA-Z\/]+/,match:/\/(editor)/},
