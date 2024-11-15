@@ -38,7 +38,8 @@ class Post{
         this._like=false;
         this._usersinfo=[] as userType[];
         this.addImageClass= new AddImageUrl(this._modSelector,this._service);
-        this.postDetail=new PostDetail(this._modSelector,this._service);
+        const thisuser=this._user.user
+        this.postDetail=new PostDetail(this._modSelector,this._service,this._user,thisuser);
     }
     //----GETTERS SETTERS----////
     get post(){
@@ -76,7 +77,7 @@ class Post{
         const less900=window.innerWidth < 900;
         const less400=window.innerWidth < 400;
         this.usersinfo=usersinfo;
-        console.log(this.usersinfo);
+        // console.log(this.usersinfo);//all users showinfo works
         this.posts=posts;
         Header.cleanUpByID(injector,"main-post-container");
         const width=window.innerWidth;
@@ -661,7 +662,7 @@ class Post{
             if(e){
                 detail.disabled=true;
                 const _userinfo:userType|null=userinfo ? userinfo as userType : null;
-                this.postDetail.main({injector:col,post,count:0,poster:_userinfo,isPage:false});
+                this.postDetail.main({injector:col,post,count:0,poster:_userinfo,isPage:false,isUser:false});
             }
         };
         const {button:pageDetail}=Misc.simpleButton({anchor:btnContainer,bg:Nav.btnColor,color:"white",type:"button",time:400,text:"page detail"});

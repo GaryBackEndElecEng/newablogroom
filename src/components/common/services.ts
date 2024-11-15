@@ -1,4 +1,4 @@
-import {flexType,elementType,selectorType,element_selType,codeType,blogType, gets3ImgKey, userType,messageType, imageType, generalInfoType, deletedImgType, img_keyType, adminImageType, credentialType, providerType, pageCountType, delteUserType, sendEmailMsgType, categoryListType, barOptionType, chartType, postType} from "@/components/editor/Types";
+import {flexType,elementType,selectorType,element_selType,codeType,blogType, gets3ImgKey, userType,messageType, imageType, generalInfoType, deletedImgType, img_keyType, adminImageType, credentialType, providerType, pageCountType, delteUserType, sendEmailMsgType, categoryListType, barOptionType, chartType, postType, infoType2} from "@/components/editor/Types";
 import Misc from "../common/misc";
 import ModSelector from "@/components/editor/modSelector";
 import { getErrorMessage } from "@/lib/errorBoundaries";
@@ -51,6 +51,8 @@ class Service {
     postsUrl:string="/api/posts";
     userpostUrl:string="/api/userpost";
     user:userType;
+    uploadfreeimageUrl:string="/api/uploadfreeimage";
+    upload_free_image:string="https://newablogroom-free-bucket.s3.us-east-1.amazonaws.com"
     checkemail:string="/api/checkemail";
     showCustomHeader:boolean;
     showHeader:boolean;
@@ -72,7 +74,9 @@ class Service {
         this.urlGetImg="/api/blog/getimg";
         this.urlMsg="/api/message";
         this.urlAllmsgs="/api/allmsgs"
-        this.urlToken="api/token;"
+        this.urlToken="api/token;";
+        this.uploadfreeimageUrl="/api/uploadfreeimage";
+        this.upload_free_image="https://newablogroom-free-bucket.s3.us-east-1.amazonaws.com"
         this.urlAdminGetMsgs="/api/admin/getmessages";
         this.urlAdminEmail="/api/admin/adminemail";
         this.adminUserUrl="/api/admin/user";
@@ -329,6 +333,28 @@ class Service {
         
         return null;
     }
+    async uploadfreeimage(item:{parent:HTMLElement,formdata:FormData}):Promise<gets3ImgKey|null>{
+        const {parent,formdata}=item;
+        console.log("before sending",formdata.get("file"))
+        if(!formdata) return null;
+        const Key=formdata.get("Key");
+        // if( Key)return null;
+        const option={
+            method:"PUT",
+            body:formdata
+        }
+        return fetch(this.uploadfreeimageUrl,option).then(async(res)=>{
+            //sends only 200 because url/user/filename.png will be image key=userID/
+            if(res){
+                return{
+                    img:`${this.upload_free_image}/${Key as string}`,
+                    Key:Key as string
+                }
+            }else{
+                return null
+            }
+        });
+    }
     //GETS IMAGE AND POPULATES IMAGE URL FROM AWS TO IMAGE.SRC=>RETURNS(IMGURL,KEY})
     async getImg(parent:HTMLElement,image:HTMLImageElement|null,Key:string):Promise<{img:string|null,Key:string|null}>{
         //GET ONLY IMAGE KEY =: HANDLER COUNTS IMAGE RETRIEVAL
@@ -466,7 +492,7 @@ class Service {
     //THIS GETS IMAGE FROM AWS USING ONLY A KEY
     async getSimpleImg(Key:string):Promise<gets3ImgKey|null>{
         //GET IMG HTTP AND COUNTS IMAGE UNDER DELETEDIMG
-        return fetch(`${this.urlGetImg}/?Key=${Key}`).then(async(res)=>{
+        return fetch(`${this.urlGetImg}?Key=${Key}`).then(async(res)=>{
             if(res.ok){
                 const getimg:gets3ImgKey= await res.json();
                 const {Key}=getimg;
@@ -540,6 +566,21 @@ class Service {
             resolve( general)       
     }) as Promise<generalInfoType | undefined>;
    }
+
+   async peronalInfo2(){
+    //THIS PULLS THE PERSONAL INFO FROM newablogroom-free-bucket
+    const option={
+        headers:{"Content-Type":"application/json"},
+        method:"GET"
+    }
+    return fetch(`${this.uploadfreeimageUrl}/info.json`,option).then(async(res_)=>{
+        if(res_){
+            const body= await res_.json() as infoType2
+            return body;
+        }
+    });
+    
+   }
    
    //PARENT _user.REFRESHIMAGES
    
@@ -598,6 +639,25 @@ class Service {
             const rand=uuidv4().split("-")[0];
             const name=blog.name ? blog.name.split(" ").join("").trim() :"noBlog";
             const user_id=blog.user_id ? blog.user_id : "ananomous"
+            const Key=`${user_id}-${name}/${rand}-${file.name}`;
+            const Key_=Key.trim();
+            formdata.set("Key",Key_);
+            return {Key:Key_}
+        }else{
+            return {Key:getKey as string}
+
+        }
+    }
+    generateFreeImgKey(item:{formdata:FormData,user:userType}):{Key:string}|undefined{
+        //THIS GENERATES AN IMAGE KEY=> NEEDS FORMDATA &&  (N/A)=>user
+        const {formdata,user}=item;
+        const getKey=formdata.get("Key");
+        const file=formdata.get("file") as File;
+        if(!file)return;
+        if(!getKey){
+            const rand=uuidv4().split("-")[0];
+            const name=user.name ? user.name.split(" ").join("").trim() :"unknownUser";
+            const user_id=user.id ? user.id : "no_userid"
             const Key=`${user_id}-${name}/${rand}-${file.name}`;
             const Key_=Key.trim();
             formdata.set("Key",Key_);

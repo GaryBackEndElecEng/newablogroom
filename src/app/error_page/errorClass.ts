@@ -1,6 +1,5 @@
 import Misc from "@/components/common/misc";
 import Header from "@/components/editor/header";
-import Meta from "@/components/meta/meta";
 import Nav from "@/components/nav/headerNav";
 
 

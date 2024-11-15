@@ -6,6 +6,7 @@ import { Metadata, ResolvingMetadata } from 'next';
 // import React from 'react';
 import Index from "@/components/postDetail/Index";
 import { redirect } from 'next/navigation';
+import { getServerSession, Session } from 'next-auth';
 
 
 type Props = {
@@ -17,12 +18,15 @@ type Props = {
 export default async function page({ params }: Props) {
     const id = Number(params.id);
     const post = await getPost({ id });
+    const session = await getServerSession();
     if (post) {
-        const user = await getUser({ user_id: post.userId });
+        const poster = await getUser({ user_id: post.userId });
+        const user = await getSignInUser({ session });
+        const _isUser = isUser({ user, poster: poster });
         return (
             <div className="container-fluid mx-auto">
 
-                <Index post={post} user={user} />
+                <Index post={post} user={user} isUser={_isUser} poster={poster} />
             </div>
         )
 
@@ -170,4 +174,41 @@ export async function getUser(item: { user_id: string }): Promise<userType | nul
         await prisma.$disconnect();
         return user;
     }
+};
+export async function getSignInUser(item: { session: Session | null }): Promise<userType | null> {
+    const { session } = item;
+    if (!(session && session.user && session.user.email)) return null;
+    let user: userType | null = null;
+    try {
+        user = await prisma.user.findUnique({
+            where: { email: session.user.email },
+            select: {
+                id: true,
+                name: true,
+                email: true,
+                password: false,
+                image: true,
+                imgKey: true,
+                bio: true,
+                showinfo: true,
+                admin: true,
+                username: true
+            }
+        }) as unknown as userType;
+    } catch (error) {
+        const msg = getErrorMessage(error);
+        console.log(msg)
+    } finally {
+        await prisma.$disconnect();
+        return user;
+    }
+}
+export function isUser(item: { user: userType | null, poster: userType | null }) {
+    const { poster, user } = item;
+    if (!poster || !user) return false;
+    if ((user && user.id) === (poster && poster.id)) {
+        return true;
+    } else {
+        return false;
+    };
 };

@@ -8,17 +8,22 @@
   padding-inline: 1rem;
   padding-block: 1.5rem;
   width: 50%;
+  min-height: 70vh;
   position: relative;
 }
 @media screen and (max-width: 900) {
   .postdetail {
     width: 70%;
     padding-inline: 2rem;
+    min-height: 80vh;
   }
 }
 @media screen and (max-width: 900) {
   .postdetail {
     width: 100%;
-    padding-inline: 1rem;
+    padding-inline: 0rem;
+    margin-top: 0rem;
+    padding-top: 0.25rem;
+    min-height: 100vh;
   }
 }

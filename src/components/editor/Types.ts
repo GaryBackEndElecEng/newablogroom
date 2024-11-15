@@ -537,3 +537,15 @@ export type sitemapType={
         languages?: Languages<string>;
     };
 }
+export type infoType2={
+    id:number,
+    name:string,
+    address:string,
+    cell:string,
+    country:string,
+    provState:string,
+    city:string,
+    postal:string,
+    extra:string,
+    siteArray:{name:string,url:string}[]
+}

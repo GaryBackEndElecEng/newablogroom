@@ -44,7 +44,7 @@ const nextConfig = {
           {
             key: "Access-Control-Allow-Origin",
             value:
-              "newmasterconnect.herokuapp.com,www.masterconnect.ca,ww.master-connect.ca,compute-1.amazonaws.com,master-sale.herokuapp.com, www.masterconnect.ca,www.masterultils.com,masterultils-postimages.s3.us-east-1.amazonaws.com,localhost:3000,www.masterultils.com,main.d2qer3lk2obzqm.amplifyapp.com",
+              "newmasterconnect.herokuapp.com,www.masterconnect.ca,ww.master-connect.ca,compute-1.amazonaws.com,master-sale.herokuapp.com, www.masterconnect.ca,www.masterultils.com,masterultils-postimages.s3.us-east-1.amazonaws.com,localhost:3000,www.masterultils.com,main.d2qer3lk2obzqm.amplifyapp.com,newablogroom-free-bucket.s3.us-east-1.amazonaws.com",
           },
         ],
         source: "/:path*",
@@ -75,6 +75,12 @@ const nextConfig = {
         hostname: "new-master.s3.ca-central-1.amazonaws.com",
         port: "",
         // pathname: '/account123/**',
+      },
+      {
+        protocol: "https",
+        hostname: "newablogroom-free-bucket.s3.us-east-1.amazonaws.com",
+        port: "",
+        pathname: "/**",
       },
 
       {
@@ -133,6 +139,7 @@ const nextConfig = {
       "new-master.s3.ca-central-1.amazonaws.com",
       "newmasterconnect.herokuapp.com",
       "main.d2qer3lk2obzqm.amplifyapp.com",
+      "newablogroom-free-bucket.s3.us-east-1.amazonaws.com",
     ],
   },
   env: {
@@ -151,6 +158,10 @@ const nextConfig = {
     EMAIL_PASS: process.env.EMAIL_PASS,
     GOOGLE_client_ID: process.env.GOOGLE_client_ID,
     GOOGLE_client_secret: process.env.GOOGLE_client_secret,
+    SDK_ACCESS_KEY_FREE_BUCKET: process.env.SDK_ACCESS_KEY_FREE_BUCKET,
+    SDK_ACCESS_KEY_SECRET_FREE_BUCKET:
+      process.env.SDK_ACCESS_KEY_SECRET_FREE_BUCKET,
+    FREE_BUCKET_NAME: process.env.FREE_BUCKET_NAME,
   },
 };
 
