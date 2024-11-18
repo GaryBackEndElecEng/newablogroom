@@ -61,7 +61,7 @@ const nextConfig = {
           {
             key: "Access-Control-Allow-Origin",
             value:
-              "newmasterconnect.herokuapp.com,www.masterconnect.ca,ww.master-connect.ca,compute-1.amazonaws.com,master-sale.herokuapp.com, www.masterconnect.ca,www.masterultils.com,masterultils-postimages.s3.us-east-1.amazonaws.com,localhost:3000,main.d2qer3lk2obzqm.amplifyapp.com,newmasterconnect.herokuapp.com,new-master.s3.ca-central-1.amazonaws.com",
+              "newmasterconnect.herokuapp.com,www.masterconnect.ca,ww.master-connect.ca,compute-1.amazonaws.com,master-sale.herokuapp.com, www.masterconnect.ca,www.masterultils.com,masterultils-postimages.s3.us-east-1.amazonaws.com,localhost:3000,main.d2qer3lk2obzqm.amplifyapp.com,newmasterconnect.herokuapp.com,new-master.s3.ca-central-1.amazonaws.com,newablogroom-free-bucket.s3.us-east-1.amazonaws.com",
           },
         ],
       },

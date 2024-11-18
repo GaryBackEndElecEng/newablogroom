@@ -67,13 +67,16 @@ class PostDetail{
     }
     
 
-   async main(item:{injector:HTMLElement,post:postType,count:number,poster:userType |null,isPage:boolean,isUser:boolean}):Promise<number>{
-        const {injector,post,poster,count,isPage,isUser}=item;
+   async main(item:{injector:HTMLElement,post:postType,count:number,poster:userType |null,isPage:boolean,isUser:boolean,user:userType|null}):Promise<number>{
+        const {injector,post,poster,count,isPage,isUser,user}=item;
         const less1550=window.innerWidth < 1550;
         const less900=window.innerWidth < 900;
         const less400=window.innerWidth < 400;
         if(poster){
-            this.poster=isUser && poster ? this.user : poster;
+            this.poster=poster;
+        }
+        if(user){
+            this.user=user;
         }
         this.injector=injector as HTMLElement;
         Header.cleanUpByID(injector,`postdetail-main-container`);
@@ -182,16 +185,16 @@ class PostDetail{
                     window.history.go(-1);
                 }
             };
-            console.log(isUser,poster)
-            if(isUser && poster){
+          
+            if(isUser && user){
 
                 const {button:btnEdit}=Misc.simpleButton({anchor:btnContainer,text:"edit",type:"button",bg:Nav.btnColor,color:"white",time:400});
                 btnEdit.onclick=(e:MouseEvent)=>{
                     if(e){
-                        this.editPost({parent:card,targetImg:img,post,user:poster});
+                        this.editPost({parent:card,targetImg:img,post,user:user});
                     }
                 };
-                this.removePost({parent:injector,target:container,post,user:poster})
+                this.removePost({parent:injector,target:container,post,user:user})
             }
         }
         
@@ -371,9 +374,8 @@ class PostDetail{
                                 },390);
 
                             }
-                            console.log(res)
                             this.injector=this.injector as HTMLElement;
-                            this.main({injector:this.injector,post:this.post,count:0,poster:this.poster,isPage:true,isUser:true});
+                            this.main({injector:this.injector,post:this.post,count:0,poster:this.poster,isPage:true,isUser:true,user});
                         }
                     });
 
@@ -497,7 +499,7 @@ class PostDetail{
                         targetImg.alt="www.ablogroom.com";
                         targetImg.hidden=true;
                         this.injector=this.injector as HTMLElement;
-                        this.main({injector:parent,post:this.post,count:0,poster:this.poster,isPage:true,isUser:true});
+                        this.main({injector:parent,post:this.post,count:0,poster:this.poster,isPage:true,isUser:true,user});
                         Misc.growOut({anchor:editPopup,scale:0,opacity:0,time:400});
                         setTimeout(()=>{
                             parent.removeChild(editPopup);
@@ -511,8 +513,10 @@ class PostDetail{
     freePic(item:{parent:HTMLElement,popup:HTMLElement,targetImg:HTMLImageElement,post:postType,user:userType}){
         const {parent,popup,post,targetImg,user}=item;
         //ADD BTNURL
+        // this.addImageClass.getImages({parent})//NEED TO BUILD AN ACCESSPOINT
         this.addImageClass.asyncPicImage({parent:popup}).then(async(res)=>{
             if(res){
+            
                 res.arr.map((btnUrl,index)=>{
                     if(btnUrl){
                         const getBtnEle=parent.querySelector(`button#${btnUrl.btn.id}`) as HTMLButtonElement;
@@ -531,7 +535,7 @@ class PostDetail{
                                         if(!getPopup) return;
                                         this.injector=this.injector as HTMLElement;
 
-                                        this.main({injector:this.injector,post:this.post,count:0,poster:this.poster,isPage:true,isUser:true});
+                                        this.main({injector:this.injector,post:this.post,count:0,poster:this.poster,isPage:true,isUser:true,user});
                                         Misc.growOut({anchor:getPopup,scale:0,opacity:0,time:400});
                                         setTimeout(()=>{
                                             parent.removeChild(getPopup);
@@ -592,7 +596,7 @@ class PostDetail{
                                         const getPopup=parent.querySelector(`div#${popup.id}`) as HTMLElement;
                                         if(!getPopup) return;
                                         this.injector=this.injector as HTMLElement;
-                                        this.main({injector:parent,post:this.post,count:0,poster:this.poster,isPage:true,isUser:true});
+                                        this.main({injector:parent,post:this.post,count:0,poster:this.poster,isPage:true,isUser:true,user});
                                         Misc.growOut({anchor:getPopup,scale:0,opacity:0,time:400});
                                         setTimeout(()=>{
                                             parent.removeChild(getPopup);

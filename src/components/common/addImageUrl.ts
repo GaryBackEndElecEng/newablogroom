@@ -11,70 +11,73 @@ import { AWSImageLoader } from "./tsFunctions";
 
 class AddImageUrl {
     mainContainer:HTMLElement;
+    freepicurl:string="https://newablogroom-free-bucket.s3.us-east-1.amazonaws.com";
     imageUrls:{name:string,url:string}[];
     imgEles:{level:"element"|"col"|"row",img:HTMLImageElement|HTMLElement}[];
     constructor(private _modSelector:ModSelector,private _service:Service){
+        this.freepicurl="https://newablogroom-free-bucket.s3.us-east-1.amazonaws.com";
         this.imageUrls=[
-            {name:"all you need",url:"https://new-master.s3.ca-central-1.amazonaws.com/static/video/pics/allYouNeed.png"},
-            {name:"blackhole",url:"https://new-master.s3.ca-central-1.amazonaws.com/static/video/pics/blackhole.png"},
-            {name:"children",url:"https://new-master.s3.ca-central-1.amazonaws.com/static/video/pics/children.png"},
-            {name:"coffeeTime",url:"https://new-master.s3.ca-central-1.amazonaws.com/static/video/pics/coffeeTime.png"},
-            {name:"dynamicArt",url:"https://new-master.s3.ca-central-1.amazonaws.com/static/video/pics/dynamic_art.png"},
-            {name:"einstein",url:"https://new-master.s3.ca-central-1.amazonaws.com/static/video/pics/einsteing.png"},
-            {name:"goldenRatio",url:"https://new-master.s3.ca-central-1.amazonaws.com/static/video/pics/goldenRatio.png"},
-            {name:"goldenRule",url:"https://new-master.s3.ca-central-1.amazonaws.com/static/video/pics/goldenRule.png"},
-            {name:"welcome",url:"https://new-master.s3.ca-central-1.amazonaws.com/static/video/pics/main.png"},
-            {name:"precious",url:"https://new-master.s3.ca-central-1.amazonaws.com/static/video/pics/precious.png"},
-            {name:"relax",url:"https://new-master.s3.ca-central-1.amazonaws.com/static/video/pics/relaxing.png"},
-            {name:"seasons",url:"https://new-master.s3.ca-central-1.amazonaws.com/static/video/pics/seasons.png"},
-            {name:"work",url:"https://new-master.s3.ca-central-1.amazonaws.com/static/video/pics/vacationWork.png"},
-            {name:"align",url:"https://new-master.s3.ca-central-1.amazonaws.com/static/alignment.png"},
-            {name:"align",url:"https://new-master.s3.ca-central-1.amazonaws.com/static/alignment.png"},
-            {name:"articles",url:"https://new-master.s3.ca-central-1.amazonaws.com/static/article.png"},
-            {name:"bank",url:"https://new-master.s3.ca-central-1.amazonaws.com/static/bank.png"},
-            {name:"beauty",url:"https://new-master.s3.ca-central-1.amazonaws.com/static/beautyGirl.png"},
-            {name:"beauty",url:"https://new-master.s3.ca-central-1.amazonaws.com/static/beautyGirl.png"},
-            {name:"blackDesign",url:"https://new-master.s3.ca-central-1.amazonaws.com/static/blackDesign.png"},
-            {name:"book",url:"https://new-master.s3.ca-central-1.amazonaws.com/static/book.png"},
-            {name:"businessman",url:"https://new-master.s3.ca-central-1.amazonaws.com/static/businessMan.png"},
-            {name:"relaxing",url:"https://new-master.s3.ca-central-1.amazonaws.com/static/checkout2.png"},
-            {name:"relaxing",url:"https://new-master.s3.ca-central-1.amazonaws.com/static/checkout2.png"},
-            {name:"beach stroll",url:"https://new-master.s3.ca-central-1.amazonaws.com/static/checkout1b.png"},
-            {name:"cheetah",url:"https://new-master.s3.ca-central-1.amazonaws.com/static/cheetaFramed.png"},
-            {name:"cheetah",url:"https://new-master.s3.ca-central-1.amazonaws.com/static/cheetaFramed.png"},
-            {name:"graphic",url:"https://new-master.s3.ca-central-1.amazonaws.com/static/consult1.png"},
-            {name:"graphic",url:"https://new-master.s3.ca-central-1.amazonaws.com/static/consult1.png"},
-            {name:"graphic2",url:"https://new-master.s3.ca-central-1.amazonaws.com/static/consult3.png"},
-            {name:"graphic3",url:"https://new-master.s3.ca-central-1.amazonaws.com/static/consult3.png"},
-            {name:"graphic4",url:"https://new-master.s3.ca-central-1.amazonaws.com/static/contactWallpaper.png"},
-            {name:"corporate portal",url:"https://new-master.s3.ca-central-1.amazonaws.com/static/corporatePortal.png"},
-            {name:"corporate portal",url:"https://new-master.s3.ca-central-1.amazonaws.com/static/corporatePortal.png"},
-            {name:"beach relaxing",url:"https://new-master.s3.ca-central-1.amazonaws.com/static/coupleOnBeach.png"},
-            {name:"contact us",url:"https://new-master.s3.ca-central-1.amazonaws.com/static/customPage.png"},
-            {name:"contact us",url:"https://new-master.s3.ca-central-1.amazonaws.com/static/customPage.png"},
-            {name:"design graphic",url:"https://new-master.s3.ca-central-1.amazonaws.com/static/design.png"},
-            {name:"design graphic",url:"https://new-master.s3.ca-central-1.amazonaws.com/static/design.png"},
-            {name:"art",url:"https://new-master.s3.ca-central-1.amazonaws.com/static/designMain.png"},
-            {name:"earth",url:"https://new-master.s3.ca-central-1.amazonaws.com/static/earth.png"},
-            {name:"earth moon",url:"https://new-master.s3.ca-central-1.amazonaws.com/static/earthMoon.png"},
-            {name:"laugh",url:"https://new-master.s3.ca-central-1.amazonaws.com/static/girlLaugh.png"},
-            {name:"mountain",url:"https://new-master.s3.ca-central-1.amazonaws.com/static/GreatMountain.png"},
-            {name:"hand-shake",url:"https://new-master.s3.ca-central-1.amazonaws.com/static/handShaking.png"},
-            {name:"jupitor",url:"https://new-master.s3.ca-central-1.amazonaws.com/static/jupiter.png"},
-            {name:"faqs",url:"https://new-master.s3.ca-central-1.amazonaws.com/static/FAQS.png"},
-            {name:"landscape",url:"https://new-master.s3.ca-central-1.amazonaws.com/static/landscape.png"},
-            {name:"lepard",url:"https://new-master.s3.ca-central-1.amazonaws.com/static/lepard.png"},
-            {name:"lepard",url:"https://new-master.s3.ca-central-1.amazonaws.com/static/lepard.png"},
-            {name:"lions",url:"https://new-master.s3.ca-central-1.amazonaws.com/static/lion.png"},
-            {name:"lions",url:"https://new-master.s3.ca-central-1.amazonaws.com/static/lion.png"},
-            {name:"lions2",url:"https://new-master.s3.ca-central-1.amazonaws.com/static/lions.png"},
-            {name:"baby monkey",url:"https://new-master.s3.ca-central-1.amazonaws.com/static/monkey2.png"},
-            {name:"baby monkey",url:"https://new-master.s3.ca-central-1.amazonaws.com/static/monkey2.png"},
-            {name:"store front",url:"https://new-master.s3.ca-central-1.amazonaws.com/static/storeFront.png"},
-            {name:"zebra",url:"https://new-master.s3.ca-central-1.amazonaws.com/static/zebra/zebra1.png"},
-            {name:"zebra2",url:"https://new-master.s3.ca-central-1.amazonaws.com/static/zebra/zebra3.png"},
-            {name:"meeting",url:"https://new-master.s3.ca-central-1.amazonaws.com/static/work.png"},
-            {name:"turtle",url:"https://new-master.s3.ca-central-1.amazonaws.com/static/water/turtle.png"},
+            {name:"all you need",url:this.freepicurl + "/allYouNeed.png"},
+            {name:"blackhole",url:this.freepicurl + "/blackhole.png"},
+            {name:"children",url:this.freepicurl + "/children.png"},
+            {name:"coffeeTime",url:this.freepicurl + "/coffeeTime.png"},
+            {name:"dynamicArt",url:this.freepicurl + "/dynamic_art.png"},
+            {name:"einstein",url:this.freepicurl + "/einstein.png"},
+            {name:"goldenRatio",url:this.freepicurl + "/goldenRatio.png"},
+            {name:"lion-eye",url:this.freepicurl + "/main.png"},
+            {name:"precious",url:this.freepicurl + "/precious.png"},
+            {name:"relax",url:this.freepicurl + "/relaxing.png"},
+            {name:"seasons",url:this.freepicurl + "/seasons.png"},
+            {name:"work",url:this.freepicurl + "/vacationWork.png"},
+            {name:"align",url:this.freepicurl + "/alignment.png"},
+            {name:"articles",url:this.freepicurl + "/article.png"},
+            {name:"bank",url:this.freepicurl + "/bank.png"},
+            {name:"beauty",url:this.freepicurl + "/beautyGirl.png"},
+            {name:"blackDesign",url:this.freepicurl + "/blackDesign.png"},
+            {name:"book",url:this.freepicurl + "/book.png"},
+            {name:"businessman",url:this.freepicurl + "/businessMan.png"},
+            {name:"beach stroll",url:this.freepicurl + "/checkout1b.png"},
+            {name:"cheetah",url:this.freepicurl + "/cheetaFramed.png"},
+            {name:"cheetah",url:this.freepicurl + "/cheetaFramed.png"},
+            {name:"graphic",url:this.freepicurl + "/consult1.png"},
+            {name:"graphic",url:this.freepicurl + "/consult1.png"},
+            {name:"graphic-reading",url:this.freepicurl +"/consult3.png"},
+            {name:"computer graphic",url:this.freepicurl +"/contactWallpaper.png"},
+            {name:"beach relaxing",url:this.freepicurl +"/coupleOnBeach.png"},
+            {name:"contact us",url:this.freepicurl +"/customPage.png"},
+            {name:"relaxing",url:this.freepicurl +"/design.png"},
+            {name:"art",url:this.freepicurl +"/designMain.png"},
+            {name:"earth moon",url:this.freepicurl +"/earthMoon.png"},
+            {name:"laugh",url:this.freepicurl +"/girlLaugh.png"},
+            // {name:"mountain",url:this.freepicurl +"/GreatMountain.png"},
+            // {name:"hand-shake",url:this.freepicurl +"/handShaking.png"},
+            {name:"jupitor",url:this.freepicurl +"/jupiter.png"},
+            // {name:"faqs",url:this.freepicurl +"/FAQS.png"},
+            {name:"landscape",url:this.freepicurl +"/landscape.png"},
+            {name:"lepard",url:this.freepicurl +"/lepard.png"},
+            {name:"lepard",url:this.freepicurl +"/lepard.png"},
+            {name:"lions",url:this.freepicurl +"/lion.png"},
+            {name:"lions2",url:this.freepicurl +"/lions.png"},
+            {name:"baby monkey",url:this.freepicurl +"/monkey2.png"},
+            {name:"architect",url:this.freepicurl +"/architect.png"},
+            {name:"article",url:this.freepicurl +"/article.png"},
+            {name:"bango",url:this.freepicurl +"/bango1.png"},
+            {name:"bango2",url:this.freepicurl +"/bango2.png"},
+            {name:"cheetah",url:this.freepicurl +"/cheetah.png"},
+            {name:"wolf",url:this.freepicurl +"/wolf.png"},
+            {name:"wolf 2",url:this.freepicurl +"/wolf2.png"},
+            {name:"wolf 3",url:this.freepicurl +"/wolf3.png"},
+            {name:"wolf 3",url:this.freepicurl +"/wolf3.png"},
+            {name:"cartoon 1",url:this.freepicurl +"/img1.png"},
+            {name:"cartoon 2",url:this.freepicurl +"/img10.png"},
+            {name:"cartoon 3",url:this.freepicurl +"/img2.png"},
+            {name:"cartoon 4",url:this.freepicurl +"/img3.png"},
+            {name:"cartoon 5",url:this.freepicurl +"/img4.png"},
+            {name:"cartoon 6",url:this.freepicurl +"/img5.png"},
+            {name:"cartoon 7",url:this.freepicurl +"/img6.png"},
+            {name:"cartoon 8",url:this.freepicurl +"/img7.png"},
+            {name:"cartoon 9",url:this.freepicurl +"/img8.png"},
+            {name:"cartoon 10",url:this.freepicurl +"/img9.png"},
 
         ]
         this.mainContainer=document.querySelector("section#main") as HTMLElement;
@@ -190,6 +193,18 @@ class AddImageUrl {
             };
         }
     };
+    async getImages(item:{parent:HTMLElement}){
+        const {parent}=item;
+        const option={
+            headers:{"Content-Type":"application/json"},
+            method:"GET"
+        }
+        return fetch(this.freepicurl,option).then(async(res)=>{
+            if(res){
+                console.log(res)
+            }
+        });
+    }
     requestOption(item:{parent:HTMLElement,targetImg:{img:HTMLImageElement | HTMLElement,level:"element"|"col"|"row"}}){
         const {parent,targetImg}=item;
         const popup=document.createElement("div");
@@ -227,9 +242,16 @@ class AddImageUrl {
     };
     insertImageUrl(item:{parent:HTMLElement,targetImg:{img:HTMLImageElement | HTMLElement,level:"element"|"col"|"row"}}){
         const {parent,targetImg}=item;
+        const less900= window.innerWidth <900;
+        const less400= window.innerWidth <400;
         const popup=document.createElement("div");
         popup.className="insertUrl-popup";
-        popup.style.cssText="position:absolute;max-width:800px;width:100%;min-height:5vh;height:auto;border-radius:12px;box-shadow:1px 1px 12px 1px black;display:flex;flex-direction:column;padding:1rem;gap:1.5rem;";
+        popup.style.cssText="position:absolute;max-width:800px;width:100%;min-height:5vh;border-radius:12px;box-shadow:1px 1px 12px 1px black;display:flex;flex-direction:column;padding:1rem;gap:1.5rem;";
+        popup.style.overflowY="scroll";
+        popup.style.height=less900 ? (less400 ? "120vh" :"100vh") : "80vh";
+        popup.style.top=less900 ? (less400 ? "25%" :"20%") : "0%";
+        popup.style.left="0%";
+        popup.style.right="0%";
         const title=document.createElement("h6");
         title.textContent="insert URL image";
         title.className="text-center text-primary my-2";
@@ -253,8 +275,6 @@ class AddImageUrl {
         popup.appendChild(form);
         this.removePopup({parent,target:popup});
         parent.appendChild(popup);
-        Misc.matchMedia({parent:popup,maxWidth:900,cssStyle:{top:"20%",left:"0%",right:"0%"}});
-        Misc.matchMedia({parent:popup,maxWidth:400,cssStyle:{top:"25%"}});
         form.onsubmit=async(e:SubmitEvent)=>{
             if(e){
                 e.preventDefault();
@@ -392,10 +412,17 @@ class AddImageUrl {
     }
     asyncPicImage(item:{parent:HTMLElement}):Promise<{arr:{btn:HTMLButtonElement,imageUrl:string}[],popup:HTMLElement,reParent:HTMLElement}>{
         const {parent}=item;
+        const less900=window.innerWidth < 900;
+        const less400=window.innerWidth < 400;
         const arr:{btn:HTMLButtonElement,imageUrl:string}[]=[];
         const popup=document.createElement("div");
         popup.id="addImageUrl-asyncPicImag-popup";
-        popup.style.cssText="position:absolute;max-width:800px;width:100%;min-height:5vh;height:auto;border-radius:12px;box-shadow:1px 1px 12px 1px black;display:flex;flex-direction:column;padding:1rem;gap:1.5rem;background-color:black;color:white;left:20%;right:20%";
+        popup.style.cssText="position:absolute;max-width:800px;width:100%;min-height:5vh;border-radius:12px;box-shadow:1px 1px 12px 1px black;display:flex;flex-direction:column;padding:1rem;gap:1.5rem;background-color:black;color:white;";
+        popup.style.top="0%";
+        popup.style.left=less900 ? (less400 ? "0%":"0%"):"0%";
+        popup.style.right=less900 ? (less400 ? "0%":"0%"):"0%";
+        popup.style.height=less900 ? (less400 ? "110vh":"100vh"):"80vh";
+        popup.style.overflowY="scroll";
         const title=document.createElement("h6");
         title.textContent="insert Image";
         title.className="text-center text-primary my-2";
