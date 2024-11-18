@@ -297,7 +297,7 @@ class Service {
     };
     
     //RETURNS PROMISE<{KEY,IMG}>
-    async simpleImgUpload(parent:HTMLElement,formData:FormData):Promise<gets3ImgKey|null>{
+    async simpleImgUpload(parent:HTMLElement,formData:FormData):Promise<void | gets3ImgKey|null>{
         //UPLOADS FILE AND THEN GETS IMAGE WITH IMAGEKEY
         // // headers:{"Content-Type":"multipart/form-data"},=>causes issue,
         const file=formData.get("file") as string;
@@ -313,13 +313,24 @@ class Service {
                 if(res.ok){
                     const formdata_key=formData.get("Key") as string;
                     //store key//
-                    const store:deletedImgType={id:undefined,imgKey:formdata_key,del:false,date:new Date()}
-                    await this.storeKey(store)
-                    //store key//
-                    //GETTING IMAGE URL////////
-                    const data:gets3ImgKey|null =await this.getSimpleImg(formdata_key);
-                    if(data && data.Key){
-                        return data as gets3ImgKey|null;
+                    if(formdata_key){
+                        const store:deletedImgType={id:undefined,imgKey:formdata_key,del:false,date:new Date()}
+                       return await this.storeKey(store).then(async(res_)=>{
+                            if(res_){
+                                let _res_:gets3ImgKey|null=null;
+                                setTimeout(async()=>{
+
+                                    //store key//
+                                    //GETTING IMAGE URL////////
+                                    const data:gets3ImgKey|null =await this.getSimpleImg(formdata_key);
+                                    if(data && data.Key){
+                                       _res_= data as gets3ImgKey|null;
+                                    }
+                                    return _res_
+                                },0);
+                            }
+                        })
+
                     }
                     //GETTING IMAGE URL-STORED IMGURL IN IMAGE.SRC////////
                     

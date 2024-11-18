@@ -662,7 +662,7 @@ class Post{
             if(e){
                 detail.disabled=true;
                 const _userinfo:userType|null=userinfo ? userinfo as userType : null;
-                this.postDetail.main({injector:col,post,count:0,poster:_userinfo,isPage:false,isUser:false});
+                this.postDetail.main({injector:col,post,count:0,poster:_userinfo,isPage:false,isUser:false,user});
             }
         };
         const {button:pageDetail}=Misc.simpleButton({anchor:btnContainer,bg:Nav.btnColor,color:"white",type:"button",time:400,text:"page detail"});
