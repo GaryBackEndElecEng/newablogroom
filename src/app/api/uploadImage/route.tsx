@@ -1,10 +1,9 @@
 
 import { getErrorMessage } from "@/lib/errorBoundaries";
 import { S3Client, PutObjectCommand } from "@aws-sdk/client-s3";
-import "@aws-sdk/signature-v4-crt"
 import { NextRequest, NextResponse } from "next/server";
 
-// export const config = { runtime: 'experimental-edge' }
+export const runtme = 'experimental-edge';
 
 const Bucket = process.env.BUCKET_NAME as string
 const region = process.env.BUCKET_REGION as string

@@ -6,7 +6,6 @@ const nextConfig = {
   reactStrictMode: true,
   pageExtensions: ["js", "jsx", "mdx", "tsx", "ts", "md"],
   experimental: {
-    // serverActions: true,
     serverComponentsExternalPackages: ["@prisma/client", "bcryptjs"],
   },
   typescript: {

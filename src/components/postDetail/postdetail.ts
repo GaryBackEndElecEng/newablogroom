@@ -603,10 +603,10 @@ class PostDetail{
                             showImage.alt=res.Key;
                             Misc.blurIn({anchor:targetImg,blur:"20px",time:600});
                             Misc.blurIn({anchor:showImage,blur:"20px",time:600});
-                            Misc.growOut({anchor:formPopup,scale:0,opacity:0,time:400});
+                            Misc.growOut({anchor:formPopup,scale:0,opacity:0,time:1400});
                             setTimeout(()=>{
                                 editPopup.removeChild(formPopup);
-                            },390);
+                            },1390);
                         }
                     });
 
