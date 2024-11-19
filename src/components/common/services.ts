@@ -1,4 +1,4 @@
-import {flexType,elementType,selectorType,element_selType,codeType,blogType, gets3ImgKey, userType,messageType, imageType, generalInfoType, deletedImgType, img_keyType, adminImageType, credentialType, providerType, pageCountType, delteUserType, sendEmailMsgType, categoryListType, barOptionType, chartType, postType, infoType2} from "@/components/editor/Types";
+import {flexType,elementType,selectorType,element_selType,codeType,blogType, gets3ImgKey, userType,messageType, imageType, generalInfoType, deletedImgType, img_keyType, adminImageType, credentialType, providerType, pageCountType, delteUserType, sendEmailMsgType, categoryListType, barOptionType, chartType, postType, infoType2, bucketType} from "@/components/editor/Types";
 import Misc from "../common/misc";
 import ModSelector from "@/components/editor/modSelector";
 import { getErrorMessage } from "@/lib/errorBoundaries";
@@ -52,14 +52,16 @@ class Service {
     userpostUrl:string="/api/userpost";
     user:userType;
     uploadfreeimageUrl:string="/api/uploadfreeimage";
-    upload_free_image:string="https://newablogroom-free-bucket.s3.us-east-1.amazonaws.com"
+    freeurl:string="https://newablogroom-free-bucket.s3.us-east-1.amazonaws.com";
     checkemail:string="/api/checkemail";
     showCustomHeader:boolean;
     showHeader:boolean;
+    bucket:bucketType; //"masterultils-postimages" | "newablogroom-free-bucket";
     element:elementType | element_selType | undefined;
     isSignedOut:boolean;
     // getInitBlog:blogType;
     constructor(private _modSelector:ModSelector){
+        this.bucket="masterultils-postimages";
         this.usersignin="/api/usersignin";
         this.awsimgUrl="/api/awsimg";
         this.liveonoffUrl="/api/liveonoff";
@@ -76,7 +78,7 @@ class Service {
         this.urlAllmsgs="/api/allmsgs"
         this.urlToken="api/token;";
         this.uploadfreeimageUrl="/api/uploadfreeimage";
-        this.upload_free_image="https://newablogroom-free-bucket.s3.us-east-1.amazonaws.com"
+        this.freeurl="https://newablogroom-free-bucket.s3.us-east-1.amazonaws.com";
         this.urlAdminGetMsgs="/api/admin/getmessages";
         this.urlAdminEmail="/api/admin/adminemail";
         this.adminUserUrl="/api/admin/user";
@@ -106,6 +108,38 @@ class Service {
         this.isSignedOut=true;
     }
 ///GETTERS SETTERS///////////////////
+async apiUploadSaveFree(item:{parent:HTMLElement,Key:string,formdata:FormData}):Promise<gets3ImgKey | null|void
+>{
+    const {parent,Key,formdata}=item;
+    if(!(formdata && Key)){
+        Misc.message({parent,msg:"missing params check input",type_:"error",time:800});
+       return null
+    }else{
+        formdata.set("Key",Key)
+        const option={
+            method:"PUT",
+            body:formdata
+        }
+        return fetch(this.uploadfreeimageUrl,option).then(async(res)=>{
+            // /api/uploadfreeimage
+            if(res){
+                if(res){
+                    return{
+                        img:`${this.freeurl}/${Key as string}`,
+                        Key:Key as string
+                    }
+                }else{
+                    return null
+                }
+            }else{
+                Misc.message({parent,msg:"did not upload",type_:"error",time:800});
+                return null
+            }
+        });
+
+    };
+}
+
  async getUsersignin(item:{user:userType}):Promise<userType|undefined>{
     const {user}=item;
     if(user.email){
@@ -346,7 +380,7 @@ class Service {
     }
     async uploadfreeimage(item:{parent:HTMLElement,formdata:FormData}):Promise<gets3ImgKey|null>{
         const {parent,formdata}=item;
-        console.log("before sending",formdata.get("file"))
+        // console.log("before sending",formdata.get("file"))
         if(!formdata) return null;
         const Key=formdata.get("Key");
         // if( Key)return null;
@@ -358,7 +392,7 @@ class Service {
             //sends only 200 because url/user/filename.png will be image key=userID/
             if(res){
                 return{
-                    img:`${this.upload_free_image}/${Key as string}`,
+                    img:`${this.freeurl}/${Key as string}`,
                     Key:Key as string
                 }
             }else{
@@ -669,7 +703,7 @@ class Service {
             const rand=uuidv4().split("-")[0];
             const name=user.name ? user.name.split(" ").join("").trim() :"unknownUser";
             const user_id=user.id ? user.id : "no_userid"
-            const Key=`${user_id}-${name}/${rand}-${file.name}`;
+            const Key=`${user_id}-${name}-${file.name}`;
             const Key_=Key.trim();
             formdata.set("Key",Key_);
             return {Key:Key_}

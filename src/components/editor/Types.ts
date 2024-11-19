@@ -549,3 +549,4 @@ export type infoType2={
     extra:string,
     siteArray:{name:string,url:string}[]
 }
+export type bucketType ="masterultils-postimages" | "newablogroom-free-bucket"

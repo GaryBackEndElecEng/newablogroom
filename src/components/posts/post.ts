@@ -93,7 +93,7 @@ class Post{
             create_post.style.marginBottom="1rem;"
             create_post.onclick=(e:MouseEvent) =>{
                 if(e){
-                    this.createPost({parent:injector,user:this.user});
+                    this.createPost({injector:injector,user:this.user});
                 }
             };
         }
@@ -221,13 +221,13 @@ class Post{
             resolve({container,subDiv,row,posts,user})
         }) as Promise<{container:HTMLElement,subDiv:HTMLElement,row:HTMLElement,posts:postType[],user:userType}>;
     };
-    createPost(item:{parent:HTMLElement,user:userType}){
-        const {parent,user}=item;
+    createPost(item:{injector:HTMLElement,user:userType}){
+        const {injector,user}=item;
         const less900= window.innerWidth < 900;
         const less400= window.innerWidth < 400;
-        parent.style.position="relative";
+        injector.style.position="relative";
         const css_col="margin-inline:auto;display:flex;flex-direction:column;justify-content:center;align-items:center;gap:0.7rem;";
-        Header.cleanUpByID(parent,`createPost-popup`);
+        Header.cleanUpByID(injector,`createPost-popup`);
         const popup=document.createElement("div");
         popup.id=`createPost-popup`;
         popup.style.cssText=css_col + "position:absolute;min-height:400px;gap:1rem;box-shadow:1px 1px 12px 1px blue;border-radius:12px;backdrop-filter:blur(20px);border:none;";
@@ -283,7 +283,7 @@ class Post{
         };
         if(user && user.id && user.email){
             popup.appendChild(form);
-            parent.appendChild(popup);
+            injector.appendChild(popup);
             Misc.fadeIn({anchor:popup,xpos:100,ypos:100,time:500});
         }
         //-------DELETE----------//
@@ -296,7 +296,7 @@ class Post{
             if(e){
                 Misc.growOut({anchor:popup,scale:0,opacity:0,time:400});
                 setTimeout(()=>{
-                    parent.removeChild(popup);
+                    injector.removeChild(popup);
                 },390);
             }
         };
@@ -305,6 +305,7 @@ class Post{
             if(e){
                 e.preventDefault();
                 submit.disabled=true;
+                submit.hidden=true;
                 const formdata=new FormData(e.currentTarget as HTMLFormElement);
                 const content=formdata.get("content") as string;
                 const title=formdata.get("title") as string;
@@ -312,8 +313,8 @@ class Post{
                 const link=formdata.get("link") as string;
                 if(content && title){
                     const post:postType={...this.initPost,userId:user.id,title:title as string,content:content as string,published:Boolean(pub),link}
-                    this.uploadFreeNone({parent,popup:popup,post,user});
-                    const labelDisplay2=parent.querySelector("div#labelDisplay2") as HTMLElement;
+                    this.uploadFreeNone({injector,popup:popup,post,user});
+                    const labelDisplay2=injector.querySelector("div#labelDisplay2") as HTMLElement;
                     if(labelDisplay2){
                         labelDisplay2.hidden=false;
                     }
@@ -321,8 +322,8 @@ class Post{
             }
         };
     }
-    uploadFreeNone(item:{parent:HTMLElement,popup:HTMLElement,post:postType,user:userType}){
-        const {parent,popup,post,user}=item;
+    uploadFreeNone(item:{injector:HTMLElement,popup:HTMLElement,post:postType,user:userType}){
+        const {injector,popup,post,user}=item;
         const less900= window.innerWidth < 900;
         const less400= window.innerWidth < 400;
         const btnContainer=document.createElement("div");
@@ -335,7 +336,7 @@ class Post{
         popup.appendChild(btnContainer);
         uploadBtn.onclick=(e:MouseEvent)=>{
             if(e){
-                this.uploadPic({parent,popup,post,user});
+                this.uploadPic({injector,popup,post,user});
                 uploadBtn.disabled=true;
                 popup.removeChild(btnContainer);
             }
@@ -343,7 +344,7 @@ class Post{
         freePicBtn.onclick=(e:MouseEvent)=>{
             if(e){
                 //import  class for image selection
-                this.freePic({parent,popup,post,user});
+                this.freePic({injector,popup,post,user});
                 uploadBtn.disabled=true;
                 popup.removeChild(btnContainer);
             }
@@ -373,7 +374,7 @@ class Post{
                                     Misc.matchMedia({parent:res_.container,maxWidth:400,cssStyle:{paddingInline:"0px"}})
                                 }
                             });
-                            parent.style.height="auto";
+                            injector.style.height="auto";
                         }else{
                             const getCont=this.injector.querySelector("div#main-post-container") as HTMLElement;
                             await this.Posts({injector:this.injector,container:getCont,posts:this.posts,user}).then(async(res_)=>{
@@ -391,35 +392,37 @@ class Post{
                         }
                         Misc.growOut({anchor:popup,scale:0,opacity:0,time:400});
                         setTimeout(()=>{
-                            const labelDisplay2=parent.querySelector("div#labelDisplay2") as HTMLElement;
+                            const labelDisplay2=injector.querySelector("div#labelDisplay2") as HTMLElement;
                             if(labelDisplay2){
                                 labelDisplay2.hidden=true;
                             }
-                            parent.removeChild(popup);
+                            injector.removeChild(popup);
                         },390);
                     }
                 });
             }
         };
     }
-    freePic(item:{parent:HTMLElement,popup:HTMLElement,post:postType,user:userType}){
-        const {parent,popup,post,user}=item;
+    freePic(item:{injector:HTMLElement,popup:HTMLElement,post:postType,user:userType}){
+        const {injector,popup,post,user}=item;
         //get class
-        this.addImageClass.asyncPicImage({parent}).then(async(res)=>{
+        this.addImageClass.asyncPicImage({parent:injector}).then(async(res)=>{
             if(res){
                 res.arr.map((btnUrl,index)=>{
                     if(btnUrl){
-                        const getBtnEle=parent.querySelector(`button#${btnUrl.btn.id}`) as HTMLButtonElement;
-                        if(!getBtnEle) return;
-                        getBtnEle.onclick=async(e:MouseEvent)=>{
+                        // const getBtnEle=res.reParent.querySelector(`button#${btnUrl.btn.id}`) as HTMLButtonElement;
+                        // if(!getBtnEle) return;
+                        // console.log("click",btnUrl.btn)//works
+                        btnUrl.btn.onclick=async(e:MouseEvent)=>{
                             if(e){
                                 this.post=this.initPost;
                                 const image=res.arr[index].imageUrl;
                                 this.post={...post,userId:user.id,image:image};
-                                console.log(this.post)
+                                // console.log("outside:",this.post);//works
                                 await this._service.saveUpdatepost({post:this.post}).then(async(post_)=>{
                                     if(post_){
                                         this.posts=[...this._posts,post_];
+                                        console.log("inside:",this.posts);
                                         const getScrollCol1=document.querySelector("div#scrollCol1") as HTMLElement;
                                         if(getScrollCol1){
                                             //USED BY Profile: client account
@@ -436,10 +439,11 @@ class Post{
                                                     Misc.matchMedia({parent:res_.container,maxWidth:400,cssStyle:{paddingInline:"0px"}})
                                                 }
                                             });
-                                            parent.style.height="auto";
+                                            res.reParent.style.height="auto";
                                         }else{
                                             const getCont=this.injector.querySelector("div#main-post-container") as HTMLElement;
-                                            await this.Posts({injector:this.injector,container:getCont,posts:this.posts,user}).then(async(res_)=>{
+                                            // console.log("getCont",getCont)//works
+                                            await this.Posts({injector:injector,container:getCont,posts:this.posts,user}).then(async(res_)=>{
                                                 if(res_.posts && res_.posts.length>0){
                                                     this.posts=res_.posts.sort((a,b)=>{if(a.likes > b.likes)return -1;return 1}).map(post=>(post));
                                                     this.posts.map(async(post,index)=>{
@@ -453,16 +457,14 @@ class Post{
                                             });
                                         }
                                         Misc.growOut({anchor:popup,scale:0,opacity:0,time:400});
+                                        Misc.growOut({anchor:res.popup,scale:0,opacity:0,time:400});
                                         setTimeout(()=>{
-                                            const labelDisplay2=parent.querySelector("div#labelDisplay2") as HTMLElement;
+                                            const labelDisplay2=res.reParent.querySelector("div#labelDisplay2") as HTMLElement;
                                             if(labelDisplay2){
                                                 labelDisplay2.hidden=true;
                                             }
-                                            parent.removeChild(popup);
-                                            const pop_id=res.popup.id
-                                            const getPopup=res.reParent.querySelector(`div#${pop_id}`) as HTMLElement;
-                                            if(!getPopup) return;
-                                            parent.removeChild(getPopup);
+                                            res.reParent.removeChild(res.popup);
+                                            injector.removeChild(popup);
                                         },390);
                                     }
                                 });
@@ -474,8 +476,8 @@ class Post{
             }
         });
     }
-    uploadPic(item:{parent:HTMLElement,popup:HTMLElement,post:postType,user:userType}){
-        const {user,post,parent,popup}=item;
+    uploadPic(item:{injector:HTMLElement,popup:HTMLElement,post:postType,user:userType}){
+        const {user,post,injector,popup}=item;
         this.post={...post,userId:user.id};
         const css_col="margin-inline:auto;display:flex;flex-direction:column;justify-content:center;align-items:center;gap:0.7rem;";
         const form=document.createElement("form");
@@ -503,7 +505,7 @@ class Post{
                     submitBtn.disabled=true;
                     const urlImg=URL.createObjectURL(file as File);
                     this._service.generatePostImgKey(formdata,post) as {Key:string};
-                   await this._service.simpleImgUpload(parent,formdata).then(async(res)=>{
+                   await this._service.simpleImgUpload(injector,formdata).then(async(res)=>{
                         if(res){
                             this.post={...post,imageKey:res.Key};
                            await this._service.saveUpdatepost({post:this.post}).then(async(post_)=>{
@@ -525,10 +527,10 @@ class Post{
                                                 Misc.matchMedia({parent:res_.container,maxWidth:400,cssStyle:{paddingInline:"0px"}})
                                             }
                                         });
-                                        parent.style.height="auto";
+                                        injector.style.height="auto";
                                     }else{
-                                        const getCont=this.injector.querySelector("div#main-post-container") as HTMLElement;
-                                        await this.Posts({injector:this.injector,container:getCont,posts:this.posts,user}).then(async(res_)=>{
+                                        const getCont=injector.querySelector("div#main-post-container") as HTMLElement;
+                                        await this.Posts({injector,container:getCont,posts:this.posts,user}).then(async(res_)=>{
                                             if(res_.posts && res_.posts.length>0){
                                                 this.posts=res_.posts.sort((a,b)=>{if(a.likes > b.likes)return -1;return 1}).map(post=>(post));
                                                 this.posts.sort((a,b)=>{if(a.likes > b.likes)return -1;return 1}).map(async(post,index)=>{
@@ -542,12 +544,13 @@ class Post{
                                         });;
                                     }
                                     Misc.growOut({anchor:popup,scale:0,opacity:0,time:400});
+                                    Misc.growOut({anchor:form,scale:0,opacity:0,time:400});
                                     setTimeout(()=>{
-                                        const labelDisplay2=parent.querySelector("div#labelDisplay2") as HTMLElement;
+                                        const labelDisplay2=injector.querySelector("div#labelDisplay2") as HTMLElement;
                                         if(labelDisplay2){
                                             labelDisplay2.hidden=true;
                                         }
-                                        parent.removeChild(popup);
+                                        injector.removeChild(popup);
                                     },390);
                                 }
                             });
@@ -558,7 +561,7 @@ class Post{
             }
         };
         popup.appendChild(form);
-        parent.appendChild(popup)
+        injector.appendChild(popup)
     }
     async postCard(item:{row:HTMLElement,post:postType,user:userType,userinfo:userType |undefined,index:number}){
         const {row,post,user,userinfo,index}=item;

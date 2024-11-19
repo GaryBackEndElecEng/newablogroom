@@ -23,24 +23,18 @@ const s3 = new S3Client({
 export async function PUT(req: NextRequest) {
     try {
         const formdata = await req.formData() as FormData;
-        if (formdata) {
-
-            const file: File | null = formdata.get("file") as unknown as File;
-            const Key: string | null = formdata.get("Key") as unknown as string;
-            // console.log(file, "Key", Key)
-            if (!(file)) {
-                return NextResponse.json({ error: "file doesn't exist" }, { status: 404 })
-            } else if (!(Key)) {
-                NextResponse.json({ error: "no Key" }, { status: 404 })
-            }
+        const Key = formdata.get("Key");
+        const file = formdata.get("file") as File;
+        if (formdata && Key && file) {
             const bytes = await file.arrayBuffer();
             const buffer = Buffer.from(bytes);
-            const filename = await uploadFileToS3({ buffer, fileType: file.type, Key });
-            // const reSizeBuffer = await sharp(buffer).resize({ width: 600, height: 400 }).toBuffer()
-            return NextResponse.json({ success: "true", filename }, { status: 200 })
-            // console.log("NAME", file.name, "Key", Key);//worked
-
-
+            const freeUrl = apiendpoint + `/newablogroom-free-bucket/${Key}`
+            const isSent = await sendToS3({ url: freeUrl, file });
+            if (isSent) {
+                NextResponse.json({ success: true }, { status: 200 });
+            } else {
+                NextResponse.json({ success: false }, { status: 400 });
+            }
         } else {
             NextResponse.json({ error: "no formdata" }, { status: 400 })
         }
@@ -52,17 +46,26 @@ export async function PUT(req: NextRequest) {
 
 }
 
-
-async function uploadFileToS3(item: { buffer: Buffer, fileType: string, Key: string }) {
-    const { buffer, fileType, Key } = item;
-    const params = {
-        Bucket,
-        Body: buffer,
-        Key,
-        ContentType: fileType
+async function sendToS3(item: { url: string, file: File }): Promise<boolean> {
+    const { url, file } = item;
+    let isSent: boolean;
+    try {
+        const option = {
+            method: "PUT",
+            body: file
+        }
+        isSent = await fetch(url, option).then(async (res) => {
+            if (res.ok) {
+                return true
+            } else {
+                return false
+            }
+        });
+        return isSent
+    } catch (error) {
+        const msg = getErrorMessage(error);
+        console.log(msg)
+        isSent = false
+        return isSent
     }
-    const command = new PutObjectCommand(params);
-    await s3.send(command);
-    return Key
-
 }

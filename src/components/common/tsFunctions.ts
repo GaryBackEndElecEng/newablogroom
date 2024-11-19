@@ -120,7 +120,7 @@ export  function imageLoader({ src, width, quality }) {
     const test_1:RegExp=/(\/images\/[a-zA-Z0-9\.]+)/;
     const test_2:RegExp=/(https\:\/\/)[a-zA-Z0-9\.\-\?\&]+/;
     const test_3:RegExp=/[a-zA-Z0-9\.]{3,}[a-z]{1,3}/;
-    const test_aws:RegExp=/(https\:\/\/master)[a-zA-Z0-9\.\-\?\&]+/;
+    const test_aws:RegExp=/(https\:\/\/master)|(https\:\/\/newablogroom)[a-zA-Z0-9\.\-\?\&]+/;
     let append:string=''
     if(test_1.test(src)){
         append=src;

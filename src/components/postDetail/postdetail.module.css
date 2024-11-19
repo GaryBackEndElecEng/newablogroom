@@ -7,13 +7,20 @@
   align-items: center;
   padding-inline: 1rem;
   padding-block: 1.5rem;
-  width: 50%;
+  width: 60%;
   min-height: 70vh;
   position: relative;
 }
-@media screen and (max-width: 900) {
+@media screen and (max-width: 1350) {
   .postdetail {
     width: 70%;
+    padding-inline: 2rem;
+    min-height: 80vh;
+  }
+}
+@media screen and (max-width: 900) {
+  .postdetail {
+    width: 80%;
     padding-inline: 2rem;
     min-height: 80vh;
   }

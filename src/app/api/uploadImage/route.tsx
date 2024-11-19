@@ -20,44 +20,28 @@ const s3 = new S3Client({
 
 });
 
-export async function PUT(req: NextRequest) {
+export async function PUT(request: NextRequest) {
     try {
 
-        const formdata = await req.formData() as FormData;
+        const formdata = await request.formData() as FormData;
         if (formdata) {
 
             const file: File | null = formdata.get("file") as unknown as File;
             const Key: string | null = formdata.get("Key") as unknown as string;
             // console.log(file, "Key", Key)
-            if (!file) {
+            if (!(file)) {
                 return NextResponse.json({ error: "file doesn't exist" }, { status: 404 })
+            } else if (!(Key)) {
+                NextResponse.json({ error: "no Key" }, { status: 404 })
             }
             const bytes = await file.arrayBuffer();
             const buffer = Buffer.from(bytes);
+            const filename = await uploadFileToS3({ buffer, fileType: file.type, Key });
             // const reSizeBuffer = await sharp(buffer).resize({ width: 600, height: 400 }).toBuffer()
-
+            return NextResponse.json({ success: "true", filename }, { status: 200 })
             // console.log("NAME", file.name, "Key", Key);//worked
-            if (!(buffer || Key)) {
-                NextResponse.json({ error: "no file name" }, { status: 404 })
-            }
-
-            const params = {
-                Bucket,
-                Body: buffer,
-                Key,
-                // ContentType:formdata.mimetype
-            }
 
 
-            const command = new PutObjectCommand(params);
-            const result = await s3.send(command);
-            if (result) {
-                // console.log("pic saved")
-                //DOES NOT SEND KEY AND URL BACK MUST DO A GET IMAGE
-
-                return NextResponse.json({ status: 200 })
-
-            }
         } else {
             NextResponse.json({ error: "no formdata" }, { status: 400 })
         }
@@ -66,5 +50,19 @@ export async function PUT(req: NextRequest) {
         NextResponse.json({ msg }, { status: 500 })
         // console.log(msg);
     }
+
+}
+
+async function uploadFileToS3(item: { buffer: Buffer, fileType: string, Key: string }) {
+    const { buffer, fileType, Key } = item;
+    const params = {
+        Bucket,
+        Body: buffer,
+        Key,
+        ContentType: fileType
+    }
+    const command = new PutObjectCommand(params);
+    await s3.send(command);
+    return Key
 
 }
