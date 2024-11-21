@@ -140,8 +140,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         }
 
 
-    }
-    if (req.method === "GET") {
+    } else if (req.method === "GET") {
         const email = req.query.email as string;
         if (!email) return;
         try {
@@ -172,6 +171,8 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         } finally {
             return await prisma.$disconnect();
         }
+    } else {
+        res.status(400).json({ msg: "not authorized" });
     }
 
 

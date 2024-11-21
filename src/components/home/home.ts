@@ -250,6 +250,10 @@ class Home{
                     anchor.setAttribute("data-link","The Editor")
                 }else if(link.name==="blogs"){
                     anchor.setAttribute("data-link","View Blogs")
+                }else if(link.name==="posts"){
+                    anchor.setAttribute("data-link","View Posts")
+                }else if(link.name==="chart"){
+                    anchor.setAttribute("data-link","Build a chart")
                 }
                 
                 Misc.slideInGrow({anchor:anchor,xpos:0,ypos:110,scale:0.2,time:1200});

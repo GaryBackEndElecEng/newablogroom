@@ -78,6 +78,13 @@ class AddImageUrl {
             {name:"cartoon 8",url:this.freepicurl +"/img7.png"},
             {name:"cartoon 9",url:this.freepicurl +"/img8.png"},
             {name:"cartoon 10",url:this.freepicurl +"/img9.png"},
+            {name:"secure form",url:this.freepicurl +"/formSecure.png"},
+            {name:"hand shake",url:this.freepicurl +"/handshake.png"},
+            {name:"internet purchase flow",url:this.freepicurl +"/internet_purchase_process.png"},
+            {name:"Great Mountain",url:this.freepicurl +"/mountain.png"},
+            {name:"signin process",url:this.freepicurl +"/signInProcess.png"},
+            {name:"specials",url:this.freepicurl +"/specials.png"},
+            {name:"solar works",url:this.freepicurl +"/solarWorks.png"},
 
         ]
         this.mainContainer=document.querySelector("section#main") as HTMLElement;

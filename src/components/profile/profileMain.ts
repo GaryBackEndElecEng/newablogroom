@@ -383,6 +383,7 @@ class ProfileMain{
         userLabel.textContent="username";
         usern.id=`form-username-change-${rand}`;
         usern.name="username";
+        usern.value=user.name ? user.name :"";
         usern.placeholder="username";
         usern.autocomplete="username";
         userLabel.setAttribute("for",usern.id);
@@ -449,9 +450,9 @@ class ProfileMain{
                             user_={...user_,blogs:user.blogs,posts:user.posts}
                             localStorage.setItem("user",JSON.stringify(user_));
                             this._user.user=user_;
-                            
-                            // const parent=document.getElementById("row-profile") as HTMLElement;
-                            // const row=document.getElementById("updateImageBio-row") as HTMLElement;
+                            const getCol=row.querySelector("div#col-bio-column") as HTMLElement;
+                            if(!getCol) return;
+                            row.removeChild(getCol);
                             this.bio(row,user_);
                         }
                     });
@@ -513,7 +514,6 @@ class ProfileMain{
                 e.preventDefault();
                 const formdata=new FormData(e.currentTarget as HTMLFormElement);
                 const file=formdata.get("file") as File;
-                let user=this._user.user;
                 if(user.imgKey){
                     this._service.adminImagemark(user.imgKey).then(async(res)=>{
                         if(res){
@@ -526,7 +526,7 @@ class ProfileMain{
                     const name=blog && blog.name ? blog.name : "userBio";
                     blog={...blog,name:name}
                     blog.user_id=user.id;
-                    this._service.generateImgKey(formdata,blog);
+                    const {Key}=this._service.generateImgKey(formdata,blog) as {Key:string};
                     this._service.simpleImgUpload(parent,formdata).then(async(res:gets3ImgKey)=>{
                         if(res){
                             user={...user,imgKey:res.Key,image:res.img};
@@ -538,8 +538,8 @@ class ProfileMain{
                             },380);
                             this._user.userUpdate(parent,this._user.user).then(async(user)=>{
                                 if(user){
-                                    this._user.user=user;
-                                    localStorage.setItem("user",JSON.stringify(user));
+                                    this._user.user={...this._user.user,image:undefined}
+                                    localStorage.setItem("user",JSON.stringify(this._user.user));
                                 }
                             });
                             // form.style.opacity="0";

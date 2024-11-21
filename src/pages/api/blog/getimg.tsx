@@ -61,8 +61,9 @@ export async function countImage(item: { imgKey: string }) {
             where: { imgKey }
         });
         if (isImg) {
-            await prisma.deletedImg.update({ where: { id: isImg.id }, data: { count: isImg.count ? isImg.count + 1 : 1 } });
+            await prisma.deletedImg.update({ where: { id: isImg.id, imgKey: isImg.imgKey }, data: { count: isImg.count ? isImg.count + 1 : 1 } });
         }
         await prisma.$disconnect();
     }
+    return
 }

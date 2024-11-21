@@ -339,17 +339,13 @@ class Edit {
         row.style.cssText="margin-inline:auto;display:flex;flex-direction:row;flex-wrap:wrap;width:100%;";
         row.className="row";
         container.appendChild(row);
-        await this._service.userWithBlogs(user_id).then(async(user)=>{
-            if(user){
-                this._user.user={...user,email:user.email,id:user.id};
-                this._modSelector.blogs=user.blogs;
-                localStorage.setItem("user_id",user.id);
-                localStorage.setItem("email",user.email);
-                if(user.blogs && user.blogs.length>0){
-                    user.blogs.map(async(blog)=>{
+        await this._service.userBlogs(user_id).then(async(blogs)=>{
+            if(blogs){
+                this._modSelector.blogs=blogs;
+                if(blogs && blogs.length>0){
+                    blogs.map(async(blog)=>{
                         const col=document.createElement("div");
                         col.className="col-md-4";
-                        console.log("inside")
                        await this.blogCard(parent,container,row,col,blog);
 
                     });

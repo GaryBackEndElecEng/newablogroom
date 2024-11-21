@@ -117,28 +117,30 @@ export function smallbtnReturn(message:btnReturnType):HTMLButtonElement{
     return btn;
 }
 export  function imageLoader({ src, width, quality }) {
+    const httpTest:RegExp=/(http\:\/\/)|(https\:\/\/)/
     const test_1:RegExp=/(\/images\/[a-zA-Z0-9\.]+)/;
-    const test_2:RegExp=/(https\:\/\/)[a-zA-Z0-9\.\-\?\&]+/;
+    const test_2:RegExp=/(https\:\/\/masterultils)[a-zA-Z0-9\.\-\?\&]+/;
     const test_3:RegExp=/[a-zA-Z0-9\.]{3,}[a-z]{1,3}/;
-    const test_aws:RegExp=/(https\:\/\/master)|(https\:\/\/newablogroom)[a-zA-Z0-9\.\-\?\&]+/;
+    const test_4:RegExp=/(https\:\/\/)[a-zA-Z0-9\.\-\?\&]+/;
+    const test_aws:RegExp=/(https\:\/\/newablogroom)[a-zA-Z0-9\.\-\?\&]+/;
     let append:string=''
-    if(test_1.test(src)){
+    if(test_1.test(src) && !httpTest.test(src)){
         append=src;
-    }else if(test_2.test(src)){
+    }else if(test_2.test(src) && test_4.test(src)){
         append=src;
-    }else if(test_3.test(src)){
+    }else if(test_3.test(src) && !httpTest.test(src)){
         append=`/images/${src}`;
     }else if(test_aws.test(src)){
         append=src;
     }
-    if(!test_2.test(src)){
+    if(!test_2.test(src) || !test_aws.test(src) || !test_4.test(src)){
 
         const url=new URL(window.location.href);
         const newUrl=new URL(append,url.origin);
         newUrl.searchParams.set("w",width.toString());
         newUrl.searchParams.set("q",(quality || 75).toString());
         return newUrl.href;
-    }else if(test_2.test(src)){
+    }else if( test_aws.test(src)){
         const url= new URL(append);
         url.searchParams.set('format', 'auto')
         url.searchParams.set('width', width.toString())

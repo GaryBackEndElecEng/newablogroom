@@ -716,7 +716,7 @@ set user(user:userType){
         container.id="headerNav-signInDisplay-container";
         container.className="user-signature";
         if(user && user.id){
-            container.style.cssText="display:flex;justify-content:space-around;align-items:center;margin-inline:1rem;box-shadow:1px 1px 12px 1px white;padding-inline:0.5rem;border-radius:10px;color:white;background-color:#0a2351;overflow:hidden;position:relative;right:20px;justify-self:end;margin-right:10px;order:3;";
+            container.style.cssText="display:flex;justify-content:space-around;align-items:center;margin-inline:1rem;box-shadow:1px 1px 12px 1px white;padding-inline:0.5rem;border-radius:10px;color:white;background-color:#0a2351;overflow:hidden;position:relative;right:20px;justify-self:end;margin-right:10px;order:3;cursor:pointer;";
             container.style.marginRight=less900 ? (less400 ? "1px":"4px") :"10px";
             container.style.right=less900 ? (less400 ? "-28px":"-10px") :"20px";
             container.style.transform=less900 ? (less400 ? "scale(0.5)":"scale(0.6)") :"scale(0.7)";
@@ -740,12 +740,17 @@ set user(user:userType){
             para.innerHTML=Nav.splitWord({parent:para,str:name,splitCount:4});
             container.appendChild(img);
             container.appendChild(para);
+            container.onclick=(e:MouseEvent)=>{
+                if(e){
+                    this.showDropDownLogout({container});
+                }
+            };
             parent.appendChild(container);
             Misc.matchMedia({parent:img,maxWidth:420,cssStyle:{width:"35px"}});
             Misc.matchMedia({parent:para,maxWidth:420,cssStyle:{fontSize:"12px"}});
             Misc.growIn({anchor:container,scale:0.2,opacity:0,time:500});
         }else if(!user && url.pathname !=="/register"){
-            container.style.cssText="display:flex;justify-content:space-around;align-items:center;margin-inline:1rem;box-shadow:1px 1px 12px 1px #05f7d1;padding-inline:0.75rem;border-radius:50%;color:white;background-color:black;position:relative;right:20px;justify-self:end;margin-right:10px;order:3;padding-block:0rem;cursor:pointer";
+            container.style.cssText="display:flex;justify-content:space-around;align-items:center;margin-inline:1rem;box-shadow:1px 1px 12px 1px #05f7d1;padding-inline:0.75rem;border-radius:50%;color:white;background-color:black;position:relative;right:20px;justify-self:end;margin-right:10px;order:3;padding-block:0rem;cursor:pointer;cursor:pointer;";
             container.style.marginRight=less900 ? (less400 ? "1px":"4px") :"10px";
             container.style.right=less900 ? (less400 ? "-28px":"-10px") :"20px";
             container.style.transform=less900 ? (less400 ? "scale(0.6)":"scale(0.7)") :"scale(0.85)";
@@ -777,6 +782,38 @@ set user(user:userType){
                 resolve({user:null,parent:parent,container,centerBtnCont});
             }
         })as Promise<{user:userType|null,parent:HTMLElement,container:HTMLElement,centerBtnCont:HTMLElement}> ;
+    }
+    showDropDownLogout(item:{container:HTMLElement}){
+        const {container}=item;
+        const less900=window.innerWidth < 900;
+        const less400=window.innerWidth < 400;
+        container.style.zIndex="2";
+        const popup=document.createElement("div");
+        popup.id="signInDisplay-showDropDownLogout-popup";
+        popup.style.cssText="position:absolute;inset:0%;background-color:black;z-index:100;border-radius:0px 0px 12px 12px;box-shadow:1px 1px 12px 1px white;display:flex;justify-content:center;align-items:center;color:white;";
+        const logoutCont=document.createElement("div");
+        logoutCont.style.cssText="display:flex;justify-content:center;align-items:center;gap:1rem;";
+        const xDiv=document.createElement("div");
+        xDiv.style.cssText="padding:2px;margin:auto";
+        FaCreate({parent:xDiv,name:Icons.FaSignOutAlt,cssStyle:{fontSize:"22px",color:"blue",backgroundColor:"white"}});
+        const logoutText=document.createElement("small");
+        logoutText.id="popup-logoutText";
+        logoutText.textContent="logout";
+        logoutText.style.cssText="color:white;font-family:'Poppins-Regular';margin:auto;text-transform:uppercase;";
+        logoutText.style.fontSize=less900 ? (less400 ? "18px":"20px"):"22px";
+        logoutCont.appendChild(logoutText);
+        logoutCont.appendChild(xDiv);
+        popup.appendChild(logoutCont);
+        container.appendChild(popup);
+        setTimeout(()=>{
+            Misc.growOut({anchor:popup,scale:0,opacity:0,time:1000});
+            setTimeout(()=>{container.removeChild(popup);},990);
+        },5000);
+        container.onclick=(e:MouseEvent)=>{
+            if(e){
+                this.logout({func:()=>undefined,redirect:true});
+            }
+        };
     }
     centerBtnsRow(item:{container:HTMLElement|null}){
         //!!! NOTE:THIS GETS TOGGLED TO LOGOUT FROM auth.getUser()

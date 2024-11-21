@@ -24,7 +24,7 @@ bgColor:string;
 btnColor:string;
 static mainHeader_css:string;
 // dataflow:Dataflow;
-static links:linkType[]=[{name:"home",link:"/"},{name:"editor",link:"/editor"},{name:"blogs",link:"/blogs"}]
+static links:linkType[]=[{name:"home",link:"/"},{name:"editor",link:"/editor"},{name:"blogs",link:"/blogs"},{name:"posts",link:"/posts"},{name:"charts",link:"/chart"}]
 pic="/images/gb_logo.png";
 count:number;
 pageCount:number;

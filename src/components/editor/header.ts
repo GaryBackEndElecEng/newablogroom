@@ -1,4 +1,4 @@
-import { flexType, element_selType, colType, rowType, selectorType, headerType, columnAttrType, classAttType, } from './Types';
+import { flexType, element_selType, colType, rowType, selectorType, headerType, columnAttrType, classAttType, blogType, } from './Types';
 import ModSelector from "./modSelector";
 import {FaCrosshairs} from "react-icons/fa";
 import {FaCreate} from "@/components/common/ReactIcons";
@@ -280,7 +280,7 @@ class Header{
                     };
                     row_.cols.sort((a,b)=>{if(a.order < b.order) return -1;return 1}).map(col_=>{
                         const col=document.createElement("div");
-                        col.style.cssText=`${col_.cssText}`;
+                        col.style.cssText=col_.cssText;
                         col.className=col_.class;
                         this.flex={...this.flex,colId:col_.eleId,order:col_.order,position:"col",imgKey:col_.imgKey};
                         if(col_.imgKey){
@@ -451,12 +451,23 @@ class Header{
                                 case element.name==="img":
                                     const img=document.createElement("img");
                                     const image=element.img ? element.img : this.urlImg;
+                                    if(element.imgKey){
+                                        this._service.getSimpleImg(element.imgKey).then(async(res)=>{
+                                            if(res){
+                                                img.src=res.img;
+                                                img.alt=res.Key
+                                            }
+                                        });
+                                    }else{
+                                        img.src=image;
+                                        img.alt="www.ablogroom.com"
+
+                                    }
                                     img.setAttribute("is-element","true");
                                     img.setAttribute("contenteditable","false");
                                     img.setAttribute("aria-selected","true");
                                     img.setAttribute("name",element.name);
                                     img.className=element.class;
-                                    img.src=image;
                                     img.id=element.eleId as string;
                                     img.setAttribute("name",element.name);
                                     img.setAttribute("data-placement",`${element.order}`);
@@ -722,7 +733,7 @@ class Header{
                     if(value){
                         //element to add
                         if(name==="bg-image"){
-                            this.bgImage(parent);
+                            this.bgImage({column:parent,blog:this._modSelector.blog});
                         }else{
     
                             const text=`insert-${value}`
@@ -762,7 +773,7 @@ class Header{
                                    }
                                 }else if(level==="col"){
                                     if(name==="rm-bg-image"){
-                                        this.rmBgImage(parent);
+                                        this.rmBgImage({column:parent});
                                     }else{
             
                                         const {parsed}=Header.checkJson(parent.getAttribute("flex"));
@@ -773,7 +784,7 @@ class Header{
                                     }
                                 }else if(level==="row"){
                                     if(name==="bg-row-image"){
-                                        this.bgRowImage(parent);
+                                        this.bgRowImage({column:parent,blog:this._modSelector.blog});
                                     }else if(name==="bg-row-height"){
                                         this.bgRowHeight(parent)
                                     }else{
@@ -1031,10 +1042,10 @@ class Header{
                     this.insertTel(col)
                 return;
                 case name==="bg-image":
-                        this.bgImage(col);
+                        this.bgImage({column:col,blog:this._modSelector.blog});
                 return;
                 case name==="rm-bg-image":
-                        this.rmBgImage(col);
+                        this.rmBgImage({column:col});
                 return;
                 case name==="a":
                     const anchor_=document.createElement("a");
@@ -1409,7 +1420,8 @@ class Header{
        
      }
     
-     bgImage(column:HTMLElement){
+     bgImage(item:{column:HTMLElement,blog:blogType}){
+        const {column,blog}=item;
        
         column.style.minHeight="15vh";
         let col:HTMLElement | null;
@@ -1449,7 +1461,7 @@ class Header{
                 btn.disabled=false;
             }
         });
-        form.addEventListener("submit",(e:SubmitEvent)=>{
+        form.addEventListener("submit",async(e:SubmitEvent)=>{
             if(e){
                 e.preventDefault();
                 const formdata= new FormData(e.currentTarget as HTMLFormElement);
@@ -1465,14 +1477,11 @@ class Header{
                 Misc.blurIn({anchor:column,blur:"20px",time:600});
                 const {parsed}=Header.checkJson(column.getAttribute("flex"));
                 let flex=parsed as flexType;
-                flex={...flex,position:"col",backgroundImage:true}
+                const {Key}=this._service.generateImgKey(formdata,blog) as {Key:string};
+                flex={...flex,position:"col",backgroundImage:true,imgKey:Key}
                 column.setAttribute("flex",JSON.stringify(flex));
-                this._modSelector.promUpdateColumn(column,flex).then(async(col)=>{
-                    if(col){
-                        const blog=this._modSelector.blog
-                        this._user.askSendToServer(column,formdata,null,blog);
-                    }
-                });
+                await this._modSelector.promUpdateColumn(column,flex);
+                this._user.askSendToServer(column,formdata,null,blog);
                 Misc.fadeOut({anchor:formContainer,xpos:50,ypos:100,time:500});
                 setTimeout(()=>{
                     col.removeChild(formContainer);
@@ -1485,7 +1494,8 @@ class Header{
 
         
      }
-     rmBgImage(column:HTMLElement){
+     rmBgImage(item:{column:HTMLElement}){
+        const {column}=item;
         for(const key of Object.keys(column.style)){
             if(key==="backgroundImage"){
                 column.style.backgroundImage="";
@@ -1502,22 +1512,23 @@ class Header{
                 if(res){
                     Misc.message({parent:column,msg:`${imgKey} is removed`,type_:"success",time:700});
                     const flex_={...flex,imgKey:undefined,backgroundImage:undefined};
-                    this._modSelector.updateColumn(column,flex_);
-                    column.setAttribute("flex",JSON.stringify(flex_));
-                    this._modSelector.updateColumn(column,flex_);
+                    this._modSelector.promUpdateColumn(column,flex_).then(async(coltype:colType|undefined)=>{
+                        if(coltype){
+                            column.setAttribute("flex",JSON.stringify(flex_));
+                        }
+                    });
                 }
             });
         
         }
      }
-     bgRowImage(column:HTMLElement){
+     bgRowImage(item:{column:HTMLElement,blog:blogType}){
+        const {column,blog}=item;
         const row=column.parentElement;
         if(!row) return;
         const {isJSON,parsed}=Header.checkJson(row.getAttribute("flex"));
         if(row && isJSON){
             let flex=parsed as flexType;
-            flex={...flex,backgroundImage:true};
-            row.setAttribute("flex",JSON.stringify(flex));
             const {form:form2,reParent:parent}=Misc.imageForm(column,flex);
             parent.style.zIndex="-1";
             form2.addEventListener("submit",(e:SubmitEvent)=>{
@@ -1526,8 +1537,11 @@ class Header{
                     const formdata= new FormData(e.currentTarget as HTMLFormElement);
                     const file=formdata.get("file") as File;
                     const blog=this._modSelector.blog;
-                   
+                    
                     if(file){
+                        const {Key}= this._service.generateImgKey(formdata,blog) as {Key:string};
+                        flex={...flex,backgroundImage:true,imgKey:Key};
+                        row.setAttribute("flex",JSON.stringify(flex));
                         const urlImg=URL.createObjectURL(file) as string;
                         row.style.backgroundImage=`url(${urlImg})`;
                         row.style.backgroundSize=`100% 100%`;

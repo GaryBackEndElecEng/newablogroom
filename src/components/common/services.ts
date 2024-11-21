@@ -59,11 +59,13 @@ class Service {
     bucket:bucketType; //"masterultils-postimages" | "newablogroom-free-bucket";
     element:elementType | element_selType | undefined;
     isSignedOut:boolean;
+    deletemarkImg:string="/api/admin/deletemarkimg";
     // getInitBlog:blogType;
     constructor(private _modSelector:ModSelector){
         this.bucket="masterultils-postimages";
         this.usersignin="/api/usersignin";
         this.awsimgUrl="/api/awsimg";
+        this.deletemarkImg="/api/admin/deletemarkimg";
         this.liveonoffUrl="/api/liveonoff";
         this.newBlogUrl="/api/blog/createnew";
         this.urlUpload="/api/uploadImage";
@@ -259,6 +261,7 @@ async apiUploadSaveFree(item:{parent:HTMLElement,Key:string,formdata:FormData}):
         const Key=formData.get("Key");
         if(file && Key){
             return fetch(this.urlUpload,option).then(async(res)=>{
+                ///api/uploadImage
                 
                 if(res.ok){
                     const formdata_key=formData.get("Key") as string;
@@ -343,27 +346,21 @@ async apiUploadSaveFree(item:{parent:HTMLElement,Key:string,formdata:FormData}):
                 
             }
             return fetch(this.urlUpload,option).then(async(res)=>{
-                
+                ///api/uploadImage
                 if(res.ok){
                     const formdata_key=formData.get("Key") as string;
                     //store key//
                     if(formdata_key){
-                        const store:deletedImgType={id:undefined,imgKey:formdata_key,del:false,date:new Date()}
-                       return await this.storeKey(store).then(async(res_)=>{
-                            if(res_){
-                                let _res_:gets3ImgKey|null=null;
-                                setTimeout(async()=>{
-
-                                    //store key//
-                                    //GETTING IMAGE URL////////
-                                    const data:gets3ImgKey|null =await this.getSimpleImg(formdata_key);
-                                    if(data && data.Key){
-                                       _res_= data as gets3ImgKey|null;
-                                    }
-                                    return _res_
-                                },0);
-                            }
-                        })
+                        let _res_:gets3ImgKey|null=null;
+                        //store key//
+                        //GETTING IMAGE URL////////
+                        const data:gets3ImgKey|null =await this.getSimpleImg(formdata_key);
+                        if(data && data.Key){
+                            _res_= data as gets3ImgKey|null;
+                        }
+                        return _res_
+            
+                       
 
                     }
                     //GETTING IMAGE URL-STORED IMGURL IN IMAGE.SRC////////
@@ -418,11 +415,11 @@ async apiUploadSaveFree(item:{parent:HTMLElement,Key:string,formdata:FormData}):
             
         });
     }
-     injectBgAwsImage(item:{target:HTMLElement,imgKey:string,cssStyle:{[key:string]:string}}): Promise<HTMLElement |undefined> | undefined{
+    async injectBgAwsImage(item:{target:HTMLElement,imgKey:string,cssStyle:{[key:string]:string}}): Promise<HTMLElement>{
         //THIS GET THE AWSURL AND THEN INJECTS IT INTO THE BACKGROUND IMAGE WITH CSSSTYLES ADDED
         const {target,imgKey,cssStyle}=item;
         if(imgKey){
-           return this.getSimpleImg(imgKey).then(async(res:gets3ImgKey|null)=>{
+           this.getSimpleImg(imgKey).then(async(res:gets3ImgKey|null)=>{
                 if(res){
                     for ( const key of Object.keys(target.style)){
                         if(key==="backgroundImage"){
@@ -437,11 +434,10 @@ async apiUploadSaveFree(item:{parent:HTMLElement,Key:string,formdata:FormData}):
                             }
                         }
                     }
-                    return target
-                   
                 }
             });
         }
+        return target
     }
     
 
@@ -537,6 +533,7 @@ async apiUploadSaveFree(item:{parent:HTMLElement,Key:string,formdata:FormData}):
     //THIS GETS IMAGE FROM AWS USING ONLY A KEY
     async getSimpleImg(Key:string):Promise<gets3ImgKey|null>{
         //GET IMG HTTP AND COUNTS IMAGE UNDER DELETEDIMG
+        ///api/blog/getimg
         return fetch(`${this.urlGetImg}?Key=${Key}`).then(async(res)=>{
             if(res.ok){
                 const getimg:gets3ImgKey= await res.json();
@@ -743,7 +740,8 @@ async apiUploadSaveFree(item:{parent:HTMLElement,Key:string,formdata:FormData}):
                 method:"PUT",
                 body:JSON.stringify(item)
             };
-            return fetch(this.awsimgUrl,option).then(async(res)=>{
+            return fetch(this.deletemarkImg,option).then(async(res)=>{
+                //api/admin/deletemarkimg
                 if(res){
                     const storedKey= await res.json() as deletedImgType;
                     return storedKey;

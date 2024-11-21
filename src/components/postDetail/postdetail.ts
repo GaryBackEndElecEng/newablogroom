@@ -96,6 +96,9 @@ class PostDetail{
             container.style.top="0%";
             container.style.left=less1550 ? (less900 ? (less400 ? "0%" :"-2.5%"): "-30%"):"-50%";
             container.style.right=less1550 ? (less900 ? (less400 ? "0%" :"-2.5%"): "-30%"):"-50%";
+            container.style.overflowY="scroll";
+            container.style.height=less900 ? (less400 ? "80vh":"65vh"):"70vh";
+            container.style.justifyContent="flex-start";
         }else{
             this.injector=injector as HTMLElement;
             this.injector.style.width=less1550 ? (less900 ? (less400 ? "100%" :"100%"): "65%"):"50%";
@@ -120,9 +123,10 @@ class PostDetail{
         shapeOutside.style.fontSize=less900 ? (less400 ? "120%":"126%") :"150%";
         const img=document.createElement("img");
         img.id=`posts-shapeOutside-img-${post.id}`;
-        img.style.cssText="border-radius:50%;shape-outside:circle(50%);float:left;margin-right:1.25rem;margin-bottom:2rem;aspect-ratio:1/1;filter:drop-shadow(0 0 0.75rem white);border:none;";
+        img.style.cssText="border-radius:50%;shape-outside:circle(50%);float:left;margin-bottom:2rem;aspect-ratio:1/1;filter:drop-shadow(0 0 0.75rem white);border:none;";
         img.style.filter="drop-shadow(0 0 0.75rem white) !important";
-        img.style.width=window.innerWidth <900 ? (window.innerWidth <400 ? "300px" : "310px") :"355px";
+        img.style.width=less900 ? (less400 ? "300px" : "330px") :"395px";
+        img.style.marginRight=less900 ? (less400 ? "0.85rem" : "0.85rem") :"1rem";
         const widthConv=parseInt(img.style.width.split("px")[0]) as number;
         if(post.image){
             img.src=imageLoader({src:post.image,width:widthConv,quality:75});
@@ -203,7 +207,7 @@ class PostDetail{
         injector.appendChild(container);
         this.cleaupKeepOne({parent:injector,class_:"postdetail-main-container"});//keep one
         if(!isPage){
-            Misc.fadeIn({anchor:container,xpos:30,ypos:100,time:400});
+            Misc.growIn({anchor:container,scale:0,opacity:0,time:400});
         }
         return new Promise(resolver=>{
             resolver(count + 1)
@@ -223,8 +227,8 @@ class PostDetail{
         const container=document.createElement("div");
         container.id="showPoster-user-container";
         container.style.cssText="margin-inline:auto;margin-block:1.25rem;display:flex;align-items:center;justify-content:space-around;flex-warp:wrap;background-color:white;color:black;border-radius:11px;padding-block:1.5rem;padding-inline:1.25rem;box-shadow:1px 1px 12px 2px #10c7e9ab,-1px -1px 12px 1px #10c7e9ab;";
-        container.style.width=less900 ? (less400 ? "100%" :"85%" ) : "67%";
-        container.style.paddingInline=less900 ? (less400 ? "1rem" :"1.5rem" ) : "2rem";
+        container.style.width=less900 ? (less400 ? "100%" :"90%" ) : "80%";
+        container.style.paddingInline=less900 ? (less400 ? "0.25rem" :"0.5rem" ) : "1rem";
         const img=document.createElement("img");
         const maximgwidth=120;
         img.style.cssText=`max-width:${maximgwidth}px;border-radius:50%;aspect-ratio: 1 / 1;box-shadow:1px 1px 10px 1px black;float:left; `;
@@ -280,12 +284,12 @@ class PostDetail{
         const less900= window.innerWidth < 900 ? true:false;
         const less400= window.innerWidth < 400 ? true:false;
         Header.cleanUpByID(card,`postdetail-editPost-popup-${post.id}`);
-        const css_col="margin-inline:auto;display:flex;flex-direction:column;justify-content:center;align-items:center;gap:0.7rem;";
+        const css_col="margin-inline:auto;display:flex;flex-direction:column;justify-content:center;align-items:center;";
         const css_row="margin-inline:auto;display:flex;flex-direction:row;flex-wrap:wrap;justify-content:center;align-items:center;gap:0.7rem;";
         card.style.position="relative";
         const popup=document.createElement('div');
         popup.id=`postdetail-editPost-popup-${post.id}`;
-        popup.style.cssText="position:absolute;inset:0%;backdrop-filter:blur(20px);border-radius:12px;box-shadow:1px 1px 12px 1px #0CAFFF;padding:7px;z-index:10;border:none;";
+        popup.style.cssText=css_col + "position:absolute;inset:0%;backdrop-filter:blur(20px);border-radius:12px;box-shadow:1px 1px 12px 1px #0CAFFF;padding:7px;z-index:10;border:none;";
         card.appendChild(popup);
         //-------DELETE----------//
         const xDiv=document.createElement("div");
@@ -303,7 +307,7 @@ class PostDetail{
         //-------DELETE----------//
         const form=document.createElement('form');
         form.id=`editPost-form-${post.id}`;
-        form.style.cssText=css_col +"color:white;";
+        form.style.cssText=css_col +"color:white;width:100%;";
         popup.appendChild(form);
         Misc.growIn({anchor:popup,scale:0,opacity:0,time:400});
         const {input:intitle,label:ltitle,formGrp:grptitle}=Nav.inputComponent(form);
@@ -322,7 +326,7 @@ class PostDetail{
         grpTextarea.className="text-center";
         inContent.id="editPost-content";
         inContent.name="content";
-        inContent.rows=less900 ? (less400 ? 15 :13):10;
+        inContent.rows=less900 ? (less400 ? 17 :15):13;
         inContent.value=post.content ? post.content : "";
         lContent.className="grpTextarea-label";
         lContent.className="text-light text-center display-6";
@@ -591,12 +595,12 @@ class PostDetail{
                 const file=formdata.get("file") as File | null;
                 if(file ){
                     const urlImg=URL.createObjectURL(file as File);
-                   const {Key} = this._service.generateFreeImgKey({formdata,user}) as {Key:string};
+                   const {Key} = this._service.generatePostImgKey(formdata,this.post) as {Key:string};
                     // console.log("file",file)
-                    await this._service.apiUploadSaveFree({parent:editPopup,Key,formdata}).then(async(res)=>{
+                    await this._service.simpleImgUpload(editPopup,formdata).then(async(res)=>{
                         if(res){
                             submitBtn.disabled=true;
-                            this.post={...post,imageKey:undefined,image:res.img};
+                            this.post={...post,imageKey:Key,image:res.img};
                             targetImg.src=imageLoader({src:res.img,width:imgWidth,quality:75});
                             targetImg.alt=res.Key;
                             showImage.src=imageLoader({src:res.img,width:showImgWidth,quality:75});

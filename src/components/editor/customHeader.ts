@@ -1,4 +1,4 @@
-import {flexType,element_selType,colType,rowType,selectorType,columnAttrType,colAttrType} from "./Types";
+import {flexType,element_selType,colType,rowType,selectorType,columnAttrType,colAttrType, blogType} from "./Types";
 import ModSelector from "./modSelector";
 import {FaTrash,FaCrosshairs} from "react-icons/fa";
 import {FaCreate} from "@/components/common/ReactIcons";
@@ -1102,10 +1102,14 @@ set header_(header:selectorType){
                     
                 return;
                 case nameLabel==="bg-image":
-                    this.getBgImage(column,this.flex);
+                    const {parsed,isJSON}=Header.checkJson(column.getAttribute("flex"));
+                    if(isJSON){
+                        const flex=parsed as flexType;
+                        this.getBgImage({column,flex,blog:this._modSelector.blog});
+                    }
                 return;
                 case nameLabel==="bg-row-image":
-                    this.bgRowImage(column);
+                    this.bgRowImage({column,blog:this._modSelector.blog});
                 return;
                 case nameLabel==="rm-bg-image":
                     this.rmBgImage(column);
@@ -1255,8 +1259,8 @@ set header_(header:selectorType){
         
      }
   
-     getBgImage(column:HTMLElement,flex:flexType){
-
+     getBgImage(item:{column:HTMLElement,flex:flexType,blog:blogType}){
+        const {column,blog,flex}=item;
         const formContainer=document.createElement("div");
         formContainer.className="flexCol box-shadow";
         formContainer.style.cssText="position:relative;width:150px;height:150px;z-index:0;font-size:15px;";
@@ -1295,14 +1299,18 @@ set header_(header:selectorType){
                 column.style.zIndex="0";
                 column.style.position="relative";
                 const image=URL.createObjectURL(file as File);
-                column.setAttribute("data-background-image","true");
-                column.style.cssText="background-position:50% 50%;background-size:100% 100%;position:relative;z-index:1;insert:0;";
-                column.style.backgroundImage=`url(${image})`;
-                flex={...flex,name:"background",position:"col",backgroundImage:true};
-                column.setAttribute("flex",JSON.stringify(flex));
-                this._modSelector.updateColumn(column,flex);
-                const blog=this._modSelector.blog
-                this._user.askSendToServer(column,formdata,null,blog);
+                const {Key}=this._service.generateImgKey(formdata,blog) as {Key:string};
+                const flex_={...flex,name:"background",position:"col",backgroundImage:true,imgKey:Key};
+                column.setAttribute("flex",JSON.stringify(flex_));
+                this._modSelector.promUpdateColumn(column,flex_).then(async(res)=>{
+                    if(res){
+
+                        this._user.askSendToServer(column,formdata,null,blog);
+                        column.setAttribute("data-background-image","true");
+                        column.style.cssText="background-position:50% 50%;background-size:100% 100%;position:relative;z-index:1;insert:0;";
+                        column.style.backgroundImage=`url(${image})`;
+                    }
+                });
                 Misc.fadeOut({anchor:formContainer,xpos:50,ypos:100,time:500});
                 setTimeout(()=>{
                     column.removeChild(formContainer);
@@ -1315,14 +1323,13 @@ set header_(header:selectorType){
 
         
      }
-     bgRowImage(column:HTMLElement){
+     bgRowImage(item:{column:HTMLElement,blog:blogType}){
+        const {column,blog}=item;
         const row=column.parentElement;
         if(!row) return;
         const {isJSON,parsed}=Header.checkJson(row.getAttribute("flex"));
         if(row && isJSON){
             let flex=parsed as flexType;
-            flex={...flex,backgroundImage:true};
-            row.setAttribute("flex",JSON.stringify(flex));
             const {form:form2,reParent:mainTextarea}=Misc.imageForm(column,flex);
             mainTextarea.style.zIndex="-1";
             form2.addEventListener("submit",(e:SubmitEvent)=>{
@@ -1330,19 +1337,25 @@ set header_(header:selectorType){
                     e.preventDefault();
                     const formdata= new FormData(e.currentTarget as HTMLFormElement);
                     const file=formdata.get("file") as File;
-                    const blog=this._modSelector.blog;
-                   
+                    
                     if(file){
+                        const {Key}=this._service.generateImgKey(formdata,blog) as {Key:string};
+                        flex={...flex,imgKey:Key,backgroundImage:true};
+                        row.setAttribute("flex",JSON.stringify(flex));
                         const urlImg=URL.createObjectURL(file) as string;
                         row.style.backgroundImage=`url(${urlImg})`;
                         row.style.backgroundSize=`100% 100%`;
                         row.style.backgroundPosition=`50% 50%`;
                         row.setAttribute("data-backgroundImage","true");
                         mainTextarea.style.zIndex="0";
-                        this._modSelector.updateRow(row,flex);
-                        this._user.askSendToServer(row,formdata,null,blog);
-                        Misc.growOut({anchor:form2,scale:0,opacity:0,time:400});
-                        setTimeout(()=>{mainTextarea.removeChild(form2)},398);
+                        this._modSelector.promUpdateRow(row).then(async(res)=>{
+                            if(res){
+                                
+                                this._user.askSendToServer(row,formdata,null,blog);
+                                Misc.growOut({anchor:form2,scale:0,opacity:0,time:400});
+                                setTimeout(()=>{mainTextarea.removeChild(form2)},398);
+                            }
+                        });
                     }
                 }
             });

@@ -1,5 +1,6 @@
 
 import { getErrorMessage } from "@/lib/errorBoundaries";
+import prisma from "@/prisma/prismaclient";
 import { S3Client, PutObjectCommand } from "@aws-sdk/client-s3";
 import { NextRequest, NextResponse } from "next/server";
 
@@ -37,7 +38,8 @@ export async function PUT(request: NextRequest) {
             const buffer = Buffer.from(bytes);
             const filename = await uploadFileToS3({ buffer, fileType: file.type, Key });
             // const reSizeBuffer = await sharp(buffer).resize({ width: 600, height: 400 }).toBuffer()
-            return NextResponse.json({ success: "true", filename }, { status: 200 })
+            const msg = await registerImage({ Key });
+            return NextResponse.json({ success: msg, filename }, { status: 200 })
             // console.log("NAME", file.name, "Key", Key);//worked
 
 
@@ -64,4 +66,25 @@ async function uploadFileToS3(item: { buffer: Buffer, fileType: string, Key: str
     await s3.send(command);
     return Key
 
+}
+async function registerImage(item: { Key: string }) {
+    const { Key } = item;
+    let msg: string = '';
+    try {
+        const create = await prisma.deletedImg.create({
+            data: {
+                imgKey: Key,
+                count: 1,
+                del: false
+            }
+        });
+        if (create) {
+            msg = "success";
+        }
+    } catch (error) {
+        msg = getErrorMessage(error);
+    } finally {
+        await prisma.$disconnect();
+        return msg
+    }
 }

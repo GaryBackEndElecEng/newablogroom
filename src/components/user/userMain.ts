@@ -560,10 +560,10 @@ class User{
      //IMAGE FORM: THIS APPENDS CHOICE image in refreshImageShow() above
      async refreshImageUpload(targetContainer:HTMLElement,mainTextArea:HTMLElement,image:HTMLImageElement,flex:flexType | null):Promise<void>{
         //parent=>element container
+        const blog=this._modSelector._blog;
         const {form,mainTextarea:grandParent}=this.userSetups.imageForm(mainTextArea,flex);
-        await this.imgKeyMarkDelete(targetContainer,image);//MARK DELETE IMAGES ON AWS
         //grandParent=> column
-        form.addEventListener("submit",(e:SubmitEvent)=>{
+        form.addEventListener("submit",async(e:SubmitEvent)=>{
             //CLIENT IS SAVING
             if(e){
                 //GETTING IMAGE
@@ -575,8 +575,17 @@ class User{
                 if( file && file.name){
                     image.src=imageUrl;
                     image.alt=file.name;
+                    await this.imgKeyMarkDelete(targetContainer,image);//MARK DELETE IMAGES ON AWS
+                    const {parsed,isJSON}=Header.checkJson(image.getAttribute("flex"));
+                    const {Key}=this._service.generateImgKey(formData,blog) as {Key:string};
+                    if(isJSON){
+                        let flex= parsed as flexType;
+                        flex={...flex,imgKey:Key};
+                        image.setAttribute("flex",JSON.stringify(flex));
+                    }else{
+                        image.setAttribute("imgKey",Key);
+                    }
                     this._modSelector.updateElement(image);
-                    const blog=this._modSelector._blog;
                     Misc.blurIn({anchor:image,blur:"20px",time:400});
                     this.askSendToServer(grandParent,formData,image,blog)
                     grandParent.removeChild(form)
@@ -650,6 +659,30 @@ class User{
             //CANCEL---- : NOT SAVING IMAGE TO SERVER
             if(e){
                 //CLOSING POPUP----------//
+                if(image){
+                    const {parsed,isJSON}=Header.checkJson(image.getAttribute("flex"));
+                    if(isJSON){
+                        let flex=parsed as flexType;
+                        flex={...flex,imgKey:undefined,backgroundImage:undefined};
+                        image.setAttribute("flex",JSON.stringify(flex));
+                    }else{
+                        image.removeAttribute("imgKey");
+                    }
+                    this._modSelector.updateElement(image);
+                }else{
+                    const {parsed,isJSON}=Header.checkJson(bg_parent.getAttribute("flex"));
+                    if(isJSON){
+                        let flex=parsed as flexType;
+                        flex={...flex,imgKey:undefined,backgroundImage:undefined};
+                        bg_parent.setAttribute("flex",JSON.stringify(flex));
+                        bg_parent.removeAttribute("data-background-image");
+                        if(flex.colId){
+                            this._modSelector.updateColumn(bg_parent,flex);
+                        }else{
+                            this._modSelector.updateRow(bg_parent,flex);
+                        }
+                    }
+                }
                 Misc.fadeOut({anchor:msgCont,xpos:50,ypos:100,time:600});
                 setTimeout(()=>{
                     grandParent.removeChild(msgCont);
@@ -1408,7 +1441,6 @@ class User{
                 return this._service.promsaveItems(res);
             }
         });
-        return this._service.promsaveItems(this._modSelector._blog)
     }
 
     checkIfHasImagesButNoImgKey(blog:blogType):arrImgType2[]{

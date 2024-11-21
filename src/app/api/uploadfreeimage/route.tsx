@@ -37,6 +37,7 @@ export async function PUT(req: NextRequest) {
             const buffer = Buffer.from(bytes);
             const filename = await uploadFileToS3({ buffer, fileType: file.type, Key });
             // const reSizeBuffer = await sharp(buffer).resize({ width: 600, height: 400 }).toBuffer()
+
             return NextResponse.json({ success: "true", filename }, { status: 200 })
             // console.log("NAME", file.name, "Key", Key);//worked
 

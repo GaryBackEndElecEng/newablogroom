@@ -2,7 +2,7 @@ import Misc from "../common/misc";
 import Service from "../common/services";
 import ModSelector from "../editor/modSelector";
 import { postType, userType } from "../editor/Types";
-import { DeleteObjectCommand } from '@aws-sdk/client-s3';
+// import { DeleteObjectCommand } from '@aws-sdk/client-s3';
 import User from "../user/userMain";
 import Nav from "../nav/headerNav";
 import Header from "../editor/header";
@@ -80,7 +80,6 @@ class Post{
         // console.log(this.usersinfo);//all users showinfo works
         this.posts=posts;
         Header.cleanUpByID(injector,"main-post-container");
-        const width=window.innerWidth;
         const css_col="margin-inline:auto;display:flex;flex-direction:column;justify-content:center;align-items:center;margin-block:1.65rem;";
         this.injector=injector;
         const container=document.createElement("div");
@@ -133,6 +132,13 @@ class Post{
                                 {transform:"translateX(-75%)",opacity:"0",fontSize:preParaSize,backgroundColor:"black",color:"white"},
                                 {transform:"translateX(0%)",opacity:"1",fontSize:paraSize,backgroundColor:"rgb(212 229 225 / 33%)",color:"#1dcbfb"},
                             ],{duration:res.time,iterations:1,"easing":"ease-in-out"});
+                            setTimeout(()=>{
+                                res.para.style.textTransform="uppercase";
+                                res.para.animate([
+                                    {textTransform:"lowercase"},
+                                    {textTransform:"uppercase"},
+                                ],{duration:1800,iterations:1,"easing":"ease-in-out"});
+                            },res.time + 1000);
                         },res.time);
                         ///--------------------------title display ----------------------///
                     }
@@ -174,7 +180,7 @@ class Post{
         div2.style.height=less900 ? (less400 ? "5px":"8px"):"9px";
         const para=document.createElement("p");
         para.id="textContainer-para";
-        para.textContent="updates and comments for your pleasure.";
+        para.textContent="updates and comments";
         para.style.cssText="padding-block:1rem;padding-inline:1rem;margin-inline:auto;margin-top:0.5rem;text-wrap:wrap;text-align:center;box-shadow:1px 1px 3px 1px #06a4f7;background-color:rgb(212 229 225 / 20%);";
         para.style.fontSize=less900 ? (less400 ? "130%":"150%"):"175%";
         para.style.color="#06a4f7";
