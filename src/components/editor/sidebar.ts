@@ -515,7 +515,7 @@ listThemeTypes:{name:string}[]=[{name:"background"},{name:"fonts"},{name:"colors
                             this._modSelector.saveTheme(parent,theme);
                             //SENDING IT TO SIMPLE UPLOAD PROCESS:BgImage has no element
 
-                            this._user.askSendToServer(parent,filedata,null,this._modSelector._blog);
+                            this._user.askSendToServer({bg_parent:parent,formdata:filedata,image:null,blog:this._modSelector._blog,oldKey:null});
                         }
                     });
                     parent.removeChild(innerContainer);

@@ -1,6 +1,6 @@
 
 import { FaAccessibleIcon, FaBlog,FaInfo,FaEdit,FaHome,FaMedapps,FaSign,FaFilePowerpoint,FaFacebookF,FaInstagramSquare,FaGithub,FaLinkedin,FaSitemap,FaMailBulk } from "react-icons/fa";
-import { navLinkBtnType, userType, blogType, messageType, gets3ImgKey, } from "../editor/Types";
+import { navLinkBtnType, userType, blogType, messageType, gets3ImgKey, infoType2, } from "../editor/Types";
 import { FaArrowRight } from 'react-icons/fa';
 import { FaBtn, FaCreate } from "../common/ReactIcons";
 import * as Icons from "react-icons/fa";
@@ -854,13 +854,14 @@ set user(user:userType){
         const container=document.createElement("div");
         container.style.cssText="margin-inline:auto;position:absolute;max-width:600px;width:100%;top:160%;left:35%;";
         Misc.matchMedia({parent:container,maxWidth:600,cssStyle:{"top":"160%","left":"0%","right":"0%"}});
-        this._service.peronalInfo().then(async(res)=>{
-                if(res){
+        this._service.peronalInfo2().then(async(info:infoType2|undefined)=>{
+                if(info){
+                    const maxWidth=400;
                     parent.style.position="relative";
                     parent.style.zIndex="";
                     const container=document.createElement("div");
                     container.id="navArrow-bio-container";
-                    container.style.cssText="width:100%; max-width:400px;box-shadow:1px 1px 10px black;border-radius:16px;position:absolute;box-shadow:1px 1px 10px 1px black;border-radius:16px;z-index:1000;display:grid;place-items:center;";
+                    container.style.cssText=`width:100%; max-width:${maxWidth}px;box-shadow:1px 1px 10px black;border-radius:16px;position:absolute;box-shadow:1px 1px 10px 1px black;border-radius:16px;z-index:1000;display:grid;place-items:center;`;
                     Misc.matchMedia({parent:container,maxWidth:900,cssStyle:{top:"160%",left:"23%",right:"23%"}});
                     Misc.matchMedia({parent:container,maxWidth:400,cssStyle:{top:"160%",left:"1%",right:"1%"}});
                     container.style.top=window.innerWidth <900 ? (window.innerWidth <400 ? "160%" :"160%") :"160%";
@@ -869,54 +870,52 @@ set user(user:userType){
                     Misc.matchMedia({parent:container,maxWidth:600,cssStyle:{"top":"160%","left":"0%","right":"0%"}});
                     const card=document.createElement("div");
                     card.className="card";
-                    card.style.cssText="width:100%;border-radius:inherit;background-color:#0C090A;max-width:350px;margin-inline:auto;border-radius:inherit;position:relative;display:flex;justify-content:center;align-items:center;flex-direction:column;box-shadow:1px 1px 10px 1px black;";
+                    card.style.cssText=`width:100%;border-radius:inherit;background-color:#0C090A;max-width:${maxWidth}px;margin-inline:auto;border-radius:inherit;position:relative;display:flex;justify-content:center;align-items:center;flex-direction:column;box-shadow:1px 1px 10px 1px black;`;
                     const img=document.createElement("img");
-                    img.style.cssText="border-radius:50%;box-shadow:1px 1px 10px 1px white;padding:0.5rem;margin-block:0.5rem;margin-inline:auto;width:100%;max-width:320px;"
+                    img.style.cssText=`border-radius:50%;box-shadow:1px 1px 10px 1px white;padding:0.5rem;margin-block:0.5rem;margin-inline:auto;width:100%;max-width:${maxWidth}px;`
                     img.classList.add("card-img-top");
                     img.src="/images/gb_logo.png";
                     img.alt="Gary Wallace";
                     card.appendChild(img);
                     const cardBody=document.createElement("div");
-                    cardBody.style.cssText="margin-inline:auto;padding-inline:1rem;display:flex;justify-content:center;flex-direction:column;align-items:center;background-color:white;border-radius:0% 0% 16px 16px;";
+                    cardBody.style.cssText=`margin-inline:auto;padding-inline:1rem;display:flex;justify-content:center;flex-direction:column;align-items:center;background-color:white;border-radius:0% 0% 16px 16px;`;
                     const H5=document.createElement("h6");
                     H5.className=" text-primary";
                     H5.style.cssText="font-size:1.5rem;"
                     H5.textContent="Info";
                     H5.classList.add("card-title");
                     cardBody.appendChild(H5);
-                    const name=document.createElement("h6");
-                    name.className="text-primary display-6";
-                    name.textContent=res.name;
-                    cardBody.appendChild(name);
-                    //address
-                    const address=document.createElement("div");
-                    address.className="";
-                    address.style.cssText="margin-inline:1rem;padding-inline:0.5rem;width:100%;";
-                    const addColL=document.createElement("div");
-                    //left col
-                    addColL.classList.add("UL-info");
-                    const addUlL=document.createElement("ul");
-                    addUlL.style.cssText="width:100%;margin:auto;text-wrap:nowrap;";
-                    const liL1=document.createElement("li");
-                    liL1.textContent=`${res.city},${res.provState}, ${res.country}`;
-                    addUlL.appendChild(liL1);
-                    const liL2=document.createElement("li");
-                    liL2.textContent=`PO:${res.postal}`;
-                    addUlL.appendChild(liL2);
-                    const liL3=document.createElement("li");
-                    liL3.textContent=res.city;
-                    addUlL.appendChild(liL3);
-                    const liL4=document.createElement("li");
-                    liL4.textContent=res.extra;
-                    addUlL.appendChild(liL4);
-                    const liL5=document.createElement("li");
-                    liL5.textContent=res.cell;
-                    addUlL.appendChild(liL5);
-                    addColL.appendChild(addUlL);
-                    address.appendChild(addColL);
-                    //appending address (row)
-                    cardBody.appendChild(address);
-                    this.siteArray(cardBody,res.siteArray);
+                    const UL=document.createElement("ul");
+                    UL.style.cssText="width:100%;margin:auto;text-wrap:nowrap;";
+                    cardBody.appendChild(UL);
+                    const css_li="margin-inline:1rem;padding-inline:0.5rem;width:100%;text-wrap:pretty;";
+                    for(const [key,value] of Object.entries(info)){
+                        if(!key && !value && typeof key !=="string" && typeof value !=="string") return;
+                        if(key!=="id"){
+                            if(key !=="siteArray"){
+                                if(key==="name"){
+                                    const name=document.createElement("h6");
+                                    name.className="text-primary display-6";
+                                    name.textContent=value as string;
+                                    cardBody.appendChild(name);
+                                }else {
+                                    const li=document.createElement("li");
+                                    const span=document.createElement("span");
+                                    span.className="text-primary mr-1";
+                                    span.textContent=`${key}: `;
+                                    li.style.cssText=css_li;
+                                    const add= value as string;
+                                    li.appendChild(span);
+                                    li.innerHTML+=add;
+                                    UL.appendChild(li);
+                                }
+                                cardBody.appendChild(UL);
+                            }else if(key==="siteArray"){
+                                const siteArray=value as {name:string,url:string}[];
+                                this.siteArray(cardBody,siteArray);
+                            }
+                        }
+                    }
                     //address
                     const btnGrp=document.createElement("div");
                     btnGrp.style.cssText="padding-inline:1rem;margin-inline:auto;display:flex;flex-direction:row;justify-content:center;aligns-item:center;margin-block:1rem;";
@@ -925,7 +924,7 @@ set user(user:userType){
                     card.appendChild(cardBody);
                     container.appendChild(card);
                     parent.appendChild(container);
-                    Misc.fadeIn({anchor:container,xpos:20,ypos:100,time:700});
+                    Misc.fadeIn({anchor:container,xpos:20,ypos:100,time:400});
                     close.addEventListener("click",(e:MouseEvent)=>{
                         if(e){
                             Misc.fadeOut({anchor:container,xpos:20,ypos:100,time:600});
@@ -938,17 +937,14 @@ set user(user:userType){
         });
     }
 
-    siteArray(parent:HTMLElement,array:string[]){
+    siteArray(parent:HTMLElement,array:{name:string,url:string}[]){
         const container=document.createElement("div");
         container.id="sites";
         const row=document.createElement("div");
         row.style.cssText="display:flex;justify-content:center;align-items:center;flex-direction:row;flex-wrap:wrap;"
         array.map((item,index)=>{
             if(item){
-                const parse=item.split("::") as string[]
-                const parseAgain={key:parse[0],link:parse[1]}
-                const {key,link}=parseAgain as {key:string,link:string};
-                if(key==="fb"){
+                if(item.name==="fb"){
                     
                     const iconDiv=document.createElement("div");
                     iconDiv.id="fa";
@@ -957,10 +953,10 @@ set user(user:userType){
                     row.appendChild(iconDiv);
                     iconDiv.addEventListener("click",(e:MouseEvent)=>{
                         if(e){
-                            window.open(link,"_blank");
+                            window.open(item.url,"_blank");
                         }
                     });
-                }else if(key==="linkedin"){
+                }else if(item.name==="linkedin"){
                     
                     const iconDiv1=document.createElement("div");
                     iconDiv1.id="linkedln";
@@ -969,10 +965,10 @@ set user(user:userType){
                     row.appendChild(iconDiv1);
                     iconDiv1.addEventListener("click",(e:MouseEvent)=>{
                         if(e){
-                            window.open(link,"_blank");
+                            window.open(item.url,"_blank");
                         }
                     });
-                }else if(key==="github"){
+                }else if(item.name==="github"){
                     
                     const iconDiv2=document.createElement("div");
                     iconDiv2.id="github";
@@ -981,10 +977,10 @@ set user(user:userType){
                     row.appendChild(iconDiv2);
                     iconDiv2.addEventListener("click",(e:MouseEvent)=>{
                         if(e){
-                            window.open(link,"_blank");
+                            window.open(item.url,"_blank");
                         }
                     });
-                }else if(key==="instagram"){
+                }else if(item.name==="instagram"){
                     
                     const iconDiv3=document.createElement("div");
                     iconDiv3.id="instagram";
@@ -993,10 +989,10 @@ set user(user:userType){
                     row.appendChild(iconDiv3);
                     iconDiv3.addEventListener("click",(e:MouseEvent)=>{
                         if(e){
-                            window.open(link,"_blank");
+                            window.open(item.url,"_blank");
                         }
                     });
-                }else if(key !=="email"){
+                }else if(item.name !=="email"){
                     
                     const iconDiv4=document.createElement("div");
                     iconDiv4.id=`website-${index}`;
@@ -1005,7 +1001,7 @@ set user(user:userType){
                     row.appendChild(iconDiv4);
                     iconDiv4.addEventListener("click",(e:MouseEvent)=>{
                         if(e){
-                            window.open(link,"_blank");
+                            window.open(item.url,"_blank");
                         }
                     });
                 }else{

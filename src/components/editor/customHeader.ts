@@ -1228,7 +1228,7 @@ set header_(header:selectorType){
                         }
                     });//this adds elements to selector and/or elements
                     const blog=this._modSelector.blog;
-                    this._user.askSendToServer(column,formdata,target,blog);//ORDERED SIGNIN
+                    this._user.askSendToServer({bg_parent:column,formdata,image:target,blog,oldKey:null});//ORDERED SIGNIN
                     //----MULTIPURPOSE IMAGE SAVE ONLY //////
                     divCont.appendChild(target);
                     retParent.appendChild(divCont);
@@ -1293,6 +1293,9 @@ set header_(header:selectorType){
         form.addEventListener("submit",(e:SubmitEvent)=>{
             if(e){
                 e.preventDefault();
+                const {parsed,isJSON}=Header.checkJson(column.getAttribute("flex"));
+                const flex_= isJSON ? parsed as flexType :flex;
+                const oldKey= flex_.imgKey ? flex_.imgKey : null;
                 const formdata= new FormData(e.currentTarget as HTMLFormElement);
                 const file=formdata.get("file");
                 if(file as File){
@@ -1305,7 +1308,7 @@ set header_(header:selectorType){
                 this._modSelector.promUpdateColumn(column,flex_).then(async(res)=>{
                     if(res){
 
-                        this._user.askSendToServer(column,formdata,null,blog);
+                        this._user.askSendToServer({bg_parent:column,formdata,image:null,blog,oldKey});
                         column.setAttribute("data-background-image","true");
                         column.style.cssText="background-position:50% 50%;background-size:100% 100%;position:relative;z-index:1;insert:0;";
                         column.style.backgroundImage=`url(${image})`;
@@ -1330,6 +1333,7 @@ set header_(header:selectorType){
         const {isJSON,parsed}=Header.checkJson(row.getAttribute("flex"));
         if(row && isJSON){
             let flex=parsed as flexType;
+            const oldKey=flex.imgKey ? flex.imgKey : null;
             const {form:form2,reParent:mainTextarea}=Misc.imageForm(column,flex);
             mainTextarea.style.zIndex="-1";
             form2.addEventListener("submit",(e:SubmitEvent)=>{
@@ -1351,7 +1355,7 @@ set header_(header:selectorType){
                         this._modSelector.promUpdateRow(row).then(async(res)=>{
                             if(res){
                                 
-                                this._user.askSendToServer(row,formdata,null,blog);
+                                this._user.askSendToServer({bg_parent:row,formdata,image:null,blog,oldKey});
                                 Misc.growOut({anchor:form2,scale:0,opacity:0,time:400});
                                 setTimeout(()=>{mainTextarea.removeChild(form2)},398);
                             }

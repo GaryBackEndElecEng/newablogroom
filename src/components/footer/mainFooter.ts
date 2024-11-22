@@ -452,7 +452,7 @@ class MainFooter{
                         btn.addEventListener("click",(e:MouseEvent)=>{
                             if(e){
                                    window.scroll(0,0);
-                                   this._navArrow.logout({func:()=>undefined}).then(()=>{
+                                   this._navArrow.logout({func:()=>undefined,redirect:false}).then(()=>{
                                     const getRedue=document.querySelector("div#footer-centerBtns-container") as HTMLElement;
                                     this._navArrow.signInDisplay(getHeader,null).then(async(res_)=>{
                                         if(res_){

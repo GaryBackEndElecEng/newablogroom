@@ -97,14 +97,14 @@ class ProfileMain{
         this.posts=user.posts;
         const less900=window.innerWidth <900;
         const less400=window.innerWidth <400;
-        ProfileMain.cleanUpByID(parent,"section#main-outerMain")
+        ProfileMain.cleanUpByID(parent,"section#main-outerMain");
+        
         parent.style.position="relative";
         // parent.style.justifyContent="space-between";
         const outerMain=document.createElement("section");
         outerMain.id="main-outerMain";
         outerMain.style.cssText=css_col + "box-shadow:1px 1px 12px 1px #1F305E;width:100%;";
-        outerMain.style.backgroundColor="#34282C";
-        outerMain.id="profileMain";
+        outerMain.style.backgroundColor="rgb(7 3 43)";
         ProfileMain.main=outerMain;
         ////--------------row -------------------------///
         const mainRow=document.createElement("div");
@@ -137,7 +137,7 @@ class ProfileMain{
         col.classList.add(`col-md-${partition}`);
         col.style.flex=less900 ? (less400 ? "1 0 100%" : "1 0 50%"): "1 0 50%";
         const title=document.createElement("h6");
-        title.className="text-primary text-center lean mx-auto";
+        title.className="text-light text-center lean mx-auto";
         title.textContent="email changeout";
         title.style.cssText="margin-inline:auto;margin-block:1rem;";
         //APPENDING TITLE TO COL
@@ -232,7 +232,7 @@ class ProfileMain{
         col.classList.add(`col-md-${partition}`);
         const title=document.createElement("h6");
         title.textContent="password changeout";
-        title.className="text-primary text-center lean mx-auto";
+        title.className="text-light text-center lean mx-auto";
         title.style.cssText="margin-inline:auto;margin-block:1rem;";
         //APPENDING TITLE TO COL
         col.appendChild(title);
@@ -997,8 +997,10 @@ class ProfileMain{
         const less400=window.innerWidth < 400;
         grandRow.style.width="100%";
         popup.id="profile-show-final-work-popup";
-        popup.style.cssText="position:absolute;background:white;width:100%;height:auto;z-index:200;overflow-y:scroll;"
-        popup.style.inset=less900 ? (less400 ? "0% 0% 40% 0%" : "0% 0% 50% 0%") : "0%";
+        popup.style.cssText="position:absolute;background:white;width:100%;height:100vh;z-index:200;overflow-y:scroll;"
+        popup.style.top="0%";
+        popup.style.left="0%";
+        popup.style.right="0%";
         const container=document.createElement("div");
         container.id="profile-show-final-work-container";
         container.className="profile-show-final-work-container";
@@ -1854,6 +1856,16 @@ class ProfileMain{
         };
 
 
+    }
+    cleanUpKeepOne(parent:HTMLElement,query:string){
+        const getElements=parent.querySelectorAll(query);
+        if(getElements){
+            ([...getElements as any] as Element[]).map((child,index)=>{
+                if(child && index >0){
+                    parent.removeChild(child);
+                }
+            });
+        }
     }
     static cleanUpByID(parent:HTMLElement,query:string){
         const getElements=parent.querySelectorAll(query);

@@ -649,7 +649,7 @@ class  Main  {
                 {id:0,name:"home",color:"#0a2351",link:"/",func:()=>undefined,icon:FaHome,show:true,isEditor:false,save:()=>null},
                 {id:1,name:"blogs",color:"#0a2351",link:"/blogs",func:()=>undefined,icon:FaBlog,show:true,isEditor:false,save:()=>null},
                 {id:2,name:"signin",color:"#0a2351",link:null,func:async()=>{await this._regSignin.signIn()},icon:FaSign,show:!checkSignedIn,isEditor:false,save:()=>null},
-                {id:3,name:"logout",color:"#0a2351",link:null,func:()=>{this._navArrow.logout({func:()=>undefined})},icon:FaSign,show:checkSignedIn,isEditor:false,save:()=>null},
+                {id:3,name:"logout",color:"#0a2351",link:null,func:()=>{this._navArrow.logout({func:()=>undefined,redirect:true})},icon:FaSign,show:checkSignedIn,isEditor:false,save:()=>null},
                 {id:4,name:"contact",color:"#0a2351",link:null,func:()=>{this._navArrow.contact(MainHeader.header as HTMLElement)},icon:FaComment,show:true,isEditor:false,save:()=>null},
     
             ]

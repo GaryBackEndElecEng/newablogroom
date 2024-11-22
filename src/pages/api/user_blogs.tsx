@@ -21,7 +21,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
 
                 });
-                if (blogs && blogs.length > 0) {
+                if (blogs) {
                     res.status(200).json(blogs as unknown[] as blogType[]);
                     return await prisma.$disconnect();
                 } else {

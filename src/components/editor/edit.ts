@@ -338,13 +338,13 @@ class Edit {
         row.id="row-user-blogs";
         row.style.cssText="margin-inline:auto;display:flex;flex-direction:row;flex-wrap:wrap;width:100%;";
         row.className="row";
-        container.appendChild(row);
         await this._service.userBlogs(user_id).then(async(blogs)=>{
-            if(blogs){
+            if(blogs && blogs.length>0){
                 this._modSelector.blogs=blogs;
-                if(blogs && blogs.length>0){
-                    blogs.map(async(blog)=>{
-                        const col=document.createElement("div");
+                container.appendChild(row);
+                
+                blogs.map(async(blog)=>{
+                    const col=document.createElement("div");
                         col.className="col-md-4";
                        await this.blogCard(parent,container,row,col,blog);
 
@@ -361,12 +361,12 @@ class Edit {
                         }
                     };
                     //REMOVE BUTTON
-                }else{
-                    Misc.message({parent:container,msg:"You have no blogs",type_:"error",time:700});
-                    setTimeout(()=>{
-                        container.remove();
-                    },698);
-                }
+               
+            }else{ 
+                Misc.message({parent:container,msg:"You have no blogs",type_:"error",time:1700});
+                setTimeout(()=>{
+                    container.remove();
+                },1698);
             }
         });
     }
@@ -1517,7 +1517,7 @@ class Edit {
                                 setTimeout(()=>{container.removeChild(form)},390);
                                 button.onclick=(e:MouseEvent)=>{
                                     if(e){
-                                        this._user.askSendToServer(parent,formdata,image,blog);
+                                        this._user.askSendToServer({bg_parent:parent,formdata,image,blog,oldKey:null});
                                         Misc.growOut({anchor:container,scale:0,opacity:0,time:400});
                                         setTimeout(()=>{parent.removeChild(container)},390);
                                     }
@@ -1530,7 +1530,7 @@ class Edit {
                         setTimeout(()=>{container.removeChild(form)},390);
                         button.onclick=(e:MouseEvent)=>{
                             if(e){
-                                this._user.askSendToServer(parent,formdata,image,blog);
+                                this._user.askSendToServer({bg_parent:parent,formdata,image,blog,oldKey:null});
                                 Misc.growOut({anchor:container,scale:0,opacity:0,time:400});
                                 setTimeout(()=>{parent.removeChild(container)},390);
                             }

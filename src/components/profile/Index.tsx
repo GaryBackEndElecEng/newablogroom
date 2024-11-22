@@ -24,6 +24,7 @@ export default function Index({ user }: { user: userType | null }) {
       const profile = new ProfileMain(modSelector, service, _user, metablog, chart, post)
       profile.main({ parent: profileMainInjector, user }).then(() => {
         countRef.current++;
+        profile.cleanUpKeepOne(profileMainInjector, "section#main-outerMain")
       });
     }
 

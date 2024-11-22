@@ -981,7 +981,7 @@ colAttrs=["col-start","col-end","col-center"];
                         parent.appendChild(imgCont);
                         retFlex={...retFlex,imgKey:Key}
                         img.setAttribute("flex",JSON.stringify(retFlex));
-                        this._user.askSendToServer(parent,formelement,img,blog);
+                        this._user.askSendToServer({bg_parent:parent,formdata:formelement,image:img,blog,oldKey:null});
                         Misc.fadeIn({anchor:imgCont,xpos:50,ypos:100,time:600});
                         parent.removeChild(floatContainer);
                         btnClicked.classList.remove("active");
@@ -1015,10 +1015,7 @@ colAttrs=["col-start","col-end","col-center"];
         reParent.style.zIndex="2";
         const {parsed}=Header.checkJson(column.getAttribute("flex"));
         let _flex=(parsed as flexType) ? parsed as flexType : flex;
-        if(_flex.imgKey){
-            const markDel:deletedImgType={id:undefined,imgKey:_flex.imgKey,del:true,date:new Date()};
-            await this._service.markDelKey(markDel);
-        }
+        const oldKey=flex.imgKey ? flex.imgKey : null;
         form.onsubmit=async(e:SubmitEvent)=>{
             if(e){
                 e.preventDefault();
@@ -1036,7 +1033,7 @@ colAttrs=["col-start","col-end","col-center"];
                     column.setAttribute("data-backgroundimage","true");
                     this._modSelector.promUpdateColumn(column,flex).then(async(col_)=>{
                         if(col_){
-                            this._user.askSendToServer(column,formdata,null,blog);//THIS SAVES IT AS BACKGROUND IF IMAGE=NULL
+                            this._user.askSendToServer({bg_parent:column,formdata,image:null,blog,oldKey});//THIS SAVES IT AS BACKGROUND IF IMAGE=NULL
                         }
                     });
                     Misc.growOut({anchor:form,scale:0,opacity:0,time:400});
@@ -1052,10 +1049,7 @@ colAttrs=["col-start","col-end","col-center"];
         if(!row) return;
         const {parsed}=Header.checkJson(row.getAttribute("flex"));
         let _flex=(parsed as flexType) ? parsed as flexType : flex;
-        if(_flex.imgKey){
-            const markDel:deletedImgType={id:undefined,imgKey:_flex.imgKey,del:true,date:new Date()};
-            await this._service.markDelKey(markDel);
-        }
+        const oldKey=flex.imgKey ? flex.imgKey : null;
         const blog=this._modSelector._blog;
         this._modSelector.loadBlog(blog);
         const {form,reParent}=Misc.imageForm(row,flex);
@@ -1078,7 +1072,7 @@ colAttrs=["col-start","col-end","col-center"];
                     row.setAttribute("data-backgroundimage","true");
                     this._modSelector.promUpdateRow(row).then(async(row_)=>{
                         if(row_){
-                            this._user.askSendToServer(row,formdata,null,blog);//THIS SAVES IT AS BACKGROUND IF IMAGE=NULL
+                            this._user.askSendToServer({bg_parent:row,formdata,image:null,blog,oldKey});//THIS SAVES IT AS BACKGROUND IF IMAGE=NULL
                         }
                     });
                     Misc.growOut({anchor:form,scale:0,opacity:0,time:400});

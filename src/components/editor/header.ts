@@ -1,4 +1,4 @@
-import { flexType, element_selType, colType, rowType, selectorType, headerType, columnAttrType, classAttType, blogType, } from './Types';
+import { flexType, element_selType, colType, rowType, selectorType, headerType, columnAttrType, classAttType, blogType, deletedImgType, } from './Types';
 import ModSelector from "./modSelector";
 import {FaCrosshairs} from "react-icons/fa";
 import {FaCreate} from "@/components/common/ReactIcons";
@@ -943,8 +943,8 @@ class Header{
                     this.promElementAdder(tempImg).then(async(ele:element_selType)=>{
                         if(ele){
                             //adds choice on image change
-                            const mainTextarea=Main.textarea as HTMLElement;
-                            this._user.refreshImageUpload(divCont,mainTextarea,tempImg,retFlexImg);
+                            const mainTextArea=Main.textarea as HTMLElement;
+                            this._user.refreshImageUpload({targetContainer:divCont,mainTextArea,image:tempImg,flex:retFlexImg});
                             divCont.addEventListener("click",(e:MouseEvent)=>{
                                 if(e){
                                     divCont.classList.toggle("isActive");
@@ -1470,18 +1470,19 @@ class Header{
                 col.style.zIndex="0";
                 col.style.position="relative";
                 const image=URL.createObjectURL(file as File);
-                column.setAttribute("data-background-image","true");
-                column.style.backgroundSize="100% 100%";
-                column.style.backgroundPosition="50% 50%";
-                column.style.backgroundImage=`url(${image})`;
-                Misc.blurIn({anchor:column,blur:"20px",time:600});
-                const {parsed}=Header.checkJson(column.getAttribute("flex"));
+                col.setAttribute("data-background-image","true");
+                col.style.backgroundSize="100% 100%";
+                col.style.backgroundPosition="50% 50%";
+                col.style.backgroundImage=`url(${image})`;
+                Misc.blurIn({anchor:col,blur:"20px",time:600});
+                const {parsed}=Header.checkJson(col.getAttribute("flex"));
                 let flex=parsed as flexType;
+                const oldKey=flex.imgKey ? flex.imgKey : null;
                 const {Key}=this._service.generateImgKey(formdata,blog) as {Key:string};
                 flex={...flex,position:"col",backgroundImage:true,imgKey:Key}
-                column.setAttribute("flex",JSON.stringify(flex));
-                await this._modSelector.promUpdateColumn(column,flex);
-                this._user.askSendToServer(column,formdata,null,blog);
+                col.setAttribute("flex",JSON.stringify(flex));
+                await this._modSelector.promUpdateColumn(col,flex);
+                this._user.askSendToServer({bg_parent:col,formdata,image:null,blog,oldKey});
                 Misc.fadeOut({anchor:formContainer,xpos:50,ypos:100,time:500});
                 setTimeout(()=>{
                     col.removeChild(formContainer);
@@ -1522,13 +1523,14 @@ class Header{
         
         }
      }
-     bgRowImage(item:{column:HTMLElement,blog:blogType}){
+     async bgRowImage(item:{column:HTMLElement,blog:blogType}){
         const {column,blog}=item;
         const row=column.parentElement;
         if(!row) return;
         const {isJSON,parsed}=Header.checkJson(row.getAttribute("flex"));
         if(row && isJSON){
             let flex=parsed as flexType;
+            const oldKey=flex.imgKey ? flex.imgKey : null;;
             const {form:form2,reParent:parent}=Misc.imageForm(column,flex);
             parent.style.zIndex="-1";
             form2.addEventListener("submit",(e:SubmitEvent)=>{
@@ -1549,7 +1551,7 @@ class Header{
                         row.setAttribute("data-backgroundImage","true");
                         parent.style.zIndex="0";
                         this._modSelector.updateRow(row,flex);
-                        this._user.askSendToServer(row,formdata,null,blog);
+                        this._user.askSendToServer({bg_parent:row,formdata,image:null,blog,oldKey:oldKey});
                         Misc.growOut({anchor:form2,scale:0,opacity:0,time:400});
                         setTimeout(()=>{parent.removeChild(form2)},398);
                     }

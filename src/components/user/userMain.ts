@@ -510,7 +510,7 @@ class User{
     async refreshImageShow(parent:HTMLElement,image:HTMLImageElement,formdata:FormData|null,flex:flexType | null):Promise<void>{
         //SELECTION: UPLOAD OR CANCEL
         Edit.cleanUpByID(parent,"changeImage");
-        await this.imgKeyMarkDelete(parent,image);//MARK DELETE IMAGES ON AWS
+        await this._service.imgKeyMarkDelete({targetParent:null,targetImage:image,oldKey:null});//MARK DELETE IMAGES ON AWS
         const {targetContainer,select,mainTextarea}=this.userSetups.changeImage(parent,formdata);
         select.addEventListener("click",(e:MouseEvent)=>{
             if(e){
@@ -548,7 +548,7 @@ class User{
                 }else {
                     //SHOWING FORM!!!
                     console.log("value",value)
-                    this.refreshImageUpload(targetContainer,mainTextarea,image,flex);
+                    this.refreshImageUpload({targetContainer,mainTextArea:mainTextarea,image,flex});
                     targetContainer.removeChild(select);
                 }
             }
@@ -558,9 +558,11 @@ class User{
         
     };
      //IMAGE FORM: THIS APPENDS CHOICE image in refreshImageShow() above
-     async refreshImageUpload(targetContainer:HTMLElement,mainTextArea:HTMLElement,image:HTMLImageElement,flex:flexType | null):Promise<void>{
+     async refreshImageUpload(item:{targetContainer:HTMLElement,mainTextArea:HTMLElement,image:HTMLImageElement,flex:flexType | null}):Promise<void>{
         //parent=>element container
+        const {targetContainer,mainTextArea,image,flex}=item;
         const blog=this._modSelector._blog;
+        await this._service.imgKeyMarkDelete({targetParent:null,targetImage:image,oldKey:null});//MARK DELETE IMAGES ON AWS
         const {form,mainTextarea:grandParent}=this.userSetups.imageForm(mainTextArea,flex);
         //grandParent=> column
         form.addEventListener("submit",async(e:SubmitEvent)=>{
@@ -575,7 +577,6 @@ class User{
                 if( file && file.name){
                     image.src=imageUrl;
                     image.alt=file.name;
-                    await this.imgKeyMarkDelete(targetContainer,image);//MARK DELETE IMAGES ON AWS
                     const {parsed,isJSON}=Header.checkJson(image.getAttribute("flex"));
                     const {Key}=this._service.generateImgKey(formData,blog) as {Key:string};
                     if(isJSON){
@@ -587,7 +588,7 @@ class User{
                     }
                     this._modSelector.updateElement(image);
                     Misc.blurIn({anchor:image,blur:"20px",time:400});
-                    this.askSendToServer(grandParent,formData,image,blog)
+                    this.askSendToServer({bg_parent:grandParent,formdata:formData,image,blog,oldKey:null})
                     grandParent.removeChild(form)
                     
                     
@@ -599,7 +600,7 @@ class User{
     };
     //BEAR REQUEST WITH NO BACKING
     async requestSaveImage(parent:HTMLElement,blog:blogType,img:HTMLImageElement,formdata:FormData){
-        await this.imgKeyMarkDelete(parent,img);//MARK DELETE IMAGES ON AWS
+        await this._service.imgKeyMarkDelete({targetParent:null,targetImage:img,oldKey:null});//MARK DELETE IMAGES ON AWS
         const {isJSON}=Header.checkJson(img.getAttribute("flex"));
         parent.style.position="relative";
         const popup=document.createElement("div");
@@ -648,10 +649,14 @@ class User{
         });
     }
 
-    async askSendToServer(bg_parent:HTMLElement,formdata:FormData,image:HTMLImageElement|null,blog:blogType){
+    async askSendToServer(item:{bg_parent:HTMLElement,formdata:FormData,image:HTMLImageElement|null,blog:blogType,oldKey:string|null}){
+        const {bg_parent,formdata,image,blog,oldKey}=item;
         //FORMDATA NEEDS A KEY INSERTED WITHIN ITS FORM ALONG WITH BLOG.USER_ID OR SIGNED IN
         this.blog={...blog};
-        await this.imgKeyMarkDelete(bg_parent,image);//MARK DELETE IMAGES ON AWS
+        if(oldKey){
+            await this._service.imgKeyMarkDelete({targetParent:null,targetImage:null,oldKey});//MARK DELETE IMAGES ON AWS
+
+        }
         
         const {cancelBtn,saveBtn,msgCont,grandParent}=this.userSetups.imageSaveCancel(bg_parent);
         msgCont.style.zIndex="100";
@@ -839,33 +844,6 @@ class User{
         }
     });
    };
-
-    async imgKeyMarkDelete(parent:HTMLElement,image:HTMLImageElement|null):Promise<void>{
-    if(image){
-        const {isJSON,parsed}=Header.checkJson(image.getAttribute("flex"));
-        if(isJSON){
-            const flex=parsed as flexType;
-        //IF IMGkEY MARK DELETE
-            await this._service.markDelKey({del:true,imgKey:flex.imgKey as string,date:new Date()})
-            //IF IMGkEY MARK DELETE
-        }else{
-            const imgKey=image.getAttribute("imgKey") as string;
-            await this._service.markDelKey({del:true,imgKey:imgKey,date:new Date()})
-        }
-        }else{
-            //background
-            const {isJSON,parsed}=Header.checkJson(parent.getAttribute("flex"));
-            const urlImage=parent.style.backgroundImage;
-            if(isJSON && urlImage){
-                const flex=parsed as flexType;
-                if(flex.imgKey){
-                    await this._service.markDelKey({del:true,imgKey:flex.imgKey,date:new Date()});
-                }
-            }
-           
-        }
-   };
-   
 
 
 //UPDATES IMGKEY AND IMG
@@ -1313,7 +1291,7 @@ class User{
                     image.src=imgUrl;
                     image.alt=filename;
                     Misc.blurIn({anchor:image,blur:"20px",time:500});
-                    this.askSendToServer(parent,formdata,image,blog);
+                    this.askSendToServer({bg_parent:parent,formdata,image,blog,oldKey:null});
                     //REMOVE CONTAINER
                     Misc.growOut({anchor:container,scale:0,opacity:0,time:500});
                     setTimeout(()=>{

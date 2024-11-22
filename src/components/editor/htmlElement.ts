@@ -475,7 +475,7 @@ class HtmlElement {
                 parent.removeChild(floatContainer);
                 btnClicked.classList.remove("active");
                 const blog=this._modSelector.blog;
-                this._user.askSendToServer(parent,formelement,img,blog);
+                this._user.askSendToServer({bg_parent:parent,formdata:formelement,image:img,blog,oldKey:null});
                 divCont.addEventListener("click",(e:MouseEvent)=>{
                     if(e){
                         divCont.classList.toggle("isActive");

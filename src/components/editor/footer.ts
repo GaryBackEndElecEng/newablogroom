@@ -924,13 +924,16 @@ class Footer{
                 const formdata=new FormData(e.currentTarget as HTMLFormElement);
                 const file=formdata.get("file");
                 if(file && file as File){
+                    const {isJSON,parsed}=Header.checkJson(row.getAttribute("flex"));
+                    const flex=isJSON ? parsed as flexType:null;
+                    const oldKey=flex && flex.imgKey ? flex.imgKey : null;
                     const imgUrl=URL.createObjectURL(file as File);
                     row.style.backgroundImage=`url(${imgUrl})`;
                     row.style.backgroundSize=`100% 200%`;
                     row.style.backgroundPosition=`50% 50%`;
                     Misc.blurIn({anchor:row,blur:"20px",time:600});
                     const blog=this._modSelector.blog;
-                    this._user.askSendToServer(row,formdata,null,blog);
+                    this._user.askSendToServer({bg_parent:row,formdata,image:null,blog,oldKey});
                     Misc.growOut({anchor:popup,scale:0,opacity:0,time:400});
                     setTimeout(()=>{
                         row.removeChild(popup);
@@ -1012,7 +1015,7 @@ class Footer{
                             image.setAttribute("flex",JSON.stringify(flex_));
                                 //SIGNED IN
                             column.style.position="relative";
-                            this._user.askSendToServer(column,formdata,image,blog);
+                            this._user.askSendToServer({bg_parent:column,formdata,image,blog,oldKey:null});
                         }
                     });
 
@@ -1059,13 +1062,16 @@ class Footer{
                 const formdata= new FormData(e.currentTarget as HTMLFormElement);
                 const file=formdata.get("file") as File;
                 if(file){
+                    const {isJSON,parsed}=Header.checkJson(column.getAttribute("flex"));
+                    const flex=isJSON ? parsed as flexType : null;
+                    const oldKey=flex && flex.imgKey ? flex.imgKey :null;
                     this._service.generateImgKey(formdata,blog) as {Key:string};
                     const urlImg=URL.createObjectURL(file as File);
                     column.setAttribute("data-backgroundimage","true");
                     column.style.backgroundImage=`url(${urlImg})`;
                     column.style.backgroundSize=`100% 100%`;
                     column.style.backgroundPosition=`50% 50%`;
-                    flex={...flex,backgroundImage:true,position:"col"};
+                    if(!flex) return;
                     this._modSelector.promUpdateColumn(column,flex).then(async(col_)=>{
                         if(!col_){
                             Misc.message({parent:column,msg:"not updated",type_:"error",time:700});
@@ -1076,7 +1082,7 @@ class Footer{
                         column.removeChild(popup);
                         Misc.blurIn({anchor:column,blur:"20px",time:600});
                     },398);
-                    this._user.askSendToServer(column,formdata,null,blog);
+                    this._user.askSendToServer({bg_parent:column,formdata,image:null,blog,oldKey});
                 }
             }
         });

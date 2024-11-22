@@ -227,7 +227,7 @@ class Home{
         outerContainer.id="mainLinks-outerContainer";
         outerContainer.style.cssText="display:flex;flex-direction:column;justify-content:center;align-items:center;width:100%;position:relative;";
         const container=document.createElement("div");
-        container.style.cssText="width:100%;min-height:10vh;display:inline-flex;justify-content:space-around;align-items:center;gap:1rem;position:relative;max-width:1000px;margin-inline:auto;";
+        container.style.cssText="width:100%;min-height:10vh;display:flex;flex-wrap:wrap;justify-content:space-around;align-items:center;gap:1rem;position:relative;max-width:1000px;margin-inline:auto;";
         container.id="mainLinks-container";
         const divTop=document.createElement("div");
         divTop.style.cssText="width:80%;margin-inline:auto;margin-bottom:2rem;margin-top:3rem;height:4px;background-color:#0E3386;";
@@ -393,7 +393,7 @@ class Home{
         const less900=window.innerWidth <900;
         const less400=window.innerWidth <400;
         parent.style.position="relative";
-        const css_col="margin-inline:auto;margin-block:2rem;display:flex;flex-direction:column;";
+        const css_col="margin-inline:auto;display:flex;flex-direction:column;";
         const container=document.createElement("section");
         container.id="home-listBlogs-showBlogs";
         container.style.cssText=css_col + "gap:1rem;position:relative;width:100%";
@@ -403,7 +403,6 @@ class Home{
         textCont.style.cssText=css_col + "gap:0.25rem;width:100%;margin-block:1rem;";
         textCont.style.marginBlock=less900 ? (less400 ? "2rem":"1.25rem") : "1rem";
         textCont.style.marginTop=less900 ? (less400 ? "1rem":"0.25rem") : "0rem";
-        textCont.style.marginBottom=less900 ? (less400 ? "7rem":"5rem"):"4rem";
         const text=document.createElement("h6");
         text.className="subTitleStyleThreeNoBorder";
         text.id="textCont-text";
@@ -441,7 +440,8 @@ class Home{
                 container.appendChild(blogMsgCont);
                 const limitBlogs=blogs.filter(bl=>(bl.rating >3)).slice(0,4);
                 const len=limitBlogs.length;
-                blogMsgCont.style.height= len > 1 ? "50vh" :"auto";
+                const height=less900 ? (less400 ? "80vh":"60vh"):"60vh";
+                blogMsgCont.style.height= len > 1 ? height :"auto";
                 blogMsgCont.style.overflowY= len > 1 ? "scroll" :"auto";
                 this._modSelector.blogs=blogs;
                  return {blogMsgCont:blogMsgCont,blogs:limitBlogs};

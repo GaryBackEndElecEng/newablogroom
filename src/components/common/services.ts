@@ -46,6 +46,7 @@ class Service {
     adminimages:string="/api/admin/images";
     adminusers:string="/api/admin/users";
     adminpagecountUrl:string="/api/admin/adminpagecount";
+    adminUpdateinfo:string="/api/admin/updateinfo";
     pageCountUrl:string="/api/pagecount";
     metaUrl:string="/api/meta";
     postsUrl:string="/api/posts";
@@ -84,6 +85,7 @@ class Service {
         this.urlAdminGetMsgs="/api/admin/getmessages";
         this.urlAdminEmail="/api/admin/adminemail";
         this.adminUserUrl="/api/admin/user";
+        this.adminUpdateinfo="/api/admin/updateinfo";
         this.userUrlUpdate="/api/user_update";
         this.getuserinfo_url="/api/getuserinfo";
         this.emailUrl="/api/email";
@@ -242,6 +244,46 @@ async apiUploadSaveFree(item:{parent:HTMLElement,Key:string,formdata:FormData}):
         }).catch(err=>{const msg=getErrorMessage(err);console.error(msg)});
        
     }
+
+    //---------------------THIS MARKS DELETE MAIN:ADDS:TO BE DELETED--------------------------------------///
+
+    async imgKeyMarkDelete(item:{targetParent:HTMLElement|null,targetImage:HTMLImageElement|null,oldKey:string|null}):Promise<void>{
+        const {oldKey,targetParent,targetImage}=item;
+        switch(true){
+            case oldKey !==null && targetParent ===null && targetImage ===null:
+                 await this.markDelKey({del:true,imgKey:oldKey,date:new Date()});
+            return;
+            case oldKey ===null && targetParent !==null && targetImage ===null:
+                const {isJSON,parsed}=Header.checkJson(targetParent.getAttribute("flex"));
+                if(isJSON){
+                    const flex=parsed as flexType;
+                //IF IMGkEY MARK DELETE
+                    await this.markDelKey({del:true,imgKey:flex.imgKey as string,date:new Date()});
+                    //IF IMGkEY MARK DELETE
+                }else{
+                    const imgKey=targetParent.getAttribute("imgKey") as string;
+                    await this.markDelKey({del:true,imgKey:imgKey,date:new Date()});
+                }
+            return;
+            case oldKey ===null && targetParent ===null && targetImage !==null:
+                const {isJSON:isJSON_1,parsed:parsed_1}=Header.checkJson(targetImage.getAttribute("flex"));
+                if(isJSON_1){
+                    const flex=parsed_1 as flexType;
+                //IF IMGkEY MARK DELETE
+                    await this.markDelKey({del:true,imgKey:flex.imgKey as string,date:new Date()});
+                    //IF IMGkEY MARK DELETE
+                }else{
+                    const imgKey=targetImage.getAttribute("imgKey") as string;
+                    await this.markDelKey({del:true,imgKey:imgKey,date:new Date()});
+                }
+            return;
+            default:
+                return;
+
+        }
+       };
+
+    //---------------------THIS MARKS DELETE MAIN DELETE (ADDS MARK TO BE DELETED)--------------------------------------///
     //YOU NEED A BLOG WITH IMAGE IT NEEDS A KEY SET IN FORMDATA
     async uploadSaveImage(parent:HTMLElement,formData:FormData,image:HTMLImageElement,blog:blogType,flex:flexType|null):Promise<{
         blog: blogType;
@@ -339,6 +381,7 @@ async apiUploadSaveFree(item:{parent:HTMLElement,Key:string,formdata:FormData}):
         // // headers:{"Content-Type":"multipart/form-data"},=>causes issue,
         const file=formData.get("file") as string;
         const Key=formData.get("Key") as string;
+        
         if(file && Key){
             const option={
                 method: "PUT",
@@ -581,48 +624,7 @@ async apiUploadSaveFree(item:{parent:HTMLElement,Key:string,formdata:FormData}):
             } 
         
    }
-   async peronalInfo(){
-    
-    return new Promise(resolve=>{
-            const general:generalInfoType= {
-                id: 2,
-                name: "Gary Wallace",
-                address: "21 Rue St-Jean",
-                cell: "416-917-5768",
-                country: "CA",
-                provState: "ON",
-                city: "Chateauguay",
-                postal: "L4C-1K8",
-                extra: "Business hours: mon-Fri, 9-6pm",
-                siteArray: [
-                    "fb:: https://www.facebook.com/people/Master-Connect/100077971323770/",
-                    "linkedin:: https://www.linkedin.com/in/gary-wallace-501513229/",
-                    "masterconnect:: https://www.masterconnect.ca",
-                    "master-connect.ca:: https://www.master-connect.ca",
-                    ".com:: https://www.master-connect.com",
-                    "email::masterconnect919@gmail.com",
-                    "github:: https://github.com/GaryBackEndElecEng",
-                    "instagram::https://www.instagram.com/garysjwallacedeveloper/?next=%2F"
-                ]
-            };
-            resolve( general)       
-    }) as Promise<generalInfoType | undefined>;
-   }
-
-   async peronalInfo2(){
-    //THIS PULLS THE PERSONAL INFO FROM newablogroom-free-bucket
-    const option={
-        headers:{"Content-Type":"application/json"},
-        method:"GET"
-    }
-    return fetch(`${this.uploadfreeimageUrl}/info.json`,option).then(async(res_)=>{
-        if(res_){
-            const body= await res_.json() as infoType2
-            return body;
-        }
-    });
-    
-   }
+   
    
    //PARENT _user.REFRESHIMAGES
    
@@ -1187,6 +1189,7 @@ async apiUploadSaveFree(item:{parent:HTMLElement,Key:string,formdata:FormData}):
             method:"PUT",
         }
         return fetch(`${this.adminimages}?imgKey=${imgKey}`,option).then(async(res)=>{
+            //api/admin/images
             if(res){
                 return await res.json() as adminImageType
             }
@@ -1463,6 +1466,44 @@ async apiUploadSaveFree(item:{parent:HTMLElement,Key:string,formdata:FormData}):
             return false;
         });
     }
+   
+       async peronalInfo2():Promise<infoType2|undefined>{
+        //THIS PULLS THE PERSONAL INFO FROM newablogroom-free-bucket
+        const option={
+            headers:{"Content-Type":"application/json"},
+            method:"GET"
+        }
+        return fetch(`${this.freeurl}/info.json`,option).then(async(res_)=>{
+            if(res_){
+                const body= await res_.json() as infoType2
+                return body;
+            }
+        });
+        
+       }
+    async admin_update_info(item:{info:string |infoType2,user_id:string}):Promise<{info:infoType2|null,success:boolean}>{
+        const {info,user_id}=item;
+
+        if(!info && user_id) return {info:null,success:false};
+        const option={
+            headers:{
+                "Content-Type":"application/json"
+            },
+            method:"PUT",
+            body:JSON.stringify(item)
+        }
+        return fetch(this.adminUpdateinfo,option).then(async(res)=>{
+            //api/admin/updateinfo
+            if(res.ok){
+                const body= await res.json()
+                return {info:body,success:true};
+            }else{
+                return {info:null,success:false};
+            }
+        });
+    }
+
+    //NOT USING----------BELOW-----------------///////
    
 
        

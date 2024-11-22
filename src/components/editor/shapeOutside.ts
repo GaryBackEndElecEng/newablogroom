@@ -876,7 +876,7 @@ class ShapeOutside{
                             img.setAttribute("para-id",`${para.id}`);
                         }
                         const blog=this._modSelector._blog;
-                        this._user.askSendToServer(para,formdata,img,blog);
+                        this._user.askSendToServer({bg_parent:para,formdata,image:img,blog,oldKey:null});
                     }
                 },true);
                 xdiv.addEventListener("click",(e:MouseEvent)=>{

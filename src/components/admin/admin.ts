@@ -1,6 +1,6 @@
 import Service from "../common/services";
 import ModSelector from "../editor/modSelector";
-import { adminImageType, adminReplyMsgType, blogType, delteUserType, messageType, pageCountType, postType, userType } from "../editor/Types";
+import { adminImageType, adminReplyMsgType, blogType, delteUserType, infoType2, messageType, pageCountType, postType, userType } from "../editor/Types";
 import User from "../user/userMain";
 import Header from "../editor/header";
 import Misc from "../common/misc";
@@ -8,10 +8,13 @@ import Nav from "../nav/headerNav";
 import AuthService from "../common/auth";
 import {FaCreate} from '@/components/common/ReactIcons';
 import { FaCrosshairs } from "react-icons/fa";
+import { getErrorMessage } from "@/lib/errorBoundaries";
 
 
 
 class Admin{
+    _info:infoType2;
+    
     _adminimgs:adminImageType[];
     _pagecounts:pageCountType[];
     _admin:userType;
@@ -34,7 +37,57 @@ class Admin{
         });
         
         this._admin=admin ? admin : {} as userType;
-    }
+        this._info={
+            id: 2,
+            name: "Gary Wallace",
+            address: "21 Rue St-Jean",
+             cell: "416-917-5768",
+            country: "CA",
+            provState: "ON",
+            city: "Chateauguay",
+             postal: "L4C-1K8",
+             vacation:"working",
+             delay:"working on a project",
+             hours: "9:00 am-6:00 pm",
+            extra: "Business hours: mon-Fri, 9-6pm",
+            siteArray: [
+                    {
+                        name: "fb",
+                        url: "https://www.facebook.com/people/Master-Connect/100077971323770/"
+                    },
+                    {
+                        name: "linkedin",
+                        url: "https://www.linkedin.com/in/gary-wallace-501513229/"
+                    },
+                    {
+                        name: "masterconnect",
+                        url: "https://www.masterconnect.ca"
+                    },
+                    {
+                        name: "masterconnect-US",
+                        url: "https://www.master-connect.com"
+                    },
+                    {
+                        name: "email",
+                        url: "masterconnect919@gmail.com"
+                    },
+                    {
+                        name: "email2",
+                        url: "masterultils@gmail.com"
+                    },
+                    {
+                        name: "github",
+                        url: "https://github.com/GaryBackEndElecEng"
+                    },
+                    {
+                        name: "instagram",
+                        url: "https://www.instagram.com/garysjwallacedeveloper/?next=%2F"
+                
+                    }
+                ]
+    
+        }
+}
     //--------GETTER SETTERS------////
     get adminimgs(){
         return this._adminimgs
@@ -81,23 +134,37 @@ class Admin{
     get admin(){
         return this._user.user.admin
     }
+    get  info(){
+        return this._info
+    }
+    set info(info:infoType2){
+        this._info=info
+    }
     //--------GETTER SETTERS------////
     // :INJECTOR : id="admin-injection"
     async main(item:{injector:HTMLElement,count:number}):Promise<number>{
         const {injector,count}=item;
-        Header.cleanUpByID(injector,"mainContainer");
+        const less900=window.innerWidth < 900;
+        const less400=window.innerWidth < 400;
+        Header.cleanUpByID(injector,"injector-mainContainer");
         const adminUser=this.adminUser;
         const adminEmail=adminUser.email;
         const css="display:flex;flex-direction:column;align-items:center;margin:auto;padding-inline:1rem;width:100%;position:relative;";
-        const css_row="display:flex;place-items:center;margin-inline:auto;padding-inline:1rem;width:100%;position:relative;";
+        const css_row="display:flex;place-items:center;margin-inline:auto;padding-inline:1rem;width:100%;position:relative;flex-warp:wrap;";
+        const mainContainer=document.createElement("section");
+        mainContainer.id="injector-mainContainer";
+        mainContainer.style.cssText=css;
+        mainContainer.style.padding=less900 ? (less400 ? "0rem":"0.5rem"):"1rem";
         const viewport=document.createElement("div");
         viewport.id="viewport";
         viewport.style.cssText=css + "margin-inline:auto; width:100%;min-height:70vh;padding-inline:auto;box-shadow:1px 1px 12px 1px white;backdrop-filter:blur(4px);";
-        injector.appendChild(viewport);
         const btnContainer=document.createElement("div");
         btnContainer.id="btnContainer";
-        btnContainer.style.cssText = css_row + "margin-block:2rem;margin-inline:auto;justify-content:center;flex-wrap:wrap;";
-        injector.appendChild(btnContainer);
+        btnContainer.style.cssText = css_row + "margin-block:2rem;margin-inline:auto;justify-content:center;flex-wrap:wrap;gap:1rem;";
+
+        mainContainer.appendChild(viewport);
+        mainContainer.appendChild(btnContainer);
+        injector.appendChild(mainContainer);
             
         const {button:btnImages}=Misc.simpleButton({anchor:btnContainer,text:"open images",type:"button",time:400,bg:Nav.btnColor,color:"white"});
             btnImages.onclick=(e:MouseEvent)=>{
@@ -201,7 +268,8 @@ class Admin{
                 const get_posts=viewport.querySelector("div#getPosts-container") as HTMLElement;
                 const get_blogs=viewport.querySelector("div#getBlogs-container") as HTMLElement;
                 const userSearchCont=viewport.querySelector("div#userSearch-container") as HTMLElement;
-                const arr:{name:string,html:HTMLElement}[]=[{name:"messages",html:getmsgsContainer},{name:"users",html:getUsers},{name:"pagecounts",html:getpgCounts},{name:"images",html:getrowImages},{name:"search",html:searchContainer},{name:"get_posts",html:get_posts},{name:"get_blogs",html:get_blogs},{name:"user-search",html:userSearchCont}] as {name:string,html:HTMLElement}[]
+                const infoPage=viewport.querySelector("div#infoForm-container") as HTMLElement;
+                const arr:{name:string,html:HTMLElement}[]=[{name:"messages",html:getmsgsContainer},{name:"users",html:getUsers},{name:"pagecounts",html:getpgCounts},{name:"images",html:getrowImages},{name:"search",html:searchContainer},{name:"get_posts",html:get_posts},{name:"get_blogs",html:get_blogs},{name:"user-search",html:userSearchCont},{name:"info-page",html:infoPage}] as {name:string,html:HTMLElement}[]
                 [...arr].map(item=>{
                     if(item.html){
                         const ID=item.html.id;
@@ -226,18 +294,29 @@ class Admin{
                         }
                     }
                 });
-                if(getpgCounts){
-                    
-                    Misc.fadeOut({anchor:getpgCounts,xpos:100,ypos:100,time:400});
-                    setTimeout(()=>{viewport.removeChild(getpgCounts)},398);
-                }
+              
             }
             };
+            
+            const {button:infoBtn}=Misc.simpleButton({anchor:btnContainer,text:"open info form",type:"button",time:400,bg:Nav.btnColor,color:"white"});
+            infoBtn.onclick=async(e:MouseEvent)=>{
+                if(e){
+                    //GET USERS
+                    this.openClean({parent:viewport});
+                    const checkInfo = await this._service.peronalInfo2()
+                        if(checkInfo){
+                            this._info=checkInfo;
+                        }
+                    this.infoForm({parent:viewport,info:this._info});
+                    
+                }
+            };
+            
             return new Promise(resolve=>{
                 resolve(count+1);
             }) as Promise<number>;
-    
-    }
+    };
+    //end
 
     openClean(item:{parent:HTMLElement}){
         const {parent}=item
@@ -250,6 +329,7 @@ class Admin{
             {name:"page-blogs",id:"getBlogs-container"},
             {name:"search image",id:"searchImg-container"},
             {name:"search user",id:"userSearch-container"},
+            {name:"info container",id:"infoForm-container"},
         ]
         IDs.map(item=>{
             Header.cleanUpByID(parent,item.id);
@@ -756,7 +836,7 @@ class Admin{
         const {parent,blogs}=item;
         Header.cleanUpByID(parent,"getBlogs-container");
         const css_col="margin-inline:auto;display:flex;flex-direction:column;place-items:center;gap:0px;";
-        const css_row="margin-inline:auto;display:flex;place-items:center;gap:10px;";
+        const css_row="margin-inline:auto;display:flex;place-items:center;gap:10px;flex-wrap:wrap;";
         const container=document.createElement("div");
         container.id="getBlogs-container";
         container.style.cssText=css_col;
@@ -775,13 +855,14 @@ class Admin{
     };
     blogcard(item:{parent:HTMLElement,row:HTMLElement,blog:blogType}){
         const {parent,row,blog}=item;
+        const less900=window.innerWidth <900;
         const less400=window.innerWidth <400;
-        const css_col="margin-inline:auto;display:flex;flex-direction:column;place-items:center;padding-inline:0.25rem;padding-block:1rem;flex:1 0 33%;";
+        const css_col="margin-inline:auto;display:flex;flex-direction:column;place-items:center;padding-inline:0.25rem;padding-block:1rem;";
         const css_row="margin-inline:auto;display:flex;place-items:center;padding-inline:0.25rem;flex-wrap:wrap;";
         const col=document.createElement("div");
         col.id="row-col"+ `${blog.id}`;
-        col.style.cssText=css_col + "background-color:white;color:black;flex:1 0 25%;";
-        col.style.width=less400 ? "100%":"33%";
+        col.style.cssText=css_col + "background-color:white;color:black;";
+        col.style.width=less900 ? (less400 ? "100%":"48%"): "33%";
         const user=this.clients.find(user=>(user.id===blog.user_id));
         const ul=document.createElement("ul");
         ul.id="col"+ `${blog.id}-ul`;
@@ -818,12 +899,13 @@ class Admin{
     }
     postcard(item:{parent:HTMLElement,row:HTMLElement,post:postType}){
         const {parent,row,post}=item;
+        const less900=window.innerWidth <900;
         const less400=window.innerWidth <400;
-        const css_col="margin-inline:auto;display:flex;flex-direction:column;place-items:center;padding-inline:0.25rem;padding-block:1rem;flex:1 0 33%;";
+        const css_col="margin-inline:auto;display:flex;flex-direction:column;justify-content:flex-start;align-items:center;padding-inline:0.25rem;padding-block:1rem;height:40vh;overflow-y:scroll;";
         const col=document.createElement("div");
         col.id="row-col"+ `${post.id}`;
-        col.style.cssText=css_col + "background-color:white;color:black;flex:1 0 25%;";
-        col.style.width=less400 ? "100%":"33%";
+        col.style.cssText=css_col + "background-color:white;color:black;";
+        col.style.width=less900 ? (less400 ? "100%":"48%"):"33%";
         const user=this.clients.find(user=>(user.id===post.userId));
         const ul=document.createElement("ul");
         ul.id="col"+ `${post.id}-ul`;
@@ -1037,7 +1119,7 @@ class Admin{
         this._service.getAdminPageCounts(user_id).then(async(res)=>{
             if(res && res.length>0){
                 this.pagecounts=res;
-                this.pagecounts.map((pg,index)=>{
+                this.pagecounts.sort((a,b)=>{if(a.count > b.count) return -1;else return 1}).map((pg,index)=>{
                     if(pg){
                         this.pageCountPage(parent,user_id,row,pg,index);
                     }
@@ -1202,6 +1284,111 @@ class Admin{
             Header.cleanUpByID(parent,"message-limit-text");
             btn.disabled=false;
         }
+
+    }
+
+    infoForm(item:{parent:HTMLElement,info:infoType2}){
+        const {parent,info}=item;
+        const css_col="margin:auto;display:flex;justify-content:center;flex-direction:column;gap:1rem;";
+        const css_row="margin:auto;display:flex;justify-content:center;gap:1rem;flex-wrap:wrap;";
+        Header.cleanUpByID(parent,"infoForm-container");
+        const container=document.createElement("div");
+        container.id="infoForm-container";
+        container.style.cssText=css_col;
+        const form=document.createElement("form");
+        form.id="container_form_info" + String(info.id);
+        form.style.cssText=css_col;
+        const persContainer=document.createElement("div");
+        persContainer.style.cssText=css_row;
+        const subTitle=document.createElement("h6");
+        subTitle.className="text-center text-light my-2 text-transform-uppercase";
+        subTitle.textContent="links";
+        const arrContainer=document.createElement("div");
+        arrContainer.id="form-arrContainer";
+        arrContainer.style.cssText=css_row + "margin-block:1.5rem;";
+        let index=0;
+        for(const [key,value] of Object.entries(info)){
+            if(key !=="id"){
+                if(key !=="siteArray"){
+    
+                    const {input:nInput,label:nLabel,formGrp:nGrp}=Nav.inputComponent(persContainer);
+                    nLabel.classList.remove("text-primary");
+                    nLabel.classList.add("text-light");
+                    nInput.id=`${key}-${index}`;
+                    nInput.name=key;
+                    nInput.value=value as string;
+                    nLabel.textContent=key;
+                    nLabel.setAttribute("for",nInput.id);
+                }else if(key==="siteArray"){
+                    const siteArray=value as {name:string,url:string}[];
+                    siteArray.map((item,index)=>{
+                        if(item){
+                            const {input,label,formGrp}=Nav.inputComponent(arrContainer);
+                            label.classList.remove("text-primary");
+                            label.classList.add("text-danger");
+                            label.style.backgroundColor="white";
+                            label.style.paddingInline="1.5rem";
+                            input.id=item.name + "-"+ String(index);
+                            input.name=item.name;
+                            input.value=item.url;
+                            label.textContent=`link:${item.name}`;
+                            label.setAttribute("for",input.id);
+                        }
+                    });
+                }
+                index++;
+            }
+        }
+        
+        form.appendChild(persContainer);
+        form.appendChild(subTitle);
+        form.appendChild(arrContainer);
+        const {button}=Misc.simpleButton({anchor:form,text:"submit",type:"submit",bg:Nav.btnColor,color:"white",time:400});
+        form.onsubmit=(e:SubmitEvent)=>{
+            if(e){
+                e.preventDefault();
+                const formdata=new FormData(e.currentTarget as HTMLFormElement);
+                const site_array:string[]=this.info.siteArray.map(key=>(key.name));
+                let isChecked:boolean=true;
+                if(formdata){
+                    formdata.forEach((value,key)=>{
+                        if(!(item && (typeof key ==="string") || (typeof key ==="number"))){
+                            isChecked=false
+                        }else{
+                            const check=site_array.includes(key)
+                            if(key !=="siteArray" && !check){
+                                this.info[key]=value
+                            }else if(key==="siteArray"){
+                                const siteArray=value as unknown as {name:string,url:string}[];
+                                siteArray.map(item=>{
+                                    this.info.siteArray.push({name:item.name,url:item.url});
+                                });
+                            }
+                        }
+                    });
+                }
+                if(formdata && isChecked && !(this.info === undefined)){
+                    button.disabled=true;
+                    // console.log("before",this.info);//works
+                  
+                    //WRITE CODE TO SEND INFO TO api/info (node) for s3.send to new ablogroom
+                    //https://newablogroom-free-bucket.s3.us-east-1.amazonaws.com/info.json @ NODE
+                    // console.log("this.info",this.info);//works
+                    this._service.admin_update_info({info:this.info,user_id:this._admin.id}).then(async(res)=>{
+                        //api/admin/updateinfo
+                        if(res && res.success){
+                            this.info=res.info as infoType2;
+                        }else{
+                            console.log("failed")
+                        }
+                    }).catch((err)=>{const msg=getErrorMessage(err);Misc.message({parent,msg,type_:"error",time:1200});});
+                }
+
+            }
+        };
+
+        container.appendChild(form);
+        parent.appendChild(container);
 
     }
 

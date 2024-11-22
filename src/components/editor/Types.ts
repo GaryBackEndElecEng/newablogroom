@@ -546,6 +546,9 @@ export type infoType2={
     provState:string,
     city:string,
     postal:string,
+    hours:string,
+    vacation:string,
+    delay:string,
     extra:string,
     siteArray:{name:string,url:string}[]
 }
