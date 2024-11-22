@@ -3,7 +3,7 @@
 import React from 'react';
 import ErrorClass from './errorClass';
 import Meta from '@/components/meta/meta';
-
+import styles from "./error.module.css";
 
 export default function Index() {
     const errRef = React.useRef(null);
@@ -32,6 +32,6 @@ export default function Index() {
         }
     }, []);
     return (
-        <div id="error_page" ref={errRef}></div>
+        <div className={styles.errorIndex} id="error_page" ref={errRef}></div>
     )
 }

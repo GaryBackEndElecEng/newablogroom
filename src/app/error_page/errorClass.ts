@@ -36,36 +36,88 @@ class ErrorClass {
     }
     async main(item:{parent:HTMLElement,urls:string[]}){
         const {parent,urls}=item;
+        const less900=window.innerWidth < 900;
+        const less400=window.innerWidth < 400;
         this.getUrl();//Getting paramters from url && feeding params
         Header.cleanUpByID(parent,"error-page-main");
-        parent.style.cssText="margin-inline:auto;padding-inline:10rem;padding-block:3rem;;min-height:110vh;";
         const container=document.createElement("section");
         container.id="error-page-main";
-        container.style.cssText="padding-inline:2rem;margin-inline:2rem;margin-block:3rem;display:flex;flex-direction:column;justify-content:center;align-items:center;gap:1.5rem;background-color:black;border-radius:12px;z-index:2;";
+        container.style.cssText="display:flex;flex-direction:column;justify-content:center;align-items:center;gap:1.5rem;background-color:black;border-radius:12px;z-index:2;";
+        container.style.marginBlock=less900 ? (less400 ? "0rem":"0.5rem"):"2rem";
+        container.style.paddingInline=less900 ? (less400 ? "0rem":"2rem"):"3rem";
+        container.style.width=less900 ? (less400 ? "100%":"95%"):"70%";
+        this.titlePage({parent:container});
         const text=document.createElement("p");
         text.textContent=" error Page";
         text.className="text-center text-primary text-decoration-underline text-underline-offset-4"
         text.style.cssText="font-size:300%;";
         const innerContainer=document.createElement("div");
         innerContainer.id="error-page-main-sub";
-        innerContainer.style.cssText="padding:5rem;border-radius:12px;background-color:blue;z-index:2;width:100%;height:90vh;display:flex;align-items:center;flex-direction:column;justify-content:center;";
+        innerContainer.style.cssText="border-radius:12px;background-color:blue;z-index:2;height:90vh;display:flex;align-items:center;flex-direction:column;justify-content:center;";
+        innerContainer.style.padding=less900 ? (less400 ? "0px":"1.2rem"):"3rem";
+        innerContainer.style.paddingInline=less900 ? (less400 ? "0px":"2rem"):"3rem";
+        innerContainer.style.paddingBlock=less900 ? (less400 ? "0px":"1rem"):"2rem";
+        innerContainer.style.paddingBottom=less900 ? (less400 ? "2rem":"1rem"):"2rem";
+        innerContainer.style.marginBottom=less900 ? (less400 ? "1.5rem":"1rem"):"auto";
+        ///
         const div=document.createElement("div");
         div.id="register-page-main-inner-div";
-        div.style.cssText=`width:100%;height:100%;border-radius:inherit;background-color:white;box-shadow:1px 1px 12px 1px black;display:flex;justify-content:center;gap:2rem;align-items:center;flex-direction:column;background-image:url(${this.bend});background-position:50% 50%;background-size:100% 100%;margin-bottom:2rem;`;
+        div.style.cssText=`width:100%;height:100%;border-radius:inherit;background-color:white;box-shadow:1px 1px 12px 1px black;display:flex;justify-content:center;gap:2rem;align-items:center;flex-direction:column;background-image:url(${this.bend});background-position:50% 50%;background-size:100% 100%;margin-bottom:2rem;padding-bottom:2rem;`;
         innerContainer.appendChild(div);
+        await this.ShapeOutside({parent:div,subParent:innerContainer}).then(async(res)=>{
+            if(res){
+
+                res.back.onclick=(e:MouseEvent)=>{
+                    if(e){
+                        const origin=new URL(window.location.href).origin;
+                        const newUrl=new URL("/blogs",origin);
+                        window.location.replace(newUrl.href);
+                    }
+                };
+                
+                res.home.onclick=(e:MouseEvent)=>{
+                    if(e){
+                        const url=new URL(window.location.href);
+                        window.location.href=url.origin;
+                    }
+                };
+            }
+        });
+        ///
+
+        
+        //OTHER SITES
+        this.otherSites({parent:div,urls});;
+        //OTHER SITES
+        container.appendChild(text);
+        container.appendChild(innerContainer);
+        
+        parent.appendChild(container)
+        
+
+    }
+    ShapeOutside(item:{parent:HTMLElement,subParent:HTMLElement}):Promise<{back:HTMLButtonElement,home:HTMLButtonElement}>{
+        const {parent,subParent}=item;
+        const less900= window.innerWidth < 900;
+        const less400= window.innerWidth < 400;
         const para=document.createElement('p');
-        para.style.cssText="margin-inline:auto;padding:2rem;margin-block:2rem;background-color:black;color:white;border-radius:12px;padding:1rem;margin-block:auto;";
-        const btnGrp=document.createElement("div");
-        btnGrp.style.cssText="margin-inline:auto;display:flex;flex-wrap:wrap;align-items:center;gap:1.25rem;"
-        const {button:back}=Misc.simpleButton({anchor:btnGrp,type:"button",bg:Nav.btnColor,color:"white",time:500,text:"go back"});
-        const {button:home}=Misc.simpleButton({anchor:btnGrp,type:"button",bg:Nav.btnColor,color:"white",time:500,text:"go home"});
+        para.id="div-para";
+        para.style.cssText="margin-inline:auto;padding:2rem;background-color:black;color:white;border-radius:12px;padding:1rem;";
+        para.style.lineHeight=less900 ? (less400 ? "1.75rem":"2.2rem"):"2.75rem";
         const img=document.createElement('img');
         img.id="shape-outside-log";
         img.src=this.logo;
         img.alt="www.ablogroom.com"
         img.style.cssText="shape-outside:circle(50%);border-radius:50%;width:175px;aspect-ratio: 1 / 1;filter:drop-shadow(0 0 0.75rem white);box-shadow:1px 1px 12px 1px black;float:left;margin-right:1.25rem;";
         para.appendChild(img);
-        para.innerHTML+=" I believe you have made an error on getting to a page. You have accessed the following:"
+        para.innerHTML+=" I believe you have made an error on getting to a page. You have accessed the following:";
+        para.innerHTML+="try again or use the buttons below to redirect you appropriately."
+        parent.appendChild(para);
+        const btnGrp=document.createElement("div");
+        btnGrp.style.cssText="margin-inline:auto;display:flex;flex-wrap:wrap;align-items:center;gap:1.25rem;"
+        const {button:back}=Misc.simpleButton({anchor:btnGrp,type:"button",bg:Nav.btnColor,color:"white",time:500,text:"go back"});
+        const {button:home}=Misc.simpleButton({anchor:btnGrp,type:"button",bg:Nav.btnColor,color:"white",time:500,text:"go home"});
+        subParent.appendChild(btnGrp);
         Object.values(this.params).map((item,index)=>{
             if(item.key && item.value && index >0){
                 para.innerHTML+=`<span style="color:white;font-weight:bold;">${item.key}</span> : <span style="color:white;font-weight:bold;">${item.value}</span> <br/>`;
@@ -84,38 +136,9 @@ class ErrorClass {
             }
 
         });
-        para.innerHTML+="try again or use the buttons below to redirect you appropriately."
-        div.appendChild(para);
-        innerContainer.appendChild(div);
-        //OTHER SITES
-        this.otherSites({parent:div,urls});;
-        //OTHER SITES
-        innerContainer.appendChild(btnGrp);
-        container.appendChild(text);
-        container.appendChild(innerContainer);
-        
-        parent.appendChild(container)
-        Misc.matchMedia({parent,maxWidth:1100,cssStyle:{paddingInline:"6rem"}});
-        Misc.matchMedia({parent,maxWidth:900,cssStyle:{paddingInline:"4rem"}});
-        Misc.matchMedia({parent,maxWidth:400,cssStyle:{paddingInline:"1rem"}});
-        Misc.matchMedia({parent:innerContainer,maxWidth:400,cssStyle:{paddingInline:"0rem",marginInline:"0rem",height:"80vh"}});
-        Misc.matchMedia({parent:innerContainer,maxWidth:900,cssStyle:{paddingInline:"4rem",height:"60vh"}});
-        Misc.matchMedia({parent:container,maxWidth:400,cssStyle:{paddingInline:"0rem",marginInline:"0rem"}});
-        back.onclick=(e:MouseEvent)=>{
-            if(e){
-                const origin=new URL(window.location.href).origin;
-                const newUrl=new URL("/blogs",origin);
-                window.location.replace(newUrl.href);
-            }
-        };
-        
-        home.onclick=(e:MouseEvent)=>{
-            if(e){
-                const url=new URL(window.location.href);
-                window.location.href=url.origin;
-            }
-        };
-
+        return new Promise(resolver=>{
+            resolver({back,home})
+        }) as Promise<{back:HTMLButtonElement,home:HTMLButtonElement}>;
     }
     async getUrl(){
         //GETTING PARAMETERS FROM URL
@@ -139,7 +162,7 @@ class ErrorClass {
         parent.appendChild(text);
         const otherSite=document.createElement("div");
         otherSite.id="otherSite";
-       otherSite.style.cssText="margin:auto;width:auto;display:flex;flex-direction:column;justify-content:center;align-items:center;gap:1rem;border-radius:12px;padding:1.25rem;box-shadow:1px 1px 12px 1px rgba(0, 191, 255,0.5);height:60vh;overflow-y:scroll;";
+       otherSite.style.cssText="margin:auto;width:auto;display:flex;flex-direction:column;justify-content:flex-start;align-items:center;gap:1rem;border-radius:12px;padding:1.25rem;box-shadow:1px 1px 12px 1px rgba(0, 191, 255,0.5);height:40vh;overflow-y:scroll;";
        const ol=document.createElement("ol");
        ol.style.cssText="margin-block:1.5rem;margin-inline:auto;padding-inline:1.5rem;";
 
@@ -185,6 +208,23 @@ class ErrorClass {
             }
         });
         return rtPage
+    }
+    titlePage(item:{parent:HTMLElement}){
+        const {parent}=item;
+        const less900=window.innerWidth < 900;
+        const less400=window.innerWidth < 400;
+        const container=document.createElement("div");
+        container.id="titlePage-container";
+        container.style.cssText="padding-inline:1rem;display:flex;flex-direction:column;justify-content:center;align-items:center;text-align:center;text-transform:uppercase;";
+        container.style.marginInline=less900 ? (less400 ? "0rem":"0.25rem"):"1rem";
+        const title=document.createElement("p");
+        title.id="container-title";
+        title.style.cssText="color:white;";
+        title.className="title-art-one";
+        title.textContent="best editor in Canada";
+        container.appendChild(title);
+        parent.appendChild(container);
+
     }
 }
 export default ErrorClass;

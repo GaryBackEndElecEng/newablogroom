@@ -1199,6 +1199,10 @@ class Sidebar{
         btn.addEventListener("click",(e:MouseEvent)=>{
             if(e && Main.container){
                 window.scroll(0,0);
+                btn.disabled=true;
+                setTimeout(()=>{
+                    btn.disabled=false;
+                },1000);
                 this.intro.viewInstruction(Main.container);
             }
         });
@@ -1241,6 +1245,10 @@ class Sidebar{
         btn.addEventListener("click",(e:MouseEvent)=>{
             if(e){
                 window.scroll(0,0);
+                btn.disabled=true;
+                setTimeout(()=>{
+                    btn.disabled=false;
+                },1000);
                 this.sideSetup.themeSetup(Main.container,true)
             }
         });
@@ -1275,11 +1283,20 @@ class Sidebar{
         retBtn.addEventListener("click",(e:MouseEvent)=>{
             if(e){
                 window.scroll(0,0);
+                retBtn.disabled=true;
+                setTimeout(()=>{
+                    retBtn.disabled=false;
+                },1000);
                 const blog=this._modSelector.blog;
+                const user=this._user.user;
                 Main.container=document.querySelector("section#main") as HTMLElement;
                 if(!Main.container) return;
-                // console.log("AFTER Main.container");//works
-                this._user.saveWork({parent:Main.container,blog,func:()=>undefined})
+                if(blog && user.id && user.email){
+                    this._user.saveWork({parent:Main.container,blog,func:()=>undefined})
+
+                }else{
+                    this._regSignin.signIn();
+                }
             }
         });
        
@@ -1324,6 +1341,10 @@ class Sidebar{
             if(e && Main.container){
                 const check= this._modSelector.blog ? true : false;
                 window.scroll(0,400);
+                btn.disabled=true;
+                setTimeout(()=>{
+                    btn.disabled=false;
+                },1000);
                 if( check ){
                     const blog=this._modSelector.blog;
                     this._edit.reOrder(Main.container,blog);
@@ -1364,16 +1385,20 @@ class Sidebar{
         btn.addEventListener("click",async(e:MouseEvent)=>{
             if(e && Main.container){
                 window.scroll(0,0);
+                btn.disabled=true;
+                setTimeout(()=>{
+                    btn.disabled=false;
+                },1000);
                 const blog=this._modSelector.blog;
                 const user=this._user.user;
                 const checkUser=(user && user.id && user.email) ? true:false;
-                const checkBlog=(blog && blog.name);
-                const strBlog=await Main.hasBlog();
+                const checkBlog=(blog && blog.name) ;
+                const modBlog=await Main.hasBlog();
+                const check=modBlog && blog && user && user.id;
                 Main.container=document.querySelector("section#main") as HTMLElement;
                 const mainContainer=Main.container as HTMLElement
-                if(strBlog){
+                if(check){
                     //ask to save
-                    const blog=JSON.parse(strBlog) as blogType;
                     Misc.wantToSaveBeforeFunc({
                         parent:mainContainer,
                         funcSave:async()=>{await this._user.saveWork({parent,blog,func:async()=>{
@@ -1390,10 +1415,7 @@ class Sidebar{
                          }})
 
                 }else{
-                    await this._main.newBlog({
-                        parent:mainContainer,
-                        func:()=>undefined,
-                        })
+                    this._regSignin.signIn();
                 }
             }
         });
@@ -1429,6 +1451,10 @@ class Sidebar{
         ],{duration:1000,iterations:1})
         btn.addEventListener("click",(e:MouseEvent)=>{
             if(e && Main.textarea){
+                btn.disabled=true;
+                setTimeout(()=>{
+                    btn.disabled=false;
+                },1000);
                 const blog=this._modSelector.blog;
                 this.chart.mainChart(Main.textarea,blog);
             }
@@ -1469,109 +1495,17 @@ class Sidebar{
         ],{duration:1000,iterations:1})
         btn.addEventListener("click",(e:MouseEvent)=>{
             if(e && Main.container){
+                btn.disabled=true;
+                setTimeout(()=>{
+                    btn.disabled=false;
+                },1000);
                 const blog=this._modSelector.blog;
                 this._edit.main(Main.container as HTMLElement,blog)
                 // this._edit.selEleGenerator(Main.textarea as HTMLElement,blog)
             }
         });
      };
-    //  preAddNewSveNotSaved(item:{parent:HTMLElement,func:()=>Promise<void>|void,blog:blogType,user:userType}){
-    //     const {parent,func,blog,user}=item;
-    //     //GIVES OPTION TO SAVE BEFORE CREATING A NE BLOG OR NOT
-    //     const width=window.innerWidth <900 ? "0%":"20%";
-    //     const shade=Misc.blueShades.find(sh=>(sh.name==="chlorine blue"))?.value
-    //     const pd=window.innerWidth < 700 ? "1rem":"6rem";
-    //     const container=document.createElement("div");
-    //     container.id="saveNotSaved";
-    //     container.style.cssText=`position:absolute;padding:${pd};inset:0% ${width} 80% ${width};backdrop-filter:blur(6px); background-color;rgba(0,0,0,0.2);box-shadow:1px 1px 6px ${shade};border-radius:8px;display;flex;justify-content:space-between;align-items:center;gap:2rem;z-index:300;`
-    //     const btnGrp=document.createElement("div");
-    //     btnGrp.style.cssText="display:flex;justify-content:space-between;align-items:center;gap:1.5rem;margin-inline:auto;paddiing-block:1rem;position:relative;"
-    //     const save:btnReturnType={
-    //         parent:btnGrp,
-    //         text:"save work first",
-    //         bg:this.bgColor,
-    //         color:"white",
-    //         type:"button"
-    //     }
-    //     const createNew:btnReturnType={
-    //         parent:btnGrp,
-    //         text:"create new",
-    //         bg:this.bgColor,
-    //         color:"white",
-    //         type:"button"
-    //     }
-    //     const sveBtn=buttonReturn(save) as HTMLButtonElement;
-    //     const createBtn=buttonReturn(createNew) as HTMLButtonElement;
-    //     const arr=[...btnGrp.children as any] as HTMLElement[]
-    //     if(arr){
-    //         arr.map((btn,index)=>{
-    //             btn.style.inset=`0% 0% 0% ${index/(arr.length)}%`
-    //         });
-    //     }
-    //     container.appendChild(btnGrp);
-    //     parent.appendChild(container);
-    //     container.animate([
-    //         {transform:"translate(-100%,0%) scale(0.5)",opacity:"0.2"},
-    //         {transform:"translate(0%,0%) scale(1)",opacity:"1"}
-    //     ],{duration:800,iterations:1});
-    //     //separate position
-        
-    //     sveBtn.addEventListener("click",(e:MouseEvent) =>{
-    //         if(e){
-    //             //SAVE
-    //             const _blog={...blog,user_id:user.id}
-    //             this._service.saveBlog(_blog).then(async(_blog_)=>{
-    //                 if(_blog_){
-    //                     this._modSelector._blog={...blog,id:_blog_.id}
-    //                     this._service.promsaveItems(this._modSelector._blog).then(async(resBlog)=>{
-    //                         if(resBlog){
-    //                             localStorage.setItem("blog",JSON.stringify(resBlog));
-    //                             const max_=ModSelector.maxCount(resBlog);
-    //                             localStorage.setItem("placement",String(max_ + 1));
-    //                             Misc.message({parent,msg:"saved",type_:"success",time:400});
-    //                             Misc.fadeOut({anchor:container,xpos:50,ypos:100,time:400});
-    //                             setTimeout(()=>{
-    //                                 parent.removeChild(container);
-    //                                 // this._main.newBlog({parent:Main.container as HTMLElement,func:()=>void});
-    //                                 func();
-    //                             },380);
-    //                         }
-    //                     });
-    //                 }else{
-    //                     Misc.message({parent,msg:"not saved",type_:"error",time:700});
-    //                     Misc.fadeOut({anchor:container,xpos:50,ypos:100,time:400});
-    //                     setTimeout(()=>{
-    //                         parent.removeChild(container);
-    //                     },380);
-    //                 }
-    //             }).catch((err)=>{
-    //                 const msg=getErrorMessage(err);
-    //                 console.error(msg);
-    //                 Misc.message({parent,msg:msg,type_:"error",time:700});
-    //                 Misc.fadeOut({anchor:container,xpos:50,ypos:100,time:400});
-    //                 setTimeout(()=>{
-    //                     parent.removeChild(container);
-    //                 },380);
-    //             });
-                
-    //         }
-    //     });
-    //     createBtn.addEventListener("click",(e:MouseEvent) =>{
-    //         if(e){
-    //             //CREATE
-    //             Misc.fadeOut({anchor:container,xpos:50,ypos:100,time:400});
-    //             setTimeout(()=>{
-    //                 ([...parent.children as any] as HTMLElement[]).map(child=>{
-    //                         if(child && child.id==="saveNotSaved"){
-    //                             parent.removeChild(child);
-    //                         }
-    //                 });
-    //             },380);
-    //             this._main.newBlog({parent:Main.container as HTMLElement,func:()=>undefined});
-    //         }
-    //     });
-
-    //  }
+ 
     
       //!! NOT USED-BTN INITIATE EDIT
     
@@ -1601,6 +1535,10 @@ class Sidebar{
         retBtn.addEventListener("click",(e:MouseEvent)=>{
             if(e){
                 window.scroll(0,0);
+                retBtn.disabled=true;
+                setTimeout(()=>{
+                    retBtn.disabled=false;
+                },1000);
                 this._edit.editViewUserBlogs(Main.container as HTMLElement)
             }
         });
@@ -1643,6 +1581,10 @@ class Sidebar{
         ],{duration:1000,iterations:1})
         btn.addEventListener("click",async(e:MouseEvent)=>{
             if(e && Main.container && Main.textarea){
+                btn.disabled=true;
+                setTimeout(()=>{
+                    btn.disabled=false;
+                },1000);
                 const user=this._user._user;
                 const blog=this._modSelector.blog;
                 const check= ( user && user.id && user.email) ? true : false;
@@ -1821,8 +1763,10 @@ class Sidebar{
         ],{duration:1000,iterations:1})
         btn.addEventListener("click",(e:MouseEvent)=>{
             if(e){
-                //MAIN INSERTION POINT FOR TEXTAREA
-                // if(Sidebar.headerType.custom){
+                btn.disabled=true;
+                setTimeout(()=>{
+                    btn.disabled=false;
+                },1000);
 
                     this.customHeader.customHeader(Main._mainHeader as HTMLElement,false);
                     console.log(Sidebar.headerType,"hello")
@@ -1868,6 +1812,10 @@ class Sidebar{
         btn.addEventListener("click",async(e:MouseEvent)=>{
             if(e){
                 window.scroll(0,500);
+                btn.disabled=true;
+                setTimeout(()=>{
+                    btn.disabled=false;
+                },1000);
                 //MAIN INSERTION POINT FOR TEXTAREA
                 if(!Main.textarea) return;
                 const blog=this._modSelector.blog;
@@ -1913,6 +1861,10 @@ class Sidebar{
         btn.addEventListener("click",(e:MouseEvent)=>{
             if(e){
                 window.scroll(0,500);
+                btn.disabled=true;
+                setTimeout(()=>{
+                    btn.disabled=false;
+                },1000);
                 //MAIN INSERTION POINT FOR TEXTAREA
                 if(!Main.textarea) return;
                     this.loadMisc.main(Main.textarea);
@@ -1957,6 +1909,10 @@ class Sidebar{
         btn.addEventListener("click",(e:MouseEvent)=>{
             if(e){
                 //MAIN INSERTION POINT FOR TEXTAREA
+                btn.disabled=true;
+                setTimeout(()=>{
+                    btn.disabled=false;
+                },1000);
                 if(!Main.textarea) return;
                     this.reference.main({parent:Main.textarea});
             }
@@ -2000,6 +1956,10 @@ class Sidebar{
         btn.addEventListener("click",(e:MouseEvent)=>{
             if(e){
                 window.scroll(0,300);
+                btn.disabled=true;
+                setTimeout(()=>{
+                    btn.disabled=false;
+                },1000);
                     this.shapeOutside.sidebarMain(Main.textarea as HTMLElement);
             }
         });
@@ -2041,6 +2001,10 @@ class Sidebar{
         btn.addEventListener("click",(e:MouseEvent)=>{
             if(e){
                 window.scroll(0,400);
+                btn.disabled=true;
+                setTimeout(()=>{
+                    btn.disabled=false;
+                },1000);
                 this._code.codeTemplate(Main.textarea as HTMLElement);
             }
         });
@@ -2082,6 +2046,10 @@ class Sidebar{
         btn.addEventListener("click",(e:MouseEvent)=>{
             if(e){
                 window.scroll(0,800);
+                btn.disabled=true;
+                setTimeout(()=>{
+                    btn.disabled=false;
+                },1000);
                 this._footer.main(Main._mainFooter as HTMLElement);
             }
         });

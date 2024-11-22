@@ -97,7 +97,7 @@ class PostDetail{
             container.style.left=less1550 ? (less900 ? (less400 ? "0%" :"-2.5%"): "-30%"):"-50%";
             container.style.right=less1550 ? (less900 ? (less400 ? "0%" :"-2.5%"): "-30%"):"-50%";
             container.style.overflowY="scroll";
-            container.style.height=less900 ? (less400 ? "80vh":"65vh"):"70vh";
+            container.style.height=less900 ? (less400 ? "120vh":"65vh"):"70vh";
             container.style.justifyContent="flex-start";
         }else{
             this.injector=injector as HTMLElement;

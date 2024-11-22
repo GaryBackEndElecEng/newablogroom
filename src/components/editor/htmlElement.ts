@@ -11,6 +11,7 @@ import Flexbox from "./flexBox";
 import Header from "@/components/editor/header";
 import ShapeOutside from "./shapeOutside";
 import Reference from "./reference";
+import { maxCount } from './modSelector';
 
 
 
@@ -280,11 +281,9 @@ class HtmlElement {
         const divCont=document.createElement('div');
         divCont.className=this.divCont_class;
         divCont.style.cssText=this.divCont_css;
-        divCont.setAttribute("data-placement",`${this.placement}`);
         const target = document.createElement(icon.name); //ICON.NAME=ELE TYPE
         btn.classList.add(icon.display);
         target.id=`${icon.name}-${Math.round(Math.random()*1000)}`
-        // this.docSelect(target,icon);
         target.innerHTML = icon.name;
         if(icon.name==="p"){
             target.style.cssText = "border-radius:6px;text-wrap:wrap;";
@@ -292,8 +291,57 @@ class HtmlElement {
             target.style.cssText = "border-radius:6px;";
 
         }
-        target.setAttribute("name",icon.name);
-        target.setAttribute("data-name-id",`${icon.name}-${target.id}`);
+        this.addAttribute({target,divCont,icon}).then(async(resAtt)=>{
+            if(resAtt){
+                this.promElementAdder(resAtt.target).then(async(res)=>{
+                    if(res){
+        
+                        this._modSelector.count=this._modSelector.count + 1;
+                        this._modSelector.footerPlacement();//this shifts footer placement down
+                        res.target.addEventListener("click", (e: MouseEvent) => {
+                            if (e) {
+                                // console.log("click : 521:",target)
+                                btn.classList.toggle("active");
+                                res.target.classList.add(icon.name);
+                                res.target.classList.toggle("isActive");
+                                const focusOptions: focusOptions = { focusVisible: false, preventScroll: false }
+                                res.target.focus(focusOptions);
+                                this._modSelector.updateElement(target);
+                                if(([...target.classList as any] as string[]).includes("isActive")){
+                                    this.removeMainElement(parent,divCont,res.target);
+                                }
+                                
+                            }
+                        });
+                        this.enterActioncreateAnother({parent,target:res.target});
+                        this._modSelector.editElement(res.target)//pulls flex if exist from target attrubutes
+                    }
+                });
+            }
+        });
+        divCont.appendChild(target);
+        parent.appendChild(divCont);
+    
+        Misc.matchMedia({parent:divCont,maxWidth:920,cssStyle:{marginInline:"1.5rem"}});
+        Misc.matchMedia({parent:divCont,maxWidth:420,cssStyle:{marginInline:"10px"}});
+        Misc.fadeIn({anchor:divCont,xpos:60,ypos:100,time:600});
+        if(icon.name==="list"){
+            icon.name="ul"
+        }
+        
+        Misc.matchMedia({parent:divCont,maxWidth:400,cssStyle:{paddingInline:"0px",marginInline:"0px;"}});
+        
+        
+    }
+    addAttribute(item:{target:HTMLElement,divCont:HTMLElement,icon:iconType|null}):Promise<{target:HTMLElement,divCont:HTMLElement}>{
+        const {target,divCont,icon}=item;
+        if(icon){
+            target.setAttribute("name",icon.name);
+            target.setAttribute("data-name-id",`${icon.name}-${target.id}`);
+
+        }
+        divCont.setAttribute("data-placement",`${this.placement}`);
+        target.setAttribute("data-placement",`${this.placement}`);
         target.classList.add("position-relative");
         target.setAttribute("is-element","true");
         target.setAttribute("contenteditable","true");
@@ -301,7 +349,6 @@ class HtmlElement {
         target.style.cssText="margin-inline:8px;padding-inline:2rem;width:100% !important;position:relative;";
         target.classList.add("box-shadow");
         target.classList.add("element");
-        target.setAttribute("data-placement",`${this.placement}`);
         // ADDING BACKGROUND WHITE TO ELEMENTS WITH BACKGROUND COLOR
         Main.container=document.querySelector("section#main") as HTMLElement;
         const checkBgShade=([...(Main.container as HTMLElement).classList as any] as string[]).includes("bgShade");
@@ -310,41 +357,67 @@ class HtmlElement {
             divCont.classList.add("background-bgShade");
         }
         // ADDING BACKGROUND WHITE TO ELEMENTS WITH BACKGROUND COLOR
-        divCont.appendChild(target);
-        parent.appendChild(divCont);
-        Misc.matchMedia({parent:divCont,maxWidth:920,cssStyle:{marginInline:"1.5rem"}});
-        Misc.matchMedia({parent:divCont,maxWidth:420,cssStyle:{marginInline:"10px"}});
-        Misc.fadeIn({anchor:divCont,xpos:60,ypos:100,time:600});
-        if(icon.name==="list"){
-            icon.name="ul"
-        }
-        this.elementAdder(target);
-        this._modSelector.count=this._modSelector.count + 1;
-        this._modSelector.footerPlacement();//this shifts footer placement down
-        target.addEventListener("click", (e: MouseEvent) => {
-            if (e) {
-                // console.log("click : 521:",target)
-                btn.classList.toggle("active");
-                target.classList.add(icon.name);
-                target.classList.toggle("isActive");
-                const focusOptions: focusOptions = { focusVisible: false, preventScroll: false }
-                target.focus(focusOptions);
-                this._modSelector.updateElement(target);
-                if(([...target.classList as any] as string[]).includes("isActive")){
-                    this.removeMainElement(parent,divCont,target);
-                }
-                
-            }
-        });
-        target.addEventListener("keydown",(e:KeyboardEvent)=>{
+        return new Promise(resolver=>{
+            resolver({target,divCont})
+        }) as Promise<{target:HTMLElement,divCont:HTMLElement}>;
+    }
+    enterActioncreateAnother(item:{parent:HTMLElement,target:HTMLElement}){
+        const {parent,target}=item;
+        target.onkeydown=(e:KeyboardEvent)=>{
             if(e.key==="Enter"){
-                this.appElement(parent,btn,icon);
+                e.preventDefault();
+                const css=target.style.cssText;
+                const className=target.className;
+                const eleName=target.nodeName.toLowerCase()
+                const divCont=document.createElement('div');
+                divCont.className=this.divCont_class;
+                divCont.style.cssText=this.divCont_css;
+                const newTarget = document.createElement(eleName); //ICON.NAME=ELE TYPE
+                newTarget.style.cssText=css;
+                target.style.width="100%";
+                newTarget.style.width="100% !important";
+                newTarget.className=className;
+                target.classList.add("w-100");
+                newTarget.classList.add("w-100");
+                newTarget.classList.add("mx-2");
+                target.classList.add("mx-2");
+                newTarget.id=`${eleName}-${Math.round(Math.random()*1000)}`;
+                newTarget.innerHTML = eleName;
+                divCont.appendChild(newTarget);
+                parent.appendChild(divCont);
+                this.addAttribute({target:newTarget,divCont,icon:null}).then(async(resAtt)=>{
+                    if(resAtt){
+                        resAtt.target.setAttribute("name",eleName);
+                        resAtt.target.setAttribute("data-name-id",`${eleName}-${resAtt.target.id}`);
+                        this.promElementAdder(resAtt.target).then(async(res)=>{
+                            if(res){
+                
+                                this._modSelector.count=this._modSelector.count + 1;
+                                this._modSelector.footerPlacement();//this shifts footer placement down
+                                // this.shiftPlacement({target,newTarget});//This reorganize placement numbering
+                                res.target.addEventListener("click", (e: MouseEvent) => {
+                                    if (e) {
+                                        // console.log("click : 521:",target)
+                                        res.target.classList.add(eleName);
+                                        res.target.classList.toggle("isActive");
+                                        const focusOptions: focusOptions = { focusVisible: false, preventScroll: false }
+                                        res.target.focus(focusOptions);
+                                        this._modSelector.updateElement(target);
+                                        if(([...target.classList as any] as string[]).includes("isActive")){
+                                            this.removeMainElement(parent,divCont,res.target);
+                                        }
+                                        
+                                    }
+                                });
+                                this.enterActioncreateAnother({parent,target:res.target});
+                                this._modSelector.editElement(res.target)//pulls flex if exist from target attrubutes
+                            }
+                        });
+                    }
+                });
+
             }
-        });
-        this._modSelector.editElement(target)//pulls flex if exist from target attrubutes
-        Misc.matchMedia({parent:divCont,maxWidth:400,cssStyle:{paddingInline:"0px",marginInline:"0px;"}});
-        
-        
+        }
     }
     //FROM DESIGN
     designElement(parent: HTMLElement,eleName:string,text:string,class_:string){
@@ -382,33 +455,31 @@ class HtmlElement {
         Misc.matchMedia({parent:divCont,maxWidth:920,cssStyle:{marginInline:"1.5rem"}});
         Misc.matchMedia({parent:divCont,maxWidth:420,cssStyle:{marginInline:"10px"}});
         Misc.fadeIn({anchor:divCont,xpos:60,ypos:100,time:600});
-        this.promeElementAdder(target).then(async(res)=>{
+        this.promElementAdder(target).then(async(res)=>{
             if(res){
-                const ele=res as elementType;
+                const ele=res.ele as elementType;
+                this._modSelector.count=this._modSelector.count + 1;
                 divCont.setAttribute("data-placment",`${ele.placement}-A`);
-                this._modSelector.footerPlacement();//this shifts footer placement down
+                this._modSelector.footerPlacement();//this shifts footer placement 
+                const maxcount=ModSelector.maxCount(this._modSelector.blog);
+                localStorage.setItem("placement",String(maxcount+1));
+                res.target.addEventListener("click", (e: MouseEvent) => {
+                    if (e) {
+                        // console.log("click : 521:",target)
+                        res.target.classList.toggle("isActive");
+                        divCont.classList.toggle("isActive");
+                        const focusOptions: focusOptions = { focusVisible: false, preventScroll: false }
+                        target.focus(focusOptions);
+                        this._modSelector.updateElement(res.target);
+                        if(([...target.classList as any] as string[]).includes("isActive")){
+                            this.removeMainElement(parent,divCont,res.target);
+                        }
+                        
+                    }
+                });
             }
         });
-        this._modSelector.count=this._modSelector.count + 1;
-        target.addEventListener("click", (e: MouseEvent) => {
-            if (e) {
-                // console.log("click : 521:",target)
-                target.classList.toggle("isActive");
-                divCont.classList.toggle("isActive");
-                const focusOptions: focusOptions = { focusVisible: false, preventScroll: false }
-                target.focus(focusOptions);
-                this._modSelector.updateElement(target);
-                if(([...target.classList as any] as string[]).includes("isActive")){
-                    this.removeMainElement(parent,divCont,target);
-                }
-                
-            }
-        });
-        target.addEventListener("keydown",(e:KeyboardEvent)=>{
-            if(e.key==="Enter"){
-                e.preventDefault();
-            }
-        });
+       
         this._modSelector.editElement(target)//pulls flex if exist from target attrubutes
         Misc.matchMedia({parent:divCont,maxWidth:400,cssStyle:{paddingInline:"0px",marginInline:"0px;"}});
         
@@ -993,16 +1064,14 @@ class HtmlElement {
          }
     }
     //INSERT element- delete
-    promeElementAdder(target:HTMLElement |HTMLImageElement){
+    promElementAdder(target:HTMLElement |HTMLImageElement){
         return new Promise((resolver)=>{
             resolver(this.elementAdder(target))
-        }) as Promise<elementType | undefined>;
+        }) as Promise<{ele:elementType | undefined,target:HTMLElement}|undefined>;
     }
-    elementAdder(target:HTMLElement | HTMLImageElement):elementType | undefined{
+    elementAdder(target:HTMLElement):{ele:elementType | undefined,target:HTMLElement}|undefined{
         // adds none selector elements to modSelector.blog
         const ID=this._modSelector._elements.length;
-            const maxcount=ModSelector.maxCount(this._modSelector.blog);
-            localStorage.setItem("placement",String(maxcount+1));
             const checkNodename=["a","blockquote","ul","img","ol"]
             const nodename=target.nodeName.toLowerCase();
             const specialNodename=checkNodename.includes(nodename);
@@ -1059,7 +1128,7 @@ class HtmlElement {
                         this._modSelector.blog={...blog,show:false,elements:this._elements};
                     }
                     this.placement= this.placement + 1;
-                    return ele;
+                    return {ele,target};
                 }
             
     }
@@ -1081,6 +1150,55 @@ class HtmlElement {
         return ele;
     });
     this.elements=this._elements;
+    }
+    shiftPlacement(item:{target:HTMLElement,newTarget:HTMLElement}){
+        //THIS ORGANIZES PLACEMENT ORDERING
+        const {target,newTarget}=item;
+        //WORK ON LOGIC
+        const targetEle=this._modSelector.elements.find(ele=>(ele.eleId===target.id));
+        let newTargetEle=this._modSelector.elements.find(ele=>(ele.eleId===newTarget.id));
+        if(!targetEle) return;
+        const targetPlace=targetEle.placement;
+        if(!newTargetEle) return;
+        const newTargetPlace=newTargetEle.placement;
+        //sort with placement
+        let elements=this._modSelector.elements;
+        let codes=this._modSelector.selectCodes;
+        let selectors=this._modSelector.selectors.map((sel,index)=>{if(index > 0) return sel}).filter(sel=>(typeof sel==="object"));
+        const maxcount=ModSelector.maxCount(this._modSelector.blog);
+        if(maxcount>1){
+            elements=elements.map((ele,index)=>{
+                if(ele.placement >targetPlace){
+
+                    if(ele.placement===newTargetPlace){
+                        console.log("IF",ele.placement,ele.inner_html)
+                        ele.placement=targetPlace + 1;
+                    }else if(ele.placement >targetPlace + 1){
+                        console.log("ELSE",ele.placement,ele.inner_html)
+                        ele.placement=ele.placement + 1
+                    }
+                }
+                return ele;
+            });
+            selectors=selectors.map(sel=>{
+                if(sel.placement >targetPlace + 1 && sel.placement !==newTargetPlace){
+                    sel.placement=sel.placement + 1;
+                }
+                return sel;
+            });
+            codes=codes.map(sel=>{
+                if(sel.placement >targetPlace + 1 && sel.placement !==newTargetPlace){
+                    sel.placement=sel.placement + 1;
+                }
+                return sel;
+            });
+            this._modSelector._elements=elements;
+            this._modSelector._selectors=selectors;
+            this._modSelector._selectCodes=codes;
+            this._modSelector.blog={...this._modSelector.blog,elements,selectors,codes};
+        }
+
+
     }
     editElement(target:HTMLElement){
         target.addEventListener("input",(e:Event)=>{

@@ -1144,7 +1144,6 @@ svg.show {
   content: attr(data-delete);
   position: "absolute";
   z-index: 1;
-  transition: all 0.7s ease-in-out;
 }
 .delete:hover::after {
   display: block;
@@ -1162,7 +1161,6 @@ svg.show {
   font-size: 14px;
   border-radius: 10px;
   /* padding: 0.1rem; */
-  transition: all 0.7s ease-in-out;
 }
 .blue {
   color: hsl(177, 93%, 48%);

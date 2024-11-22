@@ -1211,9 +1211,13 @@ class  Main  {
         return new Promise(resolve=>{
             if(typeof window !=="undefined"){
                 const getBlog:string|null=localStorage.getItem("blog");
-                resolve(getBlog)
+                if(getBlog){
+                    const blog=JSON.parse(getBlog) as blogType;
+                    resolve(blog);
+
+                }
             };
-        }) as Promise<string|null>;
+        }) as Promise<blogType|null>;
     }
    static flexTracker(target:HTMLElement,flex:flexType):flexType{
         const nodename=target.nodeName.toLowerCase();

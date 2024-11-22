@@ -5,6 +5,6 @@ import Meta from '@/components/meta/meta';
 
 export default async function error_() {
     return (
-        <div className="isLocal container-fluid mx-auto"><Index /> </div>
+        <div className="isServer"><Index /> </div>
     )
 }

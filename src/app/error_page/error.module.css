@@ -1,0 +1,24 @@
+.errorIndex {
+  width: 80%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-direction: column;
+  min-height: 70vh;
+  position: relative;
+  padding-inline: 1rem;
+  padding-block: 2rem;
+}
+@media screen and (max-width: 900px) {
+  .errorIndex {
+    width: 100%;
+    padding-block: 0rem;
+    padding-inline: 0.5rem;
+  }
+}
+@media screen and (max-width: 400px) {
+  .errorIndex {
+    padding-inline: 0rem;
+    margin-inline: 0rem;
+  }
+}

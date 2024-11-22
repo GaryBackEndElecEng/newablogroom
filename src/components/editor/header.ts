@@ -519,6 +519,7 @@ class Header{
         //THIS IS ACTIVATE BY THE SIDEBAR ON CLICK AND IS THE MAIN INJECTION FOR NEW HEADER
         this.flex={} as flexType;
         const blog=this._modSelector._blog;
+        const maxcount=ModSelector.maxCount(blog);
         if(parent && header &&  header.isOn){
             parent.style.width="100%";
             Header.cleanUpByID(parent,"mainHeader");
@@ -531,11 +532,14 @@ class Header{
             this.headerStyleCreator({parent:mainHeader,cssStyle:header.headerData});
              this.flex={...this.flex,selectorId:mainHeader.id,rowId:"",colId:"",placement:0,col:2,row:1};
              //marking images to be deleted if imgkey
-            this._service.markHeaderImgKey(blog).then(async(res)=>{
-                if(res){
-                    Misc.message({parent,msg:`${JSON.stringify(res)}`,type_:"success",time:700});
-                }
-            });
+             if(maxcount > 2){
+
+                 this._service.markHeaderImgKey(blog).then(async(res)=>{
+                     if(res){
+                         Misc.message({parent,msg:`${JSON.stringify(res)}`,type_:"success",time:700});
+                     }
+                 });
+             }
             //marking images to be deleted if imgkey
             this.promSelectorAdder(mainHeader,this._selector).then(async(selector)=>{
                 if(selector){
