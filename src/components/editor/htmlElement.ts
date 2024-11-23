@@ -1156,7 +1156,7 @@ class HtmlElement {
         const {target,newTarget}=item;
         //WORK ON LOGIC
         const targetEle=this._modSelector.elements.find(ele=>(ele.eleId===target.id));
-        let newTargetEle=this._modSelector.elements.find(ele=>(ele.eleId===newTarget.id));
+        const newTargetEle=this._modSelector.elements.find(ele=>(ele.eleId===newTarget.id));
         if(!targetEle) return;
         const targetPlace=targetEle.placement;
         if(!newTargetEle) return;
