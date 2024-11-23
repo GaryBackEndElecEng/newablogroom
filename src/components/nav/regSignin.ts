@@ -27,9 +27,9 @@ class RegSignIn {
         //parent=MainHeader.header
         const getmainHeader=document.querySelector("header#navHeader") as HTMLElement;
         if(!getmainHeader) return;
-        const less900=window.innerWidth < 900 ? true:false;
-        const less400=window.innerWidth < 400 ? true:false;
-        const less380=window.innerWidth < 380 ? true:false;
+        const less900=window.innerWidth < 900 ;
+        const less400=window.innerWidth < 400 ;
+        const less380=window.innerWidth < 380 ;
         getmainHeader.style.zIndex="";
         getmainHeader.style.position="relative";
         getmainHeader.style.justifyContent="space-between";
@@ -43,6 +43,7 @@ class RegSignIn {
         // section.style.inset=less900 ? (less400 ? (less380 ? "none" :"none"):"none") :"150% 15% -905% 15%";
         section.style.maxWidth=less900 ? (less400 ? (less380 ? "370px" :"390px"):"500px") :"600px";
         section.style.width="100%";
+        section.style.position="absolute";
         getmainHeader.appendChild(section);
         Misc.growIn({anchor:section,scale:0,opacity:0,time:400});
         const url=window.location.pathname;
@@ -67,6 +68,7 @@ class RegSignIn {
                 this.register(getmainHeader,section);
             }
          };
+         section.style.position="absolute";
     }
     hasStorage():Promise<boolean>{
         return new Promise(resolve=>{
@@ -354,6 +356,7 @@ class RegSignIn {
         // const cssGrp="margin:auto;display:flex;flex-direction:column;align-items:center;gap:1rem;";
         window.scroll(0,0);
         section.style.zIndex="20";
+        section.style.position="absolute";
         // const width=window.innerWidth <500 ? "0%":"30%";
         const container=document.createElement("section");
         container.id="signIn-main";

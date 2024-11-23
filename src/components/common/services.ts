@@ -1359,6 +1359,7 @@ async apiUploadSaveFree(item:{parent:HTMLElement,Key:string,formdata:FormData}):
     }
 
     async getposts():Promise<postType[] |void>{
+        //api/posts
         const option={
             headers:{
                 "Content-Type":"application/json"

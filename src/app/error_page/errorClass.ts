@@ -104,6 +104,7 @@ class ErrorClass {
         para.id="div-para";
         para.style.cssText="margin-inline:auto;padding:2rem;background-color:black;color:white;border-radius:12px;padding:1rem;";
         para.style.lineHeight=less900 ? (less400 ? "1.75rem":"2.2rem"):"2.75rem";
+        para.style.width="100%";
         const img=document.createElement('img');
         img.id="shape-outside-log";
         img.src=this.logo;

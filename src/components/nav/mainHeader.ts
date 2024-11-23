@@ -226,6 +226,8 @@ _status:"authenticated" | "loading" | "unauthenticated";
         if(typeof window ==="undefined") return;
         const less900=window.innerWidth <900;
         const less400=window.innerWidth <400;
+        const less375=window.innerWidth <375;
+
         const regBlog_id:RegExp=/(\/blog\/)[0-9]+/;
         const pg=window.location.pathname;
         if(!pg || count >0) return;
@@ -246,8 +248,8 @@ _status:"authenticated" | "loading" | "unauthenticated";
                             const container=document.createElement("div");
                             container.id="genPageCount-main";
                             container.style.cssText="position:relative;width:auto;height:auto;display:flex;justify-content:center;flex-direction:column;align-items:center;border-left:1px solid white;border-right:1px solid white;margin-left:5px;justify-self:start;";
-                            container.style.left=less900 ? (less400 ? "0px" :"50px"):"90px";
-                            container.style.transform=less900 ? (less400 ? "scale(0.6)" :"scale(0.7)"):"scale(0.8)";
+                            container.style.left=less900 ? (less400 ? (less375 ? "-10px" :"-2px"):"50px"):"90px";
+                            container.style.transform=less900 ? (less400 ? (less375 ? "scale(0.4)" :"scale(0.5)") :"scale(0.7)"):"scale(0.8)";
                             const div=document.createElement("div");
                             div.id="genPageCount-inner";
                             div.style.cssText="margin:auto;display:flex;justify-content:center;gap:1rem;align-items:center;flex-direction:row;flex-wrap:wrap;"

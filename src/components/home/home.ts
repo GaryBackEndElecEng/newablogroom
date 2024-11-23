@@ -1,7 +1,7 @@
 
 import Service from "../common/services";
 import ModSelector from "../editor/modSelector";
-import {blogType, imageType, messageType} from "@/components/editor/Types";
+import {blogType, imageType, messageType, postType} from "@/components/editor/Types";
 import Misc from "../common/misc";
 import MainHeader from "../nav/mainHeader";
 import Blogs from "../blogs/blogsInjection";
@@ -41,6 +41,7 @@ class Home{
     bgColor:string;
     btnColor:string;
     intro:HomeIntro;
+    postLogo:string;
     introImage:string="/images/introImage.png";
     linkImg:string="https://images.unsplash.com/photo-1657963928657-9da48ea0c496?crop=entropy";
     imagineResponse:string="Imagine....an editor that empowers you to create a flexible webpage to suit your needs.";
@@ -59,6 +60,7 @@ class Home{
         this.intro=new HomeIntro(this._service);
         this._images=[];
         this.bend1="/images/bend2.png";
+        this.postLogo="/images/posts.png";
         this.getImages=[
             {id:0,name:"Explore",image:"https://images.unsplash.com/photo-1657736301709-b1365740ddbe?crop=entropy",desc:"creativity"},
             {id:1,name:"symetric",image:"https://images.unsplash.com/photo-1658288797137-7ca820c77a2b?crop=entropy",desc:"and clean"},
@@ -155,6 +157,7 @@ class Home{
                                     
                                 }
                             });
+                            await this.posts({parent:res.showPosts});
                         
                 
                 }
@@ -162,7 +165,7 @@ class Home{
     
     };
 
-    async asyncMain(item:{parent:HTMLElement}): Promise<{showBlogs:HTMLElement,sectionOne:HTMLElement}|undefined>{
+    async asyncMain(item:{parent:HTMLElement}): Promise<{showBlogs:HTMLElement,showPosts:HTMLElement,sectionOne:HTMLElement}|undefined>{
         const less900=window.innerWidth < 900;
         const less600=window.innerWidth < 600;
         const less400=window.innerWidth < 400;
@@ -176,6 +179,9 @@ class Home{
         const showBlogs=document.createElement("div");
         showBlogs.id="asyncmain-showBlogs";
         showBlogs.style.cssText=css_col + "max-width:1000px;width:100%;";
+        const showPosts=document.createElement("div");
+        showPosts.id="asyncmain-showPosts";
+        showPosts.style.cssText=css_col + "max-width:1000px;width:100%;";
         
         // const titleShowDisplay=document.createElement("div");
         // titleShowDisplay.id="asyncmain-titleShowDisplay";
@@ -208,9 +214,10 @@ class Home{
         sectionOne.appendChild(btnContainer);
         parent.appendChild(sectionOne);
         parent.appendChild(showBlogs);
+        parent.appendChild(showPosts);
         return new Promise(resolve=>{
-            resolve({showBlogs,sectionOne})
-        }) as Promise<{showBlogs:HTMLElement,sectionOne:HTMLElement}>;
+            resolve({showBlogs,sectionOne,showPosts})
+        }) as Promise<{showBlogs:HTMLElement,showPosts:HTMLElement,sectionOne:HTMLElement}>;
     }
     sleep(item:{time:number}){
         const {time}=item;
@@ -390,38 +397,16 @@ class Home{
     }
     async listBlogs(parent:HTMLElement): Promise<{blogs:blogType[] | undefined,blogMsgCont:HTMLElement}>{
         //MAXIMUM OF QTY=4 && RATING > 3
-        const less900=window.innerWidth <900;
-        const less400=window.innerWidth <400;
+        const less900=window.innerWidth < 900;
+        const less400=window.innerWidth < 400;
+        const less375=window.innerWidth < 375;
         parent.style.position="relative";
         const css_col="margin-inline:auto;display:flex;flex-direction:column;";
         const container=document.createElement("section");
         container.id="home-listBlogs-showBlogs";
         container.style.cssText=css_col + "gap:1rem;position:relative;width:100%";
         //----------textCont-----------------//
-        const textCont=document.createElement("div");
-        textCont.id="container-textCont";
-        textCont.style.cssText=css_col + "gap:0.25rem;width:100%;margin-block:1rem;";
-        textCont.style.marginBlock=less900 ? (less400 ? "2rem":"1.25rem") : "1rem";
-        textCont.style.marginTop=less900 ? (less400 ? "1rem":"0.25rem") : "0rem";
-        const text=document.createElement("h6");
-        text.className="subTitleStyleThreeNoBorder";
-        text.id="textCont-text";
-        text.textContent= "top blogs";
-        text.style.cssText="margin:auto;text-transform:uppercase;font-family:'Poppins-Regular';";
-        text.style.fontSize=less900 ? (less400 ? "280%":"350%") : "360%";
-        const line1=document.createElement("div");
-        line1.className="lineStyleOne";
-        line1.id="textCont-line1";
-        line1.style.cssText="width:100%;line-height:20px;height:8px;margin:auto;border-radius:30%;";
-        const line2=document.createElement("div");
-        line2.className="lineStyleOne";
-        line2.id="textCont-line2";
-        const width=100/1.62;
-        line2.style.cssText=`width:${width}%;line-height:20px;height:5.5px;margin:auto;border-radius:30%;`;
-        textCont.appendChild(text);
-        textCont.appendChild(line1);
-        textCont.appendChild(line2);
-        container.appendChild(textCont);
+        this.blogPostTitle({parent:container,css_col,context:"top blogs"});
         //----------textCont-----------------//
         //----------blogCont-----------------//
         const blogMsgCont=document.createElement("div");
@@ -452,6 +437,36 @@ class Home{
         }) as Promise<{blogMsgCont:HTMLElement,blogs:blogType[] | undefined}>;
 
         
+    }
+    blogPostTitle(item:{parent:HTMLElement,css_col:string,context:string}){
+        const {parent,css_col,context}=item;
+        const less900=window.innerWidth < 900;
+        const less400=window.innerWidth < 400;
+        const less375=window.innerWidth < 375;
+        const textCont=document.createElement("div");
+        textCont.id="container-textCont";
+        textCont.style.cssText=css_col + "gap:0.25rem;width:100%;margin-block:1rem;";
+        textCont.style.marginBlock=less900 ? (less400 ? "2rem":"1.25rem") : "1rem";
+        textCont.style.marginTop=less900 ? (less400 ? "1rem":"0.25rem") : "0rem";
+        const text=document.createElement("h6");
+        text.className="subTitleStyleThreeNoBorder";
+        text.id="textCont-text";
+        text.textContent= context;
+        text.style.cssText="margin:auto;text-transform:uppercase;font-family:'Poppins-Regular';";
+        text.style.fontSize=less900 ? (less400 ? "280%":"350%") : "360%";
+        const line1=document.createElement("div");
+        line1.className="lineStyleOne";
+        line1.id="textCont-line1";
+        line1.style.cssText="width:100%;line-height:20px;height:8px;margin:auto;border-radius:30%;";
+        const line2=document.createElement("div");
+        line2.className="lineStyleOne";
+        line2.id="textCont-line2";
+        const width=100/1.62;
+        line2.style.cssText=`width:${width}%;line-height:20px;height:5.5px;margin:auto;border-radius:30%;`;
+        textCont.appendChild(text);
+        textCont.appendChild(line1);
+        textCont.appendChild(line2);
+        parent.appendChild(textCont);
     }
     async blogCard(item:{parent:HTMLElement,blog:blogType}){
         const {parent,blog}=item;
@@ -553,8 +568,9 @@ class Home{
     }
     blogMsgs(item:{col:HTMLElement,blog:blogType}){
         const {col,blog}=item;
-        const less900=window.innerWidth <900;
-        const less400=window.innerWidth <400;
+        const less900=window.innerWidth < 900;
+        const less400=window.innerWidth < 400;
+        const less375=window.innerWidth < 375;
         const url=new URL(window.location.href);
 
         const css_col="display:flex;flex-direction:column;align-items:center;justify-content:flex-start;gap:1rem;";
@@ -566,7 +582,7 @@ class Home{
             contScroll.style.height=less900 ? (less400 ? "12vh":"15vh") :"18vh";
             contScroll.style.marginBlock=less900 ? (less400 ? "3rem": "1rem") : "0.5rem";
             contScroll.style.marginBlock=less400 ? "2rem":"auto";
-            contScroll.style.paddingInline=less900 ? (less400 ? "1.25rem":"7.75rem"):"10.5rem";
+            contScroll.style.paddingInline=less900 ? (less400 ? "10px":"7.75rem"):"10.5rem";
             col.appendChild(contScroll);
             msgs.slice(0,3).sort((a,b)=>{if(a.rate > b.rate) return -1;else return 1}).map(msg=>{
                 if(msg){
@@ -713,6 +729,113 @@ class Home{
         });
 
     }
+   async posts(item:{parent:HTMLElement}){
+        const {parent}=item;
+        parent.style.position="relative";
+        const less900=window.innerWidth < 900;
+        const less400=window.innerWidth < 400;
+        const less375=window.innerWidth < 375;
+        const minLikes=3;
+        const css_col="margin-inline:auto;display:flex;flex-direction:column;align-items:center;gap:0.75rem;";
+        const css_row="margin-inline:auto;display:flex;flex-wrap:wrap;align-items:center;gap:0.5rem;";
+        const container=document.createElement("div");
+        Header.cleanUpByID(parent,"home-posts-container");
+        container.id="home-posts-container";
+        container.style.cssText=css_col + "width:100%";
+        this.blogPostTitle({parent:container,css_col,context:"top posts"});
+        const innerContainer=document.createElement("div");
+        innerContainer.id="container-innerContainer";
+        innerContainer.style.cssText=css_col + "background-color:white;color:black;font-family:'Poppins-Regular';border-radius:12px;box-shadow:1px 1px 12px 1px #01d1f7;";
+        innerContainer.style.width=less900 ? "100%":"80%";
+        const row=document.createElement("div");
+        row.id="innerContainer-row";
+        row.style.cssText=css_row + "width:100%;justify-content:space-between;";
+        row.style.width="100%";
+        row.style.paddingInline=less900 ? (less400 ? "5px":"1rem"):"1rem";
+        row.style.display=less400 ? "block":"flex";
+        Misc.matchMedia({parent:row,maxWidth:400,cssStyle:{display:"block",paddingInline:"5px"}});
+        await this._service.getposts().then(async(posts:postType[]|undefined)=>{
+            if(posts && posts.length >0){
+                const minPosts=posts.filter(post=>(post.likes > minLikes));
+                const innerHeight= minPosts.length >3 ? "30vh":"auto";
+                const scroll= minPosts.length >3 ? "scroll":"hidden";
+                innerContainer.style.height=innerHeight;
+                innerContainer.style.overflow=scroll;
+                innerContainer.appendChild(row);
+                container.appendChild(innerContainer);
+                parent.appendChild(container);
+                minPosts.map(post=>{
+                    if(post){
+                        this.postCard({row:row,post,css_col,css_row,less900,less400});
+                    }
+                });
+            }
+        });
+
+
+    }
+    async postCard(item:{row:HTMLElement,post:postType,css_col:string,css_row:string,less900:boolean,less400:boolean}){
+        const {row,post,css_col,css_row,less900,less400}=item;
+        const imgWidth=75;
+        const id=String(post.id);
+        const col=document.createElement("div");
+        col.id="innerContainer-postCard-col-" + id;
+        col.style.cssText=css_col;
+        col.style.flex=less900 ? (less400 ? "0 0 100%":"0 0 48%"): "0 0 48%";
+        const card=document.createElement("div");
+        card.id="col-card-" + id;
+        card.style.cssText=css_row + `margin:auto;min-height:${imgWidth }px;width:100%;flex-wrap:wrap;height:auto;`;
+        card.style.cursor="pointer";
+        const img=document.createElement("img");
+        img.id="card-img-" + id;
+        img.style.cssText=`margin:auto;width:${imgWidth-5}px;aspect-ratio: 1/ 1;border-radius:50%;margin-inline:5px;filter:drop-shadow(0 0 0.5rem black);`;
+        if(post.image){
+            img.src=imageLoader({src:post.image,width:imgWidth-5,quality:75});
+            img.alt="www.ablogroom.com";
+            Misc.blurIn({anchor:img,blur:"20px",time:700});
+        }else if(post.imageKey){
+            await this._service.getSimpleImg(post.imageKey).then(async(res)=>{
+                if(res){
+                    img.src=res.img;
+                    img.alt=res.Key;
+                    Misc.blurIn({anchor:img,blur:"20px",time:700});
+                }
+            });
+        }else{
+            img.src=imageLoader({src:this.postLogo,width:imgWidth-5,quality:75});
+             img.alt="www.ablogroom.com";
+            Misc.blurIn({anchor:img,blur:"20px",time:700});
+        }
+        card.appendChild(img);
+        const postTitle=document.createElement("h6");
+        postTitle.id="card-postTitle-" + id;
+        postTitle.className="text-center lean text-primary";
+        postTitle.style.fontSize="110%";
+        postTitle.textContent=post.title ? post.title : "post title";
+        card.appendChild(postTitle);
+        const contLikes=document.createElement("div");
+        contLikes.id="card-contLikes-" + id;
+        contLikes.style.cssText="margin:auto;display:flex;align-items:center;justify-content:center;";
+        const likes=document.createElement("small");
+        likes.className="text-center text-danger";
+        likes.textContent=`likes: ${post.likes}`;
+        contLikes.appendChild(likes);
+        const line=document.createElement("hr");
+        line.style.cssText="width:80%;height:1px;background:black;box-shadow:1px 1px 3px 1px black;margin-block:12px;"
+        card.appendChild(contLikes);
+        col.appendChild(card);
+        col.appendChild(line);
+        Misc.matchMedia({parent:col,maxWidth:400,cssStyle:{flex:"0 0 100%"}});
+        card.onclick=(e:MouseEvent)=>{
+            if(e){
+                const url=new URL(window.location.href);
+                const origin=url.origin;
+                window.location.href=(new URL(`post/${id}`,origin)).href;
+            }
+        };
+        row.appendChild(col);
+    };
+    
 //SIGNOUTFROMEDITOR NOT USED:=> MESSAGE IS EXECUTED FROM navArrow.logout()
     signoutFromEditor(){
         const url=new URL(window.location.href);

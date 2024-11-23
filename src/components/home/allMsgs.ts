@@ -132,7 +132,9 @@ class AllMsgs{
         contStar.id="contStar";
         contStar.style.cssText="display:flex;flex-wrap:wrap;";
         contStar.appendChild(rating);
-        Misc.starRating({parent:contStar,rating:msg.rate,cssStyle:{color:"yellow","backgroundColor":"black",padding:"1px",borderRadius:"50%","fontSize":"25px","fill":"yellow","marginInline":"0px"}});
+        const cssStyle={color:"yellow","backgroundColor":"black",padding:"1px",borderRadius:"50%","fontSize":"25px","fill":"yellow","marginInline":"0px"};
+        const rowCssStyle={"backgroundColor":"black",padding:"1px",borderRadius:"12px"};
+        Misc.starRating({parent:contStar,rating:msg.rate,cssStyle,rowCssStyle});
         //APPENDING rating and contStar
         //APPENDING rating and contStar
         nameCont.appendChild(contStar);
@@ -187,7 +189,9 @@ class AllMsgs{
         contStar.id="singleMsgTwo-contStar";
         contStar.style.cssText=css_row +"position:relative;";
         contStar.appendChild(rating);
-        Misc.starRating({parent:contStar,rating:msg.rate,cssStyle:{color:"yellow","backgroundColor":"black",padding:"1px",borderRadius:"50%","fontSize":"22px","fill":"yellow","marginInline":"0px"}});
+        const cssStyle={color:"yellow","backgroundColor":"black",padding:"1px",borderRadius:"50%","fontSize":"25px","fill":"yellow","marginInline":"0px"};
+        const rowCssStyle={"backgroundColor":"black",padding:"1px",borderRadius:"12px"};
+        Misc.starRating({parent:contStar,rating:msg.rate,cssStyle,rowCssStyle});
         //APPENDING rating and contStar
         //APPENDING rating and contStar
         nameCont.appendChild(contStar);
@@ -250,7 +254,9 @@ class AllMsgs{
         const rate=document.createElement("div");
        rate.style.cssText="margin-inline:auto;"
         rate.id="allMsgs-cardBody-rate";
-        Misc.starRating({parent:rate,rating:msg.rate,cssStyle:{width:"100%",padding:"1px",color:"yellow",backgroundColor:"black",borderRadius:"50%"}});
+        const cssStyle={color:"yellow","backgroundColor":"black",padding:"1px",borderRadius:"50%","fontSize":"25px","fill":"yellow","marginInline":"0px"};
+        const rowCssStyle={"backgroundColor":"black",padding:"1px",borderRadius:"12px"};
+        Misc.starRating({parent:rate,rating:msg.rate,cssStyle,rowCssStyle});
         name.innerHTML=`<span id="view-cardBody-name" style="display:flex;"><span style="color:black;font-weight:bold;">name: </span> <h6 style="font-size:18px;color:blue;margin-right:0.5rem;"> ${msg.name}</h6></span>`;
         cardBody.appendChild(rate);
         cardBody.appendChild(name);
@@ -302,7 +308,7 @@ class AllMsgs{
         const css_textP="text-align:center;text-wrap:pretty;padding-inline:0.5rem;font-family:'Poppins-Thin';font-weight:bold;line-height:2.75rem;font-weight:700;";
         const css_textL="text-align:center;text-wrap:pretty;padding-inline:0.5rem;font-family:'LobsterTwo-Regular';line-height:2.75rem;";
         popup.style.cssText=css + css_col;
-        popup.style.top="0%";
+        popup.style.top=less900 ? (less400 ? "-10%":"-30%"): "-35%";
         // popup.style.left="0%";
         popup.style.width="100%";
         if(less900){
