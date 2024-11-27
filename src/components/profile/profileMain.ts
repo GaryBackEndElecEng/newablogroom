@@ -206,9 +206,11 @@ class ProfileMain{
         const {email:emailOld,label:emailOldLabel}=Nav.emailComponent(form)
         emailOld.id=`emailOld-${rand}`;
         emailOld.name=`emailOld`;
+        emailOld.type=`text`;
         emailOld.autocomplete="on";
         emailOld.style.cssText="max-width:200px;font-size:12px;line-height:0.75;"
-        emailOldLabel.textContent="old Email"
+        emailOldLabel.textContent="old Email";
+        emailOldLabel.setAttribute("for",emailOld.id);
         //APPENDING NEw EMAIL INPUT TO FORM
         const {email:emailNew,label:emailLabel}=Nav.emailComponent(form)
         emailNew.style.cssText="max-width:200px;font-size:12px;line-height:0.75;";
@@ -310,18 +312,22 @@ class ProfileMain{
         const {password:passOld,label:passOldLabel}=Nav.passwordComponent(form)
         passOld.id=`passOld-${rand}`;
         passOld.name="passOld";
+        passOld.type="text";
         passOld.autocomplete="on";
         passOld.placeholder="old password";
         passOld.style.cssText="max-width:200px;font-size:12px;line-height:0.75;"
-        passOldLabel.textContent="old password"
+        passOldLabel.textContent="old password";
+        passOldLabel.setAttribute("for",passOld.id);
         //APPENDING NEw EMAIL INPUT TO FORM
         const {password:passNew,label:passNewLabel}=Nav.passwordComponent(form)
         passNew.style.cssText="max-width:200px;font-size:12px;line-height:0.75;";
         passNew.id=`passNew-${rand}`;
         passNew.name="passNew";
+        passNew.type="text";
         passNew.placeholder="new password";
         passNew.autocomplete="off";
         passNewLabel.textContent="new password";
+        passNewLabel.setAttribute("for",passNew.id);
         
         return {passNew,passOld}
     }
@@ -1338,7 +1344,7 @@ class ProfileMain{
         scrollCol1.className=`col-md-${12/cols}`;
         section.appendChild(scrollCol1);
         const displayCol2=document.createElement("div");
-        displayCol2.style.cssText="height:inherit;min-height:5vh;margin-block:1rem;display:flex;flex-direction:column;align-items:center;width:100%;position:relative;";
+        displayCol2.style.cssText="height:inherit;min-height:5vh;margin-block:1rem;display:flex;flex-direction:column;align-items:center;width:100%;position:relative;overflow-y:scroll;";
         if(less900){
             section.style.flexDirection="row";
             scrollCol1.style.flex="0 0 46%";
@@ -1533,6 +1539,7 @@ class ProfileMain{
         grptitle.style.cssText="margin-inline:auto;";
         grptitle.className="text-light text-center";
         intitle.id="post-title";
+        intitle.type="text";
         intitle.name="title";
         intitle.value=post.title ? post.title : "";
         ltitle.textContent="Your Title";
@@ -1562,6 +1569,7 @@ class ProfileMain{
         const {input:link,label:lLink,formGrp:grplink}=Nav.inputComponent(form);
         link.id="link";
         link.name="link";
+        link.type="text";
         link.value=post.link? post.link : "";
         link.placeholder="https://example.com";
         link.type="url";
@@ -1617,6 +1625,7 @@ class ProfileMain{
         grpTitle.style.width="100% !important";
         inTitle.id="title";
         inTitle.name="title";
+        inTitle.type="text";
         inTitle.placeholder="Your Title";
         lTitle.textContent="Title";
         lTitle.style.cssText="font-size:140%;text-decoration:underline;text-underline-offset:0.5rem;margin-bottom:1rem;";

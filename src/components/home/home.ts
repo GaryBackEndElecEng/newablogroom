@@ -741,7 +741,7 @@ class Home{
         const container=document.createElement("div");
         Header.cleanUpByID(parent,"home-posts-container");
         container.id="home-posts-container";
-        container.style.cssText=css_col + "width:100%";
+        container.style.cssText=css_col + "width:100%;margin-bottom:2rem;";
         this.blogPostTitle({parent:container,css_col,context:"top posts"});
         const innerContainer=document.createElement("div");
         innerContainer.id="container-innerContainer";

@@ -1197,17 +1197,16 @@ class User{
                                               return blog_;
                                            }else{
                                              const blog_= await this.saveKeyWithinBackground({parent,imgKeyUrl,blog:this.blog});
-                                             formdata.set("file","");
-                                               formdata.set("Key","");
+                                             if(blog_){
+                                                 formdata.set("file","");
+                                                   formdata.set("Key","");
+                                             }
                                              return blog_;
                                            }
                                        }
                                    }).catch((err)=>{const msg=getErrorMessage(err);Misc.message({parent,msg,type_:"error",time:700})});
                                    //saving image
-                                   if(_blog_ && _blog_.user_id){
-                                    this._modSelector.blog={..._blog_}
-                                    
-                                   }
+                                   
                                 
                             }
                         }
@@ -1242,8 +1241,7 @@ class User{
                     }
                 }).catch((err)=>{const msg=getErrorMessage(err);Misc.message({parent,msg,type_:"error",time:700})});
                 if(finalBlog){
-                    // console.log("finalBlog",finalBlog)
-                    this._modSelector._blog={...finalBlog}
+                    Misc.message({parent,type_:"success",msg:"saved to your blog",time:700});
                 }
                 }
             return;
@@ -1316,19 +1314,27 @@ class User{
         
         if(isJSON){
             let flex=parsed as flexType;
-            flex={...flex,imgKey:imgKey}
-            if(checkShapeOutside){
-                parent.setAttribute("flex",JSON.stringify(flex));
-                target.setAttribute("imgKey",imgKey);
-            }else{
-                target.setAttribute("flex",JSON.stringify(flex));
+            if(!(flex && flex.imgKey)){
+
+                flex={...flex,imgKey:imgKey}
+                if(checkShapeOutside){
+                    parent.setAttribute("flex",JSON.stringify(flex));
+                    target.setAttribute("imgKey",imgKey);
+                }else{
+                    target.setAttribute("flex",JSON.stringify(flex));
+                }
             }
         }else{
-            if(checkShapeOutside){
-                parent.setAttribute("imgKey",imgKey);
-                target.setAttribute("imgKey",imgKey);
-            }else{
-                target.setAttribute("imgKey",imgKey)
+            const check=target.getAttribute("imgKey");
+            const check2=parent.getAttribute("imgKey");
+            if(!check || !check2){
+
+                if(checkShapeOutside){
+                    parent.setAttribute("imgKey",imgKey);
+                    target.setAttribute("imgKey",imgKey);
+                }else{
+                    target.setAttribute("imgKey",imgKey)
+                }
             }
             Misc.message({parent:parent,msg:" mainimage saved",type_:"success",time:700});
         }
@@ -1400,25 +1406,35 @@ class User{
         this._modSelector._blog=blog;
         //SAVES IMGKEY IN TARGET DEPENDING IF FLEX ATTRIBUTE EXISTS ON TARGET: NOT=>BGIMAGE,TARGET:FLEX EXIST=>IMAGE THEN SAVES BLOG AND RETURN THE NEWLY SAVED BLOG
         const {isJSON,parsed}=Header.checkJson(parent.getAttribute("flex"));
+        let flex=parsed as flexType|undefined
         const {img,Key}=imgKeyUrl;
-        if(isJSON){
-            let flex=parsed as flexType;
-            flex={...flex,imgKey:Key,backgroundImage:true};
-            parent.setAttribute("flex",JSON.stringify(flex));
-        }else{
-            parent.setAttribute("imagKey",Key);
-        }
-        parent.style.backgroundImage=`url(${img})`;//to be stored
-        parent.style.backgroundSize=`100% 100%`;//to be stored
-        parent.style.backgroundPosition=`50% 50%`;//to be stored
-        return this._modSelector.promGetElement(parent).then(async(res)=>{
-            //updates to updates @ flex.imgKey for both target && background=> found or getAttribute("imgKey")=>found
-            if(res){
-                const level=parent.getAttribute("level");
-                Misc.message({parent:parent,msg:` image saved: level=${level}`,type_:"success",time:1100});
-                return this._service.promsaveItems(res);
+        if(isJSON && flex){
+            if(flex && flex.imgKey && flex.position){
+                const position=["col","row","blog"].find(pos=>(pos===(flex as flexType).position));
+                if(position){
+                    flex={...flex,backgroundImage:true}
+                    parent.style.backgroundImage=`url(${img})`;//to be stored
+                    parent.style.backgroundSize=`100% 100%`;//to be stored
+                    parent.style.backgroundPosition=`50% 50%`;//to be stored
+                    if(position==="col"){
+                        const blog=await this._modSelector.promUpdateColumn(parent,flex).then(async(res)=>{
+                            if(res){
+                                return this._modSelector.blog
+                            }
+                        });
+                        return blog
+                    }else if(position==="row"){
+                        const blog=await this._modSelector.promUpdateRow(parent).then(async(res)=>{
+                            if(res){
+                                return this._modSelector.blog
+                            }
+                        });
+                        return blog
+                    }
+                }
+                
             }
-        });
+        }
     }
 
     checkIfHasImagesButNoImgKey(blog:blogType):arrImgType2[]{

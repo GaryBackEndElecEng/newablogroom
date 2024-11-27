@@ -1028,7 +1028,7 @@ colAttrs=["col-start","col-end","col-center"];
                     column.style.backgroundSize=`100% 100%`;
                     column.style.backgroundPosition=`50% 50%`;
                     _flex={..._flex,position:"col",backgroundImage:true,imgKey:Key,colId:column.id};
-                    _flex={..._flex,imgKey:Key};
+                    _flex={..._flex,imgKey:Key,position:"col"};
                     column.setAttribute("flex",JSON.stringify(flex));
                     column.setAttribute("data-backgroundimage","true");
                     this._modSelector.promUpdateColumn(column,flex).then(async(col_)=>{

@@ -44,9 +44,10 @@ set user(user:userType){
 }
     //////------------------------GETTERS/SETTERS--------------------------///
    
-        rotateArrow(item:{button:HTMLElement,time:number}){
+        rotateArrow(item:{button:HTMLButtonElement,time:number}){
         const {button,time}=item;
         const heightWidth=36;
+        let show:boolean=false;
         this.mainHeader=document.querySelector("header#navHeader") as HTMLElement;
         let getPageCount:HTMLElement|null;
         button.style.cssText=`position:relative;display:flex;justify:content:center;align-items:center;border-radius:50%;padding:5px;background-color:transparent;box-shadow:1px 1px 12px 1px white;color:white;transform:rotate(180deg);width:${heightWidth}px;height:${heightWidth}px;padding:1px;margin-block:auto;`
@@ -67,7 +68,8 @@ set user(user:userType){
                 }
                 if(!getNavHeader) return;
                 if(button.style.transform==="" || button.style.transform==="rotate(180deg)"){
-                    this.imageAfterEffect({button,heightWidth,time:600,show:true})
+                    show=true;
+                    this.imageAfterEffect({button,heightWidth,time:600,show:true});
                     button.style.transform="rotate(0deg)";
                     button.style.color="black";
                     button.style.backgroundColor="white";
@@ -77,6 +79,7 @@ set user(user:userType){
                         { transform: "rotate(0deg)",color:"black",backgroundColor:"white" },
                     ], { duration: time, iterations: 1 });
                 }else{
+                    show=false;
                     button.style.transform="rotate(180deg)";
                     button.style.color="white";
                     button.style.backgroundColor="transparent";
@@ -87,6 +90,7 @@ set user(user:userType){
                         { transform: "rotate(180deg)",color:"white",backgroundColor:"transparent" },
                     ], { duration: time, iterations: 1 });
                 }
+                this.closeMenuWhenMouseOutside({actionButton:button,show:show});
             }
         };
         
@@ -126,6 +130,29 @@ set user(user:userType){
                 {transform:"translateX(-100%)",opacity:"0"},
             ],{duration:time,iterations:1,easing:"ease-in-out"});
             setTimeout(()=>{popup.style.display="none";},time-20);
+        }
+        
+    }
+    closeMenuWhenMouseOutside(item:{actionButton:HTMLButtonElement,show:boolean}){
+        const {actionButton,show}=item;
+        const less900=window.innerWidth < 900;
+        const getSlider=document.querySelector("div#slide-menu") as HTMLElement;
+        if(show && getSlider){
+            if(!less900){
+                
+                getSlider.onmouseleave=(e:MouseEvent)=>{
+                    if(e){
+                        actionButton.click();
+                    }
+                };
+            }else{
+                getSlider.onmouseout=(e:MouseEvent)=>{
+                    if(e){
+                        actionButton.click();
+                        getSlider.removeEventListener("mouseout",()=>{e.stopPropagation()});
+                    }
+                };
+            }
         }
     }
     header(item:{parent:HTMLElement,show:boolean,time:number,headerHeight:number,checkUser:boolean}){
@@ -450,8 +477,9 @@ set user(user:userType){
         const cont=document.createElement("div");
         useParent.style.position="relative";
         cont.id="navArrow-contact";
-        cont.style.cssText=`position:absolute;width:fit-content;padding:1rem;background:rgb(3 13 49);color:white;height:fit-content;margin-inline:auto;display:flex;flex-direction:column;align-items:center;justify-content:center;border-radius:16px;width:100%;box-shadow:1px 1px 6px 1px aquamarine;padding:1rem;z-index:1000;inset:270% 0% 20% 0%`;
-        cont.style.width=less900 ? (less400 ? "100%" :"75%") :"50%";
+        cont.style.cssText=`position:absolute;width:fit-content;padding:1rem;background:rgb(3 13 49);color:white;height:fit-content;margin-inline:auto;display:flex;flex-direction:column;align-items:center;justify-content:center;border-radius:16px;width:100%;box-shadow:1px 1px 6px 1px aquamarine;padding:1rem;z-index:1000;`;
+        cont.style.width=less900 ? (less400 ? "100%" :"75%") :"40%";
+        cont.style.inset=less900 ? (less400 ? "270% 0% 10% 0%" :"270% 0% 10% 0%") :"270% 0% 10% 0%";
         const form=document.createElement("form");
         form.style.cssText="display:flex;flex-direction:column;align-items:center;justify-content:center;gap:1.5rem;padding:1.5rem;border-radius:inherit;background:white;color:black;margin:1rem;color:white;box-shadow:1px 1px 12px 1px skyblue;";
         const divGrp=document.createElement("div");
@@ -577,10 +605,7 @@ set user(user:userType){
             btn.style.color="transparent";
             btn.style.backdropFilter="blur(10px)";
         }
-        Misc.matchMedia({parent:cont,maxWidth:1400,cssStyle:{inset:"270% 29% 10% 29%"}});
-        Misc.matchMedia({parent:cont,maxWidth:1200,cssStyle:{inset:"270% 25% 10% 25%"}});
-        Misc.matchMedia({parent:cont,maxWidth:900,cssStyle:{inset:"270% 18% 10% 18%"}});
-        Misc.matchMedia({parent:cont,maxWidth:400,cssStyle:{inset:"270% 0% 10% 0%"}});
+        
        cont.animate([
         {transform:"translateY(-100%)",opacity:0},
         {transform:"translateY(0%)",opacity:1},

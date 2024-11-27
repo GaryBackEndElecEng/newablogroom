@@ -1,6 +1,6 @@
 
 import {FaCreate} from "@/components/common/ReactIcons";
-import { FaArrowRight } from "react-icons/fa";
+import { FaArrowRight,FaFingerprint } from "react-icons/fa";
 import Misc from "../common/misc";
 import { buttonReturn } from "../common/tsFunctions";
 import ModSelector from "../editor/modSelector";
@@ -149,7 +149,7 @@ class MainFooter{
     }
     leftSide(col:HTMLElement,size:{width:string,height:string}):Promise<{container:HTMLElement}>{
         const {width,height}=size;
-
+        this.scrollToTop({parent:col});
         const container=document.createElement("div");
         container.id="left-container-row";
         container.classList.add("row");
@@ -695,6 +695,37 @@ class MainFooter{
                 });
             },790);
         }
+
+    }
+    scrollToTop(item:{parent:HTMLElement}){
+        const {parent}=item;
+        const less900= window.innerWidth < 900;
+        const less400= window.innerWidth < 400;
+        const css_col="display:flex;justify-content:center;align-items:center;flex-direction:column;";
+        const css_row="display:flex;justify-content:center;align-items:center;";
+        const name=FaFingerprint;
+        const container=document.createElement("div");
+        container.id="scrollTop-container";
+        container.style.cssText=css_col + "position:absolute;transform:translate(15px,15px);gap:8px;z-index:100";
+        container.style.top="0%";
+        container.style.left="0%";
+        container.style.transform=less900 ? (less400 ? "translate(0px,0px)":"translate(0px,0px)"): "translate(0px,-10px)";
+        const text=document.createElement("p");
+        text.textContent="top";
+        text.className="text-center text-primary";
+        text.style.cssText="font-size:80%;line-height:0.75rem;margin-bottom:0px;"
+        const button=document.createElement("button");
+        button.id="scrollToTop-button";
+        button.style.cssText=css_row + "padding:auto;border-radius:50%;position:relative;box-shadow:1px 1px 6px 1px white;z-index:100;background-color:inherit;";
+        FaCreate({parent:button,name,cssStyle:{color:"yellow",fontSize:"26px",borderRadius:"50%"}});
+       container.appendChild(text);
+       container.appendChild(button);
+       parent.appendChild(container);
+       button.onclick=(e:MouseEvent)=>{
+        if(e){
+            window.scroll(0,0);
+        }
+       };
 
     }
     async getUser():Promise<userType | undefined>{
