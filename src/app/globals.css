@@ -1248,3 +1248,107 @@ p.post-title {
     -webkit-columns: none !important;
   }
 }
+/* NEW CODE CLASSES */
+
+code#text {
+  font-size: 18px;
+  color: brown;
+}
+p#comment,
+code#pclass {
+  font-size: 22px;
+  color: lightgreen;
+}
+code#document,
+code#return,
+code#htmlElement,
+code#class,
+code#Promise,
+code#className,
+code#new,
+code#string,
+code#for,
+code#range,
+code#in,
+code#number,
+code#xml {
+  color: lime;
+}
+code#self {
+  color: #ee8080;
+}
+code#const,
+code#constructor {
+  color: blue;
+}
+code#method,
+code#function,
+code#map,
+code#filter,
+code#reduce,
+code#createElement,
+code#getElementById,
+code#querySelector,
+code#querySelectorAll,
+code#resolver,
+code#onClick,
+code#promiseall,
+code#items,
+code#enumerate,
+code#addEventListener {
+  color: yellow;
+}
+code#async,
+code#export,
+code#as,
+code#default {
+  color: maroon;
+}
+code#if {
+  color: purple;
+}
+
+code#function,
+code#__init__,
+code#this {
+  color: lightblue;
+}
+code#let {
+  color: lightblue;
+}
+code#arrow,
+code#_id {
+  color: red;
+}
+code#keyValue1,
+code#keyValue2 {
+  color: #f30915;
+}
+code#keyValue1 {
+  margin-left: 1rem;
+}
+code#keyValue2 {
+  margin-right: 1rem;
+}
+pre#opencurl,
+pre#closecurl {
+  color: red;
+  font-weight: bold;
+  margin-inline: 1rem;
+}
+pre#comma {
+  margin-inline: 0.25rem;
+  color: green;
+  font-size: 130%;
+}
+code#json {
+  color: lime;
+  /* margin-left: 1rem; */
+}
+
+code#anchor-open,
+code#anchor-close {
+  color: lime;
+  margin-left: 1rem;
+  font-size: 110%;
+}

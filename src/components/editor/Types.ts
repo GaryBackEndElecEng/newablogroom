@@ -143,7 +143,8 @@ export type elementType = {
     attr?:string,
     img?: string,
     imgKey?:string,
-    blog_id:number
+    blog_id:number,
+    type?:string
 
 }
 export type element_selType = {
@@ -296,6 +297,16 @@ export type codeType={
     template:string
 
 }
+export type arrCatchType={
+    id: string;
+    start: number;
+    end: number;
+    word: string;
+    replace: string;
+    index:number;
+    isAncClose:boolean
+}
+
 export type chartType={
     id:number,
     type:"bar"|"line",

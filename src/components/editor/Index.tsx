@@ -24,6 +24,7 @@ import NewCode from './newCode';
 import ChartJS from '../chart/chartJS';
 import Message from '../common/message';
 import Post from '../posts/post';
+import CodeElement from '../common/codeElement';
 // import { Session } from "next-auth";
 // import { useSession } from 'next-auth/react';
 
@@ -42,6 +43,7 @@ function Index() {
                 const modSelector = new ModSelector();
                 const service = new Service(modSelector);
                 const _user = new User(modSelector, service);
+                const codeElement = new CodeElement(modSelector, service);
                 const post = new Post(modSelector, service, _user);
                 const chart = new ChartJS(modSelector, service, _user);
                 const shapeOutside = new ShapeOutside(modSelector, service, _user);
@@ -58,7 +60,7 @@ function Index() {
                 const regSignin = new RegSignIn(modSelector, service, _user);
                 const feature = new Features();
                 const navArrow = new NavArrow(_user, regSignin, service, profile, modSelector, feature);
-                const _edit = new Edit(modSelector, service, mainInjection, _user, _flexbox, _htmlElement, _header, customHeader, _footer, displayBlog, newCode, chart, shapeOutside);
+                const _edit = new Edit(modSelector, service, mainInjection, _user, _flexbox, _htmlElement, _header, customHeader, _footer, displayBlog, newCode, chart, shapeOutside, codeElement);
                 const main = new Main(modSelector, service, mainInjection, _edit, _user, _flexbox, _htmlElement, _footer, _header, customHeader, displayBlog, shapeOutside, navArrow);
                 const sidebar = new Sidebar(modSelector, service, main, _flexbox, newCode, _header, customHeader, _footer, _edit, _user, regSignin, displayBlog, chart, shapeOutside, metablog);
                 sidebar.onclickHideShowSideBar(side_bar);

@@ -836,14 +836,21 @@ set rows(rows:rowType[]){
         
         return classes.join(" ");
     }
-    updateElement(target:HTMLElement){
+    promUpdateElement(item:{target:HTMLElement}):Promise<elementType|element_selType | undefined>{
+        const {target}=item;
+        return new Promise(resolver=>{
+            resolver(this.updateElement(target))
+        }) as Promise<elementType|element_selType | undefined>;
+    }
+    updateElement(target:HTMLElement):elementType|element_selType | undefined{
         const {parsed,isJSON}=Header.checkJson(target.getAttribute("flex"));
         const shapeOutside=target.getAttribute("data-shapeOutside");
         const reference=target.getAttribute("data-href-reference");
         const hrefEmail=target.getAttribute("data-href-email");
         const hrefTel=target.getAttribute("data-href-tel");
         const link=target.getAttribute("data-href");
-        
+        const isCodeElement=target.getAttribute("is-code-element");
+        let retElement:elementType|element_selType|undefined=undefined
         if(isJSON){
             const flex=parsed as flexType;
             const { selectorId,rowId,colId,imgKey,backgroundImage}=flex ;
@@ -876,8 +883,11 @@ set rows(rows:rowType[]){
                                                 }else if(backgroundImage){
                                                     ele.attr="data-backgroundImage";
                                                     target.setAttribute("data-backgroundImage","true");
+                                                }else if(isCodeElement){
+                                                    ele.attr="is-code-element";
                                                 }
                                             }
+                                            retElement=ele as element_selType;
                                             return ele;
                                         });
                                     }
@@ -909,14 +919,19 @@ set rows(rows:rowType[]){
                             ele.attr=reference;
                             ele.inner_html=target.innerHTML;
                             ele.cssText=target.style.cssText;
+                        }else if(isCodeElement){
+                            ele.attr="is-code-element";
+                            ele.inner_html=target.innerHTML;
                         }else{
                             ele.inner_html=target.innerHTML;
                         }
                     }
+                    retElement=ele as elementType;
                 return ele;
             });
             this.elements=this._elements;
         }
+        return retElement
     }
     footerPlacement():number{
         const maxPlacement=ModSelector.maxCount(this._blog);

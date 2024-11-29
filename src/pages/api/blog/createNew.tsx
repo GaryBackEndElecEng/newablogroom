@@ -12,12 +12,14 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
     if (req.method === "POST") {
         const getBlog = req.body as blogType;
-        const { name, title, desc, user_id, inner_html, show, rating, username, imgKey, imgBgKey, attr } = getBlog as blogType;
-        // console.log("BLOG:=>>>", getBlog)
+        const { id, name, title, desc, user_id, show, username, imgKey, imgBgKey, attr } = getBlog as blogType;
+        const ID = id ? Number(id) : 0;
+        const isName = name ? name : "newFile";
         if (user_id) {
             try {
-                const blog = await prisma.blog.create({
-                    data: {
+                const blog = await prisma.blog.upsert({
+                    where: { user_id: user_id, id: ID, name: isName },
+                    create: {
                         name: name ? name : "filename/title",
                         title: title ? title : "Insert Title please",
                         desc: desc ? desc : "blog's description",
@@ -28,26 +30,25 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
                         imgKey: imgKey ? imgKey : null,
                         imgBgKey: imgBgKey ? imgBgKey : null,
                         attr: attr ? attr : "none",
-
+                    },
+                    update: {
+                        name: name ? name : "filename/title",
+                        title: title ? title : "Insert Title please",
+                        desc: desc ? desc : "blog's description",
+                        user_id: user_id,
+                        show: show ? show : false,
+                        rating: 0,
+                        username: username ? username : null,
+                        imgKey: imgKey ? imgKey : null,
+                        imgBgKey: imgBgKey ? imgBgKey : null,
+                        attr: attr ? attr : "none",
                     }
                 });
                 if (blog) {
-
-                    let newBlog: blogType = {} as blogType;
-                    const updateSelects: selectorType[] = [];
-                    const update_elements: elementType[] = [];
-                    const update_codes: codeType[] = [];
-                    const update_charts: chartType[] = [];
-                    const pageCounts: pageCountType[] = [];
-                    const messages: messageType[] = [];
-
-                    newBlog = { ...blog, selectors: updateSelects, elements: update_elements, codes: update_codes, charts: update_charts, pageCounts, messages } as unknown as blogType;
-                    res.status(200).json(newBlog);
+                    res.status(200).json(blog)
                 } else {
-                    res.status(400).json({ message: "no body provided" })
+                    res.status(400).json({ msg: "blog was not created" })
                 }
-
-
             } catch (error) {
                 const msg = getErrorMessage(error);
                 console.log("error: ", msg)

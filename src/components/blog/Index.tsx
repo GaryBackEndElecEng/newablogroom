@@ -13,6 +13,7 @@ import NewCode from '../editor/newCode';
 import ChartJS from '../chart/chartJS';
 import Message from '../common/message';
 import { useSession } from 'next-auth/react';
+import CodeElement from '../common/codeElement';
 // import { Session } from 'next-auth';
 
 // const url = process.env.BASE_URL as string;
@@ -36,13 +37,14 @@ function Index({ blog, user }: { blog: blogType | null, user: userType | null })
                 const shapeOutside = new ShapeOutside(_modSelector, _service, _user);
                 const code = new NewCode(_modSelector, _service, _user);
                 const chart = new ChartJS(_modSelector, _service, _user);
+                const codeElement = new CodeElement(_modSelector, _service);
                 if (target) {
                     target.style.maxWidth = "auto";
                     Misc.matchMedia({ parent: target, maxWidth: 420, cssStyle: { maxWidth: maxWidth, width: "100%", paddngInline: "0rem" } })
                 };
                 // GET BLOG
                 const message = new Message(_modSelector, _service, blog);
-                const displayBlog = new DisplayBlog(_modSelector, _service, _user, shapeOutside, code, chart, message);
+                const displayBlog = new DisplayBlog(_modSelector, _service, _user, shapeOutside, code, chart, message, codeElement);
                 displayBlog._onlyMeta = true;
                 displayBlog.main({ parent: target, blog: blog, user: user });
                 countRef.current++;

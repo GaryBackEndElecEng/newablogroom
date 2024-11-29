@@ -20,6 +20,7 @@ import Nav from "../nav/headerNav";
 import RegSignIn from "../nav/regSignin";
 import NewCode from "./newCode";
 import ChartJS from "../chart/chartJS";
+import CodeElement from "../common/codeElement";
 
 class EditSetups{
     bgColor:string;
@@ -210,7 +211,7 @@ class Edit {
     _regSignin:RegSignIn;
     css:string="min-height:100vh;height:auto;box-shadow:1px 1px 12px 2px black;border-radius:10px;padding-inline:0px;padding-block:0px;margin:0px;z-index:0;position:relative;width:100%;display:flex;flex-direction:column;justify-content:flex-start;align-items:center;gap:1rem;";
   
-    constructor(public modSelector:ModSelector,private _service:Service,public _mainInjection:HTMLElement | null,private _user:User,public _flexbox:Flexbox,public _htmlElement:HtmlElement,public header:Header, public customHeader:CustomHeader,public footer:Footer,public displayBlog:DisplayBlog,private _code:NewCode,public chart:ChartJS,private _shapeOutside:ShapeOutside){
+    constructor(public modSelector:ModSelector,private _service:Service,public _mainInjection:HTMLElement | null,private _user:User,public _flexbox:Flexbox,public _htmlElement:HtmlElement,public header:Header, public customHeader:CustomHeader,public footer:Footer,public displayBlog:DisplayBlog,private _code:NewCode,public chart:ChartJS,private _shapeOutside:ShapeOutside,public codeElement:CodeElement){
         this._modSelector=modSelector;
         this.flexbox=_flexbox;
         this._footer=footer;
@@ -618,6 +619,9 @@ class Edit {
                     if(elements){
                         const element=elements.find(ele=>(ele.placement===num+1));
                         if(element){
+                            if(element.attr==="is-code-element"){
+                                this.codeElement.main({injector:parent,element,isNew:false});
+                            }
                             await this._htmlElement.showElement(parent,element);
                         }
                     }

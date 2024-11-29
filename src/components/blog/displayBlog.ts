@@ -19,6 +19,7 @@ import NewCode, { regJavaType } from "../editor/newCode";
 import { RiJavascriptFill } from "react-icons/ri";
 import { TbJson } from "react-icons/tb";
 import ChartJS from "../chart/chartJS";
+import CodeElement from "../common/codeElement";
 
 const baseUrl="http://localhost:3000";
 // const baseUrl=process.env.BASE_URL as string;
@@ -53,7 +54,7 @@ _onlyMeta:boolean=false;
  _showMeta=false;
  printThis:boolean;
  static noBlogText:string;
-    constructor(private _modSelector:ModSelector,private _service:Service,private _user:User,private _shapeOutside:ShapeOutside,private _code:NewCode,private chart:ChartJS,private _message:Message){
+    constructor(private _modSelector:ModSelector,private _service:Service,private _user:User,private _shapeOutside:ShapeOutside,private _code:NewCode,private chart:ChartJS,private _message:Message,private codeElement:CodeElement){
         this.count=0;
         this.mainSection=document.querySelector("section#main");
         this.printThis=false;
@@ -789,45 +790,50 @@ _onlyMeta:boolean=false;
                 const link=element.attr && element.attr.startsWith("http") ? element.attr : null;
                 const email=element.attr && element.attr.startsWith("mail") ? element.attr : null;
                 const tel=element.attr && element.attr.startsWith("tel") ? element.attr : null;
+                const type=element.type ? element.type : null;
                 // console.log(element.name,checkEle)//works
                 switch(true){
                     case checkEle:
                         if(([...res.ele.classList as any] as string[]).includes("reference")){
                             this.reference.showCleanLinks({parent,ele:element});
-                        }else{
-                            res.ele.innerHTML=element.inner_html;
                         }
                         if(imgKey){
-                            if(element.attr==="data-backgroundImage"){
-                                ShapeOutside.cleanUpByID(parent,"popup");
-                                res.ele.setAttribute("data-backgroundImage","true");
-                                res.ele.setAttribute("imgKey",imgKey);
-                                const cssStyle={backgroundPosition:"50% 50%",backgroundSize:"100% 100%"};
-                               await this._service.injectBgAwsImage({target:res.ele,imgKey:imgKey,cssStyle});
-                            }else if(element.attr==="data-shapeoutside-circle"){
-                                res.ele.setAttribute("data-shapeoutside-circle","true");
-                                res.ele.setAttribute("imgKey",imgKey);
-                               await this._shapeOutside.shapeOutsideInjectImage({para:res.ele,imgKey:imgKey});
-                            }else if(element.attr==="data-shapeoutside-square"){
-                                res.ele.setAttribute("data-shapeoutside-square","true");
-                                res.ele.setAttribute("imgKey",imgKey);
-                                this._shapeOutside.shapeOutsideInjectImage({para:res.ele,imgKey:imgKey});
-                            }else if(element.attr==="data-shapeoutside-polygon"){
-                                res.ele.setAttribute("data-shapeoutside-polygon","true")
-                                res.ele.setAttribute("imgKey",imgKey);
-                               await this._shapeOutside.shapeOutsideInjectImage({para:res.ele,imgKey:imgKey});
-                            }else if(element.attr="data-arrow-design"){
-                                res.ele.setAttribute("data-arrow-design","true");
-                                res.ele.setAttribute("imgKey",imgKey);
-        
-                            }
+                                if(element.attr==="data-backgroundImage"){
+                                    ShapeOutside.cleanUpByID(parent,"popup");
+                                    res.ele.setAttribute("data-backgroundImage","true");
+                                    res.ele.setAttribute("imgKey",imgKey);
+                                    const cssStyle={backgroundPosition:"50% 50%",backgroundSize:"100% 100%"};
+                                   await this._service.injectBgAwsImage({target:res.ele,imgKey:imgKey,cssStyle});
+                                }else if(element.attr==="data-shapeoutside-circle"){
+                                    res.ele.setAttribute("data-shapeoutside-circle","true");
+                                    res.ele.setAttribute("imgKey",imgKey);
+                                   await this._shapeOutside.shapeOutsideInjectImage({para:res.ele,imgKey:imgKey});
+                                }else if(element.attr==="data-shapeoutside-square"){
+                                    res.ele.setAttribute("data-shapeoutside-square","true");
+                                    res.ele.setAttribute("imgKey",imgKey);
+                                    this._shapeOutside.shapeOutsideInjectImage({para:res.ele,imgKey:imgKey});
+                                }else if(element.attr==="data-shapeoutside-polygon"){
+                                    res.ele.setAttribute("data-shapeoutside-polygon","true")
+                                    res.ele.setAttribute("imgKey",imgKey);
+                                   await this._shapeOutside.shapeOutsideInjectImage({para:res.ele,imgKey:imgKey});
+                                }else if(element.attr="data-arrow-design"){
+                                    res.ele.setAttribute("data-arrow-design","true");
+                                    res.ele.setAttribute("imgKey",imgKey);
+            
+                                }
+                            
+                        }if(type){
+                            res.ele.setAttribute(`${element.attr ? element.attr :"data-is-code-element"}`,"true");
+                            this.codeElement.main({injector:parent,element,isNew:false,isClean:true});
                         }
+                        
                         if(element.attr==="data-arrow-design"){
                             Misc.matchMedia({parent:res.ele,maxWidth:400,cssStyle:{paddingInline:"0rem",padding:"0px",height:"50vh"}});
                         }else{
-        
+                            
                             Misc.matchMedia({parent:res.ele,maxWidth:400,cssStyle:{paddingInline:"1rem"}});
                         }
+                        res.ele.innerHTML=element.inner_html;
                         ShapeOutside.cleanUpByID(res.ele,"popup");
                         ShapeOutside.cleanUpByID(res.ele,"setAttributes");
                     return;
@@ -909,6 +915,9 @@ _onlyMeta:boolean=false;
         const ele=document.createElement(element.name);
         ele.setAttribute("name",element.name);
         ele.setAttribute("is-element","true");
+        if(element.type && element.attr){
+            ele.setAttribute(element.attr,"true");
+        }
         ele.classList.remove("isActive");
         ele.id=element.eleId;
         ele.className=element.class.split(" ").filter(cl=>(cl !=="box-shadow")).join(" ");
@@ -990,13 +999,13 @@ _onlyMeta:boolean=false;
 
                         const para=document.createElement("p");
                         if(selectCode.name==="java"){
-                            this._code.matchInsert({target:para,text:line.text,regArr:regType.arrType});
+                            this._code.matchInsert({preChild:para,regArr:regType.arrType});
                         }else if(selectCode.name==="html"){
-                            this._code.matchInsert({target:para,text:line.text,regArr:regType.arrType});
+                            this._code.matchInsert({preChild:para,regArr:regType.arrType});
                         }else if(selectCode.name==="python"){
-                            this._code.matchInsert({target:para,text:line.text,regArr:regType.arrType});
+                            this._code.matchInsert({preChild:para,regArr:regType.arrType});
                         }else if(selectCode.name==="JSON"){
-                            this._code.matchInsert({target:para,text:line.text,regArr:regType.arrType});
+                            this._code.matchInsert({preChild:para,regArr:regType.arrType});
                         }
                         pre.appendChild(para);
                     }

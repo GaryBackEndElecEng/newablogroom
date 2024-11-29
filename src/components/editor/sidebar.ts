@@ -29,6 +29,7 @@ import Reference from "./reference";
 import NewCode from "./newCode";
 import ChartJS from "../chart/chartJS";
 import AddImageUrl from "../common/addImageUrl";
+import CodeElement from "../common/codeElement";
 
 
 export type extendType={
@@ -943,6 +944,7 @@ class Sidebar{
    design:Design;
    addImage:AddImageUrl;
     _elements:elementType[]=[];
+    codeElement:CodeElement
     //Column GENERATOR
     arrCol=[{col:1,num:12},{col:2,num:6},{col:3,num:4},{col:4,num:3},{col:6,num:2}]
     //-------------------INITIALIZE---------------------///
@@ -1157,7 +1159,8 @@ class Sidebar{
         this.addimageClass(sidebarMain);
         this.loadImages(sidebarMain);
         this.initiateShapOutsideBtn(sidebarMain);
-        this.initiateGenerateCode(sidebarMain);
+        // this.initiateGenerateCode(sidebarMain);
+        this.initiateCodElement(sidebarMain);
         this.initiateReference(sidebarMain);
         this.initiateGenerateFooter(sidebarMain);
         this.flexBoxLayout(sidebarMain);
@@ -2007,6 +2010,44 @@ class Sidebar{
                 },1000);
                 this._code.codeTemplate(Main.textarea as HTMLElement);
             }
+        });
+    
+    };
+    initiateCodElement(parent:HTMLElement){
+    
+        const btnContainer=document.createElement("div");
+        btnContainer.className="flexCol text-center";
+        btnContainer.style.cssText="box-shadow:1px 1px 12px 1px white;border-radius:10px;padding-inline:0.5rem;padding-block:1rem;text-align:center;align-items:center;width:100%;";
+        const H5=document.createElement("h5");
+        H5.textContent="past/create your code";
+        H5.style.cssText="margin:auto;text-decoration:underline;text-underline-offset:1rem;";
+        H5.className="text-info lean";
+        btnContainer.appendChild(H5);
+        const para=document.createElement("p");
+        para.className="mc-auto px-1 text-balance text-center";
+        para.style.cssText="text-wrap:wrap;margin-block:1rem;";
+        para.style.color=this.textColor;
+        para.textContent="This allows you to display code using VS color palette.";
+        btnContainer.appendChild(para);
+        const {button:btn}=Misc.simpleButton({anchor:btnContainer,type:"button",bg:"green",color:"white",time:400,text:"create code"});
+        parent.appendChild(btnContainer);
+        btn.animate([
+            {transform:"translateY(-100%) skew(45deg,0deg)",opacity:"0.3"},
+            {transform:"translateY(0%) skew(0deg,0deg)",opacity:"1"}
+        ],{duration:1000,iterations:1})
+        btn.addEventListener("click",(e:MouseEvent)=>{
+            if(e){
+                window.scroll(0,400);
+                btn.disabled=true;
+                setTimeout(()=>{
+                    btn.disabled=false;
+                },1000);
+                this.codeElement= new CodeElement(this._modSelector,this._service) ;
+                this.codeElement.codeTemplate({
+                    injector:Main.textarea as HTMLElement,
+                })
+            }
+
         });
     
     };
