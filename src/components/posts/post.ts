@@ -181,7 +181,7 @@ class Post{
         const para=document.createElement("p");
         para.id="textContainer-para";
         para.textContent="updates and comments";
-        para.style.cssText="padding-block:1rem;padding-inline:1rem;margin-inline:auto;margin-top:0.5rem;text-wrap:wrap;text-align:center;box-shadow:1px 1px 3px 1px #06a4f7;background-color:rgb(212 229 225 / 20%);";
+        para.style.cssText="padding-block:1rem;padding-inline:1rem;margin-inline:auto;margin-top:0.5rem;text-wrap:wrap;text-align:center;box-shadow:1px 1px 3px 1px #06a4f7;";
         para.style.fontSize=less900 ? (less400 ? "130%":"150%"):"175%";
         para.style.color="#06a4f7";
         textContainer.appendChild(text);

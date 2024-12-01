@@ -54,7 +54,7 @@ function Index() {
                 const _htmlElement = new HtmlElement(modSelector, service, _user, shapeOutside);
                 const _footer = new Footer(modSelector, service, _user);
                 const message = new Message(modSelector, service, modSelector.blog);
-                const displayBlog = new DisplayBlog(modSelector, service, _user, shapeOutside, newCode, chart, message);
+                const displayBlog = new DisplayBlog(modSelector, service, _user, shapeOutside, newCode, chart, message, codeElement);
                 const metablog = new MetaBlog(modSelector, service, _user);
                 const profile = new Profile(modSelector, service, _user, metablog, chart, post);
                 const regSignin = new RegSignIn(modSelector, service, _user);

@@ -246,6 +246,8 @@ class Header{
         // this.header=selector;
         parent.style.width="100%";
         let flex:flexType={} as flexType;
+        const less900=window.innerWidth < 900 ;
+        const less400=window.innerWidth < 400 ;
         // console.log("Header selector",selector)//works
         if(selector && selector.name){
             const innerCont=document.createElement(selector.name);
@@ -262,12 +264,13 @@ class Header{
                     const row=document.createElement("div");
                     row.className=row_.class.split(" ").filter(cl=>(cl !=="box-shadow")).join(" ");
                     row.style.cssText=row_.cssText;
+                    row.style.flexDirection=less400 ? "column":"row";
                     this.flex={...this.flex,rowId:row_.eleId,order:row_.order,position:"row",imgKey:row_.imgKey};
                     if(row_.imgKey){
                             this.flex={...this.flex,backgroundImage:true};
                             row.setAttribute("data-backgroundimage","true");
-                            const cssStyle={backgroundPosition:"50% 50%",backgroundSize:"100% 100%"};
-                            this._service.injectBgAwsImage({target:row,imgKey:row_.imgKey,cssStyle});
+                            // const cssStyle={backgroundPosition:"50% 50%",backgroundSize:"100% 100%"};
+                            // this._service.injectBgAwsImage({target:row,imgKey:row_.imgKey,cssStyle});
                         
                     }
                     row.setAttribute("name",row_.name);
@@ -282,20 +285,22 @@ class Header{
                         const col=document.createElement("div");
                         col.style.cssText=col_.cssText;
                         col.className=col_.class;
+                        if(less400){
+                            col.classList.remove("col-md-3");
+                            col.classList.add("col-md-12");
+                            col.style.flex="0 0 100%";
+                        }
                         this.flex={...this.flex,colId:col_.eleId,order:col_.order,position:"col",imgKey:col_.imgKey};
                         if(col_.imgKey){
                             this.flex={...this.flex,backgroundImage:true};
                             col.setAttribute("data-backgroundimage","true");
-                            const cssStyle={backgroundPosition:"50% 50%",backgroundSize:"100% 100%"};
-                            this._service.injectBgAwsImage({target:col,imgKey:col_.imgKey,cssStyle});
+                            // const cssStyle={backgroundPosition:"50% 50%",backgroundSize:"100% 100%"};
+                            // this._service.injectBgAwsImage({target:col,imgKey:col_.imgKey,cssStyle});
                         
                         }
                         col.id=col_.eleId;
                         col.setAttribute("flex",JSON.stringify(this.flex));
                         col.setAttribute("is-column","true");
-                        if(col_.imgKey){
-                            col.setAttribute("is-backgroundimage","true");
-                        }
                         Header.detectImageEffect(col);
                         this.selectElementAttribute(col);
                         col.addEventListener("click",(e:MouseEvent)=>{
@@ -1428,13 +1433,13 @@ class Header{
         const {column,blog}=item;
        
         column.style.minHeight="15vh";
-        let col:HTMLElement | null;
+        let rowCol:HTMLElement | null;
         if(window.innerWidth <900){
-            col=column.parentElement as HTMLElement;    
+            rowCol=column.parentElement as HTMLElement;    
         }else{
-            col=column as HTMLElement;
+            rowCol=column as HTMLElement;
         }
-        col.style.height="15vh";
+        rowCol.style.height="15vh";
         const formContainer=document.createElement("div");
         formContainer.className="flexCol box-shadow";
         formContainer.style.cssText="position:absolute;width:clamp(150px,250px,300px);height:150px;z-index:100;font-size:15px;align-items:center;z-index:300;background-color:white;box-shadow:1px 1px 12px 1px black;border-radius:12px;";
@@ -1458,7 +1463,7 @@ class Header{
         form.appendChild(input);
         form.appendChild(btn);
         formContainer.appendChild(form);
-        col.appendChild(formContainer);
+        rowCol.appendChild(formContainer);
         ModSelector.modAddEffect(formContainer);
         input.addEventListener("change",(e:Event)=>{
             if(e){
@@ -1468,29 +1473,34 @@ class Header{
         form.addEventListener("submit",async(e:SubmitEvent)=>{
             if(e){
                 e.preventDefault();
+                const user=this._modSelector._user;
                 const formdata= new FormData(e.currentTarget as HTMLFormElement);
                 const file=formdata.get("file");
                 if(file as File){
-                col.style.zIndex="0";
-                col.style.position="relative";
+                column.style.zIndex="0";
+                column.style.position="relative";
                 const image=URL.createObjectURL(file as File);
-                col.setAttribute("data-background-image","true");
-                col.style.backgroundSize="100% 100%";
-                col.style.backgroundPosition="50% 50%";
-                col.style.backgroundImage=`url(${image})`;
-                Misc.blurIn({anchor:col,blur:"20px",time:600});
-                const {parsed}=Header.checkJson(col.getAttribute("flex"));
+                column.setAttribute("data-background-image","true");
+                column.style.backgroundSize="100% 100%";
+                column.style.backgroundPosition="50% 50%";
+                column.style.backgroundImage=`url(${image})`;
+                Misc.blurIn({anchor:column,blur:"20px",time:600});
+                const {parsed}=Header.checkJson(column.getAttribute("flex"));
                 let flex=parsed as flexType;
                 const oldKey=flex.imgKey ? flex.imgKey : null;
-                const {Key}=this._service.generateImgKey(formdata,blog) as {Key:string};
+                const {Key}=this._service.generateFreeImgKey({formdata,user}) as {Key:string};
                 flex={...flex,position:"col",backgroundImage:true,imgKey:Key}
-                col.setAttribute("flex",JSON.stringify(flex));
-                await this._modSelector.promUpdateColumn(col,flex);
-                this._user.askSendToServer({bg_parent:col,formdata,image:null,blog,oldKey});
-                Misc.fadeOut({anchor:formContainer,xpos:50,ypos:100,time:500});
-                setTimeout(()=>{
-                    col.removeChild(formContainer);
-                },480);
+                column.setAttribute("flex",JSON.stringify(flex));
+                await this._modSelector.promUpdateColumn(column,flex).then(async(res)=>{
+                    if(res){
+                        Misc.fadeOut({anchor:formContainer,xpos:50,ypos:100,time:500});
+                        setTimeout(()=>{
+                            rowCol.removeChild(formContainer);
+                        },480);
+                        this._user.askSendToServer({bg_parent:column,formdata,image:null,blog,oldKey});
+
+                    }
+                });
 
                 }
             }
@@ -1513,17 +1523,24 @@ class Header{
         const flex=parsed as flexType;
         const {imgKey}=flex;
         if( imgKey){
-            this._service.adminImagemark(imgKey as string).then(async(res)=>{
-                if(res){
-                    Misc.message({parent:column,msg:`${imgKey} is removed`,type_:"success",time:700});
+            Misc.message({parent:column,msg:`${imgKey} is removed`,type_:"success",time:700});
                     const flex_={...flex,imgKey:undefined,backgroundImage:undefined};
-                    this._modSelector.promUpdateColumn(column,flex_).then(async(coltype:colType|undefined)=>{
-                        if(coltype){
-                            column.setAttribute("flex",JSON.stringify(flex_));
-                        }
-                    });
-                }
-            });
+                    if(flex.colId){
+
+                        this._modSelector.promUpdateColumn(column,flex_).then(async(coltype:colType|undefined)=>{
+                            if(coltype){
+                                column.setAttribute("flex",JSON.stringify(flex_));
+                                Misc.message({parent:column,type_:"success",time:1200,msg:`${column.id} is updated`});
+                            }
+                        });
+                    }else if(flex.rowId){
+                        this._modSelector.promUpdateRow(column).then(async(res)=>{
+                            if(res){
+                                column.setAttribute("flex",JSON.stringify(flex_));
+                                Misc.message({parent:column,type_:"success",time:1200,msg:`${column.id} is updated`});
+                            }
+                        });
+                    }
         
         }
      }
@@ -1533,6 +1550,7 @@ class Header{
         if(!row) return;
         const {isJSON,parsed}=Header.checkJson(row.getAttribute("flex"));
         if(row && isJSON){
+            const user=this._user.user;
             let flex=parsed as flexType;
             const oldKey=flex.imgKey ? flex.imgKey : null;;
             const {form:form2,reParent:parent}=Misc.imageForm(column,flex);
@@ -1545,7 +1563,7 @@ class Header{
                     const blog=this._modSelector.blog;
                     
                     if(file){
-                        const {Key}= this._service.generateImgKey(formdata,blog) as {Key:string};
+                        const {Key}= this._service.generateFreeImgKey({formdata,user}) as {Key:string};
                         flex={...flex,backgroundImage:true,imgKey:Key};
                         row.setAttribute("flex",JSON.stringify(flex));
                         const urlImg=URL.createObjectURL(file) as string;

@@ -107,11 +107,10 @@ message:Message
                 ],{duration:res.time,iterations:1,"easing":"ease-in-out"});
                 setTimeout(()=>{
                     res.para.style.opacity="1";
-                    res.para.style.backgroundColor="rgb(212 229 225 / 33%)";
                     res.para.style.borderRadius="12px";
                     res.para.animate([
-                        {transform:"translateX(-75%)",opacity:"0",fontSize:preParaSize,backgroundColor:"black",color:"white"},
-                        {transform:"translateX(0%)",opacity:"1",fontSize:paraSize,backgroundColor:"rgb(212 229 225 / 33%)",color:"#1dcbfb"},
+                        {transform:"translateX(-75%)",opacity:"0",fontSize:preParaSize,backgroundColor:"white",color:"white"},
+                        {transform:"translateX(0%)",opacity:"1",fontSize:paraSize,backgroundColor:"transparent",color:"#1dcbfb"},
                     ],{duration:res.time,iterations:1,"easing":"ease-in-out"});
                 },res.time);
             }
@@ -159,7 +158,7 @@ message:Message
         const para=document.createElement("p");
         para.id="textContainer-para";
         para.textContent="for your leisure to view.";
-        para.style.cssText="padding-block:1rem;padding-inline:1rem;margin-inline:auto;margin-top:0.5rem;text-wrap:wrap;text-align:center;box-shadow:1px 1px 3px 1px rgb(29, 203, 251);background-color:rgb(133 147 150 / 33%);";
+        para.style.cssText="padding-block:1rem;padding-inline:1rem;margin-inline:auto;margin-top:0.5rem;text-wrap:wrap;text-align:center;box-shadow:1px 1px 3px 1px rgb(29, 203, 251);";
         para.style.fontSize=less900 ? (less400 ? "130%":"150%"):"175%";
         para.style.color="#1dcbfb";
         textContainer.appendChild(text);
@@ -245,8 +244,9 @@ message:Message
         const text=document.createElement("h6");
         text.id="displayCard-card-text";
         text.className="text-center  lean mt-2";
-        text.style.cssText="color:rgb(7, 4, 125);text-decoration:underline;text-decoration-style:wavy;text-underline-offset:0.55rem;text-decoration-thickness:5%;text-transform:capitalize;";
-        text.style.fontSize=window.innerWidth<900 ? (window.innerWidth<400 ? "120%" : "185%") : "230%";
+        //text-decoration:underline;text-decoration-style:wavy;text-underline-offset:0.55rem;
+        text.style.cssText="color:rgb(7, 4, 125);text-decoration-thickness:5%;text-transform:capitalize;";
+        text.style.fontSize=window.innerWidth<900 ? (window.innerWidth<400 ? "130%" : "235%") : "300%";
         text.textContent=blog.title ? blog.title : " your title";
         textDiv.appendChild(text);
         // Misc.thumbsUp({parent:textDiv,cssStyle:{fontSize:"22px",color:"rgba(8, 4, 249,0.5)",zIndex:"1"},time:400,rating:blog.rating,limit:3});

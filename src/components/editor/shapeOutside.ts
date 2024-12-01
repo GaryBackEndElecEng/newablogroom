@@ -6,7 +6,7 @@ import Main from "./main";
 import ModSelector from "./modSelector";
 import { element_selType, elementType, flexType, gets3ImgKey, iconType } from "./Types";
 import Misc from "../common/misc";
-import { buttonReturn } from "../common/tsFunctions";
+import { buttonReturn, imageLoader } from "../common/tsFunctions";
 import Nav from "../nav/headerNav";
 import User from "../user/userMain";
 import Header from "./header";
@@ -105,15 +105,15 @@ class ShapeOutside{
             if(e){
                 const value=(e.currentTarget as HTMLSelectElement).value;
                 if(value==="circular-image"){
-                    this.shapeOutsideCircle(parent,null)
+                    this.shapeOutsideCircle({parent,flex:null})
                     Misc.fadeOut({anchor:popup,xpos:100,ypos:50,time:420});
                     setTimeout(()=>{parent.removeChild(popup);},400);
                 }else if(value==="square-image"){
-                    this.shapeOutsideSquare(parent,null);
+                    this.shapeOutsideSquare({parent,flex:null});
                     Misc.fadeOut({anchor:popup,xpos:100,ypos:50,time:420});
                     setTimeout(()=>{parent.removeChild(popup);},400);
                 }else if(value==="polygon-image"){
-                    this.shapeOutsidePolygon(parent,null);
+                    this.shapeOutsidePolygon({parent,flex:null});
                     Misc.fadeOut({anchor:popup,xpos:100,ypos:50,time:420});
                     setTimeout(()=>{parent.removeChild(popup);},400);
                 }
@@ -127,18 +127,20 @@ class ShapeOutside{
         });
     }
 
-    shapeOutsideCircle(column:HTMLElement,flex:flexType|null){
+    shapeOutsideCircle(item:{parent:HTMLElement,flex:flexType|null}){
+        const {parent,flex}=item;
         const rand=`${Math.round(Math.random()*1000)}`;
         const para=document.createElement("p");
-        if(!flex){
+        const {parsed}=Header.checkJson(parent.getAttribute("flex"));
+        let flex_={...parsed as flexType|null};
+        flex_=parsed ? parsed as flexType : flex as flexType;
+        if(!flex_){
             para.id=`shape-outside-${rand}`;
 
         }else{
-            const {parsed}=Header.checkJson(column.getAttribute("flex"));
-            flex={...parsed as flexType};
-            flex={...flex,shapeOutsideCircle:true};
-            const paraFlex=Main.flexTracker(para,flex);
-            flex=paraFlex
+            flex_={...flex,shapeOutsideSquare:true};
+            const paraFlex=Main.flexTracker(para,flex_ as flexType);
+            flex_=paraFlex
         }
         const divCont=document.createElement("div");
         divCont.id=this.divCont_class;
@@ -163,28 +165,30 @@ class ShapeOutside{
         para.appendChild(img);
         para.innerHTML +=`ENTER YOUR TEXT HERE=> ${Misc.wordGen(100)}`;
         divCont.appendChild(para);
-        column.appendChild(divCont);
+        parent.appendChild(divCont);
         Misc.matchMedia({parent:divCont,maxWidth:920,cssStyle:{marginInline:"1.5rem"}});
         Misc.matchMedia({parent:divCont,maxWidth:420,cssStyle:{marginInline:"10px"}});
-        this.setAttributes({column,divCont,target:para});//ID=shape-outside-${rand}
-        this._modSelector.promElementAdder(para).then(async(res)=>{
-            if(res){
-                if(res.ele as elementType){
-                    const ele=res.ele as unknown as elementType;
-                    divCont.setAttribute("data-placememt",`${ele.placement}-A`);
-                }else if(flex){
-                    const ele=res.ele as unknown as element_selType;
-                    divCont.setAttribute("data-placememt",`${ele.order}-A`);
+        
+            this.setAttributes({column:parent,divCont,target:para});//ID=shape-outside-${rand}
+            this._modSelector.promElementAdder(para).then(async(res)=>{
+                if(res){
+                    if(res.ele as elementType){
+                        const ele=res.ele as unknown as elementType;
+                        divCont.setAttribute("data-placememt",`${ele.placement}-A`);
+                    }else if(flex){
+                        const ele=res.ele as unknown as element_selType;
+                        divCont.setAttribute("data-placememt",`${ele.order}-A`);
+                    }
                 }
-            }
-        });
+            });
+        
         divCont.addEventListener("click",(e:MouseEvent)=>{
             if(e){
                 ShapeOutside.cleanUpByID(para,"setAttributes");
                 this._modSelector.updateElement(para);
                 para.classList.toggle("isActive");
                 divCont.classList.toggle("isActive");
-                this.removeMainElement(column,divCont,para);
+                this.removeMainElement(parent,divCont,para);
                 
                
             }
@@ -193,20 +197,22 @@ class ShapeOutside{
        
         this._modSelector.editElement(para);
     }
-    shapeOutsideSquare(column:HTMLElement,flex:flexType|null){
+    shapeOutsideSquare(item:{parent:HTMLElement,flex:flexType|null}){
+        const {parent,flex}=item;
         //cl=ele:.shape-outside
         //create text && image upload
         const rand=`${Math.round(Math.random()*1000)}`;
         const para=document.createElement("p");
-        if(!flex){
+        const {parsed}=Header.checkJson(parent.getAttribute("flex"));
+        let flex_={...parsed as flexType|null};
+        flex_=parsed ? parsed as flexType : flex as flexType;
+        if(!flex_){
             para.id=`shape-outside-${rand}`;
 
         }else{
-            const {parsed}=Header.checkJson(column.getAttribute("flex"));
-            flex={...parsed as flexType};
-            flex={...flex,shapeOutsideSquare:true};
-            const paraFlex=Main.flexTracker(para,flex);
-            flex=paraFlex
+            flex_={...flex,shapeOutsideSquare:true};
+            const paraFlex=Main.flexTracker(para,flex_ as flexType);
+            flex_=paraFlex
         }
         const divCont=document.createElement("div");
         divCont.id=this.divCont_class;
@@ -230,10 +236,12 @@ class ShapeOutside{
         para.appendChild(img);
         para.innerHTML+=`<font style="color:red;">enter your text here=></font> ${Misc.wordGen(100)}`;
         divCont.appendChild(para);
-        column.appendChild(divCont);
+        parent.appendChild(divCont);
         Misc.matchMedia({parent:divCont,maxWidth:920,cssStyle:{marginInline:"1.5rem"}});
         Misc.matchMedia({parent:divCont,maxWidth:420,cssStyle:{marginInline:"10px"}});
-        this.setAttributes({column,divCont,target:para});
+        
+        this.setAttributes({column:parent,divCont,target:para});
+        
         this._modSelector.promElementAdder(para).then(async(res)=>{
             if(res){
                 if(res.ele as elementType){
@@ -256,25 +264,26 @@ class ShapeOutside{
                 this._modSelector.updateElement(para);
                 para.classList.toggle("isActive");
                 divCont.classList.toggle("isActive");
-                this.removeMainElement(column,divCont,para);
+                this.removeMainElement(parent,divCont,para);
                
             }
         });
        
         this._modSelector.editElement(para);
     }
-    shapeOutsidePolygon(column:HTMLElement,flex:flexType|null){
-
+    shapeOutsidePolygon(item:{parent:HTMLElement,flex:flexType|null}){
+        const {parent,flex}=item;
+        
+        const {parsed}=Header.checkJson(parent.getAttribute("flex"));
+       let flex_= parsed ? parsed as flexType : flex;
         const para=document.createElement("p");
-        if(!flex){
+        if(!flex_){
             para.id=`shape-outside-poly`;
 
         }else{
-            const {parsed}=Header.checkJson(column.getAttribute("flex"));
-            flex={...parsed as flexType};
-            flex={...flex,shapeOutsidePolygon:true};
-            const paraFlex=Main.flexTracker(para,flex);
-            flex=paraFlex
+           flex_={...flex_,shapeOutsidePolygon:true};
+            const paraFlex=Main.flexTracker(para,flex_);
+            flex_=paraFlex
         }
         const divCont=document.createElement("div");
         divCont.id=this.divCont_class + "-" + "poly";
@@ -306,10 +315,10 @@ class ShapeOutside{
         para.appendChild(imgDiv);
         para.innerHTML +=`ENTER YOUR TEXT HERE=> ${Misc.wordGen(150)}`;
         divCont.appendChild(para);
-        column.appendChild(divCont);
+        parent.appendChild(divCont);
         Misc.matchMedia({parent:divCont,maxWidth:920,cssStyle:{marginInline:"1.5rem"}});
         Misc.matchMedia({parent:divCont,maxWidth:420,cssStyle:{marginInline:"10px"}});
-        this.setAttributes({column,divCont,target:para});
+            this.setAttributes({column:parent,divCont,target:para});
         Misc.matchMinMedia({parent:para,minWidth:920,cssStyle:{width:"90%",margin:"auto"}});
         Misc.matchMedia({parent:para,maxWidth:920,cssStyle:{width:"100%",marginInline:"auto"}});
         Misc.matchMedia({parent:imgDiv,maxWidth:920,cssStyle:{width:"300px",height:"300px"}});
@@ -319,7 +328,7 @@ class ShapeOutside{
         para.setAttribute("has-innerimage","true");
         this._modSelector.promElementAdder(para).then(async(res)=>{
             if(res){
-                console.log("res.ele",res.ele)
+                // console.log("res.ele",res.ele)
                 if(res.ele as elementType){
                     const ele=res.ele as unknown as elementType;
                     divCont.setAttribute("data-placememt",`${ele.placement}-A`);
@@ -331,7 +340,7 @@ class ShapeOutside{
             }
         });
         
-        column.addEventListener("click",(e:MouseEvent)=>{
+        parent.addEventListener("click",(e:MouseEvent)=>{
             if(e){
                 // ShapeOutside.cleanUpByID(para,"setAttributes");
                 // ShapeOutside.cleanUpByID(para,"selectChangeAttribute");
@@ -339,7 +348,7 @@ class ShapeOutside{
                 // this.setAttributes(column,divCont,para);
                 para.classList.toggle("isActive",true);
                 divCont.classList.toggle("isActive",true);
-                this.removeMainElement(column,divCont,para);
+                this.removeMainElement(parent,divCont,para);
             }
         });
        
@@ -379,11 +388,11 @@ class ShapeOutside{
                     this._modSelector.promRemoveElement(target).then(async(res)=>{
                         if(res){
                             if(res.imgKey){
-                                this._service.adminImagemark(res.imgKey).then(async(res)=>{
-                                    if(res){
-                                        Misc.message({parent,msg:`${res.imgKey}`,type_:"success",time:700});
-                                    }
-                                });
+                                // this._service.adminImagemark(res.imgKey).then(async(res)=>{
+                                //     if(res){
+                                //         Misc.message({parent,msg:`${res.imgKey}`,type_:"success",time:700});
+                                //     }
+                                // });
                             }
                         }
                     });
@@ -409,7 +418,7 @@ class ShapeOutside{
     }
     setAttributes(item:{column:HTMLElement,divCont:HTMLElement,target:HTMLParagraphElement}){
         const {column,divCont,target}=item;
-        console.log("setAttributes=>column",column)
+        // console.log("setAttributes=>column",column)
         column.style.zIndex="";
         divCont.style.zIndex="";
        divCont.classList.add("isActive");
@@ -842,6 +851,7 @@ class ShapeOutside{
                 form.addEventListener("submit",(e:SubmitEvent)=>{
                     if(e){
                         e.preventDefault();
+                        const user=this._user.user
                         const formdata=new FormData(e.currentTarget as HTMLFormElement);
                         const file=formdata.get("file") as File;
                         if(!file){
@@ -851,6 +861,15 @@ class ShapeOutside{
                              };
                             }
                         const url=URL.createObjectURL(file as File);
+                        const {Key}=this._service.generateFreeImgKey({formdata,user}) as {Key:string};
+                        this._service.uploadfreeimage({parent:column,formdata}).then(async(res)=>{
+                            if(res){
+                                const getImgWidth=parseInt(window.getComputedStyle(img).getPropertyValue("width").split("px")[0]);
+                                const width= getImgWidth ? getImgWidth : 300;
+                                img.src=imageLoader({src:res.img,width:width,quality:75});
+                                img.alt=res.Key
+                            }
+                        });
                         img.src=url;
                         img.setAttribute("is-shapeOutside","true");
                         Misc.blurIn({anchor:img,blur:"20px",time:700});
@@ -858,7 +877,7 @@ class ShapeOutside{
                             Misc.growOut({anchor:popup,scale:0,opacity:0,time:400});
                             if(isJSON){
                                 setTimeout(()=>{column.removeChild(popup);},390);
-                                column.classList.toggle("coliIsActive");
+                                // column.classList.toggle("coliIsActive");
                             }else{
                                 setTimeout(()=>{divCont.removeChild(popup);},390);
                             }
@@ -876,7 +895,8 @@ class ShapeOutside{
                             img.setAttribute("para-id",`${para.id}`);
                         }
                         const blog=this._modSelector._blog;
-                        this._user.askSendToServer({bg_parent:para,formdata,image:img,blog,oldKey:null});
+
+                        // this._user.askSendToServer({bg_parent:para,formdata,image:img,blog,oldKey:null});
                     }
                 },true);
                 xdiv.addEventListener("click",(e:MouseEvent)=>{

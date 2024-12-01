@@ -652,8 +652,9 @@ class User{
     async askSendToServer(item:{bg_parent:HTMLElement,formdata:FormData,image:HTMLImageElement|null,blog:blogType,oldKey:string|null}){
         const {bg_parent,formdata,image,blog,oldKey}=item;
         //FORMDATA NEEDS A KEY INSERTED WITHIN ITS FORM ALONG WITH BLOG.USER_ID OR SIGNED IN
+        //THE BG_PARENT MUST BE EITHER A COLUMN OR ROW IF THERE ARE NO IMAGE ELEMENT
         this.blog={...blog};
-        if(oldKey){
+        if(oldKey && image){
             await this._service.imgKeyMarkDelete({targetParent:null,targetImage:null,oldKey});//MARK DELETE IMAGES ON AWS
 
         }
@@ -1182,30 +1183,73 @@ class User{
                                 },380);
                                 this.blog={...blog,name,desc} as blogType; //saving it to local Storage
                                 blog={...blog,name,desc} as blogType; //saving it to local Storage
-    
-                                  this._service.generateImgKey(formdata,this.blog) as {Key:string};//inserts Key into formdata
-                                 const _blog_:blogType|undefined|void=  await this._service.simpleImgUpload(parent,formdata).then(async(imgKeyUrl:gets3ImgKey)=>{
-                                       if(imgKeyUrl){
-                                           if(img){
-                                               const file=formdata.get("file") as File;
-                                               const filename=file.name as string;
-                                               img.src=imgKeyUrl.img;
-                                               img.alt=filename;
-                                               formdata.set("file","");
-                                               formdata.set("Key","");
-                                              const blog_:blogType|undefined= await this.saveKeyWithinSelectorOrNot({parent,target:img,imgKey:imgKeyUrl.Key,blog:this.blog});
-                                              return blog_;
-                                           }else{
-                                             const blog_= await this.saveKeyWithinBackground({parent,imgKeyUrl,blog:this.blog});
-                                             if(blog_){
-                                                 formdata.set("file","");
-                                                   formdata.set("Key","");
-                                             }
-                                             return blog_;
-                                           }
-                                       }
-                                   }).catch((err)=>{const msg=getErrorMessage(err);Misc.message({parent,msg,type_:"error",time:700})});
-                                   //saving image
+                                if(img){
+                                    await this._service.simpleImgUpload(parent,formdata).then(async(imgKeyUrl:gets3ImgKey)=>{
+                                          if(imgKeyUrl){
+                                              
+                                                  const file=formdata.get("file") as File;
+                                                  const filename=file.name as string;
+                                                  img.src=imgKeyUrl.img;
+                                                  img.alt=filename;
+                                                  formdata.set("file","");
+                                                  formdata.set("Key","");
+                                                  const {isJSON,parsed:flex}=Header.checkJson(img.getAttribute("flex")) as {isJSON:boolean,parsed:flexType|null};
+                                                  if(isJSON && flex){
+                                                      const flex_={...flex,imgKey:imgKeyUrl.Key};
+                                                        img.setAttribute("flex",JSON.stringify(flex_));
+                                                        this._modSelector.promUpdateElement({target:img}).then(async(res)=>{
+                                                            if(res){
+                                                                const ele=res as element_selType;
+                                                                Misc.message({parent,msg:`${ele.eleId}- saved`,type_:"success",time:1200});
+                                                            }
+                                                        });
+                                                  }else{
+                                                    img.setAttribute("imgKey",imgKeyUrl.Key);
+                                                    this._modSelector.promUpdateElement({target:img}).then(async(res)=>{
+                                                        if(res){
+                                                            const ele=res as elementType;
+                                                            Misc.message({parent,msg:`${ele.eleId}- saved`,type_:"success",time:1200});
+                                                        }
+                                                    });
+                                                  }
+                                              
+                                                
+                                          }
+                                      }).catch((err)=>{const msg=getErrorMessage(err);Misc.message({parent,msg,type_:"error",time:700})});
+                                }else{
+                                    //BACKGROUND IMAGE
+                                    await this._service.uploadfreeimage({parent,formdata}).then(async(res)=>{
+                                        if(res){
+                                            parent.style.backgroundImage=`url(${res.img})`;
+                                            parent.setAttribute("data-backgroundImage","true");
+                                            parent.style.backgroundSize="100%  100%";
+                                            parent.style.backgroundPosition="50% 50%";
+                                            const {isJSON,parsed:flex}=Header.checkJson(parent.getAttribute("flex")) as {isJSON:boolean,parsed:flexType|null};
+                                            if(isJSON && flex){
+                                                const flex_={...flex,imgKey:undefined};
+                                                parent.setAttribute("flex",JSON.stringify(flex_));
+                                                if(parent.id===flex.rowId){
+                                                    this._modSelector.promUpdateRow(parent).then(async(res)=>{
+                                                        if(res){
+                                                            Misc.message({parent,msg:`${parent.id}- saved`,type_:"success",time:1200});
+                                                        }
+                                                    });
+                                                }else if(parent.id===flex.colId){
+                                                    this._modSelector.promUpdateColumn(parent,flex_).then(async(res)=>{
+                                                        if(res){
+                                                            Misc.message({parent,msg:`${parent.id}- saved`,type_:"success",time:1200});
+                                                        }
+                                                    });
+                                                }else{
+
+                                                }
+                                            }else{
+                                                Misc.message({parent,msg:`the parent element is not a row or column`,type_:"error",time:2500});
+                                            }
+                                        }
+                                    });
+                                }
+                                  
                                    
                                 
                             }
@@ -1215,33 +1259,74 @@ class User{
             case signedInPLUSBlogName:
                 if(formdata){
                     // const blog=this._modSelector._blog;
-                this._service.generateImgKey(formdata,blog) as {Key:string};
+              
                 const file=formdata.get("file") as File;
                 const filename=file.name as string;
-                //GETTING s3ImgKey && url
-                const finalBlog: void | blogType | undefined= await this._service.simpleImgUpload(parent,formdata).then(async(imgKeyUrl:gets3ImgKey)=>{
-                    if(imgKeyUrl){
-                        if(img){
-                            img.src=imgKeyUrl.img;
-                            img.alt=filename;
-                            formdata.set("Key","");
-                            formdata.set("file","");
-                           return await this.saveKeyWithinSelectorOrNot({parent,target:img,imgKey:imgKeyUrl.Key,blog});
-                           
-                        }else{
-                            parent.style.backgroundImage=`url(${imgKeyUrl.img})`;
-                            parent.style.backgroundSize="100% 100%";
+                if(img){
+                    await this._service.simpleImgUpload(parent,formdata).then(async(imgKeyUrl:gets3ImgKey)=>{
+                          if(imgKeyUrl){
+                              
+                                  const file=formdata.get("file") as File;
+                                  const filename=file.name as string;
+                                  img.src=imgKeyUrl.img;
+                                  img.alt=filename;
+                                  formdata.set("file","");
+                                  formdata.set("Key","");
+                                  const {isJSON,parsed:flex}=Header.checkJson(img.getAttribute("flex")) as {isJSON:boolean,parsed:flexType|null};
+                                  if(isJSON && flex){
+                                      const flex_={...flex,imgKey:imgKeyUrl.Key};
+                                        img.setAttribute("flex",JSON.stringify(flex_));
+                                        this._modSelector.promUpdateElement({target:img}).then(async(res)=>{
+                                            if(res){
+                                                const ele=res as element_selType;
+                                                Misc.message({parent,msg:`${ele.eleId}- saved`,type_:"success",time:1200});
+                                            }
+                                        });
+                                  }else{
+                                    img.setAttribute("imgKey",imgKeyUrl.Key);
+                                    this._modSelector.promUpdateElement({target:img}).then(async(res)=>{
+                                        if(res){
+                                            const ele=res as elementType;
+                                            Misc.message({parent,msg:`${ele.eleId}- saved`,type_:"success",time:1200});
+                                        }
+                                    });
+                                  }
+                              
+                                
+                          }
+                      }).catch((err)=>{const msg=getErrorMessage(err);Misc.message({parent,msg,type_:"error",time:700})});
+                }else{
+                    //BACKGROUND IMAGE
+                    await this._service.uploadfreeimage({parent,formdata}).then(async(res)=>{
+                        if(res){
+                            parent.style.backgroundImage=`url(${res.img})`;
+                            parent.setAttribute("data-backgroundImage","true");
+                            parent.style.backgroundSize="100%  100%";
                             parent.style.backgroundPosition="50% 50%";
-                            formdata.set("Key","");
-                            formdata.set("file","");
-                            // console.log("saveKeyWithinBackground",imgKeyUrl,blog)
-                           return await this.saveKeyWithinBackground({parent,imgKeyUrl,blog});
-                            
+                            const {isJSON,parsed:flex}=Header.checkJson(parent.getAttribute("flex")) as {isJSON:boolean,parsed:flexType|null};
+                            if(isJSON && flex){
+                                const flex_={...flex,imgKey:undefined};
+                                parent.setAttribute("flex",JSON.stringify(flex_));
+                                if(parent.id===flex.rowId){
+                                    this._modSelector.promUpdateRow(parent).then(async(res)=>{
+                                        if(res){
+                                            Misc.message({parent,msg:`${parent.id}- saved`,type_:"success",time:1200});
+                                        }
+                                    });
+                                }else if(parent.id===flex.colId){
+                                    this._modSelector.promUpdateColumn(parent,flex_).then(async(res)=>{
+                                        if(res){
+                                            Misc.message({parent,msg:`${parent.id}- saved`,type_:"success",time:1200});
+                                        }
+                                    });
+                                }else{
+
+                                }
+                            }else{
+                                Misc.message({parent,msg:`the parent element is not a row or column`,type_:"error",time:2500});
+                            }
                         }
-                    }
-                }).catch((err)=>{const msg=getErrorMessage(err);Misc.message({parent,msg,type_:"error",time:700})});
-                if(finalBlog){
-                    Misc.message({parent,type_:"success",msg:"saved to your blog",time:700});
+                    });
                 }
                 }
             return;

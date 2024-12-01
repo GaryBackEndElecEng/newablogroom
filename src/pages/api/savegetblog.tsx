@@ -20,7 +20,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         await deleteElements(getBlog);//deleting elements
         await deleteCodes(getBlog);//deleting codess
         await deleteCharts(getBlog);//deleting codess
-        if (getBlog.user_id) {
+        if (getBlog.user_id && getBlog.id) {
             try {
                 const blog = await prisma.blog.upsert({
                     where: { id: getBlog.id },

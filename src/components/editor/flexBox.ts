@@ -253,8 +253,8 @@ colAttrs=["col-start","col-end","col-center"];
                     row.id=row_.eleId;
                     if(row_.imgKey){
                         row.setAttribute("data-backgroundimage","true");
-                        const cssStyle={backgroundPosition:"50% 50%",backgroundSize:"100% 100%"};
-                       await this._service.injectBgAwsImage({target:row,imgKey:row_.imgKey,cssStyle});
+                    //     const cssStyle={backgroundPosition:"50% 50%",backgroundSize:"100% 100%"};
+                    //    await this._service.injectBgAwsImage({target:row,imgKey:row_.imgKey,cssStyle});
                     }
                     Header.detectImageEffect(row);
                     this.flex={...this.flex,rowId:row_.eleId,position:"row",imgKey:row_.imgKey}
@@ -272,8 +272,10 @@ colAttrs=["col-start","col-end","col-center"];
                        
                         if(col_.imgKey){
                             col.setAttribute("data-backgroundimage","true");
-                            const cssStyle={backgroundPosition:"50% 50%",backgroundSize:"100% 100%"};
-                            this._service.injectBgAwsImage({target:col,imgKey:col_.imgKey,cssStyle});
+                            // col.style.backgroundPosition="50% 50%";
+                            // col.style.backgroundSize="100% 100%";
+                            // const cssStyle={backgroundPosition:"50% 50%",backgroundSize:"100% 100%"};
+                            // this._service.injectBgAwsImage({target:col,imgKey:col_.imgKey,cssStyle});
                         }
                         this.genChoice(col,this.flex);
                         col.addEventListener("click",(e:MouseEvent)=>{
@@ -298,29 +300,31 @@ colAttrs=["col-start","col-end","col-center"];
                                     ShapeOutside.cleanUpByID(parent,"popup");
                                     _ele_.setAttribute("data-backgroundImage","true");
                                     this.flex={...this.flex,backgroundImage:true,imgKey:element.imgKey};
-                                    const cssStyle={backgroundPosition:"50% 50%",backgroundSize:"100% 100%"};
-                                    this._service.injectBgAwsImage({target:_ele_,imgKey:element.imgKey,cssStyle});
+                                    _ele_.style.backgroundPosition="50% 50%";
+                                    _ele_.style.backgroundSize="100% 100%";
+                                    // const cssStyle={backgroundPosition:"50% 50%",backgroundSize:"100% 100%"};
+                                    // this._service.injectBgAwsImage({target:_ele_,imgKey:element.imgKey,cssStyle});
                                 }else if(element.attr==="data-shapeOutside-circle" && element.imgKey){
                                     divCont.style.marginBlock="2rem";
                                     divCont.style.paddingBlock="1rem";
                                     this.flex={...this.flex,shapeOutsideCircle:true,imgKey:element.imgKey};
                                     this._shapeOutside.setAttributes({column:parent,divCont,target:_ele_ as HTMLParagraphElement});//ID=shape-outside-${rand}
                                     _ele_.setAttribute("data-shapeOutside-circle","true");
-                                   await this._shapeOutside.shapeOutsideInjectImage({para:_ele_,imgKey:element.imgKey});
+                                //    await this._shapeOutside.shapeOutsideInjectImage({para:_ele_,imgKey:element.imgKey});
                                 }else if(element.attr==="data-shapeOutside-square" && element.imgKey){
                                     divCont.style.marginBlock="2rem";
                                     divCont.style.paddingBlock="1rem";
                                     this.flex={...this.flex,shapeOutsideCircle:true,imgKey:element.imgKey};
                                     this._shapeOutside.setAttributes({column:parent,divCont,target:_ele_ as HTMLParagraphElement});//ID=shape-outside-${rand}
                                     _ele_.setAttribute("data-shapeOutside-square","true");
-                                   await this._shapeOutside.shapeOutsideInjectImage({para:_ele_,imgKey:element.imgKey});
+                                //    await this._shapeOutside.shapeOutsideInjectImage({para:_ele_,imgKey:element.imgKey});
                                 }else if(element.attr==="data-shapeOutside-polygon" && element.imgKey){
                                     divCont.style.marginBlock="2rem";
                                     divCont.style.paddingBlock="1rem";
                                     this._shapeOutside.setAttributes({column:parent,divCont,target:_ele_ as HTMLParagraphElement});//ID=shape-outside-${rand}
                                     _ele_.setAttribute("data-shapeOutside-polygon","true")
                                     this.flex={...this.flex,shapeOutsidePolygon:true,imgKey:element.imgKey};
-                                   await this._shapeOutside.shapeOutsideInjectImage({para:_ele_,imgKey:element.imgKey});
+                                //    await this._shapeOutside.shapeOutsideInjectImage({para:_ele_,imgKey:element.imgKey});
                                 }
                                 divCont.setAttribute("data-placement",`${element.order}-A`);
                                 _ele_.setAttribute("data-placement",`${element.order}`);
@@ -435,7 +439,7 @@ colAttrs=["col-start","col-end","col-center"];
                                     const res=await this._service.getSimpleImg(element.imgKey);
                                     if(res){
                                         ele.src=res.img;
-                                        ele.alt=`${res.Key.split("/")[1].split("-")[1]}`;
+                                        ele.alt=res.Key;
                                     }
 
                                 }
@@ -721,7 +725,7 @@ colAttrs=["col-start","col-end","col-center"];
                             case ele==="shapeOutside":
                                 this.flex={...this.flex,shapeOutsideCircle:true};
                                 column.setAttribute("flex",JSON.stringify(this.flex));
-                                this._shapeOutside.shapeOutsideCircle(column,this.flex)
+                                this._shapeOutside.shapeOutsideCircle({parent:column,flex:this.flex})
                                 
                             return;
                             case checkText && ele !=="shapeOutside":
@@ -1022,7 +1026,8 @@ colAttrs=["col-start","col-end","col-center"];
                 const formdata= new FormData(e.currentTarget as HTMLFormElement);
                 const file=formdata.get("file") as File;
                 if(file){
-                    const {Key}=this._service.generateImgKey(formdata,blog) as {Key:string};
+                    const user=this._user.user
+                    const {Key}=this._service.generateFreeImgKey({formdata,user}) as {Key:string};
                     const imgUrl=URL.createObjectURL(file);
                     column.style.backgroundImage=`url(${imgUrl})`;
                     column.style.backgroundSize=`100% 100%`;
@@ -1058,10 +1063,11 @@ colAttrs=["col-start","col-end","col-center"];
         form.onsubmit=async(e:SubmitEvent)=>{
             if(e){
                 e.preventDefault();
+                const user=this._user.user
                 const formdata= new FormData(e.currentTarget as HTMLFormElement);
                 const file=formdata.get("file") as File;
                 if(file){
-                    const {Key}=this._service.generateImgKey(formdata,blog) as {Key:string};
+                    const {Key}=this._service.generateFreeImgKey({formdata,user}) as {Key:string};
                     _flex={..._flex,imgKey:Key,backgroundImage:true};
                     const imgUrl=URL.createObjectURL(file);
                     row.style.backgroundImage=`url(${imgUrl})`;

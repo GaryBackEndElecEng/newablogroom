@@ -445,8 +445,8 @@ _onlyMeta:boolean=false;
         container.id="saveFinalWork-container";
         if(blog.imgBgKey){
             container.setAttribute("data-backgroundimage","true");
-            const cssStyle={backgroundPosition:"50% 50%",backgroundSize:"100% 100%"};
-           await this._service.injectBgAwsImage({target:container,imgKey:blog.imgBgKey,cssStyle});
+        //     const cssStyle={backgroundPosition:"50% 50%",backgroundSize:"100% 100%"};
+        //    await this._service.injectBgAwsImage({target:container,imgKey:blog.imgBgKey,cssStyle});
         }
 
         //META
@@ -522,6 +522,8 @@ _onlyMeta:boolean=false;
         }
         if(selector && selector.name){
             const innerCont=document.createElement(selector.name);
+            const less900=window.innerWidth < 900 ;
+            const less400=window.innerWidth < 400 ;
             const maxWidthImg=selector.header ? "100px":"auto";
             innerCont.id=selector.eleId;
             innerCont.className=selector.class;
@@ -543,13 +545,16 @@ _onlyMeta:boolean=false;
                     row.setAttribute("rowID",`${row_.id}`);
                     row.setAttribute("order",String(row_.order));
                     row.id=row_.eleId;
+                    if(less400){
+                        row.style.flexDirection="column";
+                    }
                     flex={...flex,rowId:row_.eleId,imgKey:row_.imgKey};
                     innerCont.appendChild(row);
                     Misc.matchMedia({parent:row,maxWidth:420,cssStyle:{flexDirection:"column"}});
                     if(row_.imgKey){
                         row.setAttribute("data-backgroundimage","true");
-                        const cssStyle={backgroundPosition:"50% 50%",backgroundSize:"100% 100%"};
-                       await this._service.injectBgAwsImage({target:row,imgKey:row_.imgKey,cssStyle});
+                    //     const cssStyle={backgroundPosition:"50% 50%",backgroundSize:"100% 100%"};
+                    //    await this._service.injectBgAwsImage({target:row,imgKey:row_.imgKey,cssStyle});
                     }
                     await Promise.all(row_.cols && row_.cols.sort((a,b)=>{if(a.order < b.order){return -1}; return 1}).map(async(col_)=>{
                         const col=document.createElement("div");
@@ -557,6 +562,13 @@ _onlyMeta:boolean=false;
                         col.setAttribute("colID",`${col_.id}`);
                         col.setAttribute("order",String(col_.order));
                         col.style.cssText=col_.cssText;
+                        if(less400){
+                            col.style.flex="0 0 100%";
+                            col.classList.remove("col-md-3");
+                            col.classList.remove("col-md-4");
+                            col.classList.remove("col-md-6");
+                            col.classList.add("col-md-12");
+                        }
                         col.className=col_.class.split(" ").filter(cl=>(cl !=="coliIsActive")).join(" ");
                         flex={...flex,colId:col_.eleId,imgKey:col_.imgKey}
                         await this.showCleanColumnToEle({parent:parent,col:col,col_:col_,flex:flex,maxWidthImg:maxWidthImg}).then(async(resCol)=>{
@@ -565,8 +577,8 @@ _onlyMeta:boolean=false;
                                  row.appendChild(resCol);
                                  if(col_.imgKey){
                                      col.setAttribute("data-backgroundimage","true");
-                                     const cssStyle={backgroundPosition:"50% 50%",backgroundSize:"100% 100%"};
-                                   await this._service.injectBgAwsImage({target:resCol,imgKey:col_.imgKey,cssStyle});
+                                //      const cssStyle={backgroundPosition:"50% 50%",backgroundSize:"100% 100%"};
+                                //    await this._service.injectBgAwsImage({target:resCol,imgKey:col_.imgKey,cssStyle});
                                  }
                              }
                          });
@@ -580,6 +592,7 @@ _onlyMeta:boolean=false;
     };
     async showCleanColumnToEle(item:{parent:HTMLElement,col:HTMLElement,col_:colType,flex:flexType,maxWidthImg:string}){
         const {parent,col,col_,flex,maxWidthImg}=item;
+        const less400=window.innerWidth < 400 ;
         await Promise.all(col_.elements && col_.elements.sort((a,b)=>{if(a.order < b.order){return -1}; return 1}).map(async (element)=>{
             const checkArr=["img","ul","blockquote","a","logo","image"].includes(element.name);
             const link=element && element.attr && element.attr.startsWith("http") ? element.attr : null;
@@ -597,6 +610,9 @@ _onlyMeta:boolean=false;
                 ele.setAttribute("name",element.name);
                 ele.id=element.eleId;
                 ele.style.cssText=element.cssText;
+                if(less400){
+                    ele.style.paddingInline="0.5rem";
+                }
                 if(element.name==="p"){
                     ele.style.lineHeight="1.75rem";
                 }
@@ -606,23 +622,23 @@ _onlyMeta:boolean=false;
                     ShapeOutside.cleanUpByID(parent,"popup");
                     ele.setAttribute("data-backgroundImage","true");
                     flex_={...flex_,backgroundImage:true,imgKey:element.imgKey};
-                    const cssStyle={backgroundPosition:"50% 50%",backgroundSize:"100% 100%"};
-                    await this._service.injectBgAwsImage({target:ele,imgKey:element.imgKey,cssStyle});
+                    // const cssStyle={backgroundPosition:"50% 50%",backgroundSize:"100% 100%"};
+                    // await this._service.injectBgAwsImage({target:ele,imgKey:element.imgKey,cssStyle});
                     Misc.blurIn({anchor:ele,blur:"20px",time:500});
                 }else if(element.attr==="data-shapeoutside-circle" && element.imgKey){
                     flex_={...flex_,shapeOutsideCircle:true,imgKey:element.imgKey};
                     ele.setAttribute("data-shapeoutside-circle","true");
-                    await this._shapeOutside.shapeOutsideInjectImage({para:ele,imgKey:element.imgKey});
+                    // await this._shapeOutside.shapeOutsideInjectImage({para:ele,imgKey:element.imgKey});
                     Misc.blurIn({anchor:ele,blur:"20px",time:500});
                 }else if(element.attr==="data-shapeoutside-square" && element.imgKey){
                     flex_={...flex_,shapeOutsideCircle:true,imgKey:element.imgKey};
                     ele.setAttribute("data-shapeoutside-square","true");
-                    await this._shapeOutside.shapeOutsideInjectImage({para:ele,imgKey:element.imgKey});
+                    // await this._shapeOutside.shapeOutsideInjectImage({para:ele,imgKey:element.imgKey});
                     Misc.blurIn({anchor:ele,blur:"20px",time:500});
                 }else if(element.attr==="data-shapeoutside-polygon" && element.imgKey){
                     ele.setAttribute("data-shapeoutside-polygon","true")
                     flex_={...flex_,shapeOutsidePolygon:true,imgKey:element.imgKey};
-                    await this._shapeOutside.shapeOutsideInjectImage({para:ele,imgKey:element.imgKey});
+                    // await this._shapeOutside.shapeOutsideInjectImage({para:ele,imgKey:element.imgKey});
                     Misc.blurIn({anchor:ele,blur:"20px",time:500});
                 }
                 ele.setAttribute("flex",JSON.stringify(flex_));
@@ -801,21 +817,21 @@ _onlyMeta:boolean=false;
                                 if(element.attr==="data-backgroundImage"){
                                     ShapeOutside.cleanUpByID(parent,"popup");
                                     res.ele.setAttribute("data-backgroundImage","true");
-                                    res.ele.setAttribute("imgKey",imgKey);
+                                    // res.ele.setAttribute("imgKey",imgKey);
                                     const cssStyle={backgroundPosition:"50% 50%",backgroundSize:"100% 100%"};
-                                   await this._service.injectBgAwsImage({target:res.ele,imgKey:imgKey,cssStyle});
+                                //    await this._service.injectBgAwsImage({target:res.ele,imgKey:imgKey,cssStyle});
                                 }else if(element.attr==="data-shapeoutside-circle"){
                                     res.ele.setAttribute("data-shapeoutside-circle","true");
-                                    res.ele.setAttribute("imgKey",imgKey);
-                                   await this._shapeOutside.shapeOutsideInjectImage({para:res.ele,imgKey:imgKey});
+                                    // res.ele.setAttribute("imgKey",imgKey);
+                                //    await this._shapeOutside.shapeOutsideInjectImage({para:res.ele,imgKey:imgKey});
                                 }else if(element.attr==="data-shapeoutside-square"){
                                     res.ele.setAttribute("data-shapeoutside-square","true");
-                                    res.ele.setAttribute("imgKey",imgKey);
-                                    this._shapeOutside.shapeOutsideInjectImage({para:res.ele,imgKey:imgKey});
+                                    // res.ele.setAttribute("imgKey",imgKey);
+                                    // this._shapeOutside.shapeOutsideInjectImage({para:res.ele,imgKey:imgKey});
                                 }else if(element.attr==="data-shapeoutside-polygon"){
                                     res.ele.setAttribute("data-shapeoutside-polygon","true")
-                                    res.ele.setAttribute("imgKey",imgKey);
-                                   await this._shapeOutside.shapeOutsideInjectImage({para:res.ele,imgKey:imgKey});
+                                    // res.ele.setAttribute("imgKey",imgKey);
+                                //    await this._shapeOutside.shapeOutsideInjectImage({para:res.ele,imgKey:imgKey});
                                 }else if(element.attr="data-arrow-design"){
                                     res.ele.setAttribute("data-arrow-design","true");
                                     res.ele.setAttribute("imgKey",imgKey);
@@ -852,6 +868,8 @@ _onlyMeta:boolean=false;
                                 (res.ele as HTMLImageElement).src=res_.img;
                                 (res.ele as HTMLImageElement).alt=res_.Key as string;
                             }
+                        }else{
+                            (res.ele as HTMLImageElement).src=this.logo;
                         }
                         Misc.blurIn({anchor:res.ele,blur:"20px",time:600});
                         // this._user.refreshImageUpload(parent,image);
@@ -912,6 +930,7 @@ _onlyMeta:boolean=false;
     };
     cleanElement(item:{parent:HTMLElement,element:elementType}):Promise<{ele:HTMLElement,divCont:HTMLElement}>{
         const {element,parent}=item;
+        const less400=window.innerWidth < 400 ;
         const ele=document.createElement(element.name);
         ele.setAttribute("name",element.name);
         ele.setAttribute("is-element","true");
@@ -926,6 +945,9 @@ _onlyMeta:boolean=false;
         if(element.name==="p"){
             ele.style.lineHeight="1.75rem";
         }
+        if(less400){
+            ele.style.paddingInline="0.5rem";
+        };
         ele.style.marginInline="auto";
         const divCont=document.createElement("div");
         divCont.id="eleContainer";

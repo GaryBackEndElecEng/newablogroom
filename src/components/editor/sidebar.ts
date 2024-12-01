@@ -500,25 +500,32 @@ listThemeTypes:{name:string}[]=[{name:"background"},{name:"fonts"},{name:"colors
                     const user=this._user.user;
                 
                     if(_blog && user && user.id && _blog.name){
-                        if(_blog.imgBgKey){
-                            const deletedImg:deletedImgType={imgKey:_blog.imgBgKey,del:true,date:new Date()}
-                            this._service.markDelKey(deletedImg);//marking delete on exiting image
-                        }
+                        // if(_blog.imgBgKey){
+                        //     const deletedImg:deletedImgType={imgKey:_blog.imgBgKey,del:true,date:new Date()}
+                        //     this._service.markDelKey(deletedImg);//marking delete on exiting image
+                        // }
                         //GENERATING NEW KEY
-                        const {Key}=this._service.generateImgKey(filedata,_blog) as {Key:string};
+                        const {Key}=this._service.generateFreeImgKey({formdata:filedata,user}) as {Key:string};
                         _blog={..._blog,user_id:user.id,imgBgKey:Key};
                         this._modSelector._blog=_blog;
                         this._modSelector.blog=this._modSelector._blog;
 
+                        this._service.uploadfreeimage({parent,formdata:filedata}).then(async(res)=>{
+                            if(res){
+                                parent.style.backgroundImage=`url(${res.img})`;
+                                parent.style.backgroundSize="100% 100%";
+                                parent.style.backgroundPosition="50% 50%";
+                                this._service.promsaveItems(_blog).then(async(blog_)=>{
+                                    if(blog_){
+                                        this._modSelector.saveTheme(parent,theme);
+                                        //SENDING IT TO SIMPLE UPLOAD PROCESS:BgImage has no element
+            
+                                        // this._user.askSendToServer({bg_parent:parent,formdata:filedata,image:null,blog:this._modSelector._blog,oldKey:null});
+                                    }
+                                });
+                            }
+                        });
                     }
-                    this._service.promsaveItems(_blog).then(async(blog_)=>{
-                        if(blog_){
-                            this._modSelector.saveTheme(parent,theme);
-                            //SENDING IT TO SIMPLE UPLOAD PROCESS:BgImage has no element
-
-                            this._user.askSendToServer({bg_parent:parent,formdata:filedata,image:null,blog:this._modSelector._blog,oldKey:null});
-                        }
-                    });
                     parent.removeChild(innerContainer);
                    
                 }
@@ -1127,12 +1134,15 @@ class Sidebar{
     sidebarMain(parent:HTMLElement,maxHeight:number){
         const injection=document.querySelector("section#mainInjection") as HTMLElement;
         Main.textarea=document.querySelector("div#textarea");
+        const less900=window.innerWidth < 900;
         let setHeight:string="100vh";
         let setOverflowY:string="scroll";
         if(injection  ){
             setHeight=window.getComputedStyle(injection).getPropertyValue("height");
+            setHeight=less900 ? window.getComputedStyle(injection).getPropertyValue("height"):"80vh";
             setOverflowY="scroll";
         }
+        
         parent.style.paddingBottom="2rem";
         parent.style.paddingInline="0.5rem";
         parent.style.justifySelf="flex-start";

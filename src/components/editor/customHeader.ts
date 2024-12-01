@@ -227,8 +227,8 @@ set header_(header:selectorType){
                     if(row_.imgKey){
                         this.flex={...this.flex,backgroundImage:true};
                         row.setAttribute("data-backgroundimage","true");
-                        const cssStyle={backgroundPosition:"50% 50%",backgroundSize:"100% 100%"};
-                        this._service.injectBgAwsImage({target:row,imgKey:row_.imgKey,cssStyle});
+                        // const cssStyle={backgroundPosition:"50% 50%",backgroundSize:"100% 100%"};
+                        // this._service.injectBgAwsImage({target:row,imgKey:row_.imgKey,cssStyle});
                     
                     }
                     row.setAttribute("flex",JSON.stringify(this.flex));
@@ -241,8 +241,8 @@ set header_(header:selectorType){
                         if(col_.imgKey){
                             this.flex={...this.flex,backgroundImage:true};
                             col.setAttribute("data-backgroundimage","true");
-                            const cssStyle={backgroundPosition:"50% 50%",backgroundSize:"100% 100%"};
-                            this._service.injectBgAwsImage({target:col,imgKey:col_.imgKey,cssStyle});
+                            // const cssStyle={backgroundPosition:"50% 50%",backgroundSize:"100% 100%"};
+                            // this._service.injectBgAwsImage({target:col,imgKey:col_.imgKey,cssStyle});
                         
                         }
                         col.setAttribute("flex",JSON.stringify(this.flex));
@@ -922,10 +922,17 @@ set header_(header:selectorType){
                     logo.id=element.eleId;
                     logo.style.cssText=element.cssText;
                     logo.className=element.class;
-                    logo.src=element.img ? element.img : "#";
-                    logo.alt=element.inner_html;
                     if(element.imgKey){
                         this.flex={...this.flex,imgKey:element.imgKey};
+                        this._service.getSimpleImg(element.imgKey).then(async(res)=>{
+                            if(res){
+                                logo.src=res.img;
+                                logo.alt=res.Key
+                            }
+                        });
+                    }else{
+                        logo.src=element.img ? element.img : "#";
+                        logo.alt=element.inner_html;
                     }
                     divCont.setAttribute("data-placement",`${element.order}-A`);
                     logo.setAttribute("contenteditable","false");
@@ -1293,6 +1300,7 @@ set header_(header:selectorType){
         form.addEventListener("submit",(e:SubmitEvent)=>{
             if(e){
                 e.preventDefault();
+                const user=this._user.user;
                 const {parsed,isJSON}=Header.checkJson(column.getAttribute("flex"));
                 const flex_= isJSON ? parsed as flexType :flex;
                 const oldKey= flex_.imgKey ? flex_.imgKey : null;
@@ -1302,7 +1310,10 @@ set header_(header:selectorType){
                 column.style.zIndex="0";
                 column.style.position="relative";
                 const image=URL.createObjectURL(file as File);
-                const {Key}=this._service.generateImgKey(formdata,blog) as {Key:string};
+                column.style.backgroundImage=`url(${image})`;
+                column.style.backgroundPosition=`50% 50%`;
+                column.style.backgroundSize=`100% 100%`;
+                const {Key}=this._service.generateFreeImgKey({formdata,user}) as {Key:string};
                 const flex_={...flex,name:"background",position:"col",backgroundImage:true,imgKey:Key};
                 column.setAttribute("flex",JSON.stringify(flex_));
                 this._modSelector.promUpdateColumn(column,flex_).then(async(res)=>{
@@ -1310,8 +1321,6 @@ set header_(header:selectorType){
 
                         this._user.askSendToServer({bg_parent:column,formdata,image:null,blog,oldKey});
                         column.setAttribute("data-background-image","true");
-                        column.style.cssText="background-position:50% 50%;background-size:100% 100%;position:relative;z-index:1;insert:0;";
-                        column.style.backgroundImage=`url(${image})`;
                     }
                 });
                 Misc.fadeOut({anchor:formContainer,xpos:50,ypos:100,time:500});
@@ -1329,6 +1338,7 @@ set header_(header:selectorType){
      bgRowImage(item:{column:HTMLElement,blog:blogType}){
         const {column,blog}=item;
         const row=column.parentElement;
+        const user=this._user.user;
         if(!row) return;
         const {isJSON,parsed}=Header.checkJson(row.getAttribute("flex"));
         if(row && isJSON){
@@ -1343,7 +1353,7 @@ set header_(header:selectorType){
                     const file=formdata.get("file") as File;
                     
                     if(file){
-                        const {Key}=this._service.generateImgKey(formdata,blog) as {Key:string};
+                        const {Key}=this._service.generateFreeImgKey({formdata,user}) as {Key:string};
                         flex={...flex,imgKey:Key,backgroundImage:true};
                         row.setAttribute("flex",JSON.stringify(flex));
                         const urlImg=URL.createObjectURL(file) as string;
@@ -1377,16 +1387,6 @@ set header_(header:selectorType){
         if(!isJSON) return;
         const flex=parsed as flexType;
         const {imgKey}=flex;
-        if( imgKey){
-            this._service.adminImagemark(imgKey as string).then(async(res)=>{
-                if(res){
-                    Misc.message({parent:column,msg:`${imgKey} is removed`,type_:"success",time:700});
-                    const flex_={...flex,imgKey:undefined,backgroundImage:undefined};
-                    this._modSelector.updateColumn(column,flex_);
-                }
-            });
-        
-    }
      }
      //PARENT:CUSTOMELEMENTCHOICES(){}
      changeImgSize(column:HTMLElement){

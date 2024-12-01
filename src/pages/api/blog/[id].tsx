@@ -9,6 +9,7 @@ import prisma from "@/prisma/prismaclient";
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
     const { id } = req.query as { id: string };
     const id_num = parseInt(id) as number;
+    // console.log("blog:id", id_num)
     if (req.method === "GET") {
         if (id_num && !isNaN(id_num)) {
             try {
@@ -50,6 +51,8 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
             } finally {
                 await prisma.$disconnect()
             }
+        } else {
+            res.status(400).json({ msg: `could not find post: id:${id_num}` })
         }
     }
     if (req.method === "DELETE") {

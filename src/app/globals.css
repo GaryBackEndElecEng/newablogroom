@@ -91,7 +91,7 @@ body::after {
   position: absolute;
   inset: 0%;
   z-index: -1;
-  background: hsla(0, 18.5%, 94.7%, 0.23);
+  background: rgba(2, 13, 68, 0.836);
   animation: fadeIn 1.25s ease-in-out;
 }
 /* hsla(0, 18.5%, 94.7%, 0.13) */

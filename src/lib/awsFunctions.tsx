@@ -9,12 +9,23 @@ const Bucket = process.env.BUCKET_NAME as string
 const region = process.env.BUCKET_REGION as string
 const accessKeyId = process.env.SDK_ACCESS_KEY as string
 const secretAccessKey = process.env.SDK_ACCESS_SECRET as string
+const freeBucket = process.env.FREE_BUCKET_NAME as string
+const freeAccessKeyId = process.env.SDK_ACCESS_KEY_FREE_BUCKET as string
+const freeSecretAccessKey = process.env.SDK_ACCESS_KEY_SECRET_FREE_BUCKET as string
 
 const s3 = new S3Client({
     region,
     credentials: {
         accessKeyId,
         secretAccessKey
+    }
+
+});
+const s3Free = new S3Client({
+    region,
+    credentials: {
+        accessKeyId: freeAccessKeyId,
+        secretAccessKey: freeSecretAccessKey
     }
 
 });

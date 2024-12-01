@@ -38,6 +38,7 @@ export async function genMetadata(item: { id: number, parent: ResolvingMetadata 
     const { id, parent } = item;
     const par = (await parent);
     const blog = await getBlog({ id: id });
+    // console.log("META:blogID", blog ? blog.id : " no id")
     const title = blog && blog.title ? blog.title as string : "Ablogroom blogs";
     const keywds = blog && blog.desc ? await genKeywords({ desc: blog.desc, title }) : [];
     const url = (par && par.metadataBase && par.metadataBase.origin) ? par.metadataBase.origin : "www.ablogroom.com";
