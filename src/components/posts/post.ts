@@ -101,8 +101,7 @@ class Post{
         Misc.matchMedia({parent:injector,maxWidth:900,cssStyle:{width:"100%"}});
         this.titlePage({container,time:1200}).then(async(res)=>{
             if(res){
-                const paraSize=less900 ? (less400 ? "130%":"150%"):"135%";
-                const preParaSize=less900 ? (less400 ? "130%":"170%"):"150%";
+                res.para.style.fontSize=less900 ? (less400 ? "130%":"150%"):"135%";
                 await this.Posts({injector:injector,container,posts:this.posts,user:this.user}).then(async(res_)=>{
                     if(res_){
                         if(res_.posts && res_.posts.length>0){
@@ -126,19 +125,12 @@ class Post{
                         ],{duration:res.time,iterations:1,"easing":"ease-in-out"});
                         setTimeout(()=>{
                             res.para.style.opacity="1";
-                            res.para.style.backgroundColor="rgb(212 229 225 / 33%)";
                             res.para.style.borderRadius="12px";
                             res.para.animate([
-                                {transform:"translateX(-75%)",opacity:"0",fontSize:preParaSize,backgroundColor:"black",color:"white"},
-                                {transform:"translateX(0%)",opacity:"1",fontSize:paraSize,backgroundColor:"rgb(212 229 225 / 33%)",color:"#1dcbfb"},
+                                {transform:"translateX(-75%)",opacity:"0",backgroundColor:"rgb(212 229 225 / 33%)",color:"white"},
+                                {transform:"translateX(0%)",opacity:"1",backgroundColor:"transparent",color:"#1dcbfb"},
                             ],{duration:res.time,iterations:1,"easing":"ease-in-out"});
-                            setTimeout(()=>{
-                                res.para.style.textTransform="uppercase";
-                                res.para.animate([
-                                    {textTransform:"lowercase"},
-                                    {textTransform:"uppercase"},
-                                ],{duration:1800,iterations:1,"easing":"ease-in-out"});
-                            },res.time + 1000);
+                           
                         },res.time);
                         ///--------------------------title display ----------------------///
                     }
@@ -191,6 +183,7 @@ class Post{
         textContainer.style.opacity="0";
         para.style.opacity="0";
         textContainer.style.transform="scale(0.8)";
+        para.style.textTransform="uppercase";
         
         container.appendChild(textContainer);
         return new Promise(resolve=>{
@@ -614,7 +607,8 @@ class Post{
                     img.alt=res.Key;
                     shapeOutside.appendChild(img);
                     Misc.blurIn({anchor:img,blur:"20px",time:700});
-                    shapeOutside.innerHTML+=post.content ? `${post.content.slice(0,250)}...see detail`  : "";
+                    const postMod=Post.brInserter({targetStr:post.content})
+                    shapeOutside.innerHTML+=postMod ? `${postMod.slice(0,250)}...see detail`  : "";
                 }
             });
         }else{
@@ -622,6 +616,7 @@ class Post{
              img.alt="www.ablogroom.com";
             shapeOutside.appendChild(img);
             Misc.blurIn({anchor:img,blur:"20px",time:700});
+            
             shapeOutside.innerHTML+=post.content ? `${post.content.slice(0,250)}...see detail`  : "";
         }
         Misc.matchMedia({parent:img,maxWidth:400,cssStyle:{maxWidth:"300px",shapeOutside:""}});
@@ -671,7 +666,8 @@ class Post{
             if(e){
                 detail.disabled=true;
                 const _userinfo:userType|null=userinfo ? userinfo as userType : null;
-                this.postDetail.main({injector:col,post,count:0,poster:_userinfo,isPage:false,isUser:false,user});
+                const postMod={...post,content:Post.brInserter({targetStr:post.content})}
+                this.postDetail.main({injector:col,post:postMod,count:0,poster:_userinfo,isPage:false,isUser:false,user});
             }
         };
         const {button:pageDetail}=Misc.simpleButton({anchor:btnContainer,bg:Nav.btnColor,color:"white",type:"button",time:400,text:"page detail"});
@@ -949,6 +945,47 @@ class Post{
             }
         };
 
+
+    }
+    static brInserter(item:{targetStr:string|undefined}):string{
+        const {targetStr}=item;
+        const text=targetStr;
+        let text2=text as string;
+        const reg1:RegExp=/(1)\.|(1)\.\)/g;
+        const reg2:RegExp=/(2)\.|(2)\.\)/g;
+        const reg3:RegExp=/(3)\.|(3)\.\)/g;
+        const reg4:RegExp=/(4)\.|(4)\.\)/g;
+        const reg5:RegExp=/(5)\.|(5)\.\)/g;
+        const reg6:RegExp=/(6)\.|(6)\.\)/g;
+        const reg7:RegExp=/(7)\.|(7)\.\)/g;
+        const reg8:RegExp=/(8)\.|(8)\.\)/g;
+        const reg9:RegExp=/(9)\.|(9)\.\)/g;
+        const reg10:RegExp=/(10)\.|(10)\.\)/g;
+        const arrReg:{id:number,reg:RegExp}[]=[
+            {id:0,reg:reg1},
+            {id:1,reg:reg2},
+            {id:2,reg:reg3},
+            {id:3,reg:reg4},
+            {id:4,reg:reg5},
+            {id:5,reg:reg6},
+            {id:6,reg:reg7},
+            {id:7,reg:reg8},
+            {id:8,reg:reg9},
+            {id:9,reg:reg10},
+        ];
+        if(text2 && text){
+            arrReg.map(regItem=>{
+                const matches=text.matchAll(regItem.reg) as any;
+                // let index=0
+                for(const match of matches){
+                    const start=match.index;
+                    const end=match[0].length;
+                    text2=text2.replace(regItem.reg,`<br/> ${match[0]}`);
+                    
+                }
+            });
+        }
+        return text2;
 
     }
    

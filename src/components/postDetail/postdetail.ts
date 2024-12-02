@@ -10,6 +10,7 @@ import { pageCountType, postType, userType } from "../editor/Types";
 import Nav from "../nav/headerNav";
 import AddImageUrl from "../common/addImageUrl";
 import User from "../user/userMain";
+import Post from "../posts/post";
 
 
 
@@ -133,7 +134,8 @@ class PostDetail{
             img.alt="www.ablogroom.com";
             shapeOutside.appendChild(img);
             Misc.blurIn({anchor:img,blur:"20px",time:700});
-            shapeOutside.innerHTML+=post.content ? post.content : "";
+            const postMod=Post.brInserter({targetStr:post.content});
+            shapeOutside.innerHTML+=postMod ? postMod : "";
         }else if(post.imageKey){
             await this._service.getSimpleImg(post.imageKey).then(async(res)=>{
                 if(res){
@@ -145,11 +147,14 @@ class PostDetail{
                 }
             });
         }else{
-            img.src=imageLoader({src:this.postLogo,width:widthConv,quality:75});
+            const url=new URL(window.location.href)
+            const newUrl=new URL(this.postLogo,url.origin)
+            img.src=imageLoader({src:"/images/posts.png",width:widthConv,quality:75});
              img.alt="www.ablogroom.com";
             shapeOutside.appendChild(img);
             Misc.blurIn({anchor:img,blur:"20px",time:700});
-            shapeOutside.innerHTML+=post.content ? post.content : "";
+            const postMod=Post.brInserter({targetStr:post.content});
+            shapeOutside.innerHTML+=postMod ? postMod : "";
         }
         card.appendChild(shapeOutside);
         const cardBody=document.createElement("div");

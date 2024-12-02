@@ -18,6 +18,7 @@ import NewCode from "../editor/newCode";
 import ChartJS from "../chart/chartJS";
 import Post from "../posts/post";
 import Blogs from "../blogs/blogsInjection";
+import CodeElement from "../common/codeElement";
 
 
 
@@ -35,6 +36,7 @@ class ProfileMain{
     _posts:postType[];
     _blogs:blogType[];
     static main:HTMLElement | null;
+    codeElement:CodeElement;
 
 
     constructor(private _modSelector:ModSelector,private _service:Service,private _user:User,private _metaBlog:MetaBlog,public chart:ChartJS,private _post:Post){
@@ -44,10 +46,11 @@ class ProfileMain{
         this._messages=[];
         this._posts=[] as postType[];
         this._blogs=[] as blogType[];
+        this.codeElement=new CodeElement(this._modSelector,this._service);
         this.newCode=new NewCode(this._modSelector,this._service,this._user);
         this.shapeOutside=new ShapeOutside(this._modSelector,this._service,this._user);
         const message=new Message(this._modSelector,this._service,this._modSelector.blog);
-        this._displayBlog=new DisplayBlog(this._modSelector,this._service,this._user,this.shapeOutside,this.newCode,this.chart,message);
+        this._displayBlog=new DisplayBlog(this._modSelector,this._service,this._user,this.shapeOutside,this.newCode,this.chart,message,this.codeElement);
         this.classMsg= new Message(this._modSelector,this._service,this._modSelector.blog);
 
     }
@@ -1344,7 +1347,9 @@ class ProfileMain{
         scrollCol1.className=`col-md-${12/cols}`;
         section.appendChild(scrollCol1);
         const displayCol2=document.createElement("div");
-        displayCol2.style.cssText="height:inherit;min-height:5vh;margin-block:1rem;display:flex;flex-direction:column;align-items:center;width:100%;position:relative;overflow-y:scroll;";
+        displayCol2.style.cssText="height:inherit;min-height:15vh;margin-block:1rem;display:flex;flex-direction:column;align-items:center;width:100%;position:relative;overflow-y:scroll;";
+        displayCol2.className=`col-md-${12/cols}`;
+        displayCol2.id="displayCol2";
         if(less900){
             section.style.flexDirection="row";
             scrollCol1.style.flex="0 0 46%";
@@ -1359,26 +1364,8 @@ class ProfileMain{
             scrollCol1.style.flex="0 0 50%";
             displayCol2.style.flex="0 0 50%";
         };
-        const labelDisplay2=document.createElement("p");
-        labelDisplay2.id="labelDisplay2";
-        labelDisplay2.style.cssText="position:absolute;z-index:200;background-color:black;color:white;font-Family:'Poppins-Thin';font-weight:800;font-size:180%;padding-inline:6rem;padding-block:1.5rem;border-radius:42px;box-shadow:1px 1px 12px 1px blue;display:flex;justify-content:center;align-items:center;";
-        const {button:createPost}=Misc.simpleButton({anchor:labelDisplay2,bg:"#002380",color:"white",text:"create post",time:400,type:"button"});
-        createPost.onclick=(e:MouseEvent)=>{
-            if(e){
-                displayCol2.style.height="400px";
-                displayCol2.style.width="100%";
-                this.createPost({displayCol2:displayCol2,scrollCol1,user});
-                labelDisplay2.hidden=true;
-            }
-        };
-        labelDisplay2.hidden=false;
-        const span=document.createElement("span");
-        span.style.cssText="text-align:center;margin-inline:auto;padding-left:2rem";
-        span.textContent="Edit-panel";
-        labelDisplay2.appendChild(span);
-        displayCol2.appendChild(labelDisplay2);
-        displayCol2.className=`col-md-${12/cols}`;
-        displayCol2.id="displayCol2";
+        this.labelDisplay2CreateAPost({displayCol2,scrollCol1,user,show:true});
+        
         section.appendChild(displayCol2);
         Misc.growIn({anchor:scrollCol1,scale:1,opacity:0,time:500});
         // Misc.matchMedia({parent:section,maxWidth:900,cssStyle:{flexDirection:"column",flexWrap:"noWrap"}});
@@ -1399,7 +1386,7 @@ class ProfileMain{
                             if(res_){
                                 res_.card.onclick=(e:MouseEvent)=>{
                                     if(e){
-                                        labelDisplay2.hidden=true;
+                                        this.labelDisplay2CreateAPost({displayCol2,scrollCol1,user,show:false});;
                                         this.editPost({parent:section,col1:col1,displayCol2:displayCol2,post,user,index});
                                         col1.style.border="1px solid red";
                                     }
@@ -1417,6 +1404,31 @@ class ProfileMain{
             }
 
     };
+    labelDisplay2CreateAPost(item:{displayCol2:HTMLElement,scrollCol1:HTMLElement,user:userType,show:boolean}){
+        const {displayCol2,scrollCol1,user,show}=item;
+        Header.cleanUpByID(displayCol2,"labelDisplay2")
+        if(show){
+
+            const labelDisplay2=document.createElement("p");
+            labelDisplay2.id="labelDisplay2";
+            labelDisplay2.style.cssText="position:absolute;z-index:200;background-color:black;color:white;font-Family:'Poppins-Thin';font-weight:800;font-size:180%;padding-inline:6rem;padding-block:1.5rem;border-radius:42px;box-shadow:1px 1px 12px 1px blue;display:flex;justify-content:center;align-items:center;";
+            const {button:createPost}=Misc.simpleButton({anchor:labelDisplay2,bg:"#002380",color:"white",text:"create post",time:400,type:"button"});
+            createPost.onclick=(e:MouseEvent)=>{
+                if(e){
+                    displayCol2.style.height="400px";
+                    displayCol2.style.width="100%";
+                    this.createPost({displayCol2:displayCol2,scrollCol1,user});
+                    labelDisplay2.hidden=true;
+                }
+            };
+            labelDisplay2.hidden=false;
+            const span=document.createElement("span");
+            span.style.cssText="text-align:center;margin-inline:auto;padding-left:2rem";
+            span.textContent="Edit-panel";
+            labelDisplay2.appendChild(span);
+            displayCol2.appendChild(labelDisplay2);
+        }
+    }
     noPosts(item:{scrollCol1:HTMLElement}){
         const {scrollCol1}=item;
         const container=document.createElement("div");
@@ -1506,6 +1518,7 @@ class ProfileMain{
         if(labelDisplay2){
             labelDisplay2.hidden=true;
         }
+
         Header.cleanUpByID(displayCol2,`editPost-container-${post.id}`);
         const css_col="margin-inline:auto;display:flex;flex-direction:column;justify-content:center;align-items:center;gap:0.7rem;";
         const css_row="margin-inline:auto;display:flex;flex-direction:row;flex-wrap:wrap;justify-content:center;align-items:center;gap:0.7rem;";
@@ -1524,8 +1537,11 @@ class ProfileMain{
                 Misc.growOut({anchor:container,scale:0,opacity:0,time:400});
                 setTimeout(()=>{
                     displayCol2.removeChild(container);
-                    const getlabelDisplay2=displayCol2.querySelector("p#labelDisplay2") as HTMLElement;
-                    getlabelDisplay2.hidden=false;
+                    const getSectionOne=document.querySelector("section#userposts-section") as HTMLElement;
+                    if(!getSectionOne) return;
+                    const getScrollCol1=getSectionOne.querySelector("div#scrollCol1") as HTMLElement;
+                    if(!getScrollCol1) return;
+                    this.labelDisplay2CreateAPost({displayCol2,scrollCol1:getScrollCol1,user,show:true});
                 },390);
             }
         };
@@ -1596,8 +1612,12 @@ class ProfileMain{
                                 Misc.growOut({anchor:getContainer,scale:0,opacity:0,time:400});
                                 setTimeout(()=>{
                                     displayCol2.removeChild(getContainer);
-                                    labelDisplay2.hidden=false;
                                     displayCol2.style.height="auto";
+                                    const getSectionOne=document.querySelector("section#userposts-section") as HTMLElement;
+                                    if(!getSectionOne) return;
+                                    const getScrollCol1=getSectionOne.querySelector("div#scrollCol1") as HTMLElement;
+                                    if(!getScrollCol1) return;
+                                    this.labelDisplay2CreateAPost({displayCol2,scrollCol1:getScrollCol1,user,show:true});
                                 },390);
                                 const getCol1=parent.querySelector(`div#${col1.id}`) as HTMLElement;
                                 this.postCard({scrollCol1:parent,col:getCol1,post:this._post.post,user,index:index});
@@ -1681,7 +1701,11 @@ class ProfileMain{
                 Misc.growOut({anchor:popup,scale:0,opacity:0,time:400});
                 setTimeout(()=>{
                     displayCol2.removeChild(popup);
-                    labelDisplay2.hidden=false;
+                    const getSectionOne=document.querySelector("section#userposts-section") as HTMLElement;
+                    if(!getSectionOne) return;
+                    const getScrollCol1=getSectionOne.querySelector("div#scrollCol1") as HTMLElement;
+                    if(!getScrollCol1) return;
+                    this.labelDisplay2CreateAPost({displayCol2,scrollCol1:getScrollCol1,user,show:true});
                 },390);
             }
         };
@@ -1697,12 +1721,7 @@ class ProfileMain{
                 if(content && title){
                     this._post.post={...this._post.post,title:title as string,content:content as string,published:Boolean(pub),link}
                     this.uploadPic({displayCol2,popup:popup,scrollCol1,post:this._post.post,user});
-                    const labelDisplay2=displayCol2.querySelector("div#labelDisplay2") as HTMLElement;
-                    // const scrollCol1=document.querySelector("div#labelDisplay2") as HTMLElement;
-                    if(labelDisplay2){
-                        labelDisplay2.hidden=false;
-                        labelDisplay2.style.height="auto";
-                    }
+                    this.labelDisplay2CreateAPost({displayCol2,scrollCol1,user,show:true});
                 }
             }
         };
@@ -1762,10 +1781,9 @@ class ProfileMain{
                                 }
                                 Misc.growOut({anchor:popup,scale:0,opacity:0,time:400});
                                 setTimeout(()=>{
-                                    labelDisplay2.hidden=false;
                                     displayCol2.removeChild(popup);
-                                    labelDisplay2.style.height="auto";
                                     displayCol2.style.height="auto";
+                                    this.labelDisplay2CreateAPost({displayCol2,scrollCol1,user,show:true});
                                 },390);
                             });
                         }
