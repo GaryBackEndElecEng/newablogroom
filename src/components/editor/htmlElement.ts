@@ -18,6 +18,7 @@ import { maxCount } from './modSelector';
 class HtmlElement {
     logo:string="/images/gb_logo.png";
     reference:Reference;
+    static imgDesc_css:string="align-self:start;margin-top:1rem;color:black;font-weight:bold;font-style:italic;margin-inline:0px;";
     urlImg:string;
     bgColor:string;
     btnColor:string;
@@ -160,13 +161,23 @@ class HtmlElement {
                     return;
                     case element.name==="img":
                         const imgKey=element.imgKey ? element.imgKey :"";
-                        (res.ele as HTMLImageElement).alt=element.inner_html;
-                        (res.ele as HTMLImageElement).setAttribute("is-element","true");
-                        (res.ele as HTMLImageElement).setAttribute("contenteditable","false");
+                        const img=res.ele as HTMLImageElement;
+                        img.alt=element.inner_html;
+                        img.setAttribute("is-element","true");
+                        img.setAttribute("contenteditable","false");
                         res.ele.setAttribute("imgKey",imgKey);
-                        (res.ele as HTMLImageElement).className=element.class;
-                        (res.ele as HTMLImageElement).id=element.eleId;
-                        (res.ele as HTMLImageElement).src=element.img ? element.img as string : this.urlImg;
+                        img.className=element.class;
+                        img.id=element.eleId;
+                        img.src=element.img ? element.img as string : this.urlImg;
+                        const desc=document.createElement("SMALL");
+                        desc.setAttribute("contenteditable","true");
+                        desc.style.cssText=HtmlElement.imgDesc_css;
+                        if(element.attr){
+                            img.setAttribute("imgDesc",element.attr);
+                            desc.textContent=element.attr;
+                        }
+                        res.divCont.appendChild(desc);
+                        this.imgDescUpdate({target:img,imgDesc:desc});//updates desd editing
                         if(imgKey){
                             const res_= await this._service.getSimpleImg(imgKey);
                             if(res_ && res_.img && res_.Key){
@@ -521,7 +532,7 @@ class HtmlElement {
                 const divCont=document.createElement("div");
                 divCont.classList.add("element");
                 divCont.id=this.divCont_class;
-                divCont.style.cssText=this.divCont_css;
+                divCont.style.cssText=this.divCont_css + "margin-block:1rem;";
                 divCont.className=" eleContainer";
                 divCont.style.display="grid";
                 divCont.setAttribute("data-placement",`${this.placement}`);
@@ -537,8 +548,14 @@ class HtmlElement {
                 img.style.maxHeight="50vh !important";
                 img.setAttribute("imgKey","");
                 img.setAttribute("data-placement",`${this.placement}`);
+                const desc=document.createElement("small");
+                desc.style.cssText=HtmlElement.imgDesc_css;
+                desc.setAttribute("contenteditable","true");
+                desc.textContent="add description";
+                img.setAttribute("imgDesc",desc.textContent);
                 this.elementAdder(img); 
                 divCont.appendChild(img);
+                divCont.appendChild(desc);
                 parent.appendChild(divCont);
                 Misc.matchMedia({parent:divCont,maxWidth:920,cssStyle:{marginInline:"1.5rem"}});
                 Misc.matchMedia({parent:divCont,maxWidth:420,cssStyle:{marginInline:"10px"}});
@@ -546,25 +563,35 @@ class HtmlElement {
                 parent.removeChild(floatContainer);
                 btnClicked.classList.remove("active");
                 const blog=this._modSelector.blog;
-                this._user.askSendToServer({bg_parent:parent,formdata:formelement,image:img,blog,oldKey:null});
-                divCont.addEventListener("click",(e:MouseEvent)=>{
-                    if(e){
-                        divCont.classList.toggle("isActive");
-                        img.classList.toggle("isActive");
-                        this._modSelector.footerPlacement();//this shifts footer placement down
-                        const isActive=([...img.classList as any] as string[]).includes("isActive");
-                        this.removeMainElement(parent,divCont,img);
-                        this._user.refreshImageShow(parent,img,null,null)
-                        if(isActive){
-                            this.updateElement(img);//updates on both selector and Element
-                            divCont.style.zIndex="0";
-                            
-                        }else{
-                            if(([...divCont.children as any] as HTMLElement[]).map(child=>(child.nodeName)).includes("SVG")){
-                                const getIcon=divCont.querySelector("svg") as SVGElement;
-                                divCont.removeChild(getIcon as ChildNode)
+                const {Key}=this._service.generateImgKey(formelement,blog) as {Key:string};
+                img.setAttribute("imgKey",Key);
+                this.promElementAdder(img).then(async(res)=>{
+                    if(res){
+                        console.log("IMG_",res.target)
+                        console.log("elements",this.elements)
+                        const img_= res.target as HTMLImageElement;
+                        this._user.askSendToServer({bg_parent:parent,formdata:formelement,image:img,blog,oldKey:null});
+                        this.imgDescUpdate({target:img,imgDesc:desc});//updates desc editing for image
+                        divCont.addEventListener("click",(e:MouseEvent)=>{
+                            if(e){
+                                divCont.classList.toggle("isActive");
+                                img.classList.toggle("isActive");
+                                this._modSelector.footerPlacement();//this shifts footer placement down
+                                const isActive=([...img.classList as any] as string[]).includes("isActive");
+                                this.removeMainElement(parent,divCont,img);
+                                this._user.refreshImageShow(parent,img,null,null)
+                                if(isActive){
+                                    this.updateElement(img);//updates on both selector and Element
+                                    divCont.style.zIndex="0";
+                                    
+                                }else{
+                                    if(([...divCont.children as any] as HTMLElement[]).map(child=>(child.nodeName)).includes("SVG")){
+                                        const getIcon=divCont.querySelector("svg") as SVGElement;
+                                        divCont.removeChild(getIcon as ChildNode)
+                                    }
+                                }
                             }
-                        }
+                        });
                     }
                 });
                 Misc.matchMedia({parent:divCont,maxWidth:400,cssStyle:{paddingInline:"0px",marginInline:"0px;"}});
@@ -1067,20 +1094,21 @@ class HtmlElement {
     promElementAdder(target:HTMLElement |HTMLImageElement){
         return new Promise((resolver)=>{
             resolver(this.elementAdder(target))
-        }) as Promise<{ele:elementType | undefined,target:HTMLElement}|undefined>;
+        }) as Promise<{ele:elementType | undefined,target:HTMLElement}>;
     }
-    elementAdder(target:HTMLElement):{ele:elementType | undefined,target:HTMLElement}|undefined{
+    elementAdder(target:HTMLElement):{ele:elementType | undefined,target:HTMLElement}{
         // adds none selector elements to modSelector.blog
         const ID=this._modSelector._elements.length;
             const checkNodename=["a","blockquote","ul","img","ol"]
+            const imgDesc=target.getAttribute("imgDesc");
             const nodename=target.nodeName.toLowerCase();
             const specialNodename=checkNodename.includes(nodename);
             const hasinnerimage=target.getAttribute("has-innerimage");
             const imgKey:string | null=target.getAttribute("imgKey");
             const check=this.elements.map(ele_=>(ele_.eleId)).includes(target.id as string);
-                if(nodename && !check){
+            let ele:elementType|undefined={} as elementType;
+                if( !check){
 
-                let ele:elementType={} as elementType;
                     // console.log("418 HELROWSSSSS",JSON.parse(target.id));
                     ele={
                         ...ele,
@@ -1119,6 +1147,9 @@ class HtmlElement {
                         const target_=target as HTMLImageElement;
                         ele.img=target_.src;
                         ele.inner_html=target_.alt;
+                        if(imgDesc){
+                            ele.attr=imgDesc;
+                        }
                     }
                     this._elements=this.elements;
                     this._elements.push(ele);
@@ -1128,8 +1159,8 @@ class HtmlElement {
                         this._modSelector.blog={...blog,show:false,elements:this._elements};
                     }
                     this.placement= this.placement + 1;
-                    return {ele,target};
                 }
+                return {ele,target};
             
     }
     updateElement(target:HTMLElement){
@@ -1214,6 +1245,7 @@ class HtmlElement {
                             const img=target as HTMLImageElement;
                             ele.img=img.src;
                             ele.inner_html=img.alt;
+
                         }
                     }
                 return ele;
@@ -1221,6 +1253,26 @@ class HtmlElement {
         }     
         this.elements=this._elements;
     });
+    }
+    imgDescUpdate(item:{target:HTMLImageElement,imgDesc:HTMLElement}){
+        const { target,imgDesc}=item;
+        imgDesc.oninput=(e:Event)=>{
+            if(e){
+                const value=(e.currentTarget as HTMLElement).textContent;
+                if(value){
+                    target.setAttribute("imgDesc",value);
+                    this._elements=this._modSelector.elements;
+                    this._elements=this._elements.map(ele=>{
+                        if(ele && ele.eleId===target.id){
+                            ele.inner_html=target.alt;
+                            ele.attr=value;
+                        }
+                        return ele;
+                    });
+                    this.elements=this._elements;
+                }
+            }
+        };
     }
     promRemoveElement(target:HTMLElement){
         return new Promise((resolve)=>{

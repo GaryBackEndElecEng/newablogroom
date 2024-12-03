@@ -20,6 +20,7 @@ import { RiJavascriptFill } from "react-icons/ri";
 import { TbJson } from "react-icons/tb";
 import ChartJS from "../chart/chartJS";
 import CodeElement from "../common/codeElement";
+import HtmlElement from "../editor/htmlElement";
 
 const baseUrl="http://localhost:3000";
 // const baseUrl=process.env.BASE_URL as string;
@@ -881,10 +882,10 @@ _onlyMeta:boolean=false;
                     return;
                     case element.name==="img":
                         const width:number=700;
-                        res.ele=res.ele as HTMLImageElement;
-                        (res.ele as HTMLImageElement).alt=element.inner_html;
+                        const img=res.ele as HTMLImageElement;
+                        img.alt=element.inner_html;
                         res.ele.setAttribute("is-element","true");
-                        (res.ele as HTMLImageElement).src=element.img as string;
+                        img.src=element.img as string;
                         res.ele.style.cssText=element.cssText;
                         res.ele.style.width=`${width}px`;
                         res.ele.style.maxHeight="50vh";
@@ -896,6 +897,12 @@ _onlyMeta:boolean=false;
                             }
                         }else{
                             (res.ele as HTMLImageElement).src=this.logo;
+                        }
+                        const desc=document.createElement("SMALL");
+                        desc.style.cssText=HtmlElement.imgDesc_css;
+                        if(res.element.attr){
+                            desc.textContent=res.element.attr ;
+                            res.divCont.appendChild(desc);
                         }
                         Misc.blurIn({anchor:res.ele,blur:"20px",time:600});
                         // this._user.refreshImageUpload(parent,image);
@@ -954,7 +961,7 @@ _onlyMeta:boolean=false;
         });
         
     };
-    cleanElement(item:{parent:HTMLElement,element:elementType}):Promise<{ele:HTMLElement,divCont:HTMLElement}>{
+    cleanElement(item:{parent:HTMLElement,element:elementType}):Promise<{ele:HTMLElement,divCont:HTMLElement,element:elementType}>{
         const {element,parent}=item;
         const less400=window.innerWidth < 400 ;
         const ele=document.createElement(element.name);
@@ -981,8 +988,8 @@ _onlyMeta:boolean=false;
         divCont.appendChild(ele);
         parent.appendChild(divCont);
         return new Promise(resolve=>(
-            resolve({ele,divCont})
-        )) as Promise<{ele:HTMLElement,divCont:HTMLElement}>;
+            resolve({ele,divCont,element})
+        )) as Promise<{ele:HTMLElement,divCont:HTMLElement,element:elementType}>;
     }
     showCleanCode(item:{parent:HTMLElement,selectCode:codeType}){
         const {parent,selectCode}=item;

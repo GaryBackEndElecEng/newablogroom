@@ -1550,7 +1550,7 @@ colAttrs=["col-start","col-end","col-center"];
                 const {parsed,isJSON}=Header.checkJson(value);
                 const shade= isJSON ? parsed as {name:string,value:string}:null;
                 btnClicked.classList.remove("active");
-                console.log(shade)
+                // console.log(shade)
                 const check=(getActives && getActives.length>0)? true:false;
                 
                 if(check){
@@ -1985,7 +1985,7 @@ colAttrs=["col-start","col-end","col-center"];
                                                 element.class=target.className.split(" ").filter(cl=>(cl !=="isActive")).join(" ");
                                                 element.cssText=target.style.cssText;
                                             
-                                                    console.log("1422: EDIT",element.inner_html)
+                                                    // console.log("1422: EDIT",element.inner_html)
                                                 
                                             }
                                             return element;

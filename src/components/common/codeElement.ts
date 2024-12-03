@@ -24,38 +24,37 @@ class CodeElement{
     constructor(private _modSelector:ModSelector,private _service:Service){
         this.regJavaArr=[
             {name:"=document",searchwd:/\=(document)\./g,replacewd:(name)=>{return `<code id=document><b>${name}</b></code>`},text:""},
-            {name:"const",searchwd:/( const )/g,replacewd:(name)=>{return `<code id=const><b>${name}</b></code>`},text:""},
-            {name:"method",searchwd:/\.[a-zA-Z]{3,}\([a-zA-Z\:\{\}\"\']{1,}\)|[a-zA-Z]{3,}\([a-zA-Z\:\{\}\"\']{1,}\)/g,replacewd:(name)=>{return`<code id=method><b>${name}</b></code>`},text:""},
-            {name:"async",searchwd:/(async)/g,replacewd:(name)=>{return`<code id=async style=color:#ff0048;font-weight:bold;><b>${name}</b></code>`},text:""},
-            {name:"export",searchwd:/(export)/g,replacewd:(name)=>{return`<code id=export ><b>${name}</b></code>`},text:""},
-            {name:"function",searchwd:/(function)/g,replacewd:(name)=>{return`<code id=function><b>${name}</b></code>`},text:""},
-            {name:"let",searchwd:/(let)/g,replacewd:(name)=>{return`<code id=let><b>${name}</b></code>`},text:""},
+            {name:"const",searchwd:/\s(const)\s/g,replacewd:(name)=>{return `<code id=const><b>${name}</b></code>`},text:""},
+            {name:"method",searchwd:/\.[a-zA-Z]{3,}\(([a-zA-Z\:\{\}\"\']{1,})\)/g,replacewd:(name)=>{return`<code id=method><b>${name}</b></code>`},text:""},
+            {name:"async",searchwd:/\s(async)\s/g,replacewd:(name)=>{return`<code id=async style=color:#ff0048;font-weight:bold;><b>${name}</b></code>`},text:""},
+            {name:"export",searchwd:/(export)\s/g,replacewd:(name)=>{return`<code id=export ><b>${name}</b></code>`},text:""},
+            {name:"function",searchwd:/\s(function)\s/g,replacewd:(name)=>{return`<code id=function><b>${name}</b></code>`},text:""},
+            {name:"let",searchwd:/(let)\s/g,replacewd:(name)=>{return`<code id=let><b>${name}</b></code>`},text:""},
             {name:"arrow",searchwd:/(\=\>)/g,replacewd:(name)=>{return`<code id=arrow ><b>${name}</b></code>`},text:""},
             {name:"map",searchwd:/\.(map\()/g,replacewd:(name)=>{return`<code id=map><b>${name}</b></code>`},text:""},
             {name:"filter",searchwd:/\.(filter\()/g,replacewd:(name)=>{return`<code id=filter ><b>${name}</b></code>`},text:""},
             {name:"return",searchwd:/(return)/g,replacewd:(name)=>{return`<code id=return><b>${name}</b></code>`},text:""},
             {name:"reduce",searchwd:/\.(reduce\(\([a-zA-Z\.\+\-\,\s\-]{1,}\))/g,replacewd:(name)=>{return`<code id=reduce ><b>${name}</b></code>`},text:""},
-            {name:"comment",searchwd:/(\/\/[\sa-zA-Z0-9\.\,\.\\s]{6,})/g,replacewd:(name)=>{return`<p id=comment>${name}</p>`},text:""},
+            {name:"comment",searchwd:/\/\/[a-zA-Z0-9\.\,\.\s]{6,}\./g,replacewd:(name)=>{return`<p id=comment>${name}</p>`},text:""},
             {name:"text",searchwd:/\"[\sa-zA-Z0-9\;\:\s]{6,}\"/g,replacewd:(name)=>{return`<code id=text><b>${name}</b></code>`},text:""},
-            {name:"if_",searchwd:/(if\([a-zA-Z0-9\=\"\'\s]{1,}\))/g,replacewd:(name)=>{return`<code id=if_><b>${name}</b></code>`},text:""},
+            {name:"if_",searchwd:/\s(if)\([a-zA-Z0-9\=\"\']{1,}\)\{/g,replacewd:(name)=>{return`<code id=if_><b>${name}</b></code>`},text:""},
             {name:"class",searchwd:/(class)\s/g,replacewd:(name)=>{return`<code id=class><b>${name}</b></code>`},text:""},
-            {name:"constructor",searchwd:/(constructor)\(/g,replacewd:(name)=>{return`<code id=constructor><b>${name}</b></code>`},text:""},
-            {name:"htmlElement",searchwd:/(HTMLElement)/g,replacewd:(name)=>{return`<code id=htmlElement><b>${name}</b></code>`},text:""},
+            {name:"constructor",searchwd:/\s(constructor)\(/g,replacewd:(name)=>{return`<code id=constructor><b>${name}</b></code>`},text:""},
+            {name:"htmlElement",searchwd:/\:(HTMLElement)/g,replacewd:(name)=>{return`<code id=htmlElement><b>${name}</b></code>`},text:""},
             {name:"this",searchwd:/(this)\./g,replacewd:(name)=>{return`<code id=this><b>${name}</b></code>`},text:""},
             {name:"as",searchwd:/\s(as)\s/g,replacewd:(name)=>{return`<code id=as ><b>${name}</b></code>`},text:""},
             {name:"createElement",searchwd:/(createElement)/g,replacewd:(name)=>{return`<code id=createElement><b>${name}</b></code>`},text:""},
             {name:"getElementById",searchwd:/(getElementById)/g,replacewd:(name)=>{return`<code id=getElementById><b>${name}</b></code>`},text:""},
             {name:"querySelector",searchwd:/(querySelector)/g,replacewd:(name)=>{return`<code id=querySelector><b>${name}</b></code>`},text:""},
             {name:"querySelectorAll",searchwd:/(querySelectorAll)/g,replacewd:(name)=>{return`<code id=querySelectorAll><b>${name}</b></code>`},text:""},
-            {name:"Promise",searchwd:/\s(Promise)/g,replacewd:(name)=>{return`<code id=Promise><b>${name}</b></code>`},text:""},
+            {name:"Promise",searchwd:/\s(Promise\()/g,replacewd:(name)=>{return`<code id=Promise><b>${name}</b></code>`},text:""},
             {name:"Promiseall",searchwd:/\s(Promise.all)\(/g,replacewd:(name)=>{return`<code id=promiseall><b>${name}</b></code>`},text:""},
-            {name:"className",searchwd:/(className)/g,replacewd:(name)=>{return`<code id=className ><b>${name}</b></code>`},text:""},
-            {name:"class_name",searchwd:/(class\/s)[a-zA-Z]+/g,replacewd:(name)=>{return`<code id=class_name><b>${name.split(" ")[0]}</b></code>`},text:""},
-            {name:"new",searchwd:/(new)\s/g,replacewd:(name)=>{return`<code id=new><b>${name}</b></code>`},text:""},
+            {name:"className",searchwd:/(\.className\=)/g,replacewd:(name)=>{return`<code id=className ><b>${name}</b></code>`},text:""},
+            {name:"class_name",searchwd:/(class)\s[a-zA-Z]+/g,replacewd:(name)=>{return`<code id=class_name><b>${name.split(" ")[0]}</b></code>`},text:""},
+            {name:"new",searchwd:/\s(new)\s/g,replacewd:(name)=>{return`<code id=new><b>${name}</b></code>`},text:""},
             {name:"resolver",searchwd:/(resolver\()/g,replacewd:(name)=>{return `<code id=resolver><b>${name}</b></code>`},text:""},
-            {name:"export",searchwd:/(export)\\s/g,replacewd:(name)=>{return`<code id=export><b>${name}</b></code>`},text:""},
-            {name:"default",searchwd:/(default)\\s/g,replacewd:(name)=>{return`<code id=default><b>${name}</b></code>`},text:""},
-            {name:"onclick",searchwd:/(onclick=)/g,replacewd:(name)=>{return`<code id=onclick><b>${name}</b></code>`},text:""},
+            {name:"default",searchwd:/\s(default)\s/g,replacewd:(name)=>{return`<code id=default><b>${name}</b></code>`},text:""},
+            {name:"onclick",searchwd:/\.(onclick)\=/g,replacewd:(name)=>{return`<code id=onclick><b>${name}</b></code>`},text:""},
             {name:"eventListener",searchwd:/(addEventListener)/g,replacewd:(name)=>{return`<code id=addEventListener style=color:yellow;font-weight:bold;><b>${name}</b></code>`},text:""},
             {name:"string",searchwd:/\:(string)/g,replacewd:(name)=>{return`<code id=string><b>${name.split(":")[1]}</b></code>`},text:""},
             {name:"number",searchwd:/\:(number)/g,replacewd:(name)=>{return`<code id=number ><b>${name.split(":")[1]}</b></code>`},text:""},
@@ -225,10 +224,11 @@ class CodeElement{
         container.style.paddingInline=less900 ?(less400 ? "0.25rem":"0.5rem"):"1rem";
         const divCont=document.createElement("div");
         divCont.className="eleContainer";
-        divCont.style.cssText=css_col + " min-height:20vh;position:relative;";
+        divCont.style.cssText=css_col + " min-height:20vh;position:relative;width:100%;overflow-x:scroll;";
         divCont.style.paddingInline=less900 ? (less400 ? "0rem":"0.75rem"):"1rem";
         divCont.style.paddingBlock="1rem";
         divCont.style.width="100%";
+        divCont.style.maxWidth=less900 ? (less400 ? "375px" : "700px"):"800px";
         divCont.style.background="black";
         divCont.style.color="white";
         divCont.id=`divCont-${element.name}-${element.id ? element.id :0}`;
@@ -241,7 +241,7 @@ class CodeElement{
         const {parent,container,divCont,element,isNew,css_col,isClean}=item
         ////-------TARGET--------//
         //PARENT==INJECTOR
-        const css_row="display:flex;flex-wrap:wrap;justify-content:center;align-items:center;gap:0rem;";
+        const css_row="display:flex;flex-wrap:wrap;justify-content:center;align-items:center;gap:0rem;width:100%;";
         const target=document.createElement("div");
         target.setAttribute("is-code-element","true");
         target.setAttribute("name",element.name);
@@ -259,7 +259,7 @@ class CodeElement{
             pre.style.width="100%";
             pre.className="pre-element";
             pre.setAttribute("contenteditable","true");
-            pre.textContent="enter your code";
+            pre.textContent="comments=>//enter your code... with a period(.) at the end";
             pre.style.cssText="width:100%;text-wrap:pretty;"
             target.appendChild(pre);
             divCont.setAttribute("data-placement",`${this.element.placement}-A`);
@@ -276,27 +276,37 @@ class CodeElement{
             target.setAttribute("is-code-element","true");
             target.setAttribute("is-element","true");
             divCont.setAttribute("data-placement",`${element.placement}-A`);
+            const getPre=target.querySelector("pre#pre") as HTMLElement;
+            if(!getPre){
+                Misc.message({parent,msg:"your code is empty",type_:"error",time:1300});
+            }else{
+                const check=([...getPre.children as any] as HTMLElement[]).map(child=>(child.nodeName)).includes("DIV");
+                if(!check){
+                    const div=document.createElement("div");
+                    div.textContent="document.querySelector('p') \r // write your code\r";
+                    getPre.appendChild(div);
+                }
+            }
         }
         this.titleContainer({divCont,target,element,css_col,isNew,isClean});
         divCont.appendChild(target)
         if(!isClean){
             this.removeMainElement({parent,container,divCont,target});
-            //NOT INVOKING THE isActive
-            // divCont.onclick=(e:MouseEvent)=>{
-            //     if(e){
-            //         const check=([...target.classList as any] as string[]).includes("isActive");
-            //         if(!check){
-            //             divCont.classList.add("isActive");
-            //             target.classList.add("isActive");
-            //         }else{
-            //             divCont.classList.remove("isActive");
-            //             target.classList.remove("isActive");
-            //         }
-            //     }
-            // };
+            divCont.onclick=(e:MouseEvent)=>{
+                if(e){
+                    const check=([...target.classList as any] as string[]).includes("isActive");
+                    if(!check){
+                        divCont.classList.add("isActive");
+                        target.classList.add("isActive");
+                    }else{
+                        divCont.classList.remove("isActive");
+                        target.classList.remove("isActive");
+                    }
+                }
+            };
             const btnContainer=document.createElement("div");
             btnContainer.id="divTarget-divCont-btnCntainer";
-            btnContainer.style.cssText=css_row + "position:absolute;top:105%;";
+            btnContainer.style.cssText=css_row + "position:absolute;top:95%;";
             Header.cleanUpByID(divCont,"colorCreator-btn");
             const {button:addColor}=Misc.simpleButton({anchor:btnContainer,type:"button",text:"add-color",bg:Nav.btnColor,color:"white",time:400});
             addColor.id="colorCreator-btn";
@@ -327,6 +337,11 @@ class CodeElement{
     
                 }
             };
+        }else{
+            //REMOVING CONTENTEDITABLE
+            const getPre=target.querySelector("pre#pre");
+            if(!getPre) return;
+            getPre.removeAttribute("contenteditable");
         }
         ////-------TARGET--------//
     }
@@ -491,15 +506,22 @@ class CodeElement{
         const span=document.createElement("span");
         span.style.cssText="margin-inline:auto;position:absolute;top:100%;left:0%;transform:translate(15px,-20px);z-index:60;color:white;"
         span.textContent=element.type ? element.type :"Code";
-        if(element.type==="Java"){
-            FaCreate({parent:xDiv,name:RiJavascriptFill,cssStyle:{fontSize:"40px",margin:"auto"}});
-            xDiv.style.color="yellow";
-        }else if(element.type==="Python"){
-            FaCreate({parent:xDiv,name:FaPython,cssStyle:{fontSize:"40px",margin:"auto"}});
-        }else if(element.type==="JSON"){
-            FaCreate({parent:xDiv,name:TbJson,cssStyle:{fontSize:"40px",margin:"auto"}});
-        }else if(element.type==="HTML"){
-            FaCreate({parent:xDiv,name:FaHtml5,cssStyle:{fontSize:"40px",margin:"auto"}});
+        if(element && element.type){
+            const check=this.initTypes.includes(element.type);
+            // console.log("TRUE/FALSE",check,element.type)
+            if(element.type==="Java"){
+                FaCreate({parent:xDiv,name:RiJavascriptFill,cssStyle:{fontSize:"40px",margin:"auto"}});
+                xDiv.style.color="yellow";
+            }else if(element.type==="Python"){
+                FaCreate({parent:xDiv,name:FaPython,cssStyle:{fontSize:"40px",margin:"auto"}});
+            }else if(element.type==="JSON"){
+                FaCreate({parent:xDiv,name:TbJson,cssStyle:{fontSize:"40px",margin:"auto"}});
+            }else if(element.type==="HTML"){
+                FaCreate({parent:xDiv,name:FaHtml5,cssStyle:{fontSize:"40px",margin:"auto"}});
+            }else{
+                FaCreate({parent:xDiv,name:RiJavascriptFill,cssStyle:{fontSize:"40px",margin:"auto"}});
+                xDiv.style.color="yellow";
+            }
         }
         titleCont.appendChild(title);
         titleCont.appendChild(subTitle);
@@ -528,15 +550,15 @@ class CodeElement{
     removeMainElement(item:{parent:HTMLElement,container:HTMLElement,divCont:HTMLElement,target:HTMLElement}){
         const {parent,container,divCont,target}=item;
         Header.cleanUpByID(parent,"xIconDiv-" + container.id);
-        const css="position:absolute;transform:translate(-10px,-18px);background:inherit;font-size:16px;background:lightgrey;font-weight:bold;border-radius:50%;color:black;top:0%;left:0%;z-index:10;";
-        container.classList.add("position-relative");
+        const css="position:absolute;transform:translate(10px,26px);background:white;font-size:16px;background:lightgrey;font-weight:bold;border-radius:50%;color:red;top:0%;left:0%;z-index:10;";
+        divCont.classList.add("position-relative");
         const xIconDiv=document.createElement("div");
         xIconDiv.setAttribute("contenteditable","false");
         xIconDiv.setAttribute("is-icon","true");
         xIconDiv.className="xIconDiv";
         xIconDiv.id=`xIconDiv-${container.id}`;
         xIconDiv.style.cssText=`${css}`;
-        const cssStyle={background:"inherit",fontSize:"inherit"};
+        const cssStyle={background:"white",fontSize:"red"};
         FaCreate({parent:xIconDiv,name:FaCrosshairs,cssStyle})
         divCont.appendChild(xIconDiv);
         xIconDiv.addEventListener("click",(e:MouseEvent)=>{

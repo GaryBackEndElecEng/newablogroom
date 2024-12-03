@@ -282,7 +282,7 @@ class Edit {
                 parent.style.position="relative";
                 parent.setAttribute("data-refreshed","true");
                 parent.className=blog.class ? blog.class as string : "d-flex flex-column my-1";
-                parent.style.cssText=blog.cssText as string;
+                parent.style.cssText=blog.cssText ? blog.cssText + "width:100%;" : this.css;
                 if(blog.imgBgKey){
                     parent.setAttribute("data-backgroundimage","true");
                    await this._service.getSimpleImg(blog.imgBgKey).then(async(res)=>{
@@ -430,16 +430,7 @@ class Edit {
                 this._service.getUserBlog({user_id:blog.user_id,blog_id:blog.id}).then(async(resBlog)=>{
                     if(resBlog && resBlog as blogType){
                         const _blog=resBlog as blogType;
-                        this._modSelector._blog={} as blogType;
-                        this._modSelector._blog={..._blog,eleId:parent.id};
-                        this._modSelector.selectors=_blog.selectors;
-                        this._modSelector.elements=_blog.elements;
-                        this._modSelector.selectCodes=_blog.codes;
-                        this._modSelector.blog=_blog;
-                        this.codes=_blog.codes;
-                        const maxCount=ModSelector.maxCount(_blog);
-                        localStorage.setItem("placement",String(maxCount));
-                        localStorage.setItem("blog",JSON.stringify(this._modSelector._blog));
+                        this._modSelector.loadBlog(_blog);
                         const user=this._user.user;
                         localStorage.setItem("user_id",user.id);
                         localStorage.setItem("email",user.email);
@@ -604,42 +595,51 @@ class Edit {
             const elements=blog.elements && blog.elements.length>0 ? blog.elements as elementType[] :null;
             const selects=(blog.selectors && blog.selectors.length) ? blog.selectors as selectorType[]: null;
             const cleanSels=selects ? selects.filter(sel=>(sel.header===false)).filter(sel=>(sel.footer===false)): null
+            //codes are not being used. the system works but is replaced with codeElement class
             const codes=blog.codes && blog.codes.length>0 ? blog.codes as codeType[] :null;
             const charts=blog.charts && blog.charts.length>0 ? blog.charts as chartType[] :null;
+            const sortThis:{eleSelChrt:elementType |selectorType |chartType,type:"selector"|"element"|"chart"}[]=[];
             const maxCount=ModSelector.maxCount(blog);
+            if(!(maxCount>0)) return
+            (Array.from(Array(maxCount+1).keys())).map(num=>{
+                if(elements){
+                    const checkEle=elements.find(ele=>(ele.placement===num+1))
+                    if(checkEle){
+                        sortThis.push({eleSelChrt:checkEle as elementType,type:"element"})
+                    }
+                }
+                if(selects){
+                    const checkSel=selects.find(sel=>(sel.placement===num+1))
+                    if(checkSel){
+                        sortThis.push({eleSelChrt:checkSel as selectorType,type:"selector"})
+                    }
+                }
+                if(charts){
+                    const checkCht=charts.find(cht=>(cht.placement===num+1))
+                    if(checkCht){
+                        sortThis.push({eleSelChrt:checkCht as chartType,type:"chart"})
+                    }
+                }
+            });
             ShapeOutside.cleanUpByID(parent,"setAttributes");
             ShapeOutside.cleanUpByID(parent,"popup");
             // console.log("selEleGenerator:codes",blog.charts,"maxCount:",maxCount)//works
-                if(!(maxCount>0)) return
-                const arrMax:number[]=Array.from(Array(maxCount + 1).keys());
-                await Promise.all(arrMax.map(async(num)=>{
-                    if(cleanSels){
-                        const select=cleanSels.find(sel=>(sel.placement===num+1));
-                        if(select){
-                            await this.flexbox.showSelector(parent,select);
-                        }
-                    }
+                
+                await Promise.all(sortThis.map(async(item)=>{
+                    if(item){
+                        if(item.type==="selector"){
+                            await this.flexbox.showSelector(parent,item.eleSelChrt as selectorType);
 
-                    if(elements){
-                        const element=elements.find(ele=>(ele.placement===num+1));
-                        if(element){
-                            if(element.attr==="is-code-element"){
-                                this.codeElement.main({injector:parent,element,isNew:false,isClean:false});
+                        }else if(item.type==="element"){
+                            const ele=item.eleSelChrt as elementType;
+                            if(ele.attr==="is-code-element"){
+                                this.codeElement.main({injector:parent,element:ele,isNew:false,isClean:false});
                             }else{
 
-                                await this._htmlElement.showElement(parent,element);
+                                await this._htmlElement.showElement(parent,ele);
                             }
-                        }
-                    }
-                    if(codes){
-                        const code=codes.find(cde=>(cde.placement===num+1));
-                        if(code){
-                            await this._code.showCode({parent,selectCode:code});
-                        }
-                    }
-                    if(charts){
-                        const chart=charts.find(cht=>(cht.placement===num+1));
-                        if(chart){
+                        }else if(item.type==="chart"){
+                            const chart=item.eleSelChrt as chartType;
                             await this.chart.viewChart({parent,chart});
                         }
                     }

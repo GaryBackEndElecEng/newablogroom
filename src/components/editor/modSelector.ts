@@ -583,6 +583,7 @@ set rows(rows:rowType[]){
             return {target:target,ele:ele};
         }else{
             const ID=this.elements.length;
+            const imgDesc=target.getAttribute("imgDesc");
             const hasInnerImage=target.getAttribute("has-innerimage");
             const shapeOutsideCircle=target.getAttribute("data-shapeoutside-circle");
             const shapeOutsideSquare=target.getAttribute("data-shapeoutside-square");
@@ -612,6 +613,9 @@ set rows(rows:rowType[]){
                     };
                     if(hasInnerImage){
                         ele.attr="has-innerimage";
+                    }
+                    if(imgDesc){
+                        ele.attr=imgDesc;
                     }
                     if(shapeOutsideCircle){
                         ele.attr="data-shapeoutside-circle";
