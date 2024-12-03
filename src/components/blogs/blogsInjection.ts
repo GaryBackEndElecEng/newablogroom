@@ -117,6 +117,10 @@ message:Message
         });
             
             parent.appendChild(container);
+            parent.animate([
+                {opacity:"0"},
+                {opacity:"1"}
+            ],{duration:1100,iterations:1,"easing":"ease-in-out"});
         
         Misc.matchMedia({parent:container,maxWidth:900,cssStyle:{"paddingInline":"0rem"}});
         Misc.matchMedia({parent:container,maxWidth:500,cssStyle:{"borderRadius":"16px",border:"1px solid #0E3386"}});

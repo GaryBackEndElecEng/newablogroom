@@ -790,7 +790,7 @@ class  Main  {
                
                 this._htmlElement.bgShade(Main.textarea,btn);
             }else if(icon.name==="SH"){
-                this.shapeOutside.shapeOutsideCircle(Main.textarea,null)
+                this.shapeOutside.shapeOutsideCircle({parent:Main.textarea,flex:null})
             }else if(icon.name==="line-height"){
                 this.lineHeight(Main.textarea,btn);
             }else{

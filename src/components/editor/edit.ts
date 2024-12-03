@@ -320,6 +320,10 @@ class Edit {
         container.style.cssText="position:absolute; background:white;width:100%;border-radius:20px;box-shadow:1px 1px 12px 1px 10px;min-height:700px;display:flex;flex-direction:column;justify-content:center;align-items:center;padding:1rem;inset:0%;z-index:200 !important;backdrop-filter:blur(20px);";
         container.id="editViewUserBlogs";
         parent.appendChild(container);
+        parent.animate([
+            {opacity:"0"},
+            {opacity:"1"}
+        ],{duration:1000,iterations:1,"easing":"ease-in-out"});
 
         if(userEmailPlusUser_id){
             
@@ -620,9 +624,11 @@ class Edit {
                         const element=elements.find(ele=>(ele.placement===num+1));
                         if(element){
                             if(element.attr==="is-code-element"){
-                                this.codeElement.main({injector:parent,element,isNew:false});
+                                this.codeElement.main({injector:parent,element,isNew:false,isClean:false});
+                            }else{
+
+                                await this._htmlElement.showElement(parent,element);
                             }
-                            await this._htmlElement.showElement(parent,element);
                         }
                     }
                     if(codes){

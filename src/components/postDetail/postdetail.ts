@@ -210,7 +210,11 @@ class PostDetail{
         card.appendChild(btnContainer);
         container.appendChild(card);
         injector.appendChild(container);
-        this.cleaupKeepOne({parent:injector,class_:"postdetail-main-container"});//keep one
+        this.cleaupKeepOne({parent:injector,class_:"postdetail-main-container"});//keep 
+        injector.animate([
+            {opacity:"0"},
+            {opacity:"1"}
+        ],{duration:1000,iterations:1,"easing":"ease-in-out"});
         if(!isPage){
             Misc.growIn({anchor:container,scale:0,opacity:0,time:400});
         }

@@ -288,6 +288,15 @@ _onlyMeta:boolean=false;
                                 //BTN CONTAINER
                             }
                         });
+                        //-----------INTRO EFFECT-----------////
+                        setTimeout(()=>{
+                            res.outerContainer.style.opacity="1";
+                            res.outerContainer.animate([
+                                {opacity:"0"},
+                                {opacity:"1"},
+                            ],{duration:700,iterations:1});
+                        },0);
+                        //-----------INTRO EFFECT-----------////
                        
                     }
                 });
@@ -303,15 +312,7 @@ _onlyMeta:boolean=false;
                 }
             }
             parent.appendChild(outerContainer);
-            //-----------INTRO EFFECT-----------////
-            setTimeout(()=>{
-                outerContainer.style.opacity="1";
-                outerContainer.animate([
-                    {opacity:"0"},
-                    {opacity:"1"},
-                ],{duration:700,iterations:1});
-            },0);
-            //-----------INTRO EFFECT-----------////
+            
         }
      }
 
@@ -571,10 +572,22 @@ _onlyMeta:boolean=false;
                         }
                         col.className=col_.class.split(" ").filter(cl=>(cl !=="coliIsActive")).join(" ");
                         flex={...flex,colId:col_.eleId,imgKey:col_.imgKey}
-                        await this.showCleanColumnToEle({parent:parent,col:col,col_:col_,flex:flex,maxWidthImg:maxWidthImg}).then(async(resCol)=>{
-                             if(resCol){
+                        col.setAttribute("flex",JSON.stringify(flex));
+                        row.appendChild(col);
+                        await this.showCleanColumnToEle({parent:parent,col:col,col_:col_,flex:flex,maxWidthImg:maxWidthImg}).then(async(res)=>{
+                             if(res){
+                                if(res.col && res.eles){
+                                    const order=res.col.getAttribute("order") ? parseInt(res.col.getAttribute("order") as string):null;
+                                    if(order===col_.order ){
+                                        res.eles.map(ele=>{
+                                            if(ele){
+                                                res.col.appendChild(ele)
+                                                
+                                            }
+                                        });
+                                    }
+                                }
  
-                                 row.appendChild(resCol);
                                  if(col_.imgKey){
                                      col.setAttribute("data-backgroundimage","true");
                                 //      const cssStyle={backgroundPosition:"50% 50%",backgroundSize:"100% 100%"};
@@ -590,10 +603,13 @@ _onlyMeta:boolean=false;
            
         }
     };
-    async showCleanColumnToEle(item:{parent:HTMLElement,col:HTMLElement,col_:colType,flex:flexType,maxWidthImg:string}){
+    async showCleanColumnToEle(item:{parent:HTMLElement,col:HTMLElement,col_:colType,flex:flexType,maxWidthImg:string}): Promise<{
+        col: HTMLElement;
+        eles: (HTMLElement | undefined)[];
+    }>{
         const {parent,col,col_,flex,maxWidthImg}=item;
         const less400=window.innerWidth < 400 ;
-        await Promise.all(col_.elements && col_.elements.sort((a,b)=>{if(a.order < b.order){return -1}; return 1}).map(async (element)=>{
+        const eles=await Promise.all(col_.elements && col_.elements.sort((a,b)=>{if(a.order < b.order){return -1}; return 1}).map(async (element)=>{
             const checkArr=["img","ul","blockquote","a","logo","image"].includes(element.name);
             const link=element && element.attr && element.attr.startsWith("http") ? element.attr : null;
             const email=element && element.attr && element.attr.startsWith("mail") ? element.attr : null;
@@ -617,7 +633,7 @@ _onlyMeta:boolean=false;
                     ele.style.lineHeight="1.75rem";
                 }
                 ele.innerHTML=element.inner_html;
-                col.appendChild(ele);
+                // col.appendChild(ele);
                 if(element.attr==="data-backgroundImage" && element.imgKey){
                     ShapeOutside.cleanUpByID(parent,"popup");
                     ele.setAttribute("data-backgroundImage","true");
@@ -642,7 +658,8 @@ _onlyMeta:boolean=false;
                     Misc.blurIn({anchor:ele,blur:"20px",time:500});
                 }
                 ele.setAttribute("flex",JSON.stringify(flex_));
-                Misc.matchMedia({parent:ele,maxWidth:900,cssStyle:{paddingInline:"1rem"}});
+                
+                return ele;
             }else if(element.name==="ul"){
                 const ele=document.createElement("ul");
                 ele.setAttribute("is-element","true");
@@ -656,7 +673,8 @@ _onlyMeta:boolean=false;
                 ele.style.cssText=element.cssText;
                 ele.innerHTML=element.inner_html;
                 ele.setAttribute("flex",JSON.stringify(flex));
-                col.appendChild(ele);
+                // col.appendChild(ele);
+                return ele;
             }else if(element.name==="blockquote"){
                 const ele=document.createElement("blockquote");
                 ele.setAttribute("is-element","true");
@@ -670,7 +688,8 @@ _onlyMeta:boolean=false;
                 ele.style.cssText=element.cssText;
                 ele.innerHTML=element.inner_html;
                 ele.setAttribute("flex",JSON.stringify(flex));
-                col.appendChild(ele);
+                // col.appendChild(ele);
+                return ele;
             }else if(element.name==="a"){
                 if(link){
                     const ele=document.createElement("a");
@@ -687,7 +706,8 @@ _onlyMeta:boolean=false;
                     ele.setAttribute("data-href",link);
                     ele.onclick=()=>{return window.open(link,"_blank")};
                     ele.setAttribute("flex",JSON.stringify(flex));
-                    col.appendChild(ele);
+                    // col.appendChild(ele);
+                    return ele;
                 }else if(email){
                     const ele=document.createElement("a");
                     ele.setAttribute("is-element","true");
@@ -702,7 +722,8 @@ _onlyMeta:boolean=false;
                     (ele as HTMLAnchorElement).href=email;
                     ele.setAttribute("data-href-email",email);
                     ele.setAttribute("flex",JSON.stringify(flex));
-                    col.appendChild(ele);
+                    // col.appendChild(ele);
+                    return ele;
                 }else if(tel){
                     const ele=document.createElement("a");
                     ele.setAttribute("is-element","true");
@@ -717,7 +738,8 @@ _onlyMeta:boolean=false;
                     (ele as HTMLAnchorElement).href=tel;
                     ele.setAttribute("data-href-tel",tel);
                     ele.setAttribute("flex",JSON.stringify(flex));
-                    col.appendChild(ele);
+                    // col.appendChild(ele);
+                    return ele;
                 }
             }else if(element.name==="logo"){
                 const ele=document.createElement("img");
@@ -734,7 +756,7 @@ _onlyMeta:boolean=false;
                 ele.style.maxWidth=maxWidthImg;
                 ele.alt=element.inner_html;
                 ele.setAttribute("flex",JSON.stringify(flex));
-                col.appendChild(ele);
+                // col.appendChild(ele);
                 if(element.imgKey){
                     const res= await this._service.getSimpleImg(element.imgKey);
                     if(res){
@@ -743,6 +765,7 @@ _onlyMeta:boolean=false;
                         Misc.blurIn({anchor:ele,blur:"20px",time:500});
                     }
                 }
+                return ele;
                 // this._user.refreshImageUpload(innerCont,col,ele,flex);
             }else if(element.name==="image"){
                 // const link=element.attr as string;
@@ -759,7 +782,7 @@ _onlyMeta:boolean=false;
                 ele.style.maxWidth=maxWidthImg;
                 ele.alt=element.inner_html;
                 ele.setAttribute("flex",JSON.stringify(flex));
-                col.appendChild(ele);
+                // col.appendChild(ele);
                 if(element.imgKey){
                     await this._service.getSimpleImg(element.imgKey).then(async(res)=>{
                         if(res){
@@ -770,6 +793,7 @@ _onlyMeta:boolean=false;
                         }
                    });
                 }
+                return ele
             }else if(element.name==="img" ){
                 const ele:HTMLImageElement=document.createElement(element.name);
                 ele.setAttribute("is-element","true");
@@ -783,7 +807,7 @@ _onlyMeta:boolean=false;
                 ele.style.maxWidth=maxWidthImg;
                 ele.src=element.img as string;
                 ele.setAttribute("flex",JSON.stringify(flex));
-                col.appendChild(ele);
+                // col.appendChild(ele);
                 if(element.imgKey){
                     const res= await this._service.getSimpleImg(element.imgKey);
                     if(res){
@@ -792,9 +816,11 @@ _onlyMeta:boolean=false;
                         Misc.blurIn({anchor:ele,blur:"20px",time:500});
                     }
                 }
+                return ele;
             }
+            
         }));
-        return col;
+        return {col,eles};
     }
     async showCleanElement(item:{parent:HTMLElement,element:elementType}){
         const {parent,element}=item;
@@ -838,7 +864,7 @@ _onlyMeta:boolean=false;
             
                                 }
                             
-                        }if(type){
+                        }if(type || element.attr==="data-is-code-element"){
                             res.ele.setAttribute(`${element.attr ? element.attr :"data-is-code-element"}`,"true");
                             this.codeElement.main({injector:parent,element,isNew:false,isClean:true});
                         }

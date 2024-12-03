@@ -25,7 +25,7 @@ class CodeElement{
         this.regJavaArr=[
             {name:"=document",searchwd:/\=(document)\./g,replacewd:(name)=>{return `<code id=document><b>${name}</b></code>`},text:""},
             {name:"const",searchwd:/( const )/g,replacewd:(name)=>{return `<code id=const><b>${name}</b></code>`},text:""},
-            {name:"method",searchwd:/\.[a-zA-Z]{3,}\(\"[a-zA-Z]{1,}\"\)/g,replacewd:(name)=>{return`<code id=method><b>${name}</b></code>`},text:""},
+            {name:"method",searchwd:/\.[a-zA-Z]{3,}\([a-zA-Z\:\{\}\"\']{1,}\)|[a-zA-Z]{3,}\([a-zA-Z\:\{\}\"\']{1,}\)/g,replacewd:(name)=>{return`<code id=method><b>${name}</b></code>`},text:""},
             {name:"async",searchwd:/(async)/g,replacewd:(name)=>{return`<code id=async style=color:#ff0048;font-weight:bold;><b>${name}</b></code>`},text:""},
             {name:"export",searchwd:/(export)/g,replacewd:(name)=>{return`<code id=export ><b>${name}</b></code>`},text:""},
             {name:"function",searchwd:/(function)/g,replacewd:(name)=>{return`<code id=function><b>${name}</b></code>`},text:""},
@@ -221,7 +221,7 @@ class CodeElement{
         container.id=`main-container-${element.type ? element.type : "not-assigned"}`
         const css_col="margin-inline:auto;display:flex;flex-direction:column;justify-content:flex-start;align-items:center;gap:0rem";
         const css_row="display:flex;flex-wrap:wrap;justify-content:center;align-items:center;gap:0rem;";
-        container.style.cssText=css_col + "box-shadow:1px 1px 12px 1px blue;background-color:black;color:white;min-height:15vh;border-radius:12px;max-width:800px;position:relative;width:100%";
+        container.style.cssText=css_col + "box-shadow:1px 1px 12px 1px blue;background-color:black;color:white;min-height:15vh;border-radius:12px;max-width:800px;position:relative;width:100%;margin-block:2rem;";
         container.style.paddingInline=less900 ?(less400 ? "0.25rem":"0.5rem"):"1rem";
         const divCont=document.createElement("div");
         divCont.className="eleContainer";
@@ -229,6 +229,8 @@ class CodeElement{
         divCont.style.paddingInline=less900 ? (less400 ? "0rem":"0.75rem"):"1rem";
         divCont.style.paddingBlock="1rem";
         divCont.style.width="100%";
+        divCont.style.background="black";
+        divCont.style.color="white";
         divCont.id=`divCont-${element.name}-${element.id ? element.id :0}`;
         this.divTarget({parent:injector,container,divCont:divCont,isNew,isClean,element,css_col});
         container.appendChild(divCont);
@@ -248,6 +250,8 @@ class CodeElement{
         target.id=element.eleId
         target.className=element.class
         target.style.cssText=element.cssText;
+        target.style.background="black";
+            target.style.color="white";
         if(isNew){
             ////////////////--------PRE (keeps spacing)--------------------////
             const pre=document.createElement("pre");
@@ -259,7 +263,7 @@ class CodeElement{
             pre.style.cssText="width:100%;text-wrap:pretty;"
             target.appendChild(pre);
             divCont.setAttribute("data-placement",`${this.element.placement}-A`);
-
+            
             ////////////////--------PRE (keeps spacing)--------------------////
             
         }else{
@@ -267,6 +271,8 @@ class CodeElement{
             target.style.cssText=element.cssText;
             target.className=element.class;
             target.innerHTML=element.inner_html;
+            target.style.backgroundColor="black";
+            target.style.color="white";
             target.setAttribute("is-code-element","true");
             target.setAttribute("is-element","true");
             divCont.setAttribute("data-placement",`${element.placement}-A`);
@@ -275,13 +281,19 @@ class CodeElement{
         divCont.appendChild(target)
         if(!isClean){
             this.removeMainElement({parent,container,divCont,target});
-
-            divCont.onclick=(e:MouseEvent)=>{
-                if(e){
-                    divCont.classList.toggle("isActive");
-                    target.classList.toggle("isActive");
-                }
-            };
+            //NOT INVOKING THE isActive
+            // divCont.onclick=(e:MouseEvent)=>{
+            //     if(e){
+            //         const check=([...target.classList as any] as string[]).includes("isActive");
+            //         if(!check){
+            //             divCont.classList.add("isActive");
+            //             target.classList.add("isActive");
+            //         }else{
+            //             divCont.classList.remove("isActive");
+            //             target.classList.remove("isActive");
+            //         }
+            //     }
+            // };
             const btnContainer=document.createElement("div");
             btnContainer.id="divTarget-divCont-btnCntainer";
             btnContainer.style.cssText=css_row + "position:absolute;top:105%;";
@@ -307,7 +319,7 @@ class CodeElement{
                     }else{
                         this._modSelector.promUpdateElement({target:getTarget}).then(async(res)=>{
                             if(res){
-                                console.log(res)
+                                
                                 Misc.message({parent:divCont,type_:`success`,time:2000,msg:`${res.eleId} is updated to local`});
                             }
                         });
@@ -455,6 +467,8 @@ class CodeElement{
         const {divCont,target,element,css_col,isNew,isClean}=item;
         const less900=window.innerWidth < 900 ;
         const less400=window.innerWidth < 400 ;
+        Header.cleanUpByID(target,"imgDiv");
+        Header.cleanUpByID(divCont,"titleContainer-titleCont");
         const title=document.createElement("h5");
         const titleCont=document.createElement("div");
         titleCont.id="titleContainer-titleCont";
@@ -491,9 +505,9 @@ class CodeElement{
         titleCont.appendChild(subTitle);
         if(isNew && !isClean){
             divCont.appendChild(titleCont);
+            imgDive.appendChild(span);
         }
         imgDive.appendChild(xDiv);
-        imgDive.appendChild(span);
         target.appendChild(imgDive);
     }
     promRemoveElement(target:HTMLElement){

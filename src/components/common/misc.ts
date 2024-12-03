@@ -1116,6 +1116,7 @@ class Misc{
         const {button:cancel}=Misc.simpleButton({anchor:btnCont,bg:Nav.btnColor,color:"white",type:"button",time:400,text:"cancel"});
         cancel.onclick=(e:MouseEvent)=>{
             if(e){
+                cancel.disabled=true;
                 Misc.growOut({anchor:popup,scale:0,opacity:0,time:400});
                 setTimeout(()=>{
                     parent.removeChild(popup);
@@ -1126,6 +1127,7 @@ class Misc{
         const {button:save}=Misc.simpleButton({anchor:btnCont,bg:Nav.btnColor,color:"white",type:"button",time:400,text:"save"});
         save.onclick=(e:MouseEvent)=>{
             if(e){
+                save.disabled=true;
                 Misc.growOut({anchor:popup,scale:0,opacity:0,time:400});
                 setTimeout(()=>{
                     parent.removeChild(popup);

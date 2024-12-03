@@ -269,6 +269,7 @@ colAttrs=["col-start","col-end","col-center"];
                         Header.detectImageEffect(col);
                         this.flex={...this.flex,colId:col_.eleId,position:"col",imgKey:col_.imgKey};
                         col.setAttribute("flex",JSON.stringify(this.flex));
+                        row.appendChild(col);
                        
                         if(col_.imgKey){
                             col.setAttribute("data-backgroundimage","true");
@@ -286,7 +287,7 @@ colAttrs=["col-start","col-end","col-center"];
                                 this.updateColumn(col,this.flex);
                             }
                         });
-                        await Promise.all(col_.elements && col_.elements.sort((a,b)=>{if(a.order < b.order) return -1;return 1}).map(async (element)=>{
+                     const div_conts=await Promise.all(col_.elements && col_.elements.sort((a,b)=>{if(a.order < b.order) return -1;return 1}).map(async (element)=>{
                             this.flex={...this.flex,elementId:element.eleId,position:"element",imgKey:element.imgKey,name:element.name};
                             const checkArr=["img","ul","ol","blockquote","a","span","logo","image"].includes(element.name);
                             const checkUlType=["ol","ul","blockquote"].includes(element.name);
@@ -340,7 +341,7 @@ colAttrs=["col-start","col-end","col-center"];
                                 _ele_.style.cssText=element.cssText;
                                 _ele_.innerHTML=element.inner_html;
                                 divCont.appendChild(_ele_);
-                                col.appendChild(divCont);
+                                // col.appendChild(divCont);
                                 this.editElement(_ele_);
                                 Misc.matchMedia({parent:divCont,maxWidth:820,cssStyle:{paddingInline:"1.5rem"}});
                                 Misc.matchMedia({parent:divCont,maxWidth:420,cssStyle:{paddingInline:"10px"}});
@@ -359,7 +360,7 @@ colAttrs=["col-start","col-end","col-center"];
                                         this.appElement(col,null,icon,this.flex)
                                     }
                                 });
-                                
+                                return divCont;
                                 
                             }else if(checkUlType){
                                 const ele_=document.createElement("ul");
@@ -374,7 +375,7 @@ colAttrs=["col-start","col-end","col-center"];
                                 ele_.style.cssText=element.cssText;
                                 ele_.innerHTML=element.inner_html;
                                 divCont.appendChild(ele_);
-                                col.appendChild(divCont);
+                                // col.appendChild(divCont);
                                 Misc.matchMedia({parent:divCont,maxWidth:820,cssStyle:{paddingInline:"1.5rem"}});
                                 Misc.matchMedia({parent:divCont,maxWidth:420,cssStyle:{paddingInline:"10px"}});
                                 Main.toggleActiveIcon(ele_);
@@ -392,6 +393,7 @@ colAttrs=["col-start","col-end","col-center"];
                                 });
                                
                                 this._modSelector.editElement(ele_)
+                                return divCont
                             }else if(element.name==="a"){
                                 const link=element.attr as string;
                                 const ele=document.createElement("a");
@@ -413,7 +415,7 @@ colAttrs=["col-start","col-end","col-center"];
                                 divCont.appendChild(ele);
                                 Misc.matchMedia({parent:divCont,maxWidth:820,cssStyle:{paddingInline:"1.5rem"}});
                                 Misc.matchMedia({parent:divCont,maxWidth:420,cssStyle:{paddingInline:"10px"}});
-                                col.appendChild(divCont);
+                                // col.appendChild(divCont);
                                 ele.addEventListener("click",(e:MouseEvent)=>{
                                     if(e){
                                         Main.toggleActiveIcon(ele);
@@ -425,6 +427,7 @@ colAttrs=["col-start","col-end","col-center"];
                                 });
                                 this.editElement(ele);
                                 this.removeMainElement(parent,divCont,ele);
+                                return divCont;
                             }else if(element.name==="img"){
                                 const ele=document.createElement("img");
                                 ele.setAttribute("is-element","true");
@@ -449,7 +452,7 @@ colAttrs=["col-start","col-end","col-center"];
                                 ele.alt=element.inner_html;
                                 ele.src=element.img ? element.img : this.logo;
                                 divCont.appendChild(ele);
-                                col.appendChild(divCont);
+                                // col.appendChild(divCont);
                                 Misc.matchMedia({parent:divCont,maxWidth:820,cssStyle:{paddingInline:"1.5rem"}});
                                 Misc.matchMedia({parent:divCont,maxWidth:420,cssStyle:{paddingInline:"10px"}});
                                 Header.detectImageEffect(ele);
@@ -463,10 +466,18 @@ colAttrs=["col-start","col-end","col-center"];
                                         this.removeMainElement(parent,divCont,ele);
                                     }
                                 });
+                                return ele
                             }
 
                         }));
-                        row.appendChild(col);
+                       
+                        if(div_conts && div_conts.length>0){
+                            div_conts.map(divcont=>{
+                                if(divcont){
+                                    col.appendChild(divcont);
+                                }
+                            });
+                        }
                         Misc.matchMedia({parent:col,maxWidth:600,cssStyle:{height:"auto"}});
                     }));
                     innerCont.appendChild(row);

@@ -100,6 +100,10 @@ class Home{
         await this.asyncMain({parent}).then(async(res)=>{
             if(res){
                 this.images=this.getImages;
+                parent.animate([
+                    {opacity:"0"},
+                    {opacity:"1"}
+                ],{duration:1000,iterations:1,"easing":"ease-in-out"});
 
             //    const  showImages=this.getImages.filter((im,index)=>(index<=cutOff)) as imageType2[];
             Header.cleanUp(res.sectionOne);//clean up

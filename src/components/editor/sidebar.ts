@@ -1024,7 +1024,7 @@ class Sidebar{
     }
    //PARENT onClickHideShowSidebar()
     onclickHideShowSideBarGt100(injector:HTMLElement,arrDiv:HTMLElement){
-        const maxHeight=110
+        const maxHeight=120
         this.sidebarMain(injector,maxHeight);
         injector.appendChild(arrDiv);
         arrDiv.addEventListener("click",(e:MouseEvent)=>{
@@ -1086,7 +1086,7 @@ class Sidebar{
     }
     //PARENT onClickHideShowSidebar()
     onclickHideShowSidebarLt1000(injector:HTMLElement,arrDiv:HTMLElement){
-        const maxHeight=80;
+        const maxHeight=100;
         this.sidebarMain(injector,maxHeight);
         injector.appendChild(arrDiv);
         arrDiv.addEventListener("click",(e:MouseEvent)=>{
@@ -1139,7 +1139,7 @@ class Sidebar{
         let setOverflowY:string="scroll";
         if(injection  ){
             setHeight=window.getComputedStyle(injection).getPropertyValue("height");
-            setHeight=less900 ? window.getComputedStyle(injection).getPropertyValue("height"):"80vh";
+            setHeight=less900 ? window.getComputedStyle(injection).getPropertyValue("height"):"100vh";
             setOverflowY="scroll";
         }
         

@@ -139,6 +139,10 @@ class Post{
 
             }
         });
+        injector.animate([
+            {opacity:"0"},
+            {opacity:"1"}
+        ],{duration:1000,iterations:1,"easing":"ease-in-out"});
     };
     titlePage(item:{container:HTMLElement,time:number}):Promise<{textContainer:HTMLElement,container:HTMLElement,para:HTMLElement,time:number}>{
         const {container,time}=item;
@@ -189,7 +193,8 @@ class Post{
         return new Promise(resolve=>{
             resolve({textContainer,container,para,time});
         }) as Promise<{textContainer:HTMLElement,container:HTMLElement,para:HTMLElement,time:number}>;
-    }
+    };
+   
     
     async Posts(item:{injector:HTMLElement,container:HTMLElement,posts:postType[],user:userType}):Promise<{container:HTMLElement,subDiv:HTMLElement,row:HTMLElement,posts:postType[],user:userType}>{
         const {injector,container,posts,user}=item;
@@ -961,6 +966,7 @@ class Post{
         const reg8:RegExp=/(8)\.|(8)\.\)/g;
         const reg9:RegExp=/(9)\.|(9)\.\)/g;
         const reg10:RegExp=/(10)\.|(10)\.\)/g;
+        const reg11:RegExp=/(NOTE)\:/g;
         const arrReg:{id:number,reg:RegExp}[]=[
             {id:0,reg:reg1},
             {id:1,reg:reg2},
@@ -972,10 +978,12 @@ class Post{
             {id:7,reg:reg8},
             {id:8,reg:reg9},
             {id:9,reg:reg10},
+            {id:10,reg:reg11},
         ];
         if(text2 && text){
             arrReg.map(regItem=>{
-                const matches=text.matchAll(regItem.reg) as any;
+                const {id,reg}=regItem;
+                const matches=text.matchAll(reg) as any;
                 // let index=0
                 for(const match of matches){
                     const start=match.index;
