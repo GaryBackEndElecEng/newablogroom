@@ -233,6 +233,8 @@ colAttrs=["col-start","col-end","col-center"];
                 innerCont.setAttribute("data-container-id",`${innerCont.id}`);
             innerCont.setAttribute("data-selector-id",selector.eleId);
             innerCont.setAttribute("is-selector","true");
+            parent.appendChild(innerCont);
+            Misc.blurIn({anchor:innerCont,blur:"20px",time:700});
             // ADDING BACKGROUND WHITE TO ELEMENTS WITH BACKGROUND COLOR
         Main.container=document.querySelector("section#main") as HTMLElement;
         const checkBgShade=([...(Main.container as HTMLElement).classList as any] as string[]).includes("bgShade");
@@ -483,9 +485,6 @@ colAttrs=["col-start","col-end","col-center"];
                     innerCont.appendChild(row);
                     // console.log(innerCont)//works
                 }));
-               
-            parent.appendChild(innerCont);
-            Misc.blurIn({anchor:innerCont,blur:"20px",time:700});
         }
     };
     ///--------------INJECTION INTO EDIT-----WORK DONE-------///////////////
@@ -821,6 +820,7 @@ colAttrs=["col-start","col-end","col-center"];
                                 case ele==="remove-even-height":
                                     this.removeEvenHeight(column);
                                 return
+                               
                                 default:
                                     return;
                             }

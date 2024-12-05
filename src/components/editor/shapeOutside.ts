@@ -66,7 +66,7 @@ class ShapeOutside{
         const popup=document.createElement("div");
         popup.style.cssText="margin:auto;position:absolute;background-color:white;border-radius:18px;box-shadow:1px 1px 12px 1px black,-1px -1px 12px 1px black;padding:1rem;z-index:200;height:padding-inline:2rem;display:flex;justify-content:center;align-items:center;flex-direction:column;background-color:#0a2351;height:20vh;";
         popup.id="popup-shape-outside";
-        popup.style.top="16%";
+        // popup.style.top="16%";
         popup.style.left="15%";
         popup.style.right="15%";
         const title=document.createElement("h6");
@@ -129,6 +129,8 @@ class ShapeOutside{
 
     shapeOutsideCircle(item:{parent:HTMLElement,flex:flexType|null}){
         const {parent,flex}=item;
+        const less900=window.innerWidth < 900;
+        const less400=window.innerWidth < 400;
         const rand=`${Math.round(Math.random()*1000)}`;
         const para=document.createElement("p");
         const {parsed}=Header.checkJson(parent.getAttribute("flex"));
@@ -158,6 +160,7 @@ class ShapeOutside{
         img.setAttribute("is-shapeoutside","true");
         img.setAttribute("is-shapeoutside-circle","true");
         img.style.cssText=imgCss;
+        img.style.width=less900 ? ( less400 ? "300px":"320px"):"330px";
         img.style.aspectRatio="1 / 1";
         img.src=this.logo;
         img.id="shape-outside-circle";
@@ -199,8 +202,8 @@ class ShapeOutside{
     }
     shapeOutsideSquare(item:{parent:HTMLElement,flex:flexType|null}){
         const {parent,flex}=item;
-        //cl=ele:.shape-outside
-        //create text && image upload
+        const less900=window.innerWidth < 900;
+        const less400=window.innerWidth < 400;
         const rand=`${Math.round(Math.random()*1000)}`;
         const para=document.createElement("p");
         const {parsed}=Header.checkJson(parent.getAttribute("flex"));
@@ -225,11 +228,11 @@ class ShapeOutside{
         para.classList.add("shape-outside");
         para.style.cssText="position:relative;padding:0.35rem;width:100%;";
         const img=document.createElement("img");
-        const imgCss="width:300px;float:left !important;margin-right:10rem;margin-block:1rem;";
+        const imgCss="float:left !important;margin-right:10rem;margin-block:1rem;aspect-ratio: 1 / 1;";
         img.setAttribute("contenteditable","false");
         img.setAttribute("is-shapeoutside","true");
         img.style.cssText=imgCss;
-        img.style.aspectRatio="1 / 1";
+        img.style.width=less900 ? ( less400 ? "300px":"320px"):"330px";
         img.src=this.logo;
         img.id="shape-outside-square";
         img.alt="ww.ablogroom.com";
@@ -273,7 +276,10 @@ class ShapeOutside{
     }
     shapeOutsidePolygon(item:{parent:HTMLElement,flex:flexType|null}){
         const {parent,flex}=item;
-        
+        const less900=window.innerWidth < 900;
+        const less800=window.innerWidth < 800;
+        const less500=window.innerWidth < 500;
+        const less400=window.innerWidth < 400;
         const {parsed}=Header.checkJson(parent.getAttribute("flex"));
        let flex_= parsed ? parsed as flexType : flex;
         const para=document.createElement("p");
@@ -299,10 +305,12 @@ class ShapeOutside{
         const imgDiv=document.createElement("div");
         imgDiv.id="polygon";
         imgDiv.setAttribute("contenteditable","false");
-        const css="border-radius:10%;width:350px;height:350px;position:relative;float:left !important;margin-right:5rem;margin-block:3rem;transform:rotate(45deg);shape-outside:polygon(50% 0%,75% 25%,100% 50%,100% 50%,100% 50%,100% 50%, 90% 50%,80% 60%,70% 70%, 50% 80%,50% 80%,45% 85%,40% 90%,35% 100%);";
+        const css="border-radius:10%;position:relative;float:left !important;margin-right:5rem;margin-block:3rem;transform:rotate(45deg);shape-outside:polygon(50% 0%,75% 25%,100% 50%,100% 50%,100% 50%,100% 50%, 90% 50%,80% 60%,70% 70%, 50% 80%,50% 80%,45% 85%,40% 90%,35% 100%);";
         imgDiv.style.cssText=css;
         imgDiv.style.marginBottom="7rem";
         imgDiv.style.overflow="hidden";
+        imgDiv.style.aspectRatio="1 / 1";
+        imgDiv.style.width=less900 ? (less800 ? (less500 ? (less400 ? "200px":"220px"):"275px"):"300px"):"350px";
         const img=document.createElement("img");
         img.style.cssText="width:100%;border:none;transform:rotate(-45deg);";
         img.style.aspectRatio="1 / 1";
@@ -325,6 +333,7 @@ class ShapeOutside{
         Misc.matchMedia({parent:imgDiv,maxWidth:800,cssStyle:{width:"275px",height:"275px"}});
         Misc.matchMedia({parent:imgDiv,maxWidth:500,cssStyle:{width:"220px",height:"220px"}});
         Misc.matchMedia({parent:imgDiv,maxWidth:400,cssStyle:{width:"200px",height:"200px"}});
+        
         para.setAttribute("has-innerimage","true");
         this._modSelector.promElementAdder(para).then(async(res)=>{
             if(res){
@@ -342,8 +351,6 @@ class ShapeOutside{
         
         parent.addEventListener("click",(e:MouseEvent)=>{
             if(e){
-                // ShapeOutside.cleanUpByID(para,"setAttributes");
-                // ShapeOutside.cleanUpByID(para,"selectChangeAttribute");
                 this._modSelector.updateElement(para);
                 // this.setAttributes(column,divCont,para);
                 para.classList.toggle("isActive",true);
@@ -360,7 +367,7 @@ class ShapeOutside{
         const check=([...target.classList as any] as string[]).includes("isActive");
         const getall=divCont.querySelectorAll("div.xIconDiv-shapOutside") as unknown as HTMLElement[];
         const {isJSON}=Header.checkJson(target.getAttribute("flex"));
-        ShapeOutside.cleanUpByID(divCont,"div.xIconDiv-shapOutside");
+        ShapeOutside.cleanUpByID(divCont,"xIconDiv-shapeOutside");
         if(check){
             const css="position:absolute;transform:translate(-2px,-3px);background:inherit;font-size:16px;background:lightgrey;font-weight:bold;border-radius:50%;color:black;top:0px;right:0px;";
             divCont.classList.add("position-relative");
@@ -388,11 +395,7 @@ class ShapeOutside{
                     this._modSelector.promRemoveElement(target).then(async(res)=>{
                         if(res){
                             if(res.imgKey){
-                                // this._service.adminImagemark(res.imgKey).then(async(res)=>{
-                                //     if(res){
-                                //         Misc.message({parent,msg:`${res.imgKey}`,type_:"success",time:700});
-                                //     }
-                                // });
+                                Misc.message({parent,msg:"removed",type_:"success",time:800});
                             }
                         }
                     });
@@ -862,15 +865,28 @@ class ShapeOutside{
                             }
                         const url=URL.createObjectURL(file as File);
                         const {Key}=this._service.generateFreeImgKey({formdata,user}) as {Key:string};
+                        img.src=url;
                         this._service.uploadfreeimage({parent:column,formdata}).then(async(res)=>{
                             if(res){
+                                const {isJSON,parsed:flex}=Header.checkJson(para.getAttribute("flex"));
+                                if(isJSON){
+                                    const flex_={...flex,imgKey:Key,isShapeOutside:true,level:"element"}
+                                    para.setAttribute("flex",JSON.stringify(flex_));
+                                }
+                                img.setAttribute("imgKey",res.Key);
+                                img.setAttribute("data-shapeoutside","true");
+                                para.setAttribute("data-shapeoutside","true");
                                 const getImgWidth=parseInt(window.getComputedStyle(img).getPropertyValue("width").split("px")[0]);
                                 const width= getImgWidth ? getImgWidth : 300;
                                 img.src=imageLoader({src:res.img,width:width,quality:75});
                                 img.alt=res.Key
+                                this._modSelector.promUpdateElement({target:para}).then(async(res)=>{
+                                    if(res){
+                                        Misc.message({parent:column,msg:" saved",type_:"success",time:900});
+                                    }
+                                });
                             }
                         });
-                        img.src=url;
                         img.setAttribute("is-shapeOutside","true");
                         Misc.blurIn({anchor:img,blur:"20px",time:700});
                         setTimeout(()=>{
@@ -1078,6 +1094,7 @@ class ShapeOutside{
     }
     static cleanUpByID(parent:HTMLElement,id:string){
         const children=([...parent.children as any] as HTMLElement[]).filter(child=>(child.id===id));
+        
         children.map(child=>{
             if(child){
                 parent.removeChild(child)

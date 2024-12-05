@@ -848,7 +848,7 @@ set rows(rows:rowType[]){
     }
     updateElement(target:HTMLElement):elementType|element_selType | undefined{
         const {parsed,isJSON}=Header.checkJson(target.getAttribute("flex"));
-        const shapeOutside=target.getAttribute("data-shapeOutside");
+        const shapeOutside=target.getAttribute("data-shapeoutside");
         const reference=target.getAttribute("data-href-reference");
         const hrefEmail=target.getAttribute("data-href-email");
         const hrefTel=target.getAttribute("data-href-tel");
@@ -889,6 +889,8 @@ set rows(rows:rowType[]){
                                                     target.setAttribute("data-backgroundImage","true");
                                                 }else if(isCodeElement){
                                                     ele.attr="is-code-element";
+                                                }else if( shapeOutside){
+                                                    ele.attr="data-shapeoutside"
                                                 }
                                             }
                                             retElement=ele as element_selType;

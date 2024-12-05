@@ -1035,6 +1035,7 @@ set header_(header:selectorType){
                     const context=text? text.value as unknown as string:" insert here";
                     const target=document.createElement(nodename);
                     target.className="my-auto";
+                    target.style.cssText="border-radius:12px;padding-inline:1.5rem;"
                     target.textContent=context;
                     flex_={...flex_,colId:colId}
                     const flexOne=Main.flexTracker(target,flex_);

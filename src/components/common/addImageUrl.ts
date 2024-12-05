@@ -11,10 +11,12 @@ import { AWSImageLoader } from "./tsFunctions";
 
 class AddImageUrl {
     mainContainer:HTMLElement;
+    unsplash:string;
     freepicurl:string="https://newablogroom-free-bucket.s3.us-east-1.amazonaws.com";
     imageUrls:{name:string,url:string}[];
     imgEles:{level:"element"|"col"|"row",img:HTMLImageElement|HTMLElement}[];
     constructor(private _modSelector:ModSelector,private _service:Service){
+        this.unsplash="https://images.unsplash.com";
         this.freepicurl="https://newablogroom-free-bucket.s3.us-east-1.amazonaws.com";
         this.imageUrls=[
             {name:"all you need",url:this.freepicurl + "/allYouNeed.png"},
@@ -68,6 +70,10 @@ class AddImageUrl {
             {name:"wolf 2",url:this.freepicurl +"/wolf2.png"},
             {name:"wolf 3",url:this.freepicurl +"/wolf3.png"},
             {name:"wolf 3",url:this.freepicurl +"/wolf3.png"},
+            {name:"coffee",url:this.freepicurl +"/coffee.png"},
+            {name:"coffee",url:this.freepicurl +"/coffee2.png"},
+            {name:"moon-earth-view",url:this.freepicurl +"/moonToEarth.png"},
+            {name:"moon-earth-view",url:this.freepicurl +"/moonToEarth2.png"},
             {name:"cartoon 1",url:this.freepicurl +"/img1.png"},
             {name:"cartoon 2",url:this.freepicurl +"/img10.png"},
             {name:"cartoon 3",url:this.freepicurl +"/img2.png"},
@@ -85,6 +91,16 @@ class AddImageUrl {
             {name:"signin process",url:this.freepicurl +"/signInProcess.png"},
             {name:"specials",url:this.freepicurl +"/specials.png"},
             {name:"solar works",url:this.freepicurl +"/solarWorks.png"},
+            {name:"Explore",url:`${this.unsplash}/photo-1657736301709-b1365740ddbe?crop=entropy`,},
+            {name:"symetric",url:`${this.unsplash}/photo-1658288797137-7ca820c77a2b?crop=entropy`},
+            {name:"fast",url:`${this.unsplash}/photo-1657987273071-fbe77b5b4e90?crop=entropy&h=900`},
+            {name:"elagent",url:`${this.unsplash}/photo-1655760862449-52e5b2bd8620?crop=entropy`},
+            {name:"symetry",url:`${this.unsplash}/photo-1657963928657-9da48ea0c496?crop=entropy`},
+            {name:"time",url:`${this.unsplash}/photo-1656922612260-2ebb170dd637?crop=entropy`},
+            {name:"wonder",url:`${this.unsplash}/photo-1656342468017-a298b6c63cc9?crop=entropy`},
+            {name:"tranquil",url:`${this.unsplash}/photo-1658137135662-82ab663ee627?crop=entropy&cs=tinysrgb&fit=max&fm=jpg`},
+            {name:"majestic",url:`${this.unsplash}/photo-1657653463810-fa2f223fbb82?crop=entropy`},
+            {name:"earth",url:`${this.unsplash}/photo-1657832034979-e2f9c5b0a2fc?crop=fit&h=900`},
 
         ]
         this.mainContainer=document.querySelector("section#main") as HTMLElement;
@@ -98,7 +114,7 @@ class AddImageUrl {
         parent.style.position="relative";
         const popup=document.createElement("div");
         popup.className="popup-main";
-        popup.style.cssText="position:absolute;max-width:800px;width:fit-content;min-height:5vh;height:auto;border-radius:12px;box-shadow:1px 1px 12px 1px black;display:flex;flex-direction:column;padding:1rem;gap:1.5rem;z-index:200;top:0%;left:35%;right:35%;background-color:black;color:white;";
+        popup.style.cssText="position:absolute;max-width:800px;width:fit-content;min-height:5vh;height:auto;border-radius:12px;box-shadow:1px 1px 12px 1px black;display:flex;flex-direction:column;padding:1rem;gap:1.5rem;z-index:200;left:35%;right:35%;background-color:black;color:white;";
         parent.appendChild(popup);
         this.removePopup({parent,target:popup});
         const title=document.createElement("h6");
@@ -215,11 +231,12 @@ class AddImageUrl {
     requestOption(item:{parent:HTMLElement,targetImg:{img:HTMLImageElement | HTMLElement,level:"element"|"col"|"row"}}){
         const {parent,targetImg}=item;
         const popup=document.createElement("div");
+        popup.id="addImageUrl-requestOption-popup";
         popup.className="requestoption-popup-main";
         const title=document.createElement("h6");
         title.textContent="insert URL?/insertImage?";
         title.className="text-primary text-center my-2";
-        popup.style.cssText="position:absolute;max-width:350px;width:100%;min-height:5vh;height:auto;border-radius:12px;box-shadow:1px 1px 12px 1px black;display:flex;flex-direction:row;padding:1rem;gap:1.5rem;z-index:200;top:10%;left:35%;right:35%;background-color:white;";
+        popup.style.cssText="position:absolute;max-width:350px;width:100%;min-height:5vh;height:auto;border-radius:12px;box-shadow:1px 1px 12px 1px black;display:flex;flex-direction:row;padding:1rem;gap:1.5rem;z-index:200;left:35%;right:35%;background-color:white;";
         this.removePopup({parent,target:popup});
         parent.appendChild(popup);
         Misc.matchMedia({parent:popup,maxWidth:900,cssStyle:{top:"20%",left:"25%",right:"25%"}});
@@ -315,13 +332,14 @@ class AddImageUrl {
                             }
                         }else{
                             const imgKey=targetImg.img.getAttribute("imgKey");
-                                if(imgKey){
-                                    const markDel:deletedImgType={imgKey:imgKey,del:true,date:new Date()};
-                                    await this._service.markDelKey(markDel);
-                                }
+                            if(imgKey){
+                                const markDel:deletedImgType={imgKey:imgKey,del:true,date:new Date()};
+                                await this._service.markDelKey(markDel);
+                            }
                             targetImg.img.removeAttribute("imgKey");
                             this._modSelector.updateElement(targetImg.img);
                         }
+                        this.updateParaShapeOutside({parent,image:targetImg.img as HTMLImageElement});
                         Misc.growOut({anchor:popup,scale:0,opacity:0,time:400});
                         setTimeout(()=>{
                             parent.removeChild(popup);
@@ -332,6 +350,18 @@ class AddImageUrl {
             }
         };
 
+
+    }
+    updateParaShapeOutside(item:{parent:HTMLElement,image:HTMLImageElement}){
+        const {parent,image}=item;
+        const para=image.parentElement;
+        if(!(para && para.nodeName==="P")) return;
+        const {isJSON,parsed:flex}=Header.checkJson(para.getAttribute("flex"));
+        if(isJSON){
+            const flex_={...flex,isShapeOutside:true};
+            para.setAttribute("flex",JSON.stringify(flex_));
+        }
+        this._modSelector.updateElement(para);
 
     }
     insertImage(item:{parent:HTMLElement,targetImg:{img:HTMLImageElement | HTMLElement,level:"element"|"col"|"row"}}){
@@ -407,6 +437,7 @@ class AddImageUrl {
                                 targetImg.img.removeAttribute("imgKey");
                                 this._modSelector.updateElement(targetImg.img);
                             }
+                            this.updateParaShapeOutside({parent,image:targetImg.img as HTMLImageElement});
                             Misc.growOut({anchor:popup,scale:0,opacity:0,time:400});
                             setTimeout(()=>{
                                 parent.removeChild(popup);
@@ -512,7 +543,8 @@ class AddImageUrl {
     removePopup(item:{parent:HTMLElement,target:HTMLElement}){
         const {parent,target}=item;
         const xDiv=document.createElement("div");
-        xDiv.style.cssText="padding:1rem;position:absolute;top:0%;right:0%;border-radius:50%;background-color:black;transform:translate(-10px,10px);display:flex;align-items:center;justify-content:center;";
+        xDiv.id="removePopup-xDiv"
+        xDiv.style.cssText="padding:2px;position:absolute;top:0%;right:0%;border-radius:50%;background-color:black;transform:translate(10px,-10px);display:flex;align-items:center;justify-content:center;";
         FaCreate({parent:xDiv,name:FaCrosshairs,cssStyle:{fontSize:"18px",color:"white",borderRadius:"50%"}});
         target.appendChild(xDiv);
         xDiv.onclick=(e:MouseEvent)=>{

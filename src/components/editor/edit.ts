@@ -592,35 +592,7 @@ class Edit {
    async selEleGenerator(parent:HTMLElement,blog:blogType|null){
         if(blog){
             Main.cleanUp(parent)
-            const elements=blog.elements && blog.elements.length>0 ? blog.elements as elementType[] :null;
-            const selects=(blog.selectors && blog.selectors.length) ? blog.selectors as selectorType[]: null;
-            const cleanSels=selects ? selects.filter(sel=>(sel.header===false)).filter(sel=>(sel.footer===false)): null
-            //codes are not being used. the system works but is replaced with codeElement class
-            const codes=blog.codes && blog.codes.length>0 ? blog.codes as codeType[] :null;
-            const charts=blog.charts && blog.charts.length>0 ? blog.charts as chartType[] :null;
-            const sortThis:{eleSelChrt:elementType |selectorType |chartType,type:"selector"|"element"|"chart"}[]=[];
-            const maxCount=ModSelector.maxCount(blog);
-            if(!(maxCount>0)) return
-            (Array.from(Array(maxCount+1).keys())).map(num=>{
-                if(elements){
-                    const checkEle=elements.find(ele=>(ele.placement===num+1))
-                    if(checkEle){
-                        sortThis.push({eleSelChrt:checkEle as elementType,type:"element"})
-                    }
-                }
-                if(selects){
-                    const checkSel=selects.find(sel=>(sel.placement===num+1))
-                    if(checkSel){
-                        sortThis.push({eleSelChrt:checkSel as selectorType,type:"selector"})
-                    }
-                }
-                if(charts){
-                    const checkCht=charts.find(cht=>(cht.placement===num+1))
-                    if(checkCht){
-                        sortThis.push({eleSelChrt:checkCht as chartType,type:"chart"})
-                    }
-                }
-            });
+            const sortThis=this.placementAdjustShift({blog});
             ShapeOutside.cleanUpByID(parent,"setAttributes");
             ShapeOutside.cleanUpByID(parent,"popup");
             // console.log("selEleGenerator:codes",blog.charts,"maxCount:",maxCount)//works
@@ -628,10 +600,10 @@ class Edit {
                 await Promise.all(sortThis.map(async(item)=>{
                     if(item){
                         if(item.type==="selector"){
-                            await this.flexbox.showSelector(parent,item.eleSelChrt as selectorType);
+                            await this.flexbox.showSelector(parent,item.selEleChrt as selectorType);
 
                         }else if(item.type==="element"){
-                            const ele=item.eleSelChrt as elementType;
+                            const ele=item.selEleChrt as elementType;
                             if(ele.attr==="is-code-element"){
                                 this.codeElement.main({injector:parent,element:ele,isNew:false,isClean:false});
                             }else{
@@ -639,7 +611,7 @@ class Edit {
                                 await this._htmlElement.showElement(parent,ele);
                             }
                         }else if(item.type==="chart"){
-                            const chart=item.eleSelChrt as chartType;
+                            const chart=item.selEleChrt as chartType;
                             await this.chart.viewChart({parent,chart});
                         }
                     }
@@ -736,18 +708,18 @@ class Edit {
                                     flex={...flex,backgroundImage:true,imgKey:element.imgKey};
                                     const cssStyle={backgroundPosition:"50% 50%",backgroundSize:"100% 100%"};
                                     this._service.injectBgAwsImage({target:ele,imgKey:element.imgKey,cssStyle});
-                                }else if(element.attr==="data-shapeOutside-circle" && element.imgKey){
+                                }else if(element.attr==="data-shapeoutside-circle" && element.imgKey){
                                     flex={...flex,shapeOutsideCircle:true,imgKey:element.imgKey};
-                                    ele.setAttribute("data-shapeOutside-circle","true");
-                                    await this._shapeOutside.shapeOutsideInjectImage({para:ele,imgKey:element.imgKey});
+                                    ele.setAttribute("data-shapeoutside-circle","true");
+                                    // await this._shapeOutside.shapeOutsideInjectImage({para:ele,imgKey:element.imgKey});
                                 }else if(element.attr==="data-shapeOutside-square" && element.imgKey){
                                     flex={...flex,shapeOutsideCircle:true,imgKey:element.imgKey};
-                                    ele.setAttribute("data-shapeOutside-square","true");
-                                    await this._shapeOutside.shapeOutsideInjectImage({para:ele,imgKey:element.imgKey});
+                                    ele.setAttribute("data-shapeoutside-square","true");
+                                    // await this._shapeOutside.shapeOutsideInjectImage({para:ele,imgKey:element.imgKey});
                                 }else if(element.attr==="data-shapeOutside-polygon" && element.imgKey){
-                                    ele.setAttribute("data-shapeOutside-polygon","true")
+                                    ele.setAttribute("data-shapeoutside-polygon","true")
                                     flex={...flex,shapeOutsidePolygon:true,imgKey:element.imgKey};
-                                    await this._shapeOutside.shapeOutsideInjectImage({para:ele,imgKey:element.imgKey});
+                                    // await this._shapeOutside.shapeOutsideInjectImage({para:ele,imgKey:element.imgKey});
                                 }
                                 ele.setAttribute("flex",JSON.stringify(flex));
                                 Main.toggleActiveIcon(ele);
@@ -967,7 +939,7 @@ class Edit {
         ele.classList.remove("isActive");
         ele.id=element.eleId;
         ele.className=element.class.split(" ").filter(cl=>(cl !=="box-shadow")).join(" ");
-        // console.log("768:modSelector:element className",ele.className);
+        console.log("element.attr",element.attr);
         ele.classList.toggle("isActive");
         ele.style.cssText=`${element.cssText}`;
         const checkEle=["p","h1","h2","h3","h4","h5","h6","div","blockquote","ul","hr"].includes(element.name);
@@ -986,6 +958,11 @@ class Edit {
                             }
                     }
                 });
+                console.log("data-shapeoutside",element.attr)
+                if(element.attr==="data-shapeoutside"){
+                    ele.setAttribute(element.attr,"true");
+                    console.log("data-shapeoutside",element.attr);
+                }
                 divCont.appendChild(ele);
                 parent.appendChild(divCont);
                 this._modSelector.editElement(ele);
@@ -1058,6 +1035,109 @@ class Edit {
         
     };
    
+    placementAdjustShift(item:{blog:blogType}):{id:number,duplicate:boolean,selEleChrt:elementType|selectorType|chartType,type:"element"|"selector"|"chart"}[]{
+        const {blog}=item;
+        const arr:{id:number,duplicate:boolean,selEleChrt:elementType|selectorType|chartType,type:"element"|"selector"|"chart"}[]=[]
+        const arrSorted:{id:number,duplicate:boolean,selEleChrt:elementType|selectorType|chartType,type:"element"|"selector"|"chart"}[]=[]
+        const maxcount=ModSelector.maxCount(blog);
+        const elements=blog.elements && blog.elements.length>0 ? blog.elements as elementType[] :null;
+        const selects=(blog.selectors && blog.selectors.length) ? blog.selectors as selectorType[]: null;
+        const cleanSels=selects ? selects.filter(sel=>(sel.header===false)).filter(sel=>(sel.footer===false)): null
+        const charts=blog.charts && blog.charts.length>0 ? blog.charts as chartType[] :null;
+        if(!(maxcount>0)) return arr as [];
+        Array.from(Array(maxcount+3).keys()).map((num)=>{
+            if(elements){
+                elements.map(ele=>{
+                    const checkArr=arr.filter(item=>(item.id ===ele.placement));
+                    if(ele && ele.placement===num+1){
+                        if(checkArr && checkArr.length>1){
+                            arr.push({id:ele.placement,duplicate:true,selEleChrt:ele as elementType,type:"element"});
+                        }else{
+                            arr.push({id:ele.placement,duplicate:false,selEleChrt:ele as elementType,type:"element"});
+                        }
+
+                    }
+                });
+            }
+            if(cleanSels){
+                cleanSels.map(sel=>{
+                    const checkArr=arr.filter(item=>(item.id ===sel.placement));
+                    if(sel && sel.placement===num+1){
+                        if(checkArr && checkArr.length>1){
+                            arr.push({id:sel.placement,duplicate:true,selEleChrt:sel as selectorType,type:"selector"});
+                        }else{
+                            arr.push({id:sel.placement,duplicate:false,selEleChrt:sel as selectorType,type:"selector"});
+                        }
+
+                    }
+                });
+            }
+            if(charts){
+                charts.map(chart=>{
+                    const checkArr=arr.filter(item=>(item.id ===chart.placement));
+                    if(chart && chart.placement===num+1){
+                        if(checkArr){
+                            arr.push({id:chart.placement,duplicate:true,selEleChrt:chart as chartType,type:"chart"});
+                        }else{
+                            arr.push({id:chart.placement,duplicate:false,selEleChrt:chart as chartType,type:"chart"});
+                        }
+
+                    }
+                });
+            }
+        });
+        arr.sort((a,b)=>{if(a.id < b.id) return -1;return 1;}).map((item,index)=>{
+            if(item){
+                const indexShift=item.duplicate===true ? item.id : null;
+                if(!indexShift){
+                    arrSorted.push({...item,id:index + 1})
+                }else if(indexShift===item.id){
+                    const dupArr=arr.sort((a,b)=>{if(a.id < b.id) return -1;return 1;}).filter(item=>(item.duplicate===true));
+                    dupArr.map((dupItem,ind)=>{
+                            if(dupItem){
+                                const newId=index+ 1 + ind;
+                                arrSorted.push({...item,id:newId,duplicate:false})
+                            }
+                        
+                    });
+                
+                };
+            }
+        });
+                const newSorted=arrSorted.sort((a,b)=>{if(a.id < b.id) return -1;return 1;}).map((item,index)=>{
+                    if(item){
+                        if(item.type==="element"){
+                            this._modSelector._elements=this._modSelector._elements.map(ele=>{
+                                if(item.selEleChrt.placement===ele.placement){
+                                    ele={...ele,placement:index+1}
+                                }
+                                return ele;
+                            });
+                            this._modSelector.elements=this._modSelector._elements;
+                        }else if(item.type==="selector"){
+                            this._modSelector._selectors=this._modSelector._selectors.map(sel=>{
+                                if(sel.placement===item.selEleChrt.placement){
+                                    sel={...sel,placement:index+1}
+                                }
+                                return sel;
+                            });
+                            this._modSelector.selectors=this._modSelector._selectors;
+                        }else if(item.type==="chart"){
+                            this._modSelector._charts=this._modSelector._charts.map(chart=>{
+                                if(chart.placement===item.selEleChrt.placement){
+                                    chart={...chart,placement:index+1}
+                                }
+                                return chart;
+                            });
+                            this._modSelector.charts=this._modSelector._charts;
+                        }
+                    }
+                     return {...item,id:index+1}
+            });
+            localStorage.setItem("placement",String(maxcount + 1));
+        return newSorted;
+
+    }
     
     sendMessage(parent:HTMLElement,msg:string,type_:"warning"|"success"|"error",time:number){
         const Msg:msgType={

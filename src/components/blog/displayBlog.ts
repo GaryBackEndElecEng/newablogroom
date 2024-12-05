@@ -825,6 +825,7 @@ _onlyMeta:boolean=false;
     }
     async showCleanElement(item:{parent:HTMLElement,element:elementType}){
         const {parent,element}=item;
+        const less400= window.innerWidth < 400;
         await this.cleanElement({parent,element}).then(async(res)=>{
             if(res){
 
@@ -849,14 +850,20 @@ _onlyMeta:boolean=false;
                                 //    await this._service.injectBgAwsImage({target:res.ele,imgKey:imgKey,cssStyle});
                                 }else if(element.attr==="data-shapeoutside-circle"){
                                     res.ele.setAttribute("data-shapeoutside-circle","true");
+                                     res.ele.style.display=less400 ? "flex":"block";
+                                    res.ele.style.flexDirection=less400 ? "column":"";
                                     // res.ele.setAttribute("imgKey",imgKey);
                                 //    await this._shapeOutside.shapeOutsideInjectImage({para:res.ele,imgKey:imgKey});
                                 }else if(element.attr==="data-shapeoutside-square"){
                                     res.ele.setAttribute("data-shapeoutside-square","true");
+                                     res.ele.style.display=less400 ? "flex":"block";
+                                    res.ele.style.flexDirection=less400 ? "column":"";
                                     // res.ele.setAttribute("imgKey",imgKey);
                                     // this._shapeOutside.shapeOutsideInjectImage({para:res.ele,imgKey:imgKey});
                                 }else if(element.attr==="data-shapeoutside-polygon"){
-                                    res.ele.setAttribute("data-shapeoutside-polygon","true")
+                                    res.ele.setAttribute("data-shapeoutside-polygon","true");
+                                     res.ele.style.display=less400 ? "flex":"block";
+                                    res.ele.style.flexDirection=less400 ? "column":"";
                                     // res.ele.setAttribute("imgKey",imgKey);
                                 //    await this._shapeOutside.shapeOutsideInjectImage({para:res.ele,imgKey:imgKey});
                                 }else if(element.attr="data-arrow-design"){
@@ -975,6 +982,7 @@ _onlyMeta:boolean=false;
         ele.className=element.class.split(" ").filter(cl=>(cl !=="box-shadow")).join(" ");
         ele.classList.remove("isActive");
         ele.style.cssText=element.cssText;
+        ele.style.paddingInline=less400 ? "0.25rem":"1rem";
         if(element.name==="p"){
             ele.style.lineHeight="1.75rem";
         }

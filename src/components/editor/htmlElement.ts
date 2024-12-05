@@ -18,7 +18,7 @@ import { maxCount } from './modSelector';
 class HtmlElement {
     logo:string="/images/gb_logo.png";
     reference:Reference;
-    static imgDesc_css:string="align-self:start;margin-top:1rem;color:black;font-weight:bold;font-style:italic;margin-inline:0px;";
+    static imgDesc_css:string="align-self:start;margin-top:1rem;color:black;font-weight:bold;font-style:italic;margin-inline:0px;border-radius:10px;";
     urlImg:string;
     bgColor:string;
     btnColor:string;
@@ -31,7 +31,7 @@ class HtmlElement {
         this.btnColor=this._modSelector.btnColor;
         this._elements=this._modSelector._elements;
         this.reference=new Reference(this._modSelector);
-        this.divCont_css="margin:0px;padding:1rem;position:relative;display:flex;flex-direction:column;align-items:center;justify-content:center;padding-inline:1.25rem;margin-inline:4rem;";
+        this.divCont_css="margin:0px;padding:1rem;position:relative;display:flex;flex-direction:column;align-items:center;justify-content:center;padding-inline:1.25rem;margin-inline:4rem;border-radius:8px;";
         this.refresh=false;
         this.divCont_class="eleContainer";
         this.urlImg="http://localhost:3000/images/gb_logo.png";
@@ -57,6 +57,7 @@ class HtmlElement {
     //////------GETTERS/SETTERS-----/////////
     ///-------------INJECTION/SOW WORK------------------///
     async showElement(parent:HTMLElement,element:elementType){
+        const less400=window.innerWidth < 400;
         //THIS IS USED DURING REFRESH (PULLING LOCALSTORAGE.GETITEM(BLOG)) AND DISPLAYING I ON THE PAGE IN REFERENCE TO PLACEMENT NUMBERING BETWEEN ELEMENTS AND SELECTORS
         await this.asyncElement({parent,element}).then(async(res)=>{
             if(res){
@@ -96,31 +97,37 @@ class HtmlElement {
                             if(element.imgKey){
                                 res.ele.setAttribute("imgKey",element.imgKey);
                                 const cssStyle={backgroundPosition:"50% 50%",backgroundSize:"100% 100%"};
-                               await this._service.injectBgAwsImage({target:res.ele,imgKey:element.imgKey,cssStyle});
+                            //    await this._service.injectBgAwsImage({target:res.ele,imgKey:element.imgKey,cssStyle});
                             }
                         }else if(element.attr==="data-shapeoutside-circle"){
                             res.ele.setAttribute("data-shapeoutside-circle","true");
+                            res.ele.style.display=less400 ? "flex":"block";
+                            res.ele.style.flexDirection=less400 ? "column":"";
                             // console.log("element.attr",element.attr,"element.imgKey",element.imgKey)
                             this.shapeOutside.setAttributes({column:parent,divCont:res.divCont,target:res.ele as HTMLParagraphElement});//ID=shape-outside-${rand}
                             if(element.imgKey){
                                 res.ele.setAttribute("imgKey",element.imgKey);
-                               await this.shapeOutside.shapeOutsideInjectImage({para:res.ele,imgKey:element.imgKey});
+                            //    await this.shapeOutside.shapeOutsideInjectImage({para:res.ele,imgKey:element.imgKey});
                             }
                         }else if(element.attr==="data-shapeoutside-square"){
                             res.ele.setAttribute("data-shapeoutside-square","true");
+                            res.ele.style.display=less400 ? "flex":"block";
+                            res.ele.style.flexDirection=less400 ? "column":"";
                             this.shapeOutside.setAttributes({column:parent,divCont:res.divCont,target:res.ele as HTMLParagraphElement});//ID=shape-outside-${rand}
                             if(element.imgKey){
         
                                 res.ele.setAttribute("imgKey",element.imgKey);
-                                await this.shapeOutside.shapeOutsideInjectImage({para:res.ele,imgKey:element.imgKey});
+                                // await this.shapeOutside.shapeOutsideInjectImage({para:res.ele,imgKey:element.imgKey});
                             }
                         }else if(element.attr==="data-shapeoutside-polygon"){
                             res.ele.setAttribute("data-shapeoutside-polygon","true");
+                            res.ele.style.display=less400 ? "flex":"block";
+                            res.ele.style.flexDirection=less400 ? "column":"";
                             this.shapeOutside.setAttributes({column:parent,divCont:res.divCont,target:res.ele as HTMLParagraphElement});//ID=shape-outside-${rand}
                             if(element.imgKey){
         
                                 res.ele.setAttribute("imgKey",element.imgKey);
-                               await this.shapeOutside.shapeOutsideInjectImage({para:res.ele,imgKey:element.imgKey});
+                            //    await this.shapeOutside.shapeOutsideInjectImage({para:res.ele,imgKey:element.imgKey});
                             }
                         }else if(element.attr==="is-vendiagram"){
                             res.ele.setAttribute(element.attr,"true");
@@ -441,14 +448,13 @@ class HtmlElement {
         target.id=`${"design"}-${Math.round(Math.random()*1000)}`
         // this.docSelect(target,icon);
         target.textContent=text;
-        target.style.cssText = "border-radius:6px;text-wrap:wrap;";
         target.setAttribute("name",eleName);
         target.setAttribute("data-name-id",target.id);
         target.classList.add("position-relative");
         target.setAttribute("is-element","true");
         target.setAttribute("contenteditable","true");
         target.setAttribute("aria-selected","true");
-        target.style.cssText="margin-inline:8px;padding-inline:2rem;width:100% !important;position:relative;";
+        target.style.cssText="margin-inline:8px;padding-inline:2rem;width:100% !important;position:relative;border-radius:6px;text-wrap:pretty;";
         target.classList.add("box-shadow");
         target.classList.add("element");
         target.classList.add(class_);
