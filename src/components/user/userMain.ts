@@ -12,6 +12,8 @@ import { btnType, button, buttonReturn } from "../common/tsFunctions";
 import Edit from "../editor/edit";
 import Nav from "../nav/headerNav";
 import RegSignIn from "../nav/regSignin";
+import { FaCrosshairs } from "react-icons/fa";
+import { FaCreate } from "../common/ReactIcons";
 
 class UserSetups  {
     bgColor:string;
@@ -47,6 +49,7 @@ class UserSetups  {
             });
             select.selectedIndex=0;
             targetContainer.appendChild(select);
+            this.removeForm({parent:targetContainer,target:select});
             return {targetContainer,select,mainTextarea}
         };
 
@@ -90,9 +93,11 @@ class UserSetups  {
                 {transform:"scale(0)",opacity:"0"},
                 {transform:"scale(1)",opacity:"1"}
             ],{duration:750,iterations:1});
+            this.removeForm({parent:checkMain,target:form});
             checkMain.appendChild(form);
             Misc.matchMedia({parent:form,maxWidth:900,cssStyle:{left:"20%",right:"20%",top:"10%"}});
             Misc.matchMedia({parent:form,maxWidth:400,cssStyle:{left:"5%",right:"5%",top:"10%"}});
+
             // Header.removeEffect(grandParent,form);
             return {form,mainTextarea:checkMain,flex};
         }
@@ -166,6 +171,7 @@ class UserSetups  {
             form.appendChild(btn);
             popup.appendChild(form);
             parent.appendChild(popup);
+            this.removeForm({parent,target:popup});
             popup.animate([
                 {transform:"scale(0.3)",opacity:"0"},
                 {transform:"scale(1)",opacity:"1"}
@@ -223,6 +229,7 @@ class UserSetups  {
         form.appendChild(btn);
         popup.appendChild(form);
         textarea.appendChild(popup);
+        this.removeForm({parent:textarea,target:popup});
         Misc.growIn({anchor:popup,scale:0,opacity:0,time:400});
         Misc.matchMedia({parent:popup,maxWidth:900,cssStyle:{left:"20%",right:"20%",top:"15%"}});
         Misc.matchMedia({parent:popup,maxWidth:400,cssStyle:{left:"6%",right:"6%",top:"20%"}});
@@ -277,6 +284,7 @@ class UserSetups  {
         form.appendChild(btn);
         popup.appendChild(form);
         parent.appendChild(popup);
+        this.removeForm({parent,target:popup});
         Misc.growIn({anchor:popup,scale:0,opacity:0,time:400});
         Misc.matchMedia({parent:popup,maxWidth:900,cssStyle:{left:"20%",right:"20%",top:"15%"}});
         Misc.matchMedia({parent:popup,maxWidth:400,cssStyle:{left:"6%",right:"6%",top:"20%"}});
@@ -313,6 +321,23 @@ class UserSetups  {
             return {cancelBtn:btn1,saveBtn:btn2,msgCont:container,grandParent}
         }
 
+        removeForm(item:{parent:HTMLElement,target:HTMLElement}){
+            const {parent,target}=item;
+            const xDiv=document.createElement("div");
+            Header.cleanUpByID(parent,"userSetup-removeForm-popup");
+            xDiv.id="userSetup-removeForm-popup";
+            xDiv.style.cssText="position:absolute;margin-inline:auto;display:flex;align-items:center;width:fit-content;padding:0.25rem;background:black;z-index:20;color:white;border-radius:50%;";
+            xDiv.style.top="0%";
+            xDiv.style.left="100%";
+            xDiv.style.transform="translate(-5px,-5px)";
+            FaCreate({parent:xDiv,name:FaCrosshairs,cssStyle:{fontSize:"20px",color:"inherit"}});
+            target.appendChild(xDiv);
+            xDiv.onclick=(e:MouseEvent)=>{
+                if(e){
+                    parent.removeChild(target);
+                }
+            };
+        }
         
     //END
     };

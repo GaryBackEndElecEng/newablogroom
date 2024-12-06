@@ -18,12 +18,12 @@ export default function Index({ post, user, isUser, poster }: { post: postType |
             const service = new Service(modSelector);
             const _user = new User(modSelector, service);
             const _post = new PostDetail(modSelector, service, _user, user);
-            _post.main({ injector, post, count: countRef.current, poster: user, isPage: true, isUser, user }).then((count) => {
+            _post.main({ injector, post, count: countRef.current, poster: poster, isPage: true, isUser, user }).then((count) => {
                 countRef.current = count;
                 _post.cleaupKeepOne({ parent: injector, class_: `postdetail-main-container` });
             });
         }
-    }, [countRef, docRef, post, user, isUser]);
+    }, [countRef, docRef, post, user, isUser, poster]);
     return (
         <section ref={docRef} id="postdetail" className={style.postdetail}></section>
     )

@@ -90,6 +90,7 @@ class PostDetail{
         // container.style.width=less400 ? "100%":"auto";
         container.style.width="100%";
         if(!isPage){
+            //FLOATING
             injector.style.position="relative;";
             const parent=injector.parentElement;
             container.style.position="absolute";
@@ -101,6 +102,7 @@ class PostDetail{
             container.style.height=less900 ? (less400 ? "120vh":"65vh"):"70vh";
             container.style.justifyContent="flex-start";
         }else{
+            //NON FLOATING
             this.injector=injector as HTMLElement;
             this.injector.style.width=less1550 ? (less900 ? (less400 ? "100%" :"100%"): "65%"):"50%";
             this.injector.style.paddingInline=less400 ? "0rem":"1rem";
@@ -126,7 +128,11 @@ class PostDetail{
         img.id=`posts-shapeOutside-img-${post.id}`;
         img.style.cssText="border-radius:50%;shape-outside:circle(50%);float:left;margin-bottom:2rem;aspect-ratio:1/1;filter:drop-shadow(0 0 0.75rem white);border:none;";
         img.style.filter="drop-shadow(0 0 0.75rem white) !important";
-        img.style.width=less900 ? (less400 ? "300px" : "330px") :"395px";
+        if(isPage){
+            img.style.width=less900 ? (less400 ? "300px" : "400px") :"500px";
+        }else{
+            img.style.width=less900 ? (less400 ? "300px" : "420px") :"400px";
+        }
         img.style.marginRight=less900 ? (less400 ? "0.85rem" : "0.85rem") :"1rem";
         const widthConv=parseInt(img.style.width.split("px")[0]) as number;
         if(post.image){
@@ -143,7 +149,8 @@ class PostDetail{
                     img.alt=res.Key;
                     shapeOutside.appendChild(img);
                     Misc.blurIn({anchor:img,blur:"20px",time:700});
-                    shapeOutside.innerHTML+=post.content ? post.content : "";
+                    const postMod=Post.brInserter({targetStr:post.content});
+                    shapeOutside.innerHTML+=postMod ? postMod : "";
                 }
             });
         }else{

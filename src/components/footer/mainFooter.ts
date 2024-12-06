@@ -20,6 +20,7 @@ import AllMsgs from "../home/allMsgs";
 
 class MainFooter{
     baseUrl:URL;
+    noteAddUrl:string;
     closeInfoMsg:boolean;
     centerBtnsParent:HTMLElement|null;
     infoMsg:string;
@@ -36,6 +37,7 @@ class MainFooter{
     arrUrl:{name:string,link:string}[]
     constructor(private _modSelector:ModSelector,private _service:Service,private _user:User,private _nav:Nav,private _navArrow:NavArrow,public dataflow:Dataflow,public feature:Features,public allMsgs:AllMsgs){
         this.arrUrl=[{name:"masterconnect",link:"https://www.masterconnect.ca"},{name:"masterultils",link:this.masterultilsUrl},{name:"policy",link:"/policy"},{name:"privacy",link:"/termsOfService"},];
+        this.noteAddUrl="https://chromewebstore.google.com/detail/note-adder/ipdhlngobmbmoaoheaiflbdmgjmeeoad?hl=en-US&utm_source=ext_sidebar";
         this._regSignin= new RegSignIn(this._modSelector,this._service,this._user);
         this.closeInfoMsg=false;
         this.centerBtnsParent=document.querySelector("div#footer-centerBtns-container");
@@ -250,16 +252,16 @@ class MainFooter{
         arrCont.id="arrCont";
         arrCont.style.cssText="position:absolute;top:0%;left:0%,right:75%;border-radius:20px;box-shadow:1px 1px 6px white;width:fit-content;padding:0.5rem;display:flex;justify-content:center;align-items:center;gap:0.5rem;flex-direction:column;";
         const text=document.createElement("p");
-        text.textContent="sites";
+        text.textContent="SITES";
         text.classList.add("text-primary")
         text.style.cssText="margin-inline:auto;text-decoration:underline;text-underline-offset:0.5rem;";
         arrCont.appendChild(text);
         const privArr=document.createElement("div");
-        privArr.style.cssText="position:relative;width:25px;height:25px;border-radius:50%;box-shadow:1px 1px 10px 1px;#1F305E;text-align:center;display:grid;place-items:center;background-color:white;";
+        privArr.style.cssText="position:relative;padding:2px;border-radius:50%;box-shadow:1px 1px 10px 1px;#1F305E;text-align:center;display:flex;align-items:center;background-color:white;transform:translate(-3px,-5px);";
         privArr.style.color="blue";
-        privArr.style.transform=trans;
+        // privArr.style.transform=trans;
         //attching arrow
-        FaCreate({parent:privArr,name:FaArrowRight,cssStyle:{fontSize:"20px"}});
+        FaCreate({parent:privArr,name:FaArrowRight,cssStyle:{fontSize:"20px",margin:"auto"}});
         arrCont.appendChild(privArr);
         //PRIVACY LINK
         const privAnc=document.createElement("a");
@@ -483,11 +485,12 @@ class MainFooter{
     }
     centerSideContent(parent:HTMLElement){
         const container=document.createElement("div");
+        const css_btn="margin:auto;display:grid;place-items:center;gap:0.5rem;flex-direction:column;cursor:pointer;box-shadow:1px 1px 7px 1px #0CAFFF,-1px -1px 7px 1px #0CAFFF;border-radius:23px;background-color:#0C090A;color:white;";
         container.id="centerSideContent";
         container.style.cssText="margin-inline:auto;margin-block:0.5rem;width:100%;min-height:inherit;border-top:1px solid white;border-bottom:1px solid white;padding-block:0.25rem;display:flex;justify-content:space-around;align-items:center;";
         const div=document.createElement("div");
         div.id="extra-info";
-        div.style.cssText="margin:auto;display:grid;place-items:center;gap:0.5rem;flex-direction:column;cursor:pointer;box-shadow:1px 1px 7px 1px #0CAFFF,-1px -1px 7px 1px #0CAFFF;border-radius:23px;background-color:#0C090A;color:white;";
+        div.style.cssText=css_btn;
         const text=document.createElement("p");
         text.textContent="additional info";
         text.style.cssText="font-size:12px;padding-inline:1.5rem;padding-block:0.15rem;border-radius:20px;margin:auto;";
@@ -499,6 +502,20 @@ class MainFooter{
                 this._navArrow.generalInfo(MainHeader.header as HTMLElement);
             }
         });
+        const noteAdder= document.createElement("div");
+        noteAdder.id="centerSideContent-notAdder";
+        noteAdder.style.cssText=css_btn + "width:fit-content;margin-inline:auto;padding-inline:1.5rem;";
+        const noteText=document.createElement("p");
+        noteText.textContent=" free noteAdder";
+        noteText.style.cssText="margin:auto;"
+        noteAdder.appendChild(noteText);
+        container.appendChild(noteAdder);
+        noteAdder.onclick=(e:MouseEvent)=>{
+            if(e){
+                window.open(this.noteAddUrl,"_blank");
+
+            }
+        };
         Misc.btnHover({parent:div,bg:"white",color:"black",bRadius1:"10px",bRadius2:"23px",time:700})
         parent.appendChild(container);
     }
@@ -711,13 +728,13 @@ class MainFooter{
         container.style.left="0%";
         container.style.transform=less900 ? (less400 ? "translate(0px,0px)":"translate(0px,0px)"): "translate(0px,-10px)";
         const text=document.createElement("p");
-        text.textContent="top";
+        text.textContent="TOP";
         text.className="text-center text-primary";
         text.style.cssText="font-size:80%;line-height:0.75rem;margin-bottom:0px;"
         const button=document.createElement("button");
         button.id="scrollToTop-button";
         button.style.cssText=css_row + "padding:auto;border-radius:50%;position:relative;box-shadow:1px 1px 6px 1px white;z-index:100;background-color:inherit;";
-        FaCreate({parent:button,name,cssStyle:{color:"yellow",fontSize:"26px",borderRadius:"50%"}});
+        FaCreate({parent:button,name,cssStyle:{color:"whitesmoke",fontSize:"26px",borderRadius:"50%"}});
        container.appendChild(text);
        container.appendChild(button);
        parent.appendChild(container);

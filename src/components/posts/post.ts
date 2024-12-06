@@ -573,14 +573,16 @@ class Post{
         const less400=window.innerWidth < 400;
         Header.cleanUpByID(row,`posts-postcard-col-${index}`);
         const css_col="margin-inline:auto;display:flex;flex-direction:column;justify-content:center;align-items:center;gap:0.7rem;color:inherit;border-radius:inherit;width:100%";
-        const shapoutside="padding:1rem;text-wrap:wrap;color:black;font-family:'Poppins-Thin';font-weight:bold;font-size:120%;line-height:2.05rem;color:inherit;border-radius:12px;box-shadow:1px 1px 12px white;"
+        const shapoutside="text-wrap:wrap;color:black;font-family:'Poppins-Thin';font-weight:bold;font-size:120%;line-height:2.05rem;color:inherit;border-radius:12px;box-shadow:1px 1px 12px white;"
         const css_row="margin-inline:auto;display:flex;flex-direction:row;flex-wrap:wrap;justify-content:center;align-items:center;gap:0.27rem;color:inherit;border-radius:inherit;";
         const col=document.createElement("div");
         col.id=`posts-postcard-col-${index}`;
         col.className=less900 ? "col-md-12" : "col-md-6";
-        col.style.cssText="margin-inline:auto;display:flex;flex-direction:column;justify-content:flex-start;align-items:center;gap:0.75rem;background-color:#098ca091;color:white;border-radius:12px;box-shadow:1px 1px 6px 1px white;padding-inline:1rem;";
+        //background-color:#098ca091
+        col.style.cssText="margin-inline:auto;display:flex;flex-direction:column;justify-content:flex-start;align-items:center;gap:0.75rem;color:white;border-radius:12px;box-shadow:1px 1px 6px 1px white;";
         col.style.width=less900 ? "100%":"auto";
         col.style.flex=less900 ? "1 0 100%":"1 0 47%";
+        col.style.paddingInline=less900 ? (less400 ? "0rem":"0.5rem"):"1rem";
         const card=document.createElement("div");
         card.id=`posts-postcard-card-${index}`;
         card.style.cssText=css_col;
@@ -592,12 +594,13 @@ class Post{
         card.appendChild(title);
         const shapeOutside=document.createElement("p");
         shapeOutside.id=`posts-shapeOutside-${index}`;
-        shapeOutside.style.cssText=window.innerWidth <400 ? shapoutside + css_col :shapoutside;
+        shapeOutside.style.cssText=less400 ? shapoutside + css_col :shapoutside;
+        shapeOutside.style.padding=less400 ? "0.75rem" :"1rem";
         const img=document.createElement("img");
         img.id=`posts-shapeOutside-img-${index}`;
         img.style.cssText="border-radius:50%;shape-outside:circle(50%);float:left;margin-right:1.25rem;margin-bottom:2rem;aspect-ratio:1/1;filter:drop-shadow(0 0 0.75rem white);border:none;";
         img.style.filter="drop-shadow(0 0 0.75rem white) !important";
-        img.style.width=window.innerWidth <900 ? (window.innerWidth <400 ? "300px" : "310px") :"355px";
+        img.style.width=less900 ? (less400 ? "320px" : "330px") :"355px";
         const widthConv=parseInt(img.style.width.split("px")[0]) as number;
         if(post.image){
             img.src=imageLoader({src:post.image,width:widthConv,quality:75});
@@ -956,17 +959,19 @@ class Post{
         const {targetStr}=item;
         const text=targetStr;
         let text2=text as string;
-        const reg1:RegExp=/(1)\.|(1)\.\)/g;
-        const reg2:RegExp=/(2)\.|(2)\.\)/g;
-        const reg3:RegExp=/(3)\.|(3)\.\)/g;
-        const reg4:RegExp=/(4)\.|(4)\.\)/g;
-        const reg5:RegExp=/(5)\.|(5)\.\)/g;
-        const reg6:RegExp=/(6)\.|(6)\.\)/g;
-        const reg7:RegExp=/(7)\.|(7)\.\)/g;
-        const reg8:RegExp=/(8)\.|(8)\.\)/g;
-        const reg9:RegExp=/(9)\.|(9)\.\)/g;
+        const reg1:RegExp=/(1)\./g;
+        const reg2:RegExp=/(2)\./g;
+        const reg3:RegExp=/(3)\./g;
+        const reg4:RegExp=/(4)\./g;
+        const reg5:RegExp=/(5)\./g;
+        const reg6:RegExp=/(6)\./g;
+        const reg7:RegExp=/(7)\./g;
+        const reg8:RegExp=/(8)\./g;
+        const reg9:RegExp=/(9)\./g;
         const reg10:RegExp=/(10)\.|(10)\.\)/g;
         const reg11:RegExp=/(NOTE)\:/g;
+        const reg12:RegExp=/\"[a-zA-Z0-9\s\']+\"/g;
+        const reg13:RegExp=/\([a-zA-Z0-9\s\,\'\"]{2,25}\)/g;
         const arrReg:{id:number,reg:RegExp}[]=[
             {id:0,reg:reg1},
             {id:1,reg:reg2},
@@ -979,16 +984,21 @@ class Post{
             {id:8,reg:reg9},
             {id:9,reg:reg10},
             {id:10,reg:reg11},
+            // {id:11,reg:reg12},
         ];
         if(text2 && text){
-            arrReg.map(regItem=>{
+            arrReg.map((regItem,index)=>{
                 const {id,reg}=regItem;
                 const matches=text.matchAll(reg) as any;
                 // let index=0
                 for(const match of matches){
                     const start=match.index;
                     const end=match[0].length;
-                    text2=text2.replace(regItem.reg,`<br/> ${match[0]}`);
+                    if(index !==11){
+                        text2=text2.replace(regItem.reg,`<br/> ${match[0]}`);
+                    }else if(index===11){
+                        text2=text2.replace(regItem.reg,`<span style="color:lightblue"> ${match[0]} </span>`);
+                    }
                     
                 }
             });

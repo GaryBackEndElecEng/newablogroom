@@ -74,6 +74,7 @@ class AddImageUrl {
             {name:"coffee",url:this.freepicurl +"/coffee2.png"},
             {name:"moon-earth-view",url:this.freepicurl +"/moonToEarth.png"},
             {name:"moon-earth-view",url:this.freepicurl +"/moonToEarth2.png"},
+            {name:"logo",url:this.freepicurl +"/gb_logo_600.png"},
             {name:"cartoon 1",url:this.freepicurl +"/img1.png"},
             {name:"cartoon 2",url:this.freepicurl +"/img10.png"},
             {name:"cartoon 3",url:this.freepicurl +"/img2.png"},
