@@ -377,6 +377,7 @@ class Edit {
     }
    //PARENT:retuserBlogs()
     async blogCard(parent:HTMLElement,container:HTMLElement,row:HTMLElement,col:HTMLElement,blog:blogType){
+        const {user_id,id}=blog;
         const card=document.createElement("div");
         card.className="card";
         card.style.cssText="width:100%;padding:1rem;";
@@ -412,7 +413,7 @@ class Edit {
         row.appendChild(col);
         view.onclick=(e:MouseEvent)=>{
             if(e){
-                this._service.getUserBlog({user_id:blog.user_id,blog_id:blog.id}).then(async(resBlog)=>{
+                this._service.getUserBlog({user_id,blog_id:id}).then(async(resBlog)=>{
                     if(resBlog && resBlog as blogType){
                         const _blog={...resBlog as blogType};
                         this._modSelector._blog={..._blog, selectors:_blog.selectors,elements:_blog.elements,codes:_blog.codes};
@@ -427,7 +428,7 @@ class Edit {
         }
         edit.onclick=(e:MouseEvent)=>{
             if(e){
-                this._service.getUserBlog({user_id:blog.user_id,blog_id:blog.id}).then(async(resBlog)=>{
+                this._service.getUserBlog({user_id,blog_id:id}).then(async(resBlog)=>{
                     if(resBlog && resBlog as blogType){
                         const _blog=resBlog as blogType;
                         this._modSelector.loadBlog(_blog);

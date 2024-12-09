@@ -1,5 +1,4 @@
 import { getErrorMessage } from "@/lib/errorBoundaries";
-import { PrismaClient } from "@prisma/client";
 import { NextApiRequest, NextApiResponse } from "next";
 import { getBlogImages } from "@/lib/awsFunctions";
 import { blogType } from "@/components/editor/Types";
@@ -38,8 +37,13 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
                         pageCounts: true
                     }
                 });
-                const getBlogWithImages = await getBlogImages(blog as unknown as blogType)
-                res.status(200).json(getBlogWithImages);
+                if (blog) {
+
+                    res.status(200).json(blog);
+
+                } else {
+                    res.status(500).json({ msg: "did not get blog- something went wrong" })
+                }
             } catch (error) {
                 const msg = getErrorMessage(error.message);
                 console.log("error: ", msg)

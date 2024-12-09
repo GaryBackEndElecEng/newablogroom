@@ -932,6 +932,7 @@ async apiUploadSaveFree(item:{parent:HTMLElement,Key:string,formdata:FormData}):
         if(user_id && blog_id){
 
             return fetch(`${this.userBlogUrl}?blog_id=${blog_id}&user_id=${user_id}`,option).then(async(res)=>{
+                //"/api/blog/getuserblog"
                 if(res){
                     return await res.json() as blogType;
                 }
