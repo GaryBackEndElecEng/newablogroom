@@ -130,12 +130,12 @@ class CodeElement{
             class: "",
             inner_html: "",
             cssText: "",
-            attr:undefined,
+            attr:"data-is-code-element",
             img: undefined,
             imgKey:undefined,
             blog_id:0
             };
-        const css_row="display:flex;flex-wrap:wrap;justify-content:center;align-items:center;gap:0rem;width:100%;position:relative;min-height:15vh;max-width:800px;background-color:black;color:white;padding-inline:1rem;border-radius:12px;font-size:20px;line-height:2rem;margin-block:3rem;";
+        const css_row="display:flex;flex-wrap:wrap;justify-content:center;align-items:center;gap:0rem;width:100%;position:relative;min-height:15vh;max-width:800px;background-color:black;color:white;padding-inline:1rem;border-radius:12px;font-size:20px;line-height:2rem;margin-block:3rem;overflow-x:scroll;";
         this.initTypes=["Java","JSON","Python","HTML"]
         this._codeElements=Array.from(Array(4).keys()).map(num=>{
             return {...this.element,type:this.initTypes[num],name:"div",class:this.initTypes[num],cssText:css_row}
@@ -195,9 +195,7 @@ class CodeElement{
                     const rand=Math.round(Math.random()*1000);
                     const len=this.elements.length;
                     const eleId=(this.element.type ? this.element.type :"java") + String(rand);
-                    this.element={...this.element,id:len,eleId:eleId,placement:this.placement,class:`language -${this.element.type}`};
-                    this.elements=[...this.elements,this.element];
-                    this.placement=this.placement + 1;
+                    this.element={...this.element,id:len,eleId:eleId,placement:this.placement,class:`language-${this.element.type}`};
                     //ABOVE:  ADDING NEW element TO elementS FOR BLOG.CODES
                     this.main({injector,element:this.element,isNew:true,isClean:false})
                     injector.removeChild(container);
@@ -224,7 +222,7 @@ class CodeElement{
         container.style.paddingInline=less900 ?(less400 ? "0.25rem":"0.5rem"):"1rem";
         const divCont=document.createElement("div");
         divCont.className="eleContainer";
-        divCont.style.cssText=css_col + " min-height:20vh;position:relative;width:100%;overflow-x:scroll;";
+        divCont.style.cssText=css_col + " min-height:20vh;position:relative;width:100%;";
         divCont.style.paddingInline=less900 ? (less400 ? "0rem":"0.75rem"):"1rem";
         divCont.style.paddingBlock="1rem";
         divCont.style.width="100%";
@@ -238,12 +236,13 @@ class CodeElement{
 
     }
     divTarget(item:{parent:HTMLElement,container:HTMLElement,divCont:HTMLElement,element:elementType,isNew:boolean,isClean:boolean,css_col:string}){
-        const {parent,container,divCont,element,isNew,css_col,isClean}=item
+        const {parent,container,divCont,element,isNew,css_col,isClean}=item;
+        const less900= window.innerWidth < 900;
         ////-------TARGET--------//
         //PARENT==INJECTOR
         const css_row="display:flex;flex-wrap:wrap;justify-content:center;align-items:center;gap:0rem;width:100%;";
         const target=document.createElement("div");
-        target.setAttribute("is-code-element","true");
+        target.setAttribute("data-is-code-element","true");
         target.setAttribute("name",element.name);
         target.setAttribute("type",element.type ? element.type :"no-type");
         target.setAttribute("is-element","true");
@@ -256,13 +255,19 @@ class CodeElement{
             ////////////////--------PRE (keeps spacing)--------------------////
             const pre=document.createElement("pre");
             pre.id=`pre`;
-            pre.style.width="100%";
             pre.className="pre-element";
             pre.setAttribute("contenteditable","true");
             pre.textContent="comments=>//enter your code... with a period(.) at the end";
-            pre.style.cssText="width:100%;text-wrap:pretty;"
+            pre.style.cssText="width:100%;text-wrap:pretty;overflow-x:scroll;"
+            pre.style.width="100%";
+            pre.style.overflowX=less900 ? "scroll":"hidden";
             target.appendChild(pre);
-            divCont.setAttribute("data-placement",`${this.element.placement}-A`);
+            this._modSelector.promElementAdder(target).then(async(res)=>{
+                if(res){
+                    const ele=res.ele as elementType
+                    divCont.setAttribute("data-placement",`${ele.placement}-A`);
+                }
+            });
             
             ////////////////--------PRE (keeps spacing)--------------------////
             
@@ -273,7 +278,7 @@ class CodeElement{
             target.innerHTML=element.inner_html;
             target.style.backgroundColor="black";
             target.style.color="white";
-            target.setAttribute("is-code-element","true");
+            target.setAttribute("data-is-code-element","true");
             target.setAttribute("is-element","true");
             divCont.setAttribute("data-placement",`${element.placement}-A`);
             const getPre=target.querySelector("pre#pre") as HTMLElement;
@@ -288,6 +293,12 @@ class CodeElement{
                 }
             }
         }
+        divCont.onclick=(e:MouseEvent)=>{
+            if(e){
+                divCont.classList.toggle("isActive");
+                //not target because of toolbar influence
+            }
+        };
         this.titleContainer({divCont,target,element,css_col,isNew,isClean});
         divCont.appendChild(target)
         if(!isClean){
@@ -318,7 +329,7 @@ class CodeElement{
                     const regArrType=this.regArrs.find(reg=>(reg.name==element.type));
                     if(!regArrType) return;
                     const regArr=regArrType.regArr;
-                    this.colorCreator({target,regArr});
+                    this.colorCreator({target,regArr,isClean});
                 }
             };
             save.onclick=(e:MouseEvent)=>{
@@ -339,17 +350,23 @@ class CodeElement{
             };
         }else{
             //REMOVING CONTENTEDITABLE
-            const getPre=target.querySelector("pre#pre");
+            const getPre=target.querySelector("pre#pre") as HTMLElement;
             if(!getPre) return;
             getPre.removeAttribute("contenteditable");
+            getPre.style.overflowX=less900 ? "scroll":"hidden";
         }
         ////-------TARGET--------//
     }
 
-    colorCreator(item:{target:HTMLElement,regArr:regJavaType[]}){
-        const {target,regArr}=item;
+    colorCreator(item:{target:HTMLElement,regArr:regJavaType[],isClean:boolean}){
+        const {target,regArr,isClean}=item;
+        const less900=window.innerWidth < 900;
         const type=target.getAttribute("type");
         const getPre=target.querySelector("pre#pre") as HTMLPreElement;
+        if(isClean && getPre){
+            getPre.removeAttribute("contenteditable");
+            getPre.style.overflowX=less900 ? "scroll":"hidden";
+        }
         if(type && type !=="HTML"){
 
             this.matchInsert({pre:getPre,regArr}).then(async(res)=>{

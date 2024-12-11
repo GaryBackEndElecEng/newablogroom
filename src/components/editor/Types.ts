@@ -564,3 +564,4 @@ export type infoType2={
     siteArray:{name:string,url:string}[]
 }
 export type bucketType ="masterultils-postimages" | "newablogroom-free-bucket"
+export type regenCleanType={id:number,duplicate:boolean,selEleChrt:elementType|selectorType|chartType,type:"element"|"selector"|"chart"}

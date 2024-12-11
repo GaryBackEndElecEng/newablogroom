@@ -1,4 +1,4 @@
-import {flexType,elementType,selectorType,element_selType,codeType,blogType, chartType,} from "./Types";
+import {flexType,elementType,selectorType,element_selType,codeType,blogType, chartType, regenCleanType,} from "./Types";
 import ModSelector from "@/components/editor/modSelector";
 import DisplayBlog, {separator} from "@/components/blog/displayBlog";
 import Header from "@/components/editor/header";
@@ -21,6 +21,7 @@ import RegSignIn from "../nav/regSignin";
 import NewCode from "./newCode";
 import ChartJS from "../chart/chartJS";
 import CodeElement from "../common/codeElement";
+import PasteCode from "../common/pasteCode";
 
 class EditSetups{
     bgColor:string;
@@ -209,6 +210,7 @@ class Edit {
     editSetup:EditSetups;
     flexbox:Flexbox;
     _regSignin:RegSignIn;
+    _pasteCode:PasteCode;
     css:string="min-height:100vh;height:auto;box-shadow:1px 1px 12px 2px black;border-radius:10px;padding-inline:0px;padding-block:0px;margin:0px;z-index:0;position:relative;width:100%;display:flex;flex-direction:column;justify-content:flex-start;align-items:center;gap:1rem;";
   
     constructor(public modSelector:ModSelector,private _service:Service,public _mainInjection:HTMLElement | null,private _user:User,public _flexbox:Flexbox,public _htmlElement:HtmlElement,public header:Header, public customHeader:CustomHeader,public footer:Footer,public displayBlog:DisplayBlog,private _code:NewCode,public chart:ChartJS,private _shapeOutside:ShapeOutside,public codeElement:CodeElement){
@@ -224,7 +226,7 @@ class Edit {
         this.mainInjection=_mainInjection;
         this.flex={} as flexType;
         this.editSetup=new EditSetups(this._modSelector,this._service,this.displayBlog,this.flexbox)
-        
+        this._pasteCode=new PasteCode(this._modSelector,this._service)
        
         
     }
@@ -605,8 +607,10 @@ class Edit {
 
                         }else if(item.type==="element"){
                             const ele=item.selEleChrt as elementType;
-                            if(ele.attr==="is-code-element"){
+                            if(ele.attr==="data-is-code-element"){
                                 this.codeElement.main({injector:parent,element:ele,isNew:false,isClean:false});
+                            }else if(ele.attr==="data-is-code-paste"){
+                                this._pasteCode.main({parent,element:ele,isNew:false,isClean:false});
                             }else{
 
                                 await this._htmlElement.showElement(parent,ele);
@@ -934,19 +938,24 @@ class Edit {
         divCont.className="eleContainer";
         divCont.style.cssText="margin-block:auto;padding:3px;";
         divCont.setAttribute("data-placement",`${element.placement}`);
+        const attr=element.attr ? element.attr : "is-element";
+        const isCodeElement=element.attr ? element.attr==="data-is-code-element":false;
+        const isPasteElement=element.attr ? element.attr==="data-is-code-paste":false;
+        const isCodes=[isCodeElement,isPasteElement].includes(true);
         const ele=document.createElement(element.name);
         ele.setAttribute("name",element.name);
         ele.setAttribute("is-element","true");
+        ele.setAttribute(attr,"true");
         ele.classList.remove("isActive");
         ele.id=element.eleId;
         ele.className=element.class.split(" ").filter(cl=>(cl !=="box-shadow")).join(" ");
-        console.log("element.attr",element.attr);
+        // console.log("element.attr",element.attr);
         ele.classList.toggle("isActive");
         ele.style.cssText=`${element.cssText}`;
         const checkEle=["p","h1","h2","h3","h4","h5","h6","div","blockquote","ul","hr"].includes(element.name);
         // console.log(element.name,checkEle)//works
         switch(true){
-            case checkEle:
+            case checkEle && !isCodes:
                 // console.log("Paragraph: ",element.inner_html)
                 ele.innerHTML=element.inner_html;
                 ele.setAttribute("contenteditable","true");
@@ -959,11 +968,22 @@ class Edit {
                             }
                     }
                 });
-                console.log("data-shapeoutside",element.attr)
                 if(element.attr==="data-shapeoutside"){
                     ele.setAttribute(element.attr,"true");
                     console.log("data-shapeoutside",element.attr);
                 }
+                divCont.appendChild(ele);
+                parent.appendChild(divCont);
+                this._modSelector.editElement(ele);
+            return;
+            case isCodes:
+        
+                if(isCodeElement){
+                    this.codeElement.main({injector:parent,element,isNew:false,isClean:false})
+                }else if(isPasteElement){
+
+                }
+                
                 divCont.appendChild(ele);
                 parent.appendChild(divCont);
                 this._modSelector.editElement(ele);
@@ -1038,8 +1058,9 @@ class Edit {
    
     placementAdjustShift(item:{blog:blogType}):{id:number,duplicate:boolean,selEleChrt:elementType|selectorType|chartType,type:"element"|"selector"|"chart"}[]{
         const {blog}=item;
-        const arr:{id:number,duplicate:boolean,selEleChrt:elementType|selectorType|chartType,type:"element"|"selector"|"chart"}[]=[]
-        const arrSorted:{id:number,duplicate:boolean,selEleChrt:elementType|selectorType|chartType,type:"element"|"selector"|"chart"}[]=[]
+        const arr:regenCleanType[]=[]
+        const arr2:regenCleanType[]=[]
+        const arrSorted2:regenCleanType[]=[]
         const maxcount=ModSelector.maxCount(blog);
         const elements=blog.elements && blog.elements.length>0 ? blog.elements as elementType[] :null;
         const selects=(blog.selectors && blog.selectors.length) ? blog.selectors as selectorType[]: null;
@@ -1087,24 +1108,9 @@ class Edit {
                 });
             }
         });
-        arr.sort((a,b)=>{if(a.id < b.id) return -1;return 1;}).map((item,index)=>{
-            if(item){
-                const indexShift=item.duplicate===true ? item.id : null;
-                if(!indexShift){
-                    arrSorted.push({...item,id:index + 1})
-                }else if(indexShift===item.id){
-                    const dupArr=arr.sort((a,b)=>{if(a.id < b.id) return -1;return 1;}).filter(item=>(item.duplicate===true));
-                    dupArr.map((dupItem,ind)=>{
-                            if(dupItem){
-                                const newId=index+ 1 + ind;
-                                arrSorted.push({...item,id:newId,duplicate:false})
-                            }
-                        
-                    });
-                
-                };
-            }
-        });
+        const arrSorted=this.regenerateArr(arr,2);
+        // console.log("arr:",arr.map(item=>({id:item.id,placement:item.selEleChrt.placement,name:(item.selEleChrt as elementType|selectorType).name,duplicate:item.duplicate,type:item.type})));
+        // console.log("arrSorted:",arrSorted.map(item=>({id:item.id,placement:item.selEleChrt.placement,duplicate:item.duplicate,type:item.type,name:(item.selEleChrt as elementType|selectorType).name})));
                 const newSorted=arrSorted.sort((a,b)=>{if(a.id < b.id) return -1;return 1;}).map((item,index)=>{
                     if(item){
                         if(item.type==="element"){
@@ -1138,6 +1144,33 @@ class Edit {
             localStorage.setItem("placement",String(maxcount + 1));
         return newSorted;
 
+    }
+    regenerateArr(arr:regenCleanType[],count:number):regenCleanType[]{
+        const arrSorted:regenCleanType[] = [];
+        let arr2=arr;
+        arr2.sort((a,b)=>{if(a.id < b.id) return -1;return 1;}).map((item,index)=>{
+            if(item){
+                const indexShift=item.duplicate===true ? item.id : null;
+                if(!indexShift){
+                    arrSorted.push({...item,id:index + 1,duplicate:false})
+                }else if(indexShift){
+                    arrSorted.push({...item,id:indexShift+2,duplicate:false});
+                    arr2=arr2.sort((a,b)=>{if(a.id < b.id) return -1;return 1;}).map((item_,ind_)=>{
+                        if(item_ && ind_>indexShift + 2){
+                            item={...item_,id:ind_}
+                            // arrSorted.push({...item_,id:ind_});
+                        }
+                        return item;
+                    });
+                    if(count>0){
+                        count--;
+                        this.regenerateArr(arr2,count);
+
+                    }
+                };
+            }
+        });
+        return arrSorted
     }
     
     sendMessage(parent:HTMLElement,msg:string,type_:"warning"|"success"|"error",time:number){

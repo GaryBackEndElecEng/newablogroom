@@ -1,9 +1,8 @@
-import { PrismaClient } from "@prisma/client";
+
 import { userType } from "@/components/editor/Types";
 import { NextApiRequest, NextApiResponse } from "next";
 import { blogType } from "@/components/editor/Types";
 import { getErrorMessage } from "@/lib/errorBoundaries";
-import { getAllBlogImages, getUsersImage } from "@/lib/awsFunctions";
 import prisma from "@/prisma/prismaclient";
 
 
@@ -22,8 +21,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
                         image: true
                     }
                 });
-                const userImgs = await getUsersImage(users_ as unknown[] as userType[]);
-                res.status(200).json(userImgs);
+                res.status(200).json(users_);
                 return await prisma.$disconnect();
             } catch (error) {
                 const msg = getErrorMessage(error);
@@ -46,8 +44,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
                         attr: true
                     }
                 });
-                const newBlogs = await getAllBlogImages(blogs_ as unknown[] as blogType[]);
-                res.status(200).json(newBlogs);
+                res.status(200).json(blogs_);
                 // console.log("blogMsgs", blogMsgs, "blog_id", blog_id, "type", typeof (blog_id))
                 return await prisma.$disconnect();
             } catch (error) {

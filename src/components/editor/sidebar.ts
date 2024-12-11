@@ -30,6 +30,7 @@ import NewCode from "./newCode";
 import ChartJS from "../chart/chartJS";
 import AddImageUrl from "../common/addImageUrl";
 import CodeElement from "../common/codeElement";
+import PasteCode from "../common/pasteCode";
 
 
 export type extendType={
@@ -951,7 +952,8 @@ class Sidebar{
    design:Design;
    addImage:AddImageUrl;
     _elements:elementType[]=[];
-    codeElement:CodeElement
+    codeElement:CodeElement;
+    _pasteCode:PasteCode;
     //Column GENERATOR
     arrCol=[{col:1,num:12},{col:2,num:6},{col:3,num:4},{col:4,num:3},{col:6,num:2}]
     //-------------------INITIALIZE---------------------///
@@ -986,6 +988,7 @@ class Sidebar{
             }
         });
         this.addImage=new AddImageUrl(this._modSelector,this._service);
+        
     }
     //------GETTER SETTERS-----/////
     
@@ -1139,7 +1142,7 @@ class Sidebar{
         let setOverflowY:string="scroll";
         if(injection  ){
             setHeight=window.getComputedStyle(injection).getPropertyValue("height");
-            setHeight=less900 ? window.getComputedStyle(injection).getPropertyValue("height"):"100vh";
+            setHeight=less900 ? window.getComputedStyle(injection).getPropertyValue("height"):"auto";
             setOverflowY="scroll";
         }
         
@@ -1171,6 +1174,7 @@ class Sidebar{
         this.initiateShapOutsideBtn(sidebarMain);
         // this.initiateGenerateCode(sidebarMain);
         this.initiateCodElement(sidebarMain);
+        this.initiatePasteCode(sidebarMain);
         this.initiateReference(sidebarMain);
         this.initiateGenerateFooter(sidebarMain);
         this.flexBoxLayout(sidebarMain);
@@ -1182,7 +1186,7 @@ class Sidebar{
         btnContainer.className="flexCol text-center";
         btnContainer.style.cssText="box-shadow:1px 1px 12px 1px white;border-radius:10px;padding-inline:0.5rem;padding-block:1rem;width:100%;";
         const H5=document.createElement("h5");
-        H5.textContent="Intro on the Editor";
+        H5.textContent="Editor Overview";
         H5.style.cssText="margin:auto;text-decoration:underline;text-underline-offset:1rem;";
         H5.className="text-info lean";
         btnContainer.appendChild(H5);
@@ -1226,7 +1230,7 @@ class Sidebar{
         btnContainer.className="flexCol text-center";
         btnContainer.style.cssText="box-shadow:1px 1px 12px 1px white;border-radius:10px;padding-inline:0.5rem;padding-block:1rem;width:100%;";
         const H5=document.createElement("h5");
-        H5.textContent="Edit Your Theme work";
+        H5.textContent="choose a theme";
         H5.style.cssText="margin:auto;text-decoration:underline;text-underline-offset:1rem;";
         H5.className="text-info lean";
         btnContainer.appendChild(H5);
@@ -1236,7 +1240,7 @@ class Sidebar{
         para.className="mc-auto px-1 text-balance text-center";
         para.style.color="white";
         para.style.cssText="text-wrap:wrap;margin-block:1rem;";
-        para.textContent="choose you theme.";
+        para.textContent="choose you theme,,, font,background,,,";
         divpara.appendChild(para);
         Misc.animateScroll(divpara,para);
         btnContainer.appendChild(divpara);
@@ -1793,8 +1797,8 @@ class Sidebar{
         const btnContainer=document.createElement("div");
         btnContainer.className="flexCol text-center";
         btnContainer.style.cssText="box-shadow:1px 1px 12px 1px white;border-radius:10px;padding-inline:0.5rem;padding-block:1rem;text-align:center;align-items:center;width:100%;";
-        const H5=document.createElement("h5");
-        H5.textContent="Load free Images";
+        const H5=document.createElement("h6");
+        H5.textContent="free Images";
         H5.style.cssText="margin:auto;text-decoration:underline;text-underline-offset:1rem;";
         H5.className="text-info lean";
         btnContainer.appendChild(H5);
@@ -1890,8 +1894,8 @@ class Sidebar{
         const btnContainer=document.createElement("div");
         btnContainer.className="flexCol text-center";
         btnContainer.style.cssText="box-shadow:1px 1px 12px 1px white;border-radius:10px;padding-inline:0.5rem;padding-block:1rem;text-align:center;align-items:center;width:100%;";
-        const H5=document.createElement("h5");
-        H5.textContent="Create reference list";
+        const H5=document.createElement("h6");
+        H5.textContent="reference list";
         H5.style.cssText="margin:auto;text-decoration:underline;text-underline-offset:1rem;";
         H5.className="text-info lean";
         btnContainer.appendChild(H5);
@@ -1938,8 +1942,8 @@ class Sidebar{
         const btnContainer=document.createElement("div");
         btnContainer.className="flexCol text-center";
         btnContainer.style.cssText="box-shadow:1px 1px 12px 1px white;border-radius:10px;padding-inline:0.5rem;padding-block:1rem;text-align:center;align-items:center;width:100%;";
-        const H5=document.createElement("h5");
-        H5.textContent="merge-image-text";
+        const H5=document.createElement("h6");
+        H5.textContent="image-text-merger";
         H5.style.cssText="margin:auto;text-decoration:underline;text-underline-offset:1rem;";
         H5.className="text-info lean";
         btnContainer.appendChild(H5);
@@ -1983,8 +1987,8 @@ class Sidebar{
         const btnContainer=document.createElement("div");
         btnContainer.className="flexCol text-center";
         btnContainer.style.cssText="box-shadow:1px 1px 12px 1px white;border-radius:10px;padding-inline:0.5rem;padding-block:1rem;text-align:center;align-items:center;width:100%;";
-        const H5=document.createElement("h5");
-        H5.textContent="Generate Your code";
+        const H5=document.createElement("h6");
+        H5.textContent="type Your code";
         H5.style.cssText="margin:auto;text-decoration:underline;text-underline-offset:1rem;";
         H5.className="text-info lean";
         btnContainer.appendChild(H5);
@@ -2028,8 +2032,8 @@ class Sidebar{
         const btnContainer=document.createElement("div");
         btnContainer.className="flexCol text-center";
         btnContainer.style.cssText="box-shadow:1px 1px 12px 1px white;border-radius:10px;padding-inline:0.5rem;padding-block:1rem;text-align:center;align-items:center;width:100%;";
-        const H5=document.createElement("h5");
-        H5.textContent="past/create your code";
+        const H5=document.createElement("h6");
+        H5.textContent="type your code";
         H5.style.cssText="margin:auto;text-decoration:underline;text-underline-offset:1rem;";
         H5.className="text-info lean";
         btnContainer.appendChild(H5);
@@ -2037,7 +2041,7 @@ class Sidebar{
         para.className="mc-auto px-1 text-balance text-center";
         para.style.cssText="text-wrap:wrap;margin-block:1rem;";
         para.style.color=this.textColor;
-        para.textContent="This allows you to display code using VS color palette.";
+        para.textContent="This allows you to type && display code using VS color palette.";
         btnContainer.appendChild(para);
         const {button:btn}=Misc.simpleButton({anchor:btnContainer,type:"button",bg:"green",color:"white",time:400,text:"create code"});
         parent.appendChild(btnContainer);
@@ -2056,6 +2060,42 @@ class Sidebar{
                 this.codeElement.codeTemplate({
                     injector:Main.textarea as HTMLElement,
                 })
+            }
+
+        });
+    
+    };
+    initiatePasteCode(parent:HTMLElement){
+    
+        const btnContainer=document.createElement("div");
+        btnContainer.className="flexCol text-center";
+        btnContainer.style.cssText="box-shadow:1px 1px 12px 1px white;border-radius:10px;padding-inline:0.5rem;padding-block:1rem;text-align:center;align-items:center;width:100%;";
+        const H5=document.createElement("h5");
+        H5.textContent="past your code";
+        H5.style.cssText="margin:auto;text-decoration:underline;text-underline-offset:1rem;";
+        H5.className="text-info lean";
+        btnContainer.appendChild(H5);
+        const para=document.createElement("p");
+        para.className="mc-auto px-1 text-balance text-center";
+        para.style.cssText="text-wrap:wrap;margin-block:1rem;";
+        para.style.color=this.textColor;
+        para.textContent="This allows you to paste your VS Code";
+        btnContainer.appendChild(para);
+        const {button:btn}=Misc.simpleButton({anchor:btnContainer,type:"button",bg:"green",color:"white",time:400,text:"paste code"});
+        parent.appendChild(btnContainer);
+        btn.animate([
+            {transform:"translateY(-100%) skew(45deg,0deg)",opacity:"0.3"},
+            {transform:"translateY(0%) skew(0deg,0deg)",opacity:"1"}
+        ],{duration:1000,iterations:1})
+        btn.addEventListener("click",(e:MouseEvent)=>{
+            if(e){
+                window.scroll(0,400);
+                btn.disabled=true;
+                setTimeout(()=>{
+                    btn.disabled=false;
+                },1000);
+                this._pasteCode=new PasteCode(this._modSelector,this._service);
+                this._pasteCode.initPasteCode({injector:Main.textarea as HTMLElement})
             }
 
         });

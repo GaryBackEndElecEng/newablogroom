@@ -605,13 +605,16 @@ class  Main  {
     //INJECTION
     textArea(parent: HTMLElement):void {
        //INSERT SELECTORS/ELEMENTS FROM EDIT
+       const less900=window.innerWidth < 900;
+       const less400=window.innerWidth < 400;
        Header.cleanUpByID(parent,"textarea");
        parent.style.position="relative";
-       const cssTextarea="margin-inline:auto;padding-inline:1rem;padding-block:1.5rem;margin-block:1rem;border:1px solid lightgrey; border-radius:4px;width:100%;height:110vh;box-shadow:1px 1px 4px 1px grey;overflow-y:scroll;display:block;position:relative;padding-inline:1rem;padding-block;1rem;padding-bottom:2rem;";
+       const cssTextarea="margin-inline:auto;padding-inline:1rem;padding-block:1.5rem;margin-block:1rem;border:1px solid lightgrey; border-radius:4px;width:100%;height:110vh;box-shadow:1px 1px 4px 1px grey;overflow-y:scroll;display:block;position:relative;padding-block;1rem;padding-bottom:2rem;";
        
         Main.textarea = document.createElement("div");
         Main.textarea.setAttribute("contenteditable", "false");
         Main.textarea.style.cssText = cssTextarea;
+        Main.textarea.style.paddingInline=less900 ? (less400 ? "0.25rem":"0.5rem"):"1rem";
         Main.textarea.style.width = "100%";
         Main.textarea.id=`textarea`;
         //ADD WORK DONE _edit.selEleGenerator(Main.textarea,blog)

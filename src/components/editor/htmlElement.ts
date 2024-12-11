@@ -311,6 +311,9 @@ class HtmlElement {
         }
         this.addAttribute({target,divCont,icon}).then(async(resAtt)=>{
             if(resAtt){
+                if(resAtt.target.nodeName==="UL" || resAtt.target.nodeName==="OL"){
+                    resAtt.target.style.lineHeight="1.85rem";
+                }
                 this.promElementAdder(resAtt.target).then(async(res)=>{
                     if(res){
         
@@ -344,7 +347,7 @@ class HtmlElement {
         Misc.matchMedia({parent:divCont,maxWidth:420,cssStyle:{marginInline:"10px"}});
         Misc.fadeIn({anchor:divCont,xpos:60,ypos:100,time:600});
         if(icon.name==="list"){
-            icon.name="ul"
+            icon.name="ul";
         }
         
         Misc.matchMedia({parent:divCont,maxWidth:400,cssStyle:{paddingInline:"0px",marginInline:"0px;"}});

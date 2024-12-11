@@ -594,6 +594,8 @@ set rows(rows:rowType[]){
             const arch=target.getAttribute("is-arch");
             const circle=target.getAttribute("data-circle-design");
             const imgKey=target.getAttribute("imgKey");
+            const isCodeElement=target.getAttribute("data-is-code-element");
+            const isPasteCode=target.getAttribute("data-is-code-paste");
             const check=this.elements.map(ele_=>(ele_.eleId)).includes(target.id as string);
                 if(nodename && !check){
 
@@ -645,6 +647,12 @@ set rows(rows:rowType[]){
                     }else if(arrowDesign){
                         ele.attr="data-arrow-design";
                         ele.inner_html=target.innerHTML;
+                    }else if(isCodeElement){
+                        ele.attr="data-is-code-element";
+                    }else if(isPasteCode){
+                        ele.attr="data-is-code-paste";
+                        const getType=target.getAttribute("type");
+                        ele.type=getType? getType :"java";
                     }
                     if(venDiagram){
                         ele.attr="is-vendiagram";

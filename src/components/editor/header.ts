@@ -15,7 +15,7 @@ import Nav from '../nav/headerNav';
 export interface headerSelector extends selectorType{
 image:string,
 }
-const baseUrl="http://localhost:3000";
+
 class Header{
     urlImg:string;
     flex:flexType;
@@ -214,7 +214,7 @@ class Header{
         this.btnColor=this._modSelector.btnColor;
         this.bgColor=this._modSelector._bgColor;
        this.flex={} as flexType;
-       this.urlImg= baseUrl + "/images/gb_logo.png";
+       this.urlImg="/images/gb_logo.png";
        this.divCont_css="display:flex;flex-direction:column;justify-content:center;width100%;align-items:center;padding:0.25rem;";
         this.divCont_class="eleContainer";
     }

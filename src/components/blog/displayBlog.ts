@@ -21,6 +21,7 @@ import { TbJson } from "react-icons/tb";
 import ChartJS from "../chart/chartJS";
 import CodeElement from "../common/codeElement";
 import HtmlElement from "../editor/htmlElement";
+import PasteCode from "../common/pasteCode";
 
 const baseUrl="http://localhost:3000";
 // const baseUrl=process.env.BASE_URL as string;
@@ -54,6 +55,7 @@ _onlyMeta:boolean=false;
  static _showOn:boolean;
  _showMeta=false;
  printThis:boolean;
+ _pasteCode:PasteCode;
  static noBlogText:string;
     constructor(private _modSelector:ModSelector,private _service:Service,private _user:User,private _shapeOutside:ShapeOutside,private _code:NewCode,private chart:ChartJS,private _message:Message,private codeElement:CodeElement){
         this.count=0;
@@ -90,7 +92,7 @@ _onlyMeta:boolean=false;
        <pre style="font-style:italic"> "to create is to learn and grow",,, <span style="font-size:22px;font-weight:bold">try it out</span><span style="color:red;font-weight:bold;font-size:30px;margin-right:1rem;">!</span></pre>
        </blockquote>
        <prev> yours truly Gary Wallace</prev>`;
-      
+      this._pasteCode=new PasteCode(this._modSelector,this._service);
     }
     //GETTERS SETTERS
     
@@ -829,63 +831,65 @@ _onlyMeta:boolean=false;
         await this.cleanElement({parent,element}).then(async(res)=>{
             if(res){
 
-                const checkEle=["p","h1","h2","h3","h4","h5","h6","div","blockquote","ul","hr"].includes(element.name);
-                const imgKey=element.imgKey;
-                const link=element.attr && element.attr.startsWith("http") ? element.attr : null;
-                const email=element.attr && element.attr.startsWith("mail") ? element.attr : null;
-                const tel=element.attr && element.attr.startsWith("tel") ? element.attr : null;
-                const type=element.type ? element.type : null;
+                const checkEle=["p","h1","h2","h3","h4","h5","h6","div","blockquote","ul","hr"].includes(res.element.name);
+                const imgKey=res.element.imgKey;
+                const link=res.element.attr && res.element.attr.startsWith("http") ? res.element.attr : null;
+                const email=res.element.attr && res.element.attr.startsWith("mail") ? res.element.attr : null;
+                const tel=res.element.attr && res.element.attr.startsWith("tel") ? res.element.attr : null;
+                const type=res.element.type ? res.element.type : null;
                 // console.log(element.name,checkEle)//works
                 switch(true){
                     case checkEle:
                         if(([...res.ele.classList as any] as string[]).includes("reference")){
-                            this.reference.showCleanLinks({parent,ele:element});
+                            this.reference.showCleanLinks({parent,ele:res.element});
                         }
                         if(imgKey){
-                                if(element.attr==="data-backgroundImage"){
+                                if(res.element.attr==="data-backgroundImage"){
                                     ShapeOutside.cleanUpByID(parent,"popup");
                                     res.ele.setAttribute("data-backgroundImage","true");
                                     // res.ele.setAttribute("imgKey",imgKey);
                                     const cssStyle={backgroundPosition:"50% 50%",backgroundSize:"100% 100%"};
                                 //    await this._service.injectBgAwsImage({target:res.ele,imgKey:imgKey,cssStyle});
-                                }else if(element.attr==="data-shapeoutside-circle"){
+                                }else if(res.element.attr==="data-shapeoutside-circle"){
                                     res.ele.setAttribute("data-shapeoutside-circle","true");
                                      res.ele.style.display=less400 ? "flex":"block";
                                     res.ele.style.flexDirection=less400 ? "column":"";
                                     // res.ele.setAttribute("imgKey",imgKey);
                                 //    await this._shapeOutside.shapeOutsideInjectImage({para:res.ele,imgKey:imgKey});
-                                }else if(element.attr==="data-shapeoutside-square"){
+                                }else if(res.element.attr==="data-shapeoutside-square"){
                                     res.ele.setAttribute("data-shapeoutside-square","true");
                                      res.ele.style.display=less400 ? "flex":"block";
                                     res.ele.style.flexDirection=less400 ? "column":"";
                                     // res.ele.setAttribute("imgKey",imgKey);
                                     // this._shapeOutside.shapeOutsideInjectImage({para:res.ele,imgKey:imgKey});
-                                }else if(element.attr==="data-shapeoutside-polygon"){
+                                }else if(res.element.attr==="data-shapeoutside-polygon"){
                                     res.ele.setAttribute("data-shapeoutside-polygon","true");
                                      res.ele.style.display=less400 ? "flex":"block";
                                     res.ele.style.flexDirection=less400 ? "column":"";
                                     // res.ele.setAttribute("imgKey",imgKey);
                                 //    await this._shapeOutside.shapeOutsideInjectImage({para:res.ele,imgKey:imgKey});
-                                }else if(element.attr="data-arrow-design"){
+                                }else if(res.element.attr="data-arrow-design"){
                                     res.ele.setAttribute("data-arrow-design","true");
                                     res.ele.setAttribute("imgKey",imgKey);
             
+                                }else{
+                                    ShapeOutside.cleanUpByID(res.ele,"popup");
+                                    ShapeOutside.cleanUpByID(res.ele,"setAttributes");
                                 }
                             
-                        }if(type || element.attr==="data-is-code-element"){
-                            res.ele.setAttribute(`${element.attr ? element.attr :"data-is-code-element"}`,"true");
-                            this.codeElement.main({injector:parent,element,isNew:false,isClean:true});
+                        }if( res.element.attr==="data-is-code-element"){
+                            res.ele.setAttribute(`${res.element.attr ? res.element.attr :"data-is-code-element"}`,"true");
+                            this.codeElement.main({injector:parent,element:res.element,isNew:false,isClean:true});
+                        }else if(res.element.attr==="data-is-code-paste"){
+                            this._pasteCode.showClean({divCont:res.divCont,target:res.ele,element:res.element});
+                        }else{
+
+                            if(element.attr==="data-arrow-design"){
+                                Misc.matchMedia({parent:res.ele,maxWidth:400,cssStyle:{paddingInline:"0rem",padding:"0px",height:"50vh"}});
+                            }
+                            res.ele.innerHTML=element.inner_html;
                         }
                         
-                        if(element.attr==="data-arrow-design"){
-                            Misc.matchMedia({parent:res.ele,maxWidth:400,cssStyle:{paddingInline:"0rem",padding:"0px",height:"50vh"}});
-                        }else{
-                            
-                            Misc.matchMedia({parent:res.ele,maxWidth:400,cssStyle:{paddingInline:"1rem"}});
-                        }
-                        res.ele.innerHTML=element.inner_html;
-                        ShapeOutside.cleanUpByID(res.ele,"popup");
-                        ShapeOutside.cleanUpByID(res.ele,"setAttributes");
                     return;
                     case element.name==="img":
                         const width:number=700;
@@ -986,8 +990,21 @@ _onlyMeta:boolean=false;
         if(element.name==="p"){
             ele.style.lineHeight="1.75rem";
         }
+        if(ele.nodeName==="UL" || ele.nodeName==="OL"){
+            ele.style.lineHeight="1.85rem";
+            const lis=(ele as HTMLElement).querySelectorAll("li") as any as HTMLElement[];
+            lis.forEach(li=>{
+                if(li && li.textContent===""){
+                    li.remove();
+                }
+            });
+        }
         if(less400){
             ele.style.paddingInline="0.5rem";
+            ele.classList.remove("columns-3");
+            ele.classList.remove("columns-4");
+            ele.classList.remove("columns-2");
+            ele.classList.remove("columns");
         };
         ele.style.marginInline="auto";
         const divCont=document.createElement("div");
