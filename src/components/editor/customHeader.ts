@@ -1489,7 +1489,7 @@ set header_(header:selectorType){
                 const number=(e.currentTarget as HTMLInputElement).value;
                 parent.style.height=`${number}px`;
                 parent.style.minHeight=`${number}px`;
-                console.log("number",number,"row",parent.style.height)
+                // console.log("number",number,"row",parent.style.height)
             
             }
         };
@@ -1518,7 +1518,7 @@ set header_(header:selectorType){
         };
      }
      columnColor(col:HTMLElement,attrName:string,flex:flexType){
-        console.log("INSIDE COLOR")
+        // console.log("INSIDE COLOR")
         if(col){
             col.style.position="relative";
             col.style.zIndex="0";
@@ -1769,7 +1769,7 @@ set header_(header:selectorType){
                 }
                 const parEle=target.parentElement;
                 if(parEle){
-                    console.log("parEle",parEle)
+                    // console.log("parEle",parEle)
                     parent.removeChild(parEle)
                 }
                 

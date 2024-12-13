@@ -949,6 +949,7 @@ async apiUploadSaveFree(item:{parent:HTMLElement,Key:string,formdata:FormData}):
             body:JSON.stringify(blog)
         }
         return fetch(this.newBlogUrl,option).then(async(res)=>{
+            ///api/blog/createnew
             if(res){
                 blog= await res.json() as blogType;
                 return blog;

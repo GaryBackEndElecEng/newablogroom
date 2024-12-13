@@ -1075,7 +1075,7 @@ class User{
     async saveWork(item:{parent:HTMLElement,blog:blogType,func:()=>Promise<void>|void|undefined}){
         const {parent,blog,func}=item;
         let _blog=blog;
-        this._modSelector.loadBlog(blog);//loads blog and saves it to storage
+        this._modSelector.loadBlog(_blog);//loads blog and saves it to storage
         const user=this.user
         const notSignedIn=user && !user.id ? true:false;
         const hasBlogWithSigninAndNoBlogName=(blog && user.id && !blog.name) ? true:false;
@@ -1084,6 +1084,8 @@ class User{
          _blog={...blog,user_id:user.id,id:blog.id};
         if(blog && !blog.name){
             _blog={..._blog};
+        }else if(blog.name){
+            _blog={..._blog,name:blog.name,desc:blog.desc}
         }
         this._modSelector._blog=_blog;
         this._modSelector.blog=this._modSelector._blog;

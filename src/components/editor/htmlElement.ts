@@ -304,7 +304,7 @@ class HtmlElement {
         target.id=`${icon.name}-${Math.round(Math.random()*1000)}`
         target.innerHTML = icon.name;
         if(icon.name==="p"){
-            target.style.cssText = "border-radius:6px;text-wrap:wrap;";
+            target.style.cssText = "border-radius:6px;text-wrap:wrap;line-height:1.85rem;font-size:1.25rem;";
         }else{
             target.style.cssText = "border-radius:6px;";
 
@@ -334,7 +334,6 @@ class HtmlElement {
                                 
                             }
                         });
-                        this.enterActioncreateAnother({parent,target:res.target});
                         this._modSelector.editElement(res.target)//pulls flex if exist from target attrubutes
                     }
                 });
@@ -355,6 +354,7 @@ class HtmlElement {
         
     }
     addAttribute(item:{target:HTMLElement,divCont:HTMLElement,icon:iconType|null}):Promise<{target:HTMLElement,divCont:HTMLElement}>{
+        //ADDS ATTRIBUTES ONLY
         const {target,divCont,icon}=item;
         if(icon){
             target.setAttribute("name",icon.name);
@@ -382,64 +382,7 @@ class HtmlElement {
             resolver({target,divCont})
         }) as Promise<{target:HTMLElement,divCont:HTMLElement}>;
     }
-    enterActioncreateAnother(item:{parent:HTMLElement,target:HTMLElement}){
-        const {parent,target}=item;
-        target.onkeydown=(e:KeyboardEvent)=>{
-            if(e.key==="Enter"){
-                e.preventDefault();
-                const css=target.style.cssText;
-                const className=target.className;
-                const eleName=target.nodeName.toLowerCase()
-                const divCont=document.createElement('div');
-                divCont.className=this.divCont_class;
-                divCont.style.cssText=this.divCont_css;
-                const newTarget = document.createElement(eleName); //ICON.NAME=ELE TYPE
-                newTarget.style.cssText=css;
-                target.style.width="100%";
-                newTarget.style.width="100% !important";
-                newTarget.className=className;
-                target.classList.add("w-100");
-                newTarget.classList.add("w-100");
-                newTarget.classList.add("mx-2");
-                target.classList.add("mx-2");
-                newTarget.id=`${eleName}-${Math.round(Math.random()*1000)}`;
-                newTarget.innerHTML = eleName;
-                divCont.appendChild(newTarget);
-                parent.appendChild(divCont);
-                this.addAttribute({target:newTarget,divCont,icon:null}).then(async(resAtt)=>{
-                    if(resAtt){
-                        resAtt.target.setAttribute("name",eleName);
-                        resAtt.target.setAttribute("data-name-id",`${eleName}-${resAtt.target.id}`);
-                        this.promElementAdder(resAtt.target).then(async(res)=>{
-                            if(res){
-                
-                                this._modSelector.count=this._modSelector.count + 1;
-                                this._modSelector.footerPlacement();//this shifts footer placement down
-                                // this.shiftPlacement({target,newTarget});//This reorganize placement numbering
-                                res.target.addEventListener("click", (e: MouseEvent) => {
-                                    if (e) {
-                                        // console.log("click : 521:",target)
-                                        res.target.classList.add(eleName);
-                                        res.target.classList.toggle("isActive");
-                                        const focusOptions: focusOptions = { focusVisible: false, preventScroll: false }
-                                        res.target.focus(focusOptions);
-                                        this._modSelector.updateElement(target);
-                                        if(([...target.classList as any] as string[]).includes("isActive")){
-                                            this.removeMainElement(parent,divCont,res.target);
-                                        }
-                                        
-                                    }
-                                });
-                                this.enterActioncreateAnother({parent,target:res.target});
-                                this._modSelector.editElement(res.target)//pulls flex if exist from target attrubutes
-                            }
-                        });
-                    }
-                });
-
-            }
-        }
-    }
+    
     //FROM DESIGN
     designElement(parent: HTMLElement,eleName:string,text:string,class_:string){
         //THIS ADDS ELEMENTS OTHER THAN UL,BLOCKQUOTE,TIME,A,IMG FROM MAIN CLASS
@@ -468,6 +411,9 @@ class HtmlElement {
         if(checkBgShade){
             target.classList.add("background-bgShade");
             divCont.classList.add("background-bgShade");
+        }
+        if(eleName==="p"){
+            target.style.lineHeight="1.75rem";
         }
         // ADDING BACKGROUND WHITE TO ELEMENTS WITH BACKGROUND COLOR
         divCont.appendChild(target);
@@ -576,8 +522,8 @@ class HtmlElement {
                 img.setAttribute("imgKey",Key);
                 this.promElementAdder(img).then(async(res)=>{
                     if(res){
-                        console.log("IMG_",res.target)
-                        console.log("elements",this.elements)
+                        // console.log("IMG_",res.target)
+                        // console.log("elements",this.elements)
                         const img_= res.target as HTMLImageElement;
                         this._user.askSendToServer({bg_parent:parent,formdata:formelement,image:img,blog,oldKey:null});
                         this.imgDescUpdate({target:img,imgDesc:desc});//updates desc editing for image
@@ -1211,10 +1157,10 @@ class HtmlElement {
                 if(ele.placement >targetPlace){
 
                     if(ele.placement===newTargetPlace){
-                        console.log("IF",ele.placement,ele.inner_html)
+                        // console.log("IF",ele.placement,ele.inner_html)
                         ele.placement=targetPlace + 1;
                     }else if(ele.placement >targetPlace + 1){
-                        console.log("ELSE",ele.placement,ele.inner_html)
+                        // console.log("ELSE",ele.placement,ele.inner_html)
                         ele.placement=ele.placement + 1
                     }
                 }

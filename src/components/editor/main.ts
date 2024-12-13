@@ -252,11 +252,11 @@ class  Main  {
         parent.style.position="relative";
         const {form,container} =this.mainSetup.newBlogSetup(parent);
         container.id="newBlogSetup";
+        const user=this._user.user;
+        const initBlog=this._modSelector.blogInitializer(user);
         form.addEventListener("submit",(e:SubmitEvent) => {
             if(e){
                 e.preventDefault();
-                const user=this._user.user;
-                this._modSelector.blogInitializer(user);
                 const checkUser=(user && user.id && user.email) ? true:false;
                 const formdata=new FormData(e.currentTarget as HTMLFormElement);
                 const filename=formdata.get("filename") as string;
@@ -265,7 +265,7 @@ class  Main  {
                 
                 //ADDING USER_ID TO NEW BLOG IF EXIST!!
                 if(checkUser){
-                    this._modSelector.blog={...this._modSelector.blog,name:filename,title:title,desc:desc,user_id:user.id,eleId:parent.id};
+                    this._modSelector.blog={...initBlog,name:filename,title:title,desc:desc,user_id:user.id,eleId:parent.id};
                     const blog=this._modSelector.blog;
                     this._service.newBlog(blog).then(async(blog_)=>{
                         if(blog_ && blog_.user_id){
@@ -285,11 +285,11 @@ class  Main  {
                         }
                     }).catch((err)=>{
                         const msg=getErrorMessage(err);
-                        Misc.message({parent,msg:msg,type_:"error",time:500});
-                        setTimeout(()=>{parent.removeChild(container);},380);
+                        Misc.message({parent,msg:msg,type_:"error",time:1500});
+                        setTimeout(()=>{parent.removeChild(container);},1480);
                     });
                 }else{
-                    this._modSelector.blog={...this._modSelector.blog,name:filename,title:title,desc:desc,cssText:Main.main_css,class:Main.main_class,eleId:parent.id};
+                    this._modSelector.blog={...initBlog,name:filename,title:title,desc:desc,cssText:Main.main_css,class:Main.main_class,eleId:parent.id};
                     const _blog_=this._modSelector.blog;
                     this._service.promsaveItems(_blog_).then(async(resBlog)=>{
                         if(resBlog){
@@ -297,7 +297,7 @@ class  Main  {
                             localStorage.setItem("placement",String(max_+1));
                         }
                     });
-                    Misc.message({parent,msg:"created",type_:"success",time:400});
+                    Misc.message({parent,msg:"created but not saved",type_:"success",time:1400});
                     setTimeout(()=>{
                         ([...parent.children as any] as HTMLElement[]).map(child=>{
                             if(child && child.id==="newBlogSetup"){
@@ -305,7 +305,7 @@ class  Main  {
                             }
                         });
 
-                    },380);
+                    },1380);
                     this._regSignin.signIn();///signing in
                 }
                 Main.cleanUp(Main.textarea as HTMLElement);

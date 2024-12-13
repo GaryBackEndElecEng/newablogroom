@@ -22,37 +22,61 @@ class ModSelector {
     _count=1;
     _placement=1;
     _chart:chartType;
+    initChart:chartType={
+        id:0,
+        type:"bar",
+        eleId:"",
+        chartOption:"",
+        placement:0,
+        blog_id:0
+    }
     _charts:chartType[];
    _barOption:barOptionType;
    _lineOption:lineOptionType;
-    _selector:selectorType={
-        id:1,
-        placement:1,
-        name: "header",
-        eleId: "",
-        class: "",
-        inner_html:"",
-        cssText: "",
-        colAttr: [{
-            id:0,
-            selector_id:1,
-            T: 1,
-            B: 0
-        }],
-        rows: [],
-        rowNum:1,
-        colNum:3,
-        header:false,
-        footer:false,
-        blog_id:0,
-        
-    };
+   initSelector:selectorType={
+    id:1,
+    placement:1,
+    name: "div",
+    eleId: "",
+    class: "",
+    inner_html:"",
+    cssText: "",
+    colAttr: [{
+        id:0,
+        selector_id:1,
+        T: 1,
+        B: 0
+    }],
+    rows: [],
+    rowNum:1,
+    colNum:3,
+    header:false,
+    footer:false,
+    blog_id:0,
+    
+};
+    _selector:selectorType;
     textArr:selectorType[];
     _user:userType;
     _header:selectorType;
     _footer:selectorType;
     _nameSelected:boolean;
-    _element:elementType={} as elementType;
+    _element:elementType;
+    initElement:elementType={
+        id: 0,
+        placement:0,
+        selectorId:undefined,
+        eleId: "",
+        name: "",
+        class: "",
+        inner_html: "",
+        cssText: "",
+        attr:undefined,
+        img:undefined,
+        imgKey:undefined,
+        blog_id:0,
+        type:undefined,
+    };
     _elements:elementType[]=[];
     _selectors:selectorType[]=[];
     _blog:blogType={} as blogType;
@@ -73,6 +97,8 @@ class ModSelector {
     {
         // this.main=document.querySelector("section#main");//covers teaxtarea and btns
         // this._blog.header=this._Header.selector;
+        this._selector=this.initSelector;
+        this._element=this.initElement;
         this._status="unauthenticated";
         this._bgColor="rgb(233, 236, 242)" 
         this._nameSelected=false;
@@ -130,14 +156,7 @@ class ModSelector {
             }
         }
         this._codes=[];
-        this._chart={
-            id:0,
-            type:"bar",
-            eleId:"",
-            chartOption:"",
-            placement:0,
-            blog_id:0
-        };
+        this._chart=this.initChart;
         this._charts=[];
         this._pageCounts=[] as pageCountType[];
         this._blog={id:0,user_id:"",name:"",desc:"",title:"title",img:undefined,eleId:undefined,class:ModSelector.main_class,cssText:ModSelector.main_css,imgKey:undefined,selectors:this._selectors,elements:this._elements,codes:this._codes,messages:[] as messageType[],show:false,rating:0,pageCounts:this._pageCounts,username:"username",date:new Date(),update:new Date(),attr:"square",charts:this._charts,barOptions:[]};
@@ -1353,17 +1372,21 @@ removeUnwanted(eleName:string){
     });
     this.selectors=this._selectors;
 }
-blogInitializer(user:userType|null){
+blogInitializer(user:userType|null):blogType{
     localStorage.removeItem("blog");
     localStorage.setItem("placement","1");
+    this._element=this.initElement;
+    this._selector=this.initSelector;
+    this._chart=this.initChart;
     this._elements=[] as elementType[];
     this._selectors=[] as selectorType[];
     this._codes=[] as codeType[];
     this._charts=[] as chartType[];
     this._blog={id:0,user_id:"",name:"",desc:"",img:undefined,eleId:undefined,class:undefined,cssText:undefined,imgKey:undefined,selectors:this._selectors,elements:this._elements,codes:this._codes,show:false,rating:0,pageCounts:this.pageCounts,date:new Date(),update:new Date(),attr:"square",charts:this.charts,barOptions:[],messages:[] as messageType[]};
-    if(!user){
-        this._blog={...this._blog,user_id:""}
+    if(user){
+        this._blog={...this._blog,user_id:user.id}
     }
+    return this._blog;
 }
 
 async IsInfinite(len:number){

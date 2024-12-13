@@ -335,7 +335,7 @@ listThemeTypes:{name:string}[]=[{name:"background"},{name:"fonts"},{name:"colors
                 const listItem:{name:string,value:string}=JSON.parse((e.currentTarget as HTMLSelectElement).value as string) as {name:string,value:string};
                 if(listItem && listItem.name){
                     const blog=this._modSelector.blog;
-                    console.log("outside",listItem)
+                    // console.log("outside",listItem)
                     if(type==="fonts"){
                         parent.style.fontFamily=listItem.value;
                         this._modSelector.blog={...blog,cssText:parent.style.cssText};
@@ -1786,7 +1786,7 @@ class Sidebar{
                 },1000);
 
                     this.customHeader.customHeader(Main._mainHeader as HTMLElement,false);
-                    console.log(Sidebar.headerType,"hello")
+                    // console.log(Sidebar.headerType,"hello")
                 // }
             }
         });

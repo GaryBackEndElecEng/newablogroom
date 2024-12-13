@@ -1,4 +1,4 @@
-import { PrismaClient } from "@prisma/client";
+
 import { NextApiRequest, NextApiResponse } from "next";
 import { blogType, selectorType, element_selType, elementType, codeType, rowType, colType, chartType } from "@/components/editor/Types";
 import { getErrorMessage } from "@/lib/errorBoundaries";
@@ -23,7 +23,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         if (getBlog.user_id && getBlog.id) {
             try {
                 const blog = await prisma.blog.upsert({
-                    where: { id: getBlog.id },
+                    where: { id: getBlog.id, user_id: getBlog.user_id },
                     create: {
                         name: getBlog.name ? getBlog.name : "filename/title",
                         desc: getBlog.desc ? getBlog.desc : "blog's description",

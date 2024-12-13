@@ -102,6 +102,14 @@ class AddImageUrl {
             {name:"tranquil",url:`${this.unsplash}/photo-1658137135662-82ab663ee627?crop=entropy&cs=tinysrgb&fit=max&fm=jpg`},
             {name:"majestic",url:`${this.unsplash}/photo-1657653463810-fa2f223fbb82?crop=entropy`},
             {name:"earth",url:`${this.unsplash}/photo-1657832034979-e2f9c5b0a2fc?crop=fit&h=900`},
+            {name:"AIMapping",url:this.freepicurl +"/AIMapping.png"},
+            {name:"black hole type",url:this.freepicurl +"/blackHType.png"},
+            {name:"galaxyFormation",url:this.freepicurl +"/galaxyFormation.png"},
+            {name:"jamesWeb",url:this.freepicurl +"/jamesWeb.png"},
+            {name:"javaScript",url:this.freepicurl +"/javascript.png"},
+            {name:"sisters black hole",url:this.freepicurl +"/sistersBlackhole.png"},
+            {name:"time",url:this.freepicurl +"/time.png"},
+            {name:"our black hole",url:this.freepicurl +"/ourBlackH.png"},
 
         ]
         this.mainContainer=document.querySelector("section#main") as HTMLElement;
