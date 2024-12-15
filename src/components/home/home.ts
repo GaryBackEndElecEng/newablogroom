@@ -449,7 +449,7 @@ class Home{
         const less375=window.innerWidth < 375;
         const textCont=document.createElement("div");
         textCont.id="container-textCont";
-        textCont.style.cssText=css_col + "gap:0.25rem;width:100%;margin-block:1rem;";
+        textCont.style.cssText=css_col + "gap:0.25rem;width:100%;margin-block:1rem;background-color:black;padding-block:0.5rem;";
         textCont.style.marginBlock=less900 ? (less400 ? "2rem":"1.25rem") : "1rem";
         textCont.style.marginTop=less900 ? (less400 ? "1rem":"0.25rem") : "0rem";
         const text=document.createElement("h6");
@@ -939,13 +939,13 @@ class Home{
     introTitleDisplay(item:{parent:HTMLElement,show:boolean,time:number}):Promise<HTMLElement>{
         const {parent,show,time}=item;
         const bgColor= show ? "#0b0a0a7a":"transparent";
-        parent.style.backgroundColor=bgColor;
+        parent.style.backgroundColor="white";
         const less900=window.innerWidth <900;
         const less600=window.innerWidth <600;
         const less400=window.innerWidth <400;
         const container=document.createElement("div");
         container.id="home-introTitleDisplay-container";
-        container.style.cssText="margin-inline:auto;width:100%;height:auto;display:flex;flex-direction:column;place-items:center";
+        container.style.cssText="margin-inline:auto;width:100%;height:auto;display:flex;flex-direction:column;place-items:center;background-color:black;";
         container.style.opacity=bgColor;
         container.style.paddingInline=less900 ? (less600 ? (less400 ? "0rem":"1.5rem") :"1.75rem"): "6rem";
         container.style.gap="0px";

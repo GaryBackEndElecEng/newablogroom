@@ -83,7 +83,7 @@ class HtmlElement {
                                 const arrLink=JSON.parse(element.attr as string) as {name:string,link:string}[];
                                 if(arrLink && arrLink.length>0){
                                     //REF: Reference Class for Reference Links
-                                    this.reference.showLinks({parent,ele:element});
+                                    this.reference.showLinks({parent:res.divCont,ele:element});
                                 }
                     
                             }

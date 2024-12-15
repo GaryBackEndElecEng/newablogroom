@@ -35,6 +35,7 @@
 }
 :root {
   --background-slate: hsl(210, 13%, 50%);
+  --background-body: #067df31c;
   --background-lightslate: hsl(210, 13%, 70%);
   --box-shadow: 1px 1px 7px 1px #325658, -1px -1px 7px -1px #325658;
   --box-shadow1: 1px 1px 7px 1px #237373, -1px -1px 7px -1px #237373;
@@ -78,14 +79,15 @@
 body {
   color: black;
   z-index: 0;
-  background-image: var(--bg-image-body);
+  /* background-image: var(--bg-image-body); */
   min-height: 90vh;
-  background-size: "100% 200%";
-  background-position: "50% 50%";
+  background-color: var(--background-body);
+  /* background-size: "100% 200%"; */
+  /* background-position: "50% 50%"; */
   width: 100%;
   position: relative;
 }
-body::after {
+/* body::after {
   display: block;
   content: "";
   position: absolute;
@@ -93,7 +95,7 @@ body::after {
   z-index: -1;
   background: rgba(2, 13, 68, 0.836);
   animation: fadeIn 1.25s ease-in-out;
-}
+} */
 /* hsla(0, 18.5%, 94.7%, 0.13) */
 @keyframes fadeIn {
   from {
@@ -772,6 +774,7 @@ p.pretty-font {
   }
   .flexbox-column {
     width: 100%;
+    padding-inline: 0;
   }
   p.pretty-font {
     padding-inline: 10px;

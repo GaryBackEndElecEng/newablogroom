@@ -565,3 +565,31 @@ export type infoType2={
 }
 export type bucketType ="masterultils-postimages" | "newablogroom-free-bucket"
 export type regenCleanType={id:number,duplicate:boolean,selEleChrt:elementType|selectorType|chartType,type:"element"|"selector"|"chart"}
+export type pdfOptionType={
+    filename:string,
+    image:{
+        type:string,
+        quality:number
+    },
+    html2canvas:{
+        scale:number,
+        logging:boolean,
+        letterRendering:boolean,
+        useCORS:boolean,
+        width:number,
+        height:number,
+        foreignObjectRendering:boolean,
+        x?:number, //crops x
+        y?:number //crops Y
+        windowWidth?:number,
+        windowHeight?:number,
+    },
+    jsPDF:{
+        // page_size:string,
+        unit:string,
+        format:string,
+        orientation:string,
+        width?:number,
+        height?:number
+    }
+}

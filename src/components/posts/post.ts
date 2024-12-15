@@ -579,7 +579,7 @@ class Post{
         col.id=`posts-postcard-col-${index}`;
         col.className=less900 ? "col-md-12" : "col-md-6";
         //background-color:#098ca091
-        col.style.cssText="margin-inline:auto;display:flex;flex-direction:column;justify-content:flex-start;align-items:center;gap:0.75rem;color:white;border-radius:12px;box-shadow:1px 1px 6px 1px white;";
+        col.style.cssText="margin-inline:auto;display:flex;flex-direction:column;justify-content:flex-start;align-items:center;gap:0.75rem;border-radius:12px;box-shadow:1px 1px 6px 1px #9de8eb;";
         col.style.width=less900 ? "100%":"auto";
         col.style.flex=less900 ? "1 0 100%":"1 0 47%";
         col.style.paddingInline=less900 ? (less400 ? "0rem":"0.5rem"):"1rem";

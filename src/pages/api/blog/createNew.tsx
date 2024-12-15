@@ -10,24 +10,28 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
     if (req.method === "POST") {
         const getBlog = req.body as blogType;
-        const { id, name, title, desc, user_id, show, username, imgKey, imgBgKey, attr } = getBlog as blogType;
-        const ID = id ? Number(id) : 0;
-        const isName = name ? name : "newFile";
-        if (user_id) {
-            if (ID === 0) {
+        const id = getBlog && Number(getBlog.id) ? getBlog.id : 0
+        const isName = getBlog.name ? getBlog.name : "newFile";
+        if (getBlog && getBlog.user_id) {
+            if (id === 0) {
                 try {
                     const newBlog = await prisma.blog.create({
                         data: {
                             name: isName,
-                            title: title ? title : "No Title",
-                            desc: desc ? desc : "blog's description",
-                            user_id: user_id,
-                            show: show ? show : false,
+                            title: getBlog.title ? getBlog.title : "No Title",
+                            desc: getBlog.desc ? getBlog.desc : "blog's description",
+                            user_id: getBlog.user_id,
+                            show: false,
                             rating: 0,
-                            username: username ? username : null,
-                            imgKey: imgKey ? imgKey : null,
-                            imgBgKey: imgBgKey ? imgBgKey : null,
-                            attr: attr ? attr : "none",
+                            username: getBlog.username ? getBlog.username : null,
+                            imgKey: null,
+                            imgBgKey: null,
+                            attr: "square",
+                            img: null,
+                            eleId: getBlog.eleId ? getBlog.eleId : null,
+                            class: getBlog.class ? getBlog.class : null,
+                            inner_html: getBlog.inner_html ? getBlog.inner_html : null,
+                            cssText: getBlog.cssText ? getBlog.cssText : null,
                         }
                     });
                     if (newBlog) {
@@ -43,7 +47,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
                     await prisma.$disconnect()
                 }
             } else {
-                res.status(302).json({ msg: `the blog id:${ID} was already created` })
+                res.status(302).json({ msg: `the blog id:${id} was already created` })
             }
 
         } else {

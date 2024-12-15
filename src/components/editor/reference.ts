@@ -14,6 +14,7 @@ export type arrLinkType={
 
 class Reference{
     _arrLinks:arrLinkType[];
+    _element:elementType;
     constructor(private _modSelector:ModSelector){
         this._arrLinks=[];
     }
@@ -24,9 +25,22 @@ class Reference{
     set arrLinks(arrLinks:arrLinkType[]){
         this._arrLinks=arrLinks;
     }
+    get element(){
+        return this._element;
+    };
+    set element(element:elementType){
+        this._element=element;
+    };
+    get elements(){
+        return this._modSelector.elements;
+    }
+    set elements(elements:elementType[]){
+        this._modSelector.elements=elements;
+    }
 
     showCleanLinks(item:{parent:HTMLElement,ele:elementType}){
         const {parent,ele}=item;
+        Header.cleanUpByID(parent,ele.eleId);
         const target=document.createElement("div");
         target.id=ele.eleId;
         target.style.cssText=ele.cssText;
@@ -203,29 +217,8 @@ class Reference{
         divCont.className="eleContainer-reference";
         divCont.style.cssText=css +"margin:0px;padding-inline:0rem;padding-top:1rem;position:relative;"
         divCont.id=`divCont-refrence-container`;
-        const ol=document.createElement("ol");
-        this._arrLinks=[] as arrLinkType[]
-        arrLink.map((link,index)=>{
-            if(link){
-                const li=document.createElement("li");
-                const a=document.createElement('a');
-                a.id=`reference-link-${index}`;
-                a.className="reference-link";
-                a.setAttribute("data-reference-link","true");
-                a.style.cssText="text-decoration:underline;color:blue;font-weight:bold;cursor:pointer;"
-                a.onclick=()=>{window.open(link.link,"_blank")};
-                a.textContent=link.name;
-                a.setAttribute("data-href",link.link);
-                a.setAttribute("name",a.nodeName.toLowerCase());
-                a.setAttribute("aria-selected","true");
-                li.appendChild(a);
-                ol.appendChild(li);
-                this._arrLinks.push({id:a.id,name:link.name,link:link.link});
-                Misc.fadeIn({anchor:li,xpos:100,ypos:100,time:600});
-            }
-        });
+        this.appendTargetLinks({target,arrLink});
         target.setAttribute("data-href-reference",JSON.stringify(this._arrLinks));
-        target.appendChild(ol);
         divCont.appendChild(target)
         parent.appendChild(divCont);
         const {button:update}=Misc.simpleButton({anchor:divCont,bg:Nav.btnColor,color:"white",type:"button",time:400,text:"update links"});
@@ -250,6 +243,33 @@ class Reference{
             }
         };
 
+    }
+    appendTargetLinks(item:{target:HTMLElement,arrLink:arrLinkType[]}){
+        const {target,arrLink}=item;
+        Header.cleanUpByID(target,"order-list");
+        const ol=document.createElement("ol");
+        ol.id="order-list";
+        this._arrLinks=[] as arrLinkType[]
+        arrLink.map((link,index)=>{
+            if(link){
+                const li=document.createElement("li");
+                const a=document.createElement('a');
+                a.id=`reference-link-${index}`;
+                a.className="reference-link";
+                a.setAttribute("data-reference-link","true");
+                a.style.cssText="text-decoration:underline;color:blue;font-weight:bold;cursor:pointer;"
+                a.onclick=()=>{window.open(link.link,"_blank")};
+                a.textContent=link.name;
+                a.setAttribute("data-href",link.link);
+                a.setAttribute("name",a.nodeName.toLowerCase());
+                a.setAttribute("aria-selected","true");
+                li.appendChild(a);
+                ol.appendChild(li);
+                this._arrLinks.push({id:a.id,name:link.name,link:link.link});
+                Misc.fadeIn({anchor:li,xpos:100,ypos:100,time:600});
+            }
+        });
+        target.appendChild(ol);
     }
     updateLinks(item:{parent:HTMLElement,arrLink:arrLinkType[]|null}){
         const {parent,arrLink}=item;
@@ -320,38 +340,19 @@ class Reference{
         submit.onclick=(e:MouseEvent)=>{
             if(e){
                 // e.preventDefault();
-                // const formdata=new FormData(e.currentTarget as HTMLFormElement);
-                const arrLinks_:arrLinkType[]=[];
-                arrLinks.map((link_,index)=>{
-                    const name=form.querySelector(`input#name-${index}`) as HTMLInputElement;
-                    const link=form.querySelector(`input#link-${index}`) as HTMLInputElement;
-                    if(!(name && link))return;
-                    const getName=name.value as string;
-                    const getLink=link.value as string;
-                    if(getName && getLink){
-                        arrLinks_.push({id:link_.id,name:getName,link:getLink})
-                    }
-                });
                 Misc.growOut({anchor:form,scale:0,opacity:0,time:400});
                 setTimeout(()=>{
                     parent.removeChild(form);
                     parent.removeChild(submit);
                 },390);
-                this._arrLinks=[...arrLinks_];
+                this._arrLinks=[...arrLinks];
                 //"reference-link-container";//data-href-reference
                 const getTarget=parent.querySelector("div#reference-link-container") as HTMLElement;
                 if(!getTarget) return;
+                Header.cleanUpByID(getTarget,"order-list");
+                this.appendTargetLinks({target:getTarget,arrLink:arrLinks});
                 getTarget.setAttribute("data-href-reference",JSON.stringify(this._arrLinks));
-                this._arrLinks.map(link=>{
-                    if(link){
-                        const getAnchor=parent.querySelector(`a#${link.id}`) as HTMLAnchorElement;
-                        if(!getAnchor) return;
-                        getAnchor.onclick=()=>{window.open(link.link,"_blank")};
-                        getAnchor.textContent=link.name;
-                        getAnchor.setAttribute("data-href",link.link);
-                    }
-                });
-                this._modSelector.updateElement(getTarget);
+                this.updateElement({parent,target:getTarget});
             }
         };
     }
@@ -374,6 +375,48 @@ class Reference{
             if(!document.querySelector("div#reference-message-fail")) return;
             Header.cleanUpByID(parent,"reference-message-fail");
         }
+    }
+    updateElement(item:{parent:HTMLElement,target:HTMLElement}){
+        const {parent,target}=item;
+        const blog=this._modSelector.blog;
+        const eles=this._modSelector.elements;
+        const selects=this._modSelector._selectors;
+        const charts=this._modSelector._charts;
+        const maxcount=ModSelector.maxCount(blog);
+        const placeEle=eles.find(ele=>(ele.eleId===target.id));
+        if(placeEle){
+            const place=placeEle.placement;
+            Array.from(Array(maxcount+2).keys()).map(num=>{
+                const ind=num+1;
+                this.elements=eles.map(ele=>{
+                    if(ele.eleId===target.id){
+                        ele.placement=maxcount;
+                        ele.inner_html=target.innerHTML;
+                        ele.class=target.className;
+                        ele.cssText=target.style.cssText;
+                    }else if(ele.placement ===ind && ind > place){
+                        ele.placement=ele.placement-1;
+                    }
+                    return ele;
+                });
+                this._modSelector._selectors=selects.map(sel=>{
+                    if(sel.placement ===ind && ind > place){
+                        sel.placement=sel.placement-1;
+                    }
+                    return sel;
+                });
+                this._modSelector._charts=charts.map(sel=>{
+                    if(sel.placement ===ind && ind > place){
+                        sel.placement=sel.placement-1;
+                    }
+                    return sel;
+                });
+    
+            });
+            this._modSelector.blog={...this._modSelector.blog,elements:this.elements,selectors:this._modSelector._selectors,charts:this._modSelector._charts};
+        }
+
+
     }
     removeMainElement(parent:HTMLElement,divCont:HTMLElement,target:HTMLElement){
         const check=([...target.classList as any] as string[]).includes("isActive");

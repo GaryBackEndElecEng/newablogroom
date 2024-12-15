@@ -86,7 +86,7 @@ class PostDetail{
         const container=document.createElement("div");
         container.className="postdetail-main-container";
         container.id="postdetail-main-container";
-        container.style.cssText=css_col + "background-color:black;color:white;font-family:'Poppins-Regular';position:relative;";
+        container.style.cssText=css_col + "background-color:white;color:black;font-family:'Poppins-Regular';position:relative;border-radius:12px;box-shadow:1px 1px 3px 1px lightblue;";
         // container.style.width=less400 ? "100%":"auto";
         container.style.width="100%";
         if(!isPage){
@@ -111,7 +111,7 @@ class PostDetail{
         }
         const card=document.createElement("div");
         card.id=`posts-postcard-card-${post.id}`;
-        card.style.cssText=css_col + "border-radius:12px;box-shadow:1px 1px 5px 1px white;gap:1rem";
+        card.style.cssText=css_col + "border-radius:12px;box-shadow:1px 1px 5px 1px lightblue;gap:1rem;background-color:white;color:black;";
         card.style.width="100%";
         const title=document.createElement("p");
         title.id=`posts-card-title-${post.id}`;
@@ -126,7 +126,7 @@ class PostDetail{
         shapeOutside.style.fontSize=less900 ? (less400 ? "120%":"126%") :"150%";
         const img=document.createElement("img");
         img.id=`posts-shapeOutside-img-${post.id}`;
-        img.style.cssText="border-radius:50%;shape-outside:circle(50%);float:left;margin-bottom:2rem;aspect-ratio:1/1;filter:drop-shadow(0 0 0.75rem white);border:none;";
+        img.style.cssText="border-radius:50%;shape-outside:circle(50%);float:left;margin-bottom:2rem;aspect-ratio:1/1;filter:drop-shadow(0 0 0.75rem lightblue);border:none;";
         img.style.filter="drop-shadow(0 0 0.75rem white) !important";
         if(isPage){
             img.style.width=less900 ? (less400 ? "300px" : "400px") :"500px";

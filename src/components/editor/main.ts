@@ -27,6 +27,7 @@ import ShapeOutside from "./shapeOutside";
 import RegSignIn from "../nav/regSignin";
 import NavArrow from "../nav/arrow";
 import NewCode from "./newCode";
+import PrintPdf from "@/app/printblog/printPdf";
 
 
 class MainSetup{

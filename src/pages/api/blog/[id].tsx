@@ -8,7 +8,7 @@ import prisma from "@/prisma/prismaclient";
 //--------( /API/BLOG/ID ) OR ( /API/BLOG/USER_ID )---------///
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
     const { id } = req.query as { id: string };
-    const id_num = parseInt(id) as number;
+    const id_num = Number(id);
     // console.log("blog:id", id_num)
     if (req.method === "GET") {
         if (id_num && !isNaN(id_num)) {
@@ -47,7 +47,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
             } catch (error) {
                 const msg = getErrorMessage(error);
                 console.log("error: ", msg)
-                res.status(400).json({ message: msg })
+                res.status(500).json({ message: msg })
             } finally {
                 await prisma.$disconnect()
             }
@@ -83,7 +83,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
             } catch (error) {
                 const msg = getErrorMessage(error);
                 console.error(msg);
-                res.status(400).json({ message: msg });
+                res.status(500).json({ message: msg });
             } finally {
                 await prisma.$disconnect();
             }

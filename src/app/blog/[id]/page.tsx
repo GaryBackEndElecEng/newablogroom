@@ -37,7 +37,8 @@ export default async function page({ params }: { params: { id: string } }) {
 export async function genMetadata(item: { id: number, parent: ResolvingMetadata }): Promise<Metadata> {
     const { id, parent } = item;
     const par = (await parent);
-    const blog = await getBlog({ id: id });
+    const ID = Number(id);
+    const blog = await getBlog({ id: ID });
     // console.log("META:blogID", blog ? blog.id : " no id")
     const title = blog && blog.title ? blog.title as string : "Ablogroom blogs";
     const keywds = blog && blog.desc ? await genKeywords({ desc: blog.desc, title }) : [];
@@ -117,10 +118,11 @@ export async function genKeywords(item: { desc: string, title: string }): Promis
 }
 export async function getBlog(item: { id: number }): Promise<blogType | null> {
     const { id } = item;
+    const ID = Number(id);
     let blog: blogType | null = null;
     try {
         blog = await prisma.blog.findUnique({
-            where: { id: id },
+            where: { id: ID },
             include: {
                 selectors: {
                     include: {

@@ -1,7 +1,6 @@
 import {blogType,selectorType,elementType,element_selType,codeType, flexType, userType,  colType, chartType} from "@/components/editor/Types";
 import Blogs from "@/components/blogs/blogsInjection";
 import {modAddEffect} from "@/components/editor/modSelector";
-import html2canvas from "html2canvas";
 import ModSelector from "@/components/editor/modSelector";
 import User from "@/components/user/userMain"
 import Misc, {  mediaQueryType} from "../common/misc";
@@ -22,6 +21,7 @@ import ChartJS from "../chart/chartJS";
 import CodeElement from "../common/codeElement";
 import HtmlElement from "../editor/htmlElement";
 import PasteCode from "../common/pasteCode";
+import Htmlpdf from "../common/htmlpdf";
 
 const baseUrl="http://localhost:3000";
 // const baseUrl=process.env.BASE_URL as string;
@@ -93,6 +93,7 @@ _onlyMeta:boolean=false;
        </blockquote>
        <prev> yours truly Gary Wallace</prev>`;
       this._pasteCode=new PasteCode(this._modSelector,this._service);
+      
     }
     //GETTERS SETTERS
     
@@ -151,11 +152,12 @@ _onlyMeta:boolean=false;
     async main(item:{parent:HTMLElement,blog:blogType|null,user:userType|null}){
         const {parent,blog,user}=item;
         if(blog && user){
+            const less400=window.innerWidth < 400;
             const paddingInline=window.innerWidth < 900 ? (window.innerWidth < 420 ? "0rem" : "0.5rem") :"1rem"
             DisplayBlog.cleanUp(parent);//cleansup duplicates
             const outerContainer=document.createElement("article");
             outerContainer.id="display-main";
-            outerContainer.style.cssText="margin-inline:auto;margin-block:1rem;padding-block:auto;width:100%;position:relative;min-height:110vh;padding-block:2rem;";
+            outerContainer.style.cssText="margin-inline:auto;margin-block:1rem;padding-block:auto;width:100%;position:relative;min-height:110vh;";
             outerContainer.style.paddingInline=paddingInline;
             outerContainer.style.opacity="0";
             parent.classList.add("container-fluid");
@@ -165,6 +167,8 @@ _onlyMeta:boolean=false;
             parent.style.cssText="margin-inline:auto;border-radius:12px;position:relative;display:flex;flex-direction:column;padding-inline:1rem;align-items:center;justify-content:center;width:100%";
             parent.style.maxWidth="1000px";
             parent.style.backgroundColor="rgb(6 125 243 / 11%)";
+            outerContainer.style.paddingBlock=less400 ? "0rem":"2rem";
+            outerContainer.style.paddingBottom=less400 ? "2rem":"";
             
             //-----------BTN CONTAINER FOR FINAL WORK-----------------//
             const btnContainer=document.createElement("div");
@@ -193,6 +197,8 @@ _onlyMeta:boolean=false;
                 sendMsg.id="sendMsg";
                 const btnEditor=buttonReturn({parent:btnGrp,text:"editor",bg:"#0C090A",color:"white",type:"button"});
                 btnEditor.id="btnEditor";
+                const print_btn=buttonReturn({parent:btnGrp,text:"print",bg:"green",color:"white",type:"button"});
+                print_btn.id="printPdf_btn";
                 [btnBack,btnMain,sendMsg,btnEditor].map(async(btn)=>{
                     if(btn){
                         if(btn.id==="btnBack"){
@@ -233,37 +239,7 @@ _onlyMeta:boolean=false;
 
                     }
                 });
-                await this._user.getLocalUserID().then(async(user_id)=>{
-                    //SHOWS EDIT BUTTON IF USER.ID===BLOG.USER_ID HAS SIGNED IN AND LOADS BLOG=>MODSELECTOR
-                    const isUser=this._user.user;
-                    if((user_id && user_id ===user.id) ||(isUser.id ===user.id)){
-                        this._modSelector.loadSimpleBlog(blog);//loading blog=>modSelector
-                        await this.awaitBlog(blog);//loading blog=>here
-                            // console.log("blog",this._blog)//works
-                            const {button:btnEditBlog}=Misc.simpleButton({anchor:btnGrp,text:"edit your blog",bg:"#34282C",color:"white",type:"button",time:600});
-                            btnEditBlog.className=""
-                            btnEditBlog.addEventListener("click",(e:MouseEvent)=>{
-                            if(e){
-                                this._service.promsaveItems(blog).then(async(blog:blogType)=>{
-                                    if(blog){
-                                        localStorage.setItem("blog",JSON.stringify(blog));
-                                        localStorage.setItem("user_id",user.id);
-    
-                                        setTimeout(()=>{
-                                            this.baseUrl=new URL(window.location.href);
-                                            const blogsUrl=new URL("/editor",this.baseUrl.origin);
-                                            window.location.href=blogsUrl.href;
-                                        },200);
-                                    }
-                                });
-            
-                            }
-                            });
-                        
-                    }
-                   
-                    
-                });
+               
                 btnContainer.appendChild(btnGrp);
 
                 setTimeout(()=>{
@@ -273,28 +249,29 @@ _onlyMeta:boolean=false;
                 },800);
                 
                 //SHOWS PAGE
-                await this.saveFinalWork({outerContainer,innerContainer:container,blog}).then(async(res)=>{
+                await this.saveFinalWork({innerContainer:container,blog}).then(async(res)=>{
                     if(res){
-    
-                        //RATE SECTION !!!SHOWS RATINGGG
-                            this._message.getBlogMsgs(res.outerContainer,blog.id).then(async(res)=>{
-                                if(res && res.messages && res.container){
-                                    this._message.contactCards(res.container,res.messages);
-                                }
-                            });
-                        //RATE SECTION
-                        this.getUserInfo({htmlUserInfo:res.outerContainer,user}).then(async(_res)=>{
+
+                        this.getUserInfo({htmlUserInfo:outerContainer,user:user}).then(async(_res)=>{
                             if(_res && _res.outerContainer){
     
                                 //BTN CONTAINER
-                                _res.outerContainer.appendChild(btnContainer);
+                                outerContainer.appendChild(btnContainer);
                                 //BTN CONTAINER
                             }
                         });
+                        const getPrintBtn=btnContainer.querySelector("button#printPdf_btn") as HTMLButtonElement;
+                        if(!getPrintBtn) return;
+                        getPrintBtn.onclick=(e:MouseEvent)=>{
+                            if(e){
+                               const newUrl=new URL(`/printblog/${blog.id}`,window.location.origin)
+                                window.location.href=newUrl.href;
+                            }
+                        };
                         //-----------INTRO EFFECT-----------////
                         setTimeout(()=>{
-                            res.outerContainer.style.opacity="1";
-                            res.outerContainer.animate([
+                            outerContainer.style.opacity="1";
+                            outerContainer.animate([
                                 {opacity:"0"},
                                 {opacity:"1"},
                             ],{duration:700,iterations:1});
@@ -374,7 +351,7 @@ _onlyMeta:boolean=false;
             innerContainer.style.cssText="width:100%; padding:1rem;margin:1rem;border-radius:10px;margin-inline:auto;padding-inline:1rem;display:flex;flex-direction:column;justify-content:center;align-items:center;";
             innerContainer.className="mx-auto";
             mainContainer.appendChild(innerContainer);
-           await this.saveFinalWork({outerContainer:mainContainer,innerContainer,blog}).then(async(res)=>{
+           await this.saveFinalWork({innerContainer,blog}).then(async(res)=>{
             if(res){
 
                 //BUTTON SELECTION
@@ -403,17 +380,8 @@ _onlyMeta:boolean=false;
                                 setTimeout(()=>{parent.removeChild(mainContainer);},398);
      
                             }else if(str==="print"){
-                                this.printThis=true;
-                                const finalWork=parent.querySelector("div#PDFPrint") as HTMLElement;
-                                this._service.promsaveItems(blog).then(async(_blog)=>{
-                                    if(_blog){
-                                        finalWork.style.backgroundColor="white";
-                                        finalWork.style.height="auto";
-                                        finalWork.style.overflowY="auto";
-                                        this.htmlTwoCanvassPDF(finalWork,_blog);
-                                       
-                                    }
-                                });
+                                const newUrl=new URL(`/printblog/${blog.id}`,window.location.origin)
+                                window.location.href=newUrl.href;
                                 Misc.growOut({anchor:mainContainer,scale:0,opacity:0,time:400});
                                 setTimeout(()=>{parent.removeChild(mainContainer);},398);
                             }
@@ -422,7 +390,7 @@ _onlyMeta:boolean=false;
                     });
                 });
                 btnContainer.appendChild(groupBtn);
-                res.outerContainer.appendChild(btnContainer);
+                mainContainer.appendChild(btnContainer);
             }
            });
             
@@ -433,8 +401,8 @@ _onlyMeta:boolean=false;
         }
     }
     //--PARENT:showFinal(parent)-----------PARENT Edit.editSetup.saveWorkSetup-()---------///
-   async saveFinalWork(item:{outerContainer:HTMLElement,innerContainer:HTMLElement,blog:blogType}):Promise<{outerContainer:HTMLElement}>{
-        const {outerContainer,innerContainer,blog}=item;
+   async saveFinalWork(item:{innerContainer:HTMLElement,blog:blogType}):Promise<{blogContainer:HTMLElement,innerContainer:HTMLElement}>{
+        const {innerContainer,blog}=item;
         ShapeOutside.cleanUpByID(innerContainer,"popup");
         ShapeOutside.cleanUpByID(innerContainer,"setAttributes");
         const rmList=["overflow-y","overflow-x"];
@@ -513,8 +481,8 @@ _onlyMeta:boolean=false;
         }
         innerContainer.appendChild(container);
         return new Promise(resolve=>{
-            resolve({outerContainer})
-        }) as Promise<{outerContainer:HTMLElement}>;
+            resolve({blogContainer:container,innerContainer})
+        }) as Promise<{blogContainer:HTMLElement,innerContainer:HTMLElement}>;
         
     }
    async showCleanSelector(item:{parent:HTMLElement,selector:selectorType}){
@@ -566,6 +534,7 @@ _onlyMeta:boolean=false;
                         col.setAttribute("colID",`${col_.id}`);
                         col.setAttribute("order",String(col_.order));
                         col.style.cssText=col_.cssText;
+                        col.style.paddingInline="0rem";
                         if(less400){
                             col.style.flex="0 0 100%";
                             col.classList.remove("col-md-3");
@@ -1117,64 +1086,12 @@ _onlyMeta:boolean=false;
 
     
    
-    async htmlTwoCanvassPDF(parent:HTMLElement,blog:blogType){
-        const getFinalWork=document.querySelector("div#blog-work") as HTMLElement;
-       if(!getFinalWork) return;
-            const getBase=window.getComputedStyle(getFinalWork);
-            const getWidth=parseInt(getBase.getPropertyValue("width").split("px")[0]);
-            const getHeight=parseInt(getBase.getPropertyValue("height").split("px")[0]);
-            const margin=16;
-            const area=parent.getBoundingClientRect();
-            const scale =2;
-            // const scale =(getWidth + margin*2) / getWidth;
-            window.scroll(0,0);
-            //PROBLEM IS FORMATTING!!- WIDTH!! FIND THE MAXIMUM WIDTH BEFORE SCREWING UP WITH BLACK
-            html2canvas(getFinalWork,{
-                backgroundColor:null,
-                // backgroundColor:"#ffffff",
-                width: (area.width + margin),
-                // width:getWindowWidth + margin,
-                height:(area.height + margin*2),
-                // height:getWindowHeight + margin*3,
-                x:margin/2,
-                scrollY:0,
-                scrollX:0,
-                foreignObjectRendering:false,
-                scale,
-                imageTimeout:3000,
-                "proxy":"masterultils-postimages.s3.us-east-1.amazonaws.com",
-                "logging":false,
-                allowTaint:false,
-                useCORS:true,
-                
-            }).then(canvas=>{
-                //converting to base64 url string
-                // canvas.style.marginInline="auto";
-                canvas.style.width=`${getWidth}px`;
-                canvas.style.height=`${getHeight}px`;
-                canvas.style.paddingInline=`${margin *2}px`;
-                canvas.style.backgroundColor=`inherit`;
-                const imgData=canvas.toDataURL("image/png");
-                const anchor=document.createElement("a");
-                anchor.href=imgData;
-                anchor.download=`${blog.name}.png`;
-                document.body.appendChild(anchor);
-                anchor.click();
-                document.body.removeChild(anchor);
-                setTimeout(()=>{
-                    this.printThis=false;
-                    parent.style.height="auto";
-                    parent.style.overflowY="auto";
-                },700);
-            });
-        
     
-    }
    async getUserInfo(item:{htmlUserInfo:HTMLElement,user:userType|null}): Promise<{user:userType | null,outerContainer:HTMLElement}>{
     const {htmlUserInfo,user}=item;
     const less900=window.innerWidth <900;
     const less400=window.innerWidth <400;
-    Header.cleanUpByID(htmlUserInfo,"user-container");
+    Header.cleanUpByID(htmlUserInfo,"displayBlog-user-container");
         htmlUserInfo.style.position="relative";
         const container=document.createElement("div");
         container.id="displayBlog-user-container";
@@ -1188,7 +1105,6 @@ _onlyMeta:boolean=false;
                 if(user.imgKey){
                     this._service.getSimpleImg(user.imgKey).then(async(res_)=>{
                         if(res_){
-                            console.log(res_.img)
                             img.src=res_.img;
                             img.alt=res_.Key;
                         }

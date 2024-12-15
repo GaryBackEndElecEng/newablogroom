@@ -734,7 +734,7 @@ listThemeTypes:{name:string}[]=[{name:"background"},{name:"fonts"},{name:"colors
         container.id="main";
         container.className = "";
         container.style.cssText="margin:auto;display:flex;flex-direction:column;justify-content:flex-start;align-items:stretch;width:100%;position:absolute;inset:-5% 0%;height:auto;background-color:white;padding:1rem;padding-block:2rem;z-index:100;"
-           await  this._displayBlog.saveFinalWork({outerContainer:container,innerContainer:container,blog});
+           await  this._displayBlog.saveFinalWork({innerContainer:container,blog});
             //BUTTON SELECTION
             const btnDiv=document.createElement("div");
             btnDiv.style.cssText="display:flex;flex-direction:column;margin:auto;align-items:center;justify-content:center;";
@@ -1386,14 +1386,7 @@ class Sidebar{
         para.style.color=this.textColor;
         para.textContent="This allows you to create a new blog."
         btnContainer.appendChild(para);
-        const btn_:btnType={
-            parent:btnContainer,
-            text:"new blog",
-            bg:"blue",
-            color:"white",
-            type:"button"
-        }
-        const btn=buttonReturn(btn_);
+        const {button:btn}=Misc.simpleButton({anchor:btnContainer,text:"new blog",type:"button",bg:"blue",color:"white",time:400});
         parent.appendChild(btnContainer);
         btn.animate([
             {transform:"translateY(-100%) skew(45deg,0deg)",opacity:"0.3"},
@@ -1410,26 +1403,32 @@ class Sidebar{
                 const user=this._user.user;
                 const checkUser=(user && user.id && user.email) ? true:false;
                 const checkBlog=(blog && blog.name) ;
-                const modBlog=await Main.hasBlog();
-                const check=modBlog && blog && user && user.id;
+                const modBlog=this._modSelector.blog;
                 Main.container=document.querySelector("section#main") as HTMLElement;
                 const mainContainer=Main.container as HTMLElement
-                if(check){
+                if(user && user.id){
                     //ask to save
-                    Misc.wantToSaveBeforeFunc({
-                        parent:mainContainer,
-                        funcSave:async()=>{await this._user.saveWork({parent,blog,func:async()=>{
-                            await this._main.newBlog({
-                                parent:mainContainer,
-                                func:()=>undefined,
-                                })
-                        }})},
-                        functCancel:async()=>{
-                            await this._main.newBlog({
-                                parent:mainContainer,
-                                func:()=>undefined,
-                                })
-                         }})
+                   
+                    if(modBlog.name && modBlog.elements && modBlog.elements.length>0){
+
+                        Misc.wantToSaveBeforeFunc({
+                            parent:mainContainer,
+                            funcSave:async()=>{await this._user.saveWork({parent,blog,func:async()=>{
+                                await this._main.newBlog({
+                                    parent:mainContainer,
+                                    func:()=>undefined,
+                                    })
+                            }})},
+                            functCancel:async()=>{
+                                await this._main.newBlog({
+                                    parent:mainContainer,
+                                    func:()=>undefined,
+                                    })
+                             }})
+                    }else{
+                        console.log("NEW BLOG")
+                        await this._main.newBlog({parent:mainContainer,func:()=>undefined})
+                    }
 
                 }else{
                     this._regSignin.signIn();
