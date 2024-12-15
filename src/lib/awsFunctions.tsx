@@ -1,7 +1,6 @@
 import { blogType, selectorType, element_selType, elementType, userType } from "@/components/editor/Types";
 import { S3Client, GetObjectCommand, DeleteObjectCommand } from "@aws-sdk/client-s3";
 import { getSignedUrl } from "@aws-sdk/s3-request-presigner";
-import "@aws-sdk/signature-v4-crt";
 import { insertHtml, insertBackgroundImage } from "@/lib/ultils/functions";
 
 
