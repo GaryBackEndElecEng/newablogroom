@@ -1,6 +1,6 @@
 import AuthService from "../common/auth";
 import Service from "../common/services";
-import {blogType, gets3ImgKey, userType, messageType,sendEmailMsgType, postType} from "../editor/Types";
+import {blogType, gets3ImgKey, userType, messageType,sendEmailMsgType, postType, quoteType, developDeployType, quoteimgType, userDevelopType, userQuoteType,} from "../editor/Types";
 import ModSelector from "../editor/modSelector";
 import {FaCreate} from "@/components/common/ReactIcons";
 import { FaCrosshairs,FaSignal } from "react-icons/fa";
@@ -23,6 +23,7 @@ import CodeElement from "../common/codeElement";
 
 
 class ProfileMain{
+    freebucket:string;
     bgColor:string;
     btnColor:string;
     userUrlUpdate:string;
@@ -35,31 +36,43 @@ class ProfileMain{
     newCode:NewCode;
     _posts:postType[];
     _blogs:blogType[];
+    _quotes:userQuoteType[];
+    _developDeploys:userDevelopType[];
     static main:HTMLElement | null;
     codeElement:CodeElement;
+    __user:userType;
+    noBlogMsg:string=" <span> sorry you have no blogs in the database.</span><span> all your blogs will be shown here with the priviledge of taking them live</span>,<span> if requested.Once ypu have blogs</span>,<span> you can remove them from the live site or have a one-click publish for your viewers.</span> <pre> Gary Wallace</pre>."
+    noPostMsg:string=" <span> sorry you have no Post in the database.</span><span> all your Posts will be shown here with the priviledge of taking them live</span>,<span> if requested.Once ypu have Posts</span>,<span> you can remove them from the live site or have a one-click publish for your viewers.</span> <pre> Gary Wallace</pre>."
+    noQuotesMsg:string="<span> sorry you have no quotes in the database.</span><br><span> all your Quotes will be shown here with the priviledge of taking them live</span><br> <pre> Gary Wallace</pre>."
+    noDevMsg:string="<span> sorry you have no Development quotes in the database.</span><span> all your Quotes will be shown here with the priviledge of taking them live</span>, <span> sorry you have no blogs in the database.</span><br> <pre> Gary Wallace</pre>."
 
 
-    constructor(private _modSelector:ModSelector,private _service:Service,private _user:User,private _metaBlog:MetaBlog,public chart:ChartJS,private _post:Post){
+    constructor(private _modSelector:ModSelector,private _service:Service,private _user:User,private _user_:userType,private _metaBlog:MetaBlog,public chart:ChartJS,private _post:Post){
         this.bgColor=this._modSelector._bgColor;
         this.btnColor=this._modSelector.btnColor;
         this.userUrlUpdate="/api/user_update";
         this._messages=[];
-        this._posts=[] as postType[];
-        this._blogs=[] as blogType[];
+        this.__user=this._user_;
+        this._posts=this.__user.posts;
+        this._blogs=this.__user.blogs;
+        this._quotes=this.__user.quotes;
+        this._developDeploys=this.__user.developDeploys;
         this.codeElement=new CodeElement(this._modSelector,this._service);
         this.newCode=new NewCode(this._modSelector,this._service,this._user);
         this.shapeOutside=new ShapeOutside(this._modSelector,this._service,this._user);
         const message=new Message(this._modSelector,this._service,this._modSelector.blog);
         this._displayBlog=new DisplayBlog(this._modSelector,this._service,this._user,this.shapeOutside,this.newCode,this.chart,message,this.codeElement);
         this.classMsg= new Message(this._modSelector,this._service,this._modSelector.blog);
+        this.freebucket="https://newablogroom-free-bucket.s3.us-east-1.amazonaws.com"
 
     }
     //----------SETTER/GETTERS---------/////
     get user(){
-        return this._user.user;
+        return this.__user;
     }
     set user(user:userType){
         this._user.user=user;
+        this.__user=user;
     }
     get msgs(){
         return this._messages;
@@ -86,18 +99,41 @@ class ProfileMain{
     }
     set posts(posts:postType[]){
         this._posts=posts;
+        this._user._user.posts=posts;
+        this.__user.posts=posts;
+    }
+    get quotes(){
+        return this._quotes;
+    }
+    set quotes(quotes:userQuoteType[]){
+        this._quotes=quotes
+        this._user.user.quotes=quotes;
+    }
+    get developDeploys(){
+        return this._developDeploys;
+    }
+    set developDeploys(developDeploys:userDevelopType[]){
+        this._developDeploys=developDeploys;
+        this.__user.developDeploys=developDeploys;
     }
     //----------SETTER/GETTERS---------/////
     //parent: MainHeader.header,id="navHeader"
-   async main(item:{parent:HTMLElement,user:userType}){
-    const {parent,user}=item;
+   async main(item:{parent:HTMLElement}){
+    const {parent}=item;
+    const user=this.__user;
+    this.posts=this.__user.posts;
+    this.blogs=this.__user.blogs;
+    this.quotes=this.__user.quotes;
+    this.developDeploys=this.__user.developDeploys;
+    console.log("profile main:quotes",this.quotes)
         parent.style.position="relative";
         parent.style.width="100%";
         const css_col="position:relative;height:auto;margin:auto;display:flex;place-items:center;flex-direction:column;border-radius:11px;";
         const css_row="position:relative;height:auto;margin:auto;display:flex;place-items:center;border-radius:11px;flex-wrap:wrap;";
-        this.user=user;
         this.blogs=user.blogs;
         this.posts=user.posts;
+        this.quotes=user.quotes;
+        this.developDeploys=user.developDeploys;
         const less900=window.innerWidth <900;
         const less400=window.innerWidth <400;
         ProfileMain.cleanUpByID(parent,"section#main-outerMain");
@@ -123,7 +159,13 @@ class ProfileMain{
         this.passwordForm({mainRow,innerRow:emailPassword,column:2,user});
         this.userBlogs({mainRow,column:1,blogs:this.blogs});//row.id=row-profile
         await this.messages({mainRow,user,column:2});
-        await this.userposts({mainRow,user,cols:2,posts:this.posts})
+        await this.userposts({mainRow,user,cols:2,posts:this.posts});
+        const row=document.createElement("div");
+        row.className="row";
+        row.style.cssText="box-shadow:1px 1px 12px 1px lightblue;min-height:26vh;height:auto;";
+        mainRow.appendChild(row);
+        this.showQuotes({parent:row,quotes:this.quotes});
+        this.showDevelopDeploys({parent:row,develops:this.developDeploys});
        outerMain.appendChild(mainRow);
         parent.appendChild(outerMain);//MAIN INJECTION
         Misc.slideIn({anchor:outerMain,xpos:0,ypos:70,time:500});
@@ -1021,7 +1063,7 @@ class ProfileMain{
         popup.appendChild(container);
         //APPENDING POPUPU TO GRANDROW
         grandRow.appendChild(popup);
-        await this._displayBlog.saveFinalWork({outerContainer:container,innerContainer:container,blog});
+        await this._displayBlog.saveFinalWork({innerContainer:container,blog});
         Misc.fadeIn({anchor:popup,xpos:50,ypos:100,time:400});
         const btnGrp=document.createElement("div");
         btnGrp.classList.add("profile-showFinalWork-btnGrp");
@@ -1338,7 +1380,7 @@ class ProfileMain{
         const less400=window.innerWidth <400;
         const section =document.createElement("section");
         section.id="userposts-section";
-        section.style.cssText=css_row + "width:100%;";
+        section.style.cssText=css_row + "width:100%;min-height:36vh;height:auto;";
         section.className="col-md-12 row";
         mainRow.appendChild(section);
         const scrollCol1=document.createElement("div");
@@ -1808,6 +1850,104 @@ class ProfileMain{
                 resolve({xDiv,parent,target,post})
             }) as Promise<{xDiv:HTMLElement,parent:HTMLElement,target:HTMLElement,post:postType}>;
         
+    }
+    showQuotes(item:{parent:HTMLElement,quotes:userQuoteType[]}){
+        const {parent,quotes}=item;
+        console.log("showQuotes",quotes)
+        const less400=window.innerWidth < 400;
+        const check=quotes.length>0 ? true:false;
+        const css_col="margin-inline:auto;display:flex;justify-content:center;align-items:center;width:100%;flex-direction:column;";
+        const css_row="margin-inline:auto;display:flex;justify-content:center;align-items:center;width:100%;flex-wrap:wrap;";
+        if(check) {
+
+            const container=document.createElement("div");
+            container.id="quotes-container";
+            container.style.cssText=css_col;
+            container.style.flex=less400 ? "1 0 100%":"1 0 48%";
+            container.className=less400 ? "col-md-12" : "col-md-6";
+            parent.appendChild(container);
+            const h6=document.createElement("h6");
+            h6.className="text-primary text-center my-1 mb-2";
+            h6.textContent="QUOTE LINKS";
+            container.appendChild(h6);
+            const row=document.createElement("div");
+            row.style.cssText=css_row;
+            container.appendChild(row);
+            quotes.map((quot,index)=>{
+                if(quot){
+                    const col=document.createElement("div");
+                    col.id=`quote-quote-col-${index}`
+                    col.style.cssText=css_col;
+                    col.style.flex=less400 ? "1 0 100%":"1 0 48%";
+                    col.className=less400 ? "col-md-12" : "col-md-6";
+                    const anchor=document.createElement("a");
+                    const img=`${this.freebucket}/${quot.imgKey}`;
+                    anchor.href=img;
+                    anchor.textContent=`quote-${index+1}`;
+                    col.appendChild(anchor);
+                    row.appendChild(col);
+                }
+            });
+        }else{
+            this.emptyMsg({row:parent,msg:this.noQuotesMsg,less400,css_col});
+        };
+    }
+    showDevelopDeploys(item:{parent:HTMLElement,develops:userDevelopType[]}){
+        const {parent,develops}=item;
+        const check=develops.length>0 ? true:false;
+        const less400=window.innerWidth < 400;
+        const css_col="margin-inline:auto;display:flex;justify-content:center;align-items:center;width:100%;flex-direction:column;";
+        const css_row="margin-inline:auto;display:flex;justify-content:center;align-items:center;width:100%;flex-wrap:wrap;";
+        if(check){
+
+            const container=document.createElement("div");
+            container.id="quotes-container";
+            container.style.cssText=css_col;
+            container.style.flex=less400 ? "1 0 100%":"1 0 48%";
+            container.className=less400 ? "col-md-12" : "col-md-6";
+            parent.appendChild(container);
+            const h6=document.createElement("h6");
+            h6.className="text-primary text-center my-1 mb-2";
+            h6.textContent="DEVELOP LINKS";
+            container.appendChild(h6);
+            const row=document.createElement("div");
+            row.style.cssText=css_row;
+            container.appendChild(row);
+            develops.map((quot,index)=>{
+                if(quot){
+                    const col=document.createElement("div");
+                    col.id=`develop-quote-col-${index}`;
+                    col.style.cssText=css_col;
+                    col.style.flex=less400 ? "1 0 100%":"1 0 48%";
+                    col.className=less400 ? "col-md-12" : "col-md-6";
+                    const anchor=document.createElement("a");
+                    anchor.href="#";
+                    anchor.textContent=quot.imgKey;
+                    col.appendChild(anchor);
+                    row.appendChild(col);
+                    anchor.onclick=(e:MouseEvent)=>{
+                        if(e){
+                            const img=`${this.freebucket}/${quot.imgKey}`;
+                            window.open(img,"_blank");
+                        }
+                    };
+                }
+            });
+        }else{
+            this.emptyMsg({row:parent,msg:this.noDevMsg,css_col,less400});
+        };
+    }
+    emptyMsg(item:{row:HTMLElement,msg:string,less400:boolean,css_col:string}){
+        const {row,msg,less400,css_col}=item;
+        const col=document.createElement("div");
+        col.style.cssText=css_col +`display:block;margin-inline:auto;background-color:${this.btnColor};color:white;padding:1rem;box-shadow:1px 1px 12px 1px lightblue;`;
+        const para=document.createElement("p");
+        col.style.flex=less400 ? "1 0 100%" : "1 0 48%";
+        col.className=less400 ? "col-md-12":"col-md-6";
+        para.innerHTML=msg;
+        col.appendChild(para);
+        row.appendChild(col);
+
     }
     removeChild(parent:HTMLElement,target:HTMLElement){
         parent.style.position="relative";

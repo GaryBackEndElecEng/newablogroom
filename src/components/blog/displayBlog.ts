@@ -21,7 +21,7 @@ import ChartJS from "../chart/chartJS";
 import CodeElement from "../common/codeElement";
 import HtmlElement from "../editor/htmlElement";
 import PasteCode from "../common/pasteCode";
-import Htmlpdf from "../common/htmlpdf";
+import Htmlpdf from "../common/htmltwocanvas";
 
 const baseUrl="http://localhost:3000";
 // const baseUrl=process.env.BASE_URL as string;

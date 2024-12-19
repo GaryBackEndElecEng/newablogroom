@@ -21,8 +21,9 @@ export async function genSitemapArray(item: { baseUrl: string }): Promise<Metada
             { url: `${retBaseUrl}/posts`, lastModified: new Date(), changeFrequency: 'daily', priority: 1 },
             { url: `${retBaseUrl}/editor`, lastModified: new Date(), changeFrequency: 'weekly', priority: 1 },
             { url: `${retBaseUrl}/profile`, lastModified: new Date(), changeFrequency: 'weekly', priority: 1 },
-            { url: `${retBaseUrl}/policy`, lastModified: new Date(), changeFrequency: 'monthly', priority: 1 },
+            { url: `${retBaseUrl}/policy`, lastModified: new Date(), changeFrequency: 'yearly', priority: 1 },
             { url: `${retBaseUrl}/register`, lastModified: new Date(), changeFrequency: 'yearly', priority: 1 },
+            { url: `${retBaseUrl}/quote`, lastModified: new Date(), changeFrequency: 'monthly', priority: 1 },
             { url: `${retBaseUrl}/termsOfService`, lastModified: new Date(), changeFrequency: 'yearly', priority: 1 },
             { url: `${retBaseUrl}/signin`, lastModified: new Date(), changeFrequency: 'yearly', priority: 1 },
             { url: `${retBaseUrl}/chart`, lastModified: new Date(), changeFrequency: 'monthly', priority: 1 },
@@ -38,12 +39,12 @@ export async function genSitemapArray(item: { baseUrl: string }): Promise<Metada
         await prisma.$disconnect();
         if (blogIds && blogIds.length > 0) {
             blogIds.map(blog => {
-                arr.push({ url: `${retBaseUrl}/blog/${blog.id}`, lastModified: new Date(), changeFrequency: 'always', priority: 1 })
+                arr.push({ url: `${retBaseUrl}/blog/${blog.id}`, lastModified: new Date(), changeFrequency: 'always', priority: 1 });
             });
         }
         if (postIds && postIds.length > 0) {
             postIds.map(post => {
-                arr.push({ url: `${retBaseUrl}/post/${post.id}`, lastModified: new Date(), changeFrequency: 'always', priority: 1 })
+                arr.push({ url: `${retBaseUrl}/post/${post.id}`, lastModified: new Date(), changeFrequency: 'always', priority: 1 });
             });
         }
 

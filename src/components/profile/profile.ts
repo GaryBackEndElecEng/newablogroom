@@ -18,6 +18,7 @@ import NewCode from "../editor/newCode";
 import ChartJS from "../chart/chartJS";
 import Post from "../posts/post";
 import Blogs from "../blogs/blogsInjection";
+import CodeElement from "../common/codeElement";
 
 
 
@@ -47,7 +48,8 @@ class Profile{
         this.newCode=new NewCode(this._modSelector,this._service,this._user);
         this.shapeOutside=new ShapeOutside(this._modSelector,this._service,this._user);
         const message=new Message(this._modSelector,this._service,this._modSelector.blog);
-        this._displayBlog=new DisplayBlog(this._modSelector,this._service,this._user,this.shapeOutside,this.newCode,this.chart,message);
+        const codeElement=new CodeElement(this._modSelector,this._service);
+        this._displayBlog=new DisplayBlog(this._modSelector,this._service,this._user,this.shapeOutside,this.newCode,this.chart,message,codeElement);
         this.classMsg= new Message(this._modSelector,this._service,this._modSelector.blog);
 
     }
@@ -1042,7 +1044,7 @@ class Profile{
         popup.appendChild(container);
         //APPENDING POPUPU TO GRANDROW
         grandRow.appendChild(popup);
-        await this._displayBlog.saveFinalWork({outerContainer:container,innerContainer:container,blog});
+        await this._displayBlog.saveFinalWork({innerContainer:container,blog});
         Misc.fadeIn({anchor:popup,xpos:50,ypos:100,time:400});
         const btnGrp=document.createElement("div");
         btnGrp.classList.add("profile-showFinalWork-btnGrp");

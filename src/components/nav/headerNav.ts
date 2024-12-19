@@ -1,5 +1,5 @@
 
-import { buttonCheckType, navLinkBtnType, userType, blogType, messageType,saveProcessType, gets3ImgKey } from "../editor/Types";
+import { buttonCheckType, navLinkBtnType, blogType, messageType } from "../editor/Types";
 
 import AuthService from "../common/auth";
 import Service from "../common/services";
@@ -7,12 +7,8 @@ import ModSelector from "../editor/modSelector";
 import Header from "@/components/editor/header";
 import Misc from "../common/misc";
 import User from "../user/userMain";
-import Profile from "../profile/profile";
 import { getCsrfToken, signIn } from 'next-auth/react';
-import RegSignIn from "./regSignin";
-import NavArrow from "./arrow";
-import { FaCreate } from "../common/ReactIcons";
-import { FaSign } from "react-icons/fa";
+
 
 
 class Nav{
@@ -28,7 +24,7 @@ class Nav{
     btnArray:navLinkBtnType[];
     navList:{id:number,name:string,svg:string}[];
    static thanksMsg:"<span> Thank you for messsaging us. We will get back to you within one day. please send us a message for any other requests.</span> <blockquote><pre>Enjoy!, Gary</pre></blockquote> ";
-    constructor(private _modSelector:ModSelector,private _service:Service,private _user:User,private _regSignin:RegSignIn){
+    constructor(private _modSelector:ModSelector,private _service:Service,private _user:User){
         this.navList=[{id:0,name:"signin",svg:""},{id:1,name:"contact",svg:""},{id:2,name:"blogs",svg:""},]
         this.urlBlog="/blogs";
         Nav.logo="/images/gb_logo.png";

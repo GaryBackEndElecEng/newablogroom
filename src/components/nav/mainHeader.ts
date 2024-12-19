@@ -30,7 +30,7 @@ count:number;
 pageCount:number;
 textFlow:string;
 _status:"authenticated" | "loading" | "unauthenticated";
-    constructor(private _modSelector:ModSelector,private _service:Service,private _user:User,private _navArrow:NavArrow,private footer:MainFooter){
+    constructor(private _modSelector:ModSelector,private _service:Service,private _navArrow:NavArrow){
         this.bgColor="#0C090A";
         this.btnColor=this._modSelector.btnColor;
         MainHeader.mainHeader_css=`width:100%;height:5vh;box-shadow:1px 1px 5px 1px black,-1px -1px 5px -1px black;margin-block:0px;position:relative;background:${this.bgColor};display:flex;justify-content:space-between;`;
@@ -112,9 +112,9 @@ _status:"authenticated" | "loading" | "unauthenticated";
                                         if(admin){
                                             Misc.msgSourceImage({parent:res_.parent,msg:"You have admin Rights",src:this.logo,width:125,quality:75,time:2200,cssStyle:{boxShadow:"1px 1px 12px 1px white",backgroundColor:"black",color:"white",inset:"680% 0% 70% 0%"}});
                                         }
-                                        this.footer.centerBtnsRow({container:res_.centerBtnCont,status:"authenticated"});//footer shows logout
+                                        // this.footer.centerBtnsRow({container:res_.centerBtnCont,status:"authenticated"});//footer shows logout
                                     }else{
-                                        this.footer.centerBtnsRow({container:res_.centerBtnCont,status:"unauthenticated"});//footer shows signin
+                                        // this.footer.centerBtnsRow({container:res_.centerBtnCont,status:"unauthenticated"});//footer shows signin
                                     }
                             }
                             });

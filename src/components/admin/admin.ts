@@ -170,6 +170,8 @@ class Admin{
             btnImages.onclick=(e:MouseEvent)=>{
                 if(e){
                     // GET IMAGES!!
+                    btnImages.disabled=true;
+                     setTimeout(()=>{btnImages.disabled=false;},1000);
                     const target="images";
                     this.openClean({parent:viewport});
                     const row=document.createElement("div");
@@ -190,7 +192,7 @@ class Admin{
                                         this.searchImg(viewport,this.adminimgs);
                                 }
                                 else{
-                                    this.noFiles(injector);
+                                    this.noFiles(viewport);
                                 }
                             });
                         
@@ -209,6 +211,8 @@ class Admin{
             usersBtn.onclick=(e:MouseEvent)=>{
                 if(e){
                     //GET USERS
+                    usersBtn.disabled=true;
+                    setTimeout(()=>{usersBtn.disabled=false;},1000);
                     this.openClean({parent:viewport});
                    this.getUsers({parent:viewport,css,users:this.clients,adminUser});
                    this.searchUser({viewport:viewport,users:this.clients,adminUser});
@@ -219,6 +223,10 @@ class Admin{
             postBtn.onclick=(e:MouseEvent)=>{
                 if(e){
                     //GET USERS
+                    postBtn.disabled=true;
+                    setTimeout(()=>{postBtn.disabled=false;},1000);
+                    postBtn.disabled=true;
+                    setTimeout(()=>{postBtn.disabled=false;},1000);
                     const target="users";
                     this.openClean({parent:viewport});
                    this.getPosts({parent:viewport,posts:this.posts});
@@ -229,6 +237,8 @@ class Admin{
             blogBtn.onclick=(e:MouseEvent)=>{
                 if(e){
                     //GET USERS
+                    blogBtn.disabled=true;
+                     setTimeout(()=>{blogBtn.disabled=false;},1000);
                     const target="users";
                     this.openClean({parent:viewport});
                    this.getBlogs({parent:viewport,blogs:this.blogs});
@@ -238,6 +248,8 @@ class Admin{
         const {button:messBtn}=Misc.simpleButton({anchor:btnContainer,text:"open msgs",type:"button",time:400,bg:Nav.btnColor,color:"white"});
             messBtn.onclick=(e:MouseEvent)=>{
                 if(e){
+                    messBtn.disabled=true;
+                    setTimeout(()=>{messBtn.disabled=false;},1000);
                     //GET MESSAGES
                     const target="messages";
                     this.openClean({parent:viewport});
@@ -248,6 +260,8 @@ class Admin{
         const {button:openpgcounts}=Misc.simpleButton({anchor:btnContainer,text:"open pg-counts",type:"button",time:400,bg:Nav.btnColor,color:"white"});
             openpgcounts.onclick=(e:MouseEvent)=>{
                 if(e){
+                    openpgcounts.disabled=true;
+                    setTimeout(()=>{openpgcounts.disabled=false;},1000);
                     const target="page-counts";
                     this.openClean({parent:viewport});
                     // Header.cleanUpByID(mainContainer,"innerUser");
@@ -258,7 +272,8 @@ class Admin{
         const {button:close}=Misc.simpleButton({anchor:btnContainer,text:"close",type:"button",time:400,bg:Nav.btnColor,color:"white"});
         close.onclick=(e:MouseEvent)=>{
             if(e){
-
+                close.disabled=true;
+                setTimeout(()=>{close.disabled=false;},1000);
                 // Header.cleanUpByID(mainContainer,"innerUser");
                 const searchContainer=viewport.querySelector("div#search-container") as HTMLElement;
                 const getmsgsContainer=document.querySelector("div#messages-container") as HTMLElement;
@@ -301,6 +316,8 @@ class Admin{
             const {button:infoBtn}=Misc.simpleButton({anchor:btnContainer,text:"open info form",type:"button",time:400,bg:Nav.btnColor,color:"white"});
             infoBtn.onclick=async(e:MouseEvent)=>{
                 if(e){
+                    infoBtn.disabled=true;
+                    setTimeout(()=>{infoBtn.disabled=false;},1000);
                     //GET USERS
                     this.openClean({parent:viewport});
                     const checkInfo = await this._service.peronalInfo2()
@@ -415,6 +432,8 @@ class Admin{
         const {button}=Misc.simpleButton({anchor:col,type:"button",bg:Nav.btnColor,color:"white",time:300,text:"delete"});
         button.onclick=(e:MouseEvent)=>{
             if(e){
+                button.disabled=true;
+                setTimeout(()=>{button.disabled=false;},1000);
                 this._service.adminImageDel(adminimg.id).then(async(res)=>{
                     if(res){
                         Misc.message({parent:row,msg:"deleted",type_:"success",time:400});
@@ -440,15 +459,21 @@ class Admin{
 
     noFiles(parent:HTMLElement){
         Header.cleanUpByID(parent,"noFiles");
+        parent.style.position="relative;";
+        const time=1200;
         const cont=document.createElement("div");
         cont.id="nofiles"
-        cont.style.cssText="display:grid;place-items:center;margin:auto;min-height:100vh;";
+        cont.style.cssText="display:grid;place-items:center;margin:auto;height:10vh;width:100%;box-shadow:1px 1px 12px 1px lightblue;border-radius:12px;";
         const para=document.createElement("p");
         para.textContent=this.nofilePara;
         para.className="text-primary text-center";
         para.style.cssText="font-size:150%;"
         cont.appendChild(para);
         parent.appendChild(cont);
+        Misc.growOut({anchor:cont,time,scale:0,opacity:0});
+        setTimeout(()=>{
+            parent.removeChild(cont);
+        },time-20);
     }
     async getUsers(item:{parent:HTMLElement,css:string,users:userType[],adminUser:userType}){
         const {parent,css,users,adminUser}=item;

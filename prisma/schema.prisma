@@ -46,21 +46,29 @@ model Session {
 }
 
 model User {
-  id            String    @id @unique @default(cuid())
-  name          String?
-  email         String    @unique
-  password      String?
-  emailVerified DateTime?
-  image         String?
-  imgKey        String?
-  bio           String?
-  accounts      Account[]
-  sessions      Session[]
-  blogs         Blog[]
-  posts         Post[]
-  showinfo      Boolean?
-  admin         Boolean   @default(false)
-  username      String?
+  id             String         @id @unique @default(cuid())
+  name           String?
+  email          String         @unique
+  password       String?
+  emailVerified  DateTime?
+  image          String?
+  imgKey         String?
+  bio            String?
+  accounts       Account[]
+  sessions       Session[]
+  blogs          Blog[]
+  posts          Post[]
+  quotes         QuoteImg[]
+  developDeploys DevDeployimg[]
+  showinfo       Boolean?
+  admin          Boolean        @default(false)
+  username       String?
+}
+
+model Signup {
+  id    Int    @id @unique @default(autoincrement())
+  email String @unique
+  name  String
 }
 
 model VerificationToken {
@@ -268,4 +276,45 @@ model PageCount {
   post_id Int?
 
   @@unique([name, id])
+}
+
+model Quote {
+  id     Int     @id @default(autoincrement())
+  name   String  @unique
+  type   String
+  basic  Boolean
+  isPage Boolean @default(true)
+  desc   String
+  time   Int
+  qty    Int
+  dollar Int
+}
+
+// ADD DEVELOPMENT STAGE MODEL THEN DEPLOY STAGE
+
+model DevelopDeploy {
+  id     Int     @id @default(autoincrement())
+  name   String
+  stage  String
+  type   String
+  basic  Boolean
+  isPage Boolean
+  desc   String
+  time   Int
+  qty    Int
+  dollar Int
+}
+
+model QuoteImg {
+  id      Int    @id @default(autoincrement())
+  imgKey  String @unique
+  user    User   @relation(fields: [user_id], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  user_id String
+}
+
+model DevDeployimg {
+  id      Int    @id @default(autoincrement())
+  imgKey  String @unique
+  user    User   @relation(fields: [user_id], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  user_id String
 }

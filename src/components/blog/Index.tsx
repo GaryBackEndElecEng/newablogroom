@@ -14,7 +14,7 @@ import ChartJS from '../chart/chartJS';
 import Message from '../common/message';
 import { useSession } from 'next-auth/react';
 import CodeElement from '../common/codeElement';
-import Htmlpdf from '../common/htmlpdf';
+import Htmlpdf from '../common/htmltwocanvas';
 // import { Session } from 'next-auth';
 
 // const url = process.env.BASE_URL as string;

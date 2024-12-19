@@ -16,12 +16,15 @@ import Profile from '../profile/profile';
 import Features from '../home/feature';
 import AuthService from "../common/auth";
 import { buttonReturn } from "../common/tsFunctions";
+import { FaRightLong } from "react-icons/fa6";
+import { signOut } from 'next-auth/react';
 
 class NavArrow{
     logo:string;
     centerBtnsParent:HTMLElement | null;
     mainHeader:HTMLElement | null;
     checkUser:boolean;
+    isAuthenticated:boolean;
     nav:Nav;
     _isAdmin:boolean=false;
     btnArray:navLinkBtnType[];
@@ -32,7 +35,10 @@ class NavArrow{
         this.btnArray=[];
         this.centerBtnsParent=document.querySelector("div#footer-centerBtns-container");
         this.mainHeader=document.querySelector("header#navHeader");
-        this.nav=new Nav(this._modSelector,this._service,this._user,this._regSignin);
+        this.nav=new Nav(this._modSelector,this._service,this._user);
+        if(this._user._user.id){
+            this.isAuthenticated=true;
+        }
     }
 
     //////------------------------GETTERS/SETTERS--------------------------///
@@ -173,8 +179,10 @@ set user(user:userType){
         para.appendChild(img);
         para.style.cssText="font-family:Poppins-Regular;font-size:16px;line-height:2.5rem;";
         if(checkUser){
+            this.isAuthenticated=true;
             para.innerHTML+="<span style='color:blue;font-size:110%;'>signed in</span>. please check your <span style='color:blue;font-size:110%;'>profile</span>, below to manage your blogs,,,over <span style='color:blue;font-weight:bold'> 30 management features</span> for you to use.";
         }else{
+            this.isAuthenticated=false;
             para.innerHTML+="yours to use, we strive to suit your needs. <br/><span>www.ablogroom.com</span>";
         }
         container.appendChild(para);
@@ -261,6 +269,7 @@ set user(user:userType){
             this.btnArray=[
                 {id:0,name:"home",color:"pink",link:"/",func:()=>Nav.navHistory("/"),icon:FaHome,show:true,isEditor:false,save:async()=>null},
                 {id:1,name:"blogs",color:"#00BFFF",link:"/blogs",func:()=>Nav.navHistory("/blogs"),icon:FaBlog,show:true,isEditor:false,save:async()=>null},
+                {id:1,name:"get a quote",color:"#00FF00",link:"/quote",func:()=>Nav.navHistory("/quote"),icon:FaBlog,show:true,isEditor:false,save:async()=>null},
                 {id:2,name:"admin",color:"red",link:"/admin",func:()=> Nav.navHistory("/admin"),icon:FaSign,show:this._isAdmin,isEditor:false,save:async()=>null},
                 {id:3,name:"editor",color:"#00BFFF",link:"/editor",func:()=>Nav.navHistory("/editor"),icon:FaEdit,show:true,isEditor:true,save:()=>null},
                 {id:4,name:"posts",color:"#00BFFF",link:"/posts",func:()=>Nav.navHistory("/posts"),icon:Icons.FaDropbox,show:true,isEditor:false,save:()=>null},
@@ -335,6 +344,7 @@ set user(user:userType){
         itemCont.setAttribute("data-color",navItem.color);
         itemCont.onclick=async(e:MouseEvent)=>{
             if(e){
+                this.centerBtnsParent=document.querySelector("div#footer-centerBtns-container");
                 if(navItem.link){
                     const newUrl=new URL(navItem.link,url.origin);
                     window.location.href=newUrl.href;
@@ -351,14 +361,15 @@ set user(user:userType){
             
                             await this.logout({
                                 func:()=>{
-                                this.centerBtnsRow({container:this.centerBtnsParent});
+
+                                this.centerBtnsRow({container:this.centerBtnsParent,isAuthenticated:false});
                                 },
                                 redirect:true
                             })
 
                         }else{
                             this.centerBtnsParent=document.querySelector("div#footer-centerBtns-container");
-                           await this.logout({func:()=>this.centerBtnsRow({container:this.centerBtnsParent}),redirect:false})
+                           await this.logout({func:()=>this.centerBtnsRow({container:this.centerBtnsParent,isAuthenticated:false}),redirect:false})
                         }
 
                     }else{
@@ -409,7 +420,7 @@ set user(user:userType){
                                                     Misc.fadeOut({anchor:navigateSaveBtnGrp,xpos:50,ypos:100,time:400});
                                                     setTimeout(async()=>{
                                                         this.centerBtnsParent=document.querySelector("div#footer-centerBtns-container");
-                                                       await this.logout({func:()=>this.centerBtnsRow({container:this.centerBtnsParent}),redirect:false})
+                                                       await this.logout({func:()=>this.centerBtnsRow({container:this.centerBtnsParent,isAuthenticated:false}),redirect:false})
                                                        parent.removeChild(navigateSaveBtnGrp);
                                                     },380);
                                                 },380);
@@ -430,7 +441,7 @@ set user(user:userType){
                                                             Misc.fadeOut({anchor:navigateSaveBtnGrp,xpos:50,ypos:100,time:400});
                                                             setTimeout(async()=>{
                                                                 this.centerBtnsParent=document.querySelector("div#footer-centerBtns-container");
-                                                               await this.logout({func:()=>this.centerBtnsRow({container:this.centerBtnsParent}),redirect:false});
+                                                               await this.logout({func:()=>this.centerBtnsRow({container:this.centerBtnsParent,isAuthenticated:false}),redirect:false});
                                                                 parent.removeChild(navigateSaveBtnGrp);
                                                             },380);
                                                         },380);
@@ -451,7 +462,7 @@ set user(user:userType){
                                 setTimeout(async()=>{
                                     parent.removeChild(btnGrp);
                                     this.centerBtnsParent=document.querySelector("div#footer-centerBtns-container");
-                                   await this.logout({func:()=>this.centerBtnsRow({container:this.centerBtnsParent}),redirect:false})
+                                   await this.logout({func:()=>this.centerBtnsRow({container:this.centerBtnsParent,isAuthenticated:false}),redirect:false})
                                 },380);
                             }
                         });
@@ -463,7 +474,7 @@ set user(user:userType){
                }
             }else{
                 this.centerBtnsParent=document.querySelector("div#footer-centerBtns-container");
-                await this.logout({func:()=>this.centerBtnsRow({container:this.centerBtnsParent}),redirect:false});
+                await this.logout({func:()=>this.centerBtnsRow({container:this.centerBtnsParent,isAuthenticated:false}),redirect:false});
             }
         });
     }
@@ -688,11 +699,13 @@ set user(user:userType){
                     res.mainHeader=document.querySelector("header#navHeader") as HTMLElement;
                     Misc.msgSourceImage({parent:res.mainHeader,msg:"Thanks for comming",src:this.logo,width:125,quality:75,time:2200,cssStyle:{boxShadow:"1px 1px 12px 1px white",backgroundColor:"black",color:"white",inset:"680% 0% 70% 0%"}});
                     },1000);
+                    this.isAuthenticated=false;
                     MainHeader.header=document.querySelector("header#navHeader") as HTMLElement;
                     this.signInDisplay(MainHeader.header,null).then(async(res_)=>{
                         //ONLY GENERATES IF USER EXIST ( user !==null)
                         if(res_){
-                            this.centerBtnsRow({container:res.centerBtnCont});
+                            this.isAuthenticated=true;
+                            this.centerBtnsRow({container:res.centerBtnCont,isAuthenticated:this.isAuthenticated});
 
                         }
                         });
@@ -840,7 +853,7 @@ set user(user:userType){
             }
         };
     }
-    centerBtnsRow(item:{container:HTMLElement|null}){
+    centerBtnsRow(item:{container:HTMLElement|null,isAuthenticated:boolean}){
         //!!! NOTE:THIS GETS TOGGLED TO LOGOUT FROM auth.getUser()
         const {container}=item;
         if(!container) return;
@@ -848,10 +861,11 @@ set user(user:userType){
         const row=document.createElement("div");
         row.id="footer-centerBtns-row";
         row.style.cssText="display:flex; justify-content:space-between;align-items:center;margin:auto;gap:4rem;";
-        const arr=["contact","signup"];
+        const arr=["contact","signup","quote generator"];
         arr.forEach(async(item)=>{
             if(item==="contact"){
-                const btn=buttonReturn({parent:row,text:item,bg:"#34282C",color:"white",type:"button"});
+                const cssStyle={backgroundColor:"#34282C",color:"white",borderRadius:"50%",padding:"3px"}
+                const btn=Misc.btnIcon({anchor:row,icon:Icons.FaInfoCircle,msgHover:"contact info",label:null,cssStyle,time:400});
                 const getHeader=document.querySelector("header#navHeader") as HTMLElement;
                 // if(!getHeader) return
                 btn.addEventListener("click",(e:MouseEvent)=>{
@@ -860,17 +874,41 @@ set user(user:userType){
                            this.contact(getHeader)
                         }
                 });
+
             }else if(item==="signup"){
-                        const btn=buttonReturn({parent:row,text:"signin",bg:"#34282C",color:"white",type:"button"});
-                        btn.id="btn-footer-logout";
-                        btn.addEventListener("click",(e:MouseEvent)=>{
-                            if(e){
-                                   window.scroll(0,0);
-                                   this._regSignin.signIn();
-                                }
-                        });
-                    
-                
+                if(this.isAuthenticated){
+
+                    const cssStyle={backgroundColor:"black",color:"white",borderRadius:"50%",padding:"3px",zIndex:"2",boxShadow:"1px 1px 12px 1px lightblue"}
+                    const btn=Misc.btnIcon({anchor:row,icon:Icons.FaSignOutAlt,msgHover:"signout",cssStyle,label:null,time:400});
+                            btn.id="btn-footer-logout";
+                            btn.addEventListener("click",(e:MouseEvent)=>{
+                                if(e){
+                                       window.scroll(0,0);
+                                       this.logout({func:()=>undefined,redirect:false})
+                                    }
+                            });
+                }else{
+
+                    const cssStyle={backgroundColor:"black",color:"white",borderRadius:"50%",padding:"3px"}
+                    const btn=Misc.btnIcon({anchor:row,icon:Icons.FaSignInAlt,msgHover:"signin",cssStyle,label:null,time:1000});
+                    btn.id="btn-footer-logout";
+                    btn.addEventListener("click",(e:MouseEvent)=>{
+                        if(e){
+                               window.scroll(0,0);
+                               this._regSignin.signIn();
+                            }
+                    });
+                }
+
+            }else if(item==="quote generator"){
+                const cssStyle={backgroundColor:"#34282C",color:"white",borderRadius:"20px",padding:"3px",fontSize:"20px",boxShadow:"1px 1px 4px 1px blue"};
+                    const btn=Misc.btnIcon({anchor:row,icon:FaRightLong,cssStyle,msgHover:"web-services",label:item,time:800});
+                    btn.onclick=(e:MouseEvent)=>{
+                        if(e){
+                            const newUrl=new URL("/quote",window.location.origin);
+                            window.location.href=newUrl.href;
+                        }
+                    };
             }
         });
         container.appendChild(row);

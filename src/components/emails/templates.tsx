@@ -412,3 +412,194 @@ export const adminMsgHTML = (item: { message: messageType, user: userType, reply
     `
     )
 }
+export const QuoteHTML = (item: { message: { msg: string }, user: userType, quoteImg: string, EMAIL: string }) => {
+    const { message, user, quoteImg, EMAIL } = item;
+    const { name, email } = user;
+    const { msg } = message
+    return (
+        `<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <style>
+        .flex-column{
+            display:flex;
+            justify-content:center;
+            align-items:flex-start;
+            flex-direction:column;
+            gap:1.5rem;
+        }
+            body{
+                border-radius:10px;
+                box-shadow:1px 1px 5px 20px grey,-1px -1px -5px 20px grey;
+                border-radius:12px;
+                background-color:white;
+                font-family:'Poppins-Regular';
+                padding:1rem;
+                padding-inline:2rem;
+                display:flex;
+                justify-content:flex-start;
+                align-items:flex-start;
+                flex-direction:column;
+                width:100%;
+                font-size:16px;
+                 margin-inline:auto;
+                 position:relative;
+            }
+            h4{
+                color:blue;
+            }
+            h1{ font:"bold";text-decoration:underline;text-underline-offset: 3;}
+            .masterultils{
+                background:whitesmoke;
+                margin-block:20px;
+                padding-block:20px;
+                border-radius:10%;
+                width:30%;
+                padding:2rem;
+                text-align:left;
+                box-shadow:1px 1px 20px 2px grey,-1px -1px 20px 2px grey;
+            }
+            p{margin-block:10px}
+            .list{
+                margin-block:20px;
+                background:white;
+                border-radius:10px;
+                padding:7px;
+                box-shadow:1px 1px 5px 20px grey,-1px -1px -5px 20px grey;
+            }
+            .list >li{
+                padding-block:3px;
+            }  
+            img{
+                border-radius:50%;
+                box-shadow: 2px 2px 10px 2px black,-2px -2px 10px 2px white;
+                width:120px;
+                aspect-ratio:1 /1;
+                background-color:whitesmoke;
+                filter:drop-shadow(0 0 0 0.75rem white);
+                float:left;
+                shape-outside:circle(50%);
+                margin-right:1rem;
+            }
+            #divCont{
+                margin-inline:1px;
+                padding:0.5rem;
+                border-radius:12px;
+                max-width:800px;
+                position:relative;
+                background-color:black;
+                margin-block:1.5rem;
+                width:100%;
+                overflow-x:scroll;
+                height:auto;
+            }
+            img#quote{
+                border-radius:12px;
+                padding:1rem;
+                box-shadow: 2px 2px 10px 2px black,-2px -2px 10px 2px lightblue;
+                width:100%;
+                /* max-width:800px; */
+                background-color:whitesmoke;
+                float:center;
+                margin-inline:10px;
+            }
+            .reply {
+                padding-inline:1rem;
+                margin-inline:auto;
+                margin-block:1.5rem;
+                text-wrap:pretty;
+                 font-family:Poppins-Regular;
+            }
+            .sincerely {
+                font-family:LobsterTwo-Regular;
+                font-size:110%;
+                margin-left:1rem;
+            }
+            .signature {
+                margin-left:1rem;
+                color:rgba(8, 4, 249,0.5);
+                font-weight:bold;
+            }
+    </style>
+</head>
+<body>
+    <h3>Thanks for your request ${name ? name : "Blogger"}</h3>
+    <ul>
+    <li>email:${email}</li>
+    <li>your request:<span class="reply"> ${msg}</span></li>
+    </ul>
+
+    <p>Thank you for sending us a request for quote.your quote is below.</p>
+    <div id="divCont">
+        <img id="quote" src=${quoteImg} alt="www.ablogroom.com"/>
+
+    </div>
+    <p class="sincerely">Sincerely,</p>
+    <br>
+    <div class="signature flex-column">
+    <p class="color:white;">Gary Wallace</p>
+    <p class="color:white;">Admin Staff: developer</p>
+    <p class="color:white;">email:<a href="mailto:${EMAIL}">${EMAIL}</a></p>
+    <p class="color:white;">tel:<a href="tel:416-917-5768">cell</a></p>
+    </div>
+    <h4> additional interesting things you might like</h4>
+    <ul class="list">
+        <li><a href="https://www.masterultils.com/articles">articles</a></li>
+        <li><a href="https://www.masterultils.com/contact">Contact Us</a></li>
+        <li><a href="https://www.masterultils.com/register">register</a></li>
+        <li><a href="https://www.masterconnect.ca/design">Our Designs</a></li>
+    </ul>
+    
+    <p style="max-width:600px;">
+
+        <img src="https://newablogroom-free-bucket.s3.us-east-1.amazonaws.com/quote_large.png" alt="www.masterconnect.ca"
+        
+        />
+        We try to make your life easy and equally ensure that you are connected. Please let us know if we can accommodate your needs to further your relations with us.
+        <a href="www.masterconncet.ca">master connect</a>
+        Gary Wallace,<a href="mailto: masterultils@gmail.com">send us an email.</a>
+    </p>
+</body>
+</html>
+    `
+    )
+}
+export const QuoteText = (item: { message: { msg: string }, user: userType, quoteImg: string, EMAIL: string }) => {
+    const { message, quoteImg, user, EMAIL } = item;
+    const { msg } = message;
+    const { name, email } = user;
+    return (
+        `<h1>Community member</h1>
+    <br>
+    <h1>Thanks for your request ${name ? name : "Blogger"}</h1>
+    <ul>
+    <li>email:<u>${email}</u></li>
+    <li><u>your request:</u><span> ${msg}</span></li>
+    </ul>
+
+    <p>Thank you for sending us a request for Quote. Please see our your quote below.</p>
+    
+    <br/>
+    <a href=${quoteImg}> your Quote( click to see)</a>
+    <br>
+    <div>
+    <p>Sincerely,</p>
+    <br>
+    <div>
+    <bold>
+    <p>${"Gary Wallace"}</p>
+    <p>Admin Staff: developer</p>
+    <p>email:<a href="mailto:${EMAIL}">${EMAIL}</a></p>
+    <p>tel:<a href="tel:416-917-5768">cell</a></p>
+    </bold>
+    </div>
+    </div>
+    <br>
+    <br>
+    <a href="www.masterconncet.ca">master connect</a>
+    <p>email: masterultils@gmail.com</p>`
+    )
+}

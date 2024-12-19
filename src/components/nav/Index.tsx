@@ -47,9 +47,9 @@ function Index({ _user_ }: { _user_: userType | null }) {
             const post = new Post(modSelector, service, user);
             const profile = new Profile(modSelector, service, user, metaBlog, chart, post);
             const navArrow = new NavArrow(user, regSignin, service, profile, modSelector, feature);
-            const nav = new Nav(modSelector, service, user, regSignin);
+            const nav = new Nav(modSelector, service, user);
             const mainFooter = new MainFooter(modSelector, service, user, nav, navArrow, dataflow, feature, allMsgs);
-            const mainHeader = new MainHeader(modSelector, service, user, navArrow, mainFooter);
+            const mainHeader = new MainHeader(modSelector, service, navArrow);
             const auth = new AuthService(modSelector, service, user, mainHeader, mainFooter);
             Header.cleanUp(inject);
             mainHeader.main({ parent: inject });

@@ -110,6 +110,7 @@ class AddImageUrl {
             {name:"sisters black hole",url:this.freepicurl +"/sistersBlackhole.png"},
             {name:"time",url:this.freepicurl +"/time.png"},
             {name:"our black hole",url:this.freepicurl +"/ourBlackH.png"},
+            {name:"sample Quote",url:this.freepicurl +"/sampleQuote.png"},
 
         ]
         this.mainContainer=document.querySelector("section#main") as HTMLElement;

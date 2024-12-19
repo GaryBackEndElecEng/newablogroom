@@ -37,7 +37,9 @@ export async function getUser(item: { email: string }) {
                 admin: true,
                 username: true,
                 blogs: true,
-                posts: true
+                posts: true,
+                quotes: true,
+                developDeploys: true
             }
         }) as unknown as userType;
     } catch (error) {

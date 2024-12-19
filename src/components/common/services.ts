@@ -1,4 +1,4 @@
-import {flexType,elementType,selectorType,element_selType,codeType,blogType, gets3ImgKey, userType,messageType, imageType, generalInfoType, deletedImgType, img_keyType, adminImageType, credentialType, providerType, pageCountType, delteUserType, sendEmailMsgType, categoryListType, barOptionType, chartType, postType, infoType2, bucketType} from "@/components/editor/Types";
+import {flexType,elementType,selectorType,element_selType,codeType,blogType, gets3ImgKey, userType,messageType, imageType, generalInfoType, deletedImgType, img_keyType, adminImageType, credentialType, providerType, pageCountType, delteUserType, sendEmailMsgType, categoryListType, barOptionType, chartType, postType, infoType2, bucketType, quoteType, returnQuoteFinalType, quoteimgType, signupQuoteType} from "@/components/editor/Types";
 import Misc from "../common/misc";
 import ModSelector from "@/components/editor/modSelector";
 import { getErrorMessage } from "@/lib/errorBoundaries";
@@ -55,6 +55,10 @@ class Service {
     uploadfreeimageUrl:string="/api/uploadfreeimage";
     freeurl:string="https://newablogroom-free-bucket.s3.us-east-1.amazonaws.com";
     checkemail:string="/api/checkemail";
+    quoteUrl:string="/api/quote";
+    quoteimgUrl:string="/api/quoteimg";
+    signupUrl:string="/api/signup";
+    putimagefileUrl:string="/api/imagefile";
     showCustomHeader:boolean;
     showHeader:boolean;
     bucket:bucketType; //"masterultils-postimages" | "newablogroom-free-bucket";
@@ -104,6 +108,9 @@ class Service {
         this.postsUrl="/api/posts";
         this.userpostUrl="/api/userpost";
         this.checkemail="/api/checkemail";
+        this.quoteUrl="/api/quote";
+        this.quoteimgUrl="/api/quoteimg";
+        this.signupUrl="/api/signup";
         this.showCustomHeader=false;
         this.showHeader=false;
         this.bgColor=this._modSelector._bgColor;
@@ -703,6 +710,25 @@ async apiUploadSaveFree(item:{parent:HTMLElement,Key:string,formdata:FormData}):
             const name=user.name ? user.name.split(" ").join("").trim() :"unknownUser";
             const user_id=user.id ? user.id : "no_userid"
             const Key=`${user_id}-${name}-${file.name}`;
+            const Key_=Key.trim();
+            formdata.set("Key",Key_);
+            return {Key:Key_}
+        }else{
+            return {Key:getKey as string}
+
+        }
+    }
+    generateQuoteKey(item:{formdata:FormData,user:userType}):{Key:string|undefined}{
+        //THIS GENERATES AN IMAGE KEY=> NEEDS FORMDATA &&  (N/A)=>user. IF USER then all quotes will have unique keys for user account
+        const {formdata,user}=item;
+        const getKey=formdata.get("Key");
+        const file=formdata.get("file") as File;
+        if(!file)return {Key:undefined};
+        if(!getKey){
+            const name=user.name ? user.name.split(" ").join("").trim() :"unknownUser";
+            const user_id=user.id ? user.id : "nouserid";
+            const rand=user.id ? `-${Math.round(Math.random()*100)}-`:"";
+            const Key=`quote/${user_id}-${name}-${rand}quote.png`;
             const Key_=Key.trim();
             formdata.set("Key",Key_);
             return {Key:Key_}
@@ -1502,6 +1528,93 @@ async apiUploadSaveFree(item:{parent:HTMLElement,Key:string,formdata:FormData}):
                 return {info:body,success:true};
             }else{
                 return {info:null,success:false};
+            }
+        });
+    }
+    ////------------WORKS BUT NOT USING START-------------------//
+    async getQuote(item:{quoteParams:quoteType}):Promise<returnQuoteFinalType|undefined>{
+        const {quoteParams}=item;
+        const option={
+            headers:{
+                "Content-Type":"application/json"
+            },
+            method:"POST",
+            body:JSON.stringify(quoteParams)
+        }
+        return fetch(this.quoteUrl,option).then(async(res)=>{
+            //"/api/quote"
+            if(res.ok){
+                const body= await res.json() as returnQuoteFinalType 
+                return body;
+            }
+        });
+    }
+    ////----------WORKS BUT NOT USING END--------////
+    async putQuoteimg(item:{formdata:FormData}):Promise<{success:string,Key:string}|undefined>{
+        const {formdata}=item;
+        const file=formdata.get("file")
+        if(!file) return
+    
+        const option={                                 
+            method:"PUT",
+            body:formdata
+        }
+        return fetch(this.putimagefileUrl,option).then(async(res)=>{
+            //api/imagefile
+            if(res.ok){
+                const body= await res.json() as {success:string,Key:string} 
+                return body;
+            }
+        });
+    }
+    async postQuoteimg(item:{quoteimgParams:quoteimgType}):Promise<{msg:string}|undefined>{
+        const {quoteimgParams}=item;
+        console.log("sent",quoteimgParams)
+        const option={
+            headers:{
+                "Content-Type":"application/json"
+            },
+            method:"POST",
+            body:JSON.stringify(quoteimgParams)
+        }
+        return fetch(this.quoteimgUrl,option).then(async(res)=>{
+            //api/quoteimg
+            if(res.ok){
+                const body= await res.json() as {msg:string} 
+                return body;
+            }
+        });
+    }
+    async getQuoteimg(item:{imgKey:string}):Promise<string|undefined>{
+        const {imgKey}=item;
+        const option={
+            headers:{
+                "Content-Type":"application/json"
+            },
+            method:"GET",
+        }
+        return fetch(`${this.quoteimgUrl}?imgKey=${imgKey}`,option).then(async(res)=>{
+            //api/quoteimg
+            if(res.ok){
+                const body= await res.json() as string 
+                return body;
+            }
+        });
+    }
+    async signup(item:{signupquote:signupQuoteType}):Promise<{msg:string}|undefined>{
+        const {signupquote}=item;
+        const option={
+            headers:{
+                "Content-Type":"application/json"
+            },
+            method:"POST",
+            body:JSON.stringify(signupquote)
+        }
+        return fetch(this.signupUrl,option).then(async(res)=>{
+            //api/quoteimg
+            if(res.ok){
+                const body= await res.json() as {msg:string} 
+                return body;
             }
         });
     }

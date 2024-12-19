@@ -7,6 +7,7 @@ import { btnType, button, buttonReturn,imageLoader,AWSImageLoader,httpImageLoade
 import { BsHandThumbsUpFill } from "react-icons/bs";
 import Nav from "../nav/headerNav";
 import Header from "../editor/header";
+import { iconType } from '../editor/Types';
 
 
 const baseUrl="http://localhost:3000"
@@ -184,7 +185,7 @@ class Misc{
     //DELAY 3000
     static message(message:msgType){
         const {parent,msg,type_,time}=message;
-        parent.style.position="relative";
+        // parent.style.position="relative";
         const container=document.createElement("div");
         container.id="message-id";
         container.style.cssText="position:absolute;top:20%;width:80%;max-width:300px;backdrop-filter:blur(10px);margin-inline:auto;display:flex;place-items:center;flex-direction:column;border-radius:30px;box-shadow:1px 1px 6px 1px #0a2351,-1px -1px 6px -1px #0a2351;padding-inline:1rem;padding-block:0.5rem;background-color:#002244;";
@@ -192,13 +193,13 @@ class Misc{
         inner.style.cssText="margin:auto;text-align:center;padding:inherit;box-shadow:1px 1px 6px 1px black;border-radius:30px;width:100%;";
         if(type_==="warning"){
             inner.style.backgroundColor="pink";
-            inner.style.color="yellow";
+            inner.classList.add("text-warning");
         }else if(type_==="success"){
             inner.style.backgroundColor="whitesmoke";
-            inner.style.color="green";
+            inner.classList.add("text-info");
         }else if(type_==="error"){
             inner.style.backgroundColor="blue";
-            inner.style.color="white";
+            inner.classList.add("text-danger");
         }
         const text=document.createElement("p");
         text.textContent=msg;
@@ -1788,6 +1789,61 @@ class Misc{
             //offset:readOnly:  mouse pointer between that event and the padding edge of the target node
     }
      
+    static btnIcon(item:{anchor:HTMLElement,icon:IconType,label:string|null,msgHover:string|null,cssStyle:{[key:string]:string},time:number}):HTMLButtonElement{
+        const {anchor,icon,cssStyle,time,label,msgHover}=item;
+        const btn=document.createElement("button");
+        if(msgHover){
+
+            btn.classList.add("btnMessageHover");
+            btn.setAttribute("data-message",msgHover);
+        }
+    
+        btn.style.cssText="border-radius:50%;padding:3px;display:flex;justisfy-content:center;align-items:center;z-index:0;";
+        for(const key of Object.keys(btn.style)){
+            for(const [key1,value] of Object.entries(cssStyle)){
+                if(key1===key){
+                    btn.style[key]=value;
+                };
+            };
+        };
+        if(label){
+            Array.from(Array(2).keys()).map(num=>{
+                const span=document.createElement("span");
+                if(num===0){
+                    FaCreate({parent:span,name:icon,cssStyle:{fontSize:btn.style.fontSize,color:"white",margin:"auto",background:"transparent",zIndex:"20"}});
+                }else{
+                    const font=Math.round(Number(btn.style.fontSize.split("px")[0])/1.62);
+                    const newFont=`${font}px`;
+                    span.style.fontSize=newFont;
+                    span.textContent=label;
+                }
+                btn.appendChild(span);
+            });
+            btn.style.gap="0.25rem";
+        }else{
+            FaCreate({parent:btn,name:icon,cssStyle:{fontSize:btn.style.fontSize,color:"white",margin:"auto",background:"transparent",zIndex:"20"}});
+        }
+        anchor.appendChild(btn);
+        btn.onmouseover=(e:Event)=>{
+            if(e){
+                const beforeTime=time * 10
+                btn.animate([
+                    {backgroundColor:btn.style.backgroundColor,color:btn.style.color},
+                    {backgroundColor:"white",color:"black"},
+                ],{duration:beforeTime,iterations:1});
+            }
+        };
+        btn.onmouseout=(e:Event)=>{
+            if(e){
+
+                btn.animate([
+                    {backgroundColor:"white",color:"black"},
+                    {backgroundColor:btn.style.backgroundColor,color:btn.style.color},
+                ],{duration:time,iterations:1});
+            }
+        };
+        return btn;
+    };
 };
 
 

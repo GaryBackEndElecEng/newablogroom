@@ -406,6 +406,8 @@ export type userType={
     sessions:sessionType[],
     blogs:blogType[],
     posts:postType[],
+    developDeploys:userDevelopType[],
+    quotes:userQuoteType[],
     showinfo?:boolean,
     admin:boolean,
     username?:string
@@ -414,6 +416,11 @@ export type userSignInType={
     email:string;
     password?:string,
     user_id?:string
+}
+export type quoteImgKeyType={
+    id?:number,
+    user_id:string,
+    imgKey:string
 }
 
 export type classAttType={
@@ -565,31 +572,98 @@ export type infoType2={
 }
 export type bucketType ="masterultils-postimages" | "newablogroom-free-bucket"
 export type regenCleanType={id:number,duplicate:boolean,selEleChrt:elementType|selectorType|chartType,type:"element"|"selector"|"chart"}
-export type pdfOptionType={
-    filename:string,
-    image:{
-        type:string,
-        quality:number
-    },
-    html2canvas:{
-        scale:number,
-        logging:boolean,
-        letterRendering:boolean,
-        useCORS:boolean,
-        width:number,
-        height:number,
-        foreignObjectRendering:boolean,
-        x?:number, //crops x
-        y?:number //crops Y
-        windowWidth?:number,
-        windowHeight?:number,
-    },
-    jsPDF:{
-        // page_size:string,
-        unit:string,
-        format:string,
-        orientation:string,
-        width?:number,
-        height?:number
-    }
+export type canvasType={
+    backgroundColor:string|null,
+    scale:number,
+    logging:boolean,
+    useCORS:boolean,
+    width:number,
+    height:number,
+    proxy:string,
+    foreignObjectRendering:boolean,
+    x?:number, //crops x
+    y?:number //crops Y
+    windowWidth?:number,
+    windowHeight?:number,
+    allowTaint:boolean
 }
+//-----------QUOTE-----------//
+export type subQuoteTypeType="text"|"images"|"#users"|"meta"|"scheduler"|"pageNames"|"no type"|"pages";
+
+export type quoteType={
+    user_id:string,
+    nameValue:{
+        value:string|undefined,
+        name:string
+    }[]
+}
+export type quoteCalcItemType={
+    id:number,
+    type:string,
+    basic:boolean,
+    name:string,
+    desc:string,
+    isPage:boolean,
+    time:number,
+    qty:number
+    dollar:number
+}
+export type returnCalcType={
+    total_time: number,
+    total_cost: number,
+    type: string,
+    list: quoteCalcItemType[]
+
+}
+export type returnQuoteFinalType={
+    total:number,
+    totalHrs:number,
+    returnCalcList:returnCalcType[],
+    user:userType|null
+}
+export type quoteimgType={
+    user_id:string|undefined,
+    email:string,
+     name:string, 
+    quoteKey:string 
+
+}
+export type userQuoteType={
+    user_id:string|undefined,
+    imgKey:string
+
+}
+export type userDevelopType={
+    user_id:string|undefined,
+    email:string,
+     name:string, 
+    imgKey:string 
+
+}
+//-----------QUOTE-----------//
+export type signupType={
+    id?:number
+    email:string,
+    name:string,
+};
+export type signupQuoteType={
+    id?:number
+    email:string,
+    name:string,
+    imgKey:string
+};
+//----------DEVELOPMENT DEPLOY SECTION---------------//
+export type developDeployType={
+    id:number,
+    type:string,
+    basic:boolean,
+    name:string,
+    stage:string,
+    desc:string,
+    isPage:boolean,
+    time:number,
+    qty:number,
+    dollar:number,
+    user_id:string
+}
+//----------DEVELOPMENT DEPLOY SECTION---------------//

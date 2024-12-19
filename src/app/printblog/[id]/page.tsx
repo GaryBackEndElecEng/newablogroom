@@ -5,7 +5,6 @@ import { blogType, userType } from '@/components/editor/Types';
 import { redirect } from 'next/navigation';
 import Index from '../index';
 import { Metadata, ResolvingMetadata } from 'next';
-import { imageLoader } from '@/components/common/tsFunctions';
 import { genKeywords, retMetadata } from '@/app/post/[id]/page';
 import { awsImage } from '@/lib/awsFunctions';
 
@@ -86,6 +85,7 @@ async function getUser(item: { user_id: string }) {
         user = await prisma.user.findUnique({
             where: { id: user_id },
             select: {
+                id: true,
                 name: true,
                 email: true,
                 image: true,

@@ -94,7 +94,16 @@ class Home{
         await this.introTitleDisplay({parent,show,time:500}).then(async(container)=>{
             //SHOWS ABLOGROOM DISPLAY
             if(container){
-                await this.sleep({time:1200});//waits
+                const {button:openFeatures}=Misc.simpleButton({anchor:container,bg:Nav.btnColor,color:"white",text:"open features",type:"button",time:400});
+                openFeatures.style.marginInline="auto";
+                openFeatures.style.marginBlock="1rem";
+                openFeatures.onclick=(e:MouseEvent)=>{
+                    if(e){
+                        this.feature.feature(parent);//features
+                    }
+                };
+                // this.editorAttributeDisplay(res.sectionOne);//SNAP-SCROLL IMAGES
+                this.editorAttributeDisplay(container);//SNAP-SCROLL IMAGES
             }
             });
         await this.asyncMain({parent}).then(async(res)=>{
@@ -107,14 +116,11 @@ class Home{
 
             //    const  showImages=this.getImages.filter((im,index)=>(index<=cutOff)) as imageType2[];
             Header.cleanUp(res.sectionOne);//clean up
-                const {button:openFeatures}=Misc.simpleButton({anchor:res.sectionOne,bg:Nav.btnColor,color:"white",text:"open features",type:"button",time:400});
-                openFeatures.style.marginInline="auto";
-                openFeatures.style.marginBlock="1rem";
+               
                 //----------------------SHOW HOME SECTION-------------------------//
 
                 const arrReveal:{html:HTMLElement}[]=[
                     {html:res.sectionOne},
-                    {html:openFeatures},
                     {html:res.showBlogs},
 
                 ]
@@ -136,15 +142,11 @@ class Home{
 
                 //----------------------SHOW HOME SECTION-------------------------//
                 // show attributes
-                openFeatures.onclick=(e:MouseEvent)=>{
-                    if(e){
-                        this.feature.feature(parent);//features
-                    }
-                };
+                
                 const show=true;
                 
                         this.normalCreateYourBlog(res.sectionOne);//SCROLL DISPLAY
-                        this.editorAttributeDisplay(res.sectionOne);//SNAP-SCROLL IMAGES
+                        
                         //Main editor/Blogs links
                         this.mainLinks(res.sectionOne);//EDITOR/BLOGS LINK
                             // show attributes
@@ -152,6 +154,7 @@ class Home{
                                 await this.listBlogs(res.showBlogs).then(async(_res)=>{
                                     //MAX 4 BLOGS SCROLLING
                                 if(_res && _res.blogs && _res.blogs.length>0){
+                                    this.blogPostTitle({parent:res.showBlogs,css_col,context:"top blogs"});
                                     _res.blogs.map(async(blog)=>{
                                         if(blog){
                                             this.blogCard({parent:_res.blogMsgCont,blog})
@@ -205,14 +208,14 @@ class Home{
         btnContainer.style.cssText="margin-block:2rem;padding:auto;margin-inline:auto;max-width:800px;width:100%;";
         const sectionOne=document.createElement("section");
         sectionOne.id="asyncmain-sectionOne";
-        sectionOne.style.cssText=css_col + "width:100%;padding:0rem;padding-block:2rem;border-radius:16px;background-color:aliceblue;min-height:50vh;box-shadow:1px 1px 12px 1px #b4f3f3;";
+        sectionOne.style.cssText=css_col + "justify-content:flex-start;width:100%;padding:0rem;border-radius:16px;background-color:aliceblue;min-height:50vh;box-shadow:1px 1px 12px 1px #b4f3f3;";
         sectionOne.style.maxWidth="1000px";
         sectionOne.style.opacity="0";
         sectionOne.style.backgroundImage=`url(${this.bend1})`;
         sectionOne.style.backgroundSize=`100% 100%`;
         sectionOne.style.backgroundPosition=`50% 50%`;
         sectionOne.style.backgroundColor=`aliceblue`;
-        sectionOne.style.paddingBlock=less900 ? (less400 ? "2.5rem":"2rem") : "2rem";
+        sectionOne.style.paddingBlock=less900 ? (less400 ? "1.5rem":"1rem") : "1rem";
         sectionOne.appendChild(messageDisplay);
         sectionOne.appendChild(showmsgs);
         sectionOne.appendChild(btnContainer);
@@ -305,7 +308,7 @@ class Home{
         const itemArr:HTMLElement[]=[];
         const outerContainer=document.createElement("div");
         outerContainer.id="editorAttributeDisplay";
-        outerContainer.style.cssText="margin-inline:auto;margin-block:1.5rem;display:flex;flex-direction:column;align-items:center;justify-content:flex-start;padding-inline:0px;max-width:800px;gap:4.5rem;width:100%;position:relative;height:30vh;overflow-y:scroll;padding-block:2rem;margin-block:1.5rem;";
+        outerContainer.style.cssText="margin-inline:auto;margin-block:1.5rem;display:flex;flex-direction:column;align-items:center;justify-content:flex-start;padding-inline:0px;max-width:1100px;gap:4.5rem;width:100%;position:relative;height:30vh;overflow-y:scroll;padding-block:2rem;margin-block:1.5rem;";
         outerContainer.style.scrollSnapType="y mandatory";
         outerContainer.style.backgroundColor="#f5f6fa";
         Misc.matchMedia({parent:outerContainer,maxWidth:900,cssStyle:{gap:"3rem"}});
@@ -409,9 +412,7 @@ class Home{
         const container=document.createElement("section");
         container.id="home-listBlogs-showBlogs";
         container.style.cssText=css_col + "gap:1rem;position:relative;width:100%";
-        //----------textCont-----------------//
-        this.blogPostTitle({parent:container,css_col,context:"top blogs"});
-        //----------textCont-----------------//
+      
         //----------blogCont-----------------//
         const blogMsgCont=document.createElement("div");
         blogMsgCont.id="container-blogMsgCont";
@@ -449,7 +450,7 @@ class Home{
         const less375=window.innerWidth < 375;
         const textCont=document.createElement("div");
         textCont.id="container-textCont";
-        textCont.style.cssText=css_col + "gap:0.25rem;width:100%;margin-block:1rem;background-color:black;padding-block:0.5rem;";
+        textCont.style.cssText=css_col + "gap:0.25rem;width:100%;margin-block:1rem;background-color:black;padding-block:0.5rem;border-radius:6px;";
         textCont.style.marginBlock=less900 ? (less400 ? "2rem":"1.25rem") : "1rem";
         textCont.style.marginTop=less900 ? (less400 ? "1rem":"0.25rem") : "0rem";
         const text=document.createElement("h6");
@@ -945,7 +946,7 @@ class Home{
         const less400=window.innerWidth <400;
         const container=document.createElement("div");
         container.id="home-introTitleDisplay-container";
-        container.style.cssText="margin-inline:auto;width:100%;height:auto;display:flex;flex-direction:column;place-items:center;background-color:black;";
+        container.style.cssText="margin-inline:auto;width:100%;height:auto;display:flex;flex-direction:column;place-items:center;background-color:black;border-radius:6px;margin-top:5xp;";
         container.style.opacity=bgColor;
         container.style.paddingInline=less900 ? (less600 ? (less400 ? "0rem":"1.5rem") :"1.75rem"): "6rem";
         container.style.gap="0px";
@@ -966,7 +967,7 @@ class Home{
         //----------------subTitle-------------------------//
         parent.appendChild(container);
         return new Promise((resolver=>{
-            resolver(parent)
+            resolver(container)
         })) as Promise<HTMLElement>;
     }
     titleOneLine(item:{parent:HTMLElement,text:string,show:boolean,time:number,less900:boolean,less600:boolean,less400:boolean}):number{

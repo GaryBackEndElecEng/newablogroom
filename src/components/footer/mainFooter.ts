@@ -1,6 +1,6 @@
 
 import {FaCreate} from "@/components/common/ReactIcons";
-import { FaArrowRight,FaFingerprint } from "react-icons/fa";
+import { FaArrowRight,FaConnectdevelop,FaFingerprint, FaInfoCircle, FaSignInAlt, FaSignOutAlt } from "react-icons/fa";
 import Misc from "../common/misc";
 import { buttonReturn } from "../common/tsFunctions";
 import ModSelector from "../editor/modSelector";
@@ -15,6 +15,8 @@ import NavArrow from "../nav/arrow";
 import Features from "../home/feature";
 import { userType } from "../editor/Types";
 import AllMsgs from "../home/allMsgs";
+import { FaRightLong } from "react-icons/fa6";
+
 
 
 
@@ -69,8 +71,10 @@ class MainFooter{
     }
     //-------GETTERS ------SETTERS------///
 
-    main(injector:HTMLElement){
+    main(item:{injector:HTMLElement,isAuthenticated:boolean}){
+        const {injector,isAuthenticated}=item;
         const user=this._user.user;
+        this.status=isAuthenticated ? "authenticated" : "unauthenticated";
         const less900=window.innerWidth < 900;
         const less400= window.innerWidth < 400;
         const css="position:relative;margin:auto;width:100%;"
@@ -117,21 +121,22 @@ class MainFooter{
             }
             
             
-            this.addElement(col,str);
+            this.addElement({col,str,isAuthenticated});
             row.appendChild(col);
         });
       
         container.appendChild(row);
        
     }
-    async addElement(col:HTMLElement,str:string){
+    async addElement(item:{col:HTMLElement,str:string,isAuthenticated:boolean}){
+        const {col,str,isAuthenticated}=item;
         const size:{width:string,height:string}= window.innerWidth <1000 ? {width:"60px",height:"60px"} : {width:"80px",height:"80px"};
         const container=document.createElement("div");
         container.id="addElement";
         container.style.cssText="margin:0px;padding:0px;position:relative;width:100%;height:100%;";
         switch(true){
             case str==="col-md-4 left-side":
-            this.leftSide(container,size).then(async(res)=>{
+            this.leftSide({col:container,size,isAuthenticated}).then(async(res)=>{
                 if(res){
                     // DESCRIPTION
                     this.description(res.container);
@@ -140,16 +145,17 @@ class MainFooter{
             col.appendChild(container);
             return;
             case str==="col-md-5 center":
-             this.centerSide(container);
+             this.centerSide({col:container,isAuthenticated});
             col.appendChild(container);
             return;
             case str==="col-md-3 right-side":
-            this.rightSide(container);
+            this.rightSide({col:container,isAuthenticated});
             col.appendChild(container);
             return;
         }
     }
-    leftSide(col:HTMLElement,size:{width:string,height:string}):Promise<{container:HTMLElement}>{
+    leftSide(item:{col:HTMLElement,size:{width:string,height:string},isAuthenticated:boolean}):Promise<{container:HTMLElement}>{
+        const {col,size,isAuthenticated}=item;
         const {width,height}=size;
         this.scrollToTop({parent:col});
         const container=document.createElement("div");
@@ -202,16 +208,18 @@ class MainFooter{
             resolve({container});
         }) as Promise<{container:HTMLElement}>;
     }
-    centerSide(parent:HTMLElement){
+    centerSide(item:{col:HTMLElement,isAuthenticated:boolean}){
+        const {col,isAuthenticated}=item;
         const container=document.createElement("div");
         container.style.cssText="margin:0px;padding:0px;position:relative;width:100%;min-height:10vh;height:100%;display:flex;flex-direction:column;justify-content:center;align-items:center";
         container.id="center";
-        this.centerBtns(container);//BUTTONS
-        this.centerSideContent(container);
+        this.centerBtns({parent:container,isAuthenticated});//BUTTONS
+        this.centerSideContent({parent:container,isAuthenticated});
         this.copyRight(container);
-        parent.appendChild(container);
+        col.appendChild(container);
     }
-    rightSide(parent:HTMLElement){
+    rightSide(item:{col:HTMLElement,isAuthenticated:boolean}){
+        const {col,isAuthenticated}=item;
         const less900=window.innerWidth < 900;
         const less400=window.innerWidth < 400;
         const container=document.createElement("div");
@@ -221,17 +229,18 @@ class MainFooter{
         innerContainer.id="innerContainer-rightSide";
         innerContainer.style.cssText="position:absolute; inset:0% 0% 0% 20%;box-shadow:1px 1px 6px 1px white;min-height:10vh;margin-right:0.25rem;min-height:15vh;display:flex;flex-direction:column;justify-content:center;align-items:center;padding-inline:1rem;";
         innerContainer.style.minHeight=less900 ? (less400 ? "18vh" :"16vh") :"16vh";
-        this.rightSideContent(innerContainer);
+        this.rightSideContent({innerContainer,isAuthenticated});
         container.appendChild(innerContainer);
         Misc.matchMedia({parent:innerContainer,maxWidth:900,cssStyle:{"position":"absolute","inset":"1.5rem 0% 0% 10%","width":"auto"}});
         Misc.matchMedia({parent:container,maxWidth:900,cssStyle:{"position":"relative","width":"100%","flexDirection":"column"}});
         Misc.matchMedia({parent:container,maxWidth:800,cssStyle:{"position":"relative","width":"100%","flexDirection":"row"}});
         Misc.matchMedia({parent:innerContainer,maxWidth:770,cssStyle:{"position":"absolute","inset":"0% 0% 0% 15%","marginRight":"0.5rem","width":"auto"}});
-        this.privacy(container)
-        parent.appendChild(container);
+        this.privacy({parent:container,isAuthenticated})
+        col.appendChild(container);
        
     }
-    privacy(parent:HTMLElement){
+    privacy(item:{parent:HTMLElement,isAuthenticated:boolean}){
+        const {parent,isAuthenticated}=item;
         parent.style.position="relative";
         parent.style.zIndex="3";
         const trans=window.innerWidth <600 ? "translate(10px,-5px)":"translate(0px,-5px)";
@@ -418,27 +427,29 @@ class MainFooter{
         Misc.matchMedia({parent:container,maxWidth:500,cssStyle:{"top":"95%"}});
         Misc.matchMedia({parent:container,maxWidth:900,cssStyle:{"top":"98%"}});
     }
-    async centerBtns(parent:HTMLElement){
+    async centerBtns(item:{parent:HTMLElement,isAuthenticated:boolean}){
+        const {parent,isAuthenticated}=item;
         const container=document.createElement("div");
         container.id="footer-centerBtns-container";
         const css_row="display:flex;justify-content:center;align-items:center;width:100%;margin-inline:auto;";
         container.style.cssText=css_row;
         container.style.maxHeight=window.innerWidth <900 ? "8vh":"6vh";
-        this.centerBtnsRow({container,status:this.status});
+        this.centerBtnsRow({container,isAuthenticated});
         parent.appendChild(container);
     }
-    centerBtnsRow(item:{container:HTMLElement,status:"authenticated"|"unauthenticated"|"loading"}){
+    centerBtnsRow(item:{container:HTMLElement,isAuthenticated:boolean}){
         //!!! NOTE:THIS GETS TOGGLED TO LOGOUT FROM auth.getUser() AND A DUPLICATE FUNCTION IS ATTACHED TO NAVARROW.CENTERBTNSROW() FOR LOGOUT
-        const {container,status}=item;
+        const {container,isAuthenticated}=item;
         const getHeader=document.querySelector("header#navHeader") as HTMLElement;
         Header.cleanUpByID(container,"footer-centerBtns-row")
         const row=document.createElement("div");
         row.id="footer-centerBtns-row";
         row.style.cssText="display:flex; justify-content:space-between;align-items:center;margin:auto;gap:4rem;";
-        const arr=["contact","signup"];
+        const arr=["contact","signup","quote generator"];
         arr.forEach(async(item)=>{
             if(item==="contact"){
-                const btn=buttonReturn({parent:row,text:item,bg:"#34282C",color:"white",type:"button"});
+                const cssStyle={backgroundColor:"#34282C",color:"white",borderRadius:"50%",padding:"3px"}
+                const btn=Misc.btnIcon({anchor:row,icon:FaInfoCircle,msgHover:"contact info",label:null,cssStyle,time:400});
                 // if(!getHeader) return
                 btn.addEventListener("click",(e:MouseEvent)=>{
                     if(e){
@@ -448,8 +459,9 @@ class MainFooter{
                 });
             }else if(item==="signup"){
                 
-                    if(status==="authenticated"){
-                        const btn=buttonReturn({parent:row,text:"logout",bg:"#34282C",color:"white",type:"button"});
+                    if(isAuthenticated){
+                        const cssStyle={backgroundColor:"black",color:"white",borderRadius:"50%",padding:"3px",zIndex:"2",boxShadow:"1px 1px 12px 1px lightblue"}
+                        const btn=Misc.btnIcon({anchor:row,icon:FaSignOutAlt,msgHover:"signout",cssStyle,label:null,time:400});
                         btn.id="btn-footer-signin";
                         btn.addEventListener("click",(e:MouseEvent)=>{
                             if(e){
@@ -462,14 +474,15 @@ class MainFooter{
                                             this.status="unauthenticated";
                                             this.centerBtnsParent=getRedue;
                                             this.status="unauthenticated";
-                                            this.centerBtnsRow({container:getRedue,status:this.status});
+                                            this.centerBtnsRow({container:getRedue,isAuthenticated});
                                         }
                                     });
                                    });
                                 }
-                        });
+                        }); 
                     }else{
-                        const btn=buttonReturn({parent:row,text:"signin",bg:"#34282C",color:"white",type:"button"});
+                        const cssStyle={backgroundColor:"black",color:"white",borderRadius:"50%",padding:"3px"}
+                        const btn=Misc.btnIcon({anchor:row,icon:FaSignInAlt,msgHover:"signin",cssStyle,label:null,time:1000});
                         btn.id="btn-footer-logout";
                         btn.addEventListener("click",(e:MouseEvent)=>{
                             if(e){
@@ -479,11 +492,21 @@ class MainFooter{
                         });
                     }
                 
+            }else if(item==="quote generator"){
+                const cssStyle={backgroundColor:"#34282C",color:"white",borderRadius:"20px",padding:"3px",fontSize:"20px",boxShadow:"1px 1px 4px 1px blue"};
+                const btn=Misc.btnIcon({anchor:row,icon:FaRightLong,cssStyle,msgHover:"web-services",label:item,time:800});
+                btn.onclick=(e:MouseEvent)=>{
+                    if(e){
+                        const newUrl=new URL("/quote",window.location.origin);
+                        window.location.href=newUrl.href;
+                    }
+                };
             }
         });
         container.appendChild(row);
     }
-    centerSideContent(parent:HTMLElement){
+    centerSideContent(item:{parent:HTMLElement,isAuthenticated:boolean}){
+        const {parent,isAuthenticated}=item;
         const container=document.createElement("div");
         const css_btn="margin:auto;display:grid;place-items:center;gap:0.5rem;flex-direction:column;cursor:pointer;box-shadow:1px 1px 7px 1px #0CAFFF,-1px -1px 7px 1px #0CAFFF;border-radius:23px;background-color:#0C090A;color:white;";
         container.id="centerSideContent";
@@ -519,7 +542,8 @@ class MainFooter{
         Misc.btnHover({parent:div,bg:"white",color:"black",bRadius1:"10px",bRadius2:"23px",time:700})
         parent.appendChild(container);
     }
-    rightSideContent(parent:HTMLElement){
+    rightSideContent(item:{innerContainer:HTMLElement,isAuthenticated:boolean}){
+        const {innerContainer,isAuthenticated}=item;
         const container=document.createElement("div");
         container.id="rightSideContent";
         container.style.cssText="display:flex;height:inherit;overflow-y:scroll;align-items:center;width:100%;justify-content:flex-start;flex-direction:column;";
@@ -556,7 +580,7 @@ class MainFooter{
                 this.feature.feature(body)
             }
         };
-        parent.appendChild(container);
+        innerContainer.appendChild(container);
         Misc.matchMedia({parent:container,maxWidth:900,cssStyle:{paddingInline:"1rem",overflowX:"scroll",overflowY:"hidden",alignItems:"center",flexDirection:"row",flexWrap:"wrap",justifyContent:"space-around",paddingBottom:"1.5rem"}});
         Misc.matchMedia({parent:container,maxWidth:400,cssStyle:{paddingInline:"0.5rem",overflowY:"scroll",alignItems:"center",flexDirection:"column",gap:"0.5rem",overflowX:"hidden"}});
     }
