@@ -15,7 +15,7 @@ import NavArrow from "../nav/arrow";
 import Features from "../home/feature";
 import { userType } from "../editor/Types";
 import AllMsgs from "../home/allMsgs";
-import { FaRightLong } from "react-icons/fa6";
+import { FaGooglePlay, FaMobileScreen, FaRightLong } from "react-icons/fa6";
 
 
 
@@ -444,12 +444,13 @@ class MainFooter{
         Header.cleanUpByID(container,"footer-centerBtns-row")
         const row=document.createElement("div");
         row.id="footer-centerBtns-row";
-        row.style.cssText="display:flex; justify-content:space-between;align-items:center;margin:auto;gap:4rem;";
+        row.style.cssText="display:flex; justify-content:space-around;align-items:center;margin:auto;width:100%;";
         const arr=["contact","signup","quote generator"];
+        console.log("isAuthenticated",isAuthenticated);
         arr.forEach(async(item)=>{
             if(item==="contact"){
-                const cssStyle={backgroundColor:"#34282C",color:"white",borderRadius:"50%",padding:"3px"}
-                const btn=Misc.btnIcon({anchor:row,icon:FaInfoCircle,msgHover:"contact info",label:null,cssStyle,time:400});
+                const cssStyle={backgroundColor:"#34282C",color:"white",borderRadius:"20px",padding:"5px"}
+                const btn=Misc.btnIcon({anchor:row,icon:FaMobileScreen,msgHover:"contact info",label:"contact us",cssStyle,time:400});
                 // if(!getHeader) return
                 btn.addEventListener("click",(e:MouseEvent)=>{
                     if(e){
@@ -460,40 +461,41 @@ class MainFooter{
             }else if(item==="signup"){
                 
                     if(isAuthenticated){
-                        const cssStyle={backgroundColor:"black",color:"white",borderRadius:"50%",padding:"3px",zIndex:"2",boxShadow:"1px 1px 12px 1px lightblue"}
-                        const btn=Misc.btnIcon({anchor:row,icon:FaSignOutAlt,msgHover:"signout",cssStyle,label:null,time:400});
-                        btn.id="btn-footer-signin";
+                        const cssStyle={backgroundColor:"black",color:"white",borderRadius:"50%",padding:"3px"}
+                        const btn=Misc.btnIcon({anchor:row,icon:FaSignOutAlt,msgHover:"signout",cssStyle,label:null,time:1000});
+                        btn.id="btn-footer-logout";
                         btn.addEventListener("click",(e:MouseEvent)=>{
                             if(e){
-                                   window.scroll(0,0);
-                                   this._navArrow.logout({func:()=>undefined,redirect:false}).then(()=>{
-                                    const getRedue=document.querySelector("div#footer-centerBtns-container") as HTMLElement;
-                                    this._navArrow.signInDisplay(getHeader,null).then(async(res_)=>{
-                                        if(res_){
 
-                                            this.status="unauthenticated";
-                                            this.centerBtnsParent=getRedue;
-                                            this.status="unauthenticated";
-                                            this.centerBtnsRow({container:getRedue,isAuthenticated});
-                                        }
-                                    });
+                                   window.scroll(0,0);
+                                   this._navArrow.logout({func:()=>undefined,redirect:true}).then(()=>{
+                                    // const getRedue=document.querySelector("div#footer-centerBtns-container") as HTMLElement;
+                                    // this._navArrow.signInDisplay(getHeader,null).then(async(res_)=>{
+                                    //     if(res_){
+
+                                    //         this.status="unauthenticated";
+                                    //         this.centerBtnsParent=getRedue;
+                                    //         this.status="unauthenticated";
+                                    //         this.centerBtnsRow({container:getRedue,isAuthenticated});
+                                    //     }
+                                    // });
                                    });
                                 }
-                        }); 
+                        });
                     }else{
-                        const cssStyle={backgroundColor:"black",color:"white",borderRadius:"50%",padding:"3px"}
-                        const btn=Misc.btnIcon({anchor:row,icon:FaSignInAlt,msgHover:"signin",cssStyle,label:null,time:1000});
-                        btn.id="btn-footer-logout";
+                        const cssStyle={backgroundColor:"black",color:"white",borderRadius:"50%",padding:"3px",zIndex:"2",boxShadow:"1px 1px 12px 1px lightblue"}
+                        const btn=Misc.btnIcon({anchor:row,icon:FaSignInAlt,msgHover:"signin",cssStyle,label:null,time:400});
+                        btn.id="btn-footer-signin";
                         btn.addEventListener("click",(e:MouseEvent)=>{
                             if(e){
                                    window.scroll(0,0);
                                    this._regSignin.signIn();
                                 }
-                        });
+                        }); 
                     }
                 
             }else if(item==="quote generator"){
-                const cssStyle={backgroundColor:"#34282C",color:"white",borderRadius:"20px",padding:"3px",fontSize:"20px",boxShadow:"1px 1px 4px 1px blue"};
+                const cssStyle={backgroundColor:"#34282C",color:"white",borderRadius:"20px",padding:"3px",fontSize:"20px",boxShadow:"1px 1px 12px 1px blue"};
                 const btn=Misc.btnIcon({anchor:row,icon:FaRightLong,cssStyle,msgHover:"web-services",label:item,time:800});
                 btn.onclick=(e:MouseEvent)=>{
                     if(e){
@@ -507,39 +509,29 @@ class MainFooter{
     }
     centerSideContent(item:{parent:HTMLElement,isAuthenticated:boolean}){
         const {parent,isAuthenticated}=item;
+        const less400=window.innerWidth < 400;
         const container=document.createElement("div");
         const css_btn="margin:auto;display:grid;place-items:center;gap:0.5rem;flex-direction:column;cursor:pointer;box-shadow:1px 1px 7px 1px #0CAFFF,-1px -1px 7px 1px #0CAFFF;border-radius:23px;background-color:#0C090A;color:white;";
         container.id="centerSideContent";
         container.style.cssText="margin-inline:auto;margin-block:0.5rem;width:100%;min-height:inherit;border-top:1px solid white;border-bottom:1px solid white;padding-block:0.25rem;display:flex;justify-content:space-around;align-items:center;";
-        const div=document.createElement("div");
-        div.id="extra-info";
-        div.style.cssText=css_btn;
-        const text=document.createElement("p");
-        text.textContent="additional info";
-        text.style.cssText="font-size:12px;padding-inline:1.5rem;padding-block:0.15rem;border-radius:20px;margin:auto;";
-        div.appendChild(text);
-        container.appendChild(div);
-        div.addEventListener("click",(e:MouseEvent)=>{
+        container.style.paddingInline=less400 ? "1rem":"2rem";
+        const cssStyle={backgroundColor:"#34282C",color:"white",borderRadius:"20px",padding:"3px",fontSize:"20px",boxShadow:"1px 1px 12px 1px blue"};
+        const btn=Misc.btnIcon({anchor:container,icon:FaInfoCircle,cssStyle,msgHover:"contact info",label:"contact info",time:800});
+        btn.addEventListener("click",(e:MouseEvent)=>{
             if(e){
                 window.scroll(0,0);
                 this._navArrow.generalInfo(MainHeader.header as HTMLElement);
             }
         });
-        const noteAdder= document.createElement("div");
-        noteAdder.id="centerSideContent-notAdder";
-        noteAdder.style.cssText=css_btn + "width:fit-content;margin-inline:auto;padding-inline:1.5rem;";
-        const noteText=document.createElement("p");
-        noteText.textContent=" free noteAdder";
-        noteText.style.cssText="margin:auto;"
-        noteAdder.appendChild(noteText);
-        container.appendChild(noteAdder);
-        noteAdder.onclick=(e:MouseEvent)=>{
+        const cssStyle_1={backgroundColor:"#34282C",color:"white",borderRadius:"20px",padding:"3px",fontSize:"20px",boxShadow:"1px 1px 12px 1px blue"};
+        const button=Misc.btnIcon({anchor:container,icon:FaGooglePlay,cssStyle:cssStyle_1,msgHover:"free Google ext.",label:"Google Ext",time:800});
+        button.onclick=(e:MouseEvent)=>{
             if(e){
                 window.open(this.noteAddUrl,"_blank");
 
             }
         };
-        Misc.btnHover({parent:div,bg:"white",color:"black",bRadius1:"10px",bRadius2:"23px",time:700})
+        // Misc.btnHover({parent:div,bg:"white",color:"black",bRadius1:"10px",bRadius2:"23px",time:700})
         parent.appendChild(container);
     }
     rightSideContent(item:{innerContainer:HTMLElement,isAuthenticated:boolean}){

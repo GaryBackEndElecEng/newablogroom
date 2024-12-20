@@ -1792,13 +1792,16 @@ class Misc{
     static btnIcon(item:{anchor:HTMLElement,icon:IconType,label:string|null,msgHover:string|null,cssStyle:{[key:string]:string},time:number}):HTMLButtonElement{
         const {anchor,icon,cssStyle,time,label,msgHover}=item;
         const btn=document.createElement("button");
+        const rand=Math.round(Math.random()*100);
+        btn.id=String(rand)
         if(msgHover){
-
+            
+            btn.id=anchor.id + "-" + msgHover + "-" + String(rand);
             btn.classList.add("btnMessageHover");
             btn.setAttribute("data-message",msgHover);
         }
     
-        btn.style.cssText="border-radius:50%;padding:3px;display:flex;justisfy-content:center;align-items:center;z-index:0;";
+        btn.style.cssText="padding:3px;display:flex;justisfy-content:center;align-items:center;z-index:0;background-color:black;border-radius:12px;color:white;position:relative;border:none;box-shadow:1px 1px 12px 3px blue;";
         for(const key of Object.keys(btn.style)){
             for(const [key1,value] of Object.entries(cssStyle)){
                 if(key1===key){
@@ -1806,29 +1809,34 @@ class Misc{
                 };
             };
         };
+        const bg=btn.style.backgroundColor;
+        const col=btn.style.color
         if(label){
+            btn.id=anchor.id + "-" + msgHover + "-" + label + String(rand);
             Array.from(Array(2).keys()).map(num=>{
-                const span=document.createElement("span");
                 if(num===0){
-                    FaCreate({parent:span,name:icon,cssStyle:{fontSize:btn.style.fontSize,color:"white",margin:"auto",background:"transparent",zIndex:"20"}});
+                    const span=document.createElement("span");
+                    span.style.backgroundColor=bg;
+                    span.style.color=col;
+                    FaCreate({parent:span,name:icon,cssStyle:{fontSize:btn.style.fontSize,color:col,margin:"auto",zIndex:"20"}});
+                    btn.appendChild(span);
                 }else{
-                    const font=Math.round(Number(btn.style.fontSize.split("px")[0])/1.62);
-                    const newFont=`${font}px`;
-                    span.style.fontSize=newFont;
-                    span.textContent=label;
+                    const small=document.createElement("small");
+                    small.style.transform="scale(0.7)";
+                    small.textContent=label;
+                    btn.appendChild(small);
                 }
-                btn.appendChild(span);
             });
             btn.style.gap="0.25rem";
         }else{
-            FaCreate({parent:btn,name:icon,cssStyle:{fontSize:btn.style.fontSize,color:"white",margin:"auto",background:"transparent",zIndex:"20"}});
+            FaCreate({parent:btn,name:icon,cssStyle:{fontSize:btn.style.fontSize,color:col,margin:"auto",background:bg,zIndex:"20"}});
         }
         anchor.appendChild(btn);
         btn.onmouseover=(e:Event)=>{
             if(e){
-                const beforeTime=time * 10
+                const beforeTime=time * 3
                 btn.animate([
-                    {backgroundColor:btn.style.backgroundColor,color:btn.style.color},
+                    {backgroundColor:bg,color:col},
                     {backgroundColor:"white",color:"black"},
                 ],{duration:beforeTime,iterations:1});
             }
@@ -1838,7 +1846,7 @@ class Misc{
 
                 btn.animate([
                     {backgroundColor:"white",color:"black"},
-                    {backgroundColor:btn.style.backgroundColor,color:btn.style.color},
+                    {backgroundColor:bg,color:col},
                 ],{duration:time,iterations:1});
             }
         };

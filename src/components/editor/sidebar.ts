@@ -1472,7 +1472,7 @@ class Sidebar{
                     btn.disabled=false;
                 },1000);
                 const blog=this._modSelector.blog;
-                this.chart.mainChart(Main.textarea,blog);
+                this.chart.editorChart(Main.textarea,blog);
             }
         });
      };

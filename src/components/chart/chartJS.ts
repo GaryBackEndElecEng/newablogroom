@@ -301,6 +301,11 @@ class ChartJS {
         });
 
     }
+    async editorChart(injector:HTMLElement,blog:blogType){
+        this._modSelector.blog={...blog};
+        await this.mainBarChart({injector,blog});
+
+    }
    async titlePage(item:{container:HTMLElement,time:number}):Promise<{textContainer:HTMLElement,container:HTMLElement,para:HTMLElement,time:number}>{
         const {container,time}=item;
         const less900=window.innerWidth < 900;
@@ -352,11 +357,16 @@ class ChartJS {
     }
     async mainBarChart(item:{injector:HTMLElement,blog:blogType}){
         const {injector,blog}=item;
+        const isTextarea=injector.id==="textarea";
         const lenId=this.charts.length;
         const widthMax=window.innerWidth <900 ? (window.innerWidth < 600 ? (window.innerWidth <400 ? "340px":"500px") : "600px") : "800px";
         const widthMin=window.innerWidth <900 ? (window.innerWidth < 600 ? (window.innerWidth <400 ? "300px":"450px") : "500px") : "700px";
-        injector.style.minWidth=widthMin;
-        injector.style.maxWidth=widthMax;
+        if(!isTextarea){
+            injector.style.minWidth=widthMin;
+            injector.style.maxWidth=widthMax;
+        }else{
+            injector.style.width="100%";
+        }
         Header.cleanUpByID(injector,"ctx-container-target");
         if(injector.id !=="textarea"){
             injector.style.cssText="min-height:80vh;margin-inline:auto;border-radius:20px;max-width:1000px;width:100%;position:relative;display:flex;justify-content:center;align-items:center;flex-direction:column;";

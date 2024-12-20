@@ -1378,9 +1378,9 @@ code#anchor-close {
 }
 .btnMessageHover::after {
   content: attr(data-message);
-  opacity: 0;
   position: absolute;
-  background-color: white;
+  background-color: transparent;
+  opacity: 0;
   color: black;
   padding: 1rem;
   border-radius: 12px;
@@ -1391,6 +1391,8 @@ code#anchor-close {
   transition: all 1s ease-in-out;
 }
 .btnMessageHover:hover::after {
+  position: absolute;
+  background-color: white;
   opacity: 1;
   transform: translateY(-85%);
   transition: all 1s ease-in-out;

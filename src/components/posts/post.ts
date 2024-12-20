@@ -573,7 +573,7 @@ class Post{
         const less400=window.innerWidth < 400;
         Header.cleanUpByID(row,`posts-postcard-col-${index}`);
         const css_col="margin-inline:auto;display:flex;flex-direction:column;justify-content:center;align-items:center;gap:0.7rem;color:inherit;border-radius:inherit;width:100%";
-        const shapoutside="text-wrap:wrap;color:black;font-family:'Poppins-Thin';font-weight:bold;font-size:120%;line-height:2.05rem;color:inherit;border-radius:12px;box-shadow:1px 1px 12px white;"
+        const shapoutside="text-wrap:wrap;color:black;font-family:'Poppins-Regular';font-weight:bold;font-size:120%;line-height:2.05rem;color:inherit;border-radius:12px;box-shadow:1px 1px 12px white;"
         const css_row="margin-inline:auto;display:flex;flex-direction:row;flex-wrap:wrap;justify-content:center;align-items:center;gap:0.27rem;color:inherit;border-radius:inherit;";
         const col=document.createElement("div");
         col.id=`posts-postcard-col-${index}`;
@@ -773,7 +773,7 @@ class Post{
         container.style.cssText=css + " border-radius:12px;box-shadow:1px 1px 12px 1px #0a2351;background-color:white;color:black;padding:1rem;min-height:20vh;width:100%;";
         const para=document.createElement("p");
         para.textContent=this.no_posts;
-        para.style.cssText="margin-inline:auto;padding-inline:1rem;font-family:'Poppins-Thin';padding-block:2rem;text-wrap:pretty;font-size:160%;font-weight:700;";
+        para.style.cssText="margin-inline:auto;padding-inline:1rem;font-family:'Poppins-Regular';padding-block:2rem;text-wrap:pretty;font-size:160%;font-weight:700;";
         container.appendChild(para);
         parent.appendChild(container);
 

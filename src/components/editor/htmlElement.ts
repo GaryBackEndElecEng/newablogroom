@@ -31,7 +31,7 @@ class HtmlElement {
         this.btnColor=this._modSelector.btnColor;
         this._elements=this._modSelector._elements;
         this.reference=new Reference(this._modSelector);
-        this.divCont_css="margin:0px;padding:1rem;position:relative;display:flex;flex-direction:column;align-items:center;justify-content:center;padding-inline:1.25rem;margin-inline:4rem;border-radius:8px;";
+        this.divCont_css="margin:0px;padding:1rem;position:relative;display:flex;flex-direction:column;align-items:center;justify-content:center;padding-inline:1.25rem;margin-inline:auto;border-radius:8px;width:100%;";
         this.refresh=false;
         this.divCont_class="eleContainer";
         this.urlImg="http://localhost:3000/images/gb_logo.png";
@@ -270,11 +270,13 @@ class HtmlElement {
     };
     async asyncElement(item:{parent:HTMLElement,element:elementType}):Promise<{divCont:HTMLElement,ele:HTMLElement}>{
         const {parent,element}=item;
+        const less400=window.innerWidth < 400;
         parent.style.position="relative";
         const divCont=document.createElement("div");
         divCont.className=this.divCont_class;
         divCont.setAttribute("data-placement",`${element.placement}`);
         divCont.style.cssText=this.divCont_css;
+        divCont.style.paddingInline=less400 ? "0.25rem":"1.5rem";
         const ele=document.createElement(element.name);
         ele.setAttribute("name",element.name);
         ele.setAttribute("data-placement",`${element.placement}`);
@@ -386,12 +388,14 @@ class HtmlElement {
     //FROM DESIGN
     designElement(parent: HTMLElement,eleName:string,text:string,class_:string){
         //THIS ADDS ELEMENTS OTHER THAN UL,BLOCKQUOTE,TIME,A,IMG FROM MAIN CLASS
+        const less400=window.innerWidth < 400;
         const divCont=document.createElement('div');
         divCont.className=this.divCont_class;
         divCont.style.cssText=this.divCont_css;
+        divCont.style.paddingInline=less400 ? "0rem":"1.5rem";
         divCont.setAttribute("data-placement",`${this.placement}`);
         const target = document.createElement(eleName); //ICON.NAME=ELE TYPE
-        target.id=`${"design"}-${Math.round(Math.random()*1000)}`
+        target.id=`${"design"}-${Math.round(Math.random()*1000)}`;
         // this.docSelect(target,icon);
         target.textContent=text;
         target.setAttribute("name",eleName);

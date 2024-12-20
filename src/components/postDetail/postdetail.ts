@@ -1,4 +1,4 @@
-import { FaCrosshairs, FaThumbsUp } from "react-icons/fa";
+import {  FaCrosshairs, FaThumbsUp, } from "react-icons/fa";
 import Blogs from "../blogs/blogsInjection";
 import Misc from "../common/misc";
 import { FaCreate } from "../common/ReactIcons";
@@ -11,6 +11,9 @@ import Nav from "../nav/headerNav";
 import AddImageUrl from "../common/addImageUrl";
 import User from "../user/userMain";
 import Post from "../posts/post";
+import { IconType } from "react-icons";
+import { FaCircleUp } from "react-icons/fa6";
+import EditText from "../common/editText";
 
 
 
@@ -81,7 +84,7 @@ class PostDetail{
         }
         this.injector=injector as HTMLElement;
         const css_col="margin-inline:auto;display:flex;flex-direction:column;justify-content:center;align-items:center;gap:0.7rem;color:inherit;border-radius:inherit;";
-        const shapoutside="padding:1rem;text-wrap:wrap;font-family:'Poppins-Thin';font-weight:bold;inherit;border-radius:12px;box-shadow:1px 1px 12px white;width:100%;"
+        const shapoutside="padding:1rem;text-wrap:wrap;font-family:'Poppins-Regular';font-weight:bold;inherit;border-radius:12px;box-shadow:1px 1px 12px white;width:100%;"
         const css_row="margin-inline:auto;display:flex;flex-direction:row;flex-wrap:wrap;justify-content:center;align-items:center;gap:0.27rem;color:inherit;border-radius:inherit;";
         const container=document.createElement("div");
         container.className="postdetail-main-container";
@@ -206,6 +209,9 @@ class PostDetail{
                 const {button:btnEdit}=Misc.simpleButton({anchor:btnContainer,text:"edit",type:"button",bg:Nav.btnColor,color:"white",time:400});
                 btnEdit.onclick=(e:MouseEvent)=>{
                     if(e){
+                        //it works but not used
+                        // this.editPostContentEditable({card,targetImg:img,post,user,imgWidth:widthConv,isPage:true,shapoutside});//not used
+                        //it works but not used
                         this.editPost({card,targetImg:img,post,user:user,imgWidth:widthConv});
                     }
                 };
@@ -297,6 +303,7 @@ class PostDetail{
     editPost(item:{card:HTMLElement,targetImg:HTMLImageElement,post:postType,user:userType,imgWidth:number}){
         const {card,targetImg,post,user,imgWidth}=item;
         this.post=post;
+        const editTool=new EditText();
         const less900= window.innerWidth < 900 ? true:false;
         const less400= window.innerWidth < 400 ? true:false;
         Header.cleanUpByID(card,`postdetail-editPost-popup-${post.id}`);
@@ -305,7 +312,7 @@ class PostDetail{
         card.style.position="relative";
         const popup=document.createElement('div');
         popup.id=`postdetail-editPost-popup-${post.id}`;
-        popup.style.cssText=css_col + "position:absolute;inset:0%;backdrop-filter:blur(20px);border-radius:12px;box-shadow:1px 1px 12px 1px #0CAFFF;padding:7px;z-index:10;border:none;";
+        popup.style.cssText=css_col + "position:absolute;inset:0%;background-color:white;border-radius:12px;box-shadow:1px 1px 12px 1px #0CAFFF;padding:7px;z-index:10;border:none;";
         card.appendChild(popup);
         //-------DELETE----------//
         const xDiv=document.createElement("div");
@@ -320,6 +327,7 @@ class PostDetail{
                 },390);
             }
         };
+        const count=0;
         //-------DELETE----------//
         const form=document.createElement('form');
         form.id=`editPost-form-${post.id}`;
@@ -343,6 +351,10 @@ class PostDetail{
         inContent.id="editPost-content";
         inContent.name="content";
         inContent.rows=less900 ? (less400 ? 17 :15):13;
+        const getButton=form.querySelector("button#submit") as HTMLButtonElement;
+        //EDIT TOOL FOR TEXT HIGHLIGHTS
+        editTool.toolbar({parent:popup,target:inContent,submit:getButton});
+        //EDIT TOOL FOR TEXT HIGHLIGHTS
         inContent.value=post.content ? post.content : "";
         lContent.className="grpTextarea-label";
         lContent.className="text-light text-center display-6";
@@ -373,6 +385,7 @@ class PostDetail{
         lLink.style.cssText="font-size:140%;text-decoration:underline;text-underline-offset:0.5rem;margin-bottom:1rem;";
         lLink.setAttribute("for",link.id);
         const {button:submit}=Misc.simpleButton({anchor:form,bg:Nav.btnColor,color:"white",text:"submit",time:400,type:"submit"});
+        submit.id="submit";
         submit.disabled=false;
         this.edituploadFreeNone({card,editPopup:popup,targetImg,post,user,imgWidth});
         form.onsubmit=async(e:SubmitEvent) =>{
@@ -381,6 +394,171 @@ class PostDetail{
                 const formdata=new FormData(e.currentTarget as HTMLFormElement);
                 const title=formdata.get("title") as string;
                 const content=formdata.get("content") as string;
+                const pub=formdata.get("pub") as string;
+                const link=formdata.get("link") as string;
+                if(title && content){
+                    this.post={...this.post,title:title as string,content:content as string,published:Boolean(pub),link:link};
+                   await this._service.saveUpdatepost({post:this.post}).then(async(res)=>{
+                       if(res){
+                            this.post=res;
+                            const getPopup=card.querySelector(`div#${popup.id}`) as HTMLElement;
+                            if(getPopup){
+                                Misc.growOut({anchor:getPopup,scale:0,opacity:0,time:400});
+                                setTimeout(()=>{
+                                    card.removeChild(getPopup);
+                                },390);
+
+                            }
+                            this.injector=document.querySelector("section#postdetail") as HTMLElement;
+                            if(!this.injector) return;
+                            Header.cleanUpByID(this.injector,`postdetail-main-container`);
+                            this.main({injector:this.injector,post:this.post,count:0,poster:this.poster,isPage:true,isUser:true,user});
+                        }
+                    });
+
+                }
+            }
+        };
+    }
+   
+   async editPostContentEditable(item:{card:HTMLElement,targetImg:HTMLImageElement,post:postType,user:userType,imgWidth:number,isPage:boolean,shapoutside:string}){
+        const {card,targetImg,post,user,imgWidth,isPage,shapoutside}=item;
+        this.post=post;
+        const less900= window.innerWidth < 900 ? true:false;
+        const less400= window.innerWidth < 400 ? true:false;
+        Header.cleanUpByID(card,`postdetail-editPost-popup-${post.id}`);
+        const css_col="margin-inline:auto;display:flex;flex-direction:column;justify-content:center;align-items:center;";
+        const css_row="margin-inline:auto;display:flex;flex-direction:row;flex-wrap:wrap;justify-content:center;align-items:center;gap:0.7rem;";
+        card.style.position="relative";
+        const popup=document.createElement('div');
+        popup.id=`postdetail-editPost-popup-${post.id}`;
+        popup.style.cssText=css_col + "position:absolute;inset:0%;background-color:white;border-radius:12px;box-shadow:1px 1px 12px 1px #0CAFFF;padding:7px;z-index:10;border:none;";
+        card.appendChild(popup);
+        //-------DELETE----------//
+        const xDiv=document.createElement("div");
+        xDiv.style.cssText=css_row + "position:absolute;padding:0.37rem;background:black;color:white;top:0%;right:0%;transform:translate(-12px,12px);z-index:100;border-radius:50%;";
+        FaCreate({parent:xDiv,name:FaCrosshairs,cssStyle:{color:"white",fontSize:"22px"}});
+        popup.appendChild(xDiv);
+        xDiv.onclick=(e:MouseEvent) =>{
+            if(e){
+                Misc.growOut({anchor:popup,scale:0,opacity:0,time:400});
+                setTimeout(()=>{
+                    card.removeChild(popup);
+                },390);
+            }
+        };
+        //-------DELETE----------//
+        const form=document.createElement('form');
+        form.id=`editPost-form-${post.id}`;
+        form.style.cssText=css_col +"color:black;width:100%;";
+        popup.appendChild(form);
+        Misc.growIn({anchor:popup,scale:0,opacity:0,time:400});
+        const {input:intitle,label:ltitle,formGrp:grptitle}=Nav.inputComponent(form);
+        grptitle.id="form-group-title";
+        grptitle.style.cssText="margin-inline:auto;";
+        grptitle.className="text-light text-center";
+        intitle.id="editPost-post-title";
+        intitle.name="title";
+        intitle.value=post.title ? post.title : "";
+        ltitle.textContent="Your Title";
+        ltitle.className="text-light display-6";
+        ltitle.setAttribute("for",intitle.id);
+        //-------- POST CONTENT--START----------------------//
+        const shapeOutside=document.createElement("p");
+        shapeOutside.setAttribute("contenteditable","true");
+        shapeOutside.setAttribute("name","shapeOutside");
+        shapeOutside.id=`editpost-shapeOutside-${post.id}`;
+        shapeOutside.style.cssText=less400 ? shapoutside + css_col :shapoutside;
+        shapeOutside.style.lineHeight=less900 ? (less400 ? "2.05rem":"2.25rem") :"2.85rem";
+        shapeOutside.style.fontSize=less900 ? (less400 ? "120%":"126%") :"150%";
+        const img=document.createElement("img");
+        img.id=`posts-shapeOutside-img-${post.id}`;
+        img.style.cssText="border-radius:50%;shape-outside:circle(50%);float:left;margin-bottom:2rem;aspect-ratio:1/1;filter:drop-shadow(0 0 0.75rem lightblue);border:none;";
+        img.style.filter="drop-shadow(0 0 0.75rem white) !important";
+        if(isPage){
+            img.style.width=less900 ? (less400 ? "300px" : "400px") :"500px";
+        }else{
+            img.style.width=less900 ? (less400 ? "300px" : "420px") :"400px";
+        }
+        img.style.marginRight=less900 ? (less400 ? "0.85rem" : "0.85rem") :"1rem";
+        const widthConv=parseInt(img.style.width.split("px")[0]) as number;
+        if(post.image){
+            img.src=imageLoader({src:post.image,width:widthConv,quality:75});
+            img.alt="www.ablogroom.com";
+            shapeOutside.appendChild(img);
+            Misc.blurIn({anchor:img,blur:"20px",time:700});
+            shapeOutside.innerHTML+=post.content ? post.content : "";
+        }else if(post.imageKey){
+            await this._service.getSimpleImg(post.imageKey).then(async(res)=>{
+                if(res){
+                    img.src=res.img;
+                    img.alt=res.Key;
+                    shapeOutside.appendChild(img);
+                    Misc.blurIn({anchor:img,blur:"20px",time:700});
+                    shapeOutside.innerHTML+=post.content ? post.content : "";
+                }
+            });
+        }else{
+            const url=new URL(window.location.href)
+            const newUrl=new URL(this.postLogo,url.origin)
+            img.src=imageLoader({src:"/images/posts.png",width:widthConv,quality:75});
+             img.alt="www.ablogroom.com";
+            shapeOutside.appendChild(img);
+            Misc.blurIn({anchor:img,blur:"20px",time:700});
+            shapeOutside.innerHTML+=post.content ? post.content : "";
+        }
+        shapeOutside.oninput=(e:Event)=>{
+            if(e){
+                const ele=e.currentTarget as HTMLParagraphElement;
+                if(ele){
+                    this.post={...post,content:ele.textContent as string}
+
+                }
+            }
+        };
+        form.appendChild(shapeOutside)
+        // POST CONTENT--------END--------------------------------------//
+        const {input:pub,label:lpub,formGrp:grpPub}=Nav.inputComponent(form);
+        grpPub.id="form-grpPub";
+        grpPub.className="text-light";
+        grpPub.style.cssText="margin-inline:auto;";
+        pub.className="";
+        pub.id="pub";
+        pub.name="pub";
+        pub.type="checkbox";
+        pub.checked=post.published;
+        lpub.id="grpPub-label";
+        lpub.textContent="publish";
+        lpub.style.cssText="font-size:140%;text-decoration:underline;text-underline-offset:0.5rem;margin-bottom:1rem;";
+        lpub.setAttribute("for",pub.id);
+        const {input:link,label:lLink,formGrp:grplink}=Nav.inputComponent(form);
+        grplink.id="form-grplink";
+        link.id="link";
+        link.name="link";
+        link.value=post.link ? post.link : "";
+        link.placeholder="https://example.com";
+        link.type="url";
+        lLink.id="grplink-label";
+        lLink.textContent="add a link ";
+        lLink.style.cssText="font-size:140%;text-decoration:underline;text-underline-offset:0.5rem;margin-bottom:1rem;";
+        lLink.setAttribute("for",link.id);
+        const {button:submit}=Misc.simpleButton({anchor:form,bg:Nav.btnColor,color:"white",text:"submit",time:400,type:"submit"});
+        submit.disabled=false;
+        this.edituploadFreeNone({card,editPopup:popup,targetImg,post,user,imgWidth});
+        form.onsubmit=async(e:SubmitEvent) =>{
+            if(e){
+                e.preventDefault();
+                //`p#editpost-shapeOutside-${post.id}`
+                const para=form.querySelector(`p#editpost-shapeOutside-${post.id}`) as HTMLParagraphElement;
+                const img=para.querySelector(`img#posts-shapeOutside-img-${post.id}`) as HTMLParagraphElement;
+                if(!(para && img)) return;
+                const formdata=new FormData(e.currentTarget as HTMLFormElement);
+                const test=formdata.get("shapeOutside");
+                console.log("shapeoutside",test);
+                const title=formdata.get("title") as string;
+                img.remove();
+                const content=para.innerHTML as string;
+                this.post={...this.post,content};
                 const pub=formdata.get("pub") as string;
                 const link=formdata.get("link") as string;
                 if(title && content){
