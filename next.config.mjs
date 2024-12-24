@@ -5,9 +5,7 @@ const nextConfig = {
   },
   reactStrictMode: true,
   pageExtensions: ["js", "jsx", "mdx", "tsx", "ts", "md"],
-  experimental: {
-    serverComponentsExternalPackages: ["@prisma/client", "bcryptjs"],
-  },
+  serverExternalPackages: ["@prisma/client", "bcryptjs"],
   typescript: {
     ignoreBuildErrors: true,
   },

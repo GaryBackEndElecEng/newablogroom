@@ -1,4 +1,4 @@
-import {flexType,elementType,selectorType,element_selType,codeType,blogType, chartType, regenCleanType,} from "./Types";
+import {flexType,elementType,selectorType,element_selType,codeType,blogType, chartType, regenCleanType, rowType,} from "./Types";
 import ModSelector from "@/components/editor/modSelector";
 import DisplayBlog, {separator} from "@/components/blog/displayBlog";
 import Header from "@/components/editor/header";
@@ -453,7 +453,7 @@ class Edit {
         container.style.zIndex="";
         const innerContainer=document.createElement("div");
         innerContainer.style.cssText="width:100%;position:absolute;z-index:200;background:white;";
-        await this.displayBlog.saveFinalWork({outerContainer:parent,innerContainer,blog});
+        await this.displayBlog.saveFinalWork({innerContainer,blog});
         const btnCont=document.createElement("div");
         btnCont.style.cssText="display:flex;flex-direction:row;padding-inline:margin;margin-block:1.5rem;gap:1.5rem;justify-content:space-around;align-items:center;";
         const {button:close}=Misc.simpleButton({anchor:btnCont,type:"button",bg:Nav.btnColor,color:"white",text:"close",time:400});
@@ -641,8 +641,9 @@ class Edit {
                 innerCont.setAttribute("data-container-id",`${innerCont.id}`);
             innerCont.setAttribute("data-selector-id",selector.eleId);
             innerCont.style.cssText=selector.cssText;
-            flex={...flex,selectorId:selector.eleId,placement:selector.placement}
-                await Promise.all(selector.rows.map(async(row_)=>{
+            flex={...flex,selectorId:selector.eleId,placement:selector.placement};
+            const rows=JSON.parse(selector.rows) as rowType[];
+                await Promise.all(rows.map(async(row_)=>{
                     const row=document.createElement("div");
                     row.className=row_.class.split(" ").filter(cl=>(cl !=="box-shadow")).join(" ");
                     row.style.cssText=row_.cssText;
@@ -1066,13 +1067,15 @@ class Edit {
         const selects=(blog.selectors && blog.selectors.length) ? blog.selectors as selectorType[]: null;
         const cleanSels=selects ? selects.filter(sel=>(sel.header===false)).filter(sel=>(sel.footer===false)): null
         const charts=blog.charts && blog.charts.length>0 ? blog.charts as chartType[] :null;
+        console.log("maxcount",maxcount)
         if(!(maxcount>0)) return arr as [];
         Array.from(Array(maxcount+3).keys()).map((num)=>{
+            const int=num+1;
             if(elements){
-                elements.map(ele=>{
+                elements.sort((a,b)=>{if(a.placement < b.placement) return -1;return 1;}).map(ele=>{
                     const checkArr=arr.filter(item=>(item.id ===ele.placement));
-                    if(ele && ele.placement===num+1){
-                        if(checkArr && checkArr.length>1){
+                    if(ele && ele.placement===int){
+                        if(checkArr && checkArr.length>0){
                             arr.push({id:ele.placement,duplicate:true,selEleChrt:ele as elementType,type:"element"});
                         }else{
                             arr.push({id:ele.placement,duplicate:false,selEleChrt:ele as elementType,type:"element"});
@@ -1082,10 +1085,10 @@ class Edit {
                 });
             }
             if(cleanSels){
-                cleanSels.map(sel=>{
+                cleanSels.sort((a,b)=>{if(a.placement < b.placement) return -1;return 1;}).map(sel=>{
                     const checkArr=arr.filter(item=>(item.id ===sel.placement));
-                    if(sel && sel.placement===num+1){
-                        if(checkArr && checkArr.length>1){
+                    if(sel && sel.placement===int){
+                        if(checkArr && checkArr.length>0){
                             arr.push({id:sel.placement,duplicate:true,selEleChrt:sel as selectorType,type:"selector"});
                         }else{
                             arr.push({id:sel.placement,duplicate:false,selEleChrt:sel as selectorType,type:"selector"});
@@ -1095,9 +1098,9 @@ class Edit {
                 });
             }
             if(charts){
-                charts.map(chart=>{
+                charts.sort((a,b)=>{if(a.placement < b.placement) return -1;return 1;}).map(chart=>{
                     const checkArr=arr.filter(item=>(item.id ===chart.placement));
-                    if(chart && chart.placement===num+1){
+                    if(chart && chart.placement===int){
                         if(checkArr){
                             arr.push({id:chart.placement,duplicate:true,selEleChrt:chart as chartType,type:"chart"});
                         }else{
@@ -1108,10 +1111,27 @@ class Edit {
                 });
             }
         });
-        const arrSorted=this.regenerateArr(arr,2);
-        // console.log("arr:",arr.map(item=>({id:item.id,placement:item.selEleChrt.placement,name:(item.selEleChrt as elementType|selectorType).name,duplicate:item.duplicate,type:item.type})));
-        // console.log("arrSorted:",arrSorted.map(item=>({id:item.id,placement:item.selEleChrt.placement,duplicate:item.duplicate,type:item.type,name:(item.selEleChrt as elementType|selectorType).name})));
-                const newSorted=arrSorted.sort((a,b)=>{if(a.id < b.id) return -1;return 1;}).map((item,index)=>{
+        const sortArr=arr.sort((a,b)=>{if(a.id < b.id)return -1;else return 1});
+        const sortArr2=sortArr;
+            sortArr.map(item=>{
+                const check=item.duplicate===true;
+                if(check){
+                    const id=item.id;
+                    item.id+=1;
+                    // item.selEleChrt.placement=item.id;
+                    sortArr.map((item_,index)=>{
+                        const int=index+1;
+                        if(item_.id>id){
+                            item_.id =int + 1;
+                            // item_.selEleChrt.placement=item_.id;
+                        }
+                        return item_;
+                    });
+                }
+            });
+            // console.log("2:",sortArr2.map(it=>({id:it.id,dup:it.duplicate})));
+            // console.log("1:",sortArr.map(it=>({id:it.id,dup:it.duplicate})));
+                const newSorted=sortArr.sort((a,b)=>{if(a.id < b.id) return -1;return 1;}).map((item,index)=>{
                     if(item){
                         if(item.type==="element"){
                             this._modSelector._elements=this._modSelector._elements.map(ele=>{
@@ -1123,7 +1143,7 @@ class Edit {
                             this._modSelector.elements=this._modSelector._elements;
                         }else if(item.type==="selector"){
                             this._modSelector._selectors=this._modSelector._selectors.map(sel=>{
-                                if(sel.placement===item.selEleChrt.placement){
+                                if(sel.placement===item.selEleChrt.placement ){
                                     sel={...sel,placement:index+1}
                                 }
                                 return sel;
@@ -1141,37 +1161,11 @@ class Edit {
                     }
                      return {...item,id:index+1}
             });
-            localStorage.setItem("placement",String(maxcount + 1));
-        return newSorted;
+            localStorage.setItem("placement",String(maxcount+1));
+        return sortArr;
 
     }
-    regenerateArr(arr:regenCleanType[],count:number):regenCleanType[]{
-        const arrSorted:regenCleanType[] = [];
-        let arr2=arr;
-        arr2.sort((a,b)=>{if(a.id < b.id) return -1;return 1;}).map((item,index)=>{
-            if(item){
-                const indexShift=item.duplicate===true ? item.id : null;
-                if(!indexShift){
-                    arrSorted.push({...item,id:index + 1,duplicate:false})
-                }else if(indexShift){
-                    arrSorted.push({...item,id:indexShift+2,duplicate:false});
-                    arr2=arr2.sort((a,b)=>{if(a.id < b.id) return -1;return 1;}).map((item_,ind_)=>{
-                        if(item_ && ind_>indexShift + 2){
-                            item={...item_,id:ind_}
-                            // arrSorted.push({...item_,id:ind_});
-                        }
-                        return item;
-                    });
-                    if(count>0){
-                        count--;
-                        this.regenerateArr(arr2,count);
-
-                    }
-                };
-            }
-        });
-        return arrSorted
-    }
+   
     
     sendMessage(parent:HTMLElement,msg:string,type_:"warning"|"success"|"error",time:number){
         const Msg:msgType={
@@ -1203,12 +1197,17 @@ class Edit {
         let ele_={} as elementType|element_selType|undefined;
         if(flex && target && blog){
             ele_=ele_ as element_selType;
+            let rows:rowType[]=[];
             const children=[...target.children as any] as HTMLElement[];
             const {selectorId,rowId,colId,elementId}=flex;
             const checkEle=children.map(ele=>(ele.id)).includes(elementId as string)
             const checkEle1=target.id===elementId ? true : false;
             if(checkEle || checkEle1){
-                ele_=blog.selectors.filter(sel=>(sel.eleId===selectorId))[0].rows.filter(row=>(row.eleId===rowId))[0].cols.filter(col=>(col.eleId===colId))[0].elements.find(ele=>(ele.eleId===elementId));
+               const strRows=blog.selectors.filter(sel=>(sel.eleId===selectorId))[0].rows;
+               rows=JSON.parse(strRows) as rowType[];
+               if(!rows) return;
+                const col=rows.filter(row=>(row.eleId===rowId))[0].cols.filter(col=>(col.eleId===colId))[0]
+                ele_=col.elements.find(ele=>(ele.eleId===elementId));
                 if(ele_){
                     return ele_;
                 }

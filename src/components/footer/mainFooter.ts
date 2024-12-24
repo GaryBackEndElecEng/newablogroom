@@ -259,7 +259,7 @@ class MainFooter{
         //ARROW CONTAINER
         const arrCont=document.createElement("div");
         arrCont.id="arrCont";
-        arrCont.style.cssText="position:absolute;top:0%;left:0%,right:75%;border-radius:20px;box-shadow:1px 1px 6px white;width:fit-content;padding:0.5rem;display:flex;justify-content:center;align-items:center;gap:0.5rem;flex-direction:column;";
+        arrCont.style.cssText="position:absolute;top:0%;left:0%,right:75%;border-radius:20px;width:fit-content;display:flex;justify-content:center;align-items:center;gap:0.5rem;flex-direction:column;";
         const text=document.createElement("p");
         text.textContent="SITES";
         text.classList.add("text-primary")

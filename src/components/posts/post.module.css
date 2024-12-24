@@ -30,7 +30,7 @@
   position: relative;
   padding-inline: 5rem;
   padding-block: 0rem;
-  width: 75%;
+  width: 90%;
 }
 
 @media screen and (max-width: 900px) {
@@ -50,7 +50,6 @@
   }
   .pageposts {
     padding-inline: 0rem;
-    width: 100%;
   }
   .mainPost {
     width: 100%;

@@ -266,23 +266,20 @@ class  Main  {
                 
                 //ADDING USER_ID TO NEW BLOG IF EXIST!!
                 if(checkUser){
-                    this._modSelector.blog={...initBlog,name:filename,title:title,desc:desc,user_id:user.id,eleId:parent.id};
+                    if(!(filename)) { Misc.message({parent,msg:"No filename",type_:"error",time:1400});return container.remove();}
+                    const name=filename.split(" ").join("");
+                    this._modSelector.blog={...initBlog,name,title:title,desc:desc,user_id:user.id,eleId:parent.id};
                     const blog=this._modSelector.blog;
                     this._service.newBlog(blog).then(async(blog_)=>{
                         if(blog_ && blog_.user_id){
                             this._modSelector.blog={...blog,id:blog_.id,class:Main.main_class,cssText:Main.main_css,eleId:parent.id}
-                            this._service.promsaveItems(this._modSelector._blog).then(async(_blog_)=>{
-                                if(_blog_){
-                                    const max_=ModSelector.maxCount(_blog_);
-                                    localStorage.setItem("placement",String(max_+1));
-                                    func();
-                                    Misc.message({parent,msg:"created",type_:"success",time:400})
-                                    Misc.fadeOut({anchor:container,xpos:50,ypos:100,time:400});
-                                    setTimeout(()=>{
-                                        Header.cleanUpByID(parent,"newBlogSetup");
-                                    },380);
-                                }
-                            });
+                            this._modSelector.loadBlog(this._modSelector._blog);
+                            Misc.message({parent,msg:"created",type_:"success",time:400})
+                            Misc.fadeOut({anchor:container,xpos:50,ypos:100,time:400});
+                            setTimeout(()=>{
+                                container.remove()
+                            },380);
+                            func();
                         }
                     }).catch((err)=>{
                         const msg=getErrorMessage(err);
@@ -291,13 +288,14 @@ class  Main  {
                     });
                 }else{
                     this._modSelector.blog={...initBlog,name:filename,title:title,desc:desc,cssText:Main.main_css,class:Main.main_class,eleId:parent.id};
-                    const _blog_=this._modSelector.blog;
-                    this._service.promsaveItems(_blog_).then(async(resBlog)=>{
-                        if(resBlog){
-                            const max_=ModSelector.maxCount(resBlog);
-                            localStorage.setItem("placement",String(max_+1));
-                        }
-                    });
+                    const blog=this._modSelector.blog;
+                    this._modSelector.blog={...blog,id:blog.id,class:Main.main_class,cssText:Main.main_css,eleId:parent.id}
+                    this._modSelector.loadBlog(this._modSelector._blog);
+                    Misc.fadeOut({anchor:container,xpos:50,ypos:100,time:400});
+                    setTimeout(()=>{
+                        container.remove()
+                    },380);
+                    func();
                     Misc.message({parent,msg:"created but not saved",type_:"success",time:1400});
                     setTimeout(()=>{
                         ([...parent.children as any] as HTMLElement[]).map(child=>{
@@ -1121,8 +1119,9 @@ class  Main  {
                     const blog_=parsed as blogType;
                     const placement=ModSelector.maxCount(blog_);
                     this._modSelector.blog={...blog_};
-                    this._modSelector.placement=placement + 1;
-                    localStorage.setItem("placement",String(placement + 1));
+                    // this._modSelector.placement=placement + 1;
+                    localStorage.removeItem("placement");
+                    // localStorage.setItem("placement",String(placement + 1));
                     this._service.promsaveItems(this._modSelector._blog).then(async(_blog)=>{
                         if(_blog){
                             if(!_blog.cssText){

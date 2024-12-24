@@ -1,4 +1,4 @@
-import {blogType,selectorType,elementType,element_selType,codeType, flexType, userType,  colType, chartType} from "@/components/editor/Types";
+import {blogType,selectorType,elementType,element_selType,codeType, flexType, userType,  colType, chartType, rowType} from "@/components/editor/Types";
 import Blogs from "@/components/blogs/blogsInjection";
 import {modAddEffect} from "@/components/editor/modSelector";
 import ModSelector from "@/components/editor/modSelector";
@@ -199,7 +199,7 @@ _onlyMeta:boolean=false;
                 btnEditor.id="btnEditor";
                 const print_btn=buttonReturn({parent:btnGrp,text:"print",bg:"green",color:"white",type:"button"});
                 print_btn.id="printPdf_btn";
-                [btnBack,btnMain,sendMsg,btnEditor].map(async(btn)=>{
+                [btnBack,btnMain,sendMsg,btnEditor,print_btn].map(async(btn)=>{
                     if(btn){
                         if(btn.id==="btnBack"){
                             btn.className=""
@@ -235,6 +235,14 @@ _onlyMeta:boolean=false;
                                     window.location.href=blogsUrl.href;
                                 }
                                 });
+                        }else if(btn.id==="printPdf_btn"){
+                            btn.addEventListener("click",(e:MouseEvent)=>{
+                                if(e){
+                                    this.baseUrl=new URL(window.location.href);
+                                    const blogsUrl=new URL(`/printblog/${blog.id}`,this.baseUrl.origin);
+                                    window.location.href=blogsUrl.href;
+                                }
+                                });
                         }
 
                     }
@@ -260,14 +268,7 @@ _onlyMeta:boolean=false;
                                 //BTN CONTAINER
                             }
                         });
-                        const getPrintBtn=btnContainer.querySelector("button#printPdf_btn") as HTMLButtonElement;
-                        if(!getPrintBtn) return;
-                        getPrintBtn.onclick=(e:MouseEvent)=>{
-                            if(e){
-                               const newUrl=new URL(`/printblog/${blog.id}`,window.location.origin)
-                                window.location.href=newUrl.href;
-                            }
-                        };
+                       
                         //-----------INTRO EFFECT-----------////
                         setTimeout(()=>{
                             outerContainer.style.opacity="1";
@@ -450,7 +451,7 @@ _onlyMeta:boolean=false;
             main.id="saveFinalWork-section-main";
             main.style.cssText="width:100%;margin-inline:auto;margin-block:0.5rem;position:relative;height:auto;";
            
-            await Promise.all(Array.from(Array(maxCount+1).keys()).map(async(num)=>{
+            await Promise.all(Array.from(Array(maxCount+3).keys()).map(async(num)=>{
                 const select =sels.find(sel=>(sel.placement===num+1));
                 if(select){
                     await this.showCleanSelector({parent:main,selector:select});
@@ -458,6 +459,7 @@ _onlyMeta:boolean=false;
                 }
                 const chart=charts.find(ch=>(ch.placement===num+1));
                 if(chart){
+                    // console.log("chart:insideside",chart)//works
                     await this.chart.showCleanChart({parent:main,chart});
                 }
                 const ele=eles.find(el=>(el.placement===num+1));
@@ -509,7 +511,8 @@ _onlyMeta:boolean=false;
             innerCont.style.alignItems="center";
             parent.appendChild(innerCont);
             flex={...flex,selectorId:selector.eleId,placement:selector.placement}
-                await Promise.all(selector.rows.sort((a,b)=>{if(a.order < b.order){return -1}; return 1}).map(async(row_)=>{
+            const rows=JSON.parse(selector.rows) as rowType[];
+                await Promise.all(rows.sort((a,b)=>{if(a.order < b.order){return -1}; return 1}).map(async(row_)=>{
                     const row=document.createElement("div");
                     row.className=row_.class.split(" ").filter(cl=>(cl !=="box-shadow")).join(" ");
                     row.style.cssText=row_.cssText;
@@ -1091,19 +1094,21 @@ _onlyMeta:boolean=false;
     const {htmlUserInfo,user}=item;
     const less900=window.innerWidth <900;
     const less400=window.innerWidth <400;
+    const css_col="display:flex;flex-direction:column;justify-content:center;align-items:center;gap:0;";
+    const css_row="display:flex;flex-wrap:wrap;justify-content:center;align-items:center;gap:0.25rem;flex-wrap:wrap;";
     Header.cleanUpByID(htmlUserInfo,"displayBlog-user-container");
         htmlUserInfo.style.position="relative";
         const container=document.createElement("div");
         container.id="displayBlog-user-container";
-        container.style.cssText="margin-inline:auto;margin-block:1.25rem;display:flex;align-items:center;justify-content:space-around;flex-warp:wrap;background-color:white;border-radius:11px;padding-block:1.5rem;padding-inline:1.25rem;box-shadow:1px 1px 12px 2px #10c7e9ab,-1px -1px 12px 1px #10c7e9ab;";
+        container.style.cssText="margin-inline:auto;margin-block:1.25rem;display:flex;align-items:center;justify-content:space-around;flex-wrap:wrap;background-color:white;border-radius:11px;padding-inline:1.25rem;box-shadow:1px 1px 12px 2px #10c7e9ab,-1px -1px 12px 1px #10c7e9ab;max-width:800px;";
         container.style.width=less900 ? (less400 ? "100%" :"85%" ) : "67%";
         container.style.paddingInline=less900 ? (less400 ? "1rem" :"1.5rem" ) : "2rem";
-        if(!(user && user.id)) return {user:null,outerContainer:htmlUserInfo};
+        if(!(user && user.id && user.showinfo)) return {user:null,outerContainer:htmlUserInfo};
                 const img=document.createElement("img");
-                const maximgwidth=120;
+                const maximgwidth=less400 ? 90 : 120;
                 img.style.cssText=`max-width:${maximgwidth}px;border-radius:50%;aspect-ratio: 1 / 1;box-shadow:1px 1px 10px 1px black;float:left; `;
                 if(user.imgKey){
-                    this._service.getSimpleImg(user.imgKey).then(async(res_)=>{
+                   await this._service.getSimpleImg(user.imgKey).then(async(res_)=>{
                         if(res_){
                             img.src=res_.img;
                             img.alt=res_.Key;
@@ -1115,34 +1120,51 @@ _onlyMeta:boolean=false;
                 }
                 Misc.blurIn({anchor:img,blur:"10px",time:600});
                 container.appendChild(img);
-                const innerContainer=document.createElement("div");
-                innerContainer.style.cssText="display:flex;justify-content:center;flex-direction:center;align-items:center;gap:0.5rem;height:120px;overflow-y:scroll;"
-                    const ulCont=document.createElement("ul");
-                    ulCont.id="showinfo";
-                    ulCont.style.cssText="margin:auto;display:flex;flex-direction:column;align-items:stretch;justify-content:center;";
-                    const text=document.createElement("h6");
-                    text.className="text-primary";
-                    text.innerHTML=user.name ? `<span style="color:blue;text-decoration:underline;">name: </span><span>${user.name}<span>`:"";
-                    text.style.textWrap="pretty";
-                    text.style.display=user.name ? "block":"none";
-                    ulCont.appendChild(text);
-                    const li1=document.createElement("li");
-                    li1.innerHTML=user.email ? `<span style="color:blue;text-decoration:underline;">email: </span><span>${user.email}<span>`:"";
-                    li1.style.display=user.email ? "block":"none";
-                    ulCont.appendChild(li1);
-                    const li2=document.createElement("li");
-                    li2.innerHTML=user.bio ? `<span style="color:blue;text-decoration:underline;">bio: </span><span>${user.bio}<span>`:"";
-                    li2.style.display=user.bio ? "block":"none";
-                    li1.style.display="flex";
-                    li1.style.flexWrap="wrap";
-                    li2.style.display="flex";
-                    li2.style.flexWrap="wrap";
-                    ulCont.appendChild(li2);
-                    innerContainer.appendChild(ulCont)
-                    container.appendChild(innerContainer);
-              
+                const infoContainer=document.createElement("div");
+                infoContainer.id="getUserInfo-infoContainer";
+                infoContainer.style.cssText=css_col + "height:auto;"
+                const nameEmail=document.createElement("div");
+                nameEmail.id="nameEmail";
+                nameEmail.style.cssText=css_row + "width:100%;justify-content:space-between;";
+                const email=document.createElement("span");
+                email.innerHTML=user.email ? `<span style="color:blue;text-decoration:underline;">email:</span><span>${user.email}<span>`:"";
+                email.style.display=user.email ? "block":"none";
+                nameEmail.appendChild(email);
+                const name=document.createElement("span");
+                name.className="text-primary";
+                name.innerHTML=user.name ? `<span class='text-primary'>name: </span><span>${user.name}<span>`:"";
+                name.style.textWrap="pretty";
+                name.style.display=user.name ? "block":"none";
+                nameEmail.appendChild(name);
+                infoContainer.appendChild(nameEmail);
+                const bioMain=document.createElement("div");
+                bioMain.id="bioMain";
+                bioMain.style.cssText=css_row + "width:100%;margin-top:0.25rem;";
+                bioMain.style.flexDirection=less400 ? "column":"row";
+                const bioName=document.createElement("h6");
+                bioName.textContent="Bio:";
+                bioName.className="text-primary mx-2";
+                bioName.style.flex=less400 ? "1 0 100%": "1 0 28%";
+                bioMain.appendChild(bioName);
+                const bioCont=document.createElement("div");
+                bioCont.id="bioCont";
+                bioCont.style.cssText=css_col + "border-radius:12px;height:100%;overflow-y:scroll;background-color:black;color:white;";
+                bioCont.style.flex=less400 ? "1 0 100%": "1 0 70%";
+                bioCont.style.width=less400 ? "100%": "auto";
+                bioCont.style.boxShadow=user && user.bio ? "1px 1px 12px 1px #04788f" : "";
+                bioCont.style.padding=user && user.bio ? "0.25rem" : "";
+                bioCont.style.maxHeight=less900 ? (less400 ? "300px":"200px"):"150px";
+                const bio=document.createElement("p");
+                bio.id="bio";
+                bio.style.cssText="text-wrap:pretty;"
+                bio.textContent=user.bio ? user.bio :"";
+                bioCont.appendChild(bio);
+                bioMain.appendChild(bioCont);
+                infoContainer.appendChild(bioMain);
+                container.appendChild(infoContainer);
                 htmlUserInfo.appendChild(container);
                 return {user,outerContainer:htmlUserInfo}
+        
             
       
     }

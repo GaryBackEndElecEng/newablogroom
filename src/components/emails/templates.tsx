@@ -1,6 +1,8 @@
 import { getUserImage } from "@/lib/awsFunctions";
 import { messageType, userType } from "../editor/Types"
-const logo = "/images/gb_logo.png"
+const logo = "https://newablogroom-free-bucket.s3.us-east-1.amazonaws.com/gb_logo_600.png";
+const userpic = "https://newablogroom-free-bucket.s3.us-east-1.amazonaws.com/userpic.png";
+const thankyou = "https://newablogroom-free-bucket.s3.us-east-1.amazonaws.com/thankYou.png"
 
 export const signUpText = (item: { user: userType }) => {
     const { user } = item;
@@ -22,7 +24,7 @@ export const signUpHTML = async (item: { user: userType }) => {
     const { user } = item;
     const newUser = await getUserImage(user)
     const username = user.name ? user.name : "blogger";
-    const image = user.imgKey ? newUser.image : logo;
+    const image = user.imgKey ? await getUserImage(user) : userpic;
     return (
         `<!DOCTYPE html>
         <html lang="en">
@@ -76,12 +78,23 @@ export const signUpHTML = async (item: { user: userType }) => {
                     border-radius:50%;
                     padding:1rem;
                     box-shadow: 2px 2px 10px 2px black,-2px -2px 10px 2px white;
-                    width:100px;
+                    width:65px;
                     aspect-ratio:1 /1;
                     background-color:whitesmoke;
                     filter:drop-shadow(0 0 0 0.75rem white);
                     float:left;
                     margin-right:1rem;
+                }
+                #thankyou{
+                border-radius:12px;
+                box-shadow: 2px 2px 10px 2px black,-2px -2px 10px 2px lightblue;
+                width:100px;
+                padding:1rem;
+                background-color:blue;
+                filter:drop-shadow(0 0 0 0.75rem lightblue);
+                float:left;
+                shape-outside:inset(10px 10px 10px 10px);
+                margin-right:1rem;
                 }
                     .flex-row{
                     display:flex;
@@ -95,7 +108,7 @@ export const signUpHTML = async (item: { user: userType }) => {
         </head>
         <body>
             <h1>Community Member.</h1>
-           <span class="flex-row"><img class="img2" src="${image}" alt="${username}" <h4>Thank you ${username} for Signin up with us.</h4></span>
+           <span class="flex-row"><img class="img2" src="${image}" alt="${username}" <h4>Thank you ${username} for Signing up with us.</h4></span>
             <br/>
             <span><img class="img2" src=${logo} /><h4>ABLOGROOM.COM</h4></span>
             <br/>
@@ -112,7 +125,7 @@ export const signUpHTML = async (item: { user: userType }) => {
             
             <p style="max-width:600px;">
 
-                <img src="https://new-master.s3.ca-central-1.amazonaws.com/static/masterultils/logo.png" alt="www.masterconnect.ca"
+                <img id=thankyou src=${thankyou} alt="www.masterconnect.ca"
                 
                 />
                 We try to make your life easy and equally ensure that you are connected. Please let us know if we can improve your needs.
@@ -144,7 +157,7 @@ export const clientMsgText = (item: { viewerName: string | null, viewerEmail: st
 }
 export const clientMsgHTML = async (item: { viewerName: string | null, viewerEmail: string, msg: string, user: userType }) => {
     const { viewerName, viewerEmail, msg, user } = item;
-    const newUser = user.imgKey ? await getUserImage(user) : user;
+    const userImage = user.imgKey ? await getUserImage(user) : userpic;
 
     return (
         `<!DOCTYPE html>
@@ -199,7 +212,7 @@ export const clientMsgHTML = async (item: { viewerName: string | null, viewerEma
                     border-radius:50%;
                     padding:1rem;
                     box-shadow: 2px 2px 10px 2px black,-2px -2px 10px 2px white;
-                    width:100px;
+                    width:50px;
                     aspect-ratio:1 /1;
                     background-color:whitesmoke;
                     filter:drop-shadow(0 0 0 0.75rem white);
@@ -218,7 +231,7 @@ export const clientMsgHTML = async (item: { viewerName: string | null, viewerEma
         <body>
             <h1>Community member</h1>
             <br/>
-            <span class="flex-row"><img class="img2" src=${newUser.image ? newUser.image : logo} /><h4>${viewerName ? viewerName : "Blogger"}</h4></span>
+            <span class="flex-row"><img class="img2" src=${userImage} /><h4>${viewerName ? viewerName : "Blogger"}</h4></span>
             <br/>
             <p>${msg}</p>
             <br/>
@@ -236,7 +249,7 @@ export const clientMsgHTML = async (item: { viewerName: string | null, viewerEma
             
             <p style="max-width:600px;">
 
-                <img src="https://new-master.s3.ca-central-1.amazonaws.com/static/masterultils/logo.png" alt="www.masterconnect.ca"
+                <img src=${logo} alt="www.masterconnect.ca"
                 
                 />
                 We try to make your life easy and equally ensure that you are connected. Please let us know if we can accommodate your needs to further your relations with us.

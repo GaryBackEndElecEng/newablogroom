@@ -7,31 +7,37 @@ import { PrismaClient } from "@prisma/client"
 import { blogType, userType } from '@/components/editor/Types';
 import { getErrorMessage } from '@/lib/errorBoundaries';
 import prisma from "@/prisma/prismaclient";
+import { redirect } from 'next/navigation';
 
 
 type Props = {
-    params: { id: string },
-    searchParams: { [key: string]: string | string[] | undefined },
+    params: Promise<{ id: string }>,
+    searchParams: Promise<{ [key: string]: string | string[] | undefined }>,
 }
-export async function generateMetadata({ params, searchParams }: Props, parent: ResolvingMetadata): Promise<Metadata> {
+export async function generateMetadata(props: Props, parent: ResolvingMetadata): Promise<Metadata> {
+    const params = await props.params;
     const id = Number(params.id)
     const singleBlog = await genMetadata({ id, parent });
     return singleBlog;
     //GENERATES AVAILABLE IDS FOR SINGLE PULL
 }
 
-export default async function page({ params }: { params: { id: string } }) {
+export default async function page(props: { params: Promise<{ id: string }> }) {
+    const params = await props.params;
     const id = Number(params.id as string);
-    const blog = await getBlog({ id }) ? await getBlog({ id }) : null;
+    const blog = (await getBlog({ id })) ? await getBlog({ id }) : null;
     const user = blog ? await getUser({ user_id: blog.user_id as string }) : null;
     const style: { [key: string]: string } = { minHeight: "100vh", height: "100%", marginInline: "auto" };
+    if (blog) {
 
-    return (
-        <div style={style} className="isLocal">
-            <Index blog={blog} user={user} />
-        </div>
-    )
-
+        return (
+            <div style={style} className="isLocal">
+                <Index blog={blog} user={user} />
+            </div>
+        )
+    } else {
+        redirect("/blogs");
+    }
 }
 
 export async function genMetadata(item: { id: number, parent: ResolvingMetadata }): Promise<Metadata> {
@@ -127,15 +133,6 @@ export async function getBlog(item: { id: number }): Promise<blogType | null> {
                 selectors: {
                     include: {
                         colAttr: true,
-                        rows: {
-                            include: {
-                                cols: {
-                                    include: {
-                                        elements: true
-                                    }
-                                }
-                            }
-                        }
                     }
                 },
                 messages: true,

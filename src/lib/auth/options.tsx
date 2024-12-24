@@ -2,35 +2,16 @@ import { type NextAuthOptions } from "next-auth"
 import CredentialsProvider from "next-auth/providers/credentials";
 // import Providers from "next-auth/providers/credentials";
 import GoogleProvider from "next-auth/providers/google";
-import { PrismaClient } from "@prisma/client";
+import prisma from "@/prisma/prismaclient";
 import bcrypt from "bcryptjs";
-import { PrismaAdapter } from "@next-auth/prisma-adapter";
+import { PrismaAdapter } from "@auth/prisma-adapter";
+import { hashKey, hashComp } from "@/lib/ultils/bcrypt";
 // const logo = `${process.env.NEXT_PUBLIC_aws_static}/logo.png`;
 const EMAIL = process.env.EMAIL as string;
 const EMAIL2 = process.env.EMAIL2 as string;
 
-const prisma = new PrismaClient();
-// let prisma: PrismaClient
 
-// if (process.env.NODE_ENV === 'production') {
-//   prisma = new PrismaClient({
-//     datasourceUrl: process.env.DATABASE_URL_AWS
-//   });
-// } else {
-//   prisma = new PrismaClient({
-//     datasourceUrl: process.env.DATABASE_URL_AWS
-//   });
-// }
-// const baseurl=httpUrl();
 
-export async function hashKey(pswd: string) {
-    const salt = bcrypt.genSaltSync(8);
-    return bcrypt.hashSync(pswd, salt)
-}
-export async function hashComp(pswd: string, hash: string) {
-    const comp = bcrypt.compare(pswd, hash);
-    return comp
-}
 
 const authOptions: NextAuthOptions = {
     // Configure one or more authentication providers
@@ -128,7 +109,6 @@ const authOptions: NextAuthOptions = {
                 email: { label: "email", type: "email" },
                 password: { label: "Password", type: "password" }
             },
-
             async authorize(credentials) {
                 const cred = credentials
                 if (!cred?.email || !cred?.password) {
@@ -137,15 +117,30 @@ const authOptions: NextAuthOptions = {
                 const user = await prisma.user.findUnique({
                     where: {
                         email: cred.email
+                    },
+                    select: {
+                        id: true,
+                        name: true,
+                        email: true,
+                        username: true,
+                        showinfo: true,
+                        imgKey: true,
+                        bio: true,
+                        admin: true,
+                        image: true,
+                        password: true
                     }
                 });
                 let retUser = user;
+                // console.log("OPTION:user", user)
                 if (!retUser) {
+                    // console.log("OPTIONS: no user")
                     await prisma.$disconnect()
                     return null
                 }
                 if (retUser.password) {
                     const check = await hashComp(cred?.password, retUser?.password) ? true : false;
+
                     if (!check) {
                         await prisma.$disconnect()
                         return null
@@ -158,7 +153,7 @@ const authOptions: NextAuthOptions = {
                 }
 
                 await prisma.$disconnect();
-                return { id: retUser.id + "", email: retUser.email, name: retUser.name, admin: retUser.admin }
+                return { ...retUser, password: undefined }
 
             }
 

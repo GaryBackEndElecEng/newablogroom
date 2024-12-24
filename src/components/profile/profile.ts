@@ -605,6 +605,7 @@ class Profile{
         ///---------------DISPLAY BLOGS------------------------//
         const user_id=this._user.user.id;
         this._service.userBlogs(user_id).then(async(blogs:blogType[])=>{
+             ///api/user_blogs
             if(blogs){
                 console.log("blogs",blogs)
                 this._user.user={...this._user.user,blogs:blogs};
@@ -1145,6 +1146,7 @@ class Profile{
             if(e){
                 const blog_id=blog.id;
                     this._service.getBlog(blog_id as number).then(async(blog:blogType)=>{
+                        ///api/blog/id
                         if(blog && Profile.main){
                             localStorage.setItem("blog",JSON.stringify(blog));
                             const max_=ModSelector.maxCount(blog);

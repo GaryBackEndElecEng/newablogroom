@@ -182,6 +182,31 @@ body {
   font-size: 12px;
   animation: growIn2 0.7s ease-in-out;
 }
+.viewCardNew::after {
+  display: block;
+  opacity: 0;
+  text-align: center;
+  content: attr(data-link);
+  width: 100px;
+  padding-inline: 10px;
+  padding-block: 5px;
+  position: absolute;
+  top: 20%;
+  background: white;
+  box-shadow: 1px 1px 12px 1px black;
+  border-radius: 6px;
+  color: rgb(4, 30, 34);
+  transform: translateY(0%);
+  font-size: 9px;
+  transition: all 0.7s ease-in-out;
+}
+.viewCardNew:hover::after {
+  opacity: 1;
+  width: 170px;
+  font-size: 14px;
+  transform: translateY(-120%);
+  transition: all 0.7s ease-in-out;
+}
 @keyframes growIn2 {
   from {
     top: 0%;
@@ -1382,11 +1407,11 @@ code#anchor-close {
   background-color: transparent;
   opacity: 0;
   color: black;
-  padding: 1rem;
+  padding-inline: 0.75rem;
+  padding-block: 0.5rem;
   border-radius: 12px;
   box-shadow: 1px 1px 4px 1px lightblue;
-  width: fit-content;
-  padding-inline: 0.5rem;
+  width: 100%;
   transform: translateY(0%);
   transition: all 1s ease-in-out;
 }
@@ -1394,6 +1419,8 @@ code#anchor-close {
   position: absolute;
   background-color: white;
   opacity: 1;
+  width: 150%;
+  font-size: 10px;
   transform: translateY(-85%);
   transition: all 1s ease-in-out;
 }

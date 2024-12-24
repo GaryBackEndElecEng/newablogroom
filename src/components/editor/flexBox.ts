@@ -42,7 +42,7 @@ static selectors_:flexSelectorType[]=[
         rowNum:1,
         colNum:2,
         colAttr:[{id:0,selector_id:1,T:2,B:0}],
-        rows:[],
+        rows:"",
         blog_id:0,
         header:false,
         footer:false,
@@ -59,7 +59,7 @@ static selectors_:flexSelectorType[]=[
         rowNum:2,
         colNum:3,
         colAttr:[{id:1,selector_id:1,T:1,B:2}],
-        rows:[],
+        rows:"",
         blog_id:0,
         header:false,
         footer:false,
@@ -76,7 +76,7 @@ static selectors_:flexSelectorType[]=[
         rowNum:2,
         colNum:3,
         colAttr:[{id:2,selector_id:3,T:2,B:1}],
-        rows:[],
+        rows:"",
         blog_id:0,
         header:false,
         footer:false,
@@ -93,7 +93,7 @@ static selectors_:flexSelectorType[]=[
         rowNum:2,
         colNum:4,
         colAttr:[{id:3,selector_id:4,T:2,B:2}],
-        rows:[],
+        rows:"",
         blog_id:0,
         header:false,
         footer:false,
@@ -110,7 +110,7 @@ static selectors_:flexSelectorType[]=[
         rowNum:2,
         colNum:8,
         colAttr:[{id:4,selector_id:5,T:4,B:4}],
-        rows:[],
+        rows:"",
         blog_id:0,
         header:false,
         footer:false,
@@ -127,7 +127,7 @@ static selectors_:flexSelectorType[]=[
         rowNum:2,
         colNum:4,
         colAttr:[{id:5,selector_id:6,T:3,B:1}],
-        rows:[],
+        rows:"",
         header:false,
         footer:false,
         blog_id:0
@@ -144,7 +144,7 @@ static selectors_:flexSelectorType[]=[
         rowNum:2,
         colNum:4,
         colAttr:[{id:6,selector_id:7,T:3,B:1}],
-        rows:[],
+        rows:"",
         blog_id:0,
         header:false,
         footer:false
@@ -192,7 +192,7 @@ colAttrs=["col-start","col-end","col-center"];
                 this.placement=parseInt(value);
             }
         });
-        this.divCont_css="display:flex;align-items:center;justify-content:center;flex-direction:column;padding:0.5rem;border-radius:12px;margin-inline:3rem;padding-inline:1rem;";
+        this.divCont_css="display:flex;align-items:center;justify-content:center;flex-direction:column;padding:0.5rem;border-radius:12px;margin-inline:3rem;padding-inline:1rem;width:100%";
         this.divCont_class="eleContainer";
     }
 
@@ -245,7 +245,8 @@ colAttrs=["col-start","col-end","col-center"];
             innerCont.style.cssText=selector.cssText;
             this.removeFlexbox(parent,innerCont);
             this.flex={...this.flex,selectorId:selector.eleId,placement:selector.placement}
-              await  Promise.all(selector.rows.sort((a,b)=>{if(a.order < b.order) return -1;return 1}).map(async(row_)=>{
+            const rows=JSON.parse(selector.rows) as rowType[];
+              await  Promise.all(rows.sort((a,b)=>{if(a.order < b.order) return -1;return 1}).map(async(row_)=>{
                     const row=document.createElement("div");
                     row.className=row_.class.split(" ").filter(cl=>(cl !=="box-shadow")).join(" ");
                     row.style.cssText=row_.cssText;
@@ -890,6 +891,7 @@ colAttrs=["col-start","col-end","col-center"];
         divCont.style.cssText=this.divCont_css;
         const target = document.createElement(icon.name); //ICON.NAME=ELE TYPE
         target.classList.add(icon.display);
+        target.classList.add("w-100");
         // this.docSelect(target,icon);
         target.innerHTML = icon.name;
         target.style.cssText = "border-radius:6px;";
@@ -904,7 +906,7 @@ colAttrs=["col-start","col-end","col-center"];
         Misc.matchMedia({parent:divCont,maxWidth:420,cssStyle:{paddingInline:"10px"}});
         Misc.fadeIn({anchor:divCont,xpos:50,ypos:100,time:600});
         Main.flexTracker(target,flex as flexType);//generate ID and flex attribute
-        this.promElementAdder(target).then(async(res)=>{
+        this.elementAdder(target).then(async(res)=>{
             if(res && res.target && res.ele){
                 const ele=res.ele as unknown as element_selType;
                 // console.log(res.ele,"ele",ele);
@@ -988,7 +990,7 @@ colAttrs=["col-start","col-end","col-center"];
                 flex={...flex,imgKey:Key}
                 Header.detectImageEffect(img);
                 let retFlex=Main.flexTracker(img,flex);//generate ID and flex attribute
-                this.promElementAdder(img).then(async(res)=>{
+                this.elementAdder(img).then(async(res)=>{
                     if(res && res.target && res.ele){
                         const ele=res.ele as unknown as element_selType;
                         imgCont.setAttribute("data-placement",`${ele.order}-A`)
@@ -1024,8 +1026,7 @@ colAttrs=["col-start","col-end","col-center"];
 
     async bgImage(column:HTMLElement,flex:flexType){
         const blog=this._modSelector._blog;
-        this._modSelector.loadBlog(blog);
-        const {form,reParent}=Misc.imageForm(column,flex);
+        const {form,reParent,btn}=Misc.imageForm(column,flex);
         form.style.top="50%";
         reParent.style.zIndex="2";
         const {parsed}=Header.checkJson(column.getAttribute("flex"));
@@ -1037,6 +1038,7 @@ colAttrs=["col-start","col-end","col-center"];
                 const formdata= new FormData(e.currentTarget as HTMLFormElement);
                 const file=formdata.get("file") as File;
                 if(file){
+                    btn.disabled=true;
                     const user=this._user.user
                     const {Key}=this._service.generateFreeImgKey({formdata,user}) as {Key:string};
                     const imgUrl=URL.createObjectURL(file);
@@ -1049,7 +1051,7 @@ colAttrs=["col-start","col-end","col-center"];
                     column.setAttribute("data-backgroundimage","true");
                     this._modSelector.promUpdateColumn(column,flex).then(async(col_)=>{
                         if(col_){
-                            this._user.askSendToServer({bg_parent:column,formdata,image:null,blog,oldKey});//THIS SAVES IT AS BACKGROUND IF IMAGE=NULL
+                           await this._user.askSendToServer({bg_parent:column,formdata,image:null,blog,oldKey});//THIS SAVES IT AS BACKGROUND IF IMAGE=NULL
                         }
                     });
                     Misc.growOut({anchor:form,scale:0,opacity:0,time:400});
@@ -1171,7 +1173,7 @@ colAttrs=["col-start","col-end","col-center"];
                 anchor.setAttribute("contenteditable","true");
                 Main.flexTracker(anchor,flex);
                 anchor.setAttribute("data-name-id",`${icon.name}-${anchor.id}`);
-                this.promElementAdder(anchor).then(async(res)=>{
+                this.elementAdder(anchor).then(async(res)=>{
                     if(res && res.target && res.ele){
                         const ele=res.ele as unknown as element_selType;
                         divCont.setAttribute("data-placment",`${ele.order}-A`);
@@ -1242,6 +1244,7 @@ colAttrs=["col-start","col-end","col-center"];
             divCont.className=this.divCont_class;
             divCont.style.cssText=this.divCont_css;
             const ul=document.createElement("ul");
+            ul.classList.add("w-100");
             ul.setAttribute("contenteditable","true");
             ul.setAttribute("is-element","true");
             ul.setAttribute("name","ul");
@@ -1260,7 +1263,7 @@ colAttrs=["col-start","col-end","col-center"];
             Misc.matchMedia({parent:divCont,maxWidth:420,cssStyle:{paddingInline:"10px"}});
             Misc.fadeIn({anchor:divCont,xpos:50,ypos:100,time:600});
             Main.flexTracker(ul,flex);
-            this.promElementAdder(ul).then(async(res)=>{
+            this.elementAdder(ul).then(async(res)=>{
                 if(res && res.target && res.ele){
                     const ele=res.ele as unknown as element_selType;
                     divCont.setAttribute("data-placement",`${ele.order}-A`);
@@ -1314,7 +1317,7 @@ colAttrs=["col-start","col-end","col-center"];
         Misc.fadeIn({anchor:quote,xpos:50,ypos:100,time:600});
         //ADDING element
         Main.flexTracker(quote,flex);//adds flex to attribute flex
-        this.promElementAdder(quote).then(async(res)=>{
+        this.elementAdder(quote).then(async(res)=>{
             if(res && res.target){
                 const ele=res.ele as unknown as element_selType;
                 divCont.setAttribute("data-placement",`${ele.order}-A`);
@@ -1396,7 +1399,7 @@ colAttrs=["col-start","col-end","col-center"];
                 Misc.matchMedia({parent:divCont,maxWidth:820,cssStyle:{paddingInline:"1.5rem"}});
                 Misc.matchMedia({parent:divCont,maxWidth:420,cssStyle:{paddingInline:"10px"}});
                 Main.flexTracker(time,flex);
-                this.promElementAdder(time).then(async(res)=>{
+                this.elementAdder(time).then(async(res)=>{
                     if(res && res.target && res.ele){
                         const ele=res.ele as unknown as element_selType;
                         divCont.setAttribute("data-placement",`${ele.order}`);
@@ -1637,7 +1640,7 @@ colAttrs=["col-start","col-end","col-center"];
            eleId:target.id,
            class:target.className,
            cssText:target.style.cssText,
-           rows:[] as rowType[],
+           rows:"",
            header:false,
            placement:this.placement,
            footer:false
@@ -1655,14 +1658,16 @@ colAttrs=["col-start","col-end","col-center"];
    }
    rowAdder(target:HTMLElement,selectorId:string):rowType | undefined{
     let row_:rowType={} as rowType;
+    let rows:rowType[]=[] as rowType[]
     const {parsed}=Header.checkJson(target.getAttribute("flex"));
     const flex= parsed as flexType;
     const {backgroundImage,imgKey}=flex;
     this._selectors=this.selectors.map(select=>{
         // console.log("197:modSelector:rowAdderr:outside",select.eleId,selectorId);
         if(select.eleId===selectorId){
-            const ID=select.rows ? select.rows.length :0;
-            const check=select.rows.find(row=>(row.eleId===target.id)) ? true:false;
+            rows=this._modSelector.checkGetRows({select}).rows;
+            const ID=rows ? rows.length :0;
+            const check=rows.find(row=>(row.eleId===target.id)) ? true:false;
             // console.log("201:modSelector:rowAdderr:inside",select.id,selectorId);
             if(!check){
                 row_={
@@ -1680,7 +1685,8 @@ colAttrs=["col-start","col-end","col-center"];
                 if(backgroundImage){
                     target.setAttribute("data-backgroundImage","true");
                 }
-                select.rows.push(row_);
+                rows.push(row_);
+                select.rows=JSON.stringify(rows);
             }
         }
         return select;
@@ -1697,7 +1703,8 @@ colAttrs=["col-start","col-end","col-center"];
         let col:colType={} as colType
         this._selectors=this.selectors.map(select=>{
             if(select.eleId===selectorId){
-                select.rows.map(row=>{
+                const rows=JSON.parse(select.rows) as rowType[];
+                rows.map(row=>{
                     if(row.eleId ===rowId){
                         const check=row.cols.map(col=>(col.eleId)).includes(target.id as string);
                         // console.log("277:check:determines if COL extis",check,"target.id",target.id,)//works
@@ -1726,6 +1733,7 @@ colAttrs=["col-start","col-end","col-center"];
                     }
                     return row;
                 });
+                select.rows=JSON.stringify(rows);
             }
             return select;
         });
@@ -1734,108 +1742,107 @@ colAttrs=["col-start","col-end","col-center"];
         //    console.log("colAdder():selectors:col",col_)
             
     }
-    promElementAdder(target:HTMLElement){
-        return new Promise((resolver,reject)=>{
-            resolver(this.elementAdder(target));
-            reject("did not add to modSelector");
-        }) as Promise<{ target: HTMLElement | HTMLImageElement,ele: element_selType} | {target: HTMLElement | HTMLImageElement,ele: elementType;} | undefined>;
-    }
-    elementAdder(target:HTMLElement | HTMLImageElement):{ target: HTMLElement | HTMLImageElement,ele: element_selType} | undefined{
+   
+    elementAdder(target:HTMLElement | HTMLImageElement):Promise<{target:HTMLElement,ele:element_selType}>{
 
         const {parsed,isJSON}=Header.checkJson(target.getAttribute("flex"));
         const checkNodename=["a","blockquote","ul","img","ol"]
         const nodename=target.nodeName.toLowerCase();
         const specialNodename=checkNodename.includes(nodename);
         // console.log("isJson",isJSON,"parsed",parsed,"nodeName",target.nodeName);
-        if(isJSON){
-            let flex=parsed as flexType;
-            const {selectorId,rowId,colId,shapeOutsideCircle,shapeOutsideSquare,shapeOutsidePolygon,imgKey}=flex;
-            //ADDING ATTRIBUTES
-            const name=target.nodeName.toLowerCase();
-            target.setAttribute("is-element","true");
-            target.setAttribute("name",name);
-            let ele:element_selType={} as element_selType;
-            //ADDING ATTRIBUTES
-       
-            this._selectors = this._modSelector._selectors.map(selector_=>{
-                if(selector_.eleId===selectorId ){
-                    // console.log("inside selector:",selector_.eleId===selectorId);//works
-                    selector_.rows.map(row=>{
-                        if(row.eleId===rowId){
-                            row.cols.map((col)=>{
-                                // console.log("compare col:",col.eleId,"flex.col",colId);//works
-                                // console.log("1350 inside col:",col.eleId===colId);
-                                if(col.eleId===colId){
-                                    const ID=col.elements ? col.elements.length:0;
-                                    // console.log("1352 HELROWSSSSS outside check: target.id",target.id);
-                                    const check=col.elements && col.elements.map(ele_=>(ele_.eleId)).includes(target.id as string);
-                                    // console.log("1357 HELROWSSSSS BEFORE CHECK: col.eleId",col.eleId);
-                                        if(nodename && !check){
-                                        
-                                            // console.log("1357 HELROWSSSSS INSIDE",target.id);
-                                            ele={
-                                                ...ele,
-                                                id:ID ,
-                                                selectorId:selector_.id,
-                                                name:nodename as string,
-                                                class:target.className.split(" ").filter(cl=>(cl !=="isActive")).join(" "),
-                                                eleId:target.id,
-                                                placement:ID ? ID as number : undefined,
-                                                cssText:target.style.cssText,
-                                                attr:target.getAttribute("attr") ? target.getAttribute("attr") as string :undefined,
-                                                col_id:col.id,
-                                                order:ID,
-                                                imgKey: imgKey ? imgKey : undefined
-                                            } as element_selType;
-                                            
-                                             if(shapeOutsideCircle){
-                                                ele.attr="data-shapeOutside-circle";
-                                            }else if(shapeOutsideSquare){
-                                                ele.attr="data-shapeOutside-square";
-                                            }else if(shapeOutsidePolygon){
-                                                ele.attr="data-shapeOutside-polygon";
-                                            }
-                                            if(!specialNodename){
-                                                    ele.inner_html=target.innerHTML;
+     
+        let flex=parsed as flexType;
+        const {selectorId,rowId,colId,shapeOutsideCircle,shapeOutsideSquare,shapeOutsidePolygon,imgKey}=flex;
+        //ADDING ATTRIBUTES
+        const name=target.nodeName.toLowerCase();
+        target.setAttribute("is-element","true");
+        target.setAttribute("name",name);
+        let ele:element_selType={} as element_selType;
+        //ADDING ATTRIBUTES
+    
+        this._selectors = this._modSelector._selectors.map(selector_=>{
+            if(selector_.eleId===selectorId ){
+                // console.log("inside selector:",selector_.eleId===selectorId);//works
+                const rows=JSON.parse(selector_.rows) as rowType[];
+                rows.map(row=>{
+                    if(row.eleId===rowId){
+                        row.cols.map((col)=>{
+                            // console.log("compare col:",col.eleId,"flex.col",colId);//works
+                            // console.log("1350 inside col:",col.eleId===colId);
+                            if(col.eleId===colId){
+                                const ID=col.elements ? col.elements.length:0;
+                                // console.log("1352 HELROWSSSSS outside check: target.id",target.id);
+                                const check=col.elements && col.elements.map(ele_=>(ele_.eleId)).includes(target.id as string);
+                                // console.log("1357 HELROWSSSSS BEFORE CHECK: col.eleId",col.eleId);
+                                    if(nodename && !check){
                                     
-                                            }else if(nodename==="a"){
-                                                const link=target.getAttribute("data-href") as string;
-                                                ele.attr=link;
-                                                ele.inner_html=target.innerHTML;
-                                                
-                                            }else if(specialNodename && nodename !=="a"){
-                                                ele.inner_html=target.innerHTML as string
-                                                // console.log("modSelector.elementAdder()",ele.inner_html)
-                                            }else if(nodename==="img"){
-                                                const target_=target as HTMLImageElement;
-                                                ele.img=target_.src;
-                                                ele.inner_html=target_.alt;
-                                            }else{
-                                                ele.inner_html=target.innerHTML;
-                                                ele.cssText=target.style.cssText;
-                                                ele.class=target.className;
-                                            }
-                                            col.elements.push(ele)
-                                            target.setAttribute("order",String(ID));
-                                            flex={...flex,order:ID};
-                                            target.setAttribute("flex",JSON.stringify(flex));
-                                            // console.log("ELEMENT ADDER:INSIDE",col.elements)
+                                        // console.log("1357 HELROWSSSSS INSIDE",target.id);
+                                        ele={
+                                            ...ele,
+                                            id:ID ,
+                                            selectorId:selector_.id,
+                                            name:nodename as string,
+                                            class:target.className.split(" ").filter(cl=>(cl !=="isActive")).join(" "),
+                                            eleId:target.id,
+                                            placement:ID ? ID as number : undefined,
+                                            cssText:target.style.cssText,
+                                            attr:target.getAttribute("attr") ? target.getAttribute("attr") as string :undefined,
+                                            col_id:col.id,
+                                            order:ID,
+                                            imgKey: imgKey ? imgKey : undefined
+                                        } as element_selType;
+                                        
+                                            if(shapeOutsideCircle){
+                                            ele.attr="data-shapeOutside-circle";
+                                        }else if(shapeOutsideSquare){
+                                            ele.attr="data-shapeOutside-square";
+                                        }else if(shapeOutsidePolygon){
+                                            ele.attr="data-shapeOutside-polygon";
                                         }
-                                        // console.log("OUTSIDE",col.elements)
-                                }
+                                        if(!specialNodename){
+                                                ele.inner_html=target.innerHTML;
                                 
-                                return col;
-                            })
-                        }
-                        return row;
-                    });
-                }
-                return selector_;
-            });
-            this.selectors=this._selectors; //saving it to blog
-            // const col_=this.selectors.find(sel=>(sel.eleId===selectorId))?.rows.find(row=>(row.eleId===rowId))?.cols.find(col=>(col.eleId===target.id));
-            return {target:target,ele:ele};
-        }
+                                        }else if(nodename==="a"){
+                                            const link=target.getAttribute("data-href") as string;
+                                            ele.attr=link;
+                                            ele.inner_html=target.innerHTML;
+                                            
+                                        }else if(specialNodename && nodename !=="a"){
+                                            ele.inner_html=target.innerHTML as string
+                                            // console.log("modSelector.elementAdder()",ele.inner_html)
+                                        }else if(nodename==="img"){
+                                            const target_=target as HTMLImageElement;
+                                            ele.img=target_.src;
+                                            ele.inner_html=target_.alt;
+                                        }else{
+                                            ele.inner_html=target.innerHTML;
+                                            ele.cssText=target.style.cssText;
+                                            ele.class=target.className;
+                                        }
+                                        col.elements.push(ele)
+                                        target.setAttribute("order",String(ID));
+                                        flex={...flex,order:ID};
+                                        target.setAttribute("flex",JSON.stringify(flex));
+                                        // console.log("ELEMENT ADDER:INSIDE",col.elements)
+                                    }
+                                    // console.log("OUTSIDE",col.elements)
+                            }
+                            
+                            return col;
+                        })
+                    }
+                    return row;
+                });
+                selector_.rows=JSON.stringify(rows);
+            }
+            return selector_;
+        });
+        this.selectors=this._selectors; //saving it to blog
+        // const col_=this.selectors.find(sel=>(sel.eleId===selectorId))?.rows.find(row=>(row.eleId===rowId))?.cols.find(col=>(col.eleId===target.id));
+        return new Promise(resolver=>{
+            resolver({target:target,ele:ele})
+        }) as Promise<{target:HTMLElement,ele:element_selType}>;
+        
 
     }
     updateElement(target:HTMLElement){
@@ -1846,7 +1853,8 @@ colAttrs=["col-start","col-end","col-center"];
             const {selectorId,rowId,colId,imgKey}=flex ;
             this._selectors=this._selectors.map(select=>{
                 if(select.eleId===selectorId){
-                    select.rows.map(row=>{
+                    const rows=JSON.parse(select.rows) as rowType[];
+                    rows.map(row=>{
                         if(row.eleId===rowId){
                             row.cols.map(col=>{
                                 if(col.eleId===colId){
@@ -1875,6 +1883,7 @@ colAttrs=["col-start","col-end","col-center"];
                         }
                         return row;
                     });
+                    select.rows=JSON.stringify(rows);
                 }
             return select;
             });
@@ -1896,7 +1905,8 @@ colAttrs=["col-start","col-end","col-center"];
                 this._selectors=this._modSelector._selectors.map(selector_=>{
                     // console.log("lev:selector:",selector_.eleId===selectorId);
                     if(selector_.eleId===selectorId){
-                        selector_.rows.map(row=>{
+                        const rows=JSON.parse(selector_.rows) as rowType[];
+                        rows.map(row=>{
                             if(row.eleId===rowId){
                                 row.cols.map(col=>{
                                     if(col.eleId===colId){
@@ -1936,6 +1946,7 @@ colAttrs=["col-start","col-end","col-center"];
                             }
                             return row;
                         });
+                        selector_.rows=JSON.stringify(rows);
                     }
                     return selector_;
                 });
@@ -1958,7 +1969,8 @@ colAttrs=["col-start","col-end","col-center"];
                 this._selectors=this._selectors.map(selector_=>{
 
                     if(selector_.eleId===selectorId){
-                        selector_.rows.map(row=>{
+                        const rows=JSON.parse(selector_.rows) as rowType[];
+                        rows.map(row=>{
                             if(row.eleId===rowId){
                                 row.cols.map(col=>{
                                     if(col.eleId===colId){
@@ -1996,6 +2008,7 @@ colAttrs=["col-start","col-end","col-center"];
                             }
                             return row;
                         });
+                        selector_.rows=JSON.stringify(rows);
                     }
                     return selector_;
                 });
@@ -2007,7 +2020,8 @@ colAttrs=["col-start","col-end","col-center"];
             const {selectorId,rowId,colId,imgKey}=flex;
             this.selectors=this.selectors.map(select=>{
                 if(select.eleId===selectorId){
-                    select.rows.map(row=>{
+                    const rows=JSON.parse(select.rows) as rowType[];
+                    rows.map(row=>{
                         if(row.eleId===rowId){
                             row.cols.map(col=>{
                                 if(col.eleId===colId){
@@ -2020,6 +2034,7 @@ colAttrs=["col-start","col-end","col-center"];
                         }
                         return row;
                     });
+                    select.rows=JSON.stringify(rows);
                 }
                 return select;
             });
@@ -2029,7 +2044,8 @@ colAttrs=["col-start","col-end","col-center"];
         const {selectorId,imgKey}=flex;
         this._selectors=this._selectors.map(select=>{
             if(select.eleId===selectorId){
-                select.rows.map(row=>{
+                const rows=JSON.parse(select.rows) as rowType[];
+                rows.map(row=>{
                     if(row.eleId===target.id){
                         row.class=target.className.split(" ").filter(cl=>(cl !=="box-shadow")).join(" ");
                         row.cssText=target.style.cssText;
@@ -2037,6 +2053,7 @@ colAttrs=["col-start","col-end","col-center"];
                     }
                     return row;
                 });
+                select.rows=JSON.stringify(rows);
             }
             return select;
         });
@@ -2103,7 +2120,8 @@ colAttrs=["col-start","col-end","col-center"];
         const {colId,rowId,selectorId}=flex;
         this._modSelector._selectors=this._modSelector._selectors.map(sel=>{
                 if(sel.eleId===selectorId){
-                    sel.rows.map(row=>{
+                    const rows=JSON.parse(sel.rows) as rowType[];
+                    rows.map(row=>{
                         if(row.eleId===rowId){
                             row.cols.map(col=>{
                                 if(col.eleId===colId){
@@ -2118,6 +2136,7 @@ colAttrs=["col-start","col-end","col-center"];
                         }
                         return row;
                     });
+                    sel.rows=JSON.stringify(rows);
                 }
             return sel;
         });

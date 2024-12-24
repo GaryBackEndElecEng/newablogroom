@@ -94,12 +94,14 @@ class ChartJS {
         const {chart,parent}=item;
         await this.cleanChart({chart,parent}).then(async(res)=>{
             if(res){
-              
                 const getCtx=parent.querySelector(`canvas#${res.ctx.id}`) as HTMLCanvasElement;
+                // console.log("getCtx",getCtx)//works
                 Misc.matchMedia({parent:getCtx,maxWidth:900,cssStyle:{maxwidth:"900px",width:"100%",height:"750px",minWidth:"600px"}});
                 Misc.matchMedia({parent:getCtx,maxWidth:400,cssStyle:{maxWidth:"380px",height:"400px",width:"100%",minWidth:"340px"}});
                 const option=JSON.parse(res.chart.chartOption as string) as barOptionType | lineOptionType;
-                new Chart(getCtx,option);
+                // console.log("OPTION",option);//works
+                const isChart= new Chart(getCtx,option);
+                // console.log(isChart)//works
             }
         });
 
@@ -113,8 +115,8 @@ class ChartJS {
         //use await + promise on ctx
         const ctx=document.createElement("canvas") as HTMLCanvasElement;
         ctx.id=chart.eleId;
-        ctx.style.cssText="width:100%;maxWidth:1200px;height:800px;border-radius:12px;margin-inline:auto;margin-block:2rem;padding-block:1rem;padding:1rem;margin-inline:auto;";
-        ctx.style.minWidth="none";
+        ctx.style.cssText="min-width:350px;width:694px;maxWidth:1200px;height:800px;min-height:496px;border-radius:12px;margin-inline:auto;margin-block:2rem;padding-block:1rem;padding:1rem;margin-inline:auto;";
+        ctx.style.width="100%";
         parent.appendChild(ctx);
         Misc.matchMedia({parent:ctx,maxWidth:900,cssStyle:{maxwidth:"900px",width:"100%",height:"750px",minWidth:"700px"}});
         Misc.matchMedia({parent:ctx,maxWidth:400,cssStyle:{maxWidth:"380px",height:"400px",minWidth:"340px"}});

@@ -1,4 +1,4 @@
-import { blogType, codeType, elementType, postType, selectorType } from "@/components/editor/Types";
+import { blogType, codeType, elementType, postType, rowType, selectorType } from "@/components/editor/Types";
 import { PrismaClient } from "@prisma/client";
 import { getErrorMessage } from "../errorBoundaries";
 import prisma from "@/prisma/prismaclient";
@@ -74,7 +74,8 @@ export function generateMarkImgkey(blog: blogType | null): { level: string, imgK
     if (selects) {
         selects.map(select => {
             if (!select) return;
-            select.rows.map(row => {
+            const rows = JSON.parse(select.rows as string) as rowType[];
+            rows.map(row => {
                 if (!row) return;
                 if (row.imgKey) {
                     arrImgKey.push({ level: "row", imgKey: row.imgKey });
@@ -121,7 +122,8 @@ export async function findCountKeys(blog: blogType): Promise<void> {
     if (selects) {
         selects.map(select => {
             if (select) {
-                select.rows.map(row => {
+                const rows = JSON.parse(select.rows as string) as rowType[];
+                rows.map(row => {
                     if (row) {
                         if (row.imgKey) {
                             arr.push({ key: row.imgKey });
@@ -174,7 +176,7 @@ export async function MarkCountKeys(item: { keys: { key: string }[] }) {
                     await prisma.deletedImg.update({
                         where: { id: markDel.id },
                         data: {
-                            count: markDel.count
+                            count: markDel.count ? markDel.count + 1 : null
                         }
                     });
                 }
@@ -250,7 +252,9 @@ export async function markSelectors(item: { selectors: selectorType[] }) {
 export async function markSelectorImg(item: { selector: selectorType }) {
     const { selector } = item;
     try {
-        selector.rows.map(async (row) => {
+        if (!selector) return;
+        const rows = JSON.parse(selector.rows as string) as rowType[];
+        rows.map(async (row) => {
             if (row) {
                 if (row.imgKey) {
                     await markDelete({ imgKey: row.imgKey })

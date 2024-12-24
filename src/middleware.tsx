@@ -18,22 +18,22 @@ export function middleware(req: NextRequest) {
     // }
     return NextResponse.next()
 }
-export const config = {
-    matcher: [
-        '/api/auth/signin',
-        '/blogs',
-        '/blogs/:path*',
-        '/register/:path*',
-        '/editor/:path*',
-        '/editor',
-        '/termsOfService/:path*',
-        '/policy/:path*',
-        '/admin/:path*',
-        '/chart',
-        '/posts',
+// export const config = {
+//     matcher: [
+//         '/api/auth/signin',
+//         '/blogs',
+//         '/blogs/:path*',
+//         '/register/:path*',
+//         '/editor/:path*',
+//         '/editor',
+//         '/termsOfService/:path*',
+//         '/policy/:path*',
+//         '/admin/:path*',
+//         '/chart',
+//         '/posts',
 
-    ]
-}
+//     ]
+// }
 
 
 // }

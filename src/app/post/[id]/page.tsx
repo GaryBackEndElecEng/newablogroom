@@ -10,12 +10,13 @@ import { getServerSession, Session } from 'next-auth';
 
 
 type Props = {
-    params: { id: string },
-    searchParams: { [key: string]: string | string[] | undefined },
+    params: Promise<{ id: string }>,
+    searchParams: Promise<{ [key: string]: string | string[] | undefined }>,
 }
 
 
-export default async function page({ params }: Props) {
+export default async function page(props: Props) {
+    const params = await props.params;
     const id = Number(params.id);
     const post = await getPost({ id });
     const session = await getServerSession();
@@ -166,6 +167,9 @@ export async function getUser(item: { user_id: string }): Promise<userType | nul
                 username: true
             }
         }) as unknown as userType;
+        if (!(user.showinfo)) {
+            user = null;
+        }
     } catch (error) {
         const msg = getErrorMessage(error);
         console.error(msg);

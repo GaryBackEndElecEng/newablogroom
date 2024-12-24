@@ -4,18 +4,19 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "dev": "next prisma generate && next dev",
+    "dev": "next prisma generate && next dev --turbo",
     "build": "next prisma generate && next build",
     "start": "next start",
-    "lint": "next lint"
+    "lint": "next lint",
+    "seed": "esbuild prisma/seed.ts --outfile=node_modules/tmp-seed.cjs --bundle --format=cjs --external:prisma --external:@prisma/client && node node_modules/tmp-seed.cjs --preview-feature"
   },
   "dependencies": {
-    "@auth/prisma-adapter": "^2.6.0",
+    "@auth/prisma-adapter": "^2.7.4",
     "@aws-sdk/client-s3": "^3.665.0",
     "@aws-sdk/s3-request-presigner": "^3.665.0",
     "@aws-sdk/signature-v4-crt": "^3.665.0",
     "@next-auth/prisma-adapter": "^1.0.7",
-    "@prisma/client": "^5.20.0",
+    "@prisma/client": "^6.1.0",
     "@react-icons/all-files": "^4.1.0",
     "@types/bcryptjs": "^2.4.6",
     "@types/nodemailer": "^6.4.16",
@@ -26,10 +27,10 @@
     "esm": "^3.2.25",
     "html2canvas": "^1.4.1",
     "html2pdf-ts": "^1.2.23",
-    "html2pdf.js": "^0.9.0",
+    "html2pdf.js": "^0.10.2",
     "newablogroom": "file:",
-    "next": "14.2.14",
-    "next-auth": "^4.24.8",
+    "next": "^15.1.2",
+    "next-auth": "^4.24.11",
     "nodemailer": "^6.9.15",
     "puppeteer": "^23.5.0",
     "react": "^18",
@@ -38,13 +39,14 @@
     "uuid": "^10.0.0"
   },
   "devDependencies": {
-    "@types/node": "^20.16.10",
+    "@types/node": "^20.17.10",
     "@types/react": "^18",
     "@types/react-dom": "^18",
+    "esbuild": "^0.24.2",
     "eslint": "^8",
     "eslint-config-next": "14.2.14",
-    "prisma": "^5.20.0",
+    "prisma": "^6.1.0",
     "ts-node": "^10.9.2",
-    "typescript": "^5.6.2"
+    "typescript": "^5.7.2"
   }
 }

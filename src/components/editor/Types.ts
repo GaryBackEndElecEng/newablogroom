@@ -199,7 +199,7 @@ export type selectorType={
     inner_html?: string,
     cssText: string,
     colAttr:colAttrType[],
-    rows:rowType[],
+    rows:string,
     rowNum:number,
     colNum:number,
     blog_id?:number,
@@ -406,8 +406,8 @@ export type userType={
     sessions:sessionType[],
     blogs:blogType[],
     posts:postType[],
-    developDeploys:userDevelopType[],
-    quotes:userQuoteType[],
+    devDeployimgs:userDevelopType[],
+    quoteImgs:userQuoteType[],
     showinfo?:boolean,
     admin:boolean,
     username?:string
@@ -664,6 +664,14 @@ export type developDeployType={
     time:number,
     qty:number,
     dollar:number,
-    user_id:string
 }
 //----------DEVELOPMENT DEPLOY SECTION---------------//
+//----------SEARCHBAR---------------//
+export type searchbarType={
+    blogId:number,
+    name:string,
+    keywords:string[]
+    
+}
+//----------SEARCHBAR---------------//
+export type onChangeVerifyType={name:string|null,email:string|null,tel:string|null}

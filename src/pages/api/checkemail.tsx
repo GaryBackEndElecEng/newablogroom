@@ -22,7 +22,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
                 res.status(200).json(checkUser);
                 return await prisma.$disconnect();
             } else {
-                res.status(200).json(null);
+                res.status(200).json({ email: null, name: null });
                 return await prisma.$disconnect();
             }
 

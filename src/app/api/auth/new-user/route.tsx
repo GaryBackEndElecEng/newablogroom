@@ -11,7 +11,6 @@ import prisma from "@/prisma/prismaclient"
 
 // const baseUrl = process.env.NODE_ENV === "production" ? process.env.NEXTAUTH_URL as string : "http://localhost:3000";
 export async function GET(req: NextRequest) {
-    const callback = req.nextUrl.searchParams.get("callbackUrl") ? req.nextUrl.searchParams.get("callbackUrl") as string : "/"
     //THIS IS DIRECTED FROM NEXT-AUTH OPTIONS FOR NEW USERS @/lib/auth/options
     const session = await getServerSession() as Session | null
 
@@ -32,7 +31,7 @@ export async function GET(req: NextRequest) {
                     html: await signUpHTML({ user: user as unknown as userType })
                 });
                 await prisma.$disconnect();
-                return redirect(callback);
+                return redirect("/");
             }
 
         } catch (error) {

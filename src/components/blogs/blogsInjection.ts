@@ -11,6 +11,7 @@ import { BsHandThumbsUpFill } from "react-icons/bs";
 import AllMsgs from "../home/allMsgs";
 import Message from "../common/message";
 import Nav from "../nav/headerNav";
+import Searchbar from "../common/searchbar";
 
 const base_url="http://localhost:3000";
 // const base_url=process.env.BASE_URL as string;
@@ -37,7 +38,8 @@ class Blogs{
 _blogs:blogType[];
 _blog:blogType;
 allMsgs:AllMsgs;
-message:Message
+message:Message;
+searchbar:Searchbar;
     constructor( private _modSelector:ModSelector,private _service:Service){
         this.baseUrl=base_url
        this.gbLogo=`${base_url}/images/gb_logo.png`;
@@ -75,12 +77,14 @@ message:Message
 //GETTERS SETTERS
 //main injector ---MAIN INJECTION----
    async showBlogs(parent:HTMLElement,home:boolean,blogs:blogType[]){
+    this.searchbar= new Searchbar({blogs:blogs,posts:null});
     const less900=window.innerWidth < 900;
     const less400=window.innerWidth < 400;
     const css_col="display:flex;flex-direction:column;align-items:center;gap:1rem;position:relative;width:100%";
     const css_row="display:flex;justify-content:center;align-items:center;gap:0.5rem;position:relative;";
     this.baseUrl=new URL(window.location.href).origin;
-    this.blogs=blogs.sort((a,b)=>{if(a.rating > b.rating) return -1;return 1});
+    this.blogs=blogs;
+    // this.blogs=blogs.sort((a,b)=>{if(a.rating > b.rating) return -1;return 1});
     const m_block= window.innerWidth < 500 ? "0rem" : "0.25rem";
         parent.style.position="relative";
         parent.classList.add("container-fluid");
@@ -98,7 +102,10 @@ message:Message
             if(res){
                 const paraSize=less900 ? (less400 ? "130%":"150%"):"175%";
                 const preParaSize=less900 ? (less400 ? "130%":"170%"):"200%";
-                await this.generateBlogs(container,this.blogs);
+                await this.searchbar.mainBlog({
+                    parent:res.container,
+                    funcBlog:async({blogs})=>{ await this.generateBlogs(container,blogs)}
+                });//searchbar
                 res.textContainer.style.opacity="1";
                 res.textContainer.style.transform="scale(1)";
                 res.textContainer.animate([
@@ -113,6 +120,7 @@ message:Message
                         {transform:"translateX(0%)",opacity:"1",fontSize:paraSize,backgroundColor:"transparent",color:"#1dcbfb"},
                     ],{duration:res.time,iterations:1,"easing":"ease-in-out"});
                 },res.time);
+                this.noBlogs({parent:res.container,blogs:this.blogs});
             }
         });
             
@@ -133,7 +141,7 @@ message:Message
         const textContainer=document.createElement("div");
         textContainer.id="titlepage-textContainer";
         textContainer.style.cssText=css_col + "background-color:black;border-radius:12px;margin-top:1rem;filter:drop-shadow(0 0 0.5rem white);";
-        textContainer.style.width=less900 ? (less400 ? "100%":"80%") : "70%";
+        textContainer.style.width=less900 ? (less400 ? "100%":"100%") : "100%";
         textContainer.style.paddingBottom=less900 ? (less400 ? "2rem":"2.5rem") : "2rem";
         textContainer.style.paddingInline=less900 ? (less400 ? "1rem":"1rem") : "2rem";
         const text=document.createElement("p");
@@ -178,14 +186,18 @@ message:Message
             resolve({textContainer,container,para,time});
         }) as Promise<{textContainer:HTMLElement,container:HTMLElement,para:HTMLElement,time:number}>;
     }
+    
    async generateBlogs(parent:HTMLElement,blogs:blogType[]){
-       Header.cleanUpByID(parent,"showBlogs-generateBlogs-mainRow")
+       Header.cleanUpByID(parent,"showBlogs-generateBlogs-mainRow");
+       const less900=window.innerWidth < 900;
+        const less400=window.innerWidth < 400;
         if(blogs && blogs.length>0){
             const mainRow=document.createElement("div");
             mainRow.id="showBlogs-generateBlogs-mainRow";
-            const blogBaseCss=`display:flex; justify-content:center;flex-direction:column;padding-inline:0.25rem;gap:0.25rem;margin-top:2rem;position:relative;width:100%;`;
+            const blogBaseCss=`display:flex;justify-content:center;flex-direction:column;margin-top:0rem;position:relative;width:100%;`;
                 mainRow.style.cssText=blogBaseCss;
-                mainRow.style.paddingInline=window.innerWidth <900 ? (window.innerWidth <600 ? "0px":"10px"):"1rem";
+                // mainRow.style.paddingInline=window.innerWidth <900 ? (window.innerWidth <600 ? "0px":"10px"):"10px";
+                mainRow.style.paddingInline="10px";
                 // mainRow.style.backgroundColor="#e7e8ee";
                 mainRow.style.backgroundColor="whitesmoke";
                 mainRow.style.borderRadius="16px";
@@ -204,14 +216,15 @@ message:Message
                     }else{
                         colBlog.style.backgroundImage=`url(${this.bendImg1})`;
                     }
-                    colBlog.style.paddingInline=window.innerWidth <900 ? (window.innerWidth <600 ? "0px":"10px"):"1rem";
+                    // colBlog.style.paddingInline=window.innerWidth <900 ? (window.innerWidth <600 ? "0px":"10px"):"1rem";
+                    colBlog.style.paddingInline="10px";
                     colBlog.style.marginBlock=window.innerWidth <400 ? "1rem":"0.5rem";
                     colBlog.style.borderRadius=`inherit`;
                     colBlog.style.backgroundSize=`100% 100%`;
                     colBlog.style.backgroundPosition=`50% 50%`;
-                    colBlog.style.boxShadow=`1px 1px 4px 1px #0aa2db,-1px -1px 4px 1px #0aa2db`;
+                    // colBlog.style.boxShadow=`1px 1px 4px 1px #0aa2db,-1px -1px 4px 1px #0aa2db`;
                     await this.displayCard(colBlog,blog);
-                    await this.allMsgs.blogMsgs({col:colBlog,blog});
+                    this.allMsgs.blogMsgs({col:colBlog,blog});
                     const {button:btn}=Misc.simpleButton({anchor:colBlog,text:"view details",bg:"#0C090A",color:"white",type:"button",time:400});
                     btn.id="showBlogs-generateBlogs-btn";
                     btn.style.marginBottom="1rem";
@@ -225,32 +238,41 @@ message:Message
                             // this._displayBlog.main(parent);
                         }
                     });
+                     //---------------divider------------------//
+                    const divider=document.createElement("div");
+                    divider.id="divider";
+                    divider.style.cssText="height:5px;margin-inline:auto;box-shadow:1px 1px 6px 1px lightblue;background-color:inherit;";
+                    divider.style.width=less900 ? (less400 ? "90%" : "80%") : "62%";
+                    colBlog.appendChild(divider);
+                    //---------------divider------------------//
                    
                 }));
             
             parent.appendChild(mainRow)
-        }else{
-            
-            Blogs.noBlogs(parent);
         }
     }
     async displayCard(column:HTMLElement,blog:blogType){
         const flex_between= window.innerWidth < 500 ? "center" : "space-between";
+        const css_col="margin:auto;display:flex;flex-direction:column;justify-content:center;align-items:center;";
+        const css_row="margin:auto;display:flex;flex-wrap:wrap;justify-content:center;align-items:center;";
+        const less900= window.innerWidth <900;
+        const less400= window.innerWidth <400;
         column.style.position="relative";
         const card=document.createElement("div");
         card.className="displayCard-card";
         card.id="displayCard-card";
-        card.style.cssText=`width:auto;display:flex; flex-direction:row !important;flex-wrap:nowrap;justify-content:${flex_between};align-items:center;margin:auto;gap:1rem;margin:0;padding;width:100%;position:relative;border-radius:12px;font-family:'Poppins-Regular'`;
+        card.style.cssText=css_col + `margin:0;padding;width:100%;position:relative;border-radius:12px;font-family:'Poppins-Regular'`;
         card.style.flexDirection=window.innerWidth < 900 ? "column":"row";
+        card.style.justifyContent=flex_between;
         const textDiv=document.createElement("div");
         textDiv.id="displayCard-card-textDiv";
-        textDiv.style.cssText="margin-inline:auto;margin-block:1rem;display:flex;flex-wrap:nowrap;gap:1.5rem;justify-content:center;align-items:center;width:auto;";
+        textDiv.style.cssText="margin-inline:auto;margin-block:0rem;display:flex;flex-wrap:nowrap;justify-content:center;align-items:center;width:auto;";
         const text=document.createElement("h6");
         text.id="displayCard-card-text";
         text.className="text-center  lean mt-2";
         //text-decoration:underline;text-decoration-style:wavy;text-underline-offset:0.55rem;
         text.style.cssText="color:rgb(7, 4, 125);text-decoration-thickness:5%;text-transform:capitalize;";
-        text.style.fontSize=window.innerWidth<900 ? (window.innerWidth<400 ? "130%" : "235%") : "300%";
+        text.style.fontSize=window.innerWidth<900 ? (window.innerWidth<400 ? "130%" : "175%") : "220%";
         text.textContent=blog.title ? blog.title : " your title";
         textDiv.appendChild(text);
         // Misc.thumbsUp({parent:textDiv,cssStyle:{fontSize:"22px",color:"rgba(8, 4, 249,0.5)",zIndex:"1"},time:400,rating:blog.rating,limit:3});
@@ -258,8 +280,8 @@ message:Message
         const imgCont=document.createElement("div");
         imgCont.id="displayCard-card-imgCont";
         imgCont.className="imgCont col-md-6"
-        imgCont.style.cssText="padding:0.75rem;display:flex;flex-direction:column;justify-content:center;align-items:center;gap:0.65rem;";
-        imgCont.style.flex="flex:1 1 33%";
+        imgCont.style.cssText="display:flex;flex-direction:column;justify-content:center;align-items:center;gap:0.65rem;";
+        imgCont.style.flex=less900 ? "1 0 100%":"1 1 40%";
         const small=document.createElement("small");
         small.id="displayCard-card-small";
         const date=document.createElement("span");
@@ -275,7 +297,8 @@ message:Message
         img.id="displayCard-card-imgCont-img";
         img.className="";
         img.alt=`${blog.name}-www.ablogroom.com`;
-        img.style.cssText="width:280px;filter:drop-shadow(0 0 0.25rem #0aa2db);background-color:#34282C;padding:5px;";
+        img.style.cssText="filter:drop-shadow(0 0 0.25rem #0aa2db);background-color:#34282C;padding:5px;";
+        img.style.width=less400 ? "280px" : "180px";
         if(blog.imgKey){
             await this._service.getSimpleImg(blog.imgKey).then(async(res)=>{
                 if(res){
@@ -301,7 +324,7 @@ message:Message
                 img.style.borderRadius="50%";
                 img.style.aspectRatio="1 / 1";
             }
-            Misc.blurIn({anchor:img,blur:"10px",time:600});
+            Misc.blurIn({anchor:img,blur:"10px",time:1200});
         }
         img.style.filter="drop-shadow(0 0 0.25rem #0aa2db)";
         imgCont.appendChild(img);
@@ -310,7 +333,8 @@ message:Message
         cardBody.id="cardBody";
         cardBody.className="C";
         cardBody.style.cssText=`padding-inline:5px;flex:1 1 auto;border-radius:6px;margin-inline:auto;`;
-        cardBody.style.flex="1 1 67%";
+        cardBody.style.flex=less900 ? (less400 ? "1 0 100%" : "1 0 100%"):"1 1 55%";
+        cardBody.style.width=less900 ? "100%":"auto";
         const update=document.createElement("small");
         update.style.cssText="margin-inline:auto;margin-block:0.5rem;margin-bottom:1rem;margin-bottom:1rem;";
         update.className="text-primary";
@@ -355,7 +379,9 @@ message:Message
                 parent.appendChild(div);
             }
     }
-     static noBlogs(parent:HTMLElement){
+      noBlogs(item:{parent:HTMLElement,blogs:blogType[]}){
+        const {parent,blogs}=item;
+        if(!(blogs.length===0)) return;
         const container=document.createElement("section");
         container.style.cssText=`margin:auto;width:80%;padding-inline:1rem;padding-block:5rem;background-color:${Blogs.bg_color};color:white;border-radius:7px;position:relative;font-size:18px;`;
         Misc.matchMedia({parent:container,maxWidth:900,cssStyle:{"width":"100%","paddingInline":"5px;","marginBlock":"2rem","paddingBlock":"2rem","maxWidth":"700px"}});

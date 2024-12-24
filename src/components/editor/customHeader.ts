@@ -178,7 +178,7 @@ class CustomHeader {
                 B:0,
                 selector_id:0
             }],
-            rows:[] as rowType[],
+            rows:"",
             footer:false,
             headerType:"custom",
         }
@@ -217,7 +217,8 @@ set header_(header:selectorType){
             innerCont.setAttribute("data-selector-id",selector.eleId);
             innerCont.style.cssText=selector.cssText;
             this.flex={...this.flex,selectorId:selector.eleId,placement:selector.placement,col:selector.colNum,row:selector.rowNum}
-                selector.rows.sort((a,b)=>{if(a.order < b.order) return -1;return 1}).map((row_)=>{
+            const rows=JSON.parse(selector.rows) as rowType[];
+                rows.sort((a,b)=>{if(a.order < b.order) return -1;return 1}).map((row_)=>{
                     const row=document.createElement("div");
                     row.className=row_.class.split(" ").filter(cl=>(cl !=="box-shadow")).join(" ");
                     row.style.cssText=row_.cssText;
@@ -325,7 +326,7 @@ set header_(header:selectorType){
                 colNum:2,
                 class:mainHeader.className,
                 cssText:mainHeader.style.cssText,
-                rows:[] as rowType[],
+                rows:"",
                 colAttr:[colAttr],
                 headerType:"custom",
             } as selectorType;
@@ -429,7 +430,7 @@ set header_(header:selectorType){
             eleId:target.id,
             class:target.className,
             cssText:target.style.cssText,
-            rows:[] as rowType[],
+            rows:"",
             header:checkPlaceHeader===0 ? true : false,
             placement:selector.footer ? this._modSelector.footerPlacement() :checkPlaceHeader,
             footer:selector.footer,
@@ -458,8 +459,8 @@ set header_(header:selectorType){
         let row_:rowType={} as rowType;
         this._modSelector._selectors=this._modSelector._selectors.map(select=>{
             if(select.eleId===selectorId){
-
-                const ID=select.rows ? select.rows.length :0;
+                const rows=this._modSelector.checkGetRows({select}).rows;
+                const ID=rows ? rows.length :0;
                     row_={
                         id: ID,
                         name:target.getAttribute("name") ? target.getAttribute("name") as string : '' ,
@@ -471,7 +472,8 @@ set header_(header:selectorType){
                         selector_id:select.id,
                         order:ID
                     } as rowType;
-                    select.rows.push(row_);
+                    rows.push(row_);
+                    select.rows=JSON.stringify(rows);
             }
             this._modSelector.header=select;
             return select;
@@ -490,7 +492,8 @@ set header_(header:selectorType){
                 // console.log("columnAdder:selector cmp:",sel.eleId,selectorId);//works
             if(sel.eleId===selectorId){
                 //DOES NOT SEE ROW
-                sel.rows.map(row=>{
+                const rows=JSON.parse(sel.rows) as rowType[];
+                rows.map(row=>{
                     // console.log("columnAdder:row:",row);
                     // console.log("columnAdder:row cmp:",row.eleId,rowId);//doesnt work
                     if(row.eleId===rowId){
@@ -511,8 +514,8 @@ set header_(header:selectorType){
                     // console.log("COLS ADDED",row.cols);
                     return row;
                 });
+                sel.rows=JSON.stringify(rows);
             }
-                this._modSelector.header=sel;
                 return sel;
             });
             this._modSelector.selectors=this._modSelector._selectors;
@@ -1787,7 +1790,8 @@ set header_(header:selectorType){
         const {colId,rowId,selectorId}=flex;
         this._modSelector._selectors=this._modSelector._selectors.map(sel=>{
                 if(sel.eleId===selectorId){
-                    sel.rows.map(row=>{
+                    const rows=JSON.parse(sel.rows) as rowType[];
+                    rows.map(row=>{
                         if(row.eleId===rowId){
                             row.cols.map(col=>{
                                 if(col.eleId===colId){
@@ -1802,6 +1806,7 @@ set header_(header:selectorType){
                         }
                         return row;
                     });
+                    sel.rows=JSON.stringify(rows);
                 }
             return sel;
         });
@@ -1929,7 +1934,8 @@ set header_(header:selectorType){
                     const {rowId,colId}= flex as flexType;
                     this._modSelector._selectors=this._modSelector._selectors.map(selector_=>{
                         if(selector_.header){
-                            selector_.rows.map(row=>{
+                            const rows=JSON.parse(selector_.rows) as rowType[];
+                            rows.map(row=>{
                                 if(row.eleId===rowId){
                                     row.cols.map(col=>{
                                         if(col.eleId===colId){
@@ -1966,6 +1972,7 @@ set header_(header:selectorType){
                                 }
                                 return row;
                             });
+                            selector_.rows=JSON.stringify(rows);
                         }
                         return selector_;
                     });
@@ -1984,7 +1991,8 @@ set header_(header:selectorType){
             const {rowId,colId,imgKey}=flex ;
             this._modSelector._selectors=this._modSelector._selectors.map(select=>{
                     if(select.header){
-                        select.rows.map(row=>{
+                        const rows=JSON.parse(select.rows) as rowType[];
+                        rows.map(row=>{
                             if(row.eleId===rowId){
                                 row.cols.map(col=>{
                                     if(col.eleId===colId){
@@ -2013,6 +2021,7 @@ set header_(header:selectorType){
                             }
                             return row;
                         });
+                        select.rows=JSON.stringify(rows);
                     }
                 return select;
             });

@@ -1,4 +1,4 @@
-import {flexType,elementType,selectorType,element_selType,codeType,blogType, gets3ImgKey, userType,messageType, imageType, generalInfoType, deletedImgType, img_keyType, adminImageType, credentialType, providerType, pageCountType, delteUserType, sendEmailMsgType, categoryListType, barOptionType, chartType, postType, infoType2, bucketType, quoteType, returnQuoteFinalType, quoteimgType, signupQuoteType} from "@/components/editor/Types";
+import {flexType,elementType,selectorType,element_selType,codeType,blogType, gets3ImgKey, userType,messageType, imageType, generalInfoType, deletedImgType, img_keyType, adminImageType, credentialType, providerType, pageCountType, delteUserType, sendEmailMsgType, categoryListType, barOptionType, chartType, postType, infoType2, bucketType, quoteType, returnQuoteFinalType, quoteimgType, signupQuoteType, rowType} from "@/components/editor/Types";
 import Misc from "../common/misc";
 import ModSelector from "@/components/editor/modSelector";
 import { getErrorMessage } from "@/lib/errorBoundaries";
@@ -11,6 +11,7 @@ import {signOut } from "next-auth/react";
 import Header from "../editor/header";
 import Nav from "../nav/headerNav";
 import MainHeader from "../nav/mainHeader";
+import { onChangeVerifyType } from '../editor/Types';
 
 class Service {
     usersignin="/api/usersignin";
@@ -65,6 +66,7 @@ class Service {
     element:elementType | element_selType | undefined;
     isSignedOut:boolean;
     deletemarkImg:string="/api/admin/deletemarkimg";
+    requestreset:string="/api/admin/requestreset";
     // getInitBlog:blogType;
     constructor(private _modSelector:ModSelector){
         this.bucket="masterultils-postimages";
@@ -111,6 +113,7 @@ class Service {
         this.quoteUrl="/api/quote";
         this.quoteimgUrl="/api/quoteimg";
         this.signupUrl="/api/signup";
+        this.requestreset="/api/admin/requestreset";
         this.showCustomHeader=false;
         this.showHeader=false;
         this.bgColor=this._modSelector._bgColor;
@@ -186,7 +189,11 @@ async apiUploadSaveFree(item:{parent:HTMLElement,Key:string,formdata:FormData}):
         if(findFooter){
             this._modSelector._footer=findFooter;
         }
+        const maxcount=ModSelector.maxCount(blog);
         localStorage.setItem("blog",JSON.stringify(this._modSelector.blog));
+        if(maxcount>0){
+            localStorage.setItem("placement",String(maxcount + 1));
+        }
         return blog;
     }
     promsaveItems(blog:blogType):Promise<blogType>{
@@ -325,7 +332,8 @@ async apiUploadSaveFree(item:{parent:HTMLElement,Key:string,formdata:FormData}):
                             const {selectorId,rowId,colId}=flex;
                         this._modSelector._selectors= blog.selectors.map(sel=>{
                                 if(sel.eleId===selectorId){
-                                    sel.rows.map(row=>{
+                                    const rows=JSON.parse(sel.rows as string) as rowType[];
+                                    rows.map(row=>{
                                         if(row.eleId===rowId){
                                             row.cols.map(col=>{
                                                 if(col.eleId===colId){
@@ -492,6 +500,7 @@ async apiUploadSaveFree(item:{parent:HTMLElement,Key:string,formdata:FormData}):
     
 
     async saveBlog(blog:blogType):Promise<blogType|void>{
+        if(!blog) return;
             const option={
                 headers:{
                     "Content-Type":"application/json",
@@ -500,6 +509,7 @@ async apiUploadSaveFree(item:{parent:HTMLElement,Key:string,formdata:FormData}):
                 body:JSON.stringify(blog)
             };
             return fetch(this.urlsaveBlog,option).then(async(res)=>{
+                //api/savegetblog
                     let blog_:blogType;
                     if(res.ok){
                     blog_= await res.json();
@@ -636,8 +646,8 @@ async apiUploadSaveFree(item:{parent:HTMLElement,Key:string,formdata:FormData}):
    //PARENT _user.REFRESHIMAGES
    
 
-    getFlexElement(target:HTMLElement,flex:flexType|null){
-       this.promsaveItems(this._modSelector.blog).then((blog:blogType)=>{
+    async getFlexElement(target:HTMLElement,flex:flexType|null){
+        await this.promsaveItems(this._modSelector.blog).then((blog:blogType)=>{
         const prom= new Promise((resolver,reject)=>{
             resolver(this.flexElement(target,flex,blog))
             reject("could not get element")
@@ -658,8 +668,8 @@ async apiUploadSaveFree(item:{parent:HTMLElement,Key:string,formdata:FormData}):
             if(checkEle || checkEle1){
                 const select=blog.selectors.find(sel=>(sel.eleId===selectorId));
                 if(select){
-                    // console.log("select",select)
-                    const row=select.rows.find(row=>(row.eleId===rowId))
+                    const rows=JSON.parse(select.rows as string) as rowType[];
+                    const row=rows.find(row=>(row.eleId===rowId))
                     if(row){
                         // console.log("row",row)
                         const col=row.cols.find(col=>(col.eleId===colId));
@@ -926,6 +936,7 @@ async apiUploadSaveFree(item:{parent:HTMLElement,Key:string,formdata:FormData}):
             headers:{"Content-Type":"application/json"},
             method:"GET"
         }
+        ///api/user_blogs
         return fetch(`${this.user_blogs}?user_id=${user_id}`,option).then(async(res)=>{
             if(res){
                 const blogs= await res.json() as blogType[]; // !! with blogs
@@ -942,6 +953,7 @@ async apiUploadSaveFree(item:{parent:HTMLElement,Key:string,formdata:FormData}):
             method:"GET"
         }
         return fetch(`${this.urlBlog}/${blog_id}`,option).then(async(res)=>{
+            ///api/blog
             if(res){
                 return await res.json() as blogType;
             }
@@ -1023,7 +1035,7 @@ async apiUploadSaveFree(item:{parent:HTMLElement,Key:string,formdata:FormData}):
             method:"POST",
             body:JSON.stringify(user)
         }
-       //api/user
+       ///api/registeruser
         return fetch(this.registeruserUrl,option).then(async(res)=>{
             if(res){
                 const user= await res.json() as userType;
@@ -1031,15 +1043,17 @@ async apiUploadSaveFree(item:{parent:HTMLElement,Key:string,formdata:FormData}):
             }
         }).catch((err)=>{const msg=getErrorMessage(err);console.error(msg)});
     }
-    async newUserEMailTo(user_id:string):Promise<string|undefined>{
+    async newUserEMailTo(user_id:string):Promise<{msg:string}|undefined>{
         const option={
             headers:{"Content-Type":"application/json"},
             method:"POST",
             body:JSON.stringify({user_id:user_id})
         }
+        //api/signupemail
         return fetch(this.signupemailUrl,option).then(async(res)=>{
             if(res){
-                return "sent"
+                const body= await res.json() as {msg:string}
+                return body
             }
         });
     }
@@ -1171,7 +1185,8 @@ async apiUploadSaveFree(item:{parent:HTMLElement,Key:string,formdata:FormData}):
     async markHeaderImgKey(blog:blogType):Promise<(adminImageType | undefined)[] | undefined>{
         const header=blog.selectors.find(sel=>(sel.header));
         if(header){
-           const retRows=await Promise.all( header.rows.map(async(row)=>{
+            const rows=JSON.parse(header.rows as string) as rowType[];
+           const retRows=await Promise.all( rows.map(async(row)=>{
                 if(row){
                     if(row.imgKey){
                         return await this.adminImagemark(row.imgKey).then(async(res)=>{
@@ -1354,7 +1369,7 @@ async apiUploadSaveFree(item:{parent:HTMLElement,Key:string,formdata:FormData}):
             return null
         }).catch((err)=>{const msg=getErrorMessage(err);console.error(msg)});
     }
-    async check_email(user:userType):Promise<userType | null|undefined>{
+    async check_email(user:userType):Promise<{name:string|null,email:string|null}|void>{
         const option={
             headers:{
                 "Content-Type":"application/json",
@@ -1363,11 +1378,13 @@ async apiUploadSaveFree(item:{parent:HTMLElement,Key:string,formdata:FormData}):
             body:JSON.stringify(user)
         }
         return fetch(this.checkemail,option).then(async(res)=>{
+            ///api/checkemail
             if(res){
-                const user= await res.json() as userType|null|undefined;
+                //if res exist has email else {name:str}
+                const user= await res.json() as {name:string|null,email:string|null};
                 return user;
             }
-        })
+        }).catch((err)=>{console.error(err)})
     }
     async updateBlogMeta(blogmeta:blogType){
         //UPDATES ONLY THE BLOG AS PUT
@@ -1619,6 +1636,25 @@ async apiUploadSaveFree(item:{parent:HTMLElement,Key:string,formdata:FormData}):
         });
     }
 
+    //------------------REST PASSWORD REQUEST-----------------///////
+    sendRestePassword(item:{params:onChangeVerifyType}):Promise<messageType|void>{
+        const {params}=item;
+        const option={
+            headers:{
+                "Content-Type":"application/json",
+            },
+            method:"POST",
+            body:JSON.stringify(params)
+        }
+        //api/admin/requestreset
+        return fetch(this.requestreset,option).then(async(res)=>{
+            if(res){
+                const body= await res.json() as messageType;
+                return body
+            }
+        });
+    }
+    //------------------REST PASSWORD REQUEST-----------------///////
     //NOT USING----------BELOW-----------------///////
    
 

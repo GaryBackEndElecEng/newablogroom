@@ -154,7 +154,6 @@ class Home{
                                 await this.listBlogs(res.showBlogs).then(async(_res)=>{
                                     //MAX 4 BLOGS SCROLLING
                                 if(_res && _res.blogs && _res.blogs.length>0){
-                                    this.blogPostTitle({parent:res.showBlogs,css_col,context:"top blogs"});
                                     _res.blogs.map(async(blog)=>{
                                         if(blog){
                                             this.blogCard({parent:_res.blogMsgCont,blog})
@@ -208,7 +207,7 @@ class Home{
         btnContainer.style.cssText="margin-block:2rem;padding:auto;margin-inline:auto;max-width:800px;width:100%;";
         const sectionOne=document.createElement("section");
         sectionOne.id="asyncmain-sectionOne";
-        sectionOne.style.cssText=css_col + "justify-content:flex-start;width:100%;padding:0rem;border-radius:16px;background-color:aliceblue;min-height:50vh;box-shadow:1px 1px 12px 1px #b4f3f3;";
+        sectionOne.style.cssText=css_col + "justify-content:flex-start;width:100%;padding:0rem;border-radius:16px;background-color:aliceblue;box-shadow:1px 1px 12px 1px #b4f3f3;";
         sectionOne.style.maxWidth="1000px";
         sectionOne.style.opacity="0";
         sectionOne.style.backgroundImage=`url(${this.bend1})`;
@@ -427,6 +426,7 @@ class Home{
         
         return this._service.fetchBlogs().then(async(blogs)=>{
             if(blogs && blogs.length>0){
+                this.blogPostTitle({parent:container,css_col,context:"top blogs"});
                 container.appendChild(blogMsgCont);
                 const limitBlogs=blogs.filter(bl=>(bl.rating >3)).slice(0,4);
                 const len=limitBlogs.length;
@@ -609,12 +609,12 @@ class Home{
         const card=document.createElement("div");
         card.id=`home-singleMsgTwo-msg-card-${msg.id}`;
         card.className="msgCard row";
-        card.style.cssText=css_row +`width:100%;box-shadow:1px 1px 5px 1px #00BFFF,-1px -1px 5px 1px #00BFFF;cursor:pointer;`;
+        card.style.cssText=css_row +`width:100%;box-shadow:1px 1px 5px 1px #02242f,-1px -1px 5px 1px #00BFFF;cursor:pointer;border-radius:6px;`;
             //ICONDIV && NAME
             const nameCont=document.createElement("span");
             nameCont.style.cssText=css_row + "flex-wrap:nowrap;";
             nameCont.id="card-nameCont";
-            nameCont.classList.add("viewCard");
+            nameCont.classList.add("viewCardNew");
             nameCont.setAttribute("data-link","click to view comment");
             const name=document.createElement("p");
             name.id="card-nameCont-name";
@@ -622,8 +622,8 @@ class Home{
             name.textContent=msg.name;
         const iconDiv=document.createElement("span");
         iconDiv.id="card-nameCont-iconDiv";
-        iconDiv.style.cssText=css_col + "font-size:40px;width:45px;height:45px;padding:3px;"
-        FaCreate({parent:iconDiv,name:SiAnswer,cssStyle:{marginRight:"10px",background:"white",color:"#00BFFF",zIndex:"1"}});
+        iconDiv.style.cssText=css_col + "font-size:25px;height:45px;padding:3px;"
+        FaCreate({parent:iconDiv,name:SiAnswer,cssStyle:{background:"#9ce6cb",color:"#033e52",zIndex:"1",display:"block"}});
         //APPENDING ICONDIV && NAME
         nameCont.appendChild(iconDiv);
         nameCont.appendChild(name);
@@ -674,14 +674,14 @@ class Home{
         }
         const container=document.createElement("div");
         container.id="home-viewCard-container";
-        container.style.cssText ="max-width:800px;padding-inline:1rem;display:flex;flex-direction:column;place-items:center;position:absolute;border-radius:14px;box-shadow:1px 1px 10px 1px #0CAFFF,-1px -1px 10px 1px #0CAFFF;z-index:100;background-color:white;padding-block:1rem;";
-        container.style.inset=less900 ? (less400 ? "-133% 0% 85% 0%" : "-135% 5% 80% 5%") :"-130% 10% 80% 10%";
+        container.style.cssText ="max-width:800px;padding-inline:1rem;display:flex;flex-direction:column;place-items:center;position:absolute;border-radius:14px;box-shadow:1px 1px 10px 1px #022537,-1px -1px 10px 1px #0CAFFF;z-index:100;background-color:white;padding-block:1rem;";
+        container.style.inset=less900 ? (less400 ? "-83% 0% 70% 0%" : "-115% 5% 90% 5%") :"-110% 10% 95% 10%";
         parent.appendChild(container);
         const card=document.createElement("div");
         card.id="home-viewCard-card"
         card.style.cssText ="padding-inline:1rem;display:flex;justify-content:space-around;flex-wrap:nowrap;align-items:flex-start;position:relative;background-color:white;width:100%;padding-block:1rem;";
         container.appendChild(card);
-        const width=less900 ? (less600 ? (less400 ? 50 : 60) :80) : 100;
+        const width=less900 ? (less600 ? (less400 ? 25 : 30) :40) : 50;
         const img=document.createElement("img");
         img.id="viewCard-card-img";
         if(imgKey){
@@ -696,27 +696,28 @@ class Home{
             img.alt="www.ablogroom.ca";
         }
         
-        img.style.cssText=`width:${width}px;height:50px;aspect-ratio:1 / 1;border-radius:50%;filter:drop-shadow(0 0 0.5rem #0CAFFF);background-color:black;`;
+        img.style.cssText=`width:${width}px;aspect-ratio:1 / 1;border-radius:50%;filter:drop-shadow(0 0 0.5rem #0CAFFF);background-color:black;`;
         card.appendChild(img);
         const cardBody=document.createElement("div");
         cardBody.id="card-cardBody";
-        cardBody.style.cssText="width:100%; margin-inline:auto;padding:0.5rem;display:flex;flex-direction:column;align-items:flex-start;max-height:15vh;overflow-y:scroll;position:relative;";
+        cardBody.style.cssText="width:100%; margin-inline:auto;padding:0.25rem;display:flex;flex-direction:column;align-items:flex-start;max-height:15vh;overflow-y:scroll;position:relative;";
         card.appendChild(cardBody);
+        const css_row="display:flex;justify-content:center;align-items:center;font-weight:bold;flex-wrap:wrap;";
         const name=document.createElement("span");
         name.id="cardBody-name";
-        name.style.cssText="display:flex;flex-wrap:wrap;";
+        name.style.cssText=css_row;
         const rate=document.createElement("div");
        rate.style.cssText="margin-inline:auto;"
         rate.id="cardBody-rate";
         const cssStyle={width:"100%",padding:"1px",color:"yellow",backgroundColor:"black",borderRadius:"50%"};
         const rowCssStyle={width:"100%",gap:"2px",borderRadius:"8px",filter:"drop-shadow(0 0 0.25rem black)"};
         Misc.starRating({parent:rate,rating:msg.rate,cssStyle,rowCssStyle});
-        name.innerHTML=`<span id="view-cardBody-name" style="display:flex;"><span style="color:black;font-weight:bold;">name: </span> <h6 style="font-size:18px;color:blue;margin-right:0.5rem;"> ${msg.name}</h6></span>`;
+        name.innerHTML=`<span id="view-cardBody-name" style=margin-right:5px;>name: </span> <h6 style="color:blue;margin-right:0.5rem;"> ${msg.name}</h6></span>`;
         cardBody.appendChild(rate);
         cardBody.appendChild(name);
         const mess=document.createElement("p");
         mess.id="cardBody-mess";
-        mess.style.cssText="padding:0.7rem;border:1px solid #0CAFFF;border-radius:7px;width:100%; ";
+        mess.style.cssText="padding-inline:0.7rem;border:1px solid #0CAFFF;border-radius:7px;width:100%; ";
         mess.textContent=msg.msg;
         cardBody.appendChild(mess);
         Misc.fadeIn({anchor:container,xpos:70,ypos:100,time:400});
@@ -724,6 +725,7 @@ class Home{
         
         const btn=buttonReturn({parent:container,bg:"black",color:"white",text:"close",type:"button"});
         btn.id="viewCard-container-btn";
+        btn.style.marginBlock="0px";
         btn.addEventListener("click",(e:MouseEvent)=>{
             if(e){
                 Misc.fadeOut({anchor:container,xpos:30,ypos:100,time:400});
@@ -747,7 +749,6 @@ class Home{
         Header.cleanUpByID(parent,"home-posts-container");
         container.id="home-posts-container";
         container.style.cssText=css_col + "width:100%;margin-bottom:2rem;";
-        this.blogPostTitle({parent:container,css_col,context:"top posts"});
         const innerContainer=document.createElement("div");
         innerContainer.id="container-innerContainer";
         innerContainer.style.cssText=css_col + "background-color:white;color:black;font-family:'Poppins-Regular';border-radius:12px;box-shadow:1px 1px 12px 1px #01d1f7;";
@@ -762,6 +763,9 @@ class Home{
         await this._service.getposts().then(async(posts:postType[]|undefined)=>{
             if(posts && posts.length >0){
                 const minPosts=posts.filter(post=>(post.likes > minLikes));
+                if(minPosts.length>0){
+                    this.blogPostTitle({parent:container,css_col,context:"top Posts"});
+                }
                 const innerHeight= minPosts.length >3 ? "30vh":"auto";
                 const scroll= minPosts.length >3 ? "scroll":"hidden";
                 innerContainer.style.height=innerHeight;

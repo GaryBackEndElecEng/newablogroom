@@ -9,11 +9,12 @@ import { genKeywords, retMetadata } from '@/app/post/[id]/page';
 import { awsImage } from '@/lib/awsFunctions';
 
 type Props = {
-    params: { id: string },
-    searchParams: { [key: string]: string | string[] | undefined },
+    params: Promise<{ id: string }>,
+    searchParams: Promise<{ [key: string]: string | string[] | undefined }>,
 }
 
-export async function generateMetadata({ params, searchParams }: Props, parent: ResolvingMetadata): Promise<Metadata> {
+export async function generateMetadata(props: Props, parent: ResolvingMetadata): Promise<Metadata> {
+    const params = await props.params;
     const id = Number(params.id)
     const singleBlog = await genMetadata({ id, parent });
     return singleBlog;
@@ -21,7 +22,8 @@ export async function generateMetadata({ params, searchParams }: Props, parent: 
 }
 
 
-export default async function page({ params }: Props) {
+export default async function page(props: Props) {
+    const params = await props.params;
     const id = Number(params.id);
     const blog = await getBlog({ id });
     if (blog) {
@@ -31,7 +33,7 @@ export default async function page({ params }: Props) {
             <Index blog={blog} user={isUser} />
         )
     } else {
-        redirect(`/blog/${id}`);
+        redirect(`/blogs`);
     }
 };
 
@@ -47,15 +49,6 @@ async function getBlog(item: { id: number }): Promise<blogType | null> {
                 selectors: {
                     include: {
                         colAttr: true,
-                        rows: {
-                            include: {
-                                cols: {
-                                    include: {
-                                        elements: true
-                                    }
-                                }
-                            }
-                        }
                     }
                 },
                 messages: false,

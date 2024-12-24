@@ -36,8 +36,8 @@ class ProfileMain{
     newCode:NewCode;
     _posts:postType[];
     _blogs:blogType[];
-    _quotes:userQuoteType[];
-    _developDeploys:userDevelopType[];
+    _quoteImgs:userQuoteType[];
+    _devDeployimgs:userDevelopType[];
     static main:HTMLElement | null;
     codeElement:CodeElement;
     __user:userType;
@@ -55,8 +55,8 @@ class ProfileMain{
         this.__user=this._user_;
         this._posts=this.__user.posts;
         this._blogs=this.__user.blogs;
-        this._quotes=this.__user.quotes;
-        this._developDeploys=this.__user.developDeploys;
+        this._quoteImgs=this.__user.quoteImgs;
+        this._devDeployimgs=this.__user.devDeployimgs;
         this.codeElement=new CodeElement(this._modSelector,this._service);
         this.newCode=new NewCode(this._modSelector,this._service,this._user);
         this.shapeOutside=new ShapeOutside(this._modSelector,this._service,this._user);
@@ -102,19 +102,19 @@ class ProfileMain{
         this._user._user.posts=posts;
         this.__user.posts=posts;
     }
-    get quotes(){
-        return this._quotes;
+    get quoteImgs(){
+        return this._quoteImgs;
     }
-    set quotes(quotes:userQuoteType[]){
-        this._quotes=quotes
-        this._user.user.quotes=quotes;
+    set quoteImgs(quotes:userQuoteType[]){
+        this._quoteImgs=quotes
+        this._user.user.quoteImgs=quotes;
     }
-    get developDeploys(){
-        return this._developDeploys;
+    get devDeployimgs(){
+        return this._devDeployimgs;
     }
-    set developDeploys(developDeploys:userDevelopType[]){
-        this._developDeploys=developDeploys;
-        this.__user.developDeploys=developDeploys;
+    set devDeployimgs(devDeployimgs:userDevelopType[]){
+        this._devDeployimgs=devDeployimgs;
+        this.__user.devDeployimgs=devDeployimgs;
     }
     //----------SETTER/GETTERS---------/////
     //parent: MainHeader.header,id="navHeader"
@@ -123,17 +123,17 @@ class ProfileMain{
     const user=this.__user;
     this.posts=this.__user.posts;
     this.blogs=this.__user.blogs;
-    this.quotes=this.__user.quotes;
-    this.developDeploys=this.__user.developDeploys;
-    console.log("profile main:quotes",this.quotes)
+    this.quoteImgs=this.__user.quoteImgs;
+    this.devDeployimgs=this.__user.devDeployimgs;
+    console.log("profile main:quotes",this.quoteImgs)
         parent.style.position="relative";
         parent.style.width="100%";
         const css_col="position:relative;height:auto;margin:auto;display:flex;place-items:center;flex-direction:column;border-radius:11px;";
         const css_row="position:relative;height:auto;margin:auto;display:flex;place-items:center;border-radius:11px;flex-wrap:wrap;";
         this.blogs=user.blogs;
         this.posts=user.posts;
-        this.quotes=user.quotes;
-        this.developDeploys=user.developDeploys;
+        this.quoteImgs=user.quoteImgs;
+        this.devDeployimgs=user.devDeployimgs;
         const less900=window.innerWidth <900;
         const less400=window.innerWidth <400;
         ProfileMain.cleanUpByID(parent,"section#main-outerMain");
@@ -158,14 +158,14 @@ class ProfileMain{
         this.emailForm({mainRow,innerRow:emailPassword,column:2,user});
         this.passwordForm({mainRow,innerRow:emailPassword,column:2,user});
         this.userBlogs({mainRow,column:1,blogs:this.blogs});//row.id=row-profile
-        await this.messages({mainRow,user,column:2});
+        await this.messages({mainRow,user,column:2,less900,less400});
         await this.userposts({mainRow,user,cols:2,posts:this.posts});
         const row=document.createElement("div");
         row.className="row";
         row.style.cssText="box-shadow:1px 1px 12px 1px lightblue;min-height:26vh;height:auto;";
         mainRow.appendChild(row);
-        this.showQuotes({parent:row,quotes:this.quotes});
-        this.showDevelopDeploys({parent:row,develops:this.developDeploys});
+        this.showQuotes({parent:row,quotes:this.quoteImgs});
+        this.showDevelopDeploys({parent:row,develops:this.devDeployimgs});
        outerMain.appendChild(mainRow);
         parent.appendChild(outerMain);//MAIN INJECTION
         Misc.slideIn({anchor:outerMain,xpos:0,ypos:70,time:500});
@@ -643,8 +643,8 @@ class ProfileMain{
         mainRow.appendChild(cont);
         Misc.matchMedia({parent:cont,maxWidth:400,cssStyle:{aspectRatio:"1 / 1.5"}});
     }
-   async messages(item:{mainRow:HTMLElement,user:userType,column:number}){
-    const {mainRow,user,column}=item;
+   async messages(item:{mainRow:HTMLElement,user:userType,column:number,less400:boolean,less900:boolean}){
+    const {mainRow,user,column,less400,less900}=item;
         mainRow.style.position="relative";
         const partition=Math.round(12/column);
         const cssLeft=`flex:1 0 ${(1/column)*100}%;`;
@@ -656,6 +656,7 @@ class ProfileMain{
         colLeft.style.cssText=`margin:auto;display:flex;flex-direction:column;aligm-items:center;justify-content:center;align-items:center;background-color:rgb(189, 250, 221);box-shadow:1px 1px 10px 1px black;${cssLeft}`;
         Misc.matchMedia({parent:colLeft,maxWidth:600,cssStyle:{"width":"100%"}});
         colLeft.classList.add(`col-lg-${partition}`);
+        colLeft.style.flex=less900 ? "1 0 100%":"1 0 48%";
         //LEFT SIDE
         //RIGHTSIDE
         //RIGHT SIDE
@@ -664,6 +665,7 @@ class ProfileMain{
         colRight.style.cssText=`margin:auto;display:flex;flex-direction:column;aligm-items:center;justify-content:center;align-items:center;background-color:rgb(129, 167, 201);box-shadow:1px 1px 10px 1px black;${cssRight}`;
         Misc.matchMedia({parent:colRight,maxWidth:600,cssStyle:{"width":"100%"}});
         colRight.classList.add(`col-md-${partition}`);
+        colRight.style.flex=less900 ? "1 0 100%":"1 0 48%";
         const titleRight=document.createElement("h5");
         titleRight.className="text-light text-center lean mx-auto";
         titleRight.textContent="View panel";
@@ -683,39 +685,21 @@ class ProfileMain{
             if(msgs && msgs.length>0){
                 this.msgs=msgs;
                 this.msgs.map(async(msg,index)=>{
-                    const div=document.createElement("div");
-                    div.id=`msg-${index};`
-                    div.style.cssText="display:flex;justify-content:space-around;align-items:center;background-color:#34282C;color:white;border-top:1px solid white;padding:1rem;";
-                    //NAME
-                    const name=document.createElement("p");
-                    name.style.cssText="text-wrap:wrap;";
-                    name.innerHTML=`<span style="color:red;">${msg.id}.) </span>${msg.name}`;
-                    div.appendChild(name);
-                    //EMAIL
-                    const email=document.createElement("p");
-                    email.style.cssText="text-wrap:wrap;";
-                    email.textContent=msg.email;
-                    div.appendChild(email);
-                    //APPENDING DIV TO MSGLIST
-                    msgList.appendChild(div);
-                    div.addEventListener("click",(e:MouseEvent)=>{
-                        if(e){
-                            this.msgRightCard(colRight,user,msg);
+                    this.leftMsgList({colLeft,msg,index}).then(async(res)=>{
+                        if(res){
+
+                            res.div.addEventListener("click",(e:MouseEvent)=>{
+                                if(e){
+                                    this.msgRightCard({colRight,colLeft,user,msg:res.msg});
+                                }
+                            });
                         }
                     });
                 });
                 return msgs;//loading messages
             }else{
                 //NO MESSAGES
-                const div=document.createElement("div");
-                div.id=`msg-no-messages;`
-                div.style.cssText="display:flex;justify-content:space-around;align-items:center;background-color:#34282C;color:white;border-top:1px solid white;padding:1rem;";
-                //NAME
-                const name=document.createElement("p");
-                name.style.cssText="text-wrap:wrap;";
-                name.innerHTML=`<span style="color:red;">SORRY!! </span> YOU HAVE NO MESSAGES. As soon as a client comments on your blog, a message will appear on screen. This screen has a overflow to accommodate multiple messages.`;
-                div.appendChild(name);
-                msgList.appendChild(div);
+                this.noMsgs({colLeft});
             }
         });
        
@@ -729,7 +713,44 @@ class ProfileMain{
         mainRow.appendChild(colRight);
    
     }
-    msgRightCard(colRight:HTMLElement,user:userType,msg:messageType){
+    noMsgs(item:{colLeft:HTMLElement}){
+        const {colLeft}=item;
+        const div=document.createElement("div");
+        div.id=`msg-no-messages;`
+        div.style.cssText="display:flex;justify-content:space-around;align-items:center;background-color:#34282C;color:white;border-top:1px solid white;padding:1rem;";
+        //NAME
+        const name=document.createElement("p");
+        name.style.cssText="text-wrap:wrap;";
+        name.innerHTML=`<span style="color:red;">SORRY!! </span> YOU HAVE NO MESSAGES. As soon as a client comments on your blog, a message will appear on screen. This screen has a overflow to accommodate multiple messages.`;
+        div.appendChild(name);
+        colLeft.appendChild(div);
+    }
+    leftMsgList(item:{colLeft:HTMLElement,msg:messageType,index:number}):Promise<{div:HTMLElement,msg:messageType}>{
+        const {colLeft,msg,index}=item;
+        const css_col="display:flex;justify-content:center;align-items:center;flex-direction:column;";
+        const css_row="display:flex;justify-content:center;align-items:center;flex-wrap:wrap;";
+        const div=document.createElement("div");
+        div.id=`msg-${index};`;
+        div.classList.add("leftMsgs");
+        div.style.cssText=css_col + "background-color:#34282C;color:white;border-top:1px solid white;padding:1rem;width:100%;";
+        //NAME
+        const name=document.createElement("p");
+        name.style.cssText="text-wrap:wrap;";
+        name.innerHTML=`<span style=${css_row}><span style="color:red;">${msg.id}.) </span><span>${msg.name}</span></span>`;
+        div.appendChild(name);
+        //EMAIL
+        const email=document.createElement("p");
+        email.style.cssText="text-wrap:wrap;";
+        email.textContent=msg.email;
+        div.appendChild(email);
+        //APPENDING DIV TO MSGLIST
+        colLeft.appendChild(div);
+        return new Promise(resolver=>{
+            resolver({div,msg});
+        }) as Promise<{div:HTMLElement,msg:messageType}>;
+    }
+    msgRightCard(item:{colRight:HTMLElement,colLeft:HTMLElement,user:userType,msg:messageType}){
+        const {colRight,colLeft,user,msg}=item;
         ProfileMain.cleanUpByID(colRight,"div#card-right");
         const card=document.createElement("div");
         card.className="card";
@@ -802,7 +823,7 @@ class ProfileMain{
         card.appendChild(commentDiv);
         //APPENDING CARD TO COLRIGHT
         colRight.appendChild(card)
-        this.deleteMsg(colRight,user,msg);
+        this.deleteMsg({colRight,colLeft,user,msg});
         Misc.matchMedia({parent:nameDiv,maxWidth:500,cssStyle:{flex:"1 1 100%"}});
         Misc.matchMedia({parent:commentDiv,maxWidth:500,cssStyle:{flex:"1 1 100%"}});
         Misc.matchMedia({parent:card,maxWidth:500,cssStyle:{flexDirection:"column"}});
@@ -810,7 +831,7 @@ class ProfileMain{
         email.onclick=(e:MouseEvent)=>{
             if(e){
                 const sendEmail:sendEmailMsgType={user_id:user.id,messageId:msg.id as number,viewerEmail:msg.email,viewerName:msg.name,msg:""}
-                this.sendEmail({colRight:colRight,user:user,message_:msg,sendEmail:sendEmail})
+                this.sendEmail({colRight:colRight,colLeft,user:user,message_:msg,sendEmail:sendEmail})
             }
         };
         commentDiv.onclick=(e:MouseEvent)=>{
@@ -819,7 +840,8 @@ class ProfileMain{
             }
         };
     }
-    deleteMsg(colRight:HTMLElement,user:userType,msg:messageType){
+    deleteMsg(item:{colRight:HTMLElement,colLeft:HTMLElement,user:userType,msg:messageType}){
+        const {colRight,colLeft,user,msg}=item;
         colRight.style.position="relative";
         colRight.style.zIndex="2";
         const xDivIcon=document.createElement("div");
@@ -829,11 +851,12 @@ class ProfileMain{
         xDivIcon.onclick=(e:MouseEvent)=>{
             if(e){
 
-                this.deleteMsgWarning(colRight,user,msg);
+                this.deleteMsgWarning({colRight,colLeft,user,msg});
             }
         };
     }
-    deleteMsgWarning(colRight:HTMLElement,user:userType,msg:messageType){
+    deleteMsgWarning(item:{colRight:HTMLElement,colLeft:HTMLElement,user:userType,msg:messageType}){
+        const {colRight,colLeft,user,msg}=item;
         colRight.style.zIndex="200";
         colRight.style.position="relative";
         const popup=document.createElement("div");
@@ -859,36 +882,43 @@ class ProfileMain{
             if(e){
                 this._service.deleteMessage(msg.id as number).then(async(res)=>{
                     if(res && res.id){
+                        Header.cleanUp(colLeft);
+                        Header.cleanUp(colRight);
                         this.msgs.map((msg,index)=>{
                             if(msg.id===msg.id){
                                 this._messages.splice(index,1);
+                                this.msgs=this._messages;
                             }
                         });
-                       
-                        if(this.msgs){
-                            this.msgs.map(_msg=>{
-                                if(_msg){
-                                    this.msgRightCard(colRight,user,_msg);
+                        this.msgs.map(async(msg,index)=>{
+                            this.leftMsgList({colLeft,msg,index}).then(async(res)=>{
+                                if(res){
+        
+                                    res.div.addEventListener("click",(e:MouseEvent)=>{
+                                        if(e){
+                                            this.msgRightCard({colRight,colLeft,user,msg:res.msg});
+                                        }
+                                    });
                                 }
                             });
-                        }
+                        });
                         Misc.message({parent:colRight,type_:"success",msg:"REMOVED",time:700});
                     }else{
                         Misc.message({parent:colRight,type_:"error",msg:"was not deleted",time:1000});
                     }
                 });
-                Misc.fadeOut({anchor:popup,xpos:100,ypos:100,time:400});
-                setTimeout(()=>{
-                    colRight.removeChild(popup);
-                },390);
+                const hasChilds=colLeft && colLeft.children && ([...colLeft.children as any] as HTMLElement[]);
+                if(!hasChilds){
+                    this.noMsgs({colLeft});
+                }
             }
         };
         popup.appendChild(div);
         colRight.appendChild(popup);
 
     }
-    sendEmail(item:{colRight:HTMLElement,user:userType,message_:messageType,sendEmail:sendEmailMsgType}){
-        const {colRight,user,sendEmail,message_}=item;
+    sendEmail(item:{colRight:HTMLElement,colLeft:HTMLElement,user:userType,message_:messageType,sendEmail:sendEmailMsgType}){
+        const {colRight,user,colLeft,sendEmail,message_}=item;
         //msgCard(colRight,user,msg)
         //sendEmailMsgType=>{user_id,userEmail,message}
         const form=document.createElement("form");
@@ -947,7 +977,7 @@ class ProfileMain{
                             Header.cleanUp(colRight);
                             this._messages.map(_msg=>{
                                 if(_msg){
-                                    this.msgRightCard(colRight,user,_msg)
+                                    this.msgRightCard({colRight,colLeft,user,msg:_msg})
                                 }
                             });
                         }else{
@@ -1387,10 +1417,12 @@ class ProfileMain{
         scrollCol1.id="scrollCol1";
         scrollCol1.style.cssText="height:400px;overflow-y:scroll;display:flex;flex-direction:column;align-items:center;width:100%;position:relative;";
         scrollCol1.className=`col-md-${12/cols}`;
+        scrollCol1.style.flex=less900 ? "1 0 100%":"1 0 48%";
         section.appendChild(scrollCol1);
         const displayCol2=document.createElement("div");
         displayCol2.style.cssText="height:inherit;min-height:15vh;margin-block:1rem;display:flex;flex-direction:column;align-items:center;width:100%;position:relative;overflow-y:scroll;";
         displayCol2.className=`col-md-${12/cols}`;
+        displayCol2.style.flex=less900 ? "1 0 100%":"1 0 48%";
         displayCol2.id="displayCol2";
         if(less900){
             section.style.flexDirection="row";
@@ -1894,7 +1926,7 @@ class ProfileMain{
     }
     showDevelopDeploys(item:{parent:HTMLElement,develops:userDevelopType[]}){
         const {parent,develops}=item;
-        const check=develops.length>0 ? true:false;
+        const check=develops && develops.length>0 ? true:false;
         const less400=window.innerWidth < 400;
         const css_col="margin-inline:auto;display:flex;justify-content:center;align-items:center;width:100%;flex-direction:column;";
         const css_row="margin-inline:auto;display:flex;justify-content:center;align-items:center;width:100%;flex-wrap:wrap;";

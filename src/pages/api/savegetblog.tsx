@@ -1,4 +1,3 @@
-
 import { NextApiRequest, NextApiResponse } from "next";
 import { blogType, selectorType, element_selType, elementType, codeType, rowType, colType, chartType } from "@/components/editor/Types";
 import { getErrorMessage } from "@/lib/errorBoundaries";
@@ -16,11 +15,8 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         const eles = (getBlog.elements && getBlog.elements.length > 0) ? getBlog.elements as unknown[] as elementType[] : null;
         const codes = (getBlog.codes && getBlog.codes.length > 0) ? getBlog.codes as unknown[] as codeType[] : null;
         const charts = (getBlog.charts && getBlog.charts.length > 0) ? getBlog.charts as unknown[] as chartType[] : null;
-        await deleteSeletors(getBlog);//deleting selectors
-        await deleteElements(getBlog);//deleting elements
-        await deleteCodes(getBlog);//deleting codess
-        await deleteCharts(getBlog);//deleting codess
-        if (getBlog.user_id && getBlog.id) {
+        if (getBlog.user_id) {
+            console.log("USER ID", getBlog.user_id, "blog.id", getBlog.id)//works
             try {
                 const blog = await prisma.blog.upsert({
                     where: { id: getBlog.id, user_id: getBlog.user_id },
@@ -63,11 +59,18 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
                     let update_codes: codeType[] = [];
                     let update_charts: chartType[] = [];
                     if (selects && selects.length > 0) {
+                        //SELECT.ROWS=> STRING JSON.STRINGIFY ON DB SIDE: CLIENT SIDE:ROWS[]
                         updateSelects = await Promise.all(
                             selects && selects.sort((a, b) => { if (a.placement < b.placement) return -1; return 1 }).map(async (select) => {
-                                const select_ = await prisma.selector.create({
-
-                                    data: {
+                                const select_ = await prisma.selector.upsert({
+                                    where: { id: select.id },
+                                    update: {
+                                        class: select.class,
+                                        cssText: select.cssText,
+                                        rows: select.rows,
+                                        inner_html: select.inner_html,
+                                    },
+                                    create: {
                                         placement: select.placement,
                                         name: select.name,
                                         eleId: select.eleId,
@@ -77,6 +80,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
                                         header: select.header,
                                         rowNum: select.rowNum,
                                         colNum: select.colNum,
+                                        rows: select.rows,
                                         inner_html: select.inner_html,
                                         footer: select.footer,
                                         headerType: select.headerType ? select.headerType : null
@@ -94,8 +98,6 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
                                     return colAttr_;
                                 }));
                                 select = { ...select, colAttr: tempColAttr, id: select_.id, blog_id: blog.id }
-                                const tempRows = await rows(select)
-                                select = { ...select, rows: tempRows } //adding rows(cols,eles)
                                 // console.log("select", select)
                                 return select
 
@@ -108,8 +110,9 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
                         // console.log("eles", eles)//works
                         update_elements = await Promise.all(
                             eles.sort((a, b) => { if (a.placement < b.placement) return -1; return 1 }).map(async (ele) => {
-                                const ele_ = await prisma.element.create({
-                                    data: {
+                                const ele_ = await prisma.element.upsert({
+                                    where: { id: ele.id },
+                                    create: {
                                         blog_id: blog.id,
                                         class: ele.class,
                                         inner_html: ele.inner_html,
@@ -117,6 +120,14 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
                                         name: ele.name,
                                         eleId: ele.eleId,
                                         placement: ele.placement ? ele.placement : ele.id,
+                                        img: !ele.imgKey ? ele.img : null,
+                                        imgKey: ele.imgKey,
+                                        attr: ele.attr
+                                    },
+                                    update: {
+                                        class: ele.class,
+                                        inner_html: ele.inner_html,
+                                        cssText: ele.cssText,
                                         img: !ele.imgKey ? ele.img : null,
                                         imgKey: ele.imgKey,
                                         attr: ele.attr
@@ -129,8 +140,9 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
                     if (codes && codes.length > 0) {
                         update_codes = await Promise.all(
                             codes.sort((a, b) => { if (a.placement < b.placement) return -1; return 1 }).map(async (code) => {
-                                const code_ = await prisma.code.create({
-                                    data: {
+                                const code_ = await prisma.code.upsert({
+                                    where: { id: code.id },
+                                    create: {
                                         name: code.name,
                                         eleId: code.eleId,
                                         class: code.class,
@@ -141,6 +153,12 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
                                         inner_html: code.inner_html,
                                         placement: code.placement ? code.placement as number : null,
                                         template: code.template
+                                    },
+                                    update: {
+                                        class: code.class,
+                                        cssText: code.cssText,
+                                        img: code.cssText,
+                                        inner_html: code.inner_html,
                                     },
                                 });
 
@@ -167,14 +185,18 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
                         // console.log("charts", charts)//works
                         update_charts = await Promise.all(charts.sort((a, b) => { if (a.placement < b.placement) return -1; else return 1 }).map(async (chart) => {
 
-                            const chart_ = await prisma.chart.create({
-                                data: {
+                            const chart_ = await prisma.chart.upsert({
+                                where: { id: chart.id },
+                                create: {
                                     type: chart.type,
                                     chartOption: chart.chartOption,
                                     placement: chart.placement,
                                     eleId: chart.eleId,
                                     blog_id: blog.id
-                                }
+                                },
+                                update: {
+                                    chartOption: chart.chartOption,
+                                },
                             });
                             return chart_ as chartType;
 
@@ -240,131 +262,6 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     }
 }
 
-async function rows(selector: selectorType) {
-    const tempRows = await Promise.all(selector.rows ? selector.rows.sort((a, b) => { if (a.order < b.order) return -1; return 1 }).map(async (row) => {
-        const row_ = await prisma.row.create({
-            data: {
-                name: row.name,
-                eleId: row.eleId,
-                class: row.class,
-                cssText: row.cssText,
-                imgKey: row.imgKey ? row.imgKey : null,
-                selector_id: selector.id,
-                inner_html: row.inner_html,
-                order: row.order
-            },
-
-        })
-        if (row_ as unknown as rowType) {
-            row = { ...row, id: row_.id, selector_id: selector.id }
-            const tempCols = await cols(row, row_.id);
-            return { ...row, cols: tempCols } as rowType;
-        }
-
-    }) : [] as rowType[]) as unknown[] as rowType[];
-    return tempRows
-}
-async function cols(row: rowType, row_id: number) {
-    const tempCols = await Promise.all(row.cols ? row.cols.sort((a, b) => { if (a.order < b.order) { return -1 } else return 1 }).map(async (col) => {
-        const col_ = await prisma.col.create({
-            data: {
-                name: col.name,
-                eleId: col.eleId,
-                class: col.class,
-                cssText: col.cssText,
-                row_id: row_id,
-                inner_html: col.inner_html,
-                imgKey: col.imgKey ? col.imgKey : null,
-                order: col.order
-            }
-        });
-        col = { ...col, id: col_.id, row_id: row_id }
-        const elements_ = await Elements(col, col_.id, row.selector_id);
-        col = { ...col, elements: elements_ }
-        return col;
-    }) : [] as colType[]);
-    return tempCols as unknown as colType[];
-};
-async function Elements(col: colType, col_id: number, selector_id: number) {
-    const tempEles = await Promise.all(col.elements ? col.elements.sort((a, b) => { if (a.order < b.order) return -1; return 1 }).map(async (ele) => {
-        const ele_ = await prisma.element_sel.create({
-            data: {
-                placement: ele.placement ? ele.placement : ele.id,
-                name: ele.name,
-                class: ele.class,
-                inner_html: ele.inner_html,
-                cssText: ele.cssText,
-                selectorId: selector_id,
-                col_id: col_id,
-                eleId: ele.eleId,
-                img: ele.img ? ele.img : null,
-                imgKey: ele.imgKey ? ele.imgKey : null,
-                attr: ele.attr,
-                order: ele.order
-            },
-        });
-        ele = { ...ele, id: ele_.id, col_id: col_id }
-        return ele;
-    }) : [] as element_selType[]) as unknown[] as element_selType[];
-    return tempEles
-}
-
-async function deleteSeletors(blog: blogType) {
-    if (blog && blog.id) {
-        try {
-            await prisma.selector.deleteMany({
-                where: { blog_id: blog.id }
-            });
-        } catch (error) {
-            const msg = getErrorMessage(error);
-            console.error(msg);
-        } finally {
-            await prisma.$disconnect()
-        }
-    }
-}
-async function deleteElements(blog: blogType) {
-    if (blog && blog.id) {
-        try {
-            await prisma.element.deleteMany({
-                where: { blog_id: blog.id }
-            });
-        } catch (error) {
-            const msg = getErrorMessage(error);
-            console.error(msg);
-        } finally {
-            await prisma.$disconnect()
-        }
-    }
-}
-async function deleteCodes(blog: blogType) {
-    if (blog && blog.id) {
-        try {
-            await prisma.code.deleteMany({
-                where: { blog_id: blog.id }
-            });
-        } catch (error) {
-            const msg = getErrorMessage(error);
-            console.error(msg);
-        } finally {
-            await prisma.$disconnect()
-        }
-    }
-}
-async function deleteCharts(blog: blogType) {
-    if (blog && blog.id) {
-        try {
-            await prisma.chart.deleteMany({
-                where: { blog_id: blog.id }
-            });
-        } catch (error) {
-            const msg = getErrorMessage(error);
-            console.error(msg);
-        } finally {
-            await prisma.$disconnect()
-        }
-    }
-}
 
 
 

@@ -8,10 +8,11 @@ import { postType, userSignInType, userType } from '@/components/editor/Types';
 import { Metadata, ResolvingMetadata } from 'next';
 
 type Props = {
-    params: { id: string }
-    searchParams: { [key: string]: string | string[] | undefined }
+    params: Promise<{ id: string }>
+    searchParams: Promise<{ [key: string]: string | string[] | undefined }>
 }
-export async function generateMetadata({ params, searchParams }: Props, parent: ResolvingMetadata): Promise<Metadata> {
+export async function generateMetadata(props: Props, parent: ResolvingMetadata): Promise<Metadata> {
+    const params = await props.params;
     const id = Number(params.id)
     const posts = await getPosts();
     const singleBlog = await genMetadata(parent, { posts });
@@ -20,8 +21,8 @@ export async function generateMetadata({ params, searchParams }: Props, parent: 
 }
 
 export default async function page() {
-    const posts = await getPosts() ? await getPosts() : [];
-    const usersinfo = await getUsersinfo() ? await getUsersinfo() : [];
+    const posts = (await getPosts()) ? await getPosts() : [];
+    const usersinfo = (await getUsersinfo()) ? await getUsersinfo() : [];
     return (
         <div className={styles.pageposts}>
             <Index posts={posts} usersinfo={usersinfo} />

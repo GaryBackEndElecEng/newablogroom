@@ -12,15 +12,16 @@ generator client {
 
 datasource db {
   provider = "postgresql"
+  // url      = env("localDB")
   url      = env("DATABASE_URL_AWS")
 }
 
 model Account {
   id                String  @id @default(cuid())
-  userId            String
+  userId            String  @map("user_id")
   type              String
   provider          String
-  providerAccountId String
+  providerAccountId String  @map("provider_account_id")
   refresh_token     String? @db.Text
   access_token      String? @db.Text
   expires_at        Int?
@@ -32,17 +33,20 @@ model Account {
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@unique([provider, providerAccountId])
+  @@map("accounts")
 }
 
 model Session {
   id           String   @id @default(cuid())
-  userId       String   @unique
+  userId       String   @unique @map("user_id")
   expires      DateTime
-  sessionToken String   @unique
+  sessionToken String   @unique @map("session_token")
   accessToken  String   @unique
   createdAt    DateTime @default(now())
   updatedAt    DateTime @updatedAt
   user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("sessions")
 }
 
 model User {
@@ -50,7 +54,7 @@ model User {
   name           String?
   email          String         @unique
   password       String?
-  emailVerified  DateTime?
+  emailVerified  DateTime?      @map("email_verified")
   image          String?
   imgKey         String?
   bio            String?
@@ -58,11 +62,13 @@ model User {
   sessions       Session[]
   blogs          Blog[]
   posts          Post[]
-  quotes         QuoteImg[]
-  developDeploys DevDeployimg[]
+  quoteImgs      QuoteImg[]
+  devpDeployimgs DevDeployimg[]
   showinfo       Boolean?
   admin          Boolean        @default(false)
   username       String?
+
+  @@map("users")
 }
 
 model Signup {
@@ -77,6 +83,7 @@ model VerificationToken {
   expires    DateTime
 
   @@unique([identifier, token])
+  @@map("verification_tokens")
 }
 
 model Blog {
@@ -105,6 +112,8 @@ model Blog {
   username   String?
   rating     Int
   pageCounts PageCount[]
+
+  @@map("blogs")
 }
 
 model Selector {
@@ -115,7 +124,7 @@ model Selector {
   class      String
   inner_html String?
   cssText    String
-  rows       Row[]
+  rows       Json
   colAttr    ColAttr[]
   rowNum     Int
   colNum     Int
@@ -124,6 +133,8 @@ model Selector {
   header     Boolean
   footer     Boolean
   headerType String?
+
+  @@map("selectors")
 }
 
 model ColAttr {
@@ -132,52 +143,54 @@ model ColAttr {
   B           Int
   selector    Selector @relation(fields: [selector_id], references: [id], onDelete: Cascade, onUpdate: Cascade)
   selector_id Int
+
+  @@map("colAttr")
 }
 
-model Row {
-  id          Int      @id @default(autoincrement())
-  name        String
-  eleId       String
-  class       String
-  inner_html  String?
-  imgKey      String?
-  cssText     String
-  cols        Col[]
-  selector    Selector @relation(fields: [selector_id], references: [id], onDelete: Cascade, onUpdate: Cascade)
-  selector_id Int
-  order       Int
-}
+// model Row {
+//   id          Int      @id @default(autoincrement())
+//   name        String
+//   eleId       String
+//   class       String
+//   inner_html  String?
+//   imgKey      String?
+//   cssText     String
+//   cols        Col[]
+//   selector    Selector @relation(fields: [selector_id], references: [id], onDelete: Cascade, onUpdate: Cascade)
+//   selector_id Int
+//   order       Int
+// }
 
-model Col {
-  id         Int           @id @default(autoincrement())
-  name       String
-  eleId      String
-  class      String
-  inner_html String?
-  imgKey     String?
-  cssText    String
-  elements   Element_sel[]
-  row        Row           @relation(fields: [row_id], references: [id], onDelete: Cascade, onUpdate: Cascade)
-  row_id     Int
-  order      Int
-}
+// model Col {
+//   id         Int           @id @default(autoincrement())
+//   name       String
+//   eleId      String
+//   class      String
+//   inner_html String?
+//   imgKey     String?
+//   cssText    String
+//   elements   Element_sel[]
+//   row        Row           @relation(fields: [row_id], references: [id], onDelete: Cascade, onUpdate: Cascade)
+//   row_id     Int
+//   order      Int
+// }
 
-model Element_sel {
-  id         Int     @id @default(autoincrement())
-  placement  Int?
-  name       String
-  eleId      String
-  class      String
-  inner_html String
-  cssText    String
-  attr       String?
-  selectorId Int?
-  img        String?
-  imgKey     String?
-  col        Col     @relation(fields: [col_id], references: [id], onDelete: Cascade, onUpdate: Cascade)
-  col_id     Int
-  order      Int
-}
+// model Element_sel {
+//   id         Int     @id @default(autoincrement())
+//   placement  Int?
+//   name       String
+//   eleId      String
+//   class      String
+//   inner_html String
+//   cssText    String
+//   attr       String?
+//   selectorId Int?
+//   img        String?
+//   imgKey     String?
+//   col        Col     @relation(fields: [col_id], references: [id], onDelete: Cascade, onUpdate: Cascade)
+//   col_id     Int
+//   order      Int
+// }
 
 model Element {
   id         Int     @id @default(autoincrement())
@@ -192,6 +205,8 @@ model Element {
   imgKey     String?
   blog       Blog    @relation(fields: [blog_id], references: [id], onDelete: Cascade, onUpdate: Cascade)
   blog_id    Int
+
+  @@map("elements")
 }
 
 model Code {
@@ -208,6 +223,8 @@ model Code {
   blog_id    Int
   template   String
   linecode   Linecode[]
+
+  @@map("codes")
 }
 
 model Linecode {
@@ -215,6 +232,8 @@ model Linecode {
   text    String
   code    Code   @relation(fields: [code_id], references: [id], onDelete: Cascade)
   code_id Int
+
+  @@map("linecode")
 }
 
 model Chart {
@@ -225,6 +244,8 @@ model Chart {
   placement   Int
   blog        Blog   @relation(fields: [blog_id], references: [id], onDelete: Cascade)
   blog_id     Int
+
+  @@map("charts")
 }
 
 model Message {
@@ -239,6 +260,8 @@ model Message {
   date    DateTime @default(now())
   secret  Boolean
   sent    Boolean
+
+  @@map("messages")
 }
 
 model DeletedImg {
@@ -264,6 +287,8 @@ model Post {
   userId     String
   likes      Int?
   pagecounts PageCount[]
+
+  @@map("posts")
 }
 
 model PageCount {
@@ -276,6 +301,7 @@ model PageCount {
   post_id Int?
 
   @@unique([name, id])
+  @@map("pagecounts")
 }
 
 model Quote {
@@ -288,6 +314,8 @@ model Quote {
   time   Int
   qty    Int
   dollar Int
+
+  @@map("quotes")
 }
 
 // ADD DEVELOPMENT STAGE MODEL THEN DEPLOY STAGE
@@ -303,6 +331,8 @@ model DevelopDeploy {
   time   Int
   qty    Int
   dollar Int
+
+  @@map("developDeploys")
 }
 
 model QuoteImg {
@@ -310,6 +340,8 @@ model QuoteImg {
   imgKey  String @unique
   user    User   @relation(fields: [user_id], references: [id], onDelete: Cascade, onUpdate: Cascade)
   user_id String
+
+  @@map("quoteImgs")
 }
 
 model DevDeployimg {
@@ -317,4 +349,6 @@ model DevDeployimg {
   imgKey  String @unique
   user    User   @relation(fields: [user_id], references: [id], onDelete: Cascade, onUpdate: Cascade)
   user_id String
+
+  @@map("devDeployimgs")
 }

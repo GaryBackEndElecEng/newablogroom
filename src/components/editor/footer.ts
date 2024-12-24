@@ -67,7 +67,7 @@ class Footer{
             rowNum:2,
             colNum:8,
             colAttr:[{id:4,selector_id:5,T:4,B:4}],
-            rows:[],
+            rows:"",
             blog_id:0,
             headerType:undefined,
             header:false,
@@ -106,7 +106,8 @@ class Footer{
             innerCont.setAttribute("data-placement",`${selector.placement}`);
             innerCont.style.cssText=selector.cssText;
             flex={...flex,selectorId:selector.eleId,placement:selector.placement}
-                await Promise.all(selector.rows.sort((a,b)=>{if(a.order < b.order) return -1 ; return 1}).map(async(row_)=>{
+            const rows=JSON.parse(selector.rows);
+                await Promise.all(rows.sort((a,b)=>{if(a.order < b.order) return -1 ; return 1}).map(async(row_)=>{
                     const row=document.createElement("div");
                     row.className=row_.class.split(" ").filter(cl=>(cl !=="box-shadow")).join(" ");
                     row.style.cssText=row_.cssText;
@@ -1162,7 +1163,7 @@ class Footer{
             eleId:target.id,
             class:target.className,
             cssText:target.style.cssText,
-            rows:[] as rowType[],
+            rows:"",
             header:false,
             footer:true,
             placement:this._modSelector.placement,
@@ -1570,7 +1571,8 @@ class Footer{
         let col:colType={} as colType
         this._modSelector._selectors=this.selectors.map(select=>{
             if(select.eleId===selectorId){
-                select.rows.map(row=>{
+                const rows=JSON.parse(select.rows) as rowType[];
+                rows.map(row=>{
                     if(row.eleId ===rowId){
                         const check=row.cols.map(col=>(col.eleId)).includes(target.id as string);
                         // console.log("1032:check:determines if COL extis",check,"target.id",target.id,)//works
@@ -1596,6 +1598,7 @@ class Footer{
                     }
                     return row;
                 });
+                select.rows=JSON.stringify(rows);
             }
             return select;
         });
@@ -1625,7 +1628,8 @@ class Footer{
                
                 if(selector_.eleId===selectorId ){
                     // console.log("inside selector:",selector_.eleId===selectorId);//works
-                    selector_.rows.map(row=>{
+                    const rows=JSON.parse(selector_.rows) as rowType[];
+                    rows.map(row=>{
                         if(row.eleId===rowId){
                             row.cols.map((col)=>{
                                 // console.log("compare col:",col.eleId,"flex.col",colId);//works
@@ -1690,6 +1694,7 @@ class Footer{
                         }
                         return row;
                     });
+                    selector_.rows=JSON.stringify(rows);
                 }
                 return selector_;
             });
@@ -1751,7 +1756,8 @@ class Footer{
         const {colId,rowId,selectorId}=flex;
         this._modSelector._selectors=this._modSelector._selectors.map(sel=>{
                 if(sel.eleId===selectorId){
-                    sel.rows.map(row=>{
+                    const rows=JSON.parse(sel.rows) as rowType[];
+                    rows.map(row=>{
                         if(row.eleId===rowId){
                             row.cols.map(col=>{
                                 if(col.eleId===colId){
@@ -1766,6 +1772,7 @@ class Footer{
                         }
                         return row;
                     });
+                    sel.rows=JSON.stringify(rows);
                 }
             return sel;
         });
@@ -1789,7 +1796,8 @@ class Footer{
                 this._selectors=this._modSelector._selectors.map(selector_=>{
                     // console.log("lev:selector:",selector_.eleId===selectorId);
                     if(selector_.eleId===selectorId){
-                        selector_.rows.map(row=>{
+                        const rows=JSON.parse(selector_.rows) as rowType[];
+                        rows.map(row=>{
                             if(row.eleId===rowId){
                                 row.cols.map(col=>{
                                     if(col.eleId===colId){
@@ -1836,6 +1844,7 @@ class Footer{
                             }
                             return row;
                         });
+                        selector_.rows=JSON.stringify(rows);
                     }
                     return selector_;
                 });
@@ -2050,7 +2059,9 @@ class Footer{
         const {selectorId,rowId,colId}= parsed as flexType;
         const selector=this._modSelector.selectors.filter(sel=>(sel.eleId===selectorId))[0];
         if(!selector) return;
-        const row=selector.rows.filter(row=>(row.eleId===rowId))[0];
+        const rows=JSON.parse(selector.rows) as rowType[];
+        if(!rows) return;
+        const row=rows.filter(row=>(row.eleId===rowId))[0];
         if(!row) return;
         const col=row.cols.filter(col_=>(col_.eleId===colId))[0];
         if(!col) return 1;

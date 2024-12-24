@@ -1,11 +1,12 @@
 
 import Index from "@/components/home/Index";
 import "bootstrap/dist/css/bootstrap.min.css";
-
+import { main } from "@/prisma/seed"
 
 
 export default function Home() {
   // await addpageCount();
+  // main();
   const styleOne = { marginInline: 0, minHeight: "100vh", paddingInline: 0, width: "100%" }
 
 

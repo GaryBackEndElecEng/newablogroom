@@ -29,8 +29,9 @@ const handler = async (req: NextApiRequest, res: NextApiResponse) => {
                     text: signUpText({ user: user as unknown as userType }),
                     html: await signUpHTML({ user: user as unknown as userType })
                 });
+                await regEmailSignUp({ user: user as unknown as userType });
                 await prisma.$disconnect();
-                return res.status(200).json({ msg: "sent" });
+                return res.status(200).json({ msg: `${username}, we sent an email, thanking you for registering with Us.` });
             } else {
                 res.status(400).json({ msg: "could not send email" });
                 return await prisma.$disconnect()
@@ -48,3 +49,21 @@ const handler = async (req: NextApiRequest, res: NextApiResponse) => {
     }
 }
 export default handler;
+
+async function regEmailSignUp(item: { user: userType }) {
+    const { user } = item;
+    if (!(user && user.id)) return;
+    try {
+        await prisma.signup.create({
+            data: {
+                email: user.email,
+                name: user.name ? user.name : "noname"
+            }
+        });
+    } catch (error) {
+        const msg = getErrorMessage(error);
+        console.log(msg);
+    } finally {
+        await prisma.$disconnect();
+    }
+}

@@ -47,7 +47,7 @@ class ModSelector {
         T: 1,
         B: 0
     }],
-    rows: [],
+    rows:"",
     rowNum:1,
     colNum:3,
     header:false,
@@ -379,17 +379,22 @@ set rows(rows:rowType[]){
     }
 
 
-    rowAdder(target:HTMLElement,selectorId:string):rowType | undefined{
+   async rowAdder(target:HTMLElement,selectorId:string):Promise<rowType | undefined>{
         const {parsed,isJSON}=Header.checkJson(target.getAttribute("flex"));
         let flex:flexType=isJSON ? parsed as flexType : {} as flexType;
         
         const {backgroundImage,shapeOutsideCircle,shapeOutsideSquare,shapeOutsidePolygon}=flex;
+        let rows=[] as rowType[];
         let row_:rowType={} as rowType;
         this._selectors=this._selectors.map(select=>{
             // console.log("197:modSelector:rowAdderr:outside",select.eleId,selectorId);
             if(select.eleId===selectorId){
-                const ID=select.rows ? select.rows.length :0;
-                const check=select.rows.find(row=>(row.eleId===target.id)) ? true:false;
+                const checkRows=this.checkGetRows({select});
+                if(checkRows.isRows){
+                    rows=checkRows.rows;
+                }
+                const ID=rows ? rows.length :0;
+                const check=(rows && rows.find(row=>(row.eleId===target.id))) ? true:false;
                 // console.log("201:modSelector:rowAdderr:inside",select.id,selectorId);
                 if(!check){
                     row_={
@@ -403,7 +408,7 @@ set rows(rows:rowType[]){
                         selector_id:select.id,
                         order:ID
                     } as rowType;
-                    select.rows.push(row_);
+                    rows.push(row_);
                     flex={...flex,order:ID};
                     if(backgroundImage){
                         target.setAttribute("data-backgroundImage","true");
@@ -416,13 +421,17 @@ set rows(rows:rowType[]){
                     }
                     target.setAttribute("flex",JSON.stringify(flex));
                     target.setAttribute("order",String(ID));
+                    select.rows=JSON.stringify(rows);
                 }
             }
             return select;
         });
         this.selectors=this._selectors;
-        const _row_:rowType|undefined=this._selectors.filter(select=>(select.eleId===selectorId))[0]?.rows.find(row=>(row.eleId===target.id))
-        if(_row_) return _row_
+        const prom=new Promise(resolver=>{
+            resolver({row:row_})
+        }) as Promise<{row:rowType | undefined}>;
+        const row= await prom
+        if(row) return row.row
         return 
     }
     colAdder(target:HTMLElement,flex_:flexType):colType | undefined{
@@ -433,7 +442,8 @@ set rows(rows:rowType[]){
         let col:colType={} as colType
         this._selectors=this.selectors.map(select=>{
             if(select.eleId===selectorId){
-                select.rows.map(row=>{
+                const rows = JSON.parse(select.rows as string) as rowType[];
+                rows.map(row=>{
                     if(row.eleId ===rowId){
                         const check=row.cols.map(col=>(col.eleId)).includes(target.id as string);
                         // console.log("277:check:determines if COL extis",check,"target.id",target.id,)//works
@@ -465,6 +475,7 @@ set rows(rows:rowType[]){
                     }
                     return row;
                 });
+                select.rows=JSON.stringify(rows) as string;
             }
             return select;
         });
@@ -502,8 +513,8 @@ set rows(rows:rowType[]){
        
             this._selectors = this._selectors.map(selector_=>{
                 if(selector_.eleId===selectorId ){
-                    // console.log("inside selector:",selector_.eleId===selectorId);//works
-                    selector_.rows.map(row=>{
+                    const rows=JSON.parse(selector_.rows as string) as rowType[];
+                    rows.map(row=>{
                         if(row.eleId===rowId){
                             row.cols.map((col)=>{
                                 // console.log("compare col:",col.eleId,"flex.col",colId);//works
@@ -595,6 +606,7 @@ set rows(rows:rowType[]){
                         }
                         return row;
                     });
+                    selector_.rows=JSON.stringify(rows) as string;
                 }
                 return selector_;
             });
@@ -715,7 +727,8 @@ set rows(rows:rowType[]){
             this.selectors=this._selectors.map(selector_=>{
                 // console.log("sel.id",selector_.id, "select",selector)
                 if(selectorId===selector_.eleId){
-                    selector_.rows.forEach(row=>{
+                    const rows=JSON.parse(selector_.rows) as rowType[];
+                    rows.forEach(row=>{
                         // console.log("row",row.eleId,"match",rowId);
                         if(row.eleId===rowId){
                             // console.log("row",rowId)
@@ -730,6 +743,7 @@ set rows(rows:rowType[]){
                         }
                         return row;
                     })
+                    selector_.rows=JSON.stringify(rows) as string;
                 }
                 return selector_;
             });
@@ -764,7 +778,8 @@ set rows(rows:rowType[]){
                 // console.log("TAG",tag,this.selectors)
                 this._selectors=this._selectors.map(selector_=>{
                     if(selectorId && (selector_.eleId===(selectorId as string))){
-                        selector_.rows.map(row=>{
+                        const rows=JSON.parse(selector_.rows) as rowType[];
+                        rows.map(row=>{
                             if(row.eleId===rowId){
                                 row.cols.map(col=>{
                                     if(col.eleId===colId){
@@ -804,6 +819,7 @@ set rows(rows:rowType[]){
                             }
                             return row;
                         });
+                        selector_.rows=JSON.stringify(rows) as string;
                     }
                     return selector_;
                 });
@@ -887,7 +903,8 @@ set rows(rows:rowType[]){
             const { selectorId,rowId,colId,imgKey,backgroundImage}=flex ;
             this._selectors=this._selectors.map(select=>{
                     if(select.eleId===selectorId){
-                        select.rows.map(row=>{
+                        const rows=JSON.parse(select.rows) as rowType[];
+                        rows.map(row=>{
                             if(row.eleId===rowId){
                                 row.cols.map(col=>{
                                     if(col.eleId===colId){
@@ -929,6 +946,7 @@ set rows(rows:rowType[]){
                             }
                             return row;
                         });
+                        select.rows=JSON.stringify(rows) as string
                     }
                 return select;
             });
@@ -990,7 +1008,8 @@ set rows(rows:rowType[]){
                     const {selectorId,rowId,colId}= flex as flexType;
                     this._selectors=this._selectors.map(selector_=>{
                         if(selector_.eleId===selectorId){
-                            selector_.rows.map(row=>{
+                            const rows=JSON.parse(selector_.rows) as rowType[];
+                            rows.map(row=>{
                                 if(row.eleId===rowId){
                                     row.cols.map(col=>{
                                         if(col.eleId===colId){
@@ -1029,6 +1048,7 @@ set rows(rows:rowType[]){
                                 }
                                 return row;
                             });
+                            selector_.rows=JSON.stringify(rows) as string;
                         }
                         return selector_;
                     });
@@ -1070,7 +1090,8 @@ set rows(rows:rowType[]){
             let row_:rowType| undefined;
             this._selectors=this._selectors.map(select=>{
                 if(select.eleId===selectorId){
-                    select.rows.map(row=>{
+                    const rows=JSON.parse(select.rows) as rowType[];
+                    rows.map(row=>{
                         if(row.eleId===target.id){
                             row.class=target.className;
                             row.cssText=target.style.cssText;
@@ -1082,7 +1103,9 @@ set rows(rows:rowType[]){
                         row_=row;
                         return row;
                     });
+                    select.rows=JSON.stringify(rows);
                 }
+
                 return select;
             });
             this.selectors=this._selectors;
@@ -1099,7 +1122,8 @@ set rows(rows:rowType[]){
             const {selectorId,rowId,colId,imgKey,backgroundImage}=flex;
             this.selectors=this._selectors.map(select=>{
                 if(select.eleId===selectorId){
-                    select.rows.map(row=>{
+                    const rows=JSON.parse(select.rows) as rowType[];
+                    rows.map(row=>{
                         if(row.eleId===rowId){
                             row.cols.map(col=>{
                                 if(col.eleId===colId){
@@ -1116,6 +1140,7 @@ set rows(rows:rowType[]){
                         }
                         return row;
                     });
+                    select.rows=JSON.stringify(rows);
                 }
                 return select;
             });
@@ -1131,7 +1156,8 @@ set rows(rows:rowType[]){
                 if(select.eleId===selectorId){
                     // console.log("964:inside selector.id:",select.eleId,selectorId);//works
                     // console.log("967:inside selector.id:flex",rowId,colId);//works
-                    select.rows.map(row=>{
+                    const rows=JSON.parse(select.rows) as rowType[];
+                    rows.map(row=>{
                         // console.log("966: outside row:",row.eleId,flex.rowId);
                         if(row.eleId===rowId){
                             // console.log("967: inside row:",row.eleId,flex.rowId);
@@ -1158,6 +1184,7 @@ set rows(rows:rowType[]){
                         }
                         return row;
                     });
+                    select.rows=JSON.stringify(rows) as string;
                 }
                 return select
             });
@@ -1237,7 +1264,8 @@ set rows(rows:rowType[]){
         const arrClasses=["isActive","active"];
         if(!selector) return undefined;
         arrClasses.map(class_=>(selector.class.replace(class_,"")));
-        const selectorRows=selector.rows.map(row=>{
+        const rows=JSON.parse(selector.rows) as rowType[];
+        const selectorRows=rows.map(row=>{
             arrClasses.map(class_=>(row.class.replace(class_,"")));
             if(row.cols.length>0){
                 row.cols.map(col=>{
@@ -1254,8 +1282,8 @@ set rows(rows:rowType[]){
             return row
     
         });
-        
-        selector={...selector,rows:selectorRows}
+        const strRows=JSON.stringify(selectorRows)
+        selector={...selector,rows:strRows}
         return selector
     }
 
@@ -1304,7 +1332,8 @@ updateBgImage(flex:flexType){
             this.blog=this._blog;
         }
         this._selectors=this._selectors.map(select=>{
-                select.rows.map(row=>{
+            const rows=JSON.parse(select.rows) as rowType[];
+               rows.map(row=>{
                 if(position==="row" && row.eleId===rowId){
                     row.imgKey=imgKey;
                 }else{
@@ -1324,7 +1353,7 @@ updateBgImage(flex:flexType){
                 };
                 return row
                 });
-
+                select.rows=JSON.stringify(rows);
             return select;
                 
             });
@@ -1361,13 +1390,15 @@ showRemoveItem(parent:HTMLElement,divCont:HTMLElement,target:HTMLElement):void{
 ///THIS IS FOR REMOVING EXTRA UNWANTED ELEMENTS OF SUBselector elements
 removeUnwanted(eleName:string){
     this._selectors=this._selectors.map(sel=>{
-        sel.rows.map(row=>{
+        const rows=JSON.parse(sel.rows) as rowType[];
+        rows.map(row=>{
                 row.cols.map(col=>{
                         col.elements.filter(ele=>(ele.name !==eleName));
                     return col;
                 });
             return row;
         });
+        sel.rows=JSON.stringify(rows);
         return sel;
     });
     this.selectors=this._selectors;
@@ -1407,7 +1438,8 @@ checkitemExist(eleId:string):{level:string,exist:boolean}{
         if(sel.eleId===eleId){
             return{level:"selector",exist:true};
         }
-        sel.rows.map(row=>{
+        const rows=JSON.parse(sel.rows) as rowType[];
+        rows.map(row=>{
             if(row.eleId===eleId){
                 return {level:"row",exist:true};
             }
@@ -1450,7 +1482,8 @@ getElement(target:HTMLElement):blogType{
         const {selectorId,imgKey}=flex as flexType;
         this._selectors = this._selectors.map(select=>{
             if(select.eleId===selectorId){
-                select.rows.map(row=>{
+                const rows=JSON.parse(select.rows) as rowType[];
+                rows.map(row=>{
                     if(row.eleId===target.id){
                         row.imgKey=imgKey;
                         row.cssText=target.style.cssText;
@@ -1490,6 +1523,7 @@ getElement(target:HTMLElement):blogType{
                     }
                     return row;
                 });
+                select.rows=JSON.stringify(rows);
             }
             return select
         });
@@ -1842,6 +1876,20 @@ loadSimpleBlog(blog:blogType){
         // console.log("shiftPlace")
 
     }
+    checkGetRows(item:{select:selectorType}):{isRows:boolean,rows:rowType[]}{
+        const {select}=item;
+        let bool:boolean=false;
+        let rows=[] as rowType[];
+        const check=(select && select.rows && select.rows.length >0 && typeof(JSON.parse(select.rows))) ? true:false;
+        if(check){
+            bool=true;
+            rows=JSON.parse(select.rows as string) as rowType[];
+        }else{
+            bool=false;
+            rows=[] as rowType[];
+        }
+        return {isRows:bool,rows}
+    }
     static maxCount(blog:blogType):number{
         if(!blog) return 0;
         const eleCount=blog.elements ? blog.elements.length:0;
@@ -1917,7 +1965,8 @@ loadSimpleBlog(blog:blogType){
     }
     blog.selectors.map(select=>{
         if(select){
-            select.rows.map(row=>{
+            const rows=JSON.parse(select.rows) as rowType[];
+            rows.map(row=>{
                 if(row){
                     if(row.imgKey){
                         arrimgs.push({id:index,imgKey:row.imgKey});

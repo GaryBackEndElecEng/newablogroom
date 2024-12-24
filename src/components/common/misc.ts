@@ -918,13 +918,14 @@ class Misc{
         return {container}
 
     }
-    static imageForm(mainTextarea:HTMLElement,flex:flexType |null): {form:HTMLFormElement,reParent:HTMLElement,label:HTMLElement,flex:flexType|null}{
+    static imageForm(mainTextarea:HTMLElement,flex:flexType |null): {form:HTMLFormElement,reParent:HTMLElement,label:HTMLElement,flex:flexType|null,btn:HTMLButtonElement}{
         const checkMain=mainTextarea ? mainTextarea : Main.textarea as HTMLElement;
+        const less400=window.innerWidth < 400;
         checkMain.style.position="relative";
         checkMain.style.zIndex="";
-        const css="border-radius:20px; box-shadow:1px 1px 4px 1px black;margin:auto;background:white;position:absolute;z-index:200";
+        const css="border-radius:20px; box-shadow:1px 1px 4px 1px black;margin:auto;background:white;position:absolute;z-index:20";
         const form=document.createElement("form");
-        form.id="image-form"
+        form.id="Misc-image-form"
         form.className="form-group d-flex flex-column align-items-center gap-2";
         form.setAttribute("data-form-group","true");
         form.style.cssText=css;
@@ -935,9 +936,8 @@ class Misc{
         form.style.right="30%";
         form.style.height="400px";
         form.style.width="clamp(250px,400px,500px)";
-        form.style.cssText=css;
         if(flex){
-            form.style.top="100%";
+            form.style.top=less400 ? "-10%" : "-3%";
             form.style.left="10%";
             form.style.right="10%";
         }
@@ -957,15 +957,8 @@ class Misc{
         input.accept="image/png image/jpg";
         formGrp.appendChild(label);
         formGrp.appendChild(input);
-        const submit:btnType={
-            parent:form,
-            text:"submit",
-            bg:Nav.btnColor,
-            color:"white",
-            type:"submit"
-        }
         form.appendChild(formGrp);
-        button(submit);
+        const {button}=Misc.simpleButton({anchor:form,bg:Nav.btnColor,color:"white",type:"submit",time:400,text:"submit"});
         form.animate([
             {transform:"scale(0)",opacity:"0"},
             {transform:"scale(1)",opacity:"1"}
@@ -974,7 +967,7 @@ class Misc{
         Misc.matchMedia({parent:form,maxWidth:900,cssStyle:{left:"20%",right:"20%",top:"10%"}});
         Misc.matchMedia({parent:form,maxWidth:400,cssStyle:{left:"5%",right:"5%",top:"10%"}});
         // Header.removeEffect(grandParent,form);
-        return {form,reParent:checkMain,label:label,flex};
+        return {form,reParent:checkMain,label:label,flex,btn:button};
     }
     static addLink(parent:HTMLElement):{form:HTMLFormElement,popup:HTMLElement,l_input:HTMLInputElement,n_input:HTMLInputElement}{
         parent.style.position="relative";
@@ -1809,6 +1802,7 @@ class Misc{
                 };
             };
         };
+        btn.style.fontSize="12px";
         const bg=btn.style.backgroundColor;
         const col=btn.style.color
         if(label){
@@ -1822,7 +1816,7 @@ class Misc{
                     btn.appendChild(span);
                 }else{
                     const small=document.createElement("small");
-                    small.style.transform="scale(0.7)";
+                    small.style.transform="scale(0.8)";
                     small.textContent=label;
                     btn.appendChild(small);
                 }

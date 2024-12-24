@@ -1,4 +1,4 @@
-import {flexType,elementType,themeType,swapHeaderType, blogType, userType, element_selType, deletedImgType, selectorType, flexSelectorType} from "./Types";
+import {flexType,elementType,themeType,swapHeaderType, blogType, userType, element_selType, deletedImgType, selectorType, flexSelectorType, rowType} from "./Types";
 
 
 import Main from "./main";
@@ -2624,7 +2624,8 @@ class Sidebar{
             }
         });
         blog.selectors.map(sel=>{
-            sel.rows.map(row=>{
+            const rows=JSON.parse(sel.rows) as rowType[];
+            rows.map(row=>{
                 row.cols.map(col=>{
                     col.elements.map(ele=>{
                         if(ele && ele.name==="p"){

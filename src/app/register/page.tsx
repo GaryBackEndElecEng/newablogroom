@@ -8,7 +8,7 @@ export default async function error_() {
     if (!session) {
 
         return (
-            <div className="container-fluid mx-auto d-flex flex-column place-items-center mx-auto position-relative"><Index /> </div>
+            <div className="d-flex flex-column place-items-center mx-auto position-relative"><Index /> </div>
         )
     } else {
         redirect("/");

@@ -362,13 +362,13 @@ class User{
         bio:undefined,
         blogs:[] as blogType[],
         posts:[] as postType[],
-        quotes:[] as userQuoteType[],
-        developDeploys:[] as userDevelopType[],
+        quoteImgs:[] as userQuoteType[],
+        devDeployimgs:[] as userDevelopType[],
         accounts:[] as accountType[],
         sessions:[] as sessionType[],
         admin:false,
     } as userType;
-    _user:userType=this.init;
+    _user:userType;
 
     _signIn:userSignInType;
     _blogs:blogType[];
@@ -376,6 +376,7 @@ class User{
     hasSignedIn:boolean;
     userSetups:UserSetups;
     constructor(private _modSelector:ModSelector,private _service:Service){
+        this._user=this.init;
         this._status="unauthenticated";
         this.logo=`gb_logo.png`
         this._signIn={} as userSignInType;
@@ -461,31 +462,31 @@ class User{
     }
     async saveBlog(parent:HTMLElement,blog:blogType):Promise<blogType|void>{
         // let tempBlog:blogType;
-        if(parent && blog){
-                const container=document.createElement("div");
-                container.style.cssText="margin:auto; width:300px;height:auto;padding:1rem; box-shadow:1px 1px 4px 1px black;border-radius:20px;"
-                const text=document.createElement("h6");
-                text.className="text-primary text-center mx-auto";
-                text.textContent="=>.....saving";
-                container.appendChild(text);
-                parent.appendChild(container);
-            //STUCK HERE: ISSUE:"can not readproperties of null"
-               return this._service.saveBlog(blog).then(async(res)=>{
-                if(res){
+       if(!parent) return Misc.message({parent,msg:"Sorry no parent Dom",type_:"error",time:1400});
+        const container=document.createElement("div");
+        container.style.cssText="margin:auto; width:300px;height:auto;padding:1rem; box-shadow:1px 1px 4px 1px black;border-radius:20px;"
+        const text=document.createElement("h6");
+        text.className="text-primary text-center mx-auto";
+        text.textContent="=>.....saving";
+        container.appendChild(text);
+        parent.appendChild(container);
+    //STUCK HERE: ISSUE:"can not readproperties of null"
+        return this._service.saveBlog(blog).then(async(res)=>{
+        if(res){
                 this._modSelector._blog=res as blogType;
                 localStorage.setItem("blog",JSON.stringify(res));
                 parent.removeChild(container);
                 Misc.message({parent,msg:"blog is saved",type_:"success",time:400});
                 return res;
-                }else{
-                    Misc.message({parent,msg:"blog not saved",type_:"success",time:400});
-                }
-               }).catch((err)=>{
-                const msg=getErrorMessage(err);
-                console.error({"error":msg});
-                
-               })
+        }else{
+            Misc.message({parent,msg:"blog not saved",type_:"success",time:400});
         }
+        }).catch((err)=>{
+        const msg=getErrorMessage(err);
+        console.error({"error":msg});
+        
+        });
+        
     }
     
     async signInBlogForm(parent:HTMLElement,blog:blogType){
@@ -1078,12 +1079,13 @@ class User{
         const {parent,blog,func}=item;
         let _blog=blog;
         this._modSelector.loadBlog(_blog);//loads blog and saves it to storage
-        const user=this.user
+        const user=this.user;
+        // console.log(user)//works
         const notSignedIn=user && !user.id ? true:false;
         const hasBlogWithSigninAndNoBlogName=(blog && user.id && !blog.name) ? true:false;
         const hasSignedInWithBlogName=(blog && blog.user_id && blog.name)? true:false;
-     if(user && user.id){
-         _blog={...blog,user_id:user.id,id:blog.id};
+        _blog={...blog,user_id:user.id,id:blog.id};
+    
         if(blog && !blog.name){
             _blog={..._blog};
         }else if(blog.name){
@@ -1091,7 +1093,7 @@ class User{
         }
         this._modSelector._blog=_blog;
         this._modSelector.blog=this._modSelector._blog;
-     }
+     
      switch(true){
         case notSignedIn:
             await this._service.signIn(parent);
@@ -1154,14 +1156,14 @@ class User{
         return;
         case hasSignedInWithBlogName:
                  //----------------------SAVING BLOG-----------------------//
-                 this.blog={...blog,user_id:user.id};
-                 this._service.promsaveItems(this.blog).then(async(_blog_)=>{
+                 this.blog={..._blog};
+                 this._service.promsaveItems(_blog).then(async(_blog_)=>{
                     if(_blog_){
-
-                        this._service.saveBlog(_blog_).then(async(_blog:blogType)=>{
-                            if(_blog){
-                                this.blog={..._blog};//saving it to localStorage
-                                const BlogFinal= await this._service.promsaveItems(_blog);
+                        // console.log("user_id",_blog_.user_id)//works
+                        this._service.saveBlog(_blog_).then(async(__blog:blogType)=>{
+                            if(__blog){
+                                this.blog={..._blog,id:__blog.id};//saving it to localStorage
+                                const BlogFinal= await this._service.promsaveItems(this.blog);
                                 if(BlogFinal){
                                 localStorage.setItem("blog",JSON.stringify(BlogFinal));
                                 this.blog=BlogFinal;
@@ -1210,6 +1212,7 @@ class User{
                                     parentTextarea.removeChild(nameDescPopup)
                                     
                                 },380);
+                                const combName=name.split(" ").join("");
                                 this.blog={...blog,name,desc} as blogType; //saving it to local Storage
                                 blog={...blog,name,desc} as blogType; //saving it to local Storage
                                 if(img){
@@ -1566,7 +1569,8 @@ class User{
         });
         blog.selectors.map(sel=>{
             if(sel){
-                sel.rows.map(row=>{
+                const rows=JSON.parse(sel.rows) as rowType[];
+                rows.map(row=>{
                     if(row){
                         const res=this.checkBackgroundUrl(row.cssText);
                         if(res && row.imgKey){

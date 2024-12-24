@@ -38,8 +38,8 @@ export async function getUser(item: { email: string }) {
                 username: true,
                 blogs: true,
                 posts: true,
-                quotes: true,
-                developDeploys: true
+                quoteImgs: true,
+                devpDeployimgs: true
             }
         }) as unknown as userType;
     } catch (error) {

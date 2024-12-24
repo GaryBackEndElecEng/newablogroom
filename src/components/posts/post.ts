@@ -14,9 +14,11 @@ import { FaHandBackFist } from "react-icons/fa6";
 import { imageLoader } from "../common/tsFunctions";
 import AddImageUrl from "../common/addImageUrl";
 import PostDetail from "../postDetail/postdetail";
+import Searchbar from "../common/searchbar";
 
 
 class Post{
+    count:number;
     no_posts:string;
     addImageClass:AddImageUrl
     logo:string;
@@ -28,6 +30,7 @@ class Post{
     _like:boolean;
     postDetail:PostDetail;
     _usersinfo:userType[];
+    searchbar:Searchbar;
     constructor(private _modSelector:ModSelector,private _service:Service,private _user:User){
         this.logo="/images/gb_logo.png";
         this.postLogo="/images/posts.png";
@@ -40,6 +43,7 @@ class Post{
         this.addImageClass= new AddImageUrl(this._modSelector,this._service);
         const thisuser=this._user.user
         this.postDetail=new PostDetail(this._modSelector,this._service,this._user,thisuser);
+        this.count=0;
     }
     //----GETTERS SETTERS----////
     get post(){
@@ -74,17 +78,18 @@ class Post{
 
     async main(item:{injector:HTMLElement,posts:postType[],usersinfo:userType[]}){
         const {injector,posts,usersinfo}=item;
+        this.searchbar= new Searchbar({blogs:null,posts:posts});//INPUT INTO POST DISPLAYS
         const less900=window.innerWidth < 900;
         const less400=window.innerWidth < 400;
         this.usersinfo=usersinfo;
         // console.log(this.usersinfo);//all users showinfo works
         this.posts=posts;
         Header.cleanUpByID(injector,"main-post-container");
-        const css_col="margin-inline:auto;display:flex;flex-direction:column;justify-content:center;align-items:center;margin-block:1.65rem;";
+        const css_col="margin-inline:auto;display:flex;flex-direction:column;align-items:center;margin-block:1.65rem;";
         this.injector=injector;
         const container=document.createElement("div");
         container.id="main-post-container";
-        container.style.cssText=css_col + " width:100%;";
+        container.style.cssText=css_col + " width:100%;min-height:110vh;";
         container.style.gap=less900 ? (less400 ? "3rem":"2.5rem"):"2rem";
         injector.appendChild(container);
         if(this.user && this.user.id && this.user.email){
@@ -102,37 +107,29 @@ class Post{
         this.titlePage({container,time:1200}).then(async(res)=>{
             if(res){
                 res.para.style.fontSize=less900 ? (less400 ? "130%":"150%"):"135%";
-                await this.Posts({injector:injector,container,posts:this.posts,user:this.user}).then(async(res_)=>{
-                    if(res_){
-                        if(res_.posts && res_.posts.length>0){
-                            this.posts=res_.posts.sort((a,b)=>{if(a.likes > b.likes)return -1;return 1}).map(post=>(post));
-                            this.posts.map(async(post,index)=>{
-                                if(post){
-                                    const userinfo=usersinfo.find(user_=>(user_.id===post.userId));
-                                    this.postCard({row:res_.row,post,user:this.user,userinfo,index});
+                //SEARCH BAR CONTROLS THE POST LISTS funcPosts is the DISPLAYER
+                await this.searchbar.mainPost({
+                    parent:container,
+                    funcPost:async({posts})=>{
+
+                        await this.Posts({injector:container,container,posts:posts,user:this.user}).then(async(res_)=>{
+                            if(res_){
+                                if(res_.posts && res_.posts.length>0){
+                                    this.posts=res_.posts.sort((a,b)=>{if(a.likes > b.likes)return -1;return 1}).map(post=>(post));
+                        
+                                    this.posts.map(async(post,index)=>{
+                                        if(post){
+                                            const userinfo=usersinfo.find(user_=>(user_.id===post.userId));
+                                            this.postCard({row:res_.row,post,user:this.user,userinfo,index});
+                                        }
+                                    });
+                                    Misc.matchMedia({parent:res_.container,maxWidth:400,cssStyle:{paddingInline:"0px"}})
+                                }else{
+                                    this.noPosts({parent:container});
                                 }
-                            });
-                            Misc.matchMedia({parent:res_.container,maxWidth:400,cssStyle:{paddingInline:"0px"}})
-                        }else{
-                            this.noPosts({parent:container});
-                        }
-                        ///--------------------------title display ----------------------///
-                        res.textContainer.style.opacity="1";
-                        res.textContainer.style.transform="scale(1)";
-                        res.textContainer.animate([
-                            {transform:"scale(0.8)",opacity:"0"},
-                            {transform:"scale(1)",opacity:"1"},
-                        ],{duration:res.time,iterations:1,"easing":"ease-in-out"});
-                        setTimeout(()=>{
-                            res.para.style.opacity="1";
-                            res.para.style.borderRadius="12px";
-                            res.para.animate([
-                                {transform:"translateX(-75%)",opacity:"0",backgroundColor:"rgb(212 229 225 / 33%)",color:"white"},
-                                {transform:"translateX(0%)",opacity:"1",backgroundColor:"transparent",color:"#1dcbfb"},
-                            ],{duration:res.time,iterations:1,"easing":"ease-in-out"});
-                           
-                        },res.time);
-                        ///--------------------------title display ----------------------///
+                                
+                            }
+                        });
                     }
                 });
                 
@@ -152,7 +149,7 @@ class Post{
         const textContainer=document.createElement("div");
         textContainer.id="post-titlepage-textContainer";
         textContainer.style.cssText=css_col + "background-color:black;border-radius:12px;margin-top:1rem;filter:drop-shadow(0 0 0.5rem white);";
-        textContainer.style.width=less900 ? (less400 ? "100%":"80%") : "70%";
+        textContainer.style.width="100%";
         textContainer.style.paddingBottom=less900 ? (less400 ? "2rem":"2.5rem") : "2rem";
         textContainer.style.paddingInline=less900 ? (less400 ? "1rem":"1rem") : "2rem";
         const text=document.createElement("p");
@@ -188,6 +185,23 @@ class Post{
         para.style.opacity="0";
         textContainer.style.transform="scale(0.8)";
         para.style.textTransform="uppercase";
+        ///--------------------------title display ----------------------///
+        textContainer.style.opacity="1";
+        textContainer.style.transform="scale(1)";
+        textContainer.animate([
+            {transform:"scale(0.8)",opacity:"0"},
+            {transform:"scale(1)",opacity:"1"},
+        ],{duration:time,iterations:1,"easing":"ease-in-out"});
+        setTimeout(()=>{
+            para.style.opacity="1";
+            para.style.borderRadius="12px";
+            para.animate([
+                {transform:"translateX(-75%)",opacity:"0",backgroundColor:"rgb(212 229 225 / 33%)",color:"white"},
+                {transform:"translateX(0%)",opacity:"1",backgroundColor:"transparent",color:"#1dcbfb"},
+            ],{duration:time,iterations:1,"easing":"ease-in-out"});
+           
+        },time);
+        ///--------------------------title display ----------------------///
         
         container.appendChild(textContainer);
         return new Promise(resolve=>{
@@ -600,7 +614,7 @@ class Post{
         img.id=`posts-shapeOutside-img-${index}`;
         img.style.cssText="border-radius:50%;shape-outside:circle(50%);float:left;margin-right:1.25rem;margin-bottom:2rem;aspect-ratio:1/1;filter:drop-shadow(0 0 0.75rem white);border:none;";
         img.style.filter="drop-shadow(0 0 0.75rem white) !important";
-        img.style.width=less900 ? (less400 ? "320px" : "330px") :"355px";
+        img.style.width=less900 ? (less400 ? "320px" : "280px") :"255px";
         const widthConv=parseInt(img.style.width.split("px")[0]) as number;
         if(post.image){
             img.src=imageLoader({src:post.image,width:widthConv,quality:75});
@@ -623,7 +637,7 @@ class Post{
             img.src=imageLoader({src:this.postLogo,width:widthConv,quality:75});
              img.alt="www.ablogroom.com";
             shapeOutside.appendChild(img);
-            Misc.blurIn({anchor:img,blur:"20px",time:700});
+            Misc.blurIn({anchor:img,blur:"20px",time:1800});
             
             shapeOutside.innerHTML+=post.content ? `${post.content.slice(0,250)}...see detail`  : "";
         }
@@ -709,21 +723,22 @@ class Post{
         const popup=document.createElement("div");
         popup.style.cssText="position:absolute;width:auto;height:auto;border-radius:50%;top:0%;right:0%;z-index:1;aspect-ratio:1 / 1;padding:0px;";
         popup.style.transform=less400 ? "translate(10px,-20px)" :"translate(20px,-20px)";
-        popup.id="popup-likepost";
+        popup.id=`popup-likepost-${post.id}`;
         popup.className="popup";
         const xDiv=document.createElement("div");
         xDiv.id="thumb";
         xDiv.style.cssText="padding:2px;border-radius:50%;background-color:black;color:white;position:relative;display:flex;justify-content:center;align-items:center;aspect-ratio:inherit;";
         popup.appendChild(xDiv);
-        FaCreate({parent:xDiv,name:FaHandBackFist,cssStyle:{fontSize:"20px",borderRadius:"50%",color:"white",margin:"auto",zIndex:"1"}});
+        const root=FaCreate({parent:xDiv,name:FaHandBackFist,cssStyle:{fontSize:"20px",borderRadius:"50%",color:"white",margin:"auto",zIndex:"1"}});
         Misc.matchMedia({parent:popup,maxWidth:900,cssStyle:{transform:"translate(30px,-30px)"}});
         Misc.matchMedia({parent:popup,maxWidth:400,cssStyle:{transform:"translate(25px,-25px)"}});
         parent.appendChild(popup);
         xDiv.onclick=async(e:MouseEvent)=>{
             if(e){
-                //FaHandBackFist
+
+                root?.unmount();
                 Header.cleanUp(xDiv);
-                FaCreate({parent:xDiv,name:FaThumbsUp,cssStyle:{fontSize:"20px",borderRadius:"50%",color:"white",margin:"auto",zIndex:"1"}});
+                const root2=FaCreate({parent:xDiv,name:FaThumbsUp,cssStyle:{fontSize:"20px",borderRadius:"50%",color:"white",margin:"auto",zIndex:"1"}});
                 xDiv.style.backgroundColor="blue";
                 xDiv.style.color="green";
                 xDiv.animate([
@@ -738,6 +753,9 @@ class Post{
                     this.showLikes({parent,post:this.post});
                     //-----------------------show likes-----------------//
                 }
+                setTimeout(()=>{
+                   parent.removeChild(popup)
+                },1600);
             }
         }
         //-----------------------show likes-----------------//

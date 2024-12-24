@@ -10,6 +10,8 @@ import Nav from "./headerNav";
 import { getCsrfToken,getProviders,LiteralUnion,signIn } from "next-auth/react";
 import { BuiltInProviderType } from "next-auth/providers/index";
 import { getErrorMessage } from "@/lib/errorBoundaries";
+// import { signIn } from "@/auth"
+
 
 
 class RegSignIn {
@@ -225,7 +227,9 @@ class RegSignIn {
                             const image=document.createElement("img");
                             image.style.cssText="width:150px;border-radius:50%;box-shadow:1px 1px 12px 1px black;position:absolute;inset:0%;filter:drop-shadow(0 0 0.5rem black);margin:auto;";
                             const user_id=this._user.user.id as string;
-                           await this._service.newUserEMailTo(user_id)
+                            //THIS SENDS AN EMAIL AND ADDS USER TO EMAIL LIST//
+                           await this._service.newUserEMailTo(user_id)//res={msg:string}=> Thank you name, we sent you a welcome email for registering with us
+                           //THIS ASKS IF THEY WANT TO UPLOAD AN IMAGE PIC
                             this.wantProfileImage(mainHeader,section,container,image,user_);
                             // /auth/new-user url is used for new user and therefore this is not needed for first time user
                             // await this._service.welcomeEmail(user.id)//AUTH/NEW-USER HANDLES THIS
@@ -365,7 +369,8 @@ class RegSignIn {
             //provider={callbackUrl:string=>https://,,,api/auth/callback/credentials or google,id:string=>"credentials/google",name:string,signinUrl:string=>http://local,,,api/auth/credentials}
             const signInCallBack=provider.callbackUrl as unknown as string;
             if((provider.id as unknown as string)==="credentials"){
-                this.signInForm(container,signInCallBack,csrfToken);
+                this.signInForm(container,signInCallBack,csrfToken);// USING
+                // this.authSignInForm({parent:section,csrfToken});//NOT USING=> USES A DIFFERENT ENCRYPTION=> TO MUCH WORK!!
             }else{
                 this.signInProvider(container,signInCallBack,provider);
 
@@ -462,6 +467,116 @@ class RegSignIn {
         Misc.growIn({anchor:container,scale:0,opacity:0,time:400});
         
         return {btn,container,form,email,password}
+    }
+    //THE AUTH FORM, BELOW USES A DIFFERENT ENCRYPTION FORM BYCRYPT- REASON WHY NOT USING!!
+    authSignInForm(item:{parent:HTMLElement,csrfToken:string|undefined}){
+        const {parent,csrfToken}=item;
+        const user=this._user.user;
+        window.scroll(0,0);
+        const cssGrp="margin:auto;display:flex;flex-direction:column;align-items:center;gap:1rem;";
+        // const width=window.innerWidth <500 ? "0%":"30%";
+        const container=document.createElement("section");
+        container.id="container-signIn";
+        container.style.cssText="margin:auto;background-color:white;filter:drop-shadow(0 0 0.75rem crimson);border-radius:7px;padding:1rem;;z-index:1000;display:flex;align-items:center;gap:1rem;flex-direction:column;";
+        container.style.width=`100%`;
+        container.style.minHeight=`auto`;
+        const form=document.createElement("form");
+        form.id="auth-signin-form";
+        form.style.cssText="display:flex;flex-direction:column;align-items:center;justify-content:center;gap:1rem;";
+        form.id="signInForm-credentials";
+        if(csrfToken){
+            const csrfInput=document.createElement("input");
+            csrfInput.hidden=true;
+            csrfInput.type="hidden";
+            csrfInput.name="csrfToken";
+            csrfInput.value=csrfToken;
+            form.appendChild(csrfInput);
+        }
+        const {input:email,label:labelEmail,formGrp:grpEmail}=Nav.inputComponent(form);
+        grpEmail.style.cssText=cssGrp;
+        grpEmail.style.cssText="margin:auto;display:flex;flex-direction:column;align-items:center;gap:1rem;"
+        email.placeholder="your email";
+        email.type="email";
+        email.autocomplete="email";
+        email.value=user && user.email ? user.email :"";
+        // email.pattern="[a-zA-Z0-9\.]{2,}@[a-zA-Z]{2,}\.[a-z]{2,3}";
+        email.id="signInForm-credentials-emails";
+        labelEmail.textContent="email";
+        labelEmail.classList.add("display-6");
+        labelEmail.setAttribute("for",email.id);
+        email.name="email";
+        email.autocomplete="email";
+        email.placeholder=" requires a form of mymail@mail.com"
+        const {input:password,label:labelPass,formGrp:grpPassword}=Nav.inputComponent(form);
+        grpPassword.style.cssText=cssGrp;
+        password.type="password";
+        password.id="signInForm-credentials-password"
+        password.pattern="[a-zA-Z0-9\.\?\-]{5,}";
+        password.value=user && user.password ? user.password : "";
+        password.autocomplete="on";
+        labelPass.textContent="password";
+        labelPass.classList.add("display-6");
+        labelPass.setAttribute("for",password.id);
+        password.placeholder="must be more that 5 characters";
+        password.name="password";
+        const {button:btn}=Misc.simpleButton({anchor:form,color:"white",bg:Misc.btnColor,text:"submit",type:"submit",time:400});
+        //APPENDING FORM TO POPUP
+        container.appendChild(form);
+        //APPENDING POPUP TO PARENT
+        parent.appendChild(container);
+        email.onchange=async(e:Event)=>{
+            if(e){
+                
+                const evalue=(e.currentTarget as HTMLInputElement).value;
+                await this.checkEmailSignin({femail:grpEmail,email:evalue,btn:btn})
+            }
+        };
+        password.onchange=(e:Event)=>{
+            if(e){
+                const pValue=(e.currentTarget as HTMLInputElement).value;
+                if(pValue && pValue !==""){
+                    this.checkPassSignin({fpass:grpPassword,pass:pValue,btn:btn});
+                }
+            }
+        };
+            
+        //------------window on load------------------//
+        window.scroll(0,0);
+        container.animate([
+            {transform:"translateY(-100%)",opacity:0},
+            {transform:"translateY(0%)",opacity:1},
+           ],{duration:300,iterations:1});
+           //-------------window on load--------------------//
+           
+        
+        Misc.matchMedia({parent:container,maxWidth:900,cssStyle:{width:"80%"}});
+        Misc.matchMedia({parent:container,maxWidth:500,cssStyle:{width:"100%"}});
+        Misc.growIn({anchor:container,scale:0,opacity:0,time:400});
+        
+        form.onsubmit=async(e:SubmitEvent) =>{
+            if(e){
+                e.preventDefault();
+                const formdata=new FormData(e.currentTarget as HTMLFormElement);
+                const email=formdata.get("email");
+                const password=formdata.get("password");
+                if(email && password){
+                    const newUrl=new URL("/blogs",window.location.origin);
+                    formdata.append("redirectTo",newUrl.href);
+                    try {
+                        await signIn("credentials",{formdata});
+                    } catch (error) {
+                        const msg=getErrorMessage(error);
+                        console.log(msg)
+                        if(error instanceof AuthenticatorAssertionResponse){
+                            window.history.go(-1);
+                        }
+                    }
+                }else{
+                    Misc.message({parent,msg:"no email or password",type_:"error",time:1200});
+
+                }
+            }
+        };
     }
 
      signInProvider(parent:HTMLElement,signinUrl:string|undefined,provider:providerType,):{container:HTMLElement}{
@@ -579,37 +694,39 @@ class RegSignIn {
             Misc.growIn({anchor:container,scale:0,opacity:0,time:400});
         }if(check){
             const user={...this._user.user,email:email}
-            await this._service.check_email(user).then(async(user)=>{
-                if(user && user.email){
-                    btn.disabled=false;
-                    btn.textContent="sign in";
-                    text.style.cssText="margin-inline:auto;text-wrap:pretty";
-                    text.textContent="thanks";
-                    this.count=0;
-                    container.appendChild(text);
-                    femail.appendChild(container);
-                    Misc.growIn({anchor:container,scale:0,opacity:0,time:800});
-                    setTimeout(()=>{
-                        Misc.growOut({anchor:container,scale:0,opacity:0,time:400});
-                        setTimeout(()=>{
-                            femail.removeChild(container)
-                        },398);
-                    },800);
-                }else{
-                    if(this.count < 1){
-                        this.count +=1;
+            await this._service.check_email(user).then(async(res)=>{
+                if(res){
 
-                        btn.disabled=true;
-                        btn.textContent="disabled";
-                        text.textContent="email does not exist";
+                    if(res.email){
+                        btn.disabled=false;
+                        btn.textContent="sign in";
+                        text.style.cssText="margin-inline:auto;text-wrap:pretty";
+                        text.textContent="thanks";
+                        this.count=0;
                         container.appendChild(text);
                         femail.appendChild(container);
-                        Misc.growIn({anchor:container,scale:0,opacity:0,time:400});
+                        Misc.growIn({anchor:container,scale:0,opacity:0,time:800});
+                        setTimeout(()=>{
+                            Misc.growOut({anchor:container,scale:0,opacity:0,time:400});
+                            setTimeout(()=>{
+                                femail.removeChild(container)
+                            },398);
+                        },800);
                     }else{
-                        //second missed email=> sends client to register page
-                        const base=new URL(window.location.href);
-                        const newUrl=new URL("/register",base.origin)
-                        window.location.href=newUrl.href
+                        if(this.count < 1){
+                            this.count +=1;
+                            btn.disabled=true;
+                            btn.textContent="disabled";
+                            text.textContent="email does not exist";
+                            container.appendChild(text);
+                            femail.appendChild(container);
+                            Misc.growIn({anchor:container,scale:0,opacity:0,time:400});
+                        }else{
+                            //second missed email=> sends client to register page
+                            const base=new URL(window.location.href);
+                            const newUrl=new URL("/register",base.origin)
+                            window.location.href=newUrl.href
+                        }
                     }
                 }
             });
@@ -661,36 +778,39 @@ class RegSignIn {
         }if(check){
             const user={...this._user.user,email:email}
             //tries fiv times before transfering to error page
-            await this._service.check_email(user).then(async(user:userType|null|undefined)=>{
+            await this._service.check_email(user).then(async(res:{email:string|null,name:string|null}|void)=>{
                 this.count +=1;
-                if(this.count < 4){
-                    const isEmail=(user && user.email) ? true:false
-                    if(isEmail){
-                        btn.disabled=true;
-                        text.textContent=`email:${user && user.email} already exist,,try again`;
-                        container.appendChild(text);
-                        femail.appendChild(container);
-                        Misc.growIn({anchor:container,scale:0,opacity:0,time:400});
-                    }else{
-                        btn.disabled=false;
-                        text.textContent="thanks";
-                        container.appendChild(text);
-                        femail.appendChild(container);
-                        this.count=0;
-                        Misc.growIn({anchor:container,scale:0,opacity:0,time:800});
-                        setTimeout(()=>{
-                            Misc.growOut({anchor:container,scale:0,opacity:0,time:400});
-                            setTimeout(()=>{
-                                femail.removeChild(container)
-                            },398);
-                        },800);
+                if(res){
 
+                    if(this.count < 4){
+                        const isEmail=( res.email) ? true:false
+                        if(isEmail){
+                            btn.disabled=true;
+                            text.textContent=`email:${user && user.email} already exist,,try again`;
+                            container.appendChild(text);
+                            femail.appendChild(container);
+                            Misc.growIn({anchor:container,scale:0,opacity:0,time:400});
+                        }else{
+                            btn.disabled=false;
+                            text.textContent="thanks";
+                            container.appendChild(text);
+                            femail.appendChild(container);
+                            this.count=0;
+                            Misc.growIn({anchor:container,scale:0,opacity:0,time:800});
+                            setTimeout(()=>{
+                                Misc.growOut({anchor:container,scale:0,opacity:0,time:400});
+                                setTimeout(()=>{
+                                    femail.removeChild(container)
+                                },398);
+                            },800);
+    
+                        }
+                    }else{
+                        //sending client to error page with no history
+                        const base=new URL(window.location.href);
+                        const newUrl=new URL("/error_page",base.origin);
+                        window.location.replace(newUrl);
                     }
-                }else{
-                    //sending client to error page with no history
-                    const base=new URL(window.location.href);
-                    const newUrl=new URL("/error_page",base.origin);
-                    window.location.replace(newUrl);
                 }
                 });
             }

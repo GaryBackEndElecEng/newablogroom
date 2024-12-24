@@ -36,17 +36,23 @@
       ],
       "@/lib/*": [
         "./src/lib/*"
+      ],
+      "@/auth/*": [
+        "./auth"
       ]
     },
-    "strictNullChecks": true
+    "strictNullChecks": true,
+    "target": "ES2017"
   },
   "include": [
     "next-env.d.ts",
     "**/*.ts",
     "**/*.tsx",
-    ".next/types/**/*.ts"
+    ".next/types/**/*.ts",
+    "../deleted/savegetblog.tsx"
   ],
   "exclude": [
-    "node_modules"
+    "node_modules",
+    "seed"
   ]
 }

@@ -17,6 +17,7 @@ import { maxCount } from './modSelector';
 
 class HtmlElement {
     logo:string="/images/gb_logo.png";
+    _placement:number;
     reference:Reference;
     static imgDesc_css:string="align-self:start;margin-top:1rem;color:black;font-weight:bold;font-style:italic;margin-inline:0px;border-radius:10px;";
     urlImg:string;
@@ -43,10 +44,17 @@ class HtmlElement {
     }
     //////------GETTERS/SETTERS-----/////////
     get placement(){
-        return this._modSelector.placement;
+        const getPlace=localStorage.getItem("placement");
+        // console.log("164:",getPlace)
+        if(getPlace){
+            return parseInt(getPlace)
+        }else{
+            return 1;
+        }
     }
     set placement(placement:number){
-        this._modSelector.placement=placement;
+        this._placement=placement;
+        localStorage.setItem("placement",JSON.stringify(placement))
     }
     get elements(){
         return this._modSelector.elements;
@@ -318,7 +326,8 @@ class HtmlElement {
                 }
                 this.promElementAdder(resAtt.target).then(async(res)=>{
                     if(res){
-        
+                        const ele=res.ele as elementType;
+                        divCont.setAttribute("data-placement",`${ele.placement}-A`)
                         this._modSelector.count=this._modSelector.count + 1;
                         this._modSelector.footerPlacement();//this shifts footer placement down
                         res.target.addEventListener("click", (e: MouseEvent) => {
@@ -327,6 +336,7 @@ class HtmlElement {
                                 btn.classList.toggle("active");
                                 res.target.classList.add(icon.name);
                                 res.target.classList.toggle("isActive");
+                                divCont.classList.toggle("isActive");
                                 const focusOptions: focusOptions = { focusVisible: false, preventScroll: false }
                                 res.target.focus(focusOptions);
                                 this._modSelector.updateElement(target);
@@ -494,7 +504,6 @@ class HtmlElement {
                 divCont.style.cssText=this.divCont_css + "margin-block:1rem;";
                 divCont.className=" eleContainer";
                 divCont.style.display="grid";
-                divCont.setAttribute("data-placement",`${this.placement}`);
                 const img=document.createElement("img");
                 img.id=`img-${Math.round(Math.random()*1000)}`
                 img.setAttribute("is-element","true");
@@ -506,13 +515,11 @@ class HtmlElement {
                 img.style.cssText=`position:relative !important;margin-inline:auto;border-radius:12px;border-radius:6px;max-height:50vh;`;
                 img.style.maxHeight="50vh !important";
                 img.setAttribute("imgKey","");
-                img.setAttribute("data-placement",`${this.placement}`);
                 const desc=document.createElement("small");
                 desc.style.cssText=HtmlElement.imgDesc_css;
                 desc.setAttribute("contenteditable","true");
                 desc.textContent="add description";
-                img.setAttribute("imgDesc",desc.textContent);
-                this.elementAdder(img); 
+                img.setAttribute("imgDesc",desc.textContent); 
                 divCont.appendChild(img);
                 divCont.appendChild(desc);
                 parent.appendChild(divCont);
@@ -526,6 +533,8 @@ class HtmlElement {
                 img.setAttribute("imgKey",Key);
                 this.promElementAdder(img).then(async(res)=>{
                     if(res){
+                        const ele=res.ele as elementType;
+                        divCont.setAttribute("data-placement",`${ele.placement}-A`);
                         // console.log("IMG_",res.target)
                         // console.log("elements",this.elements)
                         const img_= res.target as HTMLImageElement;
@@ -760,11 +769,17 @@ class HtmlElement {
                 anchor.setAttribute("data-href",inLink.value);
                 anchor.setAttribute("contenteditable","true");
                 this._modSelector.footerPlacement();//this shifts footer placement down
-                this.elementAdder(anchor);
+                this.promElementAdder(anchor).then(async(res)=>{
+                    if(res){
+                        const ele=res.ele as elementType;
+                        divCont.setAttribute("data-placement",`${ele.placement}-A`)
+                    }
+                });
                 this._modSelector.count=this._modSelector.count + 1;
                 anchor.addEventListener("click",(e:MouseEvent)=>{
                     if(e){
                         divCont.classList.toggle("isActive");
+                        anchor.classList.toggle("isActive");
                         this.updateElement(anchor)
                     }
                 });
@@ -828,7 +843,6 @@ class HtmlElement {
             const divCont=document.createElement("div");
             divCont.className="eleContainer";
             divCont.style.cssText="margin:0px;padding:0.25rem;position:relative;";
-            divCont.setAttribute("data-placement",`${this.placement}`);
             const ul=document.createElement("ul");
             ul.setAttribute("contenteditable","true");
             ul.setAttribute("is-element","true");
@@ -844,9 +858,13 @@ class HtmlElement {
             if(type==="decimal"){
                 li.classList.add("decimal");
             }
-            ul.setAttribute("data-placement",`${this.placement}`);
             ul.style.cssText="padding-inline:6px;width:90%;margin-inline:auto;";
-                this.elementAdder(ul);
+                this.promElementAdder(ul).then(async(res)=>{
+                    if(res){
+                        const ele=res.ele as elementType;
+                        divCont.setAttribute("data-placement",`${ele.placement}`);
+                    }
+                });
             divCont.appendChild(ul);
             Misc.matchMedia({parent:divCont,maxWidth:920,cssStyle:{marginInline:"1.5rem"}});
             Misc.matchMedia({parent:divCont,maxWidth:420,cssStyle:{marginInline:"10px"}});
@@ -857,6 +875,7 @@ class HtmlElement {
                         ul.appendChild(li);
                     }
                     ul.classList.toggle("isActive");
+                    divCont.classList.toggle("isActive");
                     if(([...ul.classList as any] as string[]).includes("isActive")){
                     this.removeMainElement(useParent,divCont,ul);
                     this.updateElement(ul);//does both selectors and elements
@@ -881,7 +900,6 @@ class HtmlElement {
         const divCont=document.createElement("div");
         divCont.className="eleContainer";
         divCont.style.cssText="margin:0px;padding:0.25rem;position:relative;";
-        divCont.setAttribute("data-placement",`${this.placement}`);
         const useParent=parent ? parent as HTMLElement : Main.textarea as HTMLElement;
         const quote=document.createElement("blockquote");
         quote.setAttribute("name","blockquote");
@@ -889,7 +907,6 @@ class HtmlElement {
         quote.id=`blockquote-${Math.round(Math.random()*1000)}`;
         quote.className="position-relative";
         quote.style.cssText="margin-left:2rem;margin-top:0.5rem;line-height:3rem;border-left:1px solid black;padding-left:1rem;";
-        quote.setAttribute("data-placement",`${this.placement}`);
         quote.classList.add(icon.display);
         quote.classList.add("element");
         quote.setAttribute("contenteditable","true");
@@ -900,11 +917,17 @@ class HtmlElement {
         Misc.matchMedia({parent:divCont,maxWidth:420,cssStyle:{marginInline:"10px"}});
         //ADDING element
         this._modSelector.count=this._modSelector.count + 1;
-        this.elementAdder(quote);
+        this.promElementAdder(quote).then(async(res)=>{
+            if(res){
+                const ele=res.ele as elementType;
+                divCont.setAttribute("data-placement",`${ele.placement}-A`)
+            }
+        });;
         quote.addEventListener("click",(e:MouseEvent)=>{
             if(!e) return
             // btnClick.classList.toggle("active");
             // container.classList.toggle("isActive");
+            divCont.classList.toggle("isActive");
             quote.classList.toggle("isActive");
             if(([...quote.classList as any] as string[]).includes("isActive")){
             this.removeMainElement(useParent,divCont,quote);
@@ -969,7 +992,6 @@ class HtmlElement {
                 e.preventDefault();
                 const divCont=document.createElement("div");
                 divCont.className="eleContainer";
-                divCont.setAttribute("data-placement",`${this.placement}`);
                 divCont.style.cssText="margin:0px;padding:0.25rem;position:relative;margin-left:0.5rem;"
                 const formdata=new FormData(e.currentTarget as HTMLFormElement);
                 const datetime=formdata.get("datetime") as string;
@@ -994,7 +1016,12 @@ class HtmlElement {
                         this.removeMainElement(parent,divCont,time);
                     }
                 });
-                this.elementAdder(time);
+                this.promElementAdder(time).then(async(res)=>{
+                    if(res){
+                        const ele=res.ele as elementType;
+                        divCont.setAttribute("data-placement",`${ele.placement}-A`)
+                    }
+                });;
                 this._modSelector.footerPlacement();//this shifts footer placement down
                 }
         });

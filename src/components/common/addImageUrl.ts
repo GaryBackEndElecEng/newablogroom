@@ -143,14 +143,17 @@ class AddImageUrl {
         const getRowImgs=this.mainContainer.querySelectorAll("[is-row]") as any as HTMLElement[];
         [...getColImgs].map(col=>{
             if(col){
-                const str=typeof(col.style.backgroundImage)==="string" ? col.style.backgroundImage:null;
+                console.log(col)
+                const check=(col.style.cssText.includes("background-image")) ? true:false;
+                const str=check ? col.style.backgroundImage:null;
                 if(!str)return;
                 this.imgEles.push({level:"col",img:col as HTMLElement});
             }
         });
         [...getRowImgs].map(row=>{
             if(row){
-                const str=typeof(row.style.backgroundImage)==="string" ? row.style.backgroundImage:null;
+                const check=(row.style.cssText.includes("background-image")) ? true:false;
+                const str=check ? row.style.backgroundImage:null;
                 if(!str)return;
                 this.imgEles.push({level:"row",img:row as HTMLElement});
             }
@@ -163,7 +166,8 @@ class AddImageUrl {
         if(this.imgEles && this.imgEles.length>0){
             await Promise.all(this.imgEles.map(async(img_,index)=>{
                 if(img_){
-
+                    const src=img_.img as HTMLImageElement;
+                    console.log("addImageUrl:imgEles:",src.src,img_.level)
                     const divCont=document.createElement("div");
                     divCont.id=`divCont-${index}`;
                     divCont.style.cssText="padding:1rem;position:relative;flex:0 0 25%;display:flex;flex-direction:column;align-items:center;gap:1rem;";
@@ -181,6 +185,7 @@ class AddImageUrl {
                         img.alt=image.alt;
                     }else if(img_.level==="col"){
                         const imgUrl=await this.extractImg({ele:img_.img}) as string;
+                        console.log("col:",imgUrl)
                         img.src=imgUrl;
                         img.alt=imgUrl;
                     }else if(img_.level==="row"){
@@ -190,6 +195,7 @@ class AddImageUrl {
                     }
                     divCont.appendChild(img);
                     const {button:imgBtn}=Misc.simpleButton({anchor:divCont,bg:Nav.btnColor,color:"white",text:"select",time:400,type:"button"});
+                    imgBtn.id=`imgBtn-${index}`;
                     row.appendChild(divCont);
                     Misc.matchMedia({parent:divCont,maxWidth:900,cssStyle:{flex:"0 0 50%"}});
                     Misc.matchMedia({parent:divCont,maxWidth:400,cssStyle:{flex:"0 0 100%"}});
@@ -256,6 +262,7 @@ class AddImageUrl {
         const {button:insertUrl}=Misc.simpleButton({anchor:popup,type:"button",text:"insert url",bg:"blue",color:"white",time:400});
         insertUrl.onclick=(e:MouseEvent)=>{
             if(e){
+                insertUrl.disabled=true;
                 Misc.growOut({anchor:popup,scale:0,opacity:0,time:400});
                 setTimeout(()=>{
                     this.insertImageUrl({parent,targetImg});
@@ -266,6 +273,7 @@ class AddImageUrl {
         const {button:insertImage}=Misc.simpleButton({anchor:popup,type:"button",text:"insert image",bg:"green",color:"white",time:400});
         insertImage.onclick=(e:MouseEvent)=>{
             if(e){
+                insertImage.disabled=true;
                 Misc.growOut({anchor:popup,scale:0,opacity:0,time:400});
                 setTimeout(()=>{
                     this.insertImage({parent,targetImg});
@@ -312,6 +320,7 @@ class AddImageUrl {
         form.onsubmit=async(e:SubmitEvent)=>{
             if(e){
                 e.preventDefault();
+                button.disabled=true;
                 const formdata=new FormData(e.currentTarget as HTMLFormElement);
                 const url=formdata.get("url") as string;
                 if(url ){
@@ -534,6 +543,7 @@ class AddImageUrl {
                         const beg=start.index + start[0].length;
                         const end_=end.index;
                         retImg=urlStr.slice(beg,end_);
+                        // console.log("extractImg:img",retImg)//works
                     }
                 }
             }

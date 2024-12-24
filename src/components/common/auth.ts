@@ -6,11 +6,13 @@ import Service from "./services";
 import MainHeader from "../nav/mainHeader";
 import Footer from "../editor/footer";
 import MainFooter from "../footer/mainFooter";
+import { userDevelopType, userQuoteType } from '../editor/Types';
 
 
 class AuthService {
     static headerInjector:HTMLElement|null;
-    _jwtPayload:jwtPayload={} as jwtPayload
+    _jwtPayload:jwtPayload={} as jwtPayload;
+    _isAuthenticated: boolean;
     logo:string;
     blog:blogType;
     bgColor:string;
@@ -29,30 +31,21 @@ class AuthService {
         image:undefined,
         imgKey:undefined,
         bio:undefined,
+        showinfo:undefined,
         blogs:[] as blogType[],
         posts:[] as postType[],
+        devDeployimgs:[] as userDevelopType[],
+        quoteImgs:[] as userQuoteType[],
         accounts:[] as accountType[],
         sessions:[] as sessionType[],
         admin:false,
+        username:undefined,
     } as userType;
     _status:"authenticated" | "loading" | "unauthenticated";
 
     constructor(private _modSelector:ModSelector,private _service:Service,private _user:User,private _mainHeader: MainHeader,private _mainFooter:MainFooter){
-        this.__user={
-            id:"",
-            email:"",
-            name:undefined,
-            password:undefined,
-            emailVerified:undefined,
-            image:undefined,
-            imgKey:undefined,
-            bio:undefined,
-            blogs:[] as blogType[],
-            posts:[] as postType[],
-            accounts:[] as accountType[],
-            sessions:[] as sessionType[],
-            admin:false,
-        } as userType;
+        this._isAuthenticated=false;
+        this.__user=this.userInit as userType;
         this.bgColor=this._modSelector._bgColor;
         this.btnColor=this._modSelector.btnColor;
         this.logo=`gb_logo.png`;
@@ -61,6 +54,7 @@ class AuthService {
         this.adminEmail= "" as string;
         this.usersignin="/api/usersignin";
         this.isSignedOut=false;
+        this.__user=this._user.user;
     }
     ///-------------------GETTER SETTERS-------------------------//
     get status(){
@@ -111,6 +105,7 @@ class AuthService {
         this.user={} as userType;
         if(user && count===0){
             this.user=user;
+            this._isAuthenticated=true;
             this._user.status="authenticated";
             this._mainFooter.status="authenticated";
             this._mainHeader.status="authenticated";
@@ -118,7 +113,7 @@ class AuthService {
             this._modSelector.status="authenticated";
             this._service.isSignedOut=false;
             if(footerCenterBtns){
-                this._mainFooter.centerBtnsRow({container:footerCenterBtns,status:"authenticated"});
+                this._mainFooter.centerBtnsRow({container:footerCenterBtns,isAuthenticated:this._isAuthenticated});
             };
             this._mainHeader.showRectDropDown({ parent: injector, user: user, count: count });
             return {count:count+1}
@@ -136,7 +131,7 @@ class AuthService {
             localStorage.removeItem("userBlogs");
             localStorage.removeItem("email");
             if(footerCenterBtns){
-                this._mainFooter.centerBtnsRow({container:footerCenterBtns,status:"unauthenticated"});
+                this._mainFooter.centerBtnsRow({container:footerCenterBtns,isAuthenticated:this._isAuthenticated});
             };
             this._mainHeader.showRectDropDown({ parent: injector, user: null, count: count });
             return {count:count+1};

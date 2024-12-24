@@ -30,7 +30,7 @@ export default function Index() {
             const user = new User(modSelector, service,);
             const regSignin = new RegSignIn(modSelector, service, user);
             const feature = new Features();
-            const nav = new Nav(modSelector, service, user, regSignin);
+            const nav = new Nav(modSelector, service, user);
             const message = new Message(modSelector, service, modSelector.blog)
             const allmsgs = new AllMsgs(modSelector, service, message);
             const _home = new Home(modSelector, service, nav, allmsgs, feature, blogs);
