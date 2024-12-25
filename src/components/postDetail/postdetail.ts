@@ -84,7 +84,7 @@ class PostDetail{
         }
         this.injector=injector as HTMLElement;
         const css_col="margin-inline:auto;display:flex;flex-direction:column;justify-content:center;align-items:center;gap:0.7rem;color:inherit;border-radius:inherit;";
-        const shapoutside="padding:1rem;text-wrap:wrap;font-family:'Poppins-Regular';font-weight:bold;inherit;border-radius:12px;box-shadow:1px 1px 12px white;width:100%;"
+        const shapoutside="padding:1rem;text-wrap:wrap;font-family:'Poppins-Regular';inherit;border-radius:12px;box-shadow:1px 1px 12px white;width:100%;"
         const css_row="margin-inline:auto;display:flex;flex-direction:row;flex-wrap:wrap;justify-content:center;align-items:center;gap:0.27rem;color:inherit;border-radius:inherit;";
         const container=document.createElement("div");
         container.className="postdetail-main-container";
@@ -432,7 +432,8 @@ class PostDetail{
         card.style.position="relative";
         const popup=document.createElement('div');
         popup.id=`postdetail-editPost-popup-${post.id}`;
-        popup.style.cssText=css_col + "position:absolute;inset:0%;background-color:white;border-radius:12px;box-shadow:1px 1px 12px 1px #0CAFFF;padding:7px;z-index:10;border:none;";
+        popup.style.cssText=css_col + "position:absolute;inset:0%;;height:100vh;background-color:white;border-radius:12px;box-shadow:1px 1px 12px 1px #0CAFFF;padding:7px;z-index:10;border:none;overflow-y:scroll;";
+        popup.style.height=less900? ( less400 ? "150vh":"110vh"):"100vh";
         card.appendChild(popup);
         //-------DELETE----------//
         const xDiv=document.createElement("div");
