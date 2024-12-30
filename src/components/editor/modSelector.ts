@@ -897,7 +897,7 @@ set rows(rows:rowType[]){
         const hrefTel=target.getAttribute("data-href-tel");
         const link=target.getAttribute("data-href");
         const isCodeElement=target.getAttribute("is-code-element");
-        let retElement:elementType|element_selType|undefined=undefined
+        let retElement:elementType|element_selType|undefined;
         if(isJSON){
             const flex=parsed as flexType;
             const { selectorId,rowId,colId,imgKey,backgroundImage}=flex ;

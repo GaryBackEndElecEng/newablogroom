@@ -426,10 +426,12 @@ class Home{
         
         return this._service.fetchBlogs().then(async(blogs)=>{
             if(blogs && blogs.length>0){
-                this.blogPostTitle({parent:container,css_col,context:"top blogs"});
-                container.appendChild(blogMsgCont);
                 const limitBlogs=blogs.filter(bl=>(bl.rating >3)).slice(0,4);
                 const len=limitBlogs.length;
+                if(limitBlogs && len>0){
+                    this.blogPostTitle({parent:container,css_col,context:"top blogs"});
+                }
+                container.appendChild(blogMsgCont);
                 const height=less900 ? (less400 ? "80vh":"60vh"):"60vh";
                 blogMsgCont.style.height= len > 1 ? height :"auto";
                 blogMsgCont.style.overflowY= len > 1 ? "scroll" :"auto";

@@ -303,7 +303,8 @@ class PostDetail{
     editPost(item:{card:HTMLElement,targetImg:HTMLImageElement,post:postType,user:userType,imgWidth:number}){
         const {card,targetImg,post,user,imgWidth}=item;
         this.post=post;
-        const editTool=new EditText();
+        const modSelector= new ModSelector();
+        const editTool=new EditText(modSelector);
         const less900= window.innerWidth < 900 ? true:false;
         const less400= window.innerWidth < 400 ? true:false;
         Header.cleanUpByID(card,`postdetail-editPost-popup-${post.id}`);
@@ -313,6 +314,7 @@ class PostDetail{
         const popup=document.createElement('div');
         popup.id=`postdetail-editPost-popup-${post.id}`;
         popup.style.cssText=css_col + "position:absolute;inset:0%;background-color:white;border-radius:12px;box-shadow:1px 1px 12px 1px #0CAFFF;padding:7px;z-index:10;border:none;";
+        popup.style.height=less900? ( less400 ? "150vh":"110vh"):"100vh";
         card.appendChild(popup);
         //-------DELETE----------//
         const xDiv=document.createElement("div");

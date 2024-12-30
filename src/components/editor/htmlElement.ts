@@ -12,6 +12,7 @@ import Header from "@/components/editor/header";
 import ShapeOutside from "./shapeOutside";
 import Reference from "./reference";
 import { maxCount } from './modSelector';
+import EditText from "../common/editText";
 
 
 
@@ -27,6 +28,7 @@ class HtmlElement {
     divCont_css:string;
     divCont_class:string;
     _elements:elementType[];
+    editText:EditText;
     constructor(private _modSelector:ModSelector,private _service:Service,private _user:User,public shapeOutside:ShapeOutside){
         this.bgColor=this._modSelector._bgColor;
         this.btnColor=this._modSelector.btnColor;
@@ -41,6 +43,8 @@ class HtmlElement {
                 this.placement=parseInt(value)
             }
         });
+        //332
+        this.editText= new EditText(this._modSelector);
     }
     //////------GETTERS/SETTERS-----/////////
     get placement(){
@@ -151,6 +155,11 @@ class HtmlElement {
                                     res.ele.setAttribute("contenteditable","true");
                                 }
                             });
+                            
+                        }else if(element.name==="p"){
+                            
+                                // console.log("element.name",element.name)//works
+                                this.editText.paragraphEditorbar({parent:res.divCont,target:res.ele});
                             
                         }
                         
@@ -312,6 +321,7 @@ class HtmlElement {
         const target = document.createElement(icon.name); //ICON.NAME=ELE TYPE
         btn.classList.add(icon.display);
         target.id=`${icon.name}-${Math.round(Math.random()*1000)}`
+        target.classList.add(icon.name);
         target.innerHTML = icon.name;
         if(icon.name==="p"){
             target.style.cssText = "border-radius:6px;text-wrap:wrap;line-height:1.85rem;font-size:1.25rem;";
@@ -327,6 +337,9 @@ class HtmlElement {
                 this.promElementAdder(resAtt.target).then(async(res)=>{
                     if(res){
                         const ele=res.ele as elementType;
+                        if(icon.name==="p"){
+                            this.editText.paragraphEditorbar({parent:divCont,target:res.target});
+                        }
                         divCont.setAttribute("data-placement",`${ele.placement}-A`)
                         this._modSelector.count=this._modSelector.count + 1;
                         this._modSelector.footerPlacement();//this shifts footer placement down
@@ -334,7 +347,6 @@ class HtmlElement {
                             if (e) {
                                 // console.log("click : 521:",target)
                                 btn.classList.toggle("active");
-                                res.target.classList.add(icon.name);
                                 res.target.classList.toggle("isActive");
                                 divCont.classList.toggle("isActive");
                                 const focusOptions: focusOptions = { focusVisible: false, preventScroll: false }
@@ -403,7 +415,6 @@ class HtmlElement {
         divCont.className=this.divCont_class;
         divCont.style.cssText=this.divCont_css;
         divCont.style.paddingInline=less400 ? "0rem":"1.5rem";
-        divCont.setAttribute("data-placement",`${this.placement}`);
         const target = document.createElement(eleName); //ICON.NAME=ELE TYPE
         target.id=`${"design"}-${Math.round(Math.random()*1000)}`;
         // this.docSelect(target,icon);
