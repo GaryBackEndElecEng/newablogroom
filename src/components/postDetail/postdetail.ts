@@ -169,13 +169,20 @@ class PostDetail{
         card.appendChild(shapeOutside);
         const cardBody=document.createElement("div");
         cardBody.style.cssText=css_col + "gap:0rem;width:100%;box-shadow:1px 1px 3px 1px white;border-radius:inherit;";
-        const link=document.createElement("a");
-        link.id="card-link";
-        link.style.cssText="margin-inline:auto;margin-block:1rem;"
+        if(post.link){
+            const link=document.createElement("a");
+            link.id="card-link";
+            link.style.cssText="margin-inline:auto;margin-block:1rem;"
+            link.href=post.link;
+            link.textContent=`${post.link.slice(0,20)}`;
+            cardBody.appendChild(link);
+        }
         const date=document.createElement("small");
         date.style.cssText="padding-inline:1rem;margin-inline:auto;";
         date.textContent= post.date ? Blogs.tolocalstring(post.date):"no date";
         cardBody.appendChild(date);
+        card.appendChild(cardBody);
+
         //btn Container///
         const btnContainer=document.createElement("div");
         btnContainer.id="card-btnContainer";
@@ -219,7 +226,7 @@ class PostDetail{
             }
         }
         
-        card.appendChild(cardBody);
+       
         card.appendChild(btnContainer);
         container.appendChild(card);
         injector.appendChild(container);
