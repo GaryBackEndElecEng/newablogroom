@@ -125,7 +125,7 @@ class Post{
                                     });
                                     Misc.matchMedia({parent:res_.container,maxWidth:400,cssStyle:{paddingInline:"0px"}})
                                 }else{
-                                    this.noPosts({parent:container});
+                                    this.noPosts({parent:container,posts:this.posts});
                                 }
                                 
                             }
@@ -783,17 +783,23 @@ class Post{
             parent.appendChild(likes);
         }
     }
-    noPosts(item:{parent:HTMLElement}){
-        const {parent}=item;
-        parent.style.position="relative";
-        const css="margin-inline:auto;display:flex;flex-direction:column;justify-content:center;align-items:center;gap:0.7rem;";
-        const container=document.createElement("div");
-        container.style.cssText=css + " border-radius:12px;box-shadow:1px 1px 12px 1px #0a2351;background-color:white;color:black;padding:1rem;min-height:20vh;width:100%;";
-        const para=document.createElement("p");
-        para.textContent=this.no_posts;
-        para.style.cssText="margin-inline:auto;padding-inline:1rem;font-family:'Poppins-Regular';padding-block:2rem;text-wrap:pretty;font-size:160%;font-weight:700;";
-        container.appendChild(para);
-        parent.appendChild(container);
+    noPosts(item:{parent:HTMLElement,posts:postType[]}){
+        const {parent,posts}=item;
+        if(posts && posts.length===0){
+
+            parent.style.position="relative";
+            const css="margin-inline:auto;display:flex;flex-direction:column;justify-content:center;align-items:center;gap:0.7rem;";
+            const container=document.createElement("div");
+            container.id="noposts";
+            container.style.cssText=css + " border-radius:12px;box-shadow:1px 1px 12px 1px #0a2351;background-color:white;color:black;padding:1rem;min-height:20vh;width:100%;";
+            const para=document.createElement("p");
+            para.textContent=this.no_posts;
+            para.style.cssText="margin-inline:auto;padding-inline:1rem;font-family:'Poppins-Regular';padding-block:2rem;text-wrap:pretty;font-size:160%;font-weight:700;";
+            container.appendChild(para);
+            parent.appendChild(container);
+        }else{
+            Header.cleanUpByID(parent,"noposts");
+        }
 
     }
     editPost(item:{parent:HTMLElement,col:HTMLElement,post:postType,user:userType,index:number}){
