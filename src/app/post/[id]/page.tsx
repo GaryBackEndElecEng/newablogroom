@@ -132,6 +132,8 @@ export async function getPost(item: { id: number }): Promise<postType | null> {
                 link: true,
                 image: true,
                 imageKey: true,
+                sendReqKey: true,
+                sendMsg: true,
                 published: true,
                 date: true,
                 userId: true,

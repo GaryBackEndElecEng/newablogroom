@@ -68,6 +68,8 @@ export async function getPosts(): Promise<postType[]> {
                 content: true,
                 link: true,
                 imageKey: true,
+                sendReqKey: true,
+                sendMsg: true,
                 image: true,
                 date: true,
                 likes: true,

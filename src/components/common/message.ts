@@ -1,4 +1,4 @@
-import { barOptionType, blogType, chartType, messageType } from '@/components/editor/Types';
+import { barOptionType, blogType, chartType, messageType, postType, sendPostRequestType } from '@/components/editor/Types';
 import {FaCrosshairs} from "react-icons/fa";
 import Misc from '../common/misc';
 import Nav from '../nav/headerNav';
@@ -11,8 +11,11 @@ import { buttonReturn } from '@/components/common/tsFunctions';
 import Header from '../editor/header';
 
 class MessageSetup{
-    logo:string="/images/gb_logo.png"
-    constructor(){}
+    logo:string="/images/gb_logo.png";
+    requestPic:string;
+    constructor(){
+        this.requestPic="/images/requestAnswer.png";
+    }
     contact(parent:HTMLElement): {form:HTMLFormElement,email:HTMLInputElement,textarea:HTMLTextAreaElement,rate:HTMLInputElement,btn:HTMLButtonElement,name:HTMLInputElement,msgEvent:HTMLElement,cont:HTMLElement}{
         Nav.navHeader=document.querySelector("header#navHeader") as HTMLElement;
         window.scroll(0,0);
@@ -255,6 +258,101 @@ class MessageSetup{
         window.scroll(0,0);
         return {form,popup,useParent,btn}
     }
+    sendPostAnswerRequest(item:{parent:HTMLElement}):{form:HTMLFormElement,btn:HTMLButtonElement,popup:HTMLElement,retParent:HTMLElement}{
+        const {parent}=item;
+        const css_col="margin-inline:auto;display:flex;flex-direction:column;justify-content:center;align-items:center;gap:1rem;";
+        const less900=window.innerWidth < 900;
+        const less400=window.innerWidth < 400;
+        const popup=document.createElement("div");
+        parent.style.position="relative";
+        popup.id="messageSetup-sendPostAnswerRequest-message";
+        popup.style.cssText=css_col + `position:absolute;padding:1rem;background-color:white;color:black;height:fit-content;margin-inline:auto;display:flex;flex-direction:column;align-items:center;justify-content:center;border-radius:16px;box-shadow:1px 1px 6px 1px black;padding:1rem;z-index:200;`;
+        popup.style.inset="20% 0% 0% 0%";
+        popup.style.width="100%";
+        popup.style.maxWidth=less900 ? (less400 ? "375px" :"420px" ) : "520px";
+        const img=document.createElement("img");
+        img.style.cssText="shape-outside:circle(50%);margin-right:1rem;aspect-ratio:1 / 1;border-radius:50%;box-shadow:1px 1px 12px 1px white;filter:drop-shadow(0 0 0.75rem white);float:left;";
+        img.style.width=less900 ? (less400 ? "120px":"135px") : "150px";
+        img.src=this.requestPic;
+        img.alt="www.ablogroom.com";
+        const para=document.createElement("p");
+        para.appendChild(img);
+        para.innerHTML+="The author will send you the answers to your email.It should arrive within the next 2-3mins. Thank you for sending this request.";
+        para.style.cssText="font-family:Poppins-Regular;padding-right:1rem;margin-bottom:1rem;border-bottom:1px solid blue;";
+        popup.appendChild(para);
+        const form=document.createElement("form");
+        form.id="contact-form";
+        form.style.cssText="display:flex;flex-direction:column;align-items:center;justify-content:center;gap:1.5rem;padding:1.5rem;border-radius:inherit;background:white;color:black;margin:1rem;box-shadow:1px 1px 10px 1px black;margin-inline:auto;";
+        form.style.width=less900 ? (less400 ? "100%":"85%"):"80%";
+        const text=document.createElement("h6");
+        text.textContent="Your thoughts";
+        text.className="text-primary display-6 my-2 mx-auto text-center";
+        text.style.cssText="font-family:'Playwrite'";
+        const {input:name,label:lname,formGrp:grpName}=Nav.inputComponent(form);
+        name.autocomplete="name";
+        grpName.style.cssText=css_col;
+        name.type="text";
+        name.id="name";
+        name.name="name";
+        name.value="";
+        name.autocomplete="name";
+        lname.textContent="name";
+        name.placeholder="so we can respectfully reply";
+        lname.classList.add("text-primary");
+        lname.setAttribute("for",name.id);
+        const {input:email,label:lemail,formGrp:grpEmail}=Nav.inputComponent(form);
+        grpEmail.style.cssText=css_col;
+        email.autocomplete="email";
+        email.type="email";
+        email.id="email";
+        email.name="email";
+        email.autocomplete="email";
+        email.pattern="[a-zA-Z0-9\.\_]{2,}@[a-zA-Z0-9]{2,}\.[a-z]{2,3}"
+        lemail.textContent="email";
+        email.placeholder="format:myemail@email.com";
+        lemail.classList.add("text-primary");
+        lemail.setAttribute("for",email.id);
+        // const cssStyle={color:"white",paddingInline:"2rem",paddingBlock:"0.25rem",borderRadius:"30px"}
+        const {button:btn}=Misc.simpleButton({anchor:form,bg:Nav.btnColor,color:"white",type:"submit",time:400,text:"get answer"});
+        btn.disabled=true;
+        popup.appendChild(form);
+        this.removeEle(parent,popup);
+        parent.appendChild(popup);
+        name.onchange=(e:Event)=>{
+            if(e){
+                const nvalue=(e.currentTarget as HTMLInputElement).value;
+                if(nvalue){
+                    btn.disabled=false;
+                    btn.textContent="submit comment";
+                    this.eleMsg({parent:grpName,msg:"thanks",close:true,color:"blue"});
+                }else{
+                    btn.disabled=true
+                    const msg="your name ??";
+                    btn.textContent="disabled";
+                    this.eleMsg({parent:grpName,msg,close:false,color:"red"});
+                }
+            }
+        };
+       
+        email.onchange=(e:Event)=>{
+            if(e){
+                const eReg:RegExp=/[a-zA-Z0-9\.\_]{2,}@[a-zA-Z0-9]{2,}\.[a-z]{2,3}/;
+                const evalue=(e.currentTarget as HTMLInputElement).value;
+                if(eReg.test(evalue)){
+                    btn.disabled=false;
+                    btn.textContent="submit comment";
+                    this.eleMsg({parent:grpEmail,msg:"thanks",close:true,color:"blue"});
+                }else{
+                    btn.disabled=true;
+                    btn.textContent="disabled";
+                    const msg="email format is myEmail@mail.ca, or myEmail@mail.com,,,"
+                    this.eleMsg({parent:grpEmail,msg,close:false,color:"red"});
+                }
+            }
+        };
+        Misc.fadeIn({anchor:popup,xpos:50,ypos:100,time:500});
+        return {retParent:parent,popup,form,btn};
+    }
     eleMsg(item:{parent:HTMLElement,msg:string,close:boolean,color:string}){
         const {parent,msg,close,color}=item;
         Header.cleanUpByID(parent,"element-msg");
@@ -299,6 +397,7 @@ class MessageSetup{
 }
 
 class Message{
+    freepicurl:string="https://newablogroom-free-bucket.s3.us-east-1.amazonaws.com";
     logo:string="/images/gb_logo.png";
     thanksMsg:string=`<span>We or the author will get back to you as soon as possible.</span><hr style="width:80%;margin:auto;">
     <span style="width:5px;height:4vh;margin-inline:1rem;background:red;"></span>
@@ -308,12 +407,14 @@ class Message{
      <hr style="width:80%;margin:auto;">`;
     signUpMsg:string="<span> Thank you for signing in. please send us a message for any requests.</span> <blockquote><pre>Enjoy!, Gary</pre></blockquote> "
     _blog:blogType;
+    _post:postType;
     _message:messageType;
     _messages:messageType[];
     msgSetup:MessageSetup;
     static bgColor:string;
     static btnColor:string;
-    constructor(private _modSelector:ModSelector,private _service:Service,blog:blogType|null){
+    constructor(private _modSelector:ModSelector,private _service:Service,blog:blogType|null,post:postType|null){
+        this.freepicurl="https://newablogroom-free-bucket.s3.us-east-1.amazonaws.com";
         this._blog={} as blogType;
         this._message={} as messageType;
         this._messages=[] as messageType[];
@@ -324,6 +425,9 @@ class Message{
             Message.bgColor=this._modSelector._bgColor;
             Message.btnColor=this._modSelector.btnColor;
         }
+        if(post){
+            this._post=post;
+        }
         this.msgSetup=new MessageSetup();
 
     }
@@ -333,6 +437,12 @@ class Message{
     }
     set blog(blog:blogType){
         this._blog=blog;
+    }
+    get post(){
+        return this._post;
+    }
+    set post(post:postType){
+        this._post=post;
     }
     get messages(){
         return this._messages;
@@ -643,6 +753,39 @@ class Message{
         parent.appendChild(popup);
         Misc.growIn({anchor:popup,scale:0,opacity:0,time:500});
 
+    }
+    sendPostmessage(item:{parent:HTMLElement,post:postType,func:()=>Promise<void>}):Promise<{sent:boolean,retParent:HTMLElement}>{
+        //THIS SENDS THE ANSWER TO A POST EITHER BY URI OR AND MSG (post.sendMsg or And uri=freepicurl/post.sendRqKey)
+        const {parent,post,func}=item;
+        let sent:boolean=false;
+        const {form,btn,popup,retParent}=this.msgSetup.sendPostAnswerRequest({parent});
+        form.onsubmit=async(e:SubmitEvent)=>{
+            if(e){
+                e.preventDefault();
+                const formdata=new FormData(e.currentTarget as HTMLFormElement);
+                const name=formdata.get("name") as string;
+                const email=formdata.get("email") as string;
+                if(email){
+                    const name_=name ? name :undefined;
+                    const send:sendPostRequestType={post,clientName:name_,clientEmail:email};
+                   await this._service.requestPost({sendRequest:send}).then(async(res)=>{
+                        //api/postrequest
+                        if(res){
+                            const msg=`Your request message to ${post.title} was sent. You will be recieving an email with the answers;`
+                            Misc.message({parent,msg:msg,type_:"success",time:1200});
+                            sent=true;
+                            func()
+                        }
+                        retParent.removeChild(popup);
+                    });
+                }
+            }
+        };
+
+        return new Promise(resolver=>{
+            sent=true;
+            resolver({sent,retParent})
+        }) as Promise<{sent:boolean,retParent:HTMLElement}>;
     }
     static calcAverage(msgs:messageType[]):number{
         const rates=msgs.map(msg=>(msg.rate));

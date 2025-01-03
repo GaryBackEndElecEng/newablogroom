@@ -281,6 +281,8 @@ model Post {
   link       String?
   image      String?
   imageKey   String?
+  sendReqKey String?
+  sendMsg    String?
   published  Boolean     @default(false)
   date       DateTime    @default(now())
   user       User        @relation(fields: [userId], references: [id], onDelete: Cascade)

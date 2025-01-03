@@ -245,10 +245,11 @@ class Post{
         const less400= window.innerWidth < 400;
         injector.style.position="relative";
         const css_col="margin-inline:auto;display:flex;flex-direction:column;justify-content:center;align-items:center;gap:0.7rem;";
+        const css_row="margin-inline:auto;display:flex;flex-wrap:wrap;justify-content:center;align-items:center;gap:0.7rem;";
         Header.cleanUpByID(injector,`createPost-popup`);
         const popup=document.createElement("div");
         popup.id=`createPost-popup`;
-        popup.style.cssText=css_col + "position:absolute;min-height:400px;gap:1rem;box-shadow:1px 1px 12px 1px blue;border-radius:12px;backdrop-filter:blur(20px);border:none;";
+        popup.style.cssText=css_col + "position:absolute;min-height:400px;gap:1rem;box-shadow:1px 1px 12px 1px blue;border-radius:12px;backdrop-filter:blur(20px);border:none;z-index:100;";
         popup.style.width=less900 ? (less400 ? "375px":"575px"):"675px";
         const form=document.createElement("form");
         form.id="createPost-form";
@@ -274,6 +275,22 @@ class Post{
         lcontent.textContent="content";
         lcontent.style.cssText="font-size:140%;text-decoration:underline;text-underline-offset:0.5rem;margin-bottom:1rem;";
         lcontent.setAttribute("for",incontent.id);
+        //MSG INPUT FOR EMAILING
+        const {textarea:textareaSendMsg,label:lSendMsg,formGrp:grpSendMsg}=Nav.textareaComponent(form);
+        grpSendMsg.id="form-group-sendMsg";
+        grpSendMsg.style.cssText="margin-inline:auto;width:100%;";
+        grpSendMsg.className="text-light text-center";
+        textareaSendMsg.id="editPost-post-sendMsg";
+        textareaSendMsg.name="sendMsg";
+        textareaSendMsg.autocomplete="off";
+        textareaSendMsg.rows=4;
+        textareaSendMsg.style.cssText="border-radius:12px;box-shadow:1px 1px 12px 1px black;";
+        textareaSendMsg.style.width="100%;";
+        textareaSendMsg.placeholder="answer to your posts, if required";
+        lSendMsg.textContent="Your respond email msg";
+        lSendMsg.className="text-light display-6";
+        lSendMsg.setAttribute("for",textareaSendMsg.id);
+        //MSG INPUT FOR EMAILING
         const {input:pub,label:lpub,formGrp:grpPub}=Nav.inputComponent(form);
         grpPub.className="";
         pub.className="";
@@ -292,8 +309,12 @@ class Post{
         lLink.textContent="add a link ";
         lLink.style.cssText="font-size:140%;text-decoration:underline;text-underline-offset:0.5rem;margin-bottom:1rem;";
         lLink.setAttribute("for",link.id);
+        const btnContainer=document.createElement("div");
+        btnContainer.id="createPoste-btnContainer";
+        btnContainer.style.cssText=css_row + "";
         const {button:submit}=Misc.simpleButton({anchor:form,type:"submit",bg:Nav.btnColor,color:"white",text:"submit",time:400});
-        submit.disabled=true;
+       
+        form.appendChild(btnContainer);
         inTitle.onchange=(e:Event)=>{
             if(e){
                 submit.disabled=false;
@@ -327,11 +348,13 @@ class Post{
                 const formdata=new FormData(e.currentTarget as HTMLFormElement);
                 const content=formdata.get("content") as string;
                 const title=formdata.get("title") as string;
+                const sendMsg=formdata.get("sendMsg") as string;
                 const pub=formdata.get("pub") as string;
                 const link=formdata.get("link") as string;
                 if(content && title){
-                    const post:postType={...this.initPost,userId:user.id,title:title as string,content:content as string,published:Boolean(pub),link}
-                    this.uploadFreeNone({injector,popup:popup,post,user});
+                    const send_msg=sendMsg ? sendMsg : undefined;
+                    const post:postType={...this.initPost,userId:user.id,sendMsg:send_msg,title:title as string,content:content as string,published:Boolean(pub),link}
+                    this.uploadFreeNone({injector,popup:popup,post,user,css_col,css_row});
                     const labelDisplay2=injector.querySelector("div#labelDisplay2") as HTMLElement;
                     if(labelDisplay2){
                         labelDisplay2.hidden=false;
@@ -340,23 +363,26 @@ class Post{
             }
         };
     }
-    uploadFreeNone(item:{injector:HTMLElement,popup:HTMLElement,post:postType,user:userType}){
-        const {injector,popup,post,user}=item;
+    uploadFreeNone(item:{injector:HTMLElement,popup:HTMLElement,post:postType,user:userType,css_col:string,css_row:string}){
+        const {injector,popup,post,user,css_col,css_row}=item;
         const less900= window.innerWidth < 900;
         const less400= window.innerWidth < 400;
         const btnContainer=document.createElement("div");
         btnContainer.id="uploadFreeNone-btn";
-        btnContainer.style.cssText="margin-inline:auto;display:flex;justify-content:center:align-items:center;gap:0.75rem;";
+        btnContainer.style.cssText=css_row;
         btnContainer.style.paddingInline=less900 ? (less400 ? "1rem":"2rem") :"3rem";
         const {button:uploadBtn}=Misc.simpleButton({anchor:btnContainer,type:"button",bg:Nav.btnColor,color:"white",text:"upload",time:400});
         const {button:freePicBtn}=Misc.simpleButton({anchor:btnContainer,type:"button",bg:Nav.btnColor,color:"white",text:"free-pics",time:400});
         const {button:noPic}=Misc.simpleButton({anchor:btnContainer,type:"button",bg:Nav.btnColor,color:"white",text:"no pic",time:400});
+        const {button:addSendReqKey}=Misc.simpleButton({anchor:btnContainer,type:"button",bg:Nav.btnColor,color:"white",text:"add answer image",time:400});
+        addSendReqKey.id="addSendReqKey";
         popup.appendChild(btnContainer);
         uploadBtn.onclick=(e:MouseEvent)=>{
             if(e){
                 this.uploadPic({injector,popup,post,user});
                 uploadBtn.disabled=true;
                 popup.removeChild(btnContainer);
+                popup.style.zIndex="1";
             }
         };
         freePicBtn.onclick=(e:MouseEvent)=>{
@@ -365,6 +391,14 @@ class Post{
                 this.freePic({injector,popup,post,user});
                 uploadBtn.disabled=true;
                 popup.removeChild(btnContainer);
+                popup.style.zIndex="1";
+            }
+        };
+        addSendReqKey.onclick=(e:MouseEvent)=>{
+            if(e){
+                this.postDetail.uploadSendMsgPic({card:injector,editPopup:popup,post,user,css_col,less400,less900});
+                btnContainer.removeChild(addSendReqKey);
+                
             }
         };
         noPic.onclick=async(e:MouseEvent)=>{
@@ -424,6 +458,7 @@ class Post{
     freePic(item:{injector:HTMLElement,popup:HTMLElement,post:postType,user:userType}){
         const {injector,popup,post,user}=item;
         //get class
+        injector.removeChild(popup);
         this.addImageClass.asyncPicImage({parent:injector}).then(async(res)=>{
             if(res){
                 res.arr.map((btnUrl,index)=>{
@@ -482,7 +517,7 @@ class Post{
                                                 labelDisplay2.hidden=true;
                                             }
                                             res.reParent.removeChild(res.popup);
-                                            injector.removeChild(popup);
+                                           
                                         },390);
                                     }
                                 });

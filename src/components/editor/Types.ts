@@ -347,6 +347,8 @@ export type postType={
     title:string,
     image?:string,
     imageKey?:string,
+    sendReqKey?:string,
+    sendMsg?:string,
     content?:string,
     link?:string,
     published: boolean,
@@ -675,3 +677,11 @@ export type searchbarType={
 }
 //----------SEARCHBAR---------------//
 export type onChangeVerifyType={name:string|null,email:string|null,tel:string|null}
+
+//------REQUEST POST ANSWER  -------//
+export type sendPostRequestType={
+    post:postType,
+    clientName?:string,
+    clientEmail:string
+}
+//------REQUEST POST ANSWER  -------//

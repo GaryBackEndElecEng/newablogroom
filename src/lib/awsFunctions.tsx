@@ -8,6 +8,7 @@ const Bucket = process.env.BUCKET_NAME as string
 const region = process.env.BUCKET_REGION as string
 const accessKeyId = process.env.SDK_ACCESS_KEY as string
 const secretAccessKey = process.env.SDK_ACCESS_SECRET as string
+
 const freeBucket = process.env.FREE_BUCKET_NAME as string
 const freeAccessKeyId = process.env.SDK_ACCESS_KEY_FREE_BUCKET as string
 const freeSecretAccessKey = process.env.SDK_ACCESS_KEY_SECRET_FREE_BUCKET as string
@@ -28,6 +29,14 @@ const s3Free = new S3Client({
     }
 
 });
+export async function awsfreeImage(Key: string) {
+    const getParams = {
+        Bucket: freeBucket,
+        Key
+    }
+    const cmd = new GetObjectCommand(getParams);
+    return await getSignedUrl(s3Free, cmd, { expiresIn: 3600 });
+};
 export async function awsImage(Key: string) {
     const getParams = {
         Bucket,
@@ -100,69 +109,13 @@ export async function getBlogImages(blog: blogType) {
             blog.cssText = insertBackgroundImage({ css: blog.cssText, url: bgImg })
         }
     }
-    const selects = await getSelectors(blog.selectors);
+    const selects = blog.selectors ? blog.selectors : [] as selectorType[];
     const elements = await getElements(blog.elements);
     blog = { ...blog, selectors: selects, elements: elements }
     return blog;
 }
 
-export async function getSelectors(selectors: selectorType[]) {
-    const selects = await Promise.all(selectors.map(async (sel) => {
-        const getRows = await Promise.all(sel.rows.map(async (row) => {
-            //row
-            if (row.imgKey) {
-                const getParams = {
-                    Bucket,
-                    Key: row.imgKey
-                }
-                const cmd = new GetObjectCommand(getParams)
-                const bgUrl = await getSignedUrl(s3, cmd, { expiresIn: 3600 });
-                row.cssText = insertBackgroundImage({ css: row.cssText, url: bgUrl });
-            }
-            const getCols = await Promise.all(row.cols.map(async (col) => {
-                //col
-                if (col.imgKey) {
-                    const getParams = {
-                        Bucket,
-                        Key: col.imgKey
-                    }
-                    const cmd = new GetObjectCommand(getParams)
-                    const bgUrl = await getSignedUrl(s3, cmd, { expiresIn: 3600 });
-                    col.cssText = insertBackgroundImage({ css: col.cssText, url: bgUrl });
-                }
 
-                const getEles = await Promise.all(col.elements.map(async (ele) => {
-                    if (ele.imgKey) {
-                        const getParams = {
-                            Bucket,
-                            Key: ele.imgKey
-                        }
-                        const cmd = new GetObjectCommand(getParams)
-                        if (ele.attr === "has-innerimage") {
-                            const url = await getSignedUrl(s3, cmd, { expiresIn: 3600 });
-                            ele.inner_html = hasinnerimage(ele.inner_html, url);
-                        } else if (ele.attr === "data-shapeOutside") {
-                            const url = await getSignedUrl(s3, cmd, { expiresIn: 3600 });
-                            ele = shapeOutsideInsertSel(ele, url) as element_selType;
-                        } else {
-                            ele.img = await getSignedUrl(s3, cmd, { expiresIn: 3600 });
-                        }
-                    }
-                    return ele;
-                }));
-                col = { ...col, elements: getEles };
-                return col;
-
-            }));
-            row = { ...row, cols: getCols }
-            return row
-        }));
-        sel = { ...sel, rows: getRows }
-        return sel
-    }));
-
-    return selects as selectorType[]
-}
 export async function getElements(elements: elementType[]) {
     const getElements = await Promise.all(
         elements.map(async (ele) => {

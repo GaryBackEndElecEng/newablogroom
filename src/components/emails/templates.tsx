@@ -1,5 +1,5 @@
 import { getUserImage } from "@/lib/awsFunctions";
-import { messageType, userType } from "../editor/Types"
+import { messageType, postType, userType } from "../editor/Types"
 const logo = "https://newablogroom-free-bucket.s3.us-east-1.amazonaws.com/gb_logo_600.png";
 const userpic = "https://newablogroom-free-bucket.s3.us-east-1.amazonaws.com/userpic.png";
 const thankyou = "https://newablogroom-free-bucket.s3.us-east-1.amazonaws.com/thankYou.png"
@@ -614,5 +614,156 @@ export const QuoteText = (item: { message: { msg: string }, user: userType, quot
     <br>
     <a href="www.masterconncet.ca">master connect</a>
     <p>email: masterultils@gmail.com</p>`
+    )
+}
+export const sendReqAnswerText = async (item: { clientName: string | undefined, clientEmail: string, msg: string | undefined, user: userType, post: postType, uri: string | null }) => {
+    const { clientName, clientEmail, msg, user, post, uri } = item;
+    const user_aws = user.imgKey ? await getUserImage(user) : { ...user, image: userpic };
+    return (
+        `<h1>Community member</h1>
+        <h4>Thank for emailing us ${clientName}</h4>
+    <br>
+        ${msg}
+        <br/>
+    <span><img src="${user_aws.image}" alt="${user_aws.image}" style="width:100px;height:100px;"/><h4>${user.name ? user.name : "blogger"}</h4></span>
+    <br/>
+    <p> ${post.sendReqKey ? `Thank you ${clientName} for sending an request for answers to the post, linked below` : `the answers are presented blow:`}</p>
+    <p>We are sending your request as a link to your email @: ${clientEmail}</p>
+    <br>
+    <a href=https://www.ablogroom.com/post/${post.id}>${post.title}</a>
+    <br>
+    <p>safe amazon link registered link to the answer, below</p>
+        <br/>
+        ${post.sendReqKey ? `<a href=${uri ? uri : "#"}>${uri ? uri.slice(0, 25) : ""}</a>` : `<p> ${msg}</p>`}
+    <br>
+    <a href="www.masterconncet.ca">master connect</a>
+    <p>email: masterultils@gmail.com</p>
+    <br/>
+    <p> email author:</p>
+    <a href=mailto:${user.email}>${user.name}</a>
+    `
+    )
+}
+export const sendReqAnswerHTML = async (item: { clientName: string | undefined, clientEmail: string, msg: string | undefined, user: userType, post: postType, uri: string | null }) => {
+    const { clientName, clientEmail, msg, user, post, uri } = item;
+    const user_aws = user.imgKey ? await getUserImage(user) : { ...user, image: userpic };
+
+    return (
+        `<!DOCTYPE html>
+        <html lang="en">
+        <head>
+            <meta charset="UTF-8">
+            <meta name="viewport" content="width=device-width, initial-scale=1.0">
+            <title>You've signed up</title>
+            <style>
+                body{
+                    border-radius:10px;
+                    box-shadow:1px 1px 5px 20px grey,-1px -1px -5px 20px grey;
+                }
+                h4{
+                    color:blue;
+                }
+                h1{ font:"bold";text-decoration:underline;text-underline-offset: 3;}
+                .masterultils{
+                    background:whitesmoke;
+                    margin-block:20px;
+                    padding-block:20px;
+                    border-radius:10%;
+                    width:30%;
+                    padding:2rem;
+                    text-align:left;
+                    box-shadow:1px 1px 20px 2px grey,-1px -1px 20px 2px grey;
+                }
+                p{margin-block:10px}
+                .list{
+                    margin-block:20px;
+                    background:white;
+                    border-radius:10px;
+                    padding:7px;
+                    box-shadow:1px 1px 5px 20px grey,-1px -1px -5px 20px grey;
+                }
+                    .list>li{
+                    padding-block:3px;
+                }
+                img{
+                    border-radius:50%;
+                    padding:1rem;
+                    box-shadow: 2px 2px 10px 2px black,-2px -2px 10px 2px white;
+                    width:100px;
+                    aspect-ratio:1 /1;
+                    background-color:whitesmoke;
+                    filter:drop-shadow(0 0 0 0.75rem white);
+                    float:left;
+                    shape-outside:circle(50%);
+                    margin-right:1rem;
+                }
+                .img2{
+                    border-radius:50%;
+                    padding:5px;
+                    box-shadow: 2px 2px 10px 2px black,-2px -2px 10px 2px black;
+                    width:70px;
+                    aspect-ratio:1 /1;
+                    background-color:whitesmoke;
+                    filter:drop-shadow(0 0 0 0.75rem black);
+                    float:left;
+                    margin-right:1rem;
+                }
+                .flex-row{
+                display:flex;
+                flex-wrap:wrap;
+                align-items:center;
+                gap:1rem;
+
+                }
+                div.intro{
+                    display:flex;
+                    flex-direction:column;
+                    align-items:center;
+                    justify-content:center;
+                    gap:0.75rem;
+                }
+            </style>
+        </head>
+        <body>
+            <h1>Community member</h1>
+            <br/>
+            <span class="flex-row"><img class="img2" src=${user_aws.image} />
+            <div class="intro">
+                <h6>${user.name ? user.name : "Blogger"}</h6>
+                ${clientName ? `<h6>Thank for emailing us ${clientName}</h6>` : "<h6> thank you for emailin us.</h6>"}</h6>
+            </div>
+            </span>
+            <br/>
+            
+            <p> ${post.sendReqKey ? `Thank you ${clientName} for sending an request for answers to the post, linked below` : `the answers are presented below:`}</p>
+            <br>
+            <a href=https://www.ablogroom.com/post/${post.id}>${post.title}</a>
+            <br>
+            <p>safe amazon link registered link to the ${post.title ? post.title : "post"}. The answer is below</p>
+            <br/>
+            ${post.sendReqKey ? `<a href=${uri ? uri : "#"}>answer</a>` : ""}
+            ${post.sendMsg ? `<p>continuation: ${msg}</p>` : ""}
+            <br>
+            <br>
+            <h4> additional interesting things you might like</h4>
+            <ul class="list">
+                <li><a href="https://www.masterultils.com/articles">articles</a></li>
+                <li><a href="https://www.masterultils.com/contact">Contact Us</a></li>
+                <li><a href="https://www.masterultils.com/register">register</a></li>
+                <li><a href="https://www.masterconnect.ca/design">Our Designs</a></li>
+            </ul>
+            
+            <p style="max-width:600px;">
+
+                <img src=${logo} alt="www.masterconnect.ca"
+                
+                />
+                We try to make your life easy and equally ensure that you are connected. Please let us know if we can accommodate your needs to further your relations with us.
+                <a href="www.masterconncet.ca">master connect</a>
+                Gary Wallace,<a href="mailto: masterultils@gmail.com">send us an email.</a>
+            </p>
+        </body>
+        </html>
+    `
     )
 }

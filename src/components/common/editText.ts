@@ -89,7 +89,7 @@ class EditText{
                 const css_row_block="margin-inline:auto;display:inline-flex;justify-content:space-around;align-items:center;width:100%;height:30px;flex-wrap:wrap;padding-inline:1rem;"
                 const popup=document.createElement("div");
                 popup.id="textTool-popup";
-                popup.style.cssText=css_col + "position:absolute;background-color:white;color:black;box-shadow:1px 1px 12px 1px lightblue;border-radius:12px;height:auto;z-index:100;top:90%;";
+                popup.style.cssText=css_col + "position:absolute;background-color:white;color:black;box-shadow:1px 1px 12px 1px lightblue;border-radius:12px;height:auto;z-index:100;top:100%;";
                 const showSelected=document.createElement("p");
                 showSelected.className="text-center mb-3 text-primary";
                 showSelected.textContent=this.selected;

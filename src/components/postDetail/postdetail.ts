@@ -14,10 +14,13 @@ import Post from "../posts/post";
 import { IconType } from "react-icons";
 import { FaCircleUp } from "react-icons/fa6";
 import EditText from "../common/editText";
+import Message from "../common/message";
 
 
 
 class PostDetail{
+    freepicUrl:string;
+    _message:Message;
     addImageClass:AddImageUrl;
     _poster:userType;
     _post:postType;
@@ -31,6 +34,7 @@ class PostDetail{
         this.postLogo="/images/posts.png";
         this.logo="/images/gb_logo.png";
         this.userPic="/images/userpic.png";
+        this.freepicUrl="https://newablogroom-free-bucket.s3.us-east-1.amazonaws.com";
         if(user){
             this.user=user;
         }
@@ -49,6 +53,7 @@ class PostDetail{
         };
         this._post=this.initPost;
         this.addImageClass=new AddImageUrl(this._modSelector,this._service);
+        this._message=new Message(this._modSelector,this._service,null,this._post)
     }
     /////--------GETTERS/SETTERS---------////
     get post(){
@@ -192,6 +197,20 @@ class PostDetail{
         this.showPoster({parent:card,poster});
         this.showLikes({parent:card,post});
         }
+        if(post.sendReqKey || post.sendMsg){
+            //THIS SENDS AN EMAIL WITH THE ANSWER TO THE CLIENT AND THEN SHOWS THE ANSWER IN A POPUP
+            const {button:btnGetAns}=Misc.simpleButton({anchor:btnContainer,text:"get answer",type:"button",bg:Nav.btnColor,color:"white",time:400});
+            btnGetAns.onclick=async(e:MouseEvent)=>{
+                if(e){
+                  await this._message.sendPostmessage({
+                    parent:container,
+                    post,
+                    func:async()=>{this.showAnswer({parent:card,post,css_col,css_row,less400,less900});}
+
+                  });
+                }
+            };
+        }
         if(!isPage){
             const {button:btnClose}=Misc.simpleButton({anchor:btnContainer,text:"close",type:"button",bg:Nav.btnColor,color:"white",time:400});
             btnClose.onclick=(e:MouseEvent)=>{
@@ -241,6 +260,33 @@ class PostDetail{
         return new Promise(resolver=>{
             resolver(count + 1)
         }) as Promise<number>;
+    }
+    showAnswer(item:{parent:HTMLElement,post:postType,css_col:string,css_row:string,less400:boolean,less900:boolean}){
+        const {parent,post,css_col,css_row,less400,less900}=item;
+        // parent.style.position="relative";
+        const popup=document.createElement("div");
+        popup.id="showAnswer-popup";
+        popup.style.cssText=css_col + "position:absolute;inset:20% 0% 0% 0%;padding:1rem;background-color:white;box-shadow:1px 1px 12px 1px black;border-radius:12px;z-index:10;height:fit-content;";
+        popup.style.width=less900 ? (less400 ? "300px":"450px"):"550px";
+        if(post.sendMsg){
+            const para=document.createElement("p");
+            para.id="showAnswer-popup-para";
+            para.innerHTML=post.sendMsg as string;
+            popup.appendChild(para);
+        }
+        if(post.sendReqKey){
+            const img=document.createElement("img");
+            img.id="showAnswer-popup-img";
+            img.src=`${this.freepicUrl}/${post.sendReqKey}`;
+            img.alt=post.sendReqKey;
+            img.style.cssText="filter:drop-shadow(0 0 0.75rem black)";
+            img.style.width="100%";
+            popup.appendChild(img);
+        }
+        this.removePopup({parent,popup});
+        parent.appendChild(popup);
+        Misc.growIn({anchor:popup,scale:0,opacity:0,time:400});
+
     }
     showPoster(item:{parent:HTMLElement,poster:userType}){
         const {parent,poster}=item;
@@ -320,8 +366,9 @@ class PostDetail{
         card.style.position="relative";
         const popup=document.createElement('div');
         popup.id=`postdetail-editPost-popup-${post.id}`;
-        popup.style.cssText=css_col + "position:absolute;inset:0%;background-color:white;border-radius:12px;box-shadow:1px 1px 12px 1px #0CAFFF;padding:7px;z-index:10;border:none;";
-        popup.style.height=less900? ( less400 ? "150vh":"110vh"):"100vh";
+        popup.style.cssText=css_col + "position:absolute;inset:0%;background-color:white;border-radius:12px;box-shadow:1px 1px 12px 1px #0CAFFF;padding:7px;z-index:10;border:none;height:8vh;overflow-y:scroll;";
+        // popup.style.height=less900? ( less400 ? "150vh":"110vh"):"100vh";
+        popup.style.height="auto";
         card.appendChild(popup);
         //-------DELETE----------//
         const xDiv=document.createElement("div");
@@ -346,12 +393,13 @@ class PostDetail{
         const {input:intitle,label:ltitle,formGrp:grptitle}=Nav.inputComponent(form);
         grptitle.id="form-group-title";
         grptitle.style.cssText="margin-inline:auto;";
-        grptitle.className="text-light text-center";
+        grptitle.className="text-primary text-center";
         intitle.id="editPost-post-title";
         intitle.name="title";
+        intitle.type="text";
         intitle.value=post.title ? post.title : "";
         ltitle.textContent="Your Title";
-        ltitle.className="text-light display-6";
+        ltitle.className="text-primary display-6";
         ltitle.setAttribute("for",intitle.id);
         const {textarea:inContent,label:lContent,formGrp:grpTextarea}=Nav.textareaComponent(form);
         grpTextarea.id="form-grpTextarea";
@@ -361,17 +409,32 @@ class PostDetail{
         inContent.name="content";
         inContent.rows=less900 ? (less400 ? 17 :15):13;
         const getButton=form.querySelector("button#submit") as HTMLButtonElement;
+        //MSG INPUT FOR EMAILING
+        const {textarea:textareaSendMsg,label:lSendMsg,formGrp:grpSendMsg}=Nav.textareaComponent(form);
+        grpSendMsg.id="form-group-sendMsg";
+        grpSendMsg.style.cssText="margin-inline:auto;";
+        grpSendMsg.className="text-dark text-center w-100";
+        textareaSendMsg.id="editPost-post-sendMsg";
+        textareaSendMsg.placeholder="input your answer to your post. This is for email responses.";
+        textareaSendMsg.name="sendMsg";
+        textareaSendMsg.autocomplete="off";
+        textareaSendMsg.rows=4;
+        textareaSendMsg.style.width="100%";
+        textareaSendMsg.value=post.sendMsg ? post.sendMsg : "";
+        lSendMsg.textContent="Your respond email msg";
+        lSendMsg.className="text-primary display-6";
+        lSendMsg.setAttribute("for",textareaSendMsg.id);
+        //MSG INPUT FOR EMAILING
         //EDIT TOOL FOR TEXT HIGHLIGHTS
         editTool.toolbar({parent:popup,target:inContent,submit:getButton});
         //EDIT TOOL FOR TEXT HIGHLIGHTS
         inContent.value=post.content ? post.content : "";
-        lContent.className="grpTextarea-label";
-        lContent.className="text-light text-center display-6";
+        lContent.className="text-primary text-center display-6 grpTextarea-label";
         lContent.textContent="edit your thoughts";
         lContent.setAttribute("for",inContent.id);
         const {input:pub,label:lpub,formGrp:grpPub}=Nav.inputComponent(form);
         grpPub.id="form-grpPub";
-        grpPub.className="text-light";
+        grpPub.className="text-primary";
         grpPub.style.cssText="margin-inline:auto;";
         pub.className="";
         pub.id="pub";
@@ -379,6 +442,7 @@ class PostDetail{
         pub.type="checkbox";
         pub.checked=post.published;
         lpub.id="grpPub-label";
+        lpub.className="text-primary";
         lpub.textContent="publish";
         lpub.style.cssText="font-size:140%;text-decoration:underline;text-underline-offset:0.5rem;margin-bottom:1rem;";
         lpub.setAttribute("for",pub.id);
@@ -403,10 +467,12 @@ class PostDetail{
                 const formdata=new FormData(e.currentTarget as HTMLFormElement);
                 const title=formdata.get("title") as string;
                 const content=formdata.get("content") as string;
+                const sendMsg=formdata.get("sendMsg") as string;
                 const pub=formdata.get("pub") as string;
                 const link=formdata.get("link") as string;
                 if(title && content){
-                    this.post={...this.post,title:title as string,content:content as string,published:Boolean(pub),link:link};
+                    const send_msg=sendMsg ? sendMsg : undefined;
+                    this.post={...this.post,title:title as string,content:content as string,sendMsg:send_msg,published:Boolean(pub),link:link};
                    await this._service.saveUpdatepost({post:this.post}).then(async(res)=>{
                        if(res){
                             this.post=res;
@@ -441,8 +507,8 @@ class PostDetail{
         card.style.position="relative";
         const popup=document.createElement('div');
         popup.id=`postdetail-editPost-popup-${post.id}`;
-        popup.style.cssText=css_col + "position:absolute;inset:0%;;height:100vh;background-color:white;border-radius:12px;box-shadow:1px 1px 12px 1px #0CAFFF;padding:7px;z-index:10;border:none;overflow-y:scroll;";
-        popup.style.height=less900? ( less400 ? "150vh":"110vh"):"100vh";
+        popup.style.cssText=css_col + "position:absolute;inset:0%;height:auto;background-color:white;border-radius:12px;box-shadow:1px 1px 12px 1px #0CAFFF;padding:7px;z-index:10;border:none;overflow-y:scroll;";
+        // popup.style.height=less900? ( less400 ? "150vh":"110vh"):"100vh";
         card.appendChild(popup);
         //-------DELETE----------//
         const xDiv=document.createElement("div");
@@ -473,6 +539,19 @@ class PostDetail{
         ltitle.textContent="Your Title";
         ltitle.className="text-light display-6";
         ltitle.setAttribute("for",intitle.id);
+        const {textarea:textareaSendMsg,label:lSendMsg,formGrp:grpSendMsg}=Nav.textareaComponent(form);
+        grpSendMsg.id="form-group-sendMsg";
+        grpSendMsg.style.cssText="margin-inline:auto;";
+        grpSendMsg.className="text-dark text-center";
+        textareaSendMsg.id="editPost-post-sendMsg";
+        textareaSendMsg.name="sendMsg";
+        textareaSendMsg.autocomplete="off";
+        textareaSendMsg.rows=4;
+        textareaSendMsg.style.width="100%";
+        textareaSendMsg.value=post.sendMsg ? post.sendMsg : "";
+        lSendMsg.textContent="Your respond email msg";
+        lSendMsg.className="text-dark display-6";
+        lSendMsg.setAttribute("for",textareaSendMsg.id);
         //-------- POST CONTENT--START----------------------//
         const shapeOutside=document.createElement("p");
         shapeOutside.setAttribute("contenteditable","true");
@@ -564,15 +643,17 @@ class PostDetail{
                 if(!(para && img)) return;
                 const formdata=new FormData(e.currentTarget as HTMLFormElement);
                 const test=formdata.get("shapeOutside");
-                console.log("shapeoutside",test);
+                // console.log("shapeoutside",test);
                 const title=formdata.get("title") as string;
+                const sendMsg=formdata.get("sendMsg") as string;
                 img.remove();
                 const content=para.innerHTML as string;
                 this.post={...this.post,content};
                 const pub=formdata.get("pub") as string;
                 const link=formdata.get("link") as string;
                 if(title && content){
-                    this.post={...this.post,title:title as string,content:content as string,published:Boolean(pub),link:link};
+                    const send_msg=sendMsg ? sendMsg:undefined;
+                    this.post={...this.post,title:title as string,sendMsg:send_msg,content:content as string,published:Boolean(pub),link:link};
                    await this._service.saveUpdatepost({post:this.post}).then(async(res)=>{
                        if(res){
                             this.post=res;
@@ -616,6 +697,24 @@ class PostDetail{
         }
     }
     
+    removePopup(item:{parent:HTMLElement,popup:HTMLElement}){
+        const {parent,popup}=item;
+        Header.cleanUpByID(popup,`delete-removePopup-${3}`);
+        const css_col="margin-inline:auto;display:flex;flex-direction:column;justify-content:center;align-items:center;gap:0.7rem;";
+        const css_row="margin-inline:auto;display:flex;flex-direction:row;flex-wrap:wrap;justify-content:center;align-items:center;gap:0.7rem;";
+        const xDiv=document.createElement("div");
+        xDiv.id=`delete-removePopup-${3}`;
+        xDiv.style.cssText=css_row + "position:absolute;padding:0.37rem;background:black;color:white;top:0%;right:0%;transform:translate(-18px,32px);z-index:1;border-radius:50%;";
+        FaCreate({parent:xDiv,name:FaCrosshairs,cssStyle:{color:"white",fontSize:"22px"}});
+        popup.appendChild(xDiv);
+        xDiv.onclick=(e:MouseEvent) =>{
+            if(e){
+                parent.removeChild(popup);
+            }
+        };
+
+        
+    }
     removePost(item:{parent:HTMLElement,target:HTMLElement,post:postType,user:userType}){
         const {parent,target,post,user}=item;
         Header.cleanUpByID(target,`delete-${post.id}`);
@@ -673,9 +772,11 @@ class PostDetail{
     };
     edituploadFreeNone(item:{card:HTMLElement,editPopup:HTMLElement,targetImg:HTMLImageElement,post:postType,user:userType,imgWidth:number}){
         const {card,targetImg,editPopup,post,user,imgWidth}=item;
+        this.post=post;
         const less900= window.innerWidth < 900;
         const less400= window.innerWidth < 400;
-        const css_row="margin-inline:auto;display:flex;justify-content:center:align-items:center;gap:0.75rem;margin-block:1.5rem;flex-wrap:wrap;"
+        const css_row="margin-inline:auto;display:flex;justify-content:center:align-items:center;gap:0.75rem;margin-block:1.5rem;flex-wrap:wrap;";
+        const css_col="margin-inline:auto;display:flex;flex-direction:column;justify-content:center:align-items:center;margin-block:1rem;";
         const btnContainer=document.createElement("div");
         btnContainer.id="edituploadFreeNone-btn";
         btnContainer.style.cssText=css_row +"justify-content:center;align-items:center";
@@ -683,6 +784,7 @@ class PostDetail{
         const {button:uploadBtn}=Misc.simpleButton({anchor:btnContainer,type:"button",bg:Nav.btnColor,color:"white",text:"upload",time:400});
         const {button:freePicBtn}=Misc.simpleButton({anchor:btnContainer,type:"button",bg:Nav.btnColor,color:"white",text:"free-pics",time:400});
         const {button:noPic}=Misc.simpleButton({anchor:btnContainer,type:"button",bg:Nav.btnColor,color:"white",text:"no pic",time:400});
+        const {button:btn_sendReqKey}=Misc.simpleButton({anchor:btnContainer,type:"button",bg:Nav.btnColor,color:"white",text:"img response",time:400});
         editPopup.appendChild(btnContainer);
         uploadBtn.onclick=(e:MouseEvent)=>{
             if(e){
@@ -695,6 +797,14 @@ class PostDetail{
             if(e){
                 //import  class for image selection
                 this.freePic({card,editPopup,targetImg,post,user,imgWidth});
+                uploadBtn.disabled=true;
+                editPopup.removeChild(btnContainer);
+            }
+        };
+        btn_sendReqKey.onclick=(e:MouseEvent)=>{
+            if(e){
+                //import  class for image selection
+                this.uploadSendMsgPic({card,editPopup,post,user,css_col,less400,less900});
                 uploadBtn.disabled=true;
                 editPopup.removeChild(btnContainer);
             }
@@ -724,6 +834,77 @@ class PostDetail{
             }
         };
     }
+   
+    uploadSendMsgPic(item:{card:HTMLElement,editPopup:HTMLElement,post:postType,user:userType,css_col:string,less400:boolean,less900:boolean}){
+        const {card,editPopup,post,user,less400,less900,css_col}=item;
+        this.post=post;
+        editPopup.style.zIndex="1";
+        const popup=document.createElement('div');
+        popup.id="uploadSendMsgPic-popup";
+        popup.style.cssText=css_col + "position:absolute;inset:20% 0% 40% 0%;z-index:2;background-color:white;border-radius:12px;box-shadow:1px 1px 12px 1px black;width:300px;height:300px;justify-content:center;text-wrap:wrap;";
+        Misc.growIn({anchor:popup,scale:0,opacity:0,time:400});
+        editPopup.appendChild(popup);
+        const form=document.createElement('form');
+        form.id="popup-form-sendReqKey";
+        form.style.cssText=css_col;
+        popup.appendChild(form);
+        const {input:inFile,label:lFile,formGrp:grpFile}=Nav.inputComponent(form);
+        grpFile.id="form-group-title";
+        grpFile.style.cssText="margin-inline:auto;";
+        grpFile.className="text-light text-center";
+        inFile.id="editPost-post-file";
+        inFile.name="file";
+        inFile.type="file";
+        inFile.onchange=(e:Event)=>{
+            if(e){
+                const value=e.currentTarget as HTMLInputElement;
+                if(value){
+                    const getBtn=form.querySelector("button#btn-submit") as HTMLButtonElement;
+                    getBtn.disabled=false;
+                }
+            }
+        };
+        lFile.textContent="upload an img or pdf for automatic request to answer your post";
+        lFile.className="text-dark lean font-bold";
+        lFile.setAttribute("for",inFile.id);
+        const {button:submit}=Misc.simpleButton({anchor:form,type:"submit",text:"submit img",bg:Nav.btnColor,color:"white",time:400});
+        submit.id="btn-submit";
+        submit.disabled=true;
+        submit.style.marginBlock="1.5rem";
+        form.onsubmit=(e:SubmitEvent)=>{
+            if(e){
+                e.preventDefault();
+                const formdata=new FormData( e.currentTarget as HTMLFormElement);
+                const file=formdata.get("file") as File;
+                if(file){
+                    submit.disabled=true;
+                  const {Key}=this._service.generatePostSendReqKey({formdata,post}) as {Key:string};
+                    this.post={...post,sendReqKey:Key};
+                  this._service.uploadfreeimage({parent:editPopup,formdata}).then(async(res)=>{
+                    if(res){
+                        const img=document.createElement("img");
+                        img.id="form-img-show";
+                        img.src=res.img;
+                        img.alt=res.Key;
+                        img.style.cssText="width:120px;aspect-ratio: 1 / 1;border-radius:50%;";
+                        form.appendChild(img);
+                        await this._service.saveUpdatepost({post:this.post}).then(async(res)=>{
+                            if(res){
+                                 this.post=res;
+                                 
+                                 setTimeout(()=>{
+                                     Misc.growOut({anchor:popup,scale:0,opacity:0,time:400});
+                                     editPopup.removeChild(popup);
+                                 },5000);
+                             }
+                         });
+                    }
+                  });
+                }
+            }
+        };
+
+    };
     freePic(item:{card:HTMLElement,editPopup:HTMLElement,targetImg:HTMLImageElement,post:postType,user:userType,imgWidth}){
         const {card,editPopup,post,targetImg,user,imgWidth}=item;
         //ADD BTNURL
@@ -765,7 +946,7 @@ class PostDetail{
         const css_row="margin-inline:auto;display:flex;flex-direction:row;justify-content:center;align-items:center;width:100%;flex-wrap:wrap;";
         const formPopup=document.createElement("div");
         formPopup.id="editPopup-formPopup";
-        formPopup.style.cssText=css_row + "position:absolute;border-radius:12px;box-shadow:1px 1px 6px 1px white;padding-block:0.25rem;padding-inline:0rem;z-index:20;backdrop-filter:blur(20px);";
+        formPopup.style.cssText=css_col + "position:absolute;border-radius:12px;box-shadow:1px 1px 6px 1px white;padding-block:0.25rem;padding-inline:0rem;z-index:20;backdrop-filter:blur(20px);";
         formPopup.style.top=less900 ? (less400 ? "35%":"50%") : "30%";
         formPopup.style.left="0%";
         formPopup.style.right="0%";

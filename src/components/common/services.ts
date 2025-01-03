@@ -1,4 +1,4 @@
-import {flexType,elementType,selectorType,element_selType,codeType,blogType, gets3ImgKey, userType,messageType, imageType, generalInfoType, deletedImgType, img_keyType, adminImageType, credentialType, providerType, pageCountType, delteUserType, sendEmailMsgType, categoryListType, barOptionType, chartType, postType, infoType2, bucketType, quoteType, returnQuoteFinalType, quoteimgType, signupQuoteType, rowType} from "@/components/editor/Types";
+import {flexType,elementType,selectorType,element_selType,codeType,blogType, gets3ImgKey, userType,messageType, imageType, generalInfoType, deletedImgType, img_keyType, adminImageType, credentialType, providerType, pageCountType, delteUserType, sendEmailMsgType, categoryListType, barOptionType, chartType, postType, infoType2, bucketType, quoteType, returnQuoteFinalType, quoteimgType, signupQuoteType, rowType, sendPostRequestType} from "@/components/editor/Types";
 import Misc from "../common/misc";
 import ModSelector from "@/components/editor/modSelector";
 import { getErrorMessage } from "@/lib/errorBoundaries";
@@ -67,6 +67,7 @@ class Service {
     isSignedOut:boolean;
     deletemarkImg:string="/api/admin/deletemarkimg";
     requestreset:string="/api/admin/requestreset";
+    postRequest:string="/api/postrequest";
     // getInitBlog:blogType;
     constructor(private _modSelector:ModSelector){
         this.bucket="masterultils-postimages";
@@ -114,6 +115,7 @@ class Service {
         this.quoteimgUrl="/api/quoteimg";
         this.signupUrl="/api/signup";
         this.requestreset="/api/admin/requestreset";
+        this.postRequest="/api/postrequest";
         this.showCustomHeader=false;
         this.showHeader=false;
         this.bgColor=this._modSelector._bgColor;
@@ -739,6 +741,24 @@ async apiUploadSaveFree(item:{parent:HTMLElement,Key:string,formdata:FormData}):
             const user_id=user.id ? user.id : "nouserid";
             const rand=user.id ? `-${Math.round(Math.random()*100)}-`:"";
             const Key=`quote/${user_id}-${name}-${rand}quote.png`;
+            const Key_=Key.trim();
+            formdata.set("Key",Key_);
+            return {Key:Key_}
+        }else{
+            return {Key:getKey as string}
+
+        }
+    }
+    generatePostSendReqKey(item:{formdata:FormData,post:postType}):{Key:string|undefined}{
+        //THIS GENERATES AN IMAGE KEY=> NEEDS FORMDATA &&  (N/A)=>user. IF USER then all quotes will have unique keys for user account
+        const {formdata,post}=item;
+        const getKey=formdata.get("Key");
+        const file=formdata.get("file") as File;
+        if(!file)return {Key:undefined};
+        if(!getKey){
+            const name=post.title ? post.title.split(" ").join("").trim() :"unknownTitle";
+            const user_id=post.userId ? post.userId : "nouserid";
+            const Key=`sendPostAnswer/${user_id}-${name}.png`;
             const Key_=Key.trim();
             formdata.set("Key",Key_);
             return {Key:Key_}
@@ -1412,6 +1432,7 @@ async apiUploadSaveFree(item:{parent:HTMLElement,Key:string,formdata:FormData}):
             method:"GET"
         }
         return fetch(this.postsUrl,option).then(async(res)=>{
+            //api/posts
             if(res.ok){
                 const posts= await res.json() as postType[];
                 return posts;
@@ -1427,6 +1448,7 @@ async apiUploadSaveFree(item:{parent:HTMLElement,Key:string,formdata:FormData}):
             method:"GET"
         }
         return fetch(`${this.postsUrl}?id=${id}`,option).then(async(res)=>{
+            //api/posts
             if(res.ok){
                 const post= await res.json() as postType;
                 return post;
@@ -1443,6 +1465,7 @@ async apiUploadSaveFree(item:{parent:HTMLElement,Key:string,formdata:FormData}):
             body:JSON.stringify(post)
         }
         return fetch(this.postsUrl,option).then(async(res)=>{
+            //api/posts
             if(res.ok){
                 const post= await res.json() as postType;
                 return post;
@@ -1637,7 +1660,7 @@ async apiUploadSaveFree(item:{parent:HTMLElement,Key:string,formdata:FormData}):
     }
 
     //------------------REST PASSWORD REQUEST-----------------///////
-    sendRestePassword(item:{params:onChangeVerifyType}):Promise<messageType|void>{
+   async sendRestePassword(item:{params:onChangeVerifyType}):Promise<messageType|void>{
         const {params}=item;
         const option={
             headers:{
@@ -1655,7 +1678,24 @@ async apiUploadSaveFree(item:{parent:HTMLElement,Key:string,formdata:FormData}):
         });
     }
     //------------------REST PASSWORD REQUEST-----------------///////
-    //NOT USING----------BELOW-----------------///////
+    //---------- REQUEST POST ANSWER-----------------///////
+    async requestPost(item:{sendRequest:sendPostRequestType}):Promise<{msg:string}|void>{
+        const {sendRequest}=item;
+        const option={
+            headers:{"Content-Type":"application/json"},
+            method:"POST",
+            body:JSON.stringify(sendRequest)
+        };
+        return fetch(this.postRequest,option).then(async(res)=>{
+            //api/postrequest
+            if(res){
+                const body= await res.json() as {msg:string};
+                return body;
+            }
+        });
+    }
+    //---------- REQUEST POST ANSWER-----------------///////
+
    
 
        

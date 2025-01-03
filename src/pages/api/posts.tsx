@@ -10,7 +10,7 @@ import prisma from "@/prisma/prismaclient";
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
     const get_id = Number(req.query.id);
-    const { id, title, content, link, imageKey, published, userId, likes, image } = req.body as postType;
+    const { id, title, content, link, imageKey, sendReqKey, published, userId, likes, image, sendMsg } = req.body as postType;
     const ID = id ? id : 0;
 
 
@@ -25,6 +25,8 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
                         title,
                         content,
                         imageKey,
+                        sendReqKey,
+                        sendMsg,
                         published,
                         userId,
                         link,
@@ -35,10 +37,26 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
                         title,
                         content,
                         imageKey,
+                        sendReqKey,
+                        sendMsg,
                         published,
                         link,
                         likes,
                         image
+                    },
+                    select: {
+                        id: true,
+                        title: true,
+                        content: true,
+                        link: true,
+                        image: true,
+                        imageKey: true,
+                        sendReqKey: true,
+                        sendMsg: true,
+                        published: true,
+                        date: true,
+                        userId: true,
+                        likes: true
                     }
 
                 });
@@ -77,6 +95,8 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
                         link: true,
                         image: true,
                         imageKey: true,
+                        sendReqKey: true,
+                        sendMsg: true,
                         published: true,
                         date: true,
                         userId: true,
@@ -101,19 +121,8 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
                 const posts = await prisma.post.findMany({
                     where: {
                         published: true
-                    },
-                    select: {
-                        id: true,
-                        title: true,
-                        content: true,
-                        link: true,
-                        image: true,
-                        imageKey: true,
-                        published: true,
-                        date: true,
-                        userId: true,
-                        likes: true
                     }
+
                 });
                 if (posts) {
                     res.status(200).json(posts);
