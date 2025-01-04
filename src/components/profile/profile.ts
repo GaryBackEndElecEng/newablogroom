@@ -47,10 +47,9 @@ class Profile{
         this._blogs=[] as blogType[];
         this.newCode=new NewCode(this._modSelector,this._service,this._user);
         this.shapeOutside=new ShapeOutside(this._modSelector,this._service,this._user);
-        const message=new Message(this._modSelector,this._service,this._modSelector.blog);
         const codeElement=new CodeElement(this._modSelector,this._service);
-        this._displayBlog=new DisplayBlog(this._modSelector,this._service,this._user,this.shapeOutside,this.newCode,this.chart,message,codeElement);
-        this.classMsg= new Message(this._modSelector,this._service,this._modSelector.blog);
+        this.classMsg= new Message(this._modSelector,this._service,this._modSelector.blog,null);
+        this._displayBlog=new DisplayBlog(this._modSelector,this._service,this._user,this.shapeOutside,this.newCode,this.chart,this.classMsg,codeElement);
 
     }
     //----------SETTER/GETTERS---------/////

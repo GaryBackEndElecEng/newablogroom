@@ -40,7 +40,12 @@ export const signUpHTML = async (item: { user: userType }) => {
                 h4{
                     color:blue;
                 }
-                h1{ font:"bold";text-decoration:underline;text-underline-offset: 3;}
+                h1{ 
+                font:bold;
+                text-decoration:underline;
+                text-underline-offset:0.5rem;
+                color:#0848ea;
+                }
                 .masterultils{
                     background:whitesmoke;
                     margin-block:20px;
@@ -174,7 +179,12 @@ export const clientMsgHTML = async (item: { viewerName: string | null, viewerEma
                 h4{
                     color:blue;
                 }
-                h1{ font:"bold";text-decoration:underline;text-underline-offset: 3;}
+                h1{ 
+                font:bold;
+                text-decoration:underline;
+                text-underline-offset:0.5rem;
+                color:#0848ea;
+                }
                 .masterultils{
                     background:whitesmoke;
                     margin-block:20px;
@@ -332,7 +342,12 @@ export const adminMsgHTML = (item: { message: messageType, user: userType, reply
                 h4{
                     color:blue;
                 }
-                h1{ font:"bold";text-decoration:underline;text-underline-offset: 3;}
+                h1{ 
+                font:bold;
+                text-decoration:underline;
+                text-underline-offset:0.5rem;
+                color:#0848ea;
+                }
                 .masterultils{
                     background:whitesmoke;
                     margin-block:20px;
@@ -464,7 +479,12 @@ export const QuoteHTML = (item: { message: { msg: string }, user: userType, quot
             h4{
                 color:blue;
             }
-            h1{ font:"bold";text-decoration:underline;text-underline-offset: 3;}
+            h1{ 
+                font:bold;
+                text-decoration:underline;
+                text-underline-offset:0.5rem;
+                color:#0848ea;
+                }
             .masterultils{
                 background:whitesmoke;
                 margin-block:20px;
@@ -663,7 +683,12 @@ export const sendReqAnswerHTML = async (item: { clientName: string | undefined, 
                 h4{
                     color:blue;
                 }
-                h1{ font:"bold";text-decoration:underline;text-underline-offset: 3;}
+                h1{ 
+                font:bold;
+                text-decoration:underline;
+                text-underline-offset:0.5rem;
+                color:#0848ea;
+                }
                 .masterultils{
                     background:whitesmoke;
                     margin-block:20px;
@@ -685,7 +710,7 @@ export const sendReqAnswerHTML = async (item: { clientName: string | undefined, 
                     .list>li{
                     padding-block:3px;
                 }
-                img{
+                .img1{
                     border-radius:50%;
                     padding:1rem;
                     box-shadow: 2px 2px 10px 2px black,-2px -2px 10px 2px white;
@@ -708,6 +733,22 @@ export const sendReqAnswerHTML = async (item: { clientName: string | undefined, 
                     float:left;
                     margin-right:1rem;
                 }
+                div.sendReqKeyImgCont{
+                    self-align:start;
+                    self-justify:start;
+                    border-radius:12px;
+                    padding:5px;
+                    box-shadow: 2px 2px 10px 2px black,-2px -2px 10px 2px black;
+                    max-width:650px;
+                    width:100%;
+                    background-color:whitesmoke;
+                    filter:drop-shadow(0 0 0 0.75rem black);
+                    float:center;
+                    margin-right:1rem;
+                    display:flex;
+                    align-items:center;
+                    justify-content:center;
+                }
                 .flex-row{
                 display:flex;
                 flex-wrap:wrap;
@@ -722,6 +763,19 @@ export const sendReqAnswerHTML = async (item: { clientName: string | undefined, 
                     justify-content:center;
                     gap:0.75rem;
                 }
+                div.msgContainer{
+                self-align:start;
+                self-justify:start;
+                display:flex;
+                flex-direction:column;
+                align-items:center;
+                max-width:700px;
+                width:100%;
+                padding-inline:1rem;
+                border-top:1px solid blue;
+                border-bottom:1px solid blue;
+                padding-block:1.5rem;
+                }
             </style>
         </head>
         <body>
@@ -730,7 +784,7 @@ export const sendReqAnswerHTML = async (item: { clientName: string | undefined, 
             <span class="flex-row"><img class="img2" src=${user_aws.image} />
             <div class="intro">
                 <h6>${user.name ? user.name : "Blogger"}</h6>
-                ${clientName ? `<h6>Thank for emailing us ${clientName}</h6>` : "<h6> thank you for emailin us.</h6>"}</h6>
+                ${clientName ? `<h6>, Thank for emailing us ${clientName}</h6>` : "<h6> thank you for emailing us.</h6>"}</h6>
             </div>
             </span>
             <br/>
@@ -741,8 +795,8 @@ export const sendReqAnswerHTML = async (item: { clientName: string | undefined, 
             <br>
             <p>safe amazon link registered link to the ${post.title ? post.title : "post"}. The answer is below</p>
             <br/>
-            ${post.sendReqKey ? `<a href=${uri ? uri : "#"}>answer</a>` : ""}
-            ${post.sendMsg ? `<p>continuation: ${msg}</p>` : ""}
+            ${post.sendReqKey ? `<div class="sendReqKeyImgCont"><img src=${uri ? uri : "#"} alt=" sorry your email does not accept styling"></div>` : ""}
+            ${post.sendMsg ? `<div class="msgContainer"><p>cont: ${msg}</p></div>` : ""}
             <br>
             <br>
             <h4> additional interesting things you might like</h4>
@@ -755,12 +809,12 @@ export const sendReqAnswerHTML = async (item: { clientName: string | undefined, 
             
             <p style="max-width:600px;">
 
-                <img src=${logo} alt="www.masterconnect.ca"
+                <img class="img1" src=${logo} alt="www.masterconnect.ca"
                 
                 />
-                We try to make your life easy and equally ensure that you are connected. Please let us know if we can accommodate your needs to further your relations with us.
+               <span> We try to make your life easy and equally ensure that you are connected. Please let us know if we can accommodate your needs to further your relations with us.
                 <a href="www.masterconncet.ca">master connect</a>
-                Gary Wallace,<a href="mailto: masterultils@gmail.com">send us an email.</a>
+                Gary Wallace,<a href="mailto: masterultils@gmail.com">send us an email.</a></span>
             </p>
         </body>
         </html>

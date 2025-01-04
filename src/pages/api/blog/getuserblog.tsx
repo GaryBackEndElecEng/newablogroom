@@ -16,15 +16,6 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
                         selectors: {
                             include: {
                                 colAttr: true,
-                                rows: {
-                                    include: {
-                                        cols: {
-                                            include: {
-                                                elements: true
-                                            }
-                                        }
-                                    }
-                                }
                             }
                         },
                         elements: true,

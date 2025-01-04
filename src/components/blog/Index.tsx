@@ -43,7 +43,7 @@ function Index({ blog, user }: { blog: blogType | null, user: userType | null })
                 Misc.matchMedia({ parent: target, maxWidth: 420, cssStyle: { maxWidth: maxWidth, width: "100%", paddngInline: "0rem" } })
 
                 // GET BLOG
-                const message = new Message(_modSelector, _service, blog);
+                const message = new Message(_modSelector, _service, blog, null);
                 const displayBlog = new DisplayBlog(_modSelector, _service, _user, shapeOutside, code, chart, message, codeElement);
                 displayBlog._onlyMeta = true;
                 displayBlog.main({ parent: target, blog: blog, user: user });

@@ -35,7 +35,7 @@ class Post{
         this.logo="/images/gb_logo.png";
         this.postLogo="/images/posts.png";
         this.no_posts="Sorry there are no posts,,,try again later,, then add advertising to get contracts;";
-        this.initPost={id:0,title:"",imageKey:undefined,image:undefined,content:undefined,link:undefined,published:true,userId:"",date:{} as Date,likes:0} as postType;
+        this.initPost={id:0,title:"",imageKey:undefined,image:undefined,sendReqKey:undefined,sendMsg:undefined,content:undefined,link:undefined,published:true,userId:"",date:{} as Date,likes:0} as postType;
         this._post=this.initPost;
         this._posts=[] as postType[];
         this._like=false;
@@ -354,7 +354,7 @@ class Post{
                 if(content && title){
                     const send_msg=sendMsg ? sendMsg : undefined;
                     const post:postType={...this.initPost,userId:user.id,sendMsg:send_msg,title:title as string,content:content as string,published:Boolean(pub),link}
-                    this.uploadFreeNone({injector,popup:popup,post,user,css_col,css_row});
+                    this.uploadFreeNone({injector,popup:popup,post:post,user,css_col,css_row});
                     const labelDisplay2=injector.querySelector("div#labelDisplay2") as HTMLElement;
                     if(labelDisplay2){
                         labelDisplay2.hidden=false;
@@ -365,6 +365,7 @@ class Post{
     }
     uploadFreeNone(item:{injector:HTMLElement,popup:HTMLElement,post:postType,user:userType,css_col:string,css_row:string}){
         const {injector,popup,post,user,css_col,css_row}=item;
+        this.post=post;
         const less900= window.innerWidth < 900;
         const less400= window.innerWidth < 400;
         const btnContainer=document.createElement("div");
@@ -396,7 +397,7 @@ class Post{
         };
         addSendReqKey.onclick=(e:MouseEvent)=>{
             if(e){
-                this.postDetail.uploadSendMsgPic({card:injector,editPopup:popup,post,user,css_col,less400,less900});
+                this.uploadSendMsgPic({card:injector,editPopup:popup,post,user,css_col,less400,less900});
                 btnContainer.removeChild(addSendReqKey);
                 
             }
@@ -616,6 +617,76 @@ class Post{
         popup.appendChild(form);
         injector.appendChild(popup)
     }
+    uploadSendMsgPic(item:{card:HTMLElement,editPopup:HTMLElement,post:postType,user:userType,css_col:string,less400:boolean,less900:boolean}){
+        const {card,editPopup,post,user,less400,less900,css_col}=item;
+        this.post=post;
+        editPopup.style.zIndex="1";
+        const popup=document.createElement('div');
+        popup.id="post-uploadSendMsgPic-popup";
+        popup.style.cssText=css_col + "position:absolute;inset:20% 0% 40% 0%;z-index:2;background-color:white;border-radius:12px;box-shadow:1px 1px 12px 1px black;width:300px;height:300px;justify-content:center;text-wrap:wrap;";
+        Misc.growIn({anchor:popup,scale:0,opacity:0,time:400});
+        editPopup.appendChild(popup);
+        const form=document.createElement('form');
+        form.id="popup-form-sendReqKey";
+        form.style.cssText=css_col;
+        popup.appendChild(form);
+        const {input:inFile,label:lFile,formGrp:grpFile}=Nav.inputComponent(form);
+        grpFile.id="form-group-title";
+        grpFile.style.cssText="margin-inline:auto;";
+        grpFile.className="text-light text-center";
+        inFile.id="editPost-post-file";
+        inFile.name="file";
+        inFile.type="file";
+        inFile.onchange=(e:Event)=>{
+            if(e){
+                const value=e.currentTarget as HTMLInputElement;
+                if(value){
+                    const getBtn=form.querySelector("button#btn-submit") as HTMLButtonElement;
+                    getBtn.disabled=false;
+                }
+            }
+        };
+        lFile.textContent="upload an img or pdf for automatic request to answer your post";
+        lFile.className="text-dark lean font-bold";
+        lFile.setAttribute("for",inFile.id);
+        const {button:submit}=Misc.simpleButton({anchor:form,type:"submit",text:"submit img",bg:Nav.btnColor,color:"white",time:400});
+        submit.id="btn-submit";
+        submit.disabled=true;
+        submit.style.marginBlock="1.5rem";
+        form.onsubmit=(e:SubmitEvent)=>{
+            if(e){
+                e.preventDefault();
+                const formdata=new FormData( e.currentTarget as HTMLFormElement);
+                const file=formdata.get("file") as File;
+                if(file){
+                    submit.disabled=true;
+                  const {Key}=this._service.generatePostSendReqKey({formdata,post}) as {Key:string};
+                    this.post={...post,sendReqKey:Key};
+                  this._service.uploadfreeimage({parent:editPopup,formdata}).then(async(res)=>{
+                    if(res){
+                        const img=document.createElement("img");
+                        img.id="form-img-show";
+                        img.src=res.img;
+                        img.alt=res.Key;
+                        img.style.cssText="width:120px;aspect-ratio: 1 / 1;border-radius:50%;";
+                        form.appendChild(img);
+                        await this._service.saveUpdatepost({post:this.post}).then(async(res)=>{
+                            if(res){
+                                 this.post=res;
+                                 
+                                 setTimeout(()=>{
+                                     Misc.growOut({anchor:popup,scale:0,opacity:0,time:400});
+                                     editPopup.removeChild(popup);
+                                 },5000);
+                             }
+                         });
+                    }
+                  });
+                }
+            }
+        };
+
+    };
     async postCard(item:{row:HTMLElement,post:postType,user:userType,userinfo:userType |undefined,index:number}){
         const {row,post,user,userinfo,index}=item;
         const less900=window.innerWidth < 900;

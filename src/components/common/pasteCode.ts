@@ -23,7 +23,7 @@ class PasteCode{
             selectorId:undefined,
             eleId: `paste-code-${Math.round(Math.random()*1000)}`,
             name: "div",
-            class: "d-flex flex-column align-items-center",
+            class: "d-flex flex-column align-items-start",
             inner_html: "",
             cssText: "padding:0rem;width:100%;margin-inline:0rem;min-height:40vh;border-radius:12px;padding:1rem;",
             attr:"data-is-code-paste",
@@ -89,9 +89,12 @@ class PasteCode{
             const getPre=target.querySelector(`pre#pre`) as HTMLElement;
             if(!getPre) return;
                 getPre.style.padding=less900 ? (less400 ? "0.25rem":"0.5rem"):"1rem";
+                getPre.style.textAlign="left";
                     getPre.setAttribute("spellcheck","false");
                     getPre.setAttribute("is-element","true");
                     getPre.classList.remove("isActive");
+                    getPre.classList.remove("text-align-center");
+                    getPre.classList.add("text-align-start");
                     getPre.removeAttribute("contenteditable");
                 
             // parent.appendChild(divCont);
@@ -139,7 +142,7 @@ class PasteCode{
                 pre.setAttribute("contenteditable","true");
                 pre.setAttribute("is-element","true");
                 pre.textContent="paste your code";
-                pre.style.cssText="width:100%;text-wrap:pretty;overflow-x:scroll;font-size:inherit;";
+                pre.style.cssText="width:100%;text-wrap:wrap;overflow-x:scroll;font-size:inherit;";
                 pre.style.padding=less900 ? (less400 ? "0.25rem":"0.5rem"):"1rem";
                 pre.style.width="100%";
                 pre.style.overflowX="scroll";

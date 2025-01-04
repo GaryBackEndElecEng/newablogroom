@@ -323,8 +323,9 @@ class Admin{
                     const checkInfo = await this._service.peronalInfo2()
                         if(checkInfo){
                             this._info=checkInfo;
+                            
+                            this.infoForm({parent:viewport,info:this._info});
                         }
-                    this.infoForm({parent:viewport,info:this._info});
                     
                 }
             };

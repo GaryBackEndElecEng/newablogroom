@@ -55,14 +55,14 @@ class ProfileMain{
         this.__user=this._user_;
         this._posts=this.__user.posts;
         this._blogs=this.__user.blogs;
+        this._modSelector.blogs=this.__user.blogs;
         this._quoteImgs=this.__user.quoteImgs;
         this._devDeployimgs=this.__user.devDeployimgs;
         this.codeElement=new CodeElement(this._modSelector,this._service);
         this.newCode=new NewCode(this._modSelector,this._service,this._user);
         this.shapeOutside=new ShapeOutside(this._modSelector,this._service,this._user);
-        const message=new Message(this._modSelector,this._service,this._modSelector.blog);
-        this._displayBlog=new DisplayBlog(this._modSelector,this._service,this._user,this.shapeOutside,this.newCode,this.chart,message,this.codeElement);
-        this.classMsg= new Message(this._modSelector,this._service,this._modSelector.blog);
+        this.classMsg= new Message(this._modSelector,this._service,this._modSelector.blog,null);
+        this._displayBlog=new DisplayBlog(this._modSelector,this._service,this._user,this.shapeOutside,this.newCode,this.chart,this.classMsg,this.codeElement);
         this.freebucket="https://newablogroom-free-bucket.s3.us-east-1.amazonaws.com"
 
     }
@@ -125,7 +125,6 @@ class ProfileMain{
     this.blogs=this.__user.blogs;
     this.quoteImgs=this.__user.quoteImgs;
     this.devDeployimgs=this.__user.devDeployimgs;
-    console.log("profile main:quotes",this.quoteImgs)
         parent.style.position="relative";
         parent.style.width="100%";
         const css_col="position:relative;height:auto;margin:auto;display:flex;place-items:center;flex-direction:column;border-radius:11px;";
@@ -1198,9 +1197,9 @@ class ProfileMain{
                             localStorage.setItem("blog",JSON.stringify(blog));
                             const max_=ModSelector.maxCount(blog);
                             localStorage.setItem("placement",String(max_));
-                            this._modSelector.loadBlog(blog);
+                            this._modSelector.loadBlog(blog);//add or subtract rows is done @ modSelector (converts selector.rows =>JSON.parse() then add/remove, then reconvert to JSON.stringify)
                             ProfileMain.cleanUpByID(mainRow,"section#show-final-popup");
-                            await this.showFinalWork(mainRow,blog);
+                            await this.showFinalWork(mainRow,blog);//THIS USES DISPLAYBLOG.saveFinaleWork() to show blog (AND CONVERTS SELECTOR.ROWS)
                             Misc.fadeOut({anchor:popup,xpos:100,ypos:50,time:400});
                             setTimeout(()=>{
                                 col.removeChild(popup);

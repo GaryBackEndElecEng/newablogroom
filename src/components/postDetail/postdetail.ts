@@ -88,7 +88,7 @@ class PostDetail{
             this.user=user;
         }
         this.injector=injector as HTMLElement;
-        const css_col="margin-inline:auto;display:flex;flex-direction:column;justify-content:center;align-items:center;gap:0.7rem;color:inherit;border-radius:inherit;";
+        const css_col="margin-inline:auto;display:flex;flex-direction:column;align-items:center;gap:0.7rem;color:inherit;border-radius:inherit;";
         const shapoutside="padding:1rem;text-wrap:wrap;font-family:'Poppins-Regular';inherit;border-radius:12px;box-shadow:1px 1px 12px white;width:100%;"
         const css_row="margin-inline:auto;display:flex;flex-direction:row;flex-wrap:wrap;justify-content:center;align-items:center;gap:0.27rem;color:inherit;border-radius:inherit;";
         const container=document.createElement("div");
@@ -202,6 +202,8 @@ class PostDetail{
             const {button:btnGetAns}=Misc.simpleButton({anchor:btnContainer,text:"get answer",type:"button",bg:Nav.btnColor,color:"white",time:400});
             btnGetAns.onclick=async(e:MouseEvent)=>{
                 if(e){
+                    btnGetAns.disabled=true;
+                    btnGetAns.style.opacity="0";
                   await this._message.sendPostmessage({
                     parent:container,
                     post,
@@ -266,14 +268,16 @@ class PostDetail{
         // parent.style.position="relative";
         const popup=document.createElement("div");
         popup.id="showAnswer-popup";
-        popup.style.cssText=css_col + "position:absolute;inset:20% 0% 0% 0%;padding:1rem;background-color:white;box-shadow:1px 1px 12px 1px black;border-radius:12px;z-index:10;height:fit-content;";
-        popup.style.width=less900 ? (less400 ? "300px":"450px"):"550px";
-        if(post.sendMsg){
-            const para=document.createElement("p");
-            para.id="showAnswer-popup-para";
-            para.innerHTML=post.sendMsg as string;
-            popup.appendChild(para);
-        }
+        popup.style.cssText=css_col + "position:absolute;inset:20% 0% 0% 0%;padding:1rem;background-color:white;box-shadow:1px 1px 12px 1px black;border-radius:12px;z-index:10;overflow-y:scroll;justify-content:flex-start;";
+        popup.style.width=less900 ? (less400 ? "350px":"550px"):"650px";
+        popup.style.height=less900 ? (less400 ? "85vh":"80vh"):"70vh";
+        const header=document.createElement("header");
+        header.style.cssText=css_col + "margin-block:1rem;padding:0.5rem;background-color:black;color:white;border-radius:12px;width:100%";
+        const title=document.createElement("h6");
+        title.textContent="Answers are below:";
+        title.className="text-center m-auto text-light";
+        header.appendChild(title);
+        popup.appendChild(header);
         if(post.sendReqKey){
             const img=document.createElement("img");
             img.id="showAnswer-popup-img";
@@ -283,6 +287,13 @@ class PostDetail{
             img.style.width="100%";
             popup.appendChild(img);
         }
+        if(post.sendMsg){
+            const para=document.createElement("p");
+            para.id="showAnswer-popup-para";
+            para.innerHTML=post.sendMsg as string;
+            popup.appendChild(para);
+        }
+        
         this.removePopup({parent,popup});
         parent.appendChild(popup);
         Misc.growIn({anchor:popup,scale:0,opacity:0,time:400});
@@ -361,14 +372,13 @@ class PostDetail{
         const less900= window.innerWidth < 900 ? true:false;
         const less400= window.innerWidth < 400 ? true:false;
         Header.cleanUpByID(card,`postdetail-editPost-popup-${post.id}`);
-        const css_col="margin-inline:auto;display:flex;flex-direction:column;justify-content:center;align-items:center;";
+        const css_col="margin-inline:auto;display:flex;flex-direction:column;justify-content:flex-start;align-items:center;";
         const css_row="margin-inline:auto;display:flex;flex-direction:row;flex-wrap:wrap;justify-content:center;align-items:center;gap:0.7rem;";
         card.style.position="relative";
         const popup=document.createElement('div');
         popup.id=`postdetail-editPost-popup-${post.id}`;
-        popup.style.cssText=css_col + "position:absolute;inset:0%;background-color:white;border-radius:12px;box-shadow:1px 1px 12px 1px #0CAFFF;padding:7px;z-index:10;border:none;height:8vh;overflow-y:scroll;";
-        // popup.style.height=less900? ( less400 ? "150vh":"110vh"):"100vh";
-        popup.style.height="auto";
+        popup.style.cssText=css_col + "position:absolute;inset:0%;background-color:white;border-radius:12px;box-shadow:1px 1px 12px 1px #0CAFFF;padding:7px;z-index:10;border:none;overflow-y:scroll;";
+        popup.style.height=less900? ( less400 ? "150vh":"100vh"):"80vh";
         card.appendChild(popup);
         //-------DELETE----------//
         const xDiv=document.createElement("div");
@@ -704,7 +714,7 @@ class PostDetail{
         const css_row="margin-inline:auto;display:flex;flex-direction:row;flex-wrap:wrap;justify-content:center;align-items:center;gap:0.7rem;";
         const xDiv=document.createElement("div");
         xDiv.id=`delete-removePopup-${3}`;
-        xDiv.style.cssText=css_row + "position:absolute;padding:0.37rem;background:black;color:white;top:0%;right:0%;transform:translate(-18px,32px);z-index:1;border-radius:50%;";
+        xDiv.style.cssText=css_row + "position:absolute;padding:0.37rem;background:black;color:white;top:0%;right:0%;transform:translate(2px,0px);z-index:1;border-radius:50%;";
         FaCreate({parent:xDiv,name:FaCrosshairs,cssStyle:{color:"white",fontSize:"22px"}});
         popup.appendChild(xDiv);
         xDiv.onclick=(e:MouseEvent) =>{
