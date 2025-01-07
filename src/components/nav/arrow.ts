@@ -411,7 +411,7 @@ set user(user:userType){
                                     if(blog_.name){
         
                                         //SAVE WORK HERE
-                                        this._service.saveBlog(blog_).then(async(blog)=>{
+                                        this._service.saveBlog({blog:blog_,user}).then(async(blog)=>{
                                             if(blog){
                                                 this._modSelector._blog=blog;
                                                 Misc.message({parent,msg:"saved",type_:"success",time:400});
@@ -432,7 +432,7 @@ set user(user:userType){
                                             if(newBlog && typeof(newBlog)!=="string"){
                                                 blog_={...blog_,id:newBlog.id};
                                                 //SAVE WORK HERE
-                                                this._service.saveBlog(blog_).then(async(blog)=>{
+                                                this._service.saveBlog({blog:blog_,user}).then(async(blog)=>{
                                                     if(blog){
         
                                                         Misc.message({parent,msg:"saved",type_:"success",time:400});

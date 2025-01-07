@@ -51,8 +51,9 @@ class RegSignIn {
         const url=window.location.pathname;
         const hasBlog=await this.hasStorage();
         if(hasBlog){
+            const user=this._user.user;
             const blog=this._modSelector.blog;
-           await this._service.promsaveItems(blog).then(async(res)=>{
+           await this._service.promsaveItems({blog,user}).then(async(res)=>{
             if(res){
                 Misc.message({parent:section,msg:"your items are temporarily saved",type_:"success",time:1000});
             }

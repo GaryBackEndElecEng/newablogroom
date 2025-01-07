@@ -292,14 +292,26 @@ colAttrs=["col-start","col-end","col-center"];
                         });
                      const div_conts=await Promise.all(col_.elements && col_.elements.sort((a,b)=>{if(a.order < b.order) return -1;return 1}).map(async (element)=>{
                             this.flex={...this.flex,elementId:element.eleId,position:"element",imgKey:element.imgKey,name:element.name};
+                            const _ele_:HTMLElement=document.createElement(element.name);
+                            _ele_.setAttribute("data-placement",`${element.order}`);
+                            _ele_.setAttribute("is-element","true");
+                            _ele_.setAttribute("is-element","true");
+                            _ele_.setAttribute("contenteditable","true");
+                            _ele_.setAttribute("aria-selected","true");
+                            _ele_.setAttribute("name",element.name);
+                            _ele_.className=element.class;
+                            _ele_.id=element.eleId;
+                            _ele_.setAttribute("flex",JSON.stringify(this.flex));
+                            _ele_.style.cssText=element.cssText;
+                            _ele_.innerHTML=element.inner_html;
                             const checkArr=["img","ul","ol","blockquote","a","span","logo","image"].includes(element.name);
                             const checkUlType=["ol","ul","blockquote"].includes(element.name);
                             const divCont=document.createElement("div");
                             divCont.setAttribute("data-placement",`${element.order}-A`);
                             divCont.className=this.divCont_class;
                             divCont.style.cssText=this.divCont_css;
-                            if(!checkArr){
-                                const _ele_:HTMLElement=document.createElement(element.name);
+                            const shapeoutside=element.type && element.type==="shapeoutside" ? element.type : undefined;
+                            if(!checkArr && !shapeoutside){
                                 if(element.attr==="data-backgroundImage" && element.imgKey){
                                     ShapeOutside.cleanUpByID(parent,"popup");
                                     _ele_.setAttribute("data-backgroundImage","true");
@@ -308,41 +320,9 @@ colAttrs=["col-start","col-end","col-center"];
                                     _ele_.style.backgroundSize="100% 100%";
                                     // const cssStyle={backgroundPosition:"50% 50%",backgroundSize:"100% 100%"};
                                     // this._service.injectBgAwsImage({target:_ele_,imgKey:element.imgKey,cssStyle});
-                                }else if(element.attr==="data-shapeOutside-circle" && element.imgKey){
-                                    divCont.style.marginBlock="2rem";
-                                    divCont.style.paddingBlock="1rem";
-                                    this.flex={...this.flex,shapeOutsideCircle:true,imgKey:element.imgKey};
-                                    this._shapeOutside.setAttributes({column:parent,divCont,target:_ele_ as HTMLParagraphElement});//ID=shape-outside-${rand}
-                                    _ele_.setAttribute("data-shapeOutside-circle","true");
-                                //    await this._shapeOutside.shapeOutsideInjectImage({para:_ele_,imgKey:element.imgKey});
-                                }else if(element.attr==="data-shapeOutside-square" && element.imgKey){
-                                    divCont.style.marginBlock="2rem";
-                                    divCont.style.paddingBlock="1rem";
-                                    this.flex={...this.flex,shapeOutsideCircle:true,imgKey:element.imgKey};
-                                    this._shapeOutside.setAttributes({column:parent,divCont,target:_ele_ as HTMLParagraphElement});//ID=shape-outside-${rand}
-                                    _ele_.setAttribute("data-shapeOutside-square","true");
-                                //    await this._shapeOutside.shapeOutsideInjectImage({para:_ele_,imgKey:element.imgKey});
-                                }else if(element.attr==="data-shapeOutside-polygon" && element.imgKey){
-                                    divCont.style.marginBlock="2rem";
-                                    divCont.style.paddingBlock="1rem";
-                                    this._shapeOutside.setAttributes({column:parent,divCont,target:_ele_ as HTMLParagraphElement});//ID=shape-outside-${rand}
-                                    _ele_.setAttribute("data-shapeOutside-polygon","true")
-                                    this.flex={...this.flex,shapeOutsidePolygon:true,imgKey:element.imgKey};
-                                //    await this._shapeOutside.shapeOutsideInjectImage({para:_ele_,imgKey:element.imgKey});
                                 }
                                 divCont.setAttribute("data-placement",`${element.order}-A`);
-                                _ele_.setAttribute("data-placement",`${element.order}`);
-                                _ele_.setAttribute("is-element","true");
-                                _ele_.setAttribute("is-element","true");
-                                _ele_.setAttribute("contenteditable","true");
-                                _ele_.setAttribute("aria-selected","true");
-                                _ele_.setAttribute("name",element.name);
-                                _ele_.className=element.class;
-                                _ele_.setAttribute("name",element.name);
-                                _ele_.id=element.eleId;
-                                _ele_.setAttribute("flex",JSON.stringify(this.flex));
-                                _ele_.style.cssText=element.cssText;
-                                _ele_.innerHTML=element.inner_html;
+                                
                                 divCont.appendChild(_ele_);
                                 // col.appendChild(divCont);
                                 this.editElement(_ele_);
@@ -365,6 +345,35 @@ colAttrs=["col-start","col-end","col-center"];
                                 });
                                 return divCont;
                                 
+                            }else if(!checkArr && shapeoutside){
+                                const isAttr=element.attr as string;
+                                const attr=["data-shapeOutside-circle","data-shapeOutside-square"].find(sh=>(sh===isAttr));
+                                if(attr){
+                                    divCont.style.marginBlock="2rem";
+                                    divCont.style.paddingBlock="1rem";
+                                    this.flex={...this.flex,shapeOutsideCircle:true};
+                                    if(element.imgKey){this.flex={...this.flex,imgKey:element.imgKey}}
+                                    _ele_.setAttribute("flex",JSON.stringify(this.flex));
+                                    _ele_.setAttribute(attr,attr);
+                                    //    await this._shapeOutside.shapeOutsideInjectImage({para:_ele_,imgKey:element.imgKey});
+                                }
+                                _ele_.setAttribute("data-placement",`${element.order}`);
+                                _ele_.setAttribute("is-element","true");
+                                _ele_.setAttribute("is-element","true");
+                                _ele_.setAttribute("contenteditable","true");
+                                _ele_.setAttribute("aria-selected","true");
+                                _ele_.setAttribute("name",element.name);
+                                _ele_.className=element.class;
+                                _ele_.id=element.eleId;
+                                _ele_.setAttribute("flex",JSON.stringify(this.flex));
+                                _ele_.style.cssText=element.cssText;
+                                _ele_.innerHTML=element.inner_html;
+                                this._shapeOutside.setAttributes({column:parent,divCont,target:_ele_ as HTMLParagraphElement});//ID=shape-outside-${rand}
+                                divCont.setAttribute("data-placement",`${element.order}-A`);
+                                divCont.appendChild(_ele_);
+                                return divCont
+                            
+
                             }else if(checkUlType){
                                 const ele_=document.createElement("ul");
                                 ele_.setAttribute("is-element","true");
@@ -736,7 +745,10 @@ colAttrs=["col-start","col-end","col-center"];
                             case ele==="shapeOutside":
                                 this.flex={...this.flex,shapeOutsideCircle:true};
                                 column.setAttribute("flex",JSON.stringify(this.flex));
-                                this._shapeOutside.shapeOutsideCircle({parent:column,flex:this.flex})
+                                let shapeEle:element_selType={} as element_selType;
+                                shapeEle={...shapeEle,id:0,type:"shapeoutside",attr:"data-shapeoutside-circle"}
+
+                                this._shapeOutside.addShapeOutside({parent:column,flex:this.flex,element:shapeEle})
                                 
                             return;
                             case checkText && ele !=="shapeOutside":
@@ -942,7 +954,8 @@ colAttrs=["col-start","col-end","col-center"];
     async addImage(parent:HTMLElement,btnClicked:HTMLButtonElement,icon:iconType,flex_:flexType):Promise<void>{
         const {parsed,isJSON}=Header.checkJson(parent.getAttribute("flex"));
         const blog=this._modSelector._blog;
-        this._modSelector.loadBlog(blog);
+        const user=this._user.user;
+        this._modSelector.loadBlog({blog,user});
         let flex=isJSON ? parsed as flexType : flex_;
         if(flex.imgKey){
             const markDel:deletedImgType={id:undefined,imgKey:flex.imgKey,del:true,date:new Date()};
@@ -1069,7 +1082,8 @@ colAttrs=["col-start","col-end","col-center"];
         let _flex=(parsed as flexType) ? parsed as flexType : flex;
         const oldKey=flex.imgKey ? flex.imgKey : null;
         const blog=this._modSelector._blog;
-        this._modSelector.loadBlog(blog);
+        const user=this._user.user;
+        this._modSelector.loadBlog({blog,user});
         const {form,reParent}=Misc.imageForm(row,flex);
         form.style.top="50%";
         reParent.style.zIndex="2";

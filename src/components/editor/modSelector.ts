@@ -77,6 +77,23 @@ class ModSelector {
         blog_id:0,
         type:undefined,
     };
+    initElement_sel:element_selType={
+        id: 0,
+        col_id:0,
+        placement:undefined,
+        selectorId:0,
+        eleId: "",
+        name: "",
+        class: "",
+        inner_html: "",
+        cssText: "",
+        attr:undefined,
+        img:undefined,
+        imgKey:undefined,
+        order:0,
+        type:undefined,
+
+    };
     _elements:elementType[]=[];
     _selectors:selectorType[]=[];
     _blog:blogType={} as blogType;
@@ -95,8 +112,23 @@ class ModSelector {
     _pageCounts:pageCountType[]
     constructor()
     {
-        // this.main=document.querySelector("section#main");//covers teaxtarea and btns
-        // this._blog.header=this._Header.selector;
+        this.initElement_sel={
+            id: 0,
+            col_id:0,
+            placement:undefined,
+            selectorId:0,
+            eleId: "",
+            name: "",
+            class: "",
+            inner_html: "",
+            cssText: "",
+            attr:undefined,
+            img:undefined,
+            imgKey:undefined,
+            order:0,
+            type:undefined,
+    
+        };
         this._selector=this.initSelector;
         this._element=this.initElement;
         this._status="unauthenticated";
@@ -167,6 +199,7 @@ class ModSelector {
                 localStorage.removeItem("process");
             }
         });
+
     };
 
 get status(){
@@ -493,6 +526,13 @@ set rows(rows:rowType[]){
         const {parsed,isJSON}=Header.checkJson(target.getAttribute("flex"));
         const checkNodename=["a","blockquote","ul","img","ol"]
         const nodename=target.nodeName.toLowerCase();
+        const type=target.getAttribute("type");
+        const hasInnerImage=target.getAttribute("has-innerimage");
+        const shapeOutsideCircle=target.getAttribute("data-shapeoutside-circle");
+        const shapeOutsideSquare=target.getAttribute("data-shapeoutside-square");
+        const shapeOutsidePolygon=target.getAttribute("data-shapeoutside-polygon");
+        const shapeOutsideArr=[shapeOutsideCircle,shapeOutsideSquare,shapeOutsidePolygon];
+        const isShape=shapeOutsideArr.find(shape=>(shape !==null));
         const specialNodename=checkNodename.includes(nodename);
         const hrefEmail=target.getAttribute("data-href-email");
         const hrefTel=target.getAttribute("data-href-tel");
@@ -521,9 +561,7 @@ set rows(rows:rowType[]){
                                 // console.log("inside col:",col.eleId===colId);
                                 if(col.eleId===colId){
                                     const ID=col.elements ? col.elements.length:0;
-
                                     const check=col.elements && col.elements.map(ele_=>(ele_.eleId)).includes(target.id as string);
-
                                         if(nodename && !check){
                                         
                                             // console.log("418 HELROWSSSSS",JSON.parse(target.id));
@@ -536,61 +574,35 @@ set rows(rows:rowType[]){
                                                 eleId:target.id,
                                                 placement:ID ? ID as number : undefined,
                                                 cssText:target.style.cssText,
+                                                inner_html:target.innerHTML,
                                                 attr:target.getAttribute("attr") ? target.getAttribute("attr") as string :undefined,
                                                 col_id:col.id,
                                                 imgKey:imgKey ? imgKey :undefined,
-                                                order:ID
+                                                order:ID,
+                                                type:type ? type : undefined
                                             } as element_selType;
+                                            
                                             if(backgroundImage){
                                                 ele.attr="data-backgroundImage";
                                                 target.setAttribute("data-backgroundImage","true");
                                             }else if(anchorContainer){
                                                 ele.attr=anchorContainer;
-                                                ele.inner_html=target.innerHTML;
                                                 target.setAttribute("data-href",anchorContainer);
-                                            }else if(shapeOutsideCircle){
-                                                ele.attr="data-shapeoutside-circle";
-                                                target.setAttribute("data-shapeoutside-circle","true");
-                                                ele.inner_html=target.innerHTML;
-                                            }else if(shapeOutsideSquare){
-                                                ele.attr="data-shapeoutside-square";
-                                                target.setAttribute("data-shapeoutside-square","true");
-                                                ele.inner_html=target.innerHTML;
-                                            }else if(shapeOutsidePolygon){
-                                                ele.attr="data-shapeoutside-polygon";
-                                                target.setAttribute("data-shapeoutside-polygon","true");
-                                                ele.inner_html=target.innerHTML;
+                                            } else if(isShape){
+                                                ele.attr=isShape;
                                             }else if(arrowDesign){
                                                 ele.attr="data-arrow-design";
                                                 target.setAttribute("data-arrow-design","true");
-                                                ele.inner_html=target.innerHTML;
                                             }else if(hrefEmail){
                                                 ele.attr=hrefEmail;
-                                                ele.inner_html=target.innerHTML;
                                             }else if(hrefTel){
                                                 ele.attr=hrefTel;
-                                                ele.inner_html=target.innerHTML;
-                                            }else{
-                                                ele.attr=target.getAttribute("attr") ? target.getAttribute("attr") as string :undefined;
-                                            }
-                                            if(!specialNodename){
-                                                    ele.inner_html=target.innerHTML;
                                             }else if(link){
-                                                
                                                 ele.attr=link;
-                                                ele.inner_html=target.innerHTML;
-                                                
-                                            }else if(specialNodename && nodename !=="a"){
-                                                ele.inner_html=target.innerHTML as string
-                                                // console.log("modSelector.elementAdder()",ele.inner_html)
                                             }else if(nodename==="img"){
                                                 const target_=target as HTMLImageElement;
                                                 ele.img=target_.src;
                                                 ele.inner_html=target_.alt;
-                                            }else{
-                                                ele.inner_html=target.innerHTML;
-                                                ele.cssText=target.style.cssText;
-                                                ele.class=target.className;
                                             }
                                             col.elements.push(ele)
                                             target.setAttribute("order",String(ID));
@@ -615,10 +627,7 @@ set rows(rows:rowType[]){
         }else{
             const ID=this.elements.length;
             const imgDesc=target.getAttribute("imgDesc");
-            const hasInnerImage=target.getAttribute("has-innerimage");
-            const shapeOutsideCircle=target.getAttribute("data-shapeoutside-circle");
-            const shapeOutsideSquare=target.getAttribute("data-shapeoutside-square");
-            const shapeOutsidePolygon=target.getAttribute("data-shapeoutside-polygon");
+            const isHeaderflag=target.getAttribute("data-headerflag");
             const reference=target.getAttribute("data-href-reference");//data-href-reference
             const venDiagram=target.getAttribute("is-vendiagram");
             const wave=target.getAttribute("is-wave");
@@ -643,22 +652,15 @@ set rows(rows:rowType[]){
                         imgKey:imgKey ? imgKey : undefined,
                         cssText:target.style.cssText,
                         attr:target.getAttribute("attr") ? target.getAttribute("attr") as string :undefined,
+                        type:type ? type : undefined
                     };
                     if(hasInnerImage){
                         ele.attr="has-innerimage";
                     }
                     if(imgDesc){
                         ele.attr=imgDesc;
-                    }
-                    if(shapeOutsideCircle){
-                        ele.attr="data-shapeoutside-circle";
-                        target.setAttribute("data-shapeoutside-circle","true");
-                    }else if(shapeOutsideSquare){
-                        ele.attr="data-shapeoutside-square";
-                        target.setAttribute("data-shapeoutside-square","true");
-                    }else if(shapeOutsidePolygon){
-                        ele.attr="data-shapeoutside-polygon";
-                        target.setAttribute("data-shapeoutside-polygon","true");
+                    }else if(isShape){
+                        ele.attr=isShape;
                     }else if(circle){
                         ele.attr="data-circle-design";
                         target.setAttribute("data-circle-design","true");
@@ -697,6 +699,11 @@ set rows(rows:rowType[]){
                         ele.attr="is-arch";
                         target.setAttribute("is-arch","true");
                     }
+                    if(isHeaderflag){
+                        ele.attr=isHeaderflag;
+                        target.setAttribute(isHeaderflag,isHeaderflag);
+                        ele.type="headerflag";
+                    }
                     if(!specialNodename){
                             // ele.inner_html=ModSelector.cleanInnerHTML(target).innerHTML as string;
                             ele.inner_html=target.innerHTML;
@@ -713,18 +720,19 @@ set rows(rows:rowType[]){
                     this._elements.push(ele);
                     this.elements=this._elements;
                     this.placement= this.placement + 1;
+                    // console.log("ele",ele,"type",type);//works
                     return {target:target,ele:ele};
                 }
         }
 
     }
-    removeElement(target:HTMLElement):elementType|undefined{
+    removeElement(target:HTMLElement):elementType|element_selType|undefined{
          const {parsed,isJSON}=Header.checkJson(target.getAttribute("flex")) as {parsed:flexType,isJSON:boolean};
-         let ele_:elementType|undefined;
+         let retEle:elementType|element_selType|undefined;
         if(isJSON){
             const flex=parsed;
             const {selectorId,rowId,colId}=flex;
-            this.selectors=this._selectors.map(selector_=>{
+            this._selectors=this._selectors.map(selector_=>{
                 // console.log("sel.id",selector_.id, "select",selector)
                 if(selectorId===selector_.eleId){
                     const rows=JSON.parse(selector_.rows) as rowType[];
@@ -734,9 +742,13 @@ set rows(rows:rowType[]){
                             // console.log("row",rowId)
                             row.cols.forEach(col=>{
                                 if(col.eleId===colId){
-                                    const remain=col.elements.filter(ele=>(ele.eleId !==target.id));
-                                    col.elements=remain;
-                                    // console.log("1276:removeElement:remain",remain)
+                                    col.elements.map((ele,index)=>{
+                                        if(ele.eleId===target.id){
+                                            retEle=ele as element_selType;
+                                            col.elements.splice(index,1);
+                                        }
+                                    });
+                                    
                                 }
                                 return col;
                             });
@@ -747,16 +759,17 @@ set rows(rows:rowType[]){
                 }
                 return selector_;
             });
-           return
+            this.selectors=this._selectors;
+           return retEle
         }else{
             this._elements.map((ele,index)=>{
                 if(ele.eleId===target.id){
-                    this.elements.splice(index,1);
-                    ele_=ele
+                    retEle=ele as elementType;
+                    this._elements.splice(index,1);
                 }
             });
             this.elements=this._elements;
-            return ele_;
+            return retEle;
         }
         
         
@@ -764,7 +777,7 @@ set rows(rows:rowType[]){
     promRemoveElement(target:HTMLElement){
         return new Promise((resolver)=>{
             resolver(this.removeElement(target));
-        }) as Promise<elementType|undefined>;
+        }) as Promise<elementType|element_selType|undefined>;
     }
     addAttribute(target:HTMLElement,type:string,attr:string){
         const arrType=["color","class","font-family","font-size"];
@@ -892,6 +905,8 @@ set rows(rows:rowType[]){
     updateElement(target:HTMLElement):elementType|element_selType | undefined{
         const {parsed,isJSON}=Header.checkJson(target.getAttribute("flex"));
         const shapeOutside=target.getAttribute("data-shapeoutside");
+        const imgKey=target.getAttribute("imgKey");
+        const type=target.getAttribute("type");
         const reference=target.getAttribute("data-href-reference");
         const hrefEmail=target.getAttribute("data-href-email");
         const hrefTel=target.getAttribute("data-href-tel");
@@ -933,8 +948,6 @@ set rows(rows:rowType[]){
                                                     target.setAttribute("data-backgroundImage","true");
                                                 }else if(isCodeElement){
                                                     ele.attr="is-code-element";
-                                                }else if( shapeOutside){
-                                                    ele.attr="data-shapeoutside"
                                                 }
                                             }
                                             retElement=ele as element_selType;
@@ -956,8 +969,8 @@ set rows(rows:rowType[]){
                     if(ele.eleId===target.id){
                         ele.cssText=target.style.cssText;
                         ele.class=target.className;
-                        if(shapeOutside){
-                            const imgKey=target.getAttribute("imgKey");
+                        ele.type=type ? type : undefined;
+                        if(imgKey){
                             ele.imgKey=imgKey? imgKey : undefined;
                         }
                         else if(target.nodeName==="IMG"){
@@ -1626,7 +1639,11 @@ removeMainElement(parent:HTMLElement,divCont:HTMLElement,target:HTMLElement){
         if(e){
             this.promRemoveElement(target).then(async(res)=>{
                 if(res){
-                    this.shiftPlace(res.placement)
+                    if((res as elementType).type){
+                        const ele=res as elementType;
+                        this.shiftPlace(ele.placement)
+
+                    }
                 }
             });
             parent.removeChild(divCont)
@@ -1641,16 +1658,21 @@ removeMainElement(parent:HTMLElement,divCont:HTMLElement,target:HTMLElement){
 };
    
 
-loadBlog(blog:blogType){
+loadBlog(item:{blog:blogType,user:userType}):blogType{
+    const {blog,user}=item;
     this._elements=blog.elements;
     this._selectors=blog.selectors;//This consists of JSON selector.rows as JSON string
     this._selectCodes=blog.codes;
     this.charts=blog.charts;
-    this._blog={...blog,name:blog.name,desc:blog.desc,title:blog.title,user_id:blog.user_id,selectors:blog.selectors,elements:blog.elements,codes:blog.codes,charts:this.charts};
+    this._blog={...blog,id:blog.id,name:blog.name,desc:blog.desc,title:blog.title,user_id:blog.user_id,selectors:blog.selectors,elements:blog.elements,codes:blog.codes,charts:this.charts};
+    if(user && user.id){
+        this._blog={...this._blog,user_id:user.id};
+    }
     this.blog=this._blog;
     // localStorage.setItem("blog",JSON.stringify(blog));
     const max_=ModSelector.maxCount(blog);
     localStorage.setItem("placement",String(max_ + 1));
+    return this.blog;
 }
 
 loadSimpleBlog(blog:blogType){

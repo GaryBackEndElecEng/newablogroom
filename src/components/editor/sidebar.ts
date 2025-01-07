@@ -31,6 +31,7 @@ import ChartJS from "../chart/chartJS";
 import AddImageUrl from "../common/addImageUrl";
 import CodeElement from "../common/codeElement";
 import PasteCode from "../common/pasteCode";
+import Headerflag from "./headerflag";
 
 
 export type extendType={
@@ -516,7 +517,7 @@ listThemeTypes:{name:string}[]=[{name:"background"},{name:"fonts"},{name:"colors
                                 parent.style.backgroundImage=`url(${res.img})`;
                                 parent.style.backgroundSize="100% 100%";
                                 parent.style.backgroundPosition="50% 50%";
-                                this._service.promsaveItems(_blog).then(async(blog_)=>{
+                                this._service.promsaveItems({blog:_blog,user}).then(async(blog_)=>{
                                     if(blog_){
                                         this._modSelector.saveTheme(parent,theme);
                                         //SENDING IT TO SIMPLE UPLOAD PROCESS:BgImage has no element
@@ -963,7 +964,7 @@ class Sidebar{
     
     //---------------------INITIALIZE------------------------///
 
-    constructor(private _modSelector:ModSelector,private _service:Service,main:Main, private _flexbox:Flexbox,private _code:NewCode,header:Header,public customHeader:CustomHeader,footer:Footer,edit:Edit,private _user:User,private _regSignin:RegSignIn,displayBlog:DisplayBlog,public chart:ChartJS,public shapeOutside:ShapeOutside,private _metablog:MetaBlog){
+    constructor(private _modSelector:ModSelector,private _service:Service,main:Main, private _flexbox:Flexbox,private _code:NewCode,header:Header,public customHeader:CustomHeader,footer:Footer,edit:Edit,private _user:User,private _regSignin:RegSignIn,displayBlog:DisplayBlog,public chart:ChartJS,public shapeOutside:ShapeOutside,private _metablog:MetaBlog,private _headerFlag:Headerflag){
         this.flex={} as flexType;
         this._selectors_=Flexbox.selectors_;
         this.btnColor=this._modSelector.btnColor;
@@ -1167,6 +1168,7 @@ class Sidebar{
         this.saveBlog(sidebarMain);
         this.reOrder(sidebarMain);
         this.initiateHeaderTemplate(sidebarMain);
+        this.initiateHeaderFlag(sidebarMain);
         this.ultility(sidebarMain);
         this.initiateCustomHeaderBtn(sidebarMain);
         this.addimageClass(sidebarMain);
@@ -1274,6 +1276,7 @@ class Sidebar{
     //BTN INITIATE EDIT
     saveBlog(parent:HTMLElement){
         //BTN THAT DESCRIBES OPTION TO SAVE BLOG AND OPENS this.saveWork()
+        const navHeader=document.querySelector("header#navHeader") as HTMLElement;
         const outerContainer=document.createElement("div");
         outerContainer.className="flexCol my-2 py-2";
         outerContainer.style.cssText="box-shadow:1px 1px 12px 1px white;border-radius:10px;padding-inline:0.5rem;padding-block:1rem;width:100%;";
@@ -1309,7 +1312,7 @@ class Sidebar{
                 Main.container=document.querySelector("section#main") as HTMLElement;
                 if(!Main.container) return;
                 if(blog && user.id && user.email){
-                    this._user.saveWork({parent:Main.container,blog,func:()=>undefined})
+                    this._user.saveWork({parent:navHeader,blog,func:()=>undefined})
 
                 }else{
                     this._regSignin.signIn();
@@ -1670,6 +1673,64 @@ class Sidebar{
                 }
             });
         });
+        outerContainer.appendChild(containerFlex);
+        parent.appendChild(outerContainer);
+        
+     };
+     initiateHeaderFlag(parent:HTMLElement){
+        const less900=window.innerWidth < 900;
+        const less400=window.innerWidth < 400;
+        const headerflagsample=Headerflag.headerFlagSample;
+        Sidebar.headerType={normal:true,custom:false};
+        const outerContainer=document.createElement("div");
+        outerContainer.style.cssText="box-shadow:1px 1px 12px 1px white;border-radius:10px;padding-inline:0.5rem;padding-block:1rem;text-align:center;align-items:center;width:100%;";
+        outerContainer.className=" my-2 py-2";
+        const H3=document.createElement("h5");
+        H3.textContent="Header-Flag";
+        H3.className="text-info lean";
+        H3.style.cssText="margin-block:1rem;margin-bottom:2rem;text-decoration:underline;text-underline-offset:1rem;";
+        outerContainer.appendChild(H3);
+        const containerFlex=document.createElement("div");
+        containerFlex.className="container_Flex mx-auto p-1 py-1 my-2";
+        containerFlex.style.cssText="margin-block;2rem;width:100%;position:relative;flex-wrap:wrap;padding-block:2rem;";
+        containerFlex.style.height="20vh";
+        containerFlex.style.overflowY="scroll";
+        //List start
+        Headerflag.cardBodyCss.map((item_,index)=>{
+                const headerCol=document.createElement("div");
+                headerCol.className="headerCol ";
+                headerCol.id=`headerCol-${index}`;
+                headerCol.style.cssText="position:relative;display:block;flex:1;align-items:center;border:1px solid blue;margin-block:1rem;";
+                const title=document.createElement("h6");
+                title.textContent=item_.name;
+                title.style.cssText="align-text:center;margin-bottom:0.5rem;margin-inline:auto;padding-inline:1rem;color:white;";
+                headerCol.appendChild(title);
+                const img=document.createElement("img");
+                img.style.cssText="width:100%";
+                img.style.maxWidth=less900 ? (less400 ? "350px":"500px"): "300px";
+                img.style.aspectRatio=less900 ? (less400 ? "4/1":"5/1"): "";
+                img.src=item_.img;
+                img.alt=`headerflag-img-${item_.name}`;
+                img.id=`headerflag-img-${item_.name}`;
+                img.onmouseover=()=>{
+                    img.animate([
+                        {boxShadow:"1px 1px 5px 1px var(--bs-teal)"},
+                        {boxShadow:"1px 1px 8px 2px var(--bs-teal)"},
+                        {boxShadow:"1px 1px 5px 1px var(--bs-teal)"}
+                    ],{duration:750,iterations:1});
+                };
+                headerCol.appendChild(img);
+                containerFlex.appendChild(headerCol);
+                // console.log("ISON BEFORE BTN",header.isOn);
+                img.addEventListener("click",(e:MouseEvent)=>{
+                    if(e){
+    
+                        this._headerFlag.initMain({parent:Main.textarea as HTMLElement,cardBodyCss:item_});
+                    }
+                });
+
+            });
+        ///----------list end------------//
         outerContainer.appendChild(containerFlex);
         parent.appendChild(outerContainer);
         
@@ -2214,7 +2275,10 @@ class Sidebar{
                             parent.removeChild(target);
                             this._modSelector.promRemoveElement(target).then(async(res)=>{
                                 if(res){
-                                    this._modSelector.shiftPlace(res.placement);
+                                    const res_=(res as elementType)
+                                    const placement=res_.placement ? res_.placement : undefined;
+                                    if(!placement) return;
+                                    this._modSelector.shiftPlace(placement);
                                 }
                             });
                         }
@@ -2513,9 +2577,12 @@ class Sidebar{
             }
         }).catch((err)=>console.log(err.message));
     }
-    blogNameDescFill(parent:HTMLElement,blog:blogType){
+    blogNameDescFill(item:{parent:HTMLElement,blog:blogType,user:userType}){
+        const {parent,blog,user}=item;
+        let _blog={...blog};
+        const cssPopup={inset:"160% 0% 0% 0%"};
         //SIGNEDIN  BLOG SAVED PROCESS::THIS OPENS A POPUP FOR BLOG NAME AND DESCRIPTION COMPLETION, THEN SAVES THE BLOG AND IS THEN REMOVED
-        const {popup,form,input,textarea}=Misc.fillBlogNameDesc(parent);
+        const {popup,form,input,textarea}=Misc.fillBlogNameDesc({parent,cssPopup});
         form.addEventListener("submit",(e:SubmitEvent)=>{
             if(e){
                 e.preventDefault();
@@ -2524,19 +2591,20 @@ class Sidebar{
                 const formdata=new FormData(e.currentTarget as HTMLFormElement);
                 const name=formdata.get(name_);
                 const desc=formdata.get(desc_);
-                if(blog && blog.user_id && name && desc){
-                    blog={...blog,name:name as string,desc:desc as string}
+                if(blog && user && user.id && name && desc){
+                    _blog={...blog,name:name as string,desc:desc as string}
+                    const newBlog=this._modSelector.loadBlog({blog:_blog,user});
                     //CREATING A NEW BLOG
-                    this._service.newBlog(blog).then(async(blog_)=>{
+                    this._service.newBlog(newBlog).then(async(blog_)=>{
                         if(blog_ && typeof(blog_)==="object"){
                             blog_={...blog_,selectors:blog.selectors,elements:blog.elements,codes:blog.codes};
                             //SAVING WHOLE BLOG
-                            this._service.saveBlog(blog_).then(async(_Blog_)=>{
+                            this._service.saveBlog({blog:blog_,user}).then(async(_Blog_)=>{
                                 if(_Blog_){
                                     //STORING IT IN STORAGE
                                     localStorage.setItem("blog",JSON.stringify(_Blog_));
                                     //SAVING IT IN MODSELECTOR
-                                    this._modSelector.blog= await this._service.promsaveItems(_Blog_);
+                                    this._modSelector.blog= await this._service.promsaveItems({blog:_Blog_,user});
                                     Misc.message({parent,msg:"saved",type_:"success",time:400});
                                     setTimeout(()=>{
                                         Misc.fadeOut({anchor:popup,xpos:100,ypos:50,time:400});

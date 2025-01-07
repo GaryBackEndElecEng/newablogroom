@@ -160,7 +160,8 @@ export type element_selType = {
     attr?:string,
     img?: string,
     imgKey?:string,
-    order:number
+    order:number,
+    type?:string
 
 }
 export type colType={
@@ -685,3 +686,12 @@ export type sendPostRequestType={
     clientEmail:string
 }
 //------REQUEST POST ANSWER  -------//
+//------headerflag  -------//
+export type cardBodyCssType={
+    id:number,
+    name:string,
+    small:string,
+    middle:string,
+    img:string
+}
+//------headerflag  -------//

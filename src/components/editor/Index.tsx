@@ -25,6 +25,7 @@ import ChartJS from '../chart/chartJS';
 import Message from '../common/message';
 import Post from '../posts/post';
 import CodeElement from '../common/codeElement';
+import Headerflag from './headerflag';
 // import { Session } from "next-auth";
 // import { useSession } from 'next-auth/react';
 
@@ -44,6 +45,7 @@ function Index() {
                 const service = new Service(modSelector);
                 const _user = new User(modSelector, service);
                 const codeElement = new CodeElement(modSelector, service);
+                const headerFlag = new Headerflag(modSelector, service, _user);
                 const post = new Post(modSelector, service, _user);
                 const chart = new ChartJS(modSelector, service, _user);
                 const shapeOutside = new ShapeOutside(modSelector, service, _user);
@@ -53,16 +55,16 @@ function Index() {
                 const _flexbox = new Flexbox(modSelector, service, _user, shapeOutside);
                 const _htmlElement = new HtmlElement(modSelector, service, _user, shapeOutside);
                 const _footer = new Footer(modSelector, service, _user);
-                const message = new Message(modSelector, service, modSelector.blog);
-                const displayBlog = new DisplayBlog(modSelector, service, _user, shapeOutside, newCode, chart, message, codeElement);
+                const message = new Message(modSelector, service, modSelector.blog, null);
+                const displayBlog = new DisplayBlog(modSelector, service, _user, shapeOutside, newCode, chart, message, codeElement, headerFlag);
                 const metablog = new MetaBlog(modSelector, service, _user);
-                const profile = new Profile(modSelector, service, _user, metablog, chart, post);
+                const profile = new Profile(modSelector, service, _user, metablog, chart, post, headerFlag);
                 const regSignin = new RegSignIn(modSelector, service, _user);
                 const feature = new Features();
                 const navArrow = new NavArrow(_user, regSignin, service, profile, modSelector, feature);
-                const _edit = new Edit(modSelector, service, mainInjection, _user, _flexbox, _htmlElement, _header, customHeader, _footer, displayBlog, newCode, chart, shapeOutside, codeElement);
+                const _edit = new Edit(modSelector, service, mainInjection, _user, _flexbox, _htmlElement, _header, customHeader, _footer, displayBlog, newCode, chart, shapeOutside, codeElement, headerFlag);
                 const main = new Main(modSelector, service, mainInjection, _edit, _user, _flexbox, _htmlElement, _footer, _header, customHeader, displayBlog, shapeOutside, navArrow);
-                const sidebar = new Sidebar(modSelector, service, main, _flexbox, newCode, _header, customHeader, _footer, _edit, _user, regSignin, displayBlog, chart, shapeOutside, metablog);
+                const sidebar = new Sidebar(modSelector, service, main, _flexbox, newCode, _header, customHeader, _footer, _edit, _user, regSignin, displayBlog, chart, shapeOutside, metablog, headerFlag);
                 sidebar.onclickHideShowSideBar(side_bar);
                 main.mainContainer(mainInjection);
 

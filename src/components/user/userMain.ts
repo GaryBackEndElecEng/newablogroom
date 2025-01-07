@@ -460,7 +460,8 @@ class User{
         }
        });
     }
-    async saveBlog(parent:HTMLElement,blog:blogType):Promise<blogType|void>{
+    async saveBlog(item:{parent:HTMLElement,blog:blogType,user:userType}):Promise<blogType|void>{
+        const {blog,user,parent}=item;
         // let tempBlog:blogType;
        if(!parent) return Misc.message({parent,msg:"Sorry no parent Dom",type_:"error",time:1400});
         const container=document.createElement("div");
@@ -471,10 +472,9 @@ class User{
         container.appendChild(text);
         parent.appendChild(container);
     //STUCK HERE: ISSUE:"can not readproperties of null"
-        return this._service.saveBlog(blog).then(async(res)=>{
+        return this._service.saveBlog({blog:blog,user}).then(async(res)=>{
         if(res){
-                this._modSelector._blog=res as blogType;
-                localStorage.setItem("blog",JSON.stringify(res));
+                // this._modSelector._blog=res as blogType;//don't need service does this
                 parent.removeChild(container);
                 Misc.message({parent,msg:"blog is saved",type_:"success",time:400});
                 return res;
@@ -489,42 +489,45 @@ class User{
         
     }
     
-    async signInBlogForm(parent:HTMLElement,blog:blogType){
+    async signInBlogForm(item:{parent:HTMLElement,blog:blogType,func:()=>Promise<void>|undefined|void}){
+        const {parent,blog,func}=item;
         const user=this.user;
+        const cssPopup={inset:"1060% 0% 0% 0%",position:"absolute"};
+        let blogUser:blogType={} as blogType;
         if(!(user.email && user.id)){
             await this._service.signIn(parent)
         }else if(blog){
-            blog={...blog,user_id:user.id,id:0}
+            blogUser={...blog,user_id:user.id,id:0}
             this._modSelector._blog=blog;
-            const {parentTextarea,form,input,textarea,popup}=Misc.fillBlogNameDesc(parent);
+            const {retParent,form,input,textarea,popup}=Misc.fillBlogNameDesc({parent,cssPopup});
             input.name="filename";
             textarea.name="desc";
-            form.onsubmit=(e:SubmitEvent)=>{
+            form.onsubmit=async(e:SubmitEvent)=>{
                 if(e){
                     e.preventDefault();
                     const formdata=new FormData(e.currentTarget as HTMLFormElement);
                     const desc=formdata.get("desc") as string;
                     const filename=formdata.get("filename") as string;
-                    blog={...blog,name:filename,desc:desc};
+                    blogUser={...blogUser,name:filename,desc:desc};
                     //closing form
-                    Misc.fadeOut({anchor:popup,xpos:100,ypos:100,time:400});
-                    setTimeout(()=>{textarea.removeChild(popup)},398);
+                    Misc.fadeOut({anchor:popup,xpos:50,ypos:100,time:400});
+                        setTimeout(()=>{
+                            retParent.removeChild(popup);
+                        },380);
                     //closing form
-                    return this._service.saveBlog(blog).then((blog_:blogType)=>{
+                    return await  this._service.saveBlog({blog:blogUser,user}).then((blog_:blogType)=>{
+                        //api/savegetblog
                         if(blog_){
-                            blog={...blog,id:blog_.id};
+                            // const blogg=this._modSelector.loadBlog({blog:blog_,user});//DONT NEED!! ( service does this)
+                            // console.log("blogID",blog.id,"recieved",blog_.id);//has ele.id from server
                             Misc.message({parent,msg:`${blog_.name} saved`,type_:"error",time:700});
-                            this._modSelector.blog=blog;
                             Misc.message({parent,msg:"saved",type_:"success",time:500});
+                            func();
                         }else{
                             Misc.message({parent,msg:"NOT SAVED",type_:"error",time:700});
                         }
                 
-                        Misc.fadeOut({anchor:popup,xpos:50,ypos:100,time:400});
-                        setTimeout(()=>{
-                            parentTextarea.removeChild(popup)
-                          
-                        },380);
+                        
                     }).catch(()=>{
                         
                         Misc.message({parent:parent,msg:"save blog failed,try again",type_:"error",time:700});
@@ -812,13 +815,14 @@ class User{
                         //READY TO BE SAVED
                         if(value){
                             ////////RETURNED VALUES FROM SERVER//////
+                            const user=this.user;
                             const blog:blogType|null=value.blog;
                             const data:{Key:string|null,img:string|null}=value.data;
-                            console.log("!!!BLOG SENDING TO SERVER:",blog)//OK
+                            // console.log("!!!BLOG SENDING TO SERVER:",blog)//OK
                             const ID=blog.id ? blog.id : 0;
                             value.blog={...value.blog,id:ID}
                             const updateBlog:blogType=value.blog;
-                           return this.saveBlog(Main.textarea as HTMLElement,updateBlog).then(blog=>{
+                           return this.saveBlog({parent:Main.textarea as HTMLElement,blog:updateBlog,user}).then(blog=>{
                                     if(blog && data && data.img){
                                         img.src=data.img;
                                         Misc.message({parent:retParent,msg:"Complete",type_:"success",time:400});
@@ -832,7 +836,7 @@ class User{
                
                 }else{
                     ////////USER HAS NOT SIGNED IN ////////////////////////
-                    return this.signInBlogForm(Main.textarea as HTMLElement,blog);//returns blog
+                    return this.signInBlogForm({parent:Main.textarea as HTMLElement,blog,func:()=>undefined});//returns blog
                 }
             }
         });
@@ -968,7 +972,7 @@ class User{
         return this.simpleGetS3Image(parent,formdata,image);
 
     }else{
-        await this.signInBlogForm(parent,blog);
+        await this.signInBlogForm({parent,blog,func:()=>undefined});
     }
    }
 
@@ -1075,12 +1079,15 @@ class User{
         }
     }) as Promise<string |null>;
    }
+   //ATTENTION!!:PARENT===navHeader (from Sidebar)
     async saveWork(item:{parent:HTMLElement,blog:blogType,func:()=>Promise<void>|void|undefined}){
+        //ATTENTION!!:PARENT===navHeader (from Sidebar)
         const {parent,blog,func}=item;
         let _blog=blog;
-        this._modSelector.loadBlog(_blog);//loads blog and saves it to storage
         const user=this.user;
+        this._modSelector.loadBlog({blog:blog,user});//loads blog and saves it to storage
         // console.log(user)//works
+        const cssPopup={inset:"1060% 0% 0% 0%",position:"absolute"};
         const notSignedIn=user && !user.id ? true:false;
         const hasBlogWithSigninAndNoBlogName=(blog && user.id && !blog.name) ? true:false;
         const hasSignedInWithBlogName=(blog && blog.user_id && blog.name)? true:false;
@@ -1099,7 +1106,7 @@ class User{
             await this._service.signIn(parent);
         return
         case hasBlogWithSigninAndNoBlogName:
-            const {parentTextarea,popup:nameDescPopup,form:nameDescForm,input:name_,textarea:desc_}=Misc.fillBlogNameDesc(parent);
+            const {retParent,popup:nameDescPopup,form:nameDescForm,input:name_,textarea:desc_}=Misc.fillBlogNameDesc({parent,cssPopup});
             nameDescForm.onsubmit=(e:SubmitEvent)=>{
                 if(e){
                     e.preventDefault();
@@ -1116,32 +1123,31 @@ class User{
                     setTimeout(()=>{
                         Misc.fadeOut({anchor:nameDescPopup,xpos:50,ypos:100,time:400});
                         setTimeout(()=>{
-                            parentTextarea.removeChild(nameDescPopup);
+                            retParent.removeChild(nameDescPopup);
                         },380);
                     },400);
                     //----------------------REMOVING FILBLOGNAMEDESC Form-----------------------//
                     //----------------------CREATING NEW BLOG-----------------------//
+                    const getTextarea=document.querySelector("div#textarea") as HTMLElement;
                     this.blog={...this.blog,user_id:user.id};
                     this._service.newBlog(this.blog).then(async(_blog_:blogType)=>{
                         if(_blog_){
-                            this.blog={...this.blog,id:_blog_.id};
+                            this.blog={..._blog_};
                             Misc.message({parent,msg:"new blog created",type_:"success",time:400});
                             //----------------------SAVING BLOG-----------------------//
 
-                                    this._service.saveBlog(this.blog).then(async(_blog:blogType)=>{
-                                        if(_blog){
-                                            this.blog={..._blog};//saving it to localStorage
-                                            const BlogFinal= await this._service.promsaveItems(_blog);
-                                            if(BlogFinal){
-                                            localStorage.setItem("blog",JSON.stringify(BlogFinal));
-                                            this.blog=BlogFinal;
-                                            Misc.message({parent,type_:"success",msg:" created && saved",time:700});
-                                            }
-                                            Misc.message({parent,type_:"success",msg:" created && saved",time:700});
+                                    this._service.saveBlog({blog:this.blog,user}).then(async(_blog:blogType)=>{
+                                        if(_blog && _blog.user_id){
+                                            // this.blog={..._blog};//DONT NEED SERVICE SAVES TO MOD AND LOCAL
+                                            Misc.message({parent:getTextarea,type_:"success",msg:" created && saved",time:700});
                                             func();//executing function
+                                        }else{
+                                            Misc.message({parent,type_:"error",msg:" was not saved: missing User_id",time:700});
                                         }
+                                        
+                                        
                                     }).catch((err)=>{const msg=getErrorMessage(err); console.error(msg);
-                                        Misc.message({parent,msg:msg,type_:"error",time:800});
+                                        Misc.message({parent:getTextarea,msg:msg,type_:"error",time:1200});
                                     });
                            
                             //----------------------SAVING BLOG-----------------------//
@@ -1157,20 +1163,18 @@ class User{
         case hasSignedInWithBlogName:
                  //----------------------SAVING BLOG-----------------------//
                  this.blog={..._blog};
-                 this._service.promsaveItems(_blog).then(async(_blog_)=>{
+                 this._service.promsaveItems({blog:_blog,user}).then(async(_blog_)=>{
                     if(_blog_){
                         // console.log("user_id",_blog_.user_id)//works
-                        this._service.saveBlog(_blog_).then(async(__blog:blogType)=>{
-                            if(__blog){
-                                this.blog={..._blog,id:__blog.id};//saving it to localStorage
-                                const BlogFinal= await this._service.promsaveItems(this.blog);
-                                if(BlogFinal){
-                                localStorage.setItem("blog",JSON.stringify(BlogFinal));
-                                this.blog=BlogFinal;
+                        this._service.saveBlog({blog:_blog_,user}).then(async(newBlog:blogType)=>{
+                            if(newBlog && newBlog.user_id){
+                                this.blog={...newBlog};//saving it to localStorage
                                 Misc.message({parent,type_:"success",msg:" created && saved",time:700});
-                                }
                                 func();//executing function
+                            }else{
+                                Misc.message({parent,type_:"error",msg:"missing user_id",time:1200});
                             }
+                            
                         }).catch((err)=>{const msg=getErrorMessage(err); console.error(msg);
                             Misc.message({parent,msg:msg,type_:"error",time:800});
                         });
@@ -1187,6 +1191,7 @@ class User{
         if(user && user.id && blog && !blog.user_id){
             blog={...blog,user_id:user.id};
         }
+        const cssPopup={inset:"160% 0% 0% 0%"};
         const notSignedIn=user && !(user.id || user.email)? true : false;
         const signedInPlusNoBlog=(blog && user && user.id && !blog.name) ? true:false;
         const signedInPLUSBlogName=(blog && blog.user_id && blog.name)? true:false;
@@ -1195,7 +1200,7 @@ class User{
             await this._service.signIn(parent);
             return;
             case signedInPlusNoBlog:
-                const {parentTextarea,popup:nameDescPopup,form:nameDescForm,input:name_,textarea:desc_}=Misc.fillBlogNameDesc(parent);
+                const {retParent,popup:nameDescPopup,form:nameDescForm,input:name_,textarea:desc_}=Misc.fillBlogNameDesc({parent,cssPopup});
                     nameDescForm.addEventListener("submit",async(e:SubmitEvent)=>{
                         if(e){
                             e.preventDefault();
@@ -1209,7 +1214,7 @@ class User{
                                 //REMOVING FORM
                                 Misc.fadeOut({anchor:nameDescPopup,xpos:50,ypos:100,time:400});
                                 setTimeout(()=>{
-                                    parentTextarea.removeChild(nameDescPopup)
+                                    retParent.removeChild(nameDescPopup)
                                     
                                 },380);
                                 const combName=name.split(" ").join("");
@@ -1219,6 +1224,7 @@ class User{
                                     await this._service.simpleImgUpload(parent,formdata).then(async(imgKeyUrl:gets3ImgKey)=>{
                                           if(imgKeyUrl){
                                               
+                                                    const getTextarea=document.querySelector("div#textarea") as HTMLElement;
                                                   const file=formdata.get("file") as File;
                                                   const filename=file.name as string;
                                                   img.src=imgKeyUrl.img;
@@ -1232,7 +1238,7 @@ class User{
                                                         this._modSelector.promUpdateElement({target:img}).then(async(res)=>{
                                                             if(res){
                                                                 const ele=res as element_selType;
-                                                                Misc.message({parent,msg:`${ele.eleId}- saved`,type_:"success",time:1200});
+                                                                Misc.message({parent:getTextarea,type_:"success",msg:" created && saved",time:700});
                                                             }
                                                         });
                                                   }else{
@@ -1240,7 +1246,7 @@ class User{
                                                     this._modSelector.promUpdateElement({target:img}).then(async(res)=>{
                                                         if(res){
                                                             const ele=res as elementType;
-                                                            Misc.message({parent,msg:`${ele.eleId}- saved`,type_:"success",time:1200});
+                                                            Misc.message({parent:getTextarea,msg:`${ele.eleId}- saved`,type_:"success",time:1200});
                                                         }
                                                     });
                                                   }
@@ -1419,9 +1425,9 @@ class User{
     static sleep(ms:number){
         return new Promise(resolve=>setTimeout(resolve,ms))
     }
-    async saveKeyWithinSelectorOrNot(item:{parent:HTMLElement,target:HTMLElement,imgKey:string,blog:blogType}):Promise<blogType | undefined>{
+    async saveKeyWithinSelectorOrNot(item:{parent:HTMLElement,target:HTMLElement,imgKey:string,blog:blogType,user:userType}):Promise<blogType | undefined>{
         //SAVES IMGKEY IN TARGET DEPENDING IF FLEX ATTRIBUTE EXISTS ON TARGET: NOT=>BGIMAGE,TARGET:FLEX EXIST=>IMAGE; THEN SAVES BLOG AND RETURN THE NEWLY SAVED BLOG
-        const {parent,target,imgKey,blog}=item;
+        const {parent,target,imgKey,blog,user}=item;
         const circle=parent.getAttribute("data-shapeoutside-circle");
         const square=parent.getAttribute("data-shapeoutside-square");
         const polygon=parent.getAttribute("data-shapeoutside-polygon");
@@ -1462,7 +1468,7 @@ class User{
                  if(res){
                      const level=parent.getAttribute("level");
                      Misc.message({parent:parent,msg:` image saved: level=${level}`,type_:"success",time:1100});
-                     return this._service.promsaveItems(res);
+                     return this._service.promsaveItems({blog:res,user});
                  }
              });
         }else{
@@ -1471,7 +1477,7 @@ class User{
                if(res){
                    const level=target.getAttribute("level");
                    Misc.message({parent:parent,msg:` image saved: level=${level}`,type_:"success",time:1100});
-                   return this._service.promsaveItems(res);
+                   return this._service.promsaveItems({blog:res,user});
                }
            });
         };

@@ -203,6 +203,7 @@ model Element {
   attr       String?
   img        String?
   imgKey     String?
+  type       String?
   blog       Blog    @relation(fields: [blog_id], references: [id], onDelete: Cascade, onUpdate: Cascade)
   blog_id    Int
 

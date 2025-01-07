@@ -1,4 +1,4 @@
-import {flexType,elementType,selectorType,element_selType,codeType,blogType, chartType, regenCleanType, rowType,} from "./Types";
+import {flexType,elementType,selectorType,element_selType,codeType,blogType, chartType, regenCleanType, rowType, userType,} from "./Types";
 import ModSelector from "@/components/editor/modSelector";
 import DisplayBlog, {separator} from "@/components/blog/displayBlog";
 import Header from "@/components/editor/header";
@@ -22,6 +22,7 @@ import NewCode from "./newCode";
 import ChartJS from "../chart/chartJS";
 import CodeElement from "../common/codeElement";
 import PasteCode from "../common/pasteCode";
+import Headerflag from "./headerflag";
 
 class EditSetups{
     bgColor:string;
@@ -213,7 +214,7 @@ class Edit {
     _pasteCode:PasteCode;
     css:string="min-height:100vh;height:auto;box-shadow:1px 1px 12px 2px black;border-radius:10px;padding-inline:0px;padding-block:0px;margin:0px;z-index:0;position:relative;width:100%;display:flex;flex-direction:column;justify-content:flex-start;align-items:center;gap:1rem;";
   
-    constructor(public modSelector:ModSelector,private _service:Service,public _mainInjection:HTMLElement | null,private _user:User,public _flexbox:Flexbox,public _htmlElement:HtmlElement,public header:Header, public customHeader:CustomHeader,public footer:Footer,public displayBlog:DisplayBlog,private _code:NewCode,public chart:ChartJS,private _shapeOutside:ShapeOutside,public codeElement:CodeElement){
+    constructor(public modSelector:ModSelector,private _service:Service,public _mainInjection:HTMLElement | null,private _user:User,public _flexbox:Flexbox,public _htmlElement:HtmlElement,public header:Header, public customHeader:CustomHeader,public footer:Footer,public displayBlog:DisplayBlog,private _code:NewCode,public chart:ChartJS,private _shapeOutside:ShapeOutside,public codeElement:CodeElement,private headerFlag:Headerflag){
         this._modSelector=modSelector;
         this.flexbox=_flexbox;
         this._footer=footer;
@@ -274,6 +275,8 @@ class Edit {
     //GETTER SETTERS
     //INJECTION : MainContainer
    async main(parent:HTMLElement|null,blog:blogType){
+    const less900= window.innerWidth < 900;
+    const less400= window.innerWidth < 400;
         if(parent){
             parent.style.cssText=blog.cssText ? blog.cssText :this.css;
             // console.log(blog)
@@ -295,7 +298,7 @@ class Edit {
                         }
                     });
                 }
-                   await this.bodyWork(parent,blog,false); 
+                   await this.bodyWork({parent,blog,showMeta:false,less900,less400}); 
             
             }else{
                 const {retParent,retBtn,container}=this.editSetup.saveNoBlogSetup(parent)
@@ -433,8 +436,8 @@ class Edit {
                 this._service.getUserBlog({user_id,blog_id:id}).then(async(resBlog)=>{
                     if(resBlog && resBlog as blogType){
                         const _blog=resBlog as blogType;
-                        this._modSelector.loadBlog(_blog);
                         const user=this._user.user;
+                        this._modSelector.loadBlog({blog:_blog,user});
                         localStorage.setItem("user_id",user.id);
                         localStorage.setItem("email",user.email);
                         this.main(Main.container as HTMLElement,_blog);
@@ -541,7 +544,8 @@ class Edit {
         };
 
     }
-    async bodyWork(parent:HTMLElement,blog:blogType,showMeta:boolean){
+    async bodyWork(item:{parent:HTMLElement,blog:blogType,showMeta:boolean,less900:boolean,less400:boolean}){
+        const {parent,blog,showMeta,less900,less400}=item;
         this._modSelector.blog={...blog};
         //ADDING BACKGROUND////
         if(blog){
@@ -582,8 +586,8 @@ class Edit {
                         this.customHeader.showCustHdrSelector(Main._mainHeader as HTMLElement,this._modSelector.header,true)
                     }
                 }
-                blog={...this._modSelector.blog}
-               await this.selEleGenerator(Main.textarea as HTMLElement,blog);
+                
+               await this.selEleGenerator({parent:Main.textarea as HTMLElement,blog,less900,less400});
                 if(footer && Main._mainFooter){
                     Main.cleanUp(Main._mainFooter as HTMLElement);
                     await this._footer.showSelector(Main._mainFooter as HTMLElement,this._modSelector.footer);
@@ -592,7 +596,8 @@ class Edit {
         }
        
     };
-   async selEleGenerator(parent:HTMLElement,blog:blogType|null){
+   async selEleGenerator(item:{parent:HTMLElement,blog:blogType|null,less900:boolean,less400:boolean}){
+    const {parent,blog,less900,less400}=item;
         if(blog){
             Main.cleanUp(parent)
             const sortThis=this.placementAdjustShift({blog});
@@ -602,15 +607,18 @@ class Edit {
                 
                 await Promise.all(sortThis.map(async(item)=>{
                     if(item){
+                        const ele=item.selEleChrt as elementType;
                         if(item.type==="selector"){
                             await this.flexbox.showSelector(parent,item.selEleChrt as selectorType);
 
                         }else if(item.type==="element"){
-                            const ele=item.selEleChrt as elementType;
                             if(ele.attr==="data-is-code-element"){
                                 this.codeElement.main({injector:parent,element:ele,isNew:false,isClean:false});
                             }else if(ele.attr==="data-is-code-paste"){
                                 this._pasteCode.main({parent,element:ele,isNew:false,isClean:false});
+                            }else if(ele.type==="headerflag"){
+                                // add showheaderflag
+                                this.headerFlag.showHeaderflag({parent,element:ele,less900,less400});
                             }else{
 
                                 await this._htmlElement.showElement(parent,ele);
@@ -1067,7 +1075,7 @@ class Edit {
         const selects=(blog.selectors && blog.selectors.length) ? blog.selectors as selectorType[]: null;
         const cleanSels=selects ? selects.filter(sel=>(sel.header===false)).filter(sel=>(sel.footer===false)): null
         const charts=blog.charts && blog.charts.length>0 ? blog.charts as chartType[] :null;
-        console.log("maxcount",maxcount)
+        // console.log("maxcount",maxcount)
         if(!(maxcount>0)) return arr as [];
         Array.from(Array(maxcount+3).keys()).map((num)=>{
             const int=num+1;
@@ -1131,7 +1139,7 @@ class Edit {
             });
             // console.log("2:",sortArr2.map(it=>({id:it.id,dup:it.duplicate})));
             // console.log("1:",sortArr.map(it=>({id:it.id,dup:it.duplicate})));
-                const newSorted=sortArr.sort((a,b)=>{if(a.id < b.id) return -1;return 1;}).map((item,index)=>{
+                sortArr.sort((a,b)=>{if(a.id < b.id) return -1;return 1;}).map((item,index)=>{
                     if(item){
                         if(item.type==="element"){
                             this._modSelector._elements=this._modSelector._elements.map(ele=>{
@@ -1177,10 +1185,11 @@ class Edit {
         }
         Misc.message(Msg);
     }
-    async saveRecord(parent:HTMLElement,blog:blogType){
+    async saveRecord(item:{parent:HTMLElement,blog:blogType,user:userType}){
+        const {parent,blog,user}=item;
         //parent==container
         if(blog.user_id){
-        return this._user.saveBlog(parent,blog).then(async(blog_)=>{
+        return this._user.saveBlog({parent,blog,user}).then(async(blog_)=>{
             if(blog_){
                 this._modSelector.blog=blog_;
                 return blog_;
@@ -1188,7 +1197,7 @@ class Edit {
 
         }); 
         }else{
-        return this._user.signInBlogForm(parent,blog);  
+        return this._user.signInBlogForm({parent,blog,func:()=>undefined});  
         } 
     }
    
@@ -1367,6 +1376,8 @@ class Edit {
         //place execute here
         this.exeCloseReOrder(parent).then(async(res)=>{
             if(res){
+                const less900=window.innerWidth <900;
+                const less400=window.innerWidth <400;
             res.btn.onclick=(e:MouseEvent)=>{
                 if(e){
                     arrPopups.map((res)=>{
@@ -1382,7 +1393,7 @@ class Edit {
                         parent.removeChild(res.masterPopup);
                     },380);
                     setTimeout(()=>{
-                        this.selEleGenerator(Main.textarea as HTMLElement,blog)
+                        this.selEleGenerator({parent:Main.textarea as HTMLElement,blog,less900,less400})
     
                     },500);
                 }

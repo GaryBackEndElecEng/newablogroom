@@ -8,6 +8,7 @@ import User from '../user/userMain';
 import MetaBlog from '../editor/metaBlog';
 import ChartJS from '../chart/chartJS';
 import Post from '../posts/post';
+import Headerflag from '../editor/headerflag';
 
 export default function Index({ user }: { user: userType | null }) {
   const countRef = React.useRef(0);
@@ -21,7 +22,8 @@ export default function Index({ user }: { user: userType | null }) {
       const metablog = new MetaBlog(modSelector, service, _user);
       const chart = new ChartJS(modSelector, service, _user);
       const post = new Post(modSelector, service, _user);
-      const profile = new ProfileMain(modSelector, service, _user, user, metablog, chart, post)
+      const headerFlag = new Headerflag(modSelector, service, _user);
+      const profile = new ProfileMain(modSelector, service, _user, user, metablog, chart, post, headerFlag);
       profile.main({ parent: profileMainInjector }).then(() => {
         countRef.current++;
         profile.cleanUpKeepOne(profileMainInjector, "section#main-outerMain")

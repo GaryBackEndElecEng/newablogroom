@@ -19,6 +19,7 @@ import ChartJS from "../chart/chartJS";
 import Post from "../posts/post";
 import Blogs from "../blogs/blogsInjection";
 import CodeElement from "../common/codeElement";
+import Headerflag from "../editor/headerflag";
 
 
 
@@ -47,7 +48,7 @@ class ProfileMain{
     noDevMsg:string="<span> sorry you have no Development quotes in the database.</span><span> all your Quotes will be shown here with the priviledge of taking them live</span>, <span> sorry you have no blogs in the database.</span><br> <pre> Gary Wallace</pre>."
 
 
-    constructor(private _modSelector:ModSelector,private _service:Service,private _user:User,private _user_:userType,private _metaBlog:MetaBlog,public chart:ChartJS,private _post:Post){
+    constructor(private _modSelector:ModSelector,private _service:Service,private _user:User,private _user_:userType,private _metaBlog:MetaBlog,public chart:ChartJS,private _post:Post,private headerFlag:Headerflag){
         this.bgColor=this._modSelector._bgColor;
         this.btnColor=this._modSelector.btnColor;
         this.userUrlUpdate="/api/user_update";
@@ -62,7 +63,7 @@ class ProfileMain{
         this.newCode=new NewCode(this._modSelector,this._service,this._user);
         this.shapeOutside=new ShapeOutside(this._modSelector,this._service,this._user);
         this.classMsg= new Message(this._modSelector,this._service,this._modSelector.blog,null);
-        this._displayBlog=new DisplayBlog(this._modSelector,this._service,this._user,this.shapeOutside,this.newCode,this.chart,this.classMsg,this.codeElement);
+        this._displayBlog=new DisplayBlog(this._modSelector,this._service,this._user,this.shapeOutside,this.newCode,this.chart,this.classMsg,this.codeElement,this.headerFlag);
         this.freebucket="https://newablogroom-free-bucket.s3.us-east-1.amazonaws.com"
 
     }
@@ -1197,7 +1198,8 @@ class ProfileMain{
                             localStorage.setItem("blog",JSON.stringify(blog));
                             const max_=ModSelector.maxCount(blog);
                             localStorage.setItem("placement",String(max_));
-                            this._modSelector.loadBlog(blog);//add or subtract rows is done @ modSelector (converts selector.rows =>JSON.parse() then add/remove, then reconvert to JSON.stringify)
+                            const user=this._user.user;
+                            this._modSelector.loadBlog({blog,user});//add or subtract rows is done @ modSelector (converts selector.rows =>JSON.parse() then add/remove, then reconvert to JSON.stringify)
                             ProfileMain.cleanUpByID(mainRow,"section#show-final-popup");
                             await this.showFinalWork(mainRow,blog);//THIS USES DISPLAYBLOG.saveFinaleWork() to show blog (AND CONVERTS SELECTOR.ROWS)
                             Misc.fadeOut({anchor:popup,xpos:100,ypos:50,time:400});

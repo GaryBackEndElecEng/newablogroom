@@ -195,7 +195,7 @@ class EditText{
             const popup=document.createElement("div");
             popup.id="paragraphEditorbar-popup";
             popup.style.cssText=css_col + "position:absolute;background-color:white;color:black;box-shadow:1px 1px 12px 1px lightblue;border-radius:12px;height:auto;z-index:100;";
-            popup.style.top=less900 ? (less400 ? "-20%":"-20%") : "-15%";
+            popup.style.top=less900 ? (less400 ? "-10px":"-10px") : "-10px";
             const toolbar=document.createElement("div");
             toolbar.id="textTool-popup-toolbar";
             toolbar.style.cssText=css_row_block;
@@ -573,7 +573,7 @@ class EditText{
                         newEle.appendChild(endText);
                         targetNew +=newEle.innerHTML;
                         found=true;
-                        console.log("newEle.innerHTML",newEle.innerHTML);
+                        // console.log("newEle.innerHTML",newEle.innerHTML);
                     }else{
                         const {newFound,inner_html}=this.secondLevel({child,span,found,node,startStr,endStr});
                         newEle.innerHTML=inner_html;

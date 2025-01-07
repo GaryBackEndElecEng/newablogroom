@@ -23,6 +23,7 @@ import MainFooter from '../footer/mainFooter';
 import Dataflow from '../common/dataflow';
 import AllMsgs from '../home/allMsgs';
 import Message from '../common/message';
+import Headerflag from '../editor/headerflag';
 
 
 function Index({ _user_ }: { _user_: userType | null }) {
@@ -36,7 +37,7 @@ function Index({ _user_ }: { _user_: userType | null }) {
             const browserType = new BrowserType();
             const modSelector = new ModSelector();
             const service = new Service(modSelector);
-            const message = new Message(modSelector, service, modSelector.blog);
+            const message = new Message(modSelector, service, modSelector.blog, null);
             const allMsgs = new AllMsgs(modSelector, service, message)
             const dataflow = new Dataflow(service);
             const user = new User(modSelector, service);
@@ -45,7 +46,8 @@ function Index({ _user_ }: { _user_: userType | null }) {
             const regSignin = new RegSignIn(modSelector, service, user);
             const metaBlog = new MetaBlog(modSelector, service, user);
             const post = new Post(modSelector, service, user);
-            const profile = new Profile(modSelector, service, user, metaBlog, chart, post);
+            const headerFlag = new Headerflag(modSelector, service, user);
+            const profile = new Profile(modSelector, service, user, metaBlog, chart, post, headerFlag);
             const navArrow = new NavArrow(user, regSignin, service, profile, modSelector, feature);
             const nav = new Nav(modSelector, service, user);
             const mainFooter = new MainFooter(modSelector, service, user, nav, navArrow, dataflow, feature, allMsgs);

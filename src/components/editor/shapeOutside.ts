@@ -19,6 +19,8 @@ export type attributeType={
 }
 
 class ShapeOutside{
+    _element:elementType={} as elementType;
+    initElement:elementType={} as elementType;
     logo:string="/images/gb_logo.png";
     btnColor:string;
     bgColor:string;
@@ -42,6 +44,22 @@ class ShapeOutside{
         this.icons=Main.icons;
         this.divCont_css="display:flex;align-items:center;justify-content:center;flex-direction:column;padding:0.5rem;border-radius:12px;margin-inline:3rem;padding-inline:1rem;";
         this.divCont_class="eleContainer";
+        this.initElement={
+            id: 0, 
+            placement:0,
+            selectorId:undefined,
+            eleId: "",
+            name: "div",
+            class: "",
+            inner_html:"",
+            cssText: "",
+            attr:"",
+            img:"",
+            imgKey:undefined,
+            blog_id:0,
+            type:"shapeoutside"
+        }
+        this._element=this.initElement;
     }
 
      //////------GETTERS/SETTERS-----/////////
@@ -57,10 +75,142 @@ class ShapeOutside{
     set elements(elements:elementType[]){
         this._modSelector.elements=elements;
     }
+    get element(){
+        return this._element;
+    }
+    set element(element:elementType){
+        this._element=element;
+    }
     //////------GETTERS/SETTERS-----/////////
-
+    ///-----FROM HTMLEMENT CLASS///
+    showShapeOutside(item:{parent:HTMLElement,flex:flexType|null,element:elementType|element_selType}){
+        //FOR HTMLELEMENT ON REFRESH; HTMLELEMENT THEN GOES TO EDIT
+        const {parent,flex,element}=item;
+        const less900=window.innerWidth < 900;
+        const less800=window.innerWidth < 800;
+        const less500=window.innerWidth < 500;
+        const less400=window.innerWidth < 400;
+        let ele:elementType|element_selType={} as elementType|element_selType;
+        ele={...element};
+        const type:string=ele.type ? ele.type : "shapeoutside";
+        const attr=ele.attr ? ele.attr :"data-shapeoutside-undefined";
+        const cssPara="position:relative;padding:0.35rem;";
+        const rand=`${Math.round(Math.random()*1000)}`;
+        const para=document.createElement("p");
+        para.setAttribute("type",type);
+        const {parsed}=Header.checkJson(parent.getAttribute("flex"));
+        let flex_={...parsed as flexType|null};
+        flex_=parsed ? parsed as flexType : flex as flexType;
+        if(!flex_){
+            
+        }else{
+            if(attr.includes("circle") || attr.includes("square")){
+                flex_={...flex_,shapeOutsideSquare:true};
+            }else{
+                flex_={...flex_,shapeOutsidePolygon:true};
+            }
+            
+            const paraFlex=Main.flexTracker(para,flex_ as flexType);
+            flex_=paraFlex
+        }
+        const divCont=document.createElement("div");
+        divCont.id=this.divCont_class;
+        divCont.style.cssText=this.divCont_css;
+        if((element as elementType).type){
+            divCont.setAttribute("data-placememt",`${ele.placement}-A`);
+        }else if(flex){
+            ele=ele as element_selType
+            divCont.setAttribute("data-placememt",`${ele.order}-A`);
+        }
+        para.setAttribute("has-innerimage","true");
+        para.setAttribute("contenteditable","true");
+        para.setAttribute("data-shapeoutside","true");
+        para.setAttribute("name","p");
+        para.setAttribute(attr,attr);
+        para.setAttribute("is-element","true");
+        para.classList.add("shape-outside");
+        const img=document.createElement("img");
+        const imgCss="max-width:350px;width:100%;float:left !important;margin-block:1rem;";
+        img.setAttribute("contenteditable","false");
+        img.setAttribute("is-shapeoutside","true");
+        img.src=this.logo;
+        img.alt="ww.ablogroom.com";
+        para.id=element.eleId;
+        if(attr.includes("circle")){
+            para.style.cssText=cssPara +"width:100%;";
+            para.classList.add("shape-outside-circle");
+            img.setAttribute("is-shapeoutside-circle","true");
+            img.style.cssText=imgCss + "margin-right:4rem;shape-outside:circle();border-radius:50%;";
+            img.id="shape-outside-circle";
+            img.style.width=less900 ? ( less400 ? "300px":"320px"):"330px";
+            img.style.aspectRatio="1 / 1";
+            para.appendChild(img);
+        }else if(attr.includes("square")){
+            para.style.cssText=cssPara +"width:100%;";
+            para.classList.add("shape-outside-square");
+            img.setAttribute("is-shapeoutside-square","true");
+            img.style.cssText=imgCss ;
+            img.id="shape-outside-square";
+            img.style.width=less900 ? ( less400 ? "300px":"320px"):"330px";
+            img.style.aspectRatio="1 / 1";
+            para.appendChild(img);
+        }else if(attr.includes("polygon")){
+            divCont.style.marginBlock="2rem";
+            divCont.style.paddingBlock="1rem";
+            divCont.id=this.divCont_class + "-" + "poly";
+            para.style.cssText=cssPara;
+            para.classList.add("shape-outside-polygon");
+            const imgDiv=document.createElement("div");
+            imgDiv.id="polygon";
+            imgDiv.setAttribute("contenteditable","false");
+            imgDiv.id="polygon";
+            imgDiv.setAttribute("contenteditable","false");
+            const css="border-radius:10%;position:relative;float:left !important;margin-right:5rem;margin-block:3rem;transform:rotate(45deg);shape-outside:polygon(50% 0%,75% 25%,100% 50%,100% 50%,100% 50%,100% 50%, 90% 50%,80% 60%,70% 70%, 50% 80%,50% 80%,45% 85%,40% 90%,35% 100%);";
+            imgDiv.style.cssText=css;
+            imgDiv.style.marginBottom="7rem";
+            imgDiv.style.overflow="hidden";
+            imgDiv.style.aspectRatio="1 / 1";
+            imgDiv.style.width=less900 ? (less800 ? (less500 ? (less400 ? "200px":"220px"):"275px"):"300px"):"350px";
+            const img=document.createElement("img");
+            img.style.cssText="width:100%;border:none;transform:rotate(-45deg);";
+            img.style.aspectRatio="1 / 1";
+            img.src=this.logo;
+            img.id="shape-outside-polygon";
+            img.alt="ww.ablogroom.com";
+            img.setAttribute("contenteditable","false");
+            img.setAttribute("is-shapeoutside","true");
+            imgDiv.appendChild(img);
+            para.appendChild(imgDiv);
+            Misc.matchMedia({parent:imgDiv,maxWidth:920,cssStyle:{width:"300px",height:"300px"}});
+            Misc.matchMedia({parent:imgDiv,maxWidth:800,cssStyle:{width:"275px",height:"275px"}});
+            Misc.matchMedia({parent:imgDiv,maxWidth:500,cssStyle:{width:"220px",height:"220px"}});
+            Misc.matchMedia({parent:imgDiv,maxWidth:400,cssStyle:{width:"200px",height:"200px"}});
+        }
+        para.innerHTML =element.inner_html;
+        divCont.appendChild(para);
+        parent.appendChild(divCont);
+        this._modSelector.editElement(para);
+        Misc.matchMedia({parent:divCont,maxWidth:920,cssStyle:{marginInline:"1.5rem"}});
+        Misc.matchMedia({parent:divCont,maxWidth:420,cssStyle:{marginInline:"10px"}});
+        
+            this.setAttributes({column:parent,divCont,target:para});//ID=shape-outside-${rand}
+            this.removeMainElement({parent,divCont,target:para,show:false});
+                    divCont.addEventListener("click",(e:MouseEvent)=>{
+                        if(e){
+                            ShapeOutside.cleanUpByID(para,"setAttributes");
+                            this._modSelector.updateElement(para);
+                            para.classList.toggle("isActive");
+                            divCont.classList.toggle("isActive");
+                            this.removeMainElement({parent,divCont,target:para,show:true});
+                            
+                           
+                        }
+                    });
+    }
     //FROM SIDEBAR BTN
     sidebarMain(parent:HTMLElement){
+        const less900=window.innerWidth < 900;
+        const less400=window.innerWidth < 400;
         parent.style.position="relative";
         parent.style.zIndex="";
         const popup=document.createElement("div");
@@ -73,10 +223,10 @@ class ShapeOutside{
         title.className="text-light text-center my-2 display-6 lean";
         title.textContent="image-text-merger:shape-outside"
         const arr=[
-            {name:"select",desc:"please select below"},
-            {name:"circular-image",desc:"circular image embedded within your paragraph"},
-            {name:"square-image",desc:"square image embedded within your paragraph"},
-            {name:"polygon-image",desc:"polgon image embedded within your paragraph"},
+            {name:"select",desc:"please select below",value:"select"},
+            {name:"circular image",desc:"circular image embedded within your paragraph",value:"data-shapeoutside-circle"},
+            {name:"square image",desc:"square image embedded within your paragraph",value:"data-shapeoutside-square"},
+            {name:"polygon image",desc:"polgon image embedded within your paragraph",value:"data-shapeoutside-polygon"},
 
         ]
         const select=document.createElement("select");
@@ -98,27 +248,20 @@ class ShapeOutside{
         arr.forEach(item=>{
             const option=document.createElement("option");
             option.innerHTML=`<span style="color:purple;font-size:18px;">${item.name}</span><span> :=> ${item.desc}</span>`;
-            option.value=item.name;
+            option.value=item.value;
             select.appendChild(option);
         });
-        select.addEventListener("click",(e:MouseEvent)=>{
+        select.onchange=(e:Event)=>{
             if(e){
-                const value=(e.currentTarget as HTMLSelectElement).value;
-                if(value==="circular-image"){
-                    this.shapeOutsideCircle({parent,flex:null})
-                    Misc.fadeOut({anchor:popup,xpos:100,ypos:50,time:420});
-                    setTimeout(()=>{parent.removeChild(popup);},400);
-                }else if(value==="square-image"){
-                    this.shapeOutsideSquare({parent,flex:null});
-                    Misc.fadeOut({anchor:popup,xpos:100,ypos:50,time:420});
-                    setTimeout(()=>{parent.removeChild(popup);},400);
-                }else if(value==="polygon-image"){
-                    this.shapeOutsidePolygon({parent,flex:null});
+                const attr=(e.currentTarget as HTMLSelectElement).value;
+                if(attr){
+                    this.element={...this.element,attr:attr};
+                    this.addShapeOutside({parent,flex:null,element:this.element})
                     Misc.fadeOut({anchor:popup,xpos:100,ypos:50,time:420});
                     setTimeout(()=>{parent.removeChild(popup);},400);
                 }
             }
-        });
+        };
         xdiv.addEventListener("click",(e:MouseEvent)=>{
             if(e){
                 Misc.fadeOut({anchor:popup,xpos:20,ypos:100,time:395});
@@ -127,45 +270,105 @@ class ShapeOutside{
         });
     }
 
-    shapeOutsideCircle(item:{parent:HTMLElement,flex:flexType|null}){
-        const {parent,flex}=item;
+    addShapeOutside(item:{parent:HTMLElement,flex:flexType|null,element:elementType|element_selType}){
+        const {parent,flex,element}=item;
         const less900=window.innerWidth < 900;
+        const less800=window.innerWidth < 800;
+        const less500=window.innerWidth < 500;
         const less400=window.innerWidth < 400;
+        let ele:elementType|element_selType={} as elementType|element_selType;
+        ele={...element};
+        const type=ele.type ? ele.type : "shapeoutside";
+        const attr=ele.attr ? ele.attr :"data-shapeoutside-undefined";
+        const cssPara="position:relative;padding:0.35rem;";
         const rand=`${Math.round(Math.random()*1000)}`;
         const para=document.createElement("p");
+        para.setAttribute("type",type);
+        para.setAttribute("name","p");
+        para.setAttribute("has-innerimage","true");
+        para.setAttribute("contenteditable","true");
+        para.setAttribute("data-shapeoutside","true");
+        para.setAttribute(attr,attr);
+        para.setAttribute("is-element","true");
+        para.classList.add("shape-outside");
+        para.style.lineHeight="2.27rem;";
+        const divCont=document.createElement("div");
+        divCont.id=this.divCont_class;
+        divCont.style.cssText=this.divCont_css;
         const {parsed}=Header.checkJson(parent.getAttribute("flex"));
         let flex_={...parsed as flexType|null};
         flex_=parsed ? parsed as flexType : flex as flexType;
         if(!flex_){
-            para.id=`shape-outside-${rand}`;
-
+            
         }else{
-            flex_={...flex,shapeOutsideSquare:true};
+            if(attr.includes("circle") || attr.includes("square")){
+                flex_={...flex_,shapeOutsideSquare:true};
+            }else{
+                flex_={...flex_,shapeOutsidePolygon:true};
+            }
+            divCont.style.marginBlock="2rem";
             const paraFlex=Main.flexTracker(para,flex_ as flexType);
             flex_=paraFlex
         }
-        const divCont=document.createElement("div");
-        divCont.id=this.divCont_class;
-        divCont.style.cssText=this.divCont_css;
-        para.setAttribute("contenteditable","true");
-        para.setAttribute("data-shapeoutside","true");
-        para.setAttribute("data-shapeoutside-circle","true");
-        para.setAttribute("is-element","true");
-        para.classList.add("shape-outside");
-        para.style.cssText="position:relative;padding:0.35rem;width:100%;";
-        para.style.lineHeight="2.27rem;"
         const img=document.createElement("img");
-        const imgCss="border-radius:50%;max-width:350px;shape-outside:circle();width:100%;float:left !important;margin-right:4rem;margin-block:1rem;";
+        const imgCss="max-width:350px;width:100%;float:left !important;margin-block:1rem;";
         img.setAttribute("contenteditable","false");
         img.setAttribute("is-shapeoutside","true");
-        img.setAttribute("is-shapeoutside-circle","true");
-        img.style.cssText=imgCss;
-        img.style.width=less900 ? ( less400 ? "300px":"320px"):"330px";
-        img.style.aspectRatio="1 / 1";
         img.src=this.logo;
-        img.id="shape-outside-circle";
         img.alt="ww.ablogroom.com";
-        para.appendChild(img);
+        if(attr.includes("circle")){
+            para.id=`shape-outside-circle-${rand}`;
+            para.style.cssText=cssPara +"width:100%;";
+            para.classList.add("shape-outside-circle");
+            img.setAttribute("is-shapeoutside-circle","true");
+            img.style.cssText=imgCss + "margin-right:4rem;shape-outside:circle();border-radius:50%;";
+            img.id="shape-outside-circle";
+            img.style.width=less900 ? ( less400 ? "300px":"320px"):"330px";
+            img.style.aspectRatio="1 / 1";
+            para.appendChild(img);
+        }else if(attr.includes("square")){
+            para.id=`shape-outside-square-${rand}`;
+            para.style.cssText=cssPara +"width:100%;";
+            para.classList.add("shape-outside-square");
+            img.setAttribute("is-shapeoutside-square","true");
+            img.style.cssText=imgCss ;
+            img.id="shape-outside-square";
+            img.style.width=less900 ? ( less400 ? "300px":"320px"):"330px";
+            img.style.aspectRatio="1 / 1";
+            para.appendChild(img);
+        }else if(attr.includes("polygon")){
+            para.id=`shape-outside-polygon-${rand}`;
+            divCont.style.marginBlock="2rem";
+            divCont.style.paddingBlock="1rem";
+            divCont.id=this.divCont_class + "-" + "poly";
+            para.style.cssText=cssPara;
+            para.classList.add("shape-outside-polygon");
+            const imgDiv=document.createElement("div");
+            imgDiv.id="polygon";
+            imgDiv.setAttribute("contenteditable","false");
+            imgDiv.id="polygon";
+            imgDiv.setAttribute("contenteditable","false");
+            const css="border-radius:10%;position:relative;float:left !important;margin-right:5rem;margin-block:3rem;transform:rotate(45deg);shape-outside:polygon(50% 0%,75% 25%,100% 50%,100% 50%,100% 50%,100% 50%, 90% 50%,80% 60%,70% 70%, 50% 80%,50% 80%,45% 85%,40% 90%,35% 100%);";
+            imgDiv.style.cssText=css;
+            imgDiv.style.marginBottom="7rem";
+            imgDiv.style.overflow="hidden";
+            imgDiv.style.aspectRatio="1 / 1";
+            imgDiv.style.width=less900 ? (less800 ? (less500 ? (less400 ? "200px":"220px"):"275px"):"300px"):"350px";
+            const img=document.createElement("img");
+            img.style.cssText="width:100%;border:none;transform:rotate(-45deg);";
+            img.style.aspectRatio="1 / 1";
+            img.src=this.logo;
+            img.id="shape-outside-polygon";
+            img.alt="ww.ablogroom.com";
+            img.setAttribute("contenteditable","false");
+            img.setAttribute("is-shapeoutside","true");
+            imgDiv.appendChild(img);
+            para.appendChild(imgDiv);
+            Misc.matchMedia({parent:imgDiv,maxWidth:920,cssStyle:{width:"300px",height:"300px"}});
+            Misc.matchMedia({parent:imgDiv,maxWidth:800,cssStyle:{width:"275px",height:"275px"}});
+            Misc.matchMedia({parent:imgDiv,maxWidth:500,cssStyle:{width:"220px",height:"220px"}});
+            Misc.matchMedia({parent:imgDiv,maxWidth:400,cssStyle:{width:"200px",height:"200px"}});
+        }
         para.innerHTML +=`ENTER YOUR TEXT HERE=> ${Misc.wordGen(100)}`;
         divCont.appendChild(para);
         parent.appendChild(divCont);
@@ -175,207 +378,51 @@ class ShapeOutside{
             this.setAttributes({column:parent,divCont,target:para});//ID=shape-outside-${rand}
             this._modSelector.promElementAdder(para).then(async(res)=>{
                 if(res){
-                    if(res.ele as elementType){
+                    if((res.ele as elementType).type){
                         const ele=res.ele as unknown as elementType;
                         divCont.setAttribute("data-placememt",`${ele.placement}-A`);
                     }else if(flex){
                         const ele=res.ele as unknown as element_selType;
                         divCont.setAttribute("data-placememt",`${ele.order}-A`);
                     }
+                    this.removeMainElement({parent,divCont,target:res.target,show:false});
+                    divCont.addEventListener("click",(e:MouseEvent)=>{
+                        if(e){
+                            ShapeOutside.cleanUpByID(res.target,"setAttributes");
+                            this._modSelector.updateElement(res.target);
+                            para.classList.toggle("isActive");
+                            divCont.classList.toggle("isActive");
+                            this.removeMainElement({parent,divCont,target:res.target,show:true});
+                            
+                           
+                        }
+                    });
+                    this._modSelector.editElement(res.target);
                 }
             });
         
-        divCont.addEventListener("click",(e:MouseEvent)=>{
-            if(e){
-                ShapeOutside.cleanUpByID(para,"setAttributes");
-                this._modSelector.updateElement(para);
-                para.classList.toggle("isActive");
-                divCont.classList.toggle("isActive");
-                this.removeMainElement(parent,divCont,para);
-                
-               
-            }
-        });
         
        
-        this._modSelector.editElement(para);
     }
-    shapeOutsideSquare(item:{parent:HTMLElement,flex:flexType|null}){
-        const {parent,flex}=item;
-        const less900=window.innerWidth < 900;
-        const less400=window.innerWidth < 400;
-        const rand=`${Math.round(Math.random()*1000)}`;
-        const para=document.createElement("p");
-        const {parsed}=Header.checkJson(parent.getAttribute("flex"));
-        let flex_={...parsed as flexType|null};
-        flex_=parsed ? parsed as flexType : flex as flexType;
-        if(!flex_){
-            para.id=`shape-outside-${rand}`;
-
-        }else{
-            flex_={...flex,shapeOutsideSquare:true};
-            const paraFlex=Main.flexTracker(para,flex_ as flexType);
-            flex_=paraFlex
-        }
-        const divCont=document.createElement("div");
-        divCont.id=this.divCont_class;
-        divCont.style.cssText=this.divCont_css;
-        para.setAttribute("contenteditable","true");
-        para.setAttribute("is-element","true");
-        para.setAttribute("has-innerimage","true");
-        para.setAttribute("data-shapeoutside","true");
-        para.setAttribute("data-shapeoutside-square","true");
-        para.classList.add("shape-outside");
-        para.style.cssText="position:relative;padding:0.35rem;width:100%;";
-        const img=document.createElement("img");
-        const imgCss="float:left !important;margin-right:10rem;margin-block:1rem;aspect-ratio: 1 / 1;";
-        img.setAttribute("contenteditable","false");
-        img.setAttribute("is-shapeoutside","true");
-        img.style.cssText=imgCss;
-        img.style.width=less900 ? ( less400 ? "300px":"320px"):"330px";
-        img.src=this.logo;
-        img.id="shape-outside-square";
-        img.alt="ww.ablogroom.com";
-        para.appendChild(img);
-        para.innerHTML+=`<font style="color:red;">enter your text here=></font> ${Misc.wordGen(100)}`;
-        divCont.appendChild(para);
-        parent.appendChild(divCont);
-        Misc.matchMedia({parent:divCont,maxWidth:920,cssStyle:{marginInline:"1.5rem"}});
-        Misc.matchMedia({parent:divCont,maxWidth:420,cssStyle:{marginInline:"10px"}});
-        
-        this.setAttributes({column:parent,divCont,target:para});
-        
-        this._modSelector.promElementAdder(para).then(async(res)=>{
-            if(res){
-                if(res.ele as elementType){
-                    const ele=res.ele as unknown as elementType;
-                    divCont.setAttribute("data-placememt",`${ele.placement}-A`);
-                }else{
-                    const ele=res.ele as unknown as element_selType;
-                    divCont.setAttribute("data-placememt",`${ele.order}-A`);
-
-                }
-            }
-        });
-        divCont.addEventListener("dblclick",(e:MouseEvent)=>{
-            if(e){
-            }
-        });
-        divCont.addEventListener("click",(e:MouseEvent)=>{
-            if(e){
-               
-                this._modSelector.updateElement(para);
-                para.classList.toggle("isActive");
-                divCont.classList.toggle("isActive");
-                this.removeMainElement(parent,divCont,para);
-               
-            }
-        });
-       
-        this._modSelector.editElement(para);
-    }
-    shapeOutsidePolygon(item:{parent:HTMLElement,flex:flexType|null}){
-        const {parent,flex}=item;
-        const less900=window.innerWidth < 900;
-        const less800=window.innerWidth < 800;
-        const less500=window.innerWidth < 500;
-        const less400=window.innerWidth < 400;
-        const {parsed}=Header.checkJson(parent.getAttribute("flex"));
-       let flex_= parsed ? parsed as flexType : flex;
-        const para=document.createElement("p");
-        if(!flex_){
-            para.id=`shape-outside-poly`;
-
-        }else{
-           flex_={...flex_,shapeOutsidePolygon:true};
-            const paraFlex=Main.flexTracker(para,flex_);
-            flex_=paraFlex
-        }
-        const divCont=document.createElement("div");
-        divCont.id=this.divCont_class + "-" + "poly";
-        divCont.style.cssText=this.divCont_css;
-        divCont.style.marginBlock="2rem";
-        divCont.style.paddingBlock="1rem";
-        // divCont.style.overflow="scroll";
-        para.setAttribute("contenteditable","true");
-        para.setAttribute("is-element","true");
-        para.setAttribute("data-shapeoutside-polygon","true");
-        para.classList.add("shape-outside-polygon");
-        para.style.cssText="position:relative;padding:0.35rem;";
-        const imgDiv=document.createElement("div");
-        imgDiv.id="polygon";
-        imgDiv.setAttribute("contenteditable","false");
-        const css="border-radius:10%;position:relative;float:left !important;margin-right:5rem;margin-block:3rem;transform:rotate(45deg);shape-outside:polygon(50% 0%,75% 25%,100% 50%,100% 50%,100% 50%,100% 50%, 90% 50%,80% 60%,70% 70%, 50% 80%,50% 80%,45% 85%,40% 90%,35% 100%);";
-        imgDiv.style.cssText=css;
-        imgDiv.style.marginBottom="7rem";
-        imgDiv.style.overflow="hidden";
-        imgDiv.style.aspectRatio="1 / 1";
-        imgDiv.style.width=less900 ? (less800 ? (less500 ? (less400 ? "200px":"220px"):"275px"):"300px"):"350px";
-        const img=document.createElement("img");
-        img.style.cssText="width:100%;border:none;transform:rotate(-45deg);";
-        img.style.aspectRatio="1 / 1";
-        img.src=this.logo;
-        img.id="shape-outside-polygon";
-        img.alt="ww.ablogroom.com";
-        img.setAttribute("contenteditable","false");
-        img.setAttribute("is-shapeoutside","true");
-        imgDiv.appendChild(img);
-        para.appendChild(imgDiv);
-        para.innerHTML +=`ENTER YOUR TEXT HERE=> ${Misc.wordGen(150)}`;
-        divCont.appendChild(para);
-        parent.appendChild(divCont);
-        Misc.matchMedia({parent:divCont,maxWidth:920,cssStyle:{marginInline:"1.5rem"}});
-        Misc.matchMedia({parent:divCont,maxWidth:420,cssStyle:{marginInline:"10px"}});
-            this.setAttributes({column:parent,divCont,target:para});
-        Misc.matchMinMedia({parent:para,minWidth:920,cssStyle:{width:"90%",margin:"auto"}});
-        Misc.matchMedia({parent:para,maxWidth:920,cssStyle:{width:"100%",marginInline:"auto"}});
-        Misc.matchMedia({parent:imgDiv,maxWidth:920,cssStyle:{width:"300px",height:"300px"}});
-        Misc.matchMedia({parent:imgDiv,maxWidth:800,cssStyle:{width:"275px",height:"275px"}});
-        Misc.matchMedia({parent:imgDiv,maxWidth:500,cssStyle:{width:"220px",height:"220px"}});
-        Misc.matchMedia({parent:imgDiv,maxWidth:400,cssStyle:{width:"200px",height:"200px"}});
-        
-        para.setAttribute("has-innerimage","true");
-        this._modSelector.promElementAdder(para).then(async(res)=>{
-            if(res){
-                // console.log("res.ele",res.ele)
-                if(res.ele as elementType){
-                    const ele=res.ele as unknown as elementType;
-                    divCont.setAttribute("data-placememt",`${ele.placement}-A`);
-                }else{
-                    const ele=res.ele as unknown as element_selType;
-                    divCont.setAttribute("data-placememt",`${ele.order}-A`);
-
-                }
-            }
-        });
-        
-        parent.addEventListener("click",(e:MouseEvent)=>{
-            if(e){
-                this._modSelector.updateElement(para);
-                // this.setAttributes(column,divCont,para);
-                para.classList.toggle("isActive",true);
-                divCont.classList.toggle("isActive",true);
-                this.removeMainElement(parent,divCont,para);
-            }
-        });
-       
-        this._modSelector.editElement(para);
-    }
-    removeMainElement(parent:HTMLElement,divCont:HTMLElement,target:HTMLElement){
+   
+  
+    removeMainElement(item:{parent:HTMLElement,divCont:HTMLElement,target:HTMLElement,show:boolean}){
+        const {parent,divCont,target,show}=item;
         divCont.style.position="relative";
         divCont.style.zIndex="";
-        const check=([...target.classList as any] as string[]).includes("isActive");
-        const getall=divCont.querySelectorAll("div.xIconDiv-shapOutside") as unknown as HTMLElement[];
+        const isActive=([...target.classList as any] as string[]).includes("isActive");
+        const getxDiv=divCont.querySelector("div#xIconDiv-shapOutside") as HTMLElement;
         const {isJSON}=Header.checkJson(target.getAttribute("flex"));
-        ShapeOutside.cleanUpByID(divCont,"xIconDiv-shapeOutside");
-        if(check){
+        
+        if(!show){
+            const rand=Math.round(Math.random()*1000);
             const css="position:absolute;transform:translate(-2px,-3px);background:inherit;font-size:16px;background:lightgrey;font-weight:bold;border-radius:50%;color:black;top:0px;right:0px;";
             divCont.classList.add("position-relative");
             const xIconDiv=document.createElement("div");
             xIconDiv.setAttribute("contenteditable","false");
             xIconDiv.setAttribute("is-icon","true");
             xIconDiv.className="xIconDiv-shapeOutside";
-            xIconDiv.id="xIconDiv-shapeOutside";
+            xIconDiv.id=`xIconDiv-shapeOutside`;
             xIconDiv.style.cssText=`${css}`;
             if(isJSON){
                 xIconDiv.style.transform="translate(-2px,-15px)";
@@ -394,9 +441,11 @@ class ShapeOutside{
                    
                     this._modSelector.promRemoveElement(target).then(async(res)=>{
                         if(res){
-                            if(res.imgKey){
-                                Misc.message({parent,msg:"removed",type_:"success",time:800});
-                            }
+                                Misc.message({parent,msg:`removed : ${res.eleId}`,type_:"success",time:800});
+                                if((res as elementType).type){
+                                    const ele=res as elementType;
+                                    this._modSelector.shiftPlace(ele.placement);
+                                }
                         }
                     });
                     Misc.fadeOut({anchor:divCont,xpos:100,ypos:100,time:500});
@@ -410,18 +459,21 @@ class ShapeOutside{
                 }
             });
          }else{
-            if(getall){
-                ([...getall as any] as HTMLElement[]).map(child=>{
-                    if(child){
-                        divCont.removeChild(child);
-                    }
-                });
+            if(getxDiv){
+                if(isActive){
+                    getxDiv.style.display="flex";
+                }else{
+                    getxDiv.style.display="none";
+                }
+
             }
          }
     }
     setAttributes(item:{column:HTMLElement,divCont:HTMLElement,target:HTMLParagraphElement}){
         const {column,divCont,target}=item;
         // console.log("setAttributes=>column",column)
+        const {isJSON,parsed}=Header.checkJson(target.getAttribute("flex"));
+        const flex= parsed as flexType|null;
         column.style.zIndex="";
         divCont.style.zIndex="";
        divCont.classList.add("isActive");
@@ -432,10 +484,17 @@ class ShapeOutside{
         anchor.setAttribute("is-popup","true");
         anchor.id="setAttributes";
         anchor.classList.add("popup");
-        anchor.style.cssText="position:absolute;top:100% ;left:30%;right:30%;display:flex;flex-direction:column;align-items:center;";
-        anchor.style.top="100%";
-        anchor.style.left="30%";
-        anchor.style.right="30%";
+        anchor.style.cssText="position:absolute;display:flex;flex-direction:column;align-items:center;z-index:2;";
+        if(!isJSON){
+            anchor.style.top="85%";
+            anchor.style.left="30%";
+            anchor.style.right="30%";
+
+        }else{
+            anchor.style.width="fit-content";
+            anchor.style.inset="80% 0% 0% 0%";
+            anchor.style.height="auto";
+        }
         const label=document.createElement("label");
         label.textContent="attributes";
         label.className="text-center text-primary";
@@ -537,7 +596,7 @@ class ShapeOutside{
         popup.style.right="35%";
         popup.style.width="clamp(200px,250px,300px)";
         popup.appendChild(form);
-        target.appendChild(popup);
+        column.appendChild(popup);
         input.onchange=(e:Event)=>{
             if(e){
                 const color=(e.currentTarget as HTMLInputElement).value;
@@ -551,11 +610,15 @@ class ShapeOutside{
                 const color=formdata.get("color") as string;
                 if(color){
                     target.style.color=color;
+                    this._modSelector.promUpdateElement({target}).then(async(res)=>{
+                        if(res){
+                            Misc.message({parent:column,type_:"success",time:600,msg:"saved"});
+                        }
+                    });
                     Misc.growOut({anchor:popup,scale:0,opacity:0,time:400});
                     setTimeout(()=>{
-                        target.removeChild(popup)
+                        column.removeChild(popup)
                     },399);
-                    setTimeout(()=>{this._modSelector.updateElement(target)},0);
                 }
                 ShapeOutside.cleanUpByID(target,"setAttributes");
             }
@@ -817,7 +880,8 @@ class ShapeOutside{
                 const popup=document.createElement("div");
                 popup.setAttribute("is-popup","true");
                 popup.style.cssText="position:absolute;width:300px;height:300px;inset:0%;z-index:200";
-                popup.id="popup";
+                popup.id="uploadImage-popup";
+                popup.classList.add("popup");
                 const form=document.createElement("form");
                 form.name="form";
                 form.id="imgUpload";
@@ -876,6 +940,7 @@ class ShapeOutside{
                                 img.setAttribute("imgKey",res.Key);
                                 img.setAttribute("data-shapeoutside","true");
                                 para.setAttribute("data-shapeoutside","true");
+                                para.setAttribute("type","shapeoutside");
                                 const getImgWidth=parseInt(window.getComputedStyle(img).getPropertyValue("width").split("px")[0]);
                                 const width= getImgWidth ? getImgWidth : 300;
                                 img.src=imageLoader({src:res.img,width:width,quality:75});

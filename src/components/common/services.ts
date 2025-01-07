@@ -172,14 +172,15 @@ async apiUploadSaveFree(item:{parent:HTMLElement,Key:string,formdata:FormData}):
            }
     }
  }
-    saveItems(blog:blogType):blogType{
+    saveItems(item:{blog:blogType,user:userType}):blogType{
+        const {blog,user}=item;
         const show=blog.show;
         const username=blog.username;
         const css=blog.cssText;const class_=blog.class;
-        this._modSelector._elements=this.checkElements(blog.elements) as elementType[];
-        this._modSelector._selectors=this.checkSelectors(blog.selectors);
-        this._modSelector._codes=this.checkCodes(blog.codes);
-        this._modSelector._charts=blog.charts;
+        this._modSelector._elements=this.checkElements({blog}) as elementType[];
+        this._modSelector._selectors=this.checkSelectors({blog});
+        this._modSelector._codes=this.checkCodes({blog});
+        this._modSelector._charts=this.checkCharts({blog});
         this._modSelector._pageCounts=blog.pageCounts;
         const findHeader=blog.selectors && blog.selectors.find(sel=>(sel.header===true)) ? blog.selectors.find(sel=>(sel.header===true)):null;
         const findFooter=blog.selectors && blog.selectors.find(sel=>(sel.footer===true)) ? blog.selectors.find(sel=>(sel.footer===true)) :null;
@@ -191,44 +192,79 @@ async apiUploadSaveFree(item:{parent:HTMLElement,Key:string,formdata:FormData}):
         if(findFooter){
             this._modSelector._footer=findFooter;
         }
+        if(user && user.id){
+            this._modSelector.blog={...this._modSelector.blog,user_id:user.id};
+        }
         const maxcount=ModSelector.maxCount(blog);
-        localStorage.setItem("blog",JSON.stringify(this._modSelector.blog));
         if(maxcount>0){
             localStorage.setItem("placement",String(maxcount + 1));
         }
-        return blog;
+        return this._modSelector.blog;
     }
-    promsaveItems(blog:blogType):Promise<blogType>{
+    promsaveItems(item:{blog:blogType,user:userType}):Promise<blogType>{
+        const {blog,user}=item;
         return new Promise((resolver)=>{
             // console.log("BLOG",blog)
-            resolver( this.saveItems(blog));
+            resolver( this.saveItems({blog,user}));
         }) as Promise<blogType>
         
     }
-    checkElements(eles:elementType[] | element_selType[]){
+    checkElements(item:{blog:blogType}):elementType[]{
+        const {blog}=item;
+        let eles=blog.elements as elementType[];
+        eles=eles.sort((a,b)=>{if(a.placement < b.placement) return -1;return 1});
         if(eles && eles.length>0){
+             eles=eles.map(ele=>{
+                ele.blog_id=blog.id;
+                return ele;
+             });
             return eles;
         }else{
-            if(eles as elementType[]){
-                return [] as elementType[]
-            }else{
-                return [] as element_selType[]
-            }
+            return [] as elementType[]
         }
         
     };
-    checkSelectors(selects:selectorType[]){
+    checkSelectors(item:{blog:blogType}){
+        const {blog}=item;
+        let selects:selectorType[]=blog.selectors;
+        selects=selects.sort((a,b)=>{if(a.placement < b.placement) return -1;return 1});
         if(selects && selects.length>0){
+            selects=selects.map(select=>{
+                select.blog_id=blog.id;
+                return select;
+            });
             return selects;
         }else{
             return [] as selectorType[]
         }
     }
-    checkCodes(codes:codeType[]){
+    checkCodes(item:{blog:blogType}){
+        const {blog}=item;
+        let codes:codeType[]=blog.codes;
+        codes=codes.sort((a,b)=>{if(a.placement < b.placement) return -1;return 1});
         if(codes && codes.length>0){
+            codes=codes.map(code=>{
+                code.blog_id=blog.id;
+                return code;
+            });
             return codes
         }else{
             return [] as codeType[]
+        }
+        
+    };
+    checkCharts(item:{blog:blogType}){
+        const {blog}=item;
+        let charts:chartType[]=blog.charts;
+        charts=charts.sort((a,b)=>{if(a.placement < b.placement) return -1;return 1});
+        if(charts && charts.length>0){
+            charts=charts.map(chart=>{
+                chart.blog_id=blog.id;
+                return chart;
+            });
+            return charts
+        }else{
+            return [] as chartType[]
         }
         
     };
@@ -501,7 +537,8 @@ async apiUploadSaveFree(item:{parent:HTMLElement,Key:string,formdata:FormData}):
     }
     
 
-    async saveBlog(blog:blogType):Promise<blogType|void>{
+    async saveBlog(item:{blog:blogType,user:userType}):Promise<blogType|void>{
+        const {blog,user}=item;
         if(!blog) return;
             const option={
                 headers:{
@@ -515,10 +552,10 @@ async apiUploadSaveFree(item:{parent:HTMLElement,Key:string,formdata:FormData}):
                     let blog_:blogType;
                     if(res.ok){
                     blog_= await res.json();
-                    this.promsaveItems(blog_).then(((_blog_:blogType)=>{
-                        localStorage.setItem("blog",JSON.stringify(_blog_));
+                    this.promsaveItems({blog:blog_,user:user}).then(((newBlog:blogType)=>{
+                        localStorage.setItem("blog",JSON.stringify(newBlog));
                     }));
-                    return blog as blogType;
+                    return blog_ as blogType;
                     }
                 
                     
@@ -618,7 +655,7 @@ async apiUploadSaveFree(item:{parent:HTMLElement,Key:string,formdata:FormData}):
                             if(credent && credent.id){
                                 user={...user,id:credent.id as string,email:credent.email}
                                 blog={...blog,user_id:credent.id}
-                                const newBlog= await this.saveBlog(blog);
+                                const newBlog= await this.saveBlog({blog,user});
                                 if(newBlog){
                                     blog={...blog,id:newBlog.id,user_id:newBlog.user_id};
                                     this._modSelector.blog=blog;
@@ -630,8 +667,8 @@ async apiUploadSaveFree(item:{parent:HTMLElement,Key:string,formdata:FormData}):
 
                 },
                 blog:async():Promise<blogType|void>=>{
-                    if(blog.user_id){
-                        const savedBlog= await this.saveBlog(blog);
+                    if(blog.user_id && user){
+                        const savedBlog= await this.saveBlog({blog,user});
                         if(savedBlog){
                             blog={...blog,id:savedBlog.id};
                             this._modSelector.blog=blog;
@@ -648,8 +685,9 @@ async apiUploadSaveFree(item:{parent:HTMLElement,Key:string,formdata:FormData}):
    //PARENT _user.REFRESHIMAGES
    
 
-    async getFlexElement(target:HTMLElement,flex:flexType|null){
-        await this.promsaveItems(this._modSelector.blog).then((blog:blogType)=>{
+    async getFlexElement(item:{target:HTMLElement,flex:flexType|null,user:userType}){
+        const {target,flex,user}=item;
+        await this.promsaveItems({blog:this._modSelector.blog,user}).then((blog:blogType)=>{
         const prom= new Promise((resolver,reject)=>{
             resolver(this.flexElement(target,flex,blog))
             reject("could not get element")

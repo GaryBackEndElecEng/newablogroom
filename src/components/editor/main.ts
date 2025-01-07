@@ -1,4 +1,4 @@
-import {flexType,elementType,iconType,selectorType, blogType, navLinkBtnType} from "./Types";
+import {flexType,elementType,iconType,selectorType, blogType, navLinkBtnType, userType} from "./Types";
 import Header from "./header";
 import ModSelector from "./modSelector";
 import {FaFont,FaBold,FaItalic,FaUnderline, FaAlignLeft, FaAlignCenter, FaAlignRight, FaQuoteLeft, FaTable, FaPalette, FaParagraph, FaFileImage, FaColumns, FaPaperclip, FaCalendar,FaFonticons,FaCrosshairs,FaHome,FaBlog, FaSign, FaComment, FaArrowCircleDown} from "react-icons/fa";
@@ -273,7 +273,8 @@ class  Main  {
                     this._service.newBlog(blog).then(async(blog_)=>{
                         if(blog_ && blog_.user_id){
                             this._modSelector.blog={...blog,id:blog_.id,class:Main.main_class,cssText:Main.main_css,eleId:parent.id}
-                            this._modSelector.loadBlog(this._modSelector._blog);
+                            const _blog=this._modSelector.blog;
+                            this._modSelector.loadBlog({blog:_blog,user});
                             Misc.message({parent,msg:"created",type_:"success",time:400})
                             Misc.fadeOut({anchor:container,xpos:50,ypos:100,time:400});
                             setTimeout(()=>{
@@ -289,8 +290,9 @@ class  Main  {
                 }else{
                     this._modSelector.blog={...initBlog,name:filename,title:title,desc:desc,cssText:Main.main_css,class:Main.main_class,eleId:parent.id};
                     const blog=this._modSelector.blog;
-                    this._modSelector.blog={...blog,id:blog.id,class:Main.main_class,cssText:Main.main_css,eleId:parent.id}
-                    this._modSelector.loadBlog(this._modSelector._blog);
+                    this._modSelector.blog={...blog,id:blog.id,class:Main.main_class,cssText:Main.main_css,eleId:parent.id};
+                    const _blog=this._modSelector.blog;
+                    this._modSelector.loadBlog({blog:_blog,user});
                     Misc.fadeOut({anchor:container,xpos:50,ypos:100,time:400});
                     setTimeout(()=>{
                         container.remove()
@@ -792,7 +794,9 @@ class  Main  {
                
                 this._htmlElement.bgShade(Main.textarea,btn);
             }else if(icon.name==="SH"){
-                this.shapeOutside.shapeOutsideCircle({parent:Main.textarea,flex:null})
+                let ele:elementType={} as elementType;
+                ele={...ele,type:"shapeoutside",attr:"data-shapoutside-circle"};
+                this.shapeOutside.addShapeOutside({parent:Main.textarea,flex:null,element:ele})
             }else if(icon.name==="line-height"){
                 this.lineHeight(Main.textarea,btn);
             }else{
@@ -958,7 +962,9 @@ class  Main  {
             if(e){
                 this._modSelector.promRemoveElement(target).then(async(res)=>{
                     if(res){
-                        this._modSelector.shiftPlace(res.placement);
+                        const ele=res as elementType;
+                        if(!ele.placement) return;
+                        this._modSelector.shiftPlace(ele.placement);
                     }
                 });
                 parent.removeChild(container);
@@ -1075,7 +1081,9 @@ class  Main  {
                     }
                     this._modSelector.promRemoveElement(target).then(async(res)=>{
                         if(res){
-                            this._modSelector.shiftPlace(res.placement);
+                            const ele=res as elementType;
+                            if(!ele.placement) return;
+                            this._modSelector.shiftPlace(ele.placement);
                         }
                     });
                     
@@ -1105,15 +1113,21 @@ class  Main  {
             resolve({
                 retBlog:localStorage.getItem("blog"),
                 user_id:localStorage.getItem("user_id"),
+                userStr:localStorage.getItem("user"),
                 email:localStorage.getItem("email"),
         });
             reject(()=>{console.log("error: did not get blog from local")})//ONLY GENERATES IF ERROR
-        }) as Promise<{retBlog:string | null,user_id:string | null,email:string | null}>;
+        }) as Promise<{retBlog:string | null,user_id:string | null,email:string | null,userStr:string|null}>;
         promise1.then(async(value)=>{
             if(value && value.retBlog){
+                const userStr=value && value.userStr ? value.userStr.trim():null
+                const {parsed:retUser,isJSON:isUser}=Header.checkJson(userStr);
+                let user:userType|null=null;
+                if(isUser){
+                    user=retUser as userType;
+                }
                 const blogStr= value.retBlog.trim();
                 const {parsed,isJSON}=Header.checkJson(blogStr)
-                // console.log(parsed,"blogStr",blogStr)//works
                 if(isJSON){
                     this._service.initializeBlog();
                     const blog_=parsed as blogType;
@@ -1122,7 +1136,8 @@ class  Main  {
                     // this._modSelector.placement=placement + 1;
                     localStorage.removeItem("placement");
                     // localStorage.setItem("placement",String(placement + 1));
-                    this._service.promsaveItems(this._modSelector._blog).then(async(_blog)=>{
+                    if(!user) return;
+                    this._service.promsaveItems({blog:this._modSelector._blog,user}).then(async(_blog)=>{
                         if(_blog){
                             if(!_blog.cssText){
                                 this._modSelector._blog.cssText=mainContainer.style.cssText + "width:100%;";
@@ -1241,11 +1256,11 @@ class  Main  {
             target.setAttribute("order",String(order));
             target.setAttribute("name",nodename);
             if(shapeOutsideCircle){
-                target.setAttribute("data-shapeoutside-circle","true");
+                target.setAttribute("data-shapeoutside-circle","data-shapeoutside-circle");
             }else if(shapeOutsideSquare){
-                target.setAttribute("data-shapeoutside-square","true");
+                target.setAttribute("data-shapeoutside-square","data-shapeoutside-square");
             }else if(shapeOutsidePolygon){
-                target.setAttribute("data-shapeoutside-polygon","true");
+                target.setAttribute("data-shapeoutside-polygon","data-shapeoutside-polygon");
             }else if(link){
                     target.setAttribute("data-href",anchorContainer as string);
             }else if(email){

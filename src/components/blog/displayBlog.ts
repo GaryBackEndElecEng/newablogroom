@@ -22,6 +22,7 @@ import CodeElement from "../common/codeElement";
 import HtmlElement from "../editor/htmlElement";
 import PasteCode from "../common/pasteCode";
 import Htmlpdf from "../common/htmltwocanvas";
+import Headerflag from "../editor/headerflag";
 
 const baseUrl="http://localhost:3000";
 // const baseUrl=process.env.BASE_URL as string;
@@ -57,7 +58,7 @@ _onlyMeta:boolean=false;
  printThis:boolean;
  _pasteCode:PasteCode;
  static noBlogText:string;
-    constructor(private _modSelector:ModSelector,private _service:Service,private _user:User,private _shapeOutside:ShapeOutside,private _code:NewCode,private chart:ChartJS,private _message:Message,private codeElement:CodeElement){
+    constructor(private _modSelector:ModSelector,private _service:Service,private _user:User,private _shapeOutside:ShapeOutside,private _code:NewCode,private chart:ChartJS,private _message:Message,private codeElement:CodeElement, private headerFlag:Headerflag){
         this.count=0;
         this.mainSection=document.querySelector("section#main");
         this.printThis=false;
@@ -152,21 +153,16 @@ _onlyMeta:boolean=false;
     async main(item:{parent:HTMLElement,blog:blogType|null,user:userType|null}){
         const {parent,blog,user}=item;
         if(blog && user){
-            const less400=window.innerWidth < 400;
-            const paddingInline=window.innerWidth < 900 ? (window.innerWidth < 420 ? "0rem" : "0.5rem") :"1rem"
+            const less400=window.innerWidth < 420;
+            const less900=window.innerWidth < 900;
+            const paddingInline=less900 ? (less400 ? "0rem" : "2px") :"1rem";
             DisplayBlog.cleanUp(parent);//cleansup duplicates
             const outerContainer=document.createElement("article");
             outerContainer.id="display-main";
             outerContainer.style.cssText="margin-inline:auto;margin-block:1rem;padding-block:auto;width:100%;position:relative;min-height:110vh;";
             outerContainer.style.paddingInline=paddingInline;
+            outerContainer.style.paddingBlock=less900 ? (less400 ? "0rem" : "0rem") :"2rem";
             outerContainer.style.opacity="0";
-            parent.classList.add("container-fluid");
-            parent.classList.add("w-100");
-            parent.classList.add("mx-auto");
-            parent.classList.add("px-0");
-            parent.style.cssText="margin-inline:auto;border-radius:12px;position:relative;display:flex;flex-direction:column;padding-inline:1rem;align-items:center;justify-content:center;width:100%";
-            parent.style.maxWidth="1000px";
-            parent.style.backgroundColor="rgb(6 125 243 / 11%)";
             outerContainer.style.paddingBlock=less400 ? "0rem":"2rem";
             outerContainer.style.paddingBottom=less400 ? "2rem":"";
             
@@ -180,7 +176,8 @@ _onlyMeta:boolean=false;
             //-----------CONTAINER FOR FINAL WORK-----------------//
             const container=document.createElement("section");
             container.id="section-container";
-            container.className="section-container container"
+            //CLASS=> CONTAINER => WIDTH:80%, LESS900=> NO CONTAINER
+            container.className="section-container";
             container.style.cssText="margin-inline:auto;padding-block:1rem; height:100vh;overflow-y:scroll;position:relative;background-color:white;border-radius:11px;";
             outerContainer.appendChild(container);
             //-----------CONTAINER FOR FINAL WORK-----------------//
@@ -284,9 +281,7 @@ _onlyMeta:boolean=false;
                 //SHOWS PAGE
                 
     
-                Misc.matchMedia({parent:outerContainer,maxWidth:920,cssStyle:{paddingInline:"1rem",maxWidth:"100%"}});
-                Misc.matchMedia({parent:parent,maxWidth:700,cssStyle:{maxWidth:"none",width:"100%"}});
-            Misc.matchMedia({parent:outerContainer,maxWidth:420,cssStyle:{paddingInline:"0px",maxWidth:"100%",width:"100%"}});
+            Misc.matchMedia({parent:outerContainer,maxWidth:920,cssStyle:{paddingInline:"0rem",maxWidth:"100%",width:"100%"}});
             for(const key of Object.keys(parent.style)){
                 if(key==="maxWidth"){
                     parent.style.maxWidth="100%";
@@ -450,7 +445,7 @@ _onlyMeta:boolean=false;
         if(maxCount>0){
             const main=document.createElement("section");
             main.id="saveFinalWork-section-main";
-            main.style.cssText="width:100%;margin-inline:auto;margin-block:0.5rem;position:relative;height:auto;";
+            main.style.cssText="width:100%;margin-inline:auto;position:relative;height:auto;";
            
             await Promise.all(Array.from(Array(maxCount+3).keys()).map(async(num)=>{
                 const select =sels.find(sel=>(sel.placement===num+1));
@@ -806,13 +801,17 @@ _onlyMeta:boolean=false;
 
                 const checkEle=["p","h1","h2","h3","h4","h5","h6","div","blockquote","ul","hr"].includes(res.element.name);
                 const imgKey=res.element.imgKey;
+                const attrArr=["data-shapeoutside-circle","data-shapeoutside-square","data-shapeoutside-polygon"]
                 const link=res.element.attr && res.element.attr.startsWith("http") ? res.element.attr : null;
                 const email=res.element.attr && res.element.attr.startsWith("mail") ? res.element.attr : null;
                 const tel=res.element.attr && res.element.attr.startsWith("tel") ? res.element.attr : null;
-                const type=res.element.type ? res.element.type : null;
+                const type=res.element.type ? res.element.type : undefined;
+                const headerflag=type==="headerflag";
+                const shapeoutside=type==="shapeoutside";
+                const checkType=["headerflag","shapeoutside"].find(ch=>(ch ===res.element.type));
                 // console.log(element.name,checkEle)//works
                 switch(true){
-                    case checkEle:
+                    case checkEle && !checkType:
                         if(([...res.ele.classList as any] as string[]).includes("reference")){
                             this.reference.showCleanLinks({parent,ele:res.element});
                         }
@@ -820,27 +819,6 @@ _onlyMeta:boolean=false;
                                 if(res.element.attr==="data-backgroundImage"){
                                     ShapeOutside.cleanUpByID(parent,"popup");
                                     res.ele.setAttribute("data-backgroundImage","true");
-                                    // res.ele.setAttribute("imgKey",imgKey);
-                                    const cssStyle={backgroundPosition:"50% 50%",backgroundSize:"100% 100%"};
-                                //    await this._service.injectBgAwsImage({target:res.ele,imgKey:imgKey,cssStyle});
-                                }else if(res.element.attr==="data-shapeoutside-circle"){
-                                    res.ele.setAttribute("data-shapeoutside-circle","true");
-                                     res.ele.style.display=less400 ? "flex":"block";
-                                    res.ele.style.flexDirection=less400 ? "column":"";
-                                    // res.ele.setAttribute("imgKey",imgKey);
-                                //    await this._shapeOutside.shapeOutsideInjectImage({para:res.ele,imgKey:imgKey});
-                                }else if(res.element.attr==="data-shapeoutside-square"){
-                                    res.ele.setAttribute("data-shapeoutside-square","true");
-                                     res.ele.style.display=less400 ? "flex":"block";
-                                    res.ele.style.flexDirection=less400 ? "column":"";
-                                    // res.ele.setAttribute("imgKey",imgKey);
-                                    // this._shapeOutside.shapeOutsideInjectImage({para:res.ele,imgKey:imgKey});
-                                }else if(res.element.attr==="data-shapeoutside-polygon"){
-                                    res.ele.setAttribute("data-shapeoutside-polygon","true");
-                                     res.ele.style.display=less400 ? "flex":"block";
-                                    res.ele.style.flexDirection=less400 ? "column":"";
-                                    // res.ele.setAttribute("imgKey",imgKey);
-                                //    await this._shapeOutside.shapeOutsideInjectImage({para:res.ele,imgKey:imgKey});
                                 }else if(res.element.attr="data-arrow-design"){
                                     res.ele.setAttribute("data-arrow-design","true");
                                     res.ele.setAttribute("imgKey",imgKey);
@@ -863,6 +841,26 @@ _onlyMeta:boolean=false;
                             res.ele.innerHTML=element.inner_html;
                         }
                         
+                    return;
+                    case shapeoutside && checkType !==undefined:
+                        if(imgKey){
+                            res.ele.setAttribute("imgKey",imgKey);
+                            //    await this._shapeOutside.shapeOutsideInjectImage({para:res.ele,imgKey:imgKey});
+                        }
+                        const attrTest=res.element.attr;
+                        if(attrTest && attrArr.includes(attrTest)){
+                            res.ele.setAttribute(attrTest,attrTest);
+                            res.ele.setAttribute(type,type);
+                        }
+                        res.ele.style.display=less400 ? "flex":"block";
+                       res.ele.style.flexDirection=less400 ? "column":"";
+                       res.ele.innerHTML=element.inner_html;
+                       res.ele.style.cssText=element.cssText;
+                       res.ele.className=element.class;
+                    return;
+                    case headerflag && checkType !==undefined:
+                        res.divCont.removeChild(res.ele);//needed because cleanElement append ele;
+                        this.headerFlag.showCleanHeaderflag({parent:res.divCont,element:res.element});
                     return;
                     case element.name==="img":
                         const width:number=700;

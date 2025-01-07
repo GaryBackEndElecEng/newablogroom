@@ -19,6 +19,7 @@ import ChartJS from "../chart/chartJS";
 import Post from "../posts/post";
 import Blogs from "../blogs/blogsInjection";
 import CodeElement from "../common/codeElement";
+import Headerflag from "../editor/headerflag";
 
 
 
@@ -38,7 +39,7 @@ class Profile{
     static main:HTMLElement | null;
 
 
-    constructor(private _modSelector:ModSelector,private _service:Service,private _user:User,private _metaBlog:MetaBlog,public chart:ChartJS,private _post:Post){
+    constructor(private _modSelector:ModSelector,private _service:Service,private _user:User,private _metaBlog:MetaBlog,public chart:ChartJS,private _post:Post,private headerFlag:Headerflag){
         this.bgColor=this._modSelector._bgColor;
         this.btnColor=this._modSelector.btnColor;
         this.userUrlUpdate="/api/user_update";
@@ -49,7 +50,7 @@ class Profile{
         this.shapeOutside=new ShapeOutside(this._modSelector,this._service,this._user);
         const codeElement=new CodeElement(this._modSelector,this._service);
         this.classMsg= new Message(this._modSelector,this._service,this._modSelector.blog,null);
-        this._displayBlog=new DisplayBlog(this._modSelector,this._service,this._user,this.shapeOutside,this.newCode,this.chart,this.classMsg,codeElement);
+        this._displayBlog=new DisplayBlog(this._modSelector,this._service,this._user,this.shapeOutside,this.newCode,this.chart,this.classMsg,codeElement,this.headerFlag);
 
     }
     //----------SETTER/GETTERS---------/////
@@ -1150,7 +1151,8 @@ class Profile{
                             localStorage.setItem("blog",JSON.stringify(blog));
                             const max_=ModSelector.maxCount(blog);
                             localStorage.setItem("placement",String(max_));
-                            this._modSelector.loadBlog(blog);
+                            const user=this._user.user;
+                            this._modSelector.loadBlog({blog,user});
                             Profile.cleanUpByID(grandRow,"section#show-final-popup");
                             grandRow.style.width="100%";
                             await this.showFinalWork(grandRow,blog);

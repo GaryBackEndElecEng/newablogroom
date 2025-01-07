@@ -11,15 +11,16 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         const getBlog = req.body as blogType;
         // console.log("BLOG:=>>>", getBlog)
         if (getBlog && typeof (getBlog) === "object") {
-            await deleteElements({ blog: getBlog });
-            await deleteSelectors({ blog: getBlog });
-            await deleteCharts({ blog: getBlog });
             const selects = (getBlog.selectors && getBlog.selectors.length > 0) ? getBlog.selectors as unknown[] as selectorType[] : null;
             const eles = (getBlog.elements && getBlog.elements.length > 0) ? getBlog.elements as unknown[] as elementType[] : null;
             const codes = (getBlog.codes && getBlog.codes.length > 0) ? getBlog.codes as unknown[] as codeType[] : null;
             const charts = (getBlog.charts && getBlog.charts.length > 0) ? getBlog.charts as unknown[] as chartType[] : null;
+            await deleteElements({ blog: getBlog });
+            await deleteSelectors({ blog: getBlog });
+            await deleteCharts({ blog: getBlog });
+            await deleteCodes({ blog: getBlog });
             if (getBlog.user_id) {
-                console.log("USER ID", getBlog.user_id, "blog.id", getBlog.id)//works
+                // console.log("USER ID", getBlog.user_id, "blog.id", getBlog.id)//works
                 try {
                     const blog = await prisma.blog.upsert({
                         where: { id: getBlog.id, user_id: getBlog.user_id },
@@ -36,7 +37,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
                             attr: getBlog.attr ? getBlog.attr : "circle",
                             username: getBlog.username,
                             rating: getBlog.rating ? getBlog.rating : 1,
-                            title: getBlog.title ? getBlog.title : "title"
+                            title: getBlog.title ? getBlog.title : "title",
 
                         },
                         update: {
@@ -55,7 +56,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
                         }
                     });
                     if (blog) {
-
+                        // console.log("blog.id", blog.id, "blog.name", blog.name);//works
                         let newBlog: blogType = {} as blogType;
                         let updateSelects: selectorType[] = [];
                         let update_elements: elementType[] = [];
@@ -70,7 +71,9 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
                                         update: {
                                             class: select.class,
                                             cssText: select.cssText,
+                                            eleId: select.eleId,
                                             rows: select.rows,
+                                            name: select.name,
                                             inner_html: select.inner_html,
                                             placement: select.placement,
                                             header: select.header,
@@ -129,21 +132,26 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
                                             name: ele.name,
                                             eleId: ele.eleId,
                                             placement: ele.placement ? ele.placement : ele.id,
-                                            img: !ele.imgKey ? ele.img : null,
+                                            img: ele.img,
                                             imgKey: ele.imgKey,
-                                            attr: ele.attr
+                                            attr: ele.attr,
+                                            type: ele.type
                                         },
                                         update: {
+                                            name: ele.name,
+                                            eleId: ele.eleId,
                                             class: ele.class,
                                             inner_html: ele.inner_html,
                                             cssText: ele.cssText,
-                                            img: !ele.imgKey ? ele.img : null,
+                                            img: ele.img,
                                             imgKey: ele.imgKey,
                                             attr: ele.attr,
                                             placement: ele.placement ? ele.placement : ele.id,
+                                            type: ele.type
                                         },
                                     });
-                                    return { ...ele, blog_id: blog.id, id: ele_.id };
+
+                                    return { ...ele_ };
                                 }) as unknown[] as elementType[]
                             );
                         }
@@ -165,11 +173,16 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
                                             template: code.template
                                         },
                                         update: {
+                                            name: code.name,
+                                            eleId: code.eleId,
                                             class: code.class,
                                             cssText: code.cssText,
                                             img: code.cssText,
                                             inner_html: code.inner_html,
+                                            type: code.type ? code.type : "code",
                                             placement: code.placement ? code.placement as number : null,
+                                            template: code.template,
+
                                         },
                                     });
 
@@ -187,7 +200,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
                                             });
                                             return linecode_;
                                         }));
-                                        return { ...code, id: code_.id, linecode: linecodes }
+                                        return { ...code_, linecode: linecodes }
                                     }
                                 })
                             ) as unknown[] as codeType[];
@@ -208,6 +221,8 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
                                     update: {
                                         type: chart.type,
                                         chartOption: chart.chartOption,
+                                        placement: chart.placement,
+                                        eleId: chart.eleId,
                                     },
                                 });
                                 return chart_ as chartType;
@@ -298,6 +313,7 @@ export async function deleteElements(item: { blog: blogType }) {
                             await prisma.element.delete({
                                 where: { id: ele.id }
                             });
+                            console.log("deleted", ele.id)
                         }
                     }
                 }));
@@ -354,6 +370,36 @@ export async function deleteCharts(item: { blog: blogType }) {
                 await Promise.all(getCharts.map(async (cht) => {
                     if (cht && cht.id) {
                         const isInDb = charts.find(cht_ => (cht_.id === cht.id));
+                        if (!isInDb) {
+                            await prisma.chart.delete({
+                                where: { id: cht.id }
+                            });
+                        }
+                    }
+                }));
+            }
+        } catch (error) {
+            const msg = getErrorMessage(error);
+            console.error(msg);
+        } finally {
+            return await prisma.$disconnect();
+        }
+    };
+}
+export async function deleteCodes(item: { blog: blogType }) {
+    const { blog } = item;
+    if ((blog && blog.codes && blog.codes.length > 0)) {
+
+        const codes: codeType[] = blog.codes
+        try {
+            const getCodes = await prisma.code.findMany({
+                where: { blog_id: blog.id }
+            });
+            if ((getCodes && getCodes.length > 0)) {
+
+                await Promise.all(getCodes.map(async (cht) => {
+                    if (cht && cht.id) {
+                        const isInDb = codes.find(cht_ => (cht_.id === cht.id));
                         if (!isInDb) {
                             await prisma.chart.delete({
                                 where: { id: cht.id }

@@ -15,6 +15,8 @@ import Message from '../common/message';
 import { useSession } from 'next-auth/react';
 import CodeElement from '../common/codeElement';
 import Htmlpdf from '../common/htmltwocanvas';
+import Headerflag from '../editor/headerflag';
+import styles from "./blog.module.css";
 // import { Session } from 'next-auth';
 
 // const url = process.env.BASE_URL as string;
@@ -36,6 +38,7 @@ function Index({ blog, user }: { blog: blogType | null, user: userType | null })
                 const _service = new Service(_modSelector);
                 const _user = new User(_modSelector, _service);
                 const shapeOutside = new ShapeOutside(_modSelector, _service, _user);
+                const headerFlag = new Headerflag(_modSelector, _service, _user);
                 const code = new NewCode(_modSelector, _service, _user);
                 const chart = new ChartJS(_modSelector, _service, _user);
                 const codeElement = new CodeElement(_modSelector, _service);
@@ -44,7 +47,7 @@ function Index({ blog, user }: { blog: blogType | null, user: userType | null })
 
                 // GET BLOG
                 const message = new Message(_modSelector, _service, blog, null);
-                const displayBlog = new DisplayBlog(_modSelector, _service, _user, shapeOutside, code, chart, message, codeElement);
+                const displayBlog = new DisplayBlog(_modSelector, _service, _user, shapeOutside, code, chart, message, codeElement, headerFlag);
                 displayBlog._onlyMeta = true;
                 displayBlog.main({ parent: target, blog: blog, user: user });
                 countRef.current++;
@@ -55,7 +58,7 @@ function Index({ blog, user }: { blog: blogType | null, user: userType | null })
 
 
     return (
-        <div className="container-fluid mx-auto">
+        <div className={styles.client_blog}>
             <section className="client_blog" id="client_blog" ref={clientRef}></section>
         </div>
     )

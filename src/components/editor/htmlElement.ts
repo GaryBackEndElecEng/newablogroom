@@ -73,14 +73,19 @@ class HtmlElement {
         //THIS IS USED DURING REFRESH (PULLING LOCALSTORAGE.GETITEM(BLOG)) AND DISPLAYING I ON THE PAGE IN REFERENCE TO PLACEMENT NUMBERING BETWEEN ELEMENTS AND SELECTORS
         await this.asyncElement({parent,element}).then(async(res)=>{
             if(res){
-
                 const checkEle=["p","h1","h2","h3","h4","h5","h6","div","blockquote","ul","hr"].includes(element.name);
-                const checkULPlus=["blockquote","ul","ol"].includes(element.name)
+                const checkULPlus=["blockquote","ul","ol"].includes(element.name);
+                // res.ele.removeAttribute("contenteditable");
                 // ADDING BACKGROUND WHITE TO ELEMENTS WITH BACKGROUND COLOR
                 Main.container=document.querySelector("section#main") as HTMLElement;
                 const checkBgShade=([...(Main.container as HTMLElement).classList as any] as string[]).includes("bgShade");
-                const {isJSON}=Header.checkJson(element.attr as string)
+                const {isJSON}=Header.checkJson(element.attr as string);
+                const attr=element.attr ? element.attr : undefined;
+                const isShapeAttr=["data-shapeoutside-circle","data-shapeoutside-square","data-shapeoutside-polygon"].find(sh=>(sh===attr));
+                const isFeature=["is-vendiagram","is-wave","data-circle-design","is-arch","data-circle-design"].find(at=>(at===attr));
                 const isArrLink=isJSON ? true:false;//LINK REFERENCES
+                const type=element.type;
+                const isShapeoutside= type && type==="shapeoutside" ? type:undefined;
                 if(checkBgShade){
                     res.ele.classList.add("background-bgShade");
                     res.divCont.classList.add("background-bgShade");
@@ -88,7 +93,21 @@ class HtmlElement {
                 
                 // ADDING BACKGROUND WHITE TO ELEMENTS WITH BACKGROUND COLOR
                 switch(true){
-                    case checkEle:
+                    case isShapeAttr !==undefined && type !==undefined && isShapeoutside !==undefined:
+                        //FOR SHAPEOUTSIDE
+                            parent.removeChild(res.divCont);//removing element
+                            // console.log("element.attr",element.attr,"element.imgKey",element.imgKey)
+                            this.shapeOutside.showShapeOutside({parent:parent,flex:null,element});
+                            if(element.imgKey){
+                                res.ele.setAttribute("imgKey",element.imgKey);
+                            //    await this.shapeOutside.shapeOutsideInjectImage({para:res.ele,imgKey:element.imgKey});
+                            }
+                            ShapeOutside.cleanUpByID(res.ele,"popup");
+                        ShapeOutside.cleanUpByID(res.ele,"setAttributes");
+
+                    return;
+                    case checkEle && isShapeoutside===undefined:
+                        //FOR EVERYTHING ELSE IN CHECKELE
                         if(isArrLink){
                             if(element.attr as string){
                                 res.ele.setAttribute("contenteditable","false");
@@ -108,54 +127,18 @@ class HtmlElement {
                             res.ele.setAttribute(element.attr,"true");
                             if(element.imgKey){
                                 res.ele.setAttribute("imgKey",element.imgKey);
-                                const cssStyle={backgroundPosition:"50% 50%",backgroundSize:"100% 100%"};
+                                // const cssStyle={backgroundPosition:"50% 50%",backgroundSize:"100% 100%"};
                             //    await this._service.injectBgAwsImage({target:res.ele,imgKey:element.imgKey,cssStyle});
                             }
-                        }else if(element.attr==="data-shapeoutside-circle"){
-                            res.ele.setAttribute("data-shapeoutside-circle","true");
-                            res.ele.style.display=less400 ? "flex":"block";
-                            res.ele.style.flexDirection=less400 ? "column":"";
-                            // console.log("element.attr",element.attr,"element.imgKey",element.imgKey)
-                            this.shapeOutside.setAttributes({column:parent,divCont:res.divCont,target:res.ele as HTMLParagraphElement});//ID=shape-outside-${rand}
-                            if(element.imgKey){
-                                res.ele.setAttribute("imgKey",element.imgKey);
-                            //    await this.shapeOutside.shapeOutsideInjectImage({para:res.ele,imgKey:element.imgKey});
-                            }
-                        }else if(element.attr==="data-shapeoutside-square"){
-                            res.ele.setAttribute("data-shapeoutside-square","true");
-                            res.ele.style.display=less400 ? "flex":"block";
-                            res.ele.style.flexDirection=less400 ? "column":"";
-                            this.shapeOutside.setAttributes({column:parent,divCont:res.divCont,target:res.ele as HTMLParagraphElement});//ID=shape-outside-${rand}
-                            if(element.imgKey){
-        
-                                res.ele.setAttribute("imgKey",element.imgKey);
-                                // await this.shapeOutside.shapeOutsideInjectImage({para:res.ele,imgKey:element.imgKey});
-                            }
-                        }else if(element.attr==="data-shapeoutside-polygon"){
-                            res.ele.setAttribute("data-shapeoutside-polygon","true");
-                            res.ele.style.display=less400 ? "flex":"block";
-                            res.ele.style.flexDirection=less400 ? "column":"";
-                            this.shapeOutside.setAttributes({column:parent,divCont:res.divCont,target:res.ele as HTMLParagraphElement});//ID=shape-outside-${rand}
-                            if(element.imgKey){
-        
-                                res.ele.setAttribute("imgKey",element.imgKey);
-                            //    await this.shapeOutside.shapeOutsideInjectImage({para:res.ele,imgKey:element.imgKey});
-                            }
-                        }else if(element.attr==="is-vendiagram"){
-                            res.ele.setAttribute(element.attr,"true");
-                        }else if(element.attr==="is-wave"){
-                            res.ele.setAttribute(element.attr,"true");
-                        }else if(element.attr==="is-arch"){
-                            res.ele.setAttribute(element.attr,"true");
-                        }else if(element.attr==="data-circle-design"){
-                            res.ele.setAttribute(element.attr,"true");
-                            res.ele.setAttribute("contenteditable","false");
+                        
+                        }else if(isFeature){
+                            res.ele.setAttribute(isFeature,"true");
+                            res.ele.removeAttribute("contenteditable");
                             [...res.ele.children as any].map(el=>{
                                 if(el && el.nodeName==="P"){
                                     res.ele.setAttribute("contenteditable","true");
                                 }
                             });
-                            
                         }else if(element.name==="p"){
                             
                                 // console.log("element.name",element.name)//works
@@ -170,10 +153,6 @@ class HtmlElement {
                                 const check=([...res.ele.classList as any] as string[]).includes("isActive")
                                 this.removeMainElement(parent,res.divCont,res.ele);
                                 if(check){
-                                   
-                                   
-                                }else{
-                                    
                                 }
                             }
                         });

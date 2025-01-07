@@ -105,7 +105,7 @@ class Misc{
 
     static colors=[{name:"select",value:"black"},{name:"remove",value:"remove"},{name:"red",value:"red"},{name:"black",value:"black"},{name:"purple",value:"purple"},{name:"green",value:"green"},{name:"whitesmoke",value:"whitesmoke"},{name:"cyan",value:'#00FFFF'},{name:"lime",value:'#00FF00'},{name:"magenta",value:'#FF00FF'},{name:"silver",value:'#C0C0C0'},{name:"orange",value:'#FFA500'},{name:"maroon",value:"#800000"},{name:"charcoal",value:"#34282C"},{name:"charcoal",value:"#34282C"},{name:"night",value:"#0C090A"},{name:"oil",value:"#3B3131"},{name:"iridium",value:"#3D3C3A"},{name:"rat grey",value:"#6D7B8D"},];
 
-    static shades=["transparent","grey","none","#ffffff","#f3f5f5","#eaedee","#eaedee","#dde1e3","#dde1e3","#c6cdd1","#b4bdc2","#b4bdc2","#bdc5c9","#bdc5c9"];
+    static shades=["transparent","grey","none","#ffffff","#f3f5f5","#eaedee","#eaedee","#dde1e3","#dde1e3","#c6cdd1","#b4bdc2","#b4bdc2","#bdc5c9","#bdc5c9","#0e0e0e"];
     static blue_shades=["transparent","blue","none","#E1EBEE","#72A0C1","#F0F8FF","#00FFFF","#7FFFD4","#6CB4EE","#0066b2","#B9D9EB","#00FFFF","#00CED1","#6082B6","#5D76A9","#AFEEEE"];
      static font_family=[
      {name:"select",value:"select"},
@@ -588,19 +588,24 @@ class Misc{
             parent.removeChild(container);
         return {retParent:parent,retBtn,container}
     }
-   static fillBlogNameDesc(parent:HTMLElement):{btn:HTMLButtonElement,popup:HTMLElement,form:HTMLFormElement,input:HTMLInputElement,tinput:HTMLInputElement,textarea:HTMLTextAreaElement,parentTextarea:HTMLElement}{
+   static fillBlogNameDesc({parent,cssPopup}:{parent:HTMLElement,cssPopup:{[key:string]:string}}):{btn:HTMLButtonElement,popup:HTMLElement,form:HTMLFormElement,input:HTMLInputElement,tinput:HTMLInputElement,textarea:HTMLTextAreaElement,retParent:HTMLElement}{
     const disabled:{input:boolean,textarea:boolean}={input:false,textarea:false}
-        const parentTextarea=Main.textarea ? Main.textarea : parent;
-        parentTextarea.style.position="relative";
-        parentTextarea.style.zIndex="0";
+        // const parentTextarea=Main.textarea ? Main.textarea : parent;
+        
         const popup=document.createElement("section");
         popup.id="popup-blogNameDesc";
-        popup.style.cssText="margin:auto;position:absolute;background-color:white;filter:drop-shadow(0 0 0.75rem crimson);border-radius:7px;z-index:200;padding:1rem;";
-        popup.style.top=`20%`;
-        popup.style.left=`35%`;
-        popup.style.right=`35%`;
-        popup.style.width=`clamp(320px,400px,500px)`;
-        popup.style.height=`auto`;
+        popup.style.cssText="margin:auto;position:absolute;inset:120% 0% 0%;background-color:white;filter:drop-shadow(0 0 0.75rem crimson);border-radius:7px;z-index:200;padding:1rem;";
+        popup.style.inset=`120% 0% 0%`;
+        popup.style.maxWidth=`clamp(320px,400px,500px)`;
+        popup.style.height=`clamp(420px,500px,600px)`;
+        popup.style.width="100%";
+        for(const key of Object.keys(popup.style)){
+            for( const [key1,value1] of Object.entries(cssPopup)){
+                if(key1===key){
+                    popup.style[key]=value1;
+                }
+            }
+        }
         const form=document.createElement("form");
         form.style.cssText="display:flexflex-direction:column;align-items:center;justify-content:center;gap:1rem;";
         const {input,label:labelName}=Nav.inputComponent(form);
@@ -643,7 +648,7 @@ class Misc{
         };
         popup.appendChild(form);
         //APPENDING POPUP TO PARENT
-        parentTextarea.appendChild(popup);
+        parent.appendChild(popup);
         //creating cancel
         const xDivIcon=document.createElement("div");
         xDivIcon.id="delete-fliiBlogForm";
@@ -656,12 +661,12 @@ class Misc{
         xDivIcon.onclick=(e:MouseEvent)=>{
             if(e){
                 Misc.growOut({anchor:popup,scale:0,opacity:0,time:400});
-                setTimeout(()=>{Header.cleanUpByID(parentTextarea,"popup-blogNameDesc")},398);
+                setTimeout(()=>{Header.cleanUpByID(parent,"popup-blogNameDesc")},398);
             }
         };
         Misc.matchMedia({parent:popup,maxWidth:900,cssStyle:{left:"10%",right:"10%"}});
         Misc.matchMedia({parent:popup,maxWidth:420,cssStyle:{left:"5%",right:"5%"}});
-        return {btn,popup,form,input,tinput,textarea,parentTextarea};
+        return {btn,popup,form,input,tinput,textarea,retParent:parent};
 
 
 
