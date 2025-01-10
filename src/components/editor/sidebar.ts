@@ -1325,6 +1325,7 @@ class Sidebar{
     }
     //PARENT MAIN()-onTop
     reOrder(parent:HTMLElement){
+        Main.textarea=document.querySelector("div#textarea") as HTMLElement;
         const btnContainer=document.createElement("div");
         btnContainer.className="flexCol text-center";
         btnContainer.style.cssText="box-shadow:1px 1px 12px 1px white;border-radius:10px;padding-inline:0.5rem;padding-block:1rem;text-align:center;width:100%;";
@@ -1358,7 +1359,7 @@ class Sidebar{
             {transform:"translateY(0%) skew(0deg,0deg)",opacity:"1"}
         ],{duration:1000,iterations:1})
         btn.addEventListener("click",(e:MouseEvent)=>{
-            if(e && Main.container){
+            if(e && Main.textarea){
                 const check= this._modSelector.blog ? true : false;
                 window.scroll(0,400);
                 btn.disabled=true;
@@ -1367,7 +1368,7 @@ class Sidebar{
                 },1000);
                 if( check ){
                     const blog=this._modSelector.blog;
-                    this._edit.reOrder(Main.container,blog);
+                    this._edit.reOrder(Main.textarea,blog);
                 }
             }
         });

@@ -12,6 +12,7 @@ import AllMsgs from "../home/allMsgs";
 import Message from "../common/message";
 import Nav from "../nav/headerNav";
 import Searchbar from "../common/searchbar";
+import styles from "./blogs.module.css";
 
 const base_url="http://localhost:3000";
 // const base_url=process.env.BASE_URL as string;
@@ -47,7 +48,7 @@ searchbar:Searchbar;
        this._blogs=[] as blogType[];
         this._blog={} as blogType;
        this.bgColor=this._modSelector._bgColor;
-       this.message=new Message(this._modSelector,this._service,this._modSelector.blog);
+       this.message=new Message(this._modSelector,this._service,this._modSelector.blog,null);
         this.allMsgs=new AllMsgs(this._modSelector,this._service,this.message);
     }
 
@@ -76,35 +77,30 @@ searchbar:Searchbar;
     }
 //GETTERS SETTERS
 //main injector ---MAIN INJECTION----
-   async showBlogs(parent:HTMLElement,home:boolean,blogs:blogType[]){
+   async showBlogs({parent,home,blogs}:{parent:HTMLElement,home:boolean,blogs:blogType[]}){
     this.searchbar= new Searchbar({blogs:blogs,posts:null});
     const less900=window.innerWidth < 900;
+    const less500=window.innerWidth < 500;
     const less400=window.innerWidth < 400;
     const css_col="display:flex;flex-direction:column;align-items:center;gap:1rem;position:relative;width:100%";
     const css_row="display:flex;justify-content:center;align-items:center;gap:0.5rem;position:relative;";
     this.baseUrl=new URL(window.location.href).origin;
     this.blogs=blogs;
     // this.blogs=blogs.sort((a,b)=>{if(a.rating > b.rating) return -1;return 1});
-    const m_block= window.innerWidth < 500 ? "0rem" : "0.25rem";
-        parent.style.position="relative";
-        parent.classList.add("container-fluid");
-        parent.classList.add("mx-auto");
+    const m_block= less500 ? "0rem" : "0.25rem";
         const container=document.createElement("section");
         container.className="blogs-container";
         container.id="blogs-container";
-        container.classList.add("container");
         container.classList.add("mx-auto");
-        container.style.cssText=css_col;
+        container.style.cssText=css_col + "width:100%;border-radius:12px;min-height:110vh;";
         container.style.marginBlock=`${m_block}`;
-        container.style.marginInline=window.innerWidth < 900 ? "0px":"auto";
-        container.style.paddingInline=window.innerWidth < 900 ? "0px":"2rem";
         await this.titlePage({container,home,time:1200}).then(async(res)=>{
             if(res){
                 const paraSize=less900 ? (less400 ? "130%":"150%"):"175%";
                 const preParaSize=less900 ? (less400 ? "130%":"170%"):"200%";
                 await this.searchbar.mainBlog({
                     parent:res.container,
-                    funcBlog:async({blogs})=>{ await this.generateBlogs(container,blogs)}
+                    funcBlog:async({blogs})=>{ await this.generateBlogs({parent:container,blogs,less400,less900})}
                 });//searchbar
                 res.textContainer.style.opacity="1";
                 res.textContainer.style.transform="scale(1)";
@@ -125,22 +121,36 @@ searchbar:Searchbar;
         });
             
             parent.appendChild(container);
-            parent.animate([
+            container.animate([
                 {opacity:"0"},
                 {opacity:"1"}
             ],{duration:1100,iterations:1,"easing":"ease-in-out"});
         
-        Misc.matchMedia({parent:container,maxWidth:900,cssStyle:{"paddingInline":"0rem"}});
         Misc.matchMedia({parent:container,maxWidth:500,cssStyle:{"borderRadius":"16px",border:"1px solid #0E3386"}});
     }
-    titlePage(item:{container:HTMLElement,home:boolean,time:number}):Promise<{textContainer:HTMLElement,container:HTMLElement,para:HTMLElement,time:number}>{
+    blogsLoading({parent,loaded}:{parent:HTMLElement,loaded:boolean}){
+        if(!loaded){
+            Header.cleanUpByID(parent,"blogsLoading-container");
+            const container=document.createElement("div");
+            container.id="blogsLoading-container";
+            container.style.cssText="display:flex;justify-content:center;align-items:center;padding-inline:2rem;";
+            const para=document.createElement("p");
+            para.textContent=".......Loading........";
+            container.appendChild(para);
+                parent.appendChild(container);
+        }else{
+            Header.cleanUpByID(parent,"blogsLoading-container");
+        }
+
+    }
+   async titlePage(item:{container:HTMLElement,home:boolean,time:number}):Promise<{textContainer:HTMLElement,container:HTMLElement,para:HTMLElement,time:number}>{
         const {container,home,time}=item;
         const less900=window.innerWidth < 900;
         const less400=window.innerWidth < 400;
-        const css_col="margin-inline:auto;display:flex;flex-direction:column;justify-content:center;align-items:center;";
+        const css_col="margin-inline:auto;display:flex;flex-direction:column;justify-content:flex-start;align-items:center;";
         const textContainer=document.createElement("div");
         textContainer.id="titlepage-textContainer";
-        textContainer.style.cssText=css_col + "background-color:black;border-radius:12px;margin-top:1rem;filter:drop-shadow(0 0 0.5rem white);";
+        textContainer.style.cssText=css_col + "background-color:black;border-radius:12px;margin-top:1rem;filter:drop-shadow(0 0 0.5rem white);width:100%;overflow-x:hidden;";
         textContainer.style.width=less900 ? (less400 ? "100%":"100%") : "100%";
         textContainer.style.paddingBottom=less900 ? (less400 ? "2rem":"2.5rem") : "2rem";
         textContainer.style.paddingInline=less900 ? (less400 ? "1rem":"1rem") : "2rem";
@@ -156,6 +166,8 @@ searchbar:Searchbar;
         }
         text.id="showBlogs-title";
         text.style.textTransform="capitalize";
+        const lineCont=document.createElement("div");
+        lineCont.style.cssText="margin-inline:auto;width:85%;";
         const div1=document.createElement("div");
         div1.id="textContainer-div1";
         //#0804e9
@@ -173,9 +185,29 @@ searchbar:Searchbar;
         para.style.cssText="padding-block:1rem;padding-inline:1rem;margin-inline:auto;margin-top:0.5rem;text-wrap:wrap;text-align:center;box-shadow:1px 1px 3px 1px rgb(29, 203, 251);";
         para.style.fontSize=less900 ? (less400 ? "130%":"150%"):"175%";
         para.style.color="#1dcbfb";
+        lineCont.appendChild(div1);
+        lineCont.appendChild(div2);
         textContainer.appendChild(text);
-        textContainer.appendChild(div1);
-        textContainer.appendChild(div2);
+        textContainer.appendChild(lineCont);
+         await this.triangleL({parent:lineCont,less400,less900}).then(async(res)=>{
+            if(res){
+                const triTransform=res.triangleL.style.transform;
+                const transRotate=`${triTransform} rotate(0deg)`
+                res.triangleL.animate([
+                    {transform:"translateX(-200px) rotate(62deg)",backgroundColor:"black"},
+                    {transform:transRotate,},
+                ],{duration:1.75*time,iterations:1,"easing":"ease-in-out"})
+            }
+        });
+         await this.triangleR({parent:lineCont,less400,less900}).then(async(res)=>{
+            if(res){
+                const triTransform=res.triangleR.style.transform;
+                res.triangleR.animate([
+                    {transform:"translateX(200px) rotate(62deg)",backgroundColor:"black"},
+                    {transform:triTransform},
+                ],{duration:1.75*time,iterations:1,"easing":"ease-in-out"})
+            }
+        });
         textContainer.appendChild(para);
         textContainer.style.opacity="0";
         para.style.opacity="0";
@@ -186,20 +218,50 @@ searchbar:Searchbar;
             resolve({textContainer,container,para,time});
         }) as Promise<{textContainer:HTMLElement,container:HTMLElement,para:HTMLElement,time:number}>;
     }
-    
-   async generateBlogs(parent:HTMLElement,blogs:blogType[]){
+    triangleL({parent,less400,less900}:{parent:HTMLElement,less400:boolean,less900:boolean}):Promise<{triangleL:HTMLElement}>{
+        const gradiant="linear-gradient(rgb(255, 255, 255), rgb(6, 233, 247))";
+        const spanTria=`display:block;padding:0px;position:absolute;top:0%;left:0%;width:75px;height:50px;border: 1px solid white;clip-path: polygon(0% 0%, 100% 50%, 0% 100%);background-color:white;`;
+        parent.style.position="relative";
+        const triangleL= document.createElement("span");
+        triangleL.id="contL-triangleL";
+        // triangleL.className="lineStyleOne";
+        triangleL.style.cssText=spanTria;
+        triangleL.style.transform=less900 ? ( less400 ? "translate(-50px,-21px)":"translate(-67px,-20px)"):"translate(-133px,-20px)";
+        triangleL.style.width=less900 ? ( less400 ? "75px":"100px"):"208px";
+        triangleL.style.background=gradiant;
+        parent.appendChild(triangleL);
+        return new Promise(resolver=>{
+            resolver({triangleL})
+        }) as Promise<{triangleL:HTMLElement}>;
+    }
+    triangleR({parent,less400,less900}:{parent:HTMLElement,less400:boolean,less900:boolean}):Promise<{triangleR:HTMLElement}>{
+        const gradiant="linear-gradient(rgb(255, 255, 255), rgb(6, 233, 247))";
+        const spanTria="display:block;padding:0px;position:absolute;top:0%;right:0%;width:75px;height:50px;clip-path:polygon(100% 0%, 0% 50%, 100% 100%);border: 1px solid white;background-color:white;";
+        parent.style.position="relative";
+        const triangleR= document.createElement("span");
+        triangleR.id="contR-triangleR";
+        // triangleR.className="lineStyleOne";
+        triangleR.style.cssText=spanTria;
+        triangleR.style.transform=less900 ? ( less400 ? "translate(50px,-21px)":"translate(67px,-21px)"):"translate(133px,-20px)";
+        triangleR.style.width=less900 ? ( less400 ? "75px":"100px"):"208px";
+        triangleR.style.background=gradiant;
+        parent.appendChild(triangleR);
+        return new Promise(resolver=>{
+            resolver({triangleR})
+        }) as Promise<{triangleR:HTMLElement}>;
+    }
+   async generateBlogs({parent,blogs,less400,less900}:{parent:HTMLElement,blogs:blogType[],less400:boolean,less900:boolean}){
        Header.cleanUpByID(parent,"showBlogs-generateBlogs-mainRow");
-       const less900=window.innerWidth < 900;
-        const less400=window.innerWidth < 400;
+       parent.style.position="relative";
+
         if(blogs && blogs.length>0){
             const mainRow=document.createElement("div");
             mainRow.id="showBlogs-generateBlogs-mainRow";
             const blogBaseCss=`display:flex;justify-content:center;flex-direction:column;margin-top:0rem;position:relative;width:100%;`;
                 mainRow.style.cssText=blogBaseCss;
                 // mainRow.style.paddingInline=window.innerWidth <900 ? (window.innerWidth <600 ? "0px":"10px"):"10px";
-                mainRow.style.paddingInline="10px";
+                mainRow.style.paddingInline=less900 ? (less400 ? "0.25rem":"2rem"): "4rem";
                 // mainRow.style.backgroundColor="#e7e8ee";
-                mainRow.style.backgroundColor="whitesmoke";
                 mainRow.style.borderRadius="16px";
             
                 await Promise.all(
@@ -350,6 +412,10 @@ searchbar:Searchbar;
         cardBody.appendChild(update);
         card.appendChild(cardBody);
         column.appendChild(card);
+        card.animate([
+            {opcity:"0"},
+            {opcity:"1"},
+        ],{duration:400,iterations:1});
         Misc.matchMedia({parent:card,maxWidth:600,cssStyle:{flexDirection:"column"}});
         Misc.matchMedia({parent:cardBody,maxWidth:500,cssStyle:{flex:"1 1 100%"}});
         Misc.matchMedia({parent:imgCont,maxWidth:500,cssStyle:{flex:"1 1 100%"}});

@@ -172,7 +172,8 @@ async apiUploadSaveFree(item:{parent:HTMLElement,Key:string,formdata:FormData}):
            }
     }
  }
-    saveItems(item:{blog:blogType,user:userType}):blogType{
+    saveItems(item:{blog:blogType,user:userType|null}):blogType{
+        //REORGS THE MODSELECTOR.BLOG AND ADDS USER ID TO BLOG IF EXISTS
         const {blog,user}=item;
         const show=blog.show;
         const username=blog.username;
@@ -199,13 +200,15 @@ async apiUploadSaveFree(item:{parent:HTMLElement,Key:string,formdata:FormData}):
         if(maxcount>0){
             localStorage.setItem("placement",String(maxcount + 1));
         }
+        localStorage.setItem("blog",JSON.stringify(this._modSelector.blog));
         return this._modSelector.blog;
     }
     promsaveItems(item:{blog:blogType,user:userType}):Promise<blogType>{
         const {blog,user}=item;
-        return new Promise((resolver)=>{
+        return new Promise((resolver,reject)=>{
             // console.log("BLOG",blog)
             resolver( this.saveItems({blog,user}));
+            reject(`no user:${user}`)
         }) as Promise<blogType>
         
     }
@@ -213,6 +216,7 @@ async apiUploadSaveFree(item:{parent:HTMLElement,Key:string,formdata:FormData}):
         const {blog}=item;
         let eles=blog.elements as elementType[];
         eles=eles.sort((a,b)=>{if(a.placement < b.placement) return -1;return 1});
+        // console.log("checkEle: eles",eles)
         if(eles && eles.length>0){
              eles=eles.map(ele=>{
                 ele.blog_id=blog.id;

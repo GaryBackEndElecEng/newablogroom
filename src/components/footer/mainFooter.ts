@@ -16,6 +16,7 @@ import Features from "../home/feature";
 import { userType } from "../editor/Types";
 import AllMsgs from "../home/allMsgs";
 import { FaGooglePlay, FaMobileScreen, FaRightLong } from "react-icons/fa6";
+import styles from "./footer.module.css";
 
 
 
@@ -121,15 +122,15 @@ class MainFooter{
             }
             
             
-            this.addElement({col,str,isAuthenticated});
+            this.addElement({col,str,isAuthenticated,less400,less900});
             row.appendChild(col);
         });
       
         container.appendChild(row);
        
     }
-    async addElement(item:{col:HTMLElement,str:string,isAuthenticated:boolean}){
-        const {col,str,isAuthenticated}=item;
+    async addElement(item:{col:HTMLElement,str:string,isAuthenticated:boolean,less400:boolean,less900:boolean}){
+        const {col,str,isAuthenticated,less400,less900}=item;
         const size:{width:string,height:string}= window.innerWidth <1000 ? {width:"60px",height:"60px"} : {width:"80px",height:"80px"};
         const container=document.createElement("div");
         container.id="addElement";
@@ -145,7 +146,7 @@ class MainFooter{
             col.appendChild(container);
             return;
             case str==="col-md-5 center":
-             this.centerSide({col:container,isAuthenticated});
+             this.centerSide({col:container,isAuthenticated,less400,less900});
             col.appendChild(container);
             return;
             case str==="col-md-3 right-side":
@@ -208,14 +209,14 @@ class MainFooter{
             resolve({container});
         }) as Promise<{container:HTMLElement}>;
     }
-    centerSide(item:{col:HTMLElement,isAuthenticated:boolean}){
-        const {col,isAuthenticated}=item;
+    centerSide(item:{col:HTMLElement,isAuthenticated:boolean,less400:boolean,less900:boolean}){
+        const {col,isAuthenticated,less400,less900}=item;
         const container=document.createElement("div");
         container.style.cssText="margin:0px;padding:0px;position:relative;width:100%;min-height:10vh;height:100%;display:flex;flex-direction:column;justify-content:center;align-items:center";
         container.id="center";
         this.centerBtns({parent:container,isAuthenticated});//BUTTONS
-        this.centerSideContent({parent:container,isAuthenticated});
-        this.copyRight(container);
+        this.centerSideContent({parent:container,isAuthenticated,less400,less900});
+        this.copyRight({parent:container,less400,less900});
         col.appendChild(container);
     }
     rightSide(item:{col:HTMLElement,isAuthenticated:boolean}){
@@ -414,9 +415,10 @@ class MainFooter{
         row.appendChild(column); 
     }
     //CENTER
-    copyRight(parent:HTMLElement){
+    copyRight({parent,less400,less900}:{parent:HTMLElement,less400:boolean,less900:boolean}){
         const container=document.createElement("div");
-        container.style.cssText="position:absolute;top:85%;left:0%;width:130px;display:grid;place-items:center;font-size:12px;";
+        container.style.cssText="position:absolute;left:0%;width:130px;display:grid;place-items:center;font-size:12px;";
+        container.style.top=less900 ? less400 ? "95%":"75%":"90%";
         const year:number=new Date().getFullYear();
         const copyright=document.createElement("div");
         copyright.style.cssText="margin-inline:auto;";
@@ -507,9 +509,9 @@ class MainFooter{
         });
         container.appendChild(row);
     }
-    centerSideContent(item:{parent:HTMLElement,isAuthenticated:boolean}){
-        const {parent,isAuthenticated}=item;
-        const less400=window.innerWidth < 400;
+    centerSideContent(item:{parent:HTMLElement,isAuthenticated:boolean,less900:boolean,less400:boolean}){
+        const {parent,isAuthenticated,less900,less400}=item;
+       
         const container=document.createElement("div");
         const css_btn="margin:auto;display:grid;place-items:center;gap:0.5rem;flex-direction:column;cursor:pointer;box-shadow:1px 1px 7px 1px #0CAFFF,-1px -1px 7px 1px #0CAFFF;border-radius:23px;background-color:#0C090A;color:white;";
         container.id="centerSideContent";
@@ -665,20 +667,25 @@ class MainFooter{
     }
     storageMsg(item:{parent:HTMLElement,msgCont:HTMLElement,show:boolean,closeInfoMsg:boolean}){
         const {parent,show,msgCont,closeInfoMsg}=item;
+        const less900= window.innerWidth < 900;
+        const less700= window.innerWidth < 700;
+        const less400= window.innerWidth < 400;
         Header.cleanUpByID(parent,"popup-storageMsg");
         parent.style.position="relative";
         const popup=document.createElement("div");
         popup.id="popup-storageMsg";
-        popup.style.cssText="font-family:Poppins-Regular;position:absolute;width:50%;min-height:20vh;display:flex;justify-content:center;flex-direction:column;align-items:center;padding:1rem;background-color:black;color:white;z-index:200;border-radius:12px;box-shadow:1px 1px 12 1px rgba(12, 175, 255,0.5);margin-inline:auto;";
-        popup.style.inset="0% 20% 0% 20%";
-        popup.style.width=window.innerWidth <900 ? (window.innerWidth <400 ? "100%" : "80%") :"50%";
-        popup.style.inset=window.innerWidth <900 ? (window.innerWidth <400 ? "0% 2% 40% 2%" : "0% 10% 60% 10%") :"0% 20% 0% 20%";
+        popup.className=styles.storage_message_popup;
+        popup.style.minHeight=less900 ?(less700 ?(less400 ? "76vh":"60vh"):"42%"):"46%";
+        const h6=document.createElement("h6");
+        h6.textContent="Storage Message";
+        popup.appendChild(h6);
         const text=document.createElement("p");
         text.innerHTML=this.infoMsg;
         popup.appendChild(text);
         const btnCont=document.createElement("div");
         btnCont.id="btnCont";
-        btnCont.style.cssText="width:100%;display:flex;justify-content:center;align-items:center;gap:3rem;"
+        btnCont.style.cssText="width:100%;display:flex;justify-content:center;align-items:center;gap:3rem;margin-bottom:2rem;";
+        
         const {button:close}=Misc.simpleButton({anchor:btnCont,type:"button",bg:"rgb(31, 48, 94)",color:"white",text:"Got it!",time:400});
         const {button:openStorage}=Misc.simpleButton({anchor:btnCont,type:"button",bg:"#06f0be",color:"white",text:"more info?",time:400});
         popup.appendChild(btnCont);
@@ -700,19 +707,16 @@ class MainFooter{
         };
         parent.appendChild(popup);
         const getPopup=parent.querySelector("div#popup-storageMsg") as HTMLElement;
-        if(getPopup){
-        Misc.matchMedia({parent:getPopup,maxWidth:900,cssStyle:{inset:"0% 10% 60% 10%",width:"auto"}});
-        Misc.matchMedia({parent:getPopup,maxWidth:400,cssStyle:{inset:"0% 2% 40% 2%",padding:"0px",transform:"translateY(-110%)"}});
-        }else{
-            Misc.matchMedia({parent:popup,maxWidth:900,cssStyle:{inset:"0% 10% 60% 10%",width:"auto"}});
-        Misc.matchMedia({parent:popup,maxWidth:400,cssStyle:{inset:"0% 2% 40% 2%",padding:"0px",transform:"translateY(-110%)"}});
-        }
-        const height=window.innerWidth <410 ? "translateY(-110%)":"translateY(-150%)";
+        // getPopup.style.transform=less900 ? (less700 ? (less400 ? "-120%":"-120%"):"-110%"):"-100%";
+        
+        
+        const height=less900 ? (less700 ? (less400 ? "-120%":"-115%"):"-110%"):"-100%";
+        // const height=popup.style.transform;
         if(show && !closeInfoMsg){
             popup.style.transform=height;
             popup.animate([
                 {transform:"translateY(0%)",opacity:"0"},
-                {transform:height,opacity:"1"},
+                {opacity:"1"},
             ],{iterations:1,duration:800});
         }else{
             popup.style.transform="translateY(100%)";

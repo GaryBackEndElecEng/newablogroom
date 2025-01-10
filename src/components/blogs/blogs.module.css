@@ -1,0 +1,44 @@
+.injectBlogs {
+  display: flex;
+  justify-content: flex-start;
+  align-items: center;
+  overflow-x: hidden;
+  min-height: 110vh;
+  margin-top: 0px;
+  margin-inline: auto;
+  padding-inline: 1rem;
+  position: relative;
+  width: 76%;
+}
+.injectBlogs > div {
+  width: 100%;
+  margin-inline: auto;
+  padding-inline: 0px;
+}
+
+@media screen and (max-width: 920px) {
+  .injectBlogs {
+    min-height: 105v;
+    width: 90%;
+    padding-inline: 0.5rem;
+  }
+}
+@media screen and (max-width: 700px) {
+  .injectBlogs {
+    min-height: 115v;
+    width: 95%;
+    padding-inline: 0.25rem;
+  }
+}
+@media screen and (max-width: 500px) {
+  .injectBlogs {
+    min-height: 125v;
+    width: 100%;
+    padding-inline: 0rem;
+  }
+}
+@media screen and (max-width: 400px) {
+  .injectBlogs {
+    min-height: 135v;
+  }
+}

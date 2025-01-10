@@ -85,7 +85,7 @@ class HtmlElement {
                 const isFeature=["is-vendiagram","is-wave","data-circle-design","is-arch","data-circle-design"].find(at=>(at===attr));
                 const isArrLink=isJSON ? true:false;//LINK REFERENCES
                 const type=element.type;
-                const isShapeoutside= type && type==="shapeoutside" ? type:undefined;
+                const checkShapeoutside= type && type==="shapeoutside" ? true:false;
                 if(checkBgShade){
                     res.ele.classList.add("background-bgShade");
                     res.divCont.classList.add("background-bgShade");
@@ -93,8 +93,8 @@ class HtmlElement {
                 
                 // ADDING BACKGROUND WHITE TO ELEMENTS WITH BACKGROUND COLOR
                 switch(true){
-                    case isShapeAttr !==undefined && type !==undefined && isShapeoutside !==undefined:
-                        //FOR SHAPEOUTSIDE
+                    case checkShapeoutside:
+                        //FOR SHAPEOUTSIDE: THIS HAS ITS OWN removeElement
                             parent.removeChild(res.divCont);//removing element
                             // console.log("element.attr",element.attr,"element.imgKey",element.imgKey)
                             this.shapeOutside.showShapeOutside({parent:parent,flex:null,element});
@@ -106,7 +106,7 @@ class HtmlElement {
                         ShapeOutside.cleanUpByID(res.ele,"setAttributes");
 
                     return;
-                    case checkEle && isShapeoutside===undefined:
+                    case checkEle && !checkShapeoutside:
                         //FOR EVERYTHING ELSE IN CHECKELE
                         if(isArrLink){
                             if(element.attr as string){
@@ -146,7 +146,7 @@ class HtmlElement {
                             
                         }
                         
-                        res.ele.addEventListener("click",(e:MouseEvent)=>{
+                        res.divCont.addEventListener("click",(e:MouseEvent)=>{
                             if(e){
                                 res.ele.classList.toggle("isActive");
                                 res.divCont.classList.toggle("isActive");
@@ -209,13 +209,23 @@ class HtmlElement {
                                 
                             }
                         });
+                        res.divCont.addEventListener("click",(e:MouseEvent)=>{
+                            if(e){
+                                res.ele.classList.toggle("isActive");
+                                res.divCont.classList.toggle("isActive");
+                                const check=([...res.ele.classList as any] as string[]).includes("isActive")
+                                this.removeMainElement(parent,res.divCont,res.ele);
+                                if(check){
+                                }
+                            }
+                        });
                         Misc.matchMedia({parent:res.divCont,maxWidth:400,cssStyle:{paddingInline:"0px",marginInline:"0px;"}});
                     return;
                     case element.name==="time":
                         res.ele.innerHTML=element.inner_html;
                         res.ele.setAttribute("datetime",`${element.inner_html}`)
                         Misc.blurIn({anchor:res.divCont,blur:"20px",time:700});
-                        res.ele.addEventListener("click",(e:MouseEvent)=>{
+                        res.divCont.addEventListener("click",(e:MouseEvent)=>{
                             if(e){
                                 res.ele.classList.toggle("isActive");
                                 res.divCont.classList.toggle("isActive");
@@ -231,7 +241,7 @@ class HtmlElement {
                         (res.ele as HTMLAnchorElement).href="#";
                         res.ele.onclick=()=>{return window.open(link1,"_blank")};
                         Misc.blurIn({anchor:res.divCont,blur:"20px",time:700});
-                        res.ele.addEventListener("click",(e:MouseEvent)=>{
+                        res.divCont.addEventListener("click",(e:MouseEvent)=>{
                             if(e){
                                 res.ele.classList.toggle("isActive");
                                 res.divCont.classList.toggle("isActive");
@@ -248,7 +258,7 @@ class HtmlElement {
                         res.ele.onclick=()=>{return window.open(link,"_blank")};
                         Misc.blurIn({anchor:res.divCont,blur:"20px",time:700});
                         const par1=res.ele.parentElement as HTMLElement;
-                        res.ele.addEventListener("click",(e:MouseEvent)=>{
+                        res.divCont.addEventListener("click",(e:MouseEvent)=>{
                             if(e){
                                 res.ele.classList.toggle("isActive");
                                 res.divCont.classList.toggle("isActive");
@@ -270,12 +280,11 @@ class HtmlElement {
         parent.style.position="relative";
         const divCont=document.createElement("div");
         divCont.className=this.divCont_class;
-        divCont.setAttribute("data-placement",`${element.placement}`);
+        divCont.setAttribute("data-placement",`${element.placement}-A`);
         divCont.style.cssText=this.divCont_css;
         divCont.style.paddingInline=less400 ? "0.25rem":"1.5rem";
         const ele=document.createElement(element.name);
         ele.setAttribute("name",element.name);
-        ele.setAttribute("data-placement",`${element.placement}`);
         ele.setAttribute("is-element","true");
         ele.setAttribute("aria-selected","true");
         ele.setAttribute("contenteditable","true");
@@ -365,7 +374,6 @@ class HtmlElement {
 
         }
         divCont.setAttribute("data-placement",`${this.placement}`);
-        target.setAttribute("data-placement",`${this.placement}`);
         target.classList.add("position-relative");
         target.setAttribute("is-element","true");
         target.setAttribute("contenteditable","true");
@@ -408,7 +416,6 @@ class HtmlElement {
         target.classList.add("box-shadow");
         target.classList.add("element");
         target.classList.add(class_);
-        target.setAttribute("data-placement",`${this.placement}`);
         // ADDING BACKGROUND WHITE TO ELEMENTS WITH BACKGROUND COLOR
         Main.container=document.querySelector("section#main") as HTMLElement;
         const checkBgShade=([...(Main.container as HTMLElement).classList as any] as string[]).includes("bgShade");
@@ -993,7 +1000,6 @@ class HtmlElement {
                 time.innerHTML=newDate.toLocaleDateString();
                 time.style.cssText="margin:0.75rem; font-size:16px;margin-left:0.5rem;";
                 time.className="text-primary mx-auto my-3 show-time";
-                time.setAttribute("data-placement",`${this.placement}`);
                 divCont.appendChild(time);
                 parent.appendChild(divCont);
                 parent.removeChild(container);

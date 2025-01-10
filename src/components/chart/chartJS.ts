@@ -43,7 +43,7 @@ class ChartJS {
       this._charts=[];
       this._charts=this._modSelector._charts;
       this._chart=this._modSelector._chart;
-      this.message=new Message(this._modSelector,this._service,null);
+      this.message=new Message(this._modSelector,this._service,this._modSelector.blog,null);
     }
     //---------SETTERS/GETTERS------------//
     get placement(){
@@ -280,22 +280,22 @@ class ChartJS {
     
     async mainChart(injector:HTMLElement,blog:blogType){
         this._modSelector.blog={...blog};
-        Misc.matchMedia({parent:injector,maxWidth:900,cssStyle:{paddingInline:"1rem"}});
         await this.titlePage({container:injector,time:1200}).then(async(res)=>{
             if(res){
                 await this.mainBarChart({injector,blog});
         
                     res.textContainer.style.opacity="1";
+                    res.textContainer.style.width="100%";
                     res.para.style.opacity="1";
                     res.para.style.marginTop="1rem";
                     res.para.style.transform="translateX(0%)";
                     res.textContainer.animate([
                         {transform:"translateY(-100%)",opacity:"0"},
-                        {transform:"translateY(0%)",opacity:"1"},
+                        {opacity:"1"},
                     ],{duration:res.time,iterations:1,"easing":"ease-in-out"});
                     res.para.animate([
                         {transform:"translateX(-75%)",opacity:"0.3",color:"white"},
-                        {transform:"translateX(-0%)",opacity:"1",color:res.para.style.color},
+                        {opacity:"1",color:res.para.style.color},
                     ],{duration:res.time + 700,iterations:1,"easing":"ease-in-out"});
         
 
@@ -315,10 +315,22 @@ class ChartJS {
         const css_col="margin-inline:auto;display:flex;flex-direction:column;justify-content:center;align-items:center;";
         const textContainer=document.createElement("div");
         textContainer.id="chart-titlepage-textContainer";
-        textContainer.style.cssText=css_col + "background-color:black;border-radius:12px;margin-top:1rem;filter:drop-shadow(0 0 0.5rem white);";
+        textContainer.style.cssText=css_col + "background-color:black;border-radius:12px;margin-top:1rem;filter:drop-shadow(0 0 0.5rem white);width:100%;";
         textContainer.style.width=less900 ? (less400 ? "100%":"80%") : "70%";
         textContainer.style.paddingBottom=less900 ? (less400 ? "2rem":"2.5rem") : "2rem";
         textContainer.style.paddingInline=less900 ? (less400 ? "1rem":"1rem") : "2rem";
+        await this.leftEllipe({parent:textContainer,less400,less900}).then(async(res)=>{
+            if(res){
+                res.ellipseL.animate([
+                    {clipPath:"ellipse(180px 190px at -7% -19%)"},
+                    {clipPath:"ellipse(80px 90px at -7% -19%)"},
+                ],{duration:3*time,iterations:1,"easing":"ease-in-out"});
+                res.ellipseR.animate([
+                    {clipPath:"ellipse(190px 180px at 107% 119%)"},
+                    {clipPath:"ellipse(90px 80px at 107% 119%)"},
+                ],{duration:3*time,iterations:1,"easing":"ease-in-out"});
+            }
+        });
         const text=document.createElement("p");
         text.id="container-mainTitle";
         text.className=" text-center  my-2 mb-4 mx-auto lean";
@@ -341,7 +353,7 @@ class ChartJS {
         const para=document.createElement("p");
         para.id="textContainer-para";
         para.textContent="for you to test and play with.";
-        para.style.cssText="padding-block:1rem;padding-inline:1rem;margin-inline:auto;margin-top:0.5rem;text-wrap:wrap;text-align:center;box-shadow:1px 1px 3px 1px rgb(29, 203, 251)";
+        para.style.cssText="padding-block:1rem;padding-inline:1rem;margin-inline:auto;margin-top:0.5rem;text-wrap:wrap;text-align:center;box-shadow:1px 1px 3px 1px rgb(29, 203, 251);";
         para.style.fontSize=less900 ? (less400 ? "130%":"150%"):"175%";
         para.style.color="#0668f7";
         textContainer.appendChild(text);
@@ -350,38 +362,55 @@ class ChartJS {
         textContainer.appendChild(para);
         textContainer.style.opacity="0";
         para.style.opacity="0";
-        textContainer.style.transform="scale(0.8)";
+        
         
         container.appendChild(textContainer);
         return new Promise(resolve=>{
             resolve({textContainer,container,para,time});
         }) as Promise<{textContainer:HTMLElement,container:HTMLElement,para:HTMLElement,time:number}>;
     }
+    leftEllipe({parent,less400,less900}:{parent:HTMLElement,less400:boolean,less900:boolean}): Promise<{ellipseL:HTMLElement,ellipseR:HTMLElement}>{
+        parent.style.position="relative";
+        const cssEllipsL="display:block;clip-path: ellipse(80px 90px at -7% -19%);position:absolute;z-index:1;top:0%;left:0%;transform:translate(0px,0px);background: rgb(29, 203, 251);width:100px;height:100px;";
+        const cssEllipsR="display:block;clip-path: ellipse(90px 80px at 107% 119%);position:absolute;z-index:1;top:100%;right:0%;transform:translate(1px,-100px);background: rgb(29, 203, 251);width:100px;height:100px;";
+        const ellipseL=document.createElement("div");
+        const ellipseR=document.createElement("div");
+        ellipseL.id="ellipse1";
+        ellipseR.id="ellipse1";
+        ellipseL.style.cssText=cssEllipsL;
+        ellipseR.style.cssText=cssEllipsR;
+        // ellipse.style.width=less900 ? ( less400 ? "":"") :"";
+        parent.appendChild(ellipseL);
+        parent.appendChild(ellipseR);
+        return new Promise(resolver=>{
+            resolver({ellipseL,ellipseR});
+        }) as Promise<{ellipseL:HTMLElement,ellipseR:HTMLElement}>;
+    };
     async mainBarChart(item:{injector:HTMLElement,blog:blogType}){
         const {injector,blog}=item;
+        const less900=window.innerWidth < 900;
+        const less500=window.innerWidth < 500;
+        const less400=window.innerWidth < 400;
         const isTextarea=injector.id==="textarea";
         const lenId=this.charts.length;
-        const widthMax=window.innerWidth <900 ? (window.innerWidth < 600 ? (window.innerWidth <400 ? "340px":"500px") : "600px") : "800px";
-        const widthMin=window.innerWidth <900 ? (window.innerWidth < 600 ? (window.innerWidth <400 ? "300px":"450px") : "500px") : "700px";
+        const widthMax=less900 ? (less500 ? (less400 ? "340px":"400px") : "500px") : "800px";
+        const widthMin=less900 ? (less500 ? (less400 ? "300px":"375px") : "400px") : "700px";
         if(!isTextarea){
             injector.style.minWidth=widthMin;
-            injector.style.maxWidth=widthMax;
+            // injector.style.maxWidth=widthMax;
         }else{
             injector.style.width="100%";
         }
         Header.cleanUpByID(injector,"ctx-container-target");
         if(injector.id !=="textarea"){
-            injector.style.cssText="min-height:80vh;margin-inline:auto;border-radius:20px;max-width:1000px;width:100%;position:relative;display:flex;justify-content:center;align-items:center;flex-direction:column;";
+            injector.style.cssText="min-height:80vh;margin-inline:auto;border-radius:20px;width:100%;position:relative;display:flex;justify-content:center;align-items:center;flex-direction:column;";
+            injector.style.width="100% !important";
         }
 
-        Misc.matchMedia({parent:injector,maxWidth:900,cssStyle:{minWidth:"800px",maxWidth:"890px",width:"100%"}});
-        Misc.matchMedia({parent:injector,maxWidth:800,cssStyle:{minWidth:"700px",maxWidth:"790px",width:"100%"}});
-        Misc.matchMedia({parent:injector,maxWidth:700,cssStyle:{minWidth:"600px",maxWidth:"690px",width:"100%"}});
-        Misc.matchMedia({parent:injector,maxWidth:400,cssStyle:{minWidth:"300px",maxWidth:"390px",width:"100%"}});
         const divCont=document.createElement("section");
         divCont.className="mainBarChart-divCont";
         divCont.id="ctx-container-target";
-        divCont.style.cssText="margin-inline:auto;margin-block:2rem;padding-inline:2rem; width:100%;display:flex;flex-direction:column;gap:1rem;align-items:center;justify-content:flex-start;gap:1rem;background-color:white;max-width:800px;border-radius:20px;overflow-y:scroll;height:800px;";
+        divCont.style.cssText="margin-inline:auto;margin-block:2rem;padding-inline:2rem; width:100%;display:flex;flex-direction:column;gap:1rem;align-items:center;justify-content:flex-start;gap:1rem;background-color:white;border-radius:20px;overflow-y:scroll;overflow-x:hidden;";
         divCont.style.minWidth=widthMin;
         divCont.style.maxWidth=widthMax;
         const ctx=document.createElement("canvas") as HTMLCanvasElement;
@@ -399,7 +428,7 @@ class ChartJS {
         Misc.matchMedia({parent:getCtx,maxWidth:900,cssStyle:{maxWidth:"890px",width:"100%",minWidth:"575px"}});
         Misc.matchMedia({parent:getCtx,maxWidth:400,cssStyle:{maxWidth:"380px",width:"100%",minWidth:"320px"}});
         this.removeElement({parent:injector,divCont,target:ctx});
-        this.barGraph({parent:injector,divCont,getCtx,blog});
+        this.barGraph({parent:injector,divCont,getCtx,blog,less900,less500,less400});
 
     }
     editGraph(item:{divCont:HTMLElement,option:barOptionType|lineOptionType,chart:chartType}):{form:HTMLFormElement,popup:HTMLElement}{
@@ -442,15 +471,15 @@ class ChartJS {
         return {popup,form}
       
     }
-    async barGraph(item:{parent:HTMLElement,divCont:HTMLElement,getCtx:HTMLCanvasElement,blog:blogType}){
-        const {parent,divCont,getCtx,blog}=item;
+    async barGraph(item:{parent:HTMLElement,divCont:HTMLElement,getCtx:HTMLCanvasElement,blog:blogType,less900:boolean,less500:boolean,less400:boolean}){
+        const {parent,divCont,getCtx,blog,less900,less500,less400}=item;
         let chart:Chart<"bar", number[], string | number>|Chart<"line", number[], string | number>
         divCont.style.position="relative";
         const widthMax=window.innerWidth <900 ? (window.innerWidth < 600 ? (window.innerWidth <400 ? "340px":"500px") : "600px") : "800px";
         const widthMin=window.innerWidth <900 ? (window.innerWidth < 600 ? (window.innerWidth <400 ? "300px":"450px") : "500px") : "700px";
         getCtx.style.width=widthMin;
         const option=this.bar_options({barData:this.barData,label:"add your data"}) as unknown as optionType;
-        await this.addChart({divCont,Ctx:getCtx,option,blog}).then(async(res)=>{
+        await this.addChart({divCont,Ctx:getCtx,option,blog,less900,less400,less500}).then(async(res)=>{
             if(res){
                 // chart.destroy();
                 this.cleanUpKeepOne({parent,class_:res.divCont.className});
@@ -493,7 +522,7 @@ class ChartJS {
                                     //redo graph
                                     if(graphType==="bar"){
                                         const option_=this.bar_options({barData:barData,label}) as unknown as optionType;
-                                        await this.addChart({divCont,Ctx:getCtx,option:option_,blog}).then(async(res)=>{
+                                        await this.addChart({divCont,Ctx:getCtx,option:option_,blog,less900,less400,less500}).then(async(res)=>{
                                             if(res){
                                                 chart.destroy();
                                                 this.barOption=res.option as barOptionType
@@ -508,8 +537,8 @@ class ChartJS {
 
                                     }else if(graphType==="line"){
                                         const _option=this.line_options({barData:barData,label}) as unknown as optionType;
-                                        console.log("_option",_option);
-                                        await this.addChart({divCont,Ctx:getCtx,option:_option,blog}).then(async(res)=>{
+                                        // console.log("_option",_option);
+                                        await this.addChart({divCont,Ctx:getCtx,option:_option,blog,less900,less400,less500}).then(async(res)=>{
                                             if(res){
                                                 chart.destroy();
                                                 this.lineOption=res.option as lineOptionType;
@@ -831,8 +860,8 @@ class ChartJS {
             }
         };
     }
-   async addChart(item:{divCont:HTMLElement,Ctx:HTMLCanvasElement,option:optionType,blog:blogType}):Promise<{option:optionType,divCont:HTMLElement,Ctx:HTMLCanvasElement}>{
-        const {divCont,Ctx,option,blog}=item;
+   async addChart(item:{divCont:HTMLElement,Ctx:HTMLCanvasElement,option:optionType,blog:blogType,less900:boolean,less400:boolean,less500}):Promise<{option:optionType,divCont:HTMLElement,Ctx:HTMLCanvasElement}>{
+        const {divCont,Ctx,option,blog,less900,less400,less500}=item;
         const maxcount=ModSelector.maxCount(blog);
         this.placement=maxcount + 1;
         localStorage.setItem("placement",String(maxcount + 1));

@@ -598,7 +598,8 @@ class Edit {
     };
    async selEleGenerator(item:{parent:HTMLElement,blog:blogType|null,less900:boolean,less400:boolean}){
     const {parent,blog,less900,less400}=item;
-        if(blog){
+    if(blog){
+            // console.log("edit:blog",blog)//works
             Main.cleanUp(parent)
             const sortThis=this.placementAdjustShift({blog});
             ShapeOutside.cleanUpByID(parent,"setAttributes");
@@ -1285,129 +1286,126 @@ class Edit {
     }
 
 
-    //FROM SIDEBAR injected into Main.container
-    reOrder(parent:HTMLElement,blog:blogType){
+    //FROM SIDEBAR injected into Main.textarea
+   async reOrder(parent:HTMLElement,blog:blogType){
         //cleaning attributes
+        const less900=window.innerWidth <900;
+        const less400=window.innerWidth <400;
         const sectionMain=document.querySelector("section#main") as HTMLElement;
         this.displayBlog.cleanAttributes(sectionMain,true);
         //CLEANING ATTRIBUTES
         const maxCount=ModSelector.maxCount(blog);
         const arrPopups:{popup:HTMLElement,parent:HTMLElement}[]=[];
-        blog.elements.map(ele=>{
-            Edit.cleanUpByID(parent,`${ele.name}#${ele.eleId}`);
+        // console.log(parent)//works
+        await Promise.all(blog.elements.map(async(ele)=>{
             const getElement=parent.querySelector(`${ele.name}#${ele.eleId}`) as HTMLElement;
-            // getElement.style.top="-50px";
-            if(!getElement) return;
-            this.newOrderele({parent:getElement,ele,maxCount}).then(async(res)=>{
-                if(res){
-                    res.select.onchange=(e:Event)=>{
-                        if(e){
-                            const value=parseInt((e.currentTarget as HTMLSelectElement).value as string) as number;
-                            blog=this._modSelector.shiftUpItems({blog,changeEle:ele,changeSelector:null,changeCode:null,changeChart:null,place:value}); 
-                            res.divCont.classList.toggle("isActive");
-                        }
-                    };
-                    arrPopups.push({popup:res.popup,parent:res.divCont});
-                }
-            });
+            
+            if(getElement){
+                const getDivCont=getElement.parentElement as HTMLElement;//works
+                if(getDivCont){
 
-        });
-         blog.selectors.filter(sel=>(!sel.header)).filter(sel=>(!sel.footer)).map(sel=>{
+                    await this.newOrderele({divCont:getDivCont,ele,maxCount}).then(async(res)=>{
+                         if(res){
+                             // console.log("with select",res.divCont)//works (pulls all ele placements)
+                             res.select.onchange=(e:Event)=>{
+                                 if(e){
+                                     const value=parseInt((e.currentTarget as HTMLSelectElement).value as string) as number;
+                                    
+                                     const toBeSlottedObj={toBeSlottedName:"elements",toBeSlotted:ele.placement};
+                                     blog=this._modSelector.reOrder({blog,toBeSlottedObj,place:value}); 
+                                     res.divCont.classList.toggle("isActive");
+                                 }
+                             };
+                             arrPopups.push({popup:res.popup,parent:res.divCont});
+                             // console.log("res.popup.id",res.popup.id,"parent",res.popup.parentElement)//works
+                         }
+                     });
+                }
+
+            };
+
+        }));
+        await Promise.all(blog.selectors.filter(sel=>(!sel.header)).filter(sel=>(!sel.footer)).map(async(sel)=>{
             Edit.cleanUpByID(parent,`${sel.name}#${sel.eleId}`);
             const getElement=parent.querySelector(`${sel.name}#${sel.eleId}`) as HTMLElement;
             // getElement.style.top="-50px";
             if(!getElement) return;
             getElement.setAttribute("data-placement",`${sel.placement}-A`);
             getElement.classList.add("isActive");
-            this.newOrderSel({parent:getElement,sel,maxCount}).then(async(res)=>{
+           await this.newOrderSel({parent:getElement,sel,maxCount}).then(async(res)=>{
                 if(res){
                     res.select.onchange=(e:Event)=>{
                         if(e){
+                            const toBeSlottedObj={toBeSlottedName:"selectors",toBeSlotted:sel.placement};
                             const value=parseInt((e.currentTarget as HTMLSelectElement).value as string) as number;
-                            blog=this._modSelector.shiftUpItems({blog,changeEle:null,changeSelector:sel,changeCode:null,changeChart:null,place:value}); 
+                            blog=this._modSelector.reOrder({blog,toBeSlottedObj,place:value}); 
                             getElement.classList.remove("isActive");
                         }
                     };
                     arrPopups.push({popup:res.popup,parent:getElement});
                 }
             });
-        });
-         blog.codes.map(code=>{
+        }));
+        await Promise.all (blog.codes.map(async(code)=>{
             Edit.cleanUpByID(parent,`${code.name}#${code.eleId}`);
             const getElement=parent.querySelector(`${code.name}#${code.eleId}`) as HTMLElement;
             // getElement.style.top="-50px";
             if(!getElement) return;
-            this.newOrderCode({parent:getElement,code,maxCount}).then(async(res)=>{
+            await this.newOrderCode({parent:getElement,code,maxCount}).then(async(res)=>{
                 if(res){
                     getElement.classList.add("isActive");
                     getElement.setAttribute("data-placement",`${code.placement}-A`)
                     res.select.onchange=(e:Event)=>{
                         if(e){
                             const value=parseInt((e.currentTarget as HTMLSelectElement).value as string) as number;
-                            blog=this._modSelector.shiftUpItems({blog,changeEle:null,changeSelector:null,changeCode:code,changeChart:null,place:value}); 
+                            const toBeSlottedObj={toBeSlottedName:"codes",toBeSlotted:code.placement};
+                            blog=this._modSelector.reOrder({blog,toBeSlottedObj,place:value}); 
                             getElement.classList.remove("isActive");
                         }
                     };
                     arrPopups.push({popup:res.popup,parent:getElement});
                 }
             });
-        });
-         blog.charts.map(chart=>{
-            Edit.cleanUpByID(parent,`div#${chart.eleId}`);
-            const getCtx=parent.querySelector(`div#${chart.eleId}`) as HTMLCanvasElement;
-            // getElement.style.top="-50px";
-            if(!getCtx) return;
-            this.newOrderChart({getCtx:getCtx,chart,maxCount}).then(async(res)=>{
-                if(res){
-                    getCtx.classList.add("isActive");
-                    getCtx.setAttribute("data-placement",`${chart.placement}-A`);
-                    
-                    res.select.onchange=(e:Event)=>{
-                        if(e){
-                            const value=parseInt((e.currentTarget as HTMLSelectElement).value as string) as number;
-                            blog=this._modSelector.shiftUpItems({blog,changeEle:null,changeSelector:null,changeCode:null,changeChart:chart,place:value}); 
-                            getCtx.classList.remove("isActive");
-                        }
-                    };
-                    arrPopups.push({popup:res.popup,parent:getCtx});
-                }
-            });
-        });
+        }));
+         await Promise.all(blog.charts.map(async(chart)=>{
+            // Edit.cleanUpByID(parent,`div#${chart.eleId}`);
+            const getCtx=parent.querySelector(`canvas#${chart.eleId}`) as HTMLCanvasElement;
+            const getDivCont=getCtx.parentElement as HTMLElement;//works
+            if(getDivCont){
+
+                await this.newOrderChart({divCont:getDivCont,chart,maxCount}).then(async(res)=>{
+                    if(res){
+                        getCtx.classList.add("isActive");
+                        getCtx.setAttribute("data-placement",`${chart.placement}-A`);
+                        
+                        res.select.onchange=(e:Event)=>{
+                            if(e){
+                                const value=parseInt((e.currentTarget as HTMLSelectElement).value as string) as number;
+                                const toBeSlottedObj={toBeSlottedName:"charts",toBeSlotted:chart.placement};
+                                blog=this._modSelector.reOrder({blog,toBeSlottedObj,place:value}); 
+                                getCtx.classList.remove("isActive");
+                            }
+                        };
+                        arrPopups.push({popup:res.popup,parent:getCtx});
+                    }
+                });
+            }
+        }));
         //place execute here
-        this.exeCloseReOrder(parent).then(async(res)=>{
-            if(res){
-                const less900=window.innerWidth <900;
-                const less400=window.innerWidth <400;
-            res.btn.onclick=(e:MouseEvent)=>{
-                if(e){
-                    arrPopups.map((res)=>{
-                        Misc.fadeOut({anchor:res.popup,xpos:100,ypos:10,time:400});
-                        setTimeout(()=>{
-                            // res.parent.classList.remove("isActive");
-                            // (res.parent.parentElement as HTMLElement).classList.remove("isActive");
-                            res.popup.remove();
-                        },380);
-                    });
-                    Misc.fadeOut({anchor:res.masterPopup,xpos:100,ypos:0,time:400});
-                    setTimeout(()=>{
-                        parent.removeChild(res.masterPopup);
-                    },380);
-                    setTimeout(()=>{
-                        this.selEleGenerator({parent:Main.textarea as HTMLElement,blog,less900,less400})
-    
-                    },500);
-                }
+        
+        this.exeCloseReOrder({parent,arrPopups,blog,less400,less900}).then(async(res)=>{
+            if(res && res.retParent){
+                Misc.message({parent,msg:"re ordering complete",type_:"success",time:700});
             };
-        }
         });
     }
 
-     newOrderele(item:{parent:HTMLElement,ele:elementType,maxCount:number}):Promise<{select:HTMLSelectElement,popup:HTMLElement,divCont:HTMLElement}>{
-        const {parent,ele,maxCount}=item;
-        Edit.cleanUpByClass(parent,`ele-order-item`);
-        const divCont=parent.parentElement as HTMLElement;
-        parent.style.position="relative";
-        divCont.style.position="relative";
+     newOrderele(item:{divCont:HTMLElement,ele:elementType,maxCount:number}):Promise<{select:HTMLSelectElement,popup:HTMLElement,divCont:HTMLElement}>{
+        //ELEMENTS ONLT!!:THIS GENERATES THE SELECT ELEMENT THAT POPULATES THE ITEMS BY PLACEMENT, THEN RETURNS THE SELECT,POPUP AND DIVCONT
+        const {divCont,ele,maxCount}=item;
+        // Edit.cleanUpByClass(parent,`ele-order-item`);
+        divCont.style.position="relative";//works
+        divCont.classList.add("isActive");
         const popup=document.createElement("div");
         popup.id=`ele-order-item-${ele.placement}`;
         popup.classList.add("ele-order-item");
@@ -1439,6 +1437,7 @@ class Edit {
         
     }
     async newOrderSel(item:{parent:HTMLElement,sel:selectorType,maxCount:number}):Promise<{select:HTMLSelectElement,popup:HTMLElement}>{
+        //SELECTORS ONLY!!:THIS GENERATES THE SELECT ELEMENT THAT POPULATES THE ITEMS BY PLACEMENT, THEN RETURNS THE SELECT,POPUP AND DIVCONT
         const {parent,sel,maxCount}=item;
         parent.classList.add("isActive");
         Edit.cleanUpByClass(parent,`select-order-item`);
@@ -1473,6 +1472,7 @@ class Edit {
         
     }
     async newOrderCode(item:{parent:HTMLElement,code:codeType,maxCount:number}):Promise<{select:HTMLSelectElement,popup:HTMLElement}>{
+        //CODEX ONLY::THIS GENERATES THE SELECT ELEMENT THAT POPULATES THE ITEMS BY PLACEMENT, THEN RETURNS THE SELECT,POPUP AND DIVCONT
         const {parent,code,maxCount}=item;
         parent.classList.add("isActive");
         Edit.cleanUpByClass(parent,`code-order-item`);
@@ -1506,23 +1506,27 @@ class Edit {
         }) as Promise<{select:HTMLSelectElement,popup:HTMLElement}>; 
         
     }
-    async newOrderChart(item:{getCtx:HTMLCanvasElement,chart:chartType,maxCount:number}):Promise<{select:HTMLSelectElement,popup:HTMLElement}>{
-        const {getCtx,chart,maxCount}=item;
-        Header.cleanUpByID(getCtx,`chart-order-item-${chart.placement}`)
-        getCtx.classList.add("isActive");
+    async newOrderChart(item:{divCont:HTMLElement,chart:chartType,maxCount:number}):Promise<{divCont:HTMLElement,select:HTMLSelectElement,popup:HTMLElement}>{
+        //CHARTS ONLY::THIS GENERATES THE SELECT ELEMENT THAT POPULATES THE ITEMS BY PLACEMENT, THEN RETURNS THE SELECT,POPUP AND DIVCONT
+        const {divCont,chart,maxCount}=item;
         const popup=document.createElement("div");
+        divCont.classList.add("isActive");
         popup.id=`chart-order-item-${chart.placement}`;
         popup.classList.add("chart-order-item");
-        popup.style.cssText="position:absolute;width:clamp(50px,100px,125px);height:auto;display:flex;flex-direction:column;align-items:center;z-index:100;";
-        popup.style.top="-10%";
-        popup.style.left="20%";
-        popup.style.right="80%";
+        popup.style.cssText="position:absolute;width:clamp(50px,100px,125px);height:auto;display:flex;flex-direction:column;align-items:center;z-index:100;display:flex;flex-direction:column;align-items:center;";
+        popup.style.top="0%";
+        popup.style.left="0%";
+        // popup.style.right="80%";
+        const small=document.createElement("small");
+        small.textContent=`chart-${chart.type}`;
+        small.className="text-primary text-center";
         const select=document.createElement("select");
         select.style.cssText="margin:auto;";
         select.value=`${chart.placement}`;
         select.textContent=`${chart.placement}`;
+        popup.appendChild(small);
         popup.appendChild(select);
-        getCtx.appendChild(popup);
+        divCont.appendChild(popup);
         Misc.fadeIn({anchor:popup,xpos:100,ypos:10,time:400});
         Array.from(Array(maxCount + 1).keys()).map(num=>{
             const option=document.createElement("option");
@@ -1536,12 +1540,15 @@ class Edit {
         });
         // select.selectedIndex=0;
         return new Promise((resolve)=>{
-            resolve({select,popup})
-        }) as Promise<{select:HTMLSelectElement,popup:HTMLElement}>; 
+            resolve({select,popup,divCont})
+        }) as Promise<{select:HTMLSelectElement,popup:HTMLElement,divCont:HTMLElement}>; 
         
     }
-    exeCloseReOrder(parent:HTMLElement):Promise<{btn:HTMLButtonElement,masterPopup:HTMLElement}>{
-        Edit.cleanUpByID(parent,"masterPopup");
+    exeCloseReOrder(item:{parent:HTMLElement,arrPopups:{popup:HTMLElement,parent:HTMLElement}[],blog:blogType,less900:boolean,less400:boolean}):Promise<{retParent:HTMLElement}>{
+        const {parent,arrPopups,blog,less900,less400}=item;
+        // console.log("arrPopups",arrPopups)//works
+        parent.style.position="relative";
+        // Edit.cleanUpByID(parent,"masterPopup");
         const masterPopup=document.createElement("div");
         masterPopup.style.cssText="position:absolute;width:150px;background:transparent;z-index:200;display:flex;place-items:center;box-shadow:1px 1px 12px 1px black,-2px -2px 10px -2px blue;border-radius:126px;";
         masterPopup.style.top="290px";
@@ -1553,11 +1560,39 @@ class Edit {
         Misc.matchMedia({parent:masterPopup,maxWidth:900,cssStyle:{top:"290px",left:"120px",right:"95%"}});
         Misc.matchMedia({parent:masterPopup,maxWidth:400,cssStyle:{top:"490px",left:"120px",right:"95%"}});
         Misc.fadeIn({anchor:masterPopup,xpos:100,ypos:0,time:400});
+        // console.log("parent",parent)//works ( but does not append MasterPopup)
+        btn.onclick=async(e:MouseEvent)=>{
+            if(e){
+                arrPopups.map((res)=>{
+                    Misc.fadeOut({anchor:res.popup,xpos:100,ypos:10,time:400});
+                    setTimeout(()=>{
+                        // res.parent.classList.remove("isActive");
+                        // (res.parent.parentElement as HTMLElement).classList.remove("isActive");
+                        res.popup.remove();
+                    },380);
+                });
+                Misc.fadeOut({anchor:masterPopup,xpos:100,ypos:0,time:400});
+                setTimeout(()=>{
+                    parent.removeChild(masterPopup);
+                },380);
+                // THIS REDOES THE TEXTAREA(REMOVES REORDERING)!! NOTE IT MUST BE BEHIND A CLICK ACTION
+               await this.sleep({func:()=>this.selEleGenerator({parent,blog,less900,less400}),time:400});
+               // THIS REDOES THE TEXTAREA(REMOVES REORDERING)!! NOTE IT MUST BE BEHIND A CLICK ACTION
+               this.selEleGenerator({parent,blog,less900,less400});
+               // THIS REDOES THE TEXTAREA(REMOVES REORDERING)!! NOTE IT MUST BE BEHIND A CLICK ACTION
+            }
+        };
         return new Promise((resolve)=>{
-            resolve({btn,masterPopup})
+            resolve({retParent:parent})
         });
     
     }
+    async sleep(item:{func:()=>Promise<void>,time:number}){
+            const {func,time}=item;
+            return new Promise(resolver=>{
+                setTimeout(()=>{return resolver(func)},time)
+            }) as Promise<()=>Promise<void>>;
+    };
     async editDescBlog(parent:HTMLElement){
         let blog=this._modSelector.blog;
         const flex="display:flex;flex-direction:column;align-items:center;gap:1.5rem;justify-content:center;width:100%;";

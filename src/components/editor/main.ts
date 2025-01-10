@@ -1119,6 +1119,7 @@ class  Main  {
             reject(()=>{console.log("error: did not get blog from local")})//ONLY GENERATES IF ERROR
         }) as Promise<{retBlog:string | null,user_id:string | null,email:string | null,userStr:string|null}>;
         promise1.then(async(value)=>{
+            // console.log(value)//works
             if(value && value.retBlog){
                 const userStr=value && value.userStr ? value.userStr.trim():null
                 const {parsed:retUser,isJSON:isUser}=Header.checkJson(userStr);
@@ -1132,13 +1133,11 @@ class  Main  {
                     this._service.initializeBlog();
                     const blog_=parsed as blogType;
                     const placement=ModSelector.maxCount(blog_);
-                    this._modSelector.blog={...blog_};
-                    // this._modSelector.placement=placement + 1;
                     localStorage.removeItem("placement");
                     // localStorage.setItem("placement",String(placement + 1));
-                    if(!user) return;
-                    this._service.promsaveItems({blog:this._modSelector._blog,user}).then(async(_blog)=>{
+                    this._service.promsaveItems({blog:blog_,user:user as userType}).then(async(_blog)=>{
                         if(_blog){
+                            // console.log("_blog",_blog)//works
                             if(!_blog.cssText){
                                 this._modSelector._blog.cssText=mainContainer.style.cssText + "width:100%;";
                             }else if(!_blog.class){
@@ -1150,8 +1149,7 @@ class  Main  {
                             this._modSelector._blog.eleId=mainContainer.id;
                            await this._edit.main(mainContainer,_blog);//sending it to viewport
                         }
-                    });//saving it to modSelector
-                    
+                    }).catch((err)=>{const msg=getErrorMessage(err);console.error(msg)});//saving it to modSelector
                     
                 }
                 if(value.user_id){
@@ -1237,74 +1235,122 @@ class  Main  {
             };
         }) as Promise<blogType|null>;
     }
-   static flexTracker(target:HTMLElement,flex:flexType):flexType{
+   static flexTracker(item:{target:HTMLElement,flex:flexType|null,isNew:boolean}):flexType{
+    //THIS ADDS ID ON TARGET IF NEW, POPULATES ATTRIBUTES WITH SETATTR(JSON.STRING=>FLEX) AND RETURNS FLEX
+        const {target,flex,isNew}=item;
+        let link:string|null="";
+        let email:string|null="";
+        let tel:string|null="";
+        let time:string|null="";
         const nodename=target.nodeName.toLowerCase();
-        const rand=Math.round(Math.random()*1000);
-        const {anchorContainer}=flex as flexType;
-        const {order,shapeOutsideCircle,shapeOutsideSquare,shapeOutsidePolygon}=flex;
-        const link=target.getAttribute("data-href");
-        const email=target.getAttribute("data-href-email");
-        const tel=target.getAttribute("data-href-tel");
-        if(target as HTMLElement){
-            flex.name=nodename;
+        link=target.getAttribute("data-href");
+        email=target.getAttribute("data-href-email");
+        tel=target.getAttribute("data-href-tel");
+        time=target.getAttribute("datatime");
+        let _flex={} as flexType;
+        if(isNew && flex){
+            _flex={...flex};
+            const rand=Math.round(Math.random()*1000);
             const ID=`${nodename}-${rand}`;
-            flex={...flex,elementId:ID,name:nodename};
+            _flex={..._flex,elementId:ID,name:nodename};
             target.id=ID;
-            target.setAttribute("flex",JSON.stringify(flex));
-            target.setAttribute("is-element","true");
-            target.setAttribute("contenteditable","true");
-            target.setAttribute("order",String(order));
-            target.setAttribute("name",nodename);
-            if(shapeOutsideCircle){
-                target.setAttribute("data-shapeoutside-circle","data-shapeoutside-circle");
-            }else if(shapeOutsideSquare){
-                target.setAttribute("data-shapeoutside-square","data-shapeoutside-square");
-            }else if(shapeOutsidePolygon){
-                target.setAttribute("data-shapeoutside-polygon","data-shapeoutside-polygon");
-            }else if(link){
-                    target.setAttribute("data-href",anchorContainer as string);
-            }else if(email){
-                target.setAttribute("data-href-email",anchorContainer as string);
-            }else if(tel){
-                target.setAttribute("data-href-tel",anchorContainer as string);
-            }else if(nodename==="img"){
-                target.setAttribute("contenteditable","false");
-            }
-            
+        }else{
+            const {parsed}=Header.checkJson(target.getAttribute("flex"));
+            _flex=parsed as flexType;
         }
-        return flex;
+        _flex.name=nodename;
+        const {order,shapeOutsideCircle,shapeOutsideSquare,shapeOutsidePolygon,link:link1,email:email1,tel:tel1,imgKey,backgroundImage,time:time1}=_flex;
+        link=link1 ? link1 :link;
+        email=email1 ? email1 :email;
+        tel=tel1 ? tel1 :tel;
+        tel=time1 ? time1 :time;
+        const shapeArr=[
+            {name:"data-shapeOutside-circle",bool:shapeOutsideCircle},
+            {name:"data-shapeOutside-square",bool:shapeOutsideSquare},
+            {name:"data-shapeOutside-polygon",bool:shapeOutsidePolygon}
+            
+        ];
+        const isShapeoutside=shapeArr.find(sh=>(sh.bool));
+        if(isShapeoutside){
+            const attr=isShapeoutside.name;
+            target.setAttribute(attr,attr);
+        }
+        target.setAttribute("order",String(order));
+        if(link){
+            target.setAttribute("data-href",String(link as string));
+        }else if(email){
+            target.setAttribute("data-href-email",String(email as string));
+        }else if(tel){
+            target.setAttribute("data-href-tel",String(tel as string));
+        }else if(nodename==="img"){
+            target.setAttribute("contenteditable","false");
+        }else if(backgroundImage){
+            target.setAttribute("data-backgroundImage","data-backgroundImage")
+        }else if(time){
+            target.setAttribute("datetime",String(time as string));
+        }
+        target.setAttribute("is-element","true");
+        target.setAttribute("contenteditable","true");
+        target.setAttribute("name",nodename);
+        
+        target.setAttribute("flex",JSON.stringify(_flex));
+        return _flex;
     }
-    static flexColTracker(target:HTMLElement,flex:flexType):flexType{
-        const {order,backgroundImage}= flex;
+    static flexColTracker(item:{target:HTMLElement,flex:flexType|null,isNew:boolean}):flexType{
+        const {target,flex,isNew}=item;
         const name=target.nodeName.toLowerCase(); 
-        const rand=`${name}-${Math.round(Math.random()*100)}`;
-        target.id=`${rand}`;
+        let _flex={} as flexType;
+        if(isNew && flex){
+            _flex={...flex};
+            const rand=`${name}-${Math.round(Math.random()*100)}`;
+            target.id=`${rand}`;
+            _flex={...flex,colId:rand};
+            target.setAttribute("flex",JSON.stringify(_flex));
+        }else{
+            const {parsed}=Header.checkJson(target.getAttribute("flex"));
+            _flex=parsed as flexType;
+            target.setAttribute("order",String(_flex.order));
+        }
+        const {order,backgroundImage,colId}= _flex;
+        if(backgroundImage){
+            target.setAttribute("data-backgroundImage","true");
+            target.setAttribute("is-backgroundImage","true");
+        }
+        target.classList.add("col-container")
+        target.setAttribute("contenteditable","false");
+        target.setAttribute("order",String(order));
         target.setAttribute("name",name);
         target.setAttribute("is-column","true");
-        target.setAttribute("order",String(order));
-        flex={...flex,colId:rand};
-        if(backgroundImage){
-            target.setAttribute("data-backgroundImage","true");
-        }
-        target.setAttribute("flex",JSON.stringify(flex));
+        target.classList.add("column");
+        target.setAttribute("data-column",`${colId}-${order+1}`);
         target.setAttribute("aria-selected","true");
-        return flex;
+        return _flex;
     }
-    static flexRowTracker(target:HTMLElement,flex:flexType):flexType{
-        const {order,backgroundImage}=flex;
+    static flexRowTracker(item:{target:HTMLElement,flex:flexType|null,isNew:boolean}):flexType{
+        const {target,flex,isNew}=item;
+        let _flex={} as flexType;
         const name=target.nodeName.toLowerCase(); 
-        const rand=`${name}-${Math.round(Math.random()*100)}`;
-        target.id=`${rand}`;
-        target.setAttribute("name",name);
-        target.setAttribute("is-row","true");
-        target.setAttribute("order",String(order));
-        target.setAttribute("aria-selected","true");
-        if(backgroundImage){
-            target.setAttribute("data-backgroundImage","true");
+        if(isNew && flex){
+            _flex={...flex};
+           const rand=`${name}-${Math.round(Math.random()*100)}`;
+           target.id=`${rand}`;
+           _flex={..._flex,rowId:rand};
+           target.setAttribute("flex",JSON.stringify(_flex));
+        }else{
+            const {parsed}=Header.checkJson(target.getAttribute("flex"));
+            _flex=parsed as flexType;
         }
-        flex={...flex,rowId:rand};
-        target.setAttribute("flex",JSON.stringify(flex));
-        return flex;
+        const {order,backgroundImage}=_flex;
+        target.setAttribute("order",String(order));
+           if(backgroundImage){
+               target.setAttribute("data-backgroundImage","true");
+           }
+        target.setAttribute("name",name);
+        target.setAttribute("data-row-num",`${order+1}`);
+        target.setAttribute("is-row","true");
+        target.setAttribute("aria-selected","true");
+        target.setAttribute("contenteditable","false");
+        return _flex;
     }
     static btnInitialize(){
         const mainBtns=document.querySelectorAll("[is-button='true']");

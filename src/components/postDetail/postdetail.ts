@@ -94,7 +94,7 @@ class PostDetail{
         const container=document.createElement("div");
         container.className="postdetail-main-container";
         container.id="postdetail-main-container";
-        container.style.cssText=css_col + "background-color:white;color:black;font-family:'Poppins-Regular';position:relative;border-radius:12px;box-shadow:1px 1px 3px 1px lightblue;";
+        container.style.cssText=css_col + "background-color:white;color:black;font-family:'Poppins-Regular';position:relative;border-radius:12px;box-shadow:1px 1px 3px 1px lightblue;overflow-x:hidden;";
         // container.style.width=less400 ? "100%":"auto";
         container.style.width="100%";
         if(!isPage){

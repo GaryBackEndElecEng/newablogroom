@@ -41,9 +41,9 @@ export default function Index() {
 
     }, [refChart, countRef]);
     return (
-        <div className={style.chartindexcontainer}>
-            <div id="chart" ref={refChart} className={style.chart} ></div>
-        </div>
+
+        <div id="chart" ref={refChart} className={style.chart} ></div>
+
     )
 }
 

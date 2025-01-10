@@ -1686,175 +1686,153 @@ loadSimpleBlog(blog:blogType){
    
 
     
-     shiftUpItems(item:{blog:blogType,changeEle:elementType|null,changeSelector:selectorType|null,changeCode:codeType|null,changeChart:chartType|null,place:number}):blogType{
-        const {blog,changeEle,changeSelector,changeCode,changeChart,place}=item;
-        let eles:elementType[]=blog.elements;
-        let selects:selectorType[]=blog.selectors.filter(sel=>(!sel.header));
-        let codes:codeType[]=blog.codes;
-        let charts:chartType[]=blog.charts;
+     reOrder(item:{blog:blogType,toBeSlottedObj:{toBeSlotted:number,toBeSlottedName:string},place:number}):blogType{
+        const {blog,place,toBeSlottedObj}=item;
+         const {toBeSlotted,toBeSlottedName}=toBeSlottedObj
+        const eles:elementType[]=blog.elements && blog.elements;
+        const selects:selectorType[]=blog.selectors && blog.selectors.filter(sel=>(!sel.header));
+        const codes:codeType[]=blog.codes && blog.codes;
+        const charts:chartType[]=blog.charts && blog.charts;
+       
         const maxCount=ModSelector.maxCount(blog);
-        if(maxCount >1){
-            if(changeEle && eles){
-                const ref=changeEle.placement;
-                const toBePlaced=place;
-                const check=eles && eles.find(ele=>(ele.placement ===toBePlaced)) ? true:false;
-                eles=eles.sort((a,b)=>{if(a.id < b.id){return -1}else return 1}).map((ele)=>{
-                    //THIS HANDLES ELEMENTS ONLY
-                    // SHIFTING UP num> place
-                if(ele.id !==(changeEle as elementType).id ){
-                    if(ref>toBePlaced){
-                        //SHIFT DOWN
-                        if(ele.placement >=toBePlaced &&  ele.placement <= ref){
-                            ele.placement +=1; //shifts down and slots (changeEle.placement=2,place=4)
-                        }
-                    }else if(toBePlaced >ref){
-                        //SHIFT UP
-                        if(ele.placement<=toBePlaced && ele.placement >= ref){
-                            ele.placement -=1; //shifts up and slots
-                        }
-                    }
-                    
+        const groups=[{name:"elements",group:eles},{name:"selectors",group:selects},{name:"codes",group:codes},{name:"charts",group:charts}].filter(item=>(item.group.length>0));
+        const toBeSlotterObject=groups.filter(group=>(group.name===toBeSlottedName))[0].group.find(item=>(item.placement===toBeSlotted));
+        // console.log("toBeSlotted",toBeSlotterObject);
+        const isSelectedGroupElement=eles && eles.find(ele=>(ele.placement ===place));
+        const isSelectedGroupSelector=selects && selects.find(sel=>(sel.placement ===place));
+        const isSelectedGroupCode=codes && codes.find(code=>(code.placement ===place));
+        const isSelectedGroupChart=charts && charts.find(chart=>(chart.placement ===place));
+        const groupIsSelected=[{name:"elements",isSelected:isSelectedGroupElement},{name:"selectors",isSelected:isSelectedGroupSelector},{name:"codes",isSelected:isSelectedGroupCode},{name:"charts",isSelected:isSelectedGroupChart}].find(item=>(item))
+        if(maxCount >1 && groups && groupIsSelected){
+            groups.map(group=>{
+                /// ---OUTSIDE GROUP-----//
+
+                /// ---OUTSIDE GROUP-----//
+                let groupItems:elementType[]|selectorType[]|codeType[]|chartType[]=[];
+                if(group.name==="elements"){
+                    groupItems=group.group as elementType[];
+                }else if(group.name==="selectors"){
+                    groupItems=group.group as selectorType[];
+                }else if(group.name==="codes"){
+                    groupItems=group.group as codeType[];
+                }else if(group.name==="charts"){
+                    groupItems=group.group as chartType[];
+                };
+                let selectedItem:elementType | selectorType | codeType | chartType;
+                let selected:number
+                if(groupIsSelected.name==="elements"){
+                    selectedItem=groupIsSelected.isSelected as elementType;
+                    selected=selectedItem.placement;
+                }else if(groupIsSelected.name==="selectors"){
+                    selectedItem=groupIsSelected.isSelected as selectorType;
+                    selected=selectedItem.placement;
+                }else if(groupIsSelected.name==="codes"){
+                    selectedItem=groupIsSelected.isSelected as codeType;
+                    selected=selectedItem.placement;
+                }else if(groupIsSelected.name==="charts"){
+                    selectedItem=groupIsSelected.isSelected as chartType;
+                    selected=selectedItem.placement;
                 }
-                        
-                    return ele;
-                });
-                eles=eles.map(ele=>{
-                    if(ele.id ===changeEle.id){
-                        ele.placement=toBePlaced;
-                        if(!check){
-                            //THIS HANDLES SELECTS
-                            selects= selects.map(sel=>{
-                                if(sel.placement >= toBePlaced){
-                                sel.placement +=1;
-                                }else if(sel.placement <= toBePlaced){
-                                    sel.placement -=1;
-                                }
-                                return sel;
-                            });
-                        }else{
+                
+                // console.log("groupIsSelected",groupIsSelected);
+                // console.log("groupItems",groupItems);
+                if(groupIsSelected && toBeSlotterObject){
+                    //TARGET GROUP WITH TO BE SLOTTED WITHIN GROUP
+                    //--------------OPEN A SLOT AND SLOT: SLOTINSERTCREATOR--------------//
+                    groupItems=groupItems.sort((a,b)=>{if(a.placement < b.placement){return -1}else return 1}).map((item:any)=>{
+                        if(item.placement===selected){
+                            item.placement+=1;//SHIFTING UP ONE
+                            toBeSlotterObject.placement=selected;//SLOTTED
+                        }else if(item.placement > selected  && item.placement <= toBeSlotted){
+                            //SHIFT DOWN
+                            // console.log("SHIFTDOWN ele.place",item.name,item.placement)
+                            item.placement +=1;
+                        }else if( item.placement >0 && item.placement < selected && selected > toBeSlotted){
+                            item.placement -=1;
+                            // console.log("SHIFTUP ele.place",item.name,item.placement)
+                        }   
+                        return item;
+                    });
+                    if(group.name==="elements" && typeof group.group as "object"){
+                            this._blog={...blog,elements:groupItems as elementType[]};
+                        }else if(group.name==="selectors" && typeof group.group as "object"){
+                            this._blog={...this._blog,selectors:groupItems as selectorType[]}
+                        }else if(group.name==="codes" && typeof group.group as "object"){
+                            this._blog={...this._blog,codes:groupItems as codeType[]}
+                        }else if(group.name==="charts" && typeof group.group as "object"){
+                            this._blog={...this._blog,charts:groupItems as chartType[]}
                         }
-                    }
-                    return ele;
-                });
+                        this._blog=this.removeZeroPlacment({blog:this._blog});
+                        this.blog=this._blog;
+                }
+
+            });
+            if(isSelectedGroupElement && eles){
+                const toBeSlotted=isSelectedGroupElement.placement;
+                const selected=place;
+                //---------------SLOTINSERTCREATOR ABOVE--------------//
+                //ALL GROUPS: INSET INTO THE SLOT,REPLACING toBeSlotted with selected
+                //------INSERT ITEM VIA PLACEMENT---------//
+            
+                //------INSERT ITEM VIA PLACEMENT---------//
                
                 this._blog={...blog,elements:eles};
                 this._blog={...this._blog,selectors:selects}
                 this.blog=this._blog;
             }
-            else if(changeSelector && selects){
-                //REPLACING ITEM IN ORDER
-                const ref=changeSelector.placement;
-                const toBePlaced=place;
-                const check=selects && selects.find(sel=>(sel.placement ===toBePlaced)) ? true:false;
-                
-                selects=selects.sort((a,b)=>{if(a.placement < b.placement){return -1}else return 1}).map((select,)=>{
-                    //HANDLES WITHIN SELECTS
-                    if(select.id !==(changeSelector as elementType).id ){
-                        if(ref>toBePlaced){
-                            //SHIFT DOWN
-                            if(select.placement >=toBePlaced &&  select.placement <= ref){
-                                select.placement +=1; //shifts down and slots (changeEle.placement=2,place=4)
-                            }
-                        }else if(toBePlaced >ref){
-                            //SHIFT UP
-                            if(select.placement<=toBePlaced && select.placement >= ref){
-                                select.placement -=1; //shifts up and slots
-                            }
-                        }
-                    }
-                    return select;
-                });
-                selects=selects.map(sel=>{
-                    if(sel.id ===changeSelector.id){
-                        sel.placement=toBePlaced;
-                        if(!check){
-                            //THIS SHIFTS ALL DOW ONE
-                            eles=eles.map(ele=>{
-                            if(ele.placement >= toBePlaced){
-                                ele.placement +=1;
-                            }else if(ele.placement <= toBePlaced){
-                                ele.placement -=1
-                            }
-                            return ele;
-                            });
-                        }
-                    }
-                    return sel;
-                });
-             
-                this._blog={...blog,selectors:selects};
-                this._blog={...this._blog,elements:eles};
-                this.blog=this._blog;
-            }
-            else if(changeCode && codes){
-                const ref=changeCode.placement;
-                const toBePlaced=place
-
-                codes=codes.sort((a,b)=>{if(a.placement < b.placement){return -1}else return 1}).map((code)=>{
-                    // SHIFTING UP num> place
-                    if(code.id !==(changeCode as elementType).id ){
-                        if(ref>toBePlaced){
-                            //SHIFT DOWN
-                            if(code.placement >=toBePlaced &&  code.placement <= ref){
-                                code.placement +=1; //shifts down and slots (changeEle.placement=2,place=4)
-                            }
-                        }else if(toBePlaced >ref){
-                            //SHIFT UP
-                            if(code.placement<=toBePlaced && code.placement >= ref){
-                                code.placement -=1; //shifts up and slots
-                            }
-                        }
-                    }
-                    return code;
-                });
-
-            codes=codes.map(ele=>{
-                if(ele.id ===changeCode.id){
-                    ele.placement=place;
-                }
-                return ele;
-            });
-     
-        this._blog={...blog,codes:codes};
-        this.blog=this._blog;
-            }else if(changeChart && charts){
-                const ref=changeChart.placement;
-                const toBePlaced=place
-
-                charts=charts.sort((a,b)=>{if(a.placement < b.placement){return -1}else return 1}).map((chart)=>{
-                    // SHIFTING UP num> place
-                    if(chart.id !==(changeCode as elementType).id ){
-                        if(ref>toBePlaced){
-                            //SHIFT DOWN
-                            if(chart.placement >=toBePlaced &&  chart.placement <= ref){
-                                chart.placement +=1; //shifts down and slots (changeEle.placement=2,place=4)
-                            }
-                        }else if(toBePlaced >ref){
-                            //SHIFT UP
-                            if(chart.placement<=toBePlaced && chart.placement >= ref){
-                                chart.placement -=1; //shifts up and slots
-                            }
-                        }
-                    }
-                    return chart;
-                });
-
-            charts=charts.map(ele=>{
-                if(ele.id ===changeChart.id){
-                    ele.placement=place;
-                }
-                return ele;
-            });
-     
-        this._blog={...blog,charts:charts};
-        this.blog=this._blog;
-            }
+           
             
         }
         return blog;
        
     }
     //THIS IS USED
+    removeZeroPlacment(item:{blog:blogType}):blogType{
+        const {blog}=item;
+        const eles=(blog && blog.elements && blog.elements) ? blog.elements : [] as elementType[];
+        eles.sort((a,b)=>{if(a.placement < b.placement)return -1;return 1});
+        const selectors=(blog && blog.selectors) ? blog.selectors : [] as selectorType[];
+        selectors.sort((a,b)=>{if(a.placement < b.placement)return -1;return 1});
+        const codes=(blog && blog.codes) ? blog.codes : [] as codeType[];
+        codes.sort((a,b)=>{if(a.placement < b.placement)return -1;return 1});
+        const charts=(blog && blog.charts) ? blog.charts : [] as chartType[];
+        charts.sort((a,b)=>{if(a.placement < b.placement)return -1;return 1});
+        const maxCount=ModSelector.maxCount(blog);//already deleted
+        const isElesZero=eles.find(ele=>(ele.placement===0));
+        const isSelectsZero=selectors.find(sel=>(sel.placement===0));
+        const isCodesZero=codes.find(code=>(code.placement===0));
+        const isChartsZero=codes.find(chart=>(chart.placement===0));
+        const checkGrps=[
+            {id:0,name:"elements",len:eles.length,items:eles,isZeroItem:isElesZero},
+            {id:1,name:"selectors",len:selectors.length,items:selectors,isZeroItem:isSelectsZero},
+            {id:2,name:"codes",len:codes.length,items:codes,isZeroItem:isCodesZero},
+            {id:3,name:"charts",len:charts.length,items:charts,isZeroItem:isChartsZero},
+        ].filter(item=>(item.len > 0));
+        const hasZero=checkGrps.find(item=>(item.isZeroItem)) ? checkGrps.find(item=>(item.isZeroItem)):false;
+        let count=1;
+        if(hasZero){
+            checkGrps.map(item=>{if(item.id===hasZero.id)return {...item,id:0};return item});
+            checkGrps.map((itemGrp)=>{
+                if(itemGrp.isZeroItem){
+                    itemGrp.items = itemGrp.items.sort((a,b)=>{if(a.placement < b.placement)return -1;return 1});
+                    itemGrp.items = itemGrp.items.map(item=>{
+                        item.placement=count;
+                        count++;
+                        return item;
+                    });
+                }else{
+                    itemGrp.items = itemGrp.items.sort((a,b)=>{if(a.placement < b.placement)return -1;return 1});
+                    itemGrp.items = itemGrp.items.map(item=>{
+                        item.placement=count;
+                        count++;
+                        return item;
+                    });
+                }
+            });
+
+        }
+        return {...blog,elements:eles,selectors,codes,charts};
+    }
     shiftPlace(ref:number){
         //THIS SHIFTS ALL SELECTORS AND ELEMENTS -1 AFTER ELEMENT DELETION THEN ASSIGNS PLACEMENT=MAXCOUNT: SEE BELOW
         const blog=this._blog;
@@ -1866,25 +1844,25 @@ loadSimpleBlog(blog:blogType){
        
         if(maxCount>0 && !isNaN(maxCount)){
            
-            eles=eles.sort((a,b)=>{if(a.placement < b.placement) return -1;return 1}).map((ele_,)=>{
+           eles= eles.sort((a,b)=>{if(a.placement < b.placement) return -1;return 1}).map((ele_,)=>{
                 if(ele_ && ele_.placement > ref  && ele_.placement >0){
                     ele_.placement -=1;
                 }
                 return ele_;
             });
-            selectors=selectors.sort((a,b)=>{if(a.placement < b.placement) return -1;return 1}).map((selector_)=>{
+            selectors = selectors.sort((a,b)=>{if(a.placement < b.placement) return -1;return 1}).map((selector_)=>{
                 if(selector_ && selector_.placement > ref && selector_.placement>0){
                     selector_.placement -=1;
                 }
                 return selector_;
             });
-            codes=codes.sort((a,b)=>{if(a.placement < b.placement) return -1;return 1}).map((code_,index)=>{
+           codes = codes.sort((a,b)=>{if(a.placement < b.placement) return -1;return 1}).map((code_,index)=>{
                 if(code_ && code_.placement > ref && code_.placement>0){
                     code_.placement =index+1;
                 }
                 return code_;
             });
-            charts=charts.sort((a,b)=>{if(a.placement < b.placement) return -1;return 1}).map((chart_,index)=>{
+           charts= charts.sort((a,b)=>{if(a.placement < b.placement) return -1;return 1}).map((chart_,index)=>{
                 if(chart_ && chart_.placement > ref && chart_.placement>0){
                     chart_.placement =index+1;
                 }

@@ -110,7 +110,7 @@ class ShapeOutside{
                 flex_={...flex_,shapeOutsidePolygon:true};
             }
             
-            const paraFlex=Main.flexTracker(para,flex_ as flexType);
+            const paraFlex=Main.flexTracker({target:para,flex:flex_ as flexType,isNew:false});
             flex_=paraFlex
         }
         const divCont=document.createElement("div");
@@ -307,7 +307,7 @@ class ShapeOutside{
                 flex_={...flex_,shapeOutsidePolygon:true};
             }
             divCont.style.marginBlock="2rem";
-            const paraFlex=Main.flexTracker(para,flex_ as flexType);
+            const paraFlex=Main.flexTracker({target:para,flex:flex_ as flexType,isNew:true});
             flex_=paraFlex
         }
         const img=document.createElement("img");
@@ -381,7 +381,7 @@ class ShapeOutside{
                     if((res.ele as elementType).type){
                         const ele=res.ele as unknown as elementType;
                         divCont.setAttribute("data-placememt",`${ele.placement}-A`);
-                    }else if(flex){
+                    }else if(flex_){
                         const ele=res.ele as unknown as element_selType;
                         divCont.setAttribute("data-placememt",`${ele.order}-A`);
                     }
@@ -1149,6 +1149,15 @@ class ShapeOutside{
             }
         });
         
+    };
+    retAttr(item:{strArr:string[]}):string|undefined{
+        const {strArr}=item;
+        let retStr:string|undefined;
+        const shapeArr=["data-shapeOutside-circle","data-shapeOutside-square","data-shapeOutside-polygon"]
+       shapeArr.map(str=>{
+        retStr=strArr.find(sh=>(sh===str));
+       });
+       return retStr
     }
     static cleanUpByNodeName(parent:HTMLElement,node:string){
         ([...parent.children as any] as HTMLElement[]).map(child=>{

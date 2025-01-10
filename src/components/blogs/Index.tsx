@@ -7,6 +7,8 @@ import ModSelector from "@/components/editor/modSelector";
 import Service from "@/components/common/services";
 import User from '../user/userMain';
 import Nav from '../nav/headerNav';
+import styles from "./blogs.module.css";
+import Header from '../editor/header';
 
 
 
@@ -21,15 +23,20 @@ export default function Index({ blogs }: { blogs: blogType[] }) {
             // const user = new User(modSelector, service);
             const initBlogs = new Blogs(modSelector, service);
             const injectBlogs = document.getElementById("injectBlogs") as HTMLElement;
-            initBlogs.showBlogs(injectBlogs, false, blogs).then(() => {
-                countRef.current++; //controls run once
-                Nav.cleanUpByQueryKeep(injectBlogs, "section#blogs-container");//removes duplicates on useEffect() double execution on run dev
-            });
+            if (blogs) {
+                initBlogs.showBlogs({ parent: injectBlogs, home: false, blogs }).then(() => {
+                    countRef.current++; //controls run once
+                    Nav.cleanUpByQueryKeep(injectBlogs, "section#blogs-container");//removes duplicates on useEffect() double execution on run dev
+                    initBlogs.blogsLoading({ parent: injectBlogs, loaded: true });
+                });
+            } else {
+                initBlogs.blogsLoading({ parent: injectBlogs, loaded: false });
+            }
         }
     }, [blogs, inRef, countRef]);
 
     return (
-        <div className="container-fuid mx-auto">
+        <div className={styles.injectBlogs}>
 
             <div id="injectBlogs" ref={inRef}></div>
         </div>

@@ -110,6 +110,10 @@ export type flexType={
     user_id?:string,
     position?:string,
     anchorContainer?:string,
+    link?:string,
+    email?:string,
+    tel?:string,
+    time?:string,
     imgKey?:string,
     attr?:string
     backgroundImage?:boolean,

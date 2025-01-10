@@ -581,7 +581,7 @@ _onlyMeta:boolean=false;
         const {parent,col,col_,flex,maxWidthImg}=item;
         const less400=window.innerWidth < 400 ;
         const eles=await Promise.all(col_.elements && col_.elements.sort((a,b)=>{if(a.order < b.order){return -1}; return 1}).map(async (element)=>{
-            const checkArr=["img","ul","blockquote","a","logo","image"].includes(element.name);
+            const checkArr=["img","ul","blockquote","a","logo","image","time"].includes(element.name);
             const link=element && element.attr && element.attr.startsWith("http") ? element.attr : null;
             const email=element && element.attr && element.attr.startsWith("mail") ? element.attr : null;
             const tel=element && element.attr && element.attr.startsWith("tel") ? element.attr : null;
@@ -631,7 +631,7 @@ _onlyMeta:boolean=false;
                 ele.setAttribute("flex",JSON.stringify(flex_));
                 
                 return ele;
-            }else if(element.name==="ul"){
+            }else if(checkArr && element.name==="ul"){
                 const ele=document.createElement("ul");
                 ele.setAttribute("is-element","true");
                 ele.setAttribute("aria-selected","true");
@@ -646,7 +646,7 @@ _onlyMeta:boolean=false;
                 ele.setAttribute("flex",JSON.stringify(flex));
                 // col.appendChild(ele);
                 return ele;
-            }else if(element.name==="blockquote"){
+            }else if(checkArr && element.name==="blockquote"){
                 const ele=document.createElement("blockquote");
                 ele.setAttribute("is-element","true");
                 ele.setAttribute("aria-selected","true");
@@ -661,25 +661,44 @@ _onlyMeta:boolean=false;
                 ele.setAttribute("flex",JSON.stringify(flex));
                 // col.appendChild(ele);
                 return ele;
-            }else if(element.name==="a"){
-                if(link){
+            }else if(checkArr && element.name==="time"){
+                const datetime=element.attr as string;// data-time for popup on hover
+                const ele=document.createElement("time");
+                ele.setAttribute("datetime",String(datetime))
+                ele.id=element.eleId;
+                ele.className=element.class;
+                ele.classList.add("show-time");
+                ele.classList.remove("isActive");
+                ele.style.cssText=element.cssText;
+                ele.innerHTML=element.inner_html;
+                // col.appendChild(ele);
+                return ele;
+            }else if(checkArr && element.name==="a"){
+                const linkObj=element && element.attr && element.attr.startsWith("http") && JSON.parse(element.attr) as {link:string};
+                const emailObj=element && element.attr && element.attr.startsWith("mail") && JSON.parse(element.attr) as {email:string};
+                const telObj=element && element.attr && element.attr.startsWith("tel") && JSON.parse(element.attr) as {tel:string};
+                if(linkObj){
+                    const {link}=linkObj as {link:string}
                     const ele=document.createElement("a");
+                    ele.setAttribute("data-href",link);
+                    ele.className=element.class;
+                    ele.id=element.eleId;
                     ele.setAttribute("is-element","true");
                     ele.setAttribute("aria-selected","true");
                     ele.setAttribute("order",String(element.order));
                     ele.setAttribute("name",element.name);
-                    ele.className=eleClass;
-                    ele.id=element.eleId;
-                    ele.setAttribute("name",element.name);
                     ele.style.cssText=element.cssText;
                     ele.innerHTML=element.inner_html;
-                    // (ele as HTMLAnchorElement).href="#";
-                    ele.setAttribute("data-href",link);
-                    ele.onclick=()=>{return window.open(link,"_blank")};
-                    ele.setAttribute("flex",JSON.stringify(flex));
-                    // col.appendChild(ele);
+                    ele.href="";
+                    // col.appendChild(divCont);
+                    ele.addEventListener("click",(e:MouseEvent)=>{
+                        if(e){
+                            return window.open(link,"_blank")
+                        }
+                    });
                     return ele;
-                }else if(email){
+                }else if(emailObj){
+                    const {email}=emailObj;
                     const ele=document.createElement("a");
                     ele.setAttribute("is-element","true");
                     ele.setAttribute("aria-selected","true");
@@ -695,7 +714,8 @@ _onlyMeta:boolean=false;
                     ele.setAttribute("flex",JSON.stringify(flex));
                     // col.appendChild(ele);
                     return ele;
-                }else if(tel){
+                }else if(telObj){
+                    const {tel}=telObj;
                     const ele=document.createElement("a");
                     ele.setAttribute("is-element","true");
                     ele.setAttribute("aria-selected","true");

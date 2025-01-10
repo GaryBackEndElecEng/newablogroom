@@ -18,6 +18,8 @@ import Searchbar from "../common/searchbar";
 
 
 class Post{
+    handPic:string="/images/hand.png";
+    smile:string="/images/emojiSmile.png";
     count:number;
     no_posts:string;
     addImageClass:AddImageUrl
@@ -32,6 +34,7 @@ class Post{
     _usersinfo:userType[];
     searchbar:Searchbar;
     constructor(private _modSelector:ModSelector,private _service:Service,private _user:User){
+        this.smile="/images/emojiSmile.png";
         this.logo="/images/gb_logo.png";
         this.postLogo="/images/posts.png";
         this.no_posts="Sorry there are no posts,,,try again later,, then add advertising to get contracts;";
@@ -44,6 +47,7 @@ class Post{
         const thisuser=this._user.user
         this.postDetail=new PostDetail(this._modSelector,this._service,this._user,thisuser);
         this.count=0;
+        this.handPic="/images/hand.png";
     }
     //----GETTERS SETTERS----////
     get post(){
@@ -104,7 +108,7 @@ class Post{
         Misc.matchMedia({parent:injector,maxWidth:1200,cssStyle:{width:"85%"}});
         Misc.matchMedia({parent:injector,maxWidth:1000,cssStyle:{width:"90%"}});
         Misc.matchMedia({parent:injector,maxWidth:900,cssStyle:{width:"100%"}});
-        this.titlePage({container,time:1200}).then(async(res)=>{
+        this.titlePage({container,time:4000,less400,less900}).then(async(res)=>{
             if(res){
                 res.para.style.fontSize=less900 ? (less400 ? "130%":"150%"):"135%";
                 //SEARCH BAR CONTROLS THE POST LISTS funcPosts is the DISPLAYER
@@ -141,14 +145,13 @@ class Post{
             {opacity:"1"}
         ],{duration:1000,iterations:1,"easing":"ease-in-out"});
     };
-    titlePage(item:{container:HTMLElement,time:number}):Promise<{textContainer:HTMLElement,container:HTMLElement,para:HTMLElement,time:number}>{
-        const {container,time}=item;
-        const less900=window.innerWidth < 900;
-        const less400=window.innerWidth < 400;
+    async titlePage(item:{container:HTMLElement,time:number,less900:boolean,less400:boolean}):Promise<{textContainer:HTMLElement,container:HTMLElement,para:HTMLElement,time:number}>{
+        const phrase="updates, comments && Miscelanous";
+        const {container,time,less400,less900}=item;
         const css_col="margin-inline:auto;display:flex;flex-direction:column;justify-content:center;align-items:center;";
         const textContainer=document.createElement("div");
         textContainer.id="post-titlepage-textContainer";
-        textContainer.style.cssText=css_col + "background-color:black;border-radius:12px;margin-top:1rem;filter:drop-shadow(0 0 0.5rem white);";
+        textContainer.style.cssText=css_col + "background-color:black;border-radius:12px;margin-top:1rem;filter:drop-shadow(0 0 0.5rem white);position:relative;";
         textContainer.style.width="100%";
         textContainer.style.paddingBottom=less900 ? (less400 ? "2rem":"2.5rem") : "2rem";
         textContainer.style.paddingInline=less900 ? (less400 ? "1rem":"1rem") : "2rem";
@@ -157,8 +160,9 @@ class Post{
         text.className="subTitleStyleThreeNoBorder text-center  my-2 mb-4 mx-auto lean";
         text.style.cssText="margin-bottom:1.62rem;background:linear-gradient(180deg, #fff, #06a4f7);background-clip:text;-webkit-background-clip:text;";
         text.style.fontSize=less900 ? (less400 ? "200%":"300%"):"375%";
-        text.textContent="quick posts";
+        text.textContent="Savy posts";
         text.id="showBlogs-title";
+        text.style.position="relative";
         text.style.textTransform="capitalize";
         const div1=document.createElement("div");
         div1.id="textContainer-div1";
@@ -173,7 +177,7 @@ class Post{
         div2.style.height=less900 ? (less400 ? "5px":"8px"):"9px";
         const para=document.createElement("p");
         para.id="textContainer-para";
-        para.textContent="updates and comments";
+        // para.textContent="updates, comments && Miscelanous";
         para.style.cssText="padding-block:1rem;padding-inline:1rem;margin-inline:auto;margin-top:0.5rem;text-wrap:wrap;text-align:center;box-shadow:1px 1px 3px 1px #06a4f7;";
         para.style.fontSize=less900 ? (less400 ? "130%":"150%"):"175%";
         para.style.color="#06a4f7";
@@ -181,26 +185,59 @@ class Post{
         textContainer.appendChild(div1);
         textContainer.appendChild(div2);
         textContainer.appendChild(para);
+        //-----------------SPACE FOR INTRODUCTION TO BE DISPLAYED---------------------//
+        const introContainer=document.createElement("div");
+        introContainer.id="showIntro-container";
+        introContainer.style.cssText=css_col + "box-shadow:1px 1px 3px 1px rgb(6, 164, 247);border-radius:12px;backgroun:transparent;color:white;font-family:Poppins-regular;";
+        textContainer.appendChild(introContainer);
+        introContainer.style.opacity="0";
+        introContainer.style.minHeight=less900 ? (less400 ? "170px":"100px"):"75px";
+        //-----------------SPACE FOR INTRODUCTION TO BE DISPLAYED---------------------//
+        this.handSmileWave({introContainer:introContainer,innerParent:text,less400,less900,time:4000});
         textContainer.style.opacity="0";
         para.style.opacity="0";
         textContainer.style.transform="scale(0.8)";
         para.style.textTransform="uppercase";
         ///--------------------------title display ----------------------///
         textContainer.style.opacity="1";
+        textContainer.style.overflowY="hidden";
         textContainer.style.transform="scale(1)";
         textContainer.animate([
             {transform:"scale(0.8)",opacity:"0"},
             {transform:"scale(1)",opacity:"1"},
         ],{duration:time,iterations:1,"easing":"ease-in-out"});
-        setTimeout(()=>{
-            para.style.opacity="1";
+        para.style.opacity="1";
             para.style.borderRadius="12px";
-            para.animate([
-                {transform:"translateX(-75%)",opacity:"0",backgroundColor:"rgb(212 229 225 / 33%)",color:"white"},
-                {transform:"translateX(0%)",opacity:"1",backgroundColor:"transparent",color:"#1dcbfb"},
-            ],{duration:time,iterations:1,"easing":"ease-in-out"});
-           
-        },time);
+          await this.phraseArt({target:para,less400,less900,phrase,time}).then(async(res)=>{
+            if(res){
+                res.target.style.opacity="1";
+                ([...res.target.children as any] as HTMLElement[]).map(span=>{
+                    span.style.opacity="1";
+                    span.style.letterSpacing=less900 ? (less400 ? "0.1rem":"0.13rem"):"0.2rem";
+                    const letterSpacing=less900 ? (less400 ? "0.3rem":"0.5rem"):"1rem";
+                    const fallingLetter=new KeyframeEffect(
+                        span,
+                        [
+                            {opacity:"0"},
+                            {opacity:"1",letterSpacing:"normal",lineHeight:"normal",fontSize:"100%"},
+                            {opacity:"1",letterSpacing:letterSpacing,lineHeight:"1.75rem",fontSize:"100%"},
+                            {opacity:"1",letterSpacing:".2rem",lineHeight:"normal",fontSize:"100%"},
+                        ],
+                        {
+                            duration:time,
+                            direction:"normal", //reverse,alternate
+                            easing:"linear",
+                            iterations:1,
+                            // delay:time*10,
+                            // composite:"replace"
+                        }
+                        
+                    );
+                    const runfallingletter= new Animation(fallingLetter,document.timeline);
+                    runfallingletter.play();
+                });
+            }
+          });
         ///--------------------------title display ----------------------///
         
         container.appendChild(textContainer);
@@ -208,8 +245,121 @@ class Post{
             resolve({textContainer,container,para,time});
         }) as Promise<{textContainer:HTMLElement,container:HTMLElement,para:HTMLElement,time:number}>;
     };
-   
-    
+    phraseArt({target,phrase,less400,less900,time}:{target:HTMLElement,phrase:string,less400:boolean,less900:boolean,time:number}):Promise<{target:HTMLElement}>{
+        const wordArr=phrase.split("");
+        target.style.opacity="0";
+        wordArr.map(lt=>{
+            if(lt){
+                const span=document.createElement("span");
+                span.textContent=lt;
+                span.style.cssText="opacity:0;";
+                target.appendChild(span);
+            }
+        });
+        return new Promise(resolver=>{
+            resolver({target})
+        }) as Promise<{target:HTMLElement}>;
+       
+    }
+    handSmileWave({introContainer,innerParent,less400,less900,time}:{introContainer:HTMLElement,innerParent:HTMLElement,less400:boolean,less900:boolean,time:number}){
+
+        const hand=document.createElement("img");
+        hand.id="imgCont-img";
+        const smile=document.createElement("img");
+        smile.id="imgCont-smile";
+        const imgContainer=document.createElement("div");
+        imgContainer.id="handWave-imgContainer";
+        imgContainer.style.cssText="position:absolute;display:flex;align-items:center;justify-content:center;position:relative;z-index:2;background:transparent;top:0%;left:0%;";
+        imgContainer.className="position-absolute";
+        imgContainer.style.left="0%";
+        imgContainer.style.top="0%";
+        imgContainer.style.position="absolute";
+        imgContainer.style.top=less900 ? (less400 ? "-5%":"25%"):"25%";
+        imgContainer.style.left=less900 ? (less400 ? "-80%":"-125%"):"-200%";
+        imgContainer.style.transform=less900 ? (less400 ? "translate(-10px,-5px)":"translate(-5px,-10px)"):"translate(-20px,-20px";
+        imgContainer.style.width=less900 ? (less400 ? "90px":"120px"):"143px";
+        hand.style.cssText="margin-auto;filter:drop-shadow(0 0 0.5rem lightblue);position:relative;";
+        hand.src=this.handPic;
+        hand.alt="www.ablogroom.com";
+        smile.style.cssText="margin-auto;filter:drop-shadow(0 0 0.5rem lightblue);position:relative;";
+        smile.style.width=less900 ? (less400 ? "48px":"68px"):"78px";
+        hand.style.width=less900 ? (less400 ? "28px":"35px"):"35px";
+        hand.style.left=less900 ? (less400 ? "13%":"13%"):"13%";
+        hand.style.transform=less900 ? (less400 ? "translate(10px,-12px)":"translate(8px,25px)"):"translate(-20px,-20px)";
+        smile.style.transform=less900 ? (less400 ? "translate(10px,20px)":"translate(8px,25px)"):"translate(10px,36px)";
+        imgContainer.appendChild(hand);
+        imgContainer.appendChild(smile);
+        smile.src=this.smile;
+        smile.alt="www.ablogroom.com";
+        innerParent.appendChild(imgContainer);
+        const transform=imgContainer.style.transform;
+        hand.animate([
+            {transform:"rotate(45deg)"},
+            {transform:"rotate(0deg)"},
+            {transform:"rotate(-45deg)"},
+            {transform:"rotate(0deg)"},
+            {transform:"rotate(45deg)"},
+        ],{duration:time,iterations:Infinity,"composite":"replace"});
+        imgContainer.animate([
+            {transform:`scale(0) ${transform}`,opacity:"0"},
+            {transform:`scale(1) ${transform}`,opacity:"1"},
+        ],{duration:time,iterations:1});
+        setTimeout(()=>{
+            imgContainer.animate([
+                {transform:`translateX(0%) ${transform}`,opacity:"1"},
+                {transform:`translateX(-120%) ${transform}`,opacity:"0"},
+            ],{duration:time,iterations:1});;
+            setTimeout(()=>{innerParent.removeChild(imgContainer)},time-30);
+            this.showIntroduction({introContainer,less900,less400}).then(async(res)=>{
+                if(res){
+                    //hide vertical effects
+                    
+                    //hide vertical effects
+                    const containerKeyEffect=new KeyframeEffect(res.introContainer,[
+                        {transform:"translateY(150%)",opacity:"0"},
+                        {transform:"translateY(0%)",opacity:"1"},
+                    ],{iterations:1,duration:time*0.5,"easing":"ease-in-out"});
+                    const paraKeyEffect=new KeyframeEffect(res.para,[
+                        {transform:"translateY(-150%)",opacity:"0"},
+                        {transform:"translateY(0%)",opacity:"1"},
+                    ],{iterations:1,duration:time*0.25,"easing":"ease-in-out"});
+                    const smallKeyEffect=new KeyframeEffect(res.para,[
+                        {transform:"translateX(150%)",opacity:"0"},
+                        {transform:"translateX(0%)",opacity:"1"},
+                    ],{iterations:1,duration:time*0.5,"easing":"ease-in-out"});
+                    res.introContainer.style.opacity="1";
+                    const containerAnimate= new Animation(containerKeyEffect,document.timeline);
+                    const paraAnimate= new Animation(paraKeyEffect,document.timeline);
+                    const smallAnimate= new Animation(smallKeyEffect,document.timeline);
+                    res.para.style.opacity="1";
+                    containerAnimate.play();
+                    paraAnimate.play();
+                    res.small.style.opacity="1";
+                    smallAnimate.play();
+
+                }
+            });
+        },time*2);
+
+
+    }
+    async showIntroduction({introContainer,less900,less400}:{introContainer:HTMLElement,less400:boolean,less900:boolean}):Promise<{introContainer:HTMLElement,para:HTMLElement,small:HTMLElement}>{
+        const css_col="display:flex;justify-content:center;flex-direction:column;align-items:center;"
+        const para=document.createElement("p");
+        para.innerHTML="Science, Technology, Puzzles,Thoughts and Riddles all on one page for your<span style=font-weight:bold;> Interest.</span>";
+        const small=document.createElement("small");
+        small.textContent="Send Us a thought or suggestion and we will get On It!";
+        para.style.opacity="0";
+        small.style.opacity="0";
+        introContainer.appendChild(para);
+        introContainer.appendChild(small);
+        introContainer.style.opacity="0";
+        introContainer.style.paddingInline=less900 ? (less400 ? "10px":"1rem"):"2rem";
+        introContainer.style.minHeight=less900 ? (less400 ? "170px":"100px"):"75px";
+        return new Promise(resolver=>{
+            resolver({introContainer,para,small});
+        }) as Promise<{introContainer:HTMLElement,para:HTMLElement,small:HTMLElement}>;
+    }
     async Posts(item:{injector:HTMLElement,container:HTMLElement,posts:postType[],user:userType}):Promise<{container:HTMLElement,subDiv:HTMLElement,row:HTMLElement,posts:postType[],user:userType}>{
         const {injector,container,posts,user}=item;
         const less900=window.innerWidth < 900 ? true:false;
@@ -692,7 +842,7 @@ class Post{
         const less900=window.innerWidth < 900;
         const less400=window.innerWidth < 400;
         Header.cleanUpByID(row,`posts-postcard-col-${index}`);
-        const css_col="margin-inline:auto;display:flex;flex-direction:column;justify-content:center;align-items:center;gap:0.7rem;color:inherit;border-radius:inherit;width:100%";
+        const css_col="margin-inline:auto;display:flex;flex-direction:column;justify-content:center;align-items:center;gap:0.7rem;color:inherit;border-radius:inherit;width:100%;overflow-x:hidden;";
         const shapoutside="text-wrap:wrap;color:black;font-family:'Poppins-Regular';font-weight:bold;font-size:120%;line-height:2.05rem;color:inherit;border-radius:12px;box-shadow:1px 1px 12px white;"
         const css_row="margin-inline:auto;display:flex;flex-direction:row;flex-wrap:wrap;justify-content:center;align-items:center;gap:0.27rem;color:inherit;border-radius:inherit;";
         const col=document.createElement("div");

@@ -126,7 +126,7 @@ class EditText{
         const less400=window.innerWidth < 400;
         const btnContainer=document.createElement("div");
         btnContainer.id="btn-container";
-        btnContainer.style.cssText="width:auto;display:flex;justify-content:center;align-items:center;margin-inline:auto;position:absolute;top:90%;right:0%;order:-1;";
+        btnContainer.style.cssText="width:auto;display:flex;justify-content:center;align-items:center;margin-inline:auto;position:absolute;top:85%;right:0%;order:-1;";
         parent.appendChild(btnContainer);
         // button
         const cssStyle={backgroundColor:"black",color:"white",textDecoration:"underline",fontWeight:"bold",fontSize:"26px",width:"auto"};

@@ -608,7 +608,7 @@ class Header{
         containerRow.className=" row";
         containerRow.id="header-container-row";
         flex={...flex,order:1};
-        const flexRow=Main.flexRowTracker(containerRow,flex);
+        const flexRow=Main.flexRowTracker({target:containerRow,flex,isNew:true});
         return this._modSelector.rowAdder(containerRow,flexRow.selectorId as string).then(async(row)=>{
             if(row){
 
@@ -621,7 +621,7 @@ class Header{
                 colLogo.classList.add("colLogo");
                 colLogo.style.zIndex="";
                 flex={...flexRow};
-              Main.flexColTracker(colLogo,flex);
+              Main.flexColTracker({target:colLogo,flex,isNew:true});
                 colLogo.setAttribute("name","div");
                 this.promColumnAdder(colLogo).then(async(res)=>{
                     if(res && res.target && res.col){
@@ -641,7 +641,7 @@ class Header{
                 this.headerStyleCreator({parent:colCenter,cssStyle:_cssStyle_});
                 colCenter.classList.add("colCenter");
                 flex={...flexRow,order:2};
-               Main.flexColTracker(colCenter,flex);
+               Main.flexColTracker({target:colCenter,flex,isNew:true});
                 colCenter.setAttribute("name","div");
                 this.promColumnAdder(colCenter).then(async(res)=>{
                     if(res && res.target && res.col){
@@ -651,7 +651,7 @@ class Header{
                 });
                 const colRight=document.createElement("div");
                 flex={...flexRow,order:3};
-               Main.flexColTracker(colRight,flex);
+               Main.flexColTracker({target:colRight,flex,isNew:true});
                 colRight.setAttribute("name","div");
                 colRight.className="colRight column-header flexCol"
                 colRight.style.cssText=`position:relative;;margin:auto;min-height:15vh;`;
@@ -873,7 +873,7 @@ class Header{
                     ele.style.cssText="margin-bottom:1rem;margin-inline:auto;width:70%;border-radius:12px;"
                     ele.setAttribute("data-header-title",`${name}`);
                     ele.style.cssText="padding-inline:1.25rem;border-radius:8px;";
-                    Main.flexTracker(ele,flex);//adds ID,plus
+                    Main.flexTracker({target:ele,flex,isNew:true});//adds ID,plus
                     this.promElementAdder(ele).then(async(res)=>{
                         if(res){
 
@@ -905,7 +905,7 @@ class Header{
                     ele1.setAttribute("data-header-title",`${name}`);
                     ele1.setAttribute("data-href",`#`);
                     ele1.setAttribute("data-anchor-container","");
-                    Main.flexTracker(ele1,flex);//adds ID,plus
+                    Main.flexTracker({target:ele1,flex,isNew:true});//adds ID,plus
                     this.promElementAdder(ele1).then(async(res)=>{
                         if(res){
                             divCont.setAttribute("data-placement",`${res.order}`)
@@ -944,7 +944,7 @@ class Header{
                     tempImg.setAttribute("name","img");
                     tempImg.setAttribute("is-element","true");
                     Misc.fadeIn({anchor:tempImg,xpos:30,ypos:100,time:400});
-                    const retFlexImg=Main.flexTracker(tempImg,flex);//adds ID,plus
+                    const retFlexImg=Main.flexTracker({target:tempImg,flex,isNew:true});//adds ID,plus
                     divCont.appendChild(tempImg);
                     col.appendChild(divCont);
                     this.promElementAdder(tempImg).then(async(ele:element_selType)=>{
@@ -972,7 +972,7 @@ class Header{
                         class_:""
                     }
                     const span=Misc.insertSpan(spanInsert1);
-                    Main.flexTracker(span,flex);//adds ID,plus
+                    Main.flexTracker({target:span,flex,isNew:true});//adds ID,plus
                     col.appendChild(divCont);
                     Misc.fadeIn({anchor:span,xpos:30,ypos:100,time:400});
                     this.promElementAdder(span).then(async(res)=>{
@@ -1003,7 +1003,7 @@ class Header{
                     divCont.style.cssText="padding:0.5rem;display:grid;place-items:center;position:relative";
                     const hr=document.createElement("hr");
                     hr.style.cssText="margin:auto;width:75%;background-color:black;";
-                    Main.flexTracker(hr,flex);
+                    Main.flexTracker({target:hr,flex,isNew:true});
                     this.promElementAdder(hr).then(async(res)=>{
                         if(res){
                             divCont.setAttribute("data-placement",`${res.order}-A`)
@@ -1025,7 +1025,7 @@ class Header{
                     divCont.style.cssText="padding:0.5rem;display:grid;place-items:center;position:relative;";
                     const div=document.createElement("div");
                     div.style.cssText="margin:auto;width:3px;height:min-height:10vh;background-color:black;margin-inline:5px;padding-inline:2px;";
-                    Main.flexTracker(div,flex);
+                    Main.flexTracker({target:div,flex,isNew:true});
                     this.promElementAdder(div).then(async(res)=>{
                         if(res){
                             divCont.setAttribute("data-placement",`${res.order}-A`)
@@ -1103,7 +1103,7 @@ class Header{
                 target.textContent=name;
                 target.setAttribute("data-href",link);
                 flex={...flex,anchorContainer:link}
-                Main.flexTracker(target,flex);
+                Main.flexTracker({target,flex,isNew:true});
                 parent.appendChild(target);
                 this._modSelector.elementAdder(target);
                 //CLOSING FORM
@@ -1180,7 +1180,7 @@ class Header{
                 anchor.setAttribute("data-href-email",`mailto:${email}`);
                 let flex=parsed as flexType;
                 flex={...flex,anchorContainer:anchor.href}
-                Main.flexTracker(anchor,flex);
+                Main.flexTracker({target:anchor,flex,isNew:true});
                 divCont.appendChild(anchor);
                 col.appendChild(divCont);
                 this._modSelector.promElementAdder(anchor).then(async(res)=>{
@@ -1248,7 +1248,7 @@ class Header{
                 anchor.textContent=name;
                 flex={...flex,anchorContainer:anchor.href};
                 anchor.setAttribute("data-href-tel",anchor.href);
-                Main.flexTracker(anchor,flex);
+                Main.flexTracker({target:anchor,flex,isNew:true});
                 divCont.appendChild(anchor);
                 col.appendChild(divCont);
                 this._modSelector.promElementAdder(anchor).then(async(res)=>{

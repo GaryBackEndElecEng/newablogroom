@@ -127,10 +127,10 @@ export default async function RootLayout({
 }>) {
 
   //className={inter.className}
-  const style: { [key: string]: string } = { backgroundSize: "100% 200%", backgroundPosition: "50% 50%" }
+
   return (
     <html lang="en">
-      <body style={style}>
+      <body >
         <Providers>
           {/* <EditorContextProvider> */}
           <Header />
