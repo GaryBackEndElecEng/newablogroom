@@ -26,14 +26,14 @@ export const metadata: Metadata = {
         url: "/profile",
         images: [
             {
-                url: "/images/gb_logo.png",
-                width: 300,
-                height: 300
+                url: "/images/favicon-192x192.png",
+                width: 192,
+                height: 192
             },
             {
-                url: "/images/display/symetric.png",
-                width: 400,
-                height: 300
+                url: "/images/favicon-512x512.png",
+                width: 512,
+                height: 512
             },
             {
                 url: "https://new-master.s3.ca-central-1.amazonaws.com/static/masterultils/logoLarge.png",

@@ -1,14 +1,10 @@
 import Misc from "@/components/common/misc";
-import { FaCreate } from "@/components/common/ReactIcons";
 import Header from "@/components/editor/header";
-import { quoteCalcItemType, quoteType, returnCalcType, userType } from "@/components/editor/Types";
+import { quoteCalcItemType, returnCalcType, userType } from "@/components/editor/Types";
 import Nav from "@/components/nav/headerNav";
-import MainHeader from "@/components/nav/mainHeader";
-import { FaPhone,FaPen, FaCrosshairs } from "react-icons/fa";
 import styles from "./quote.module.css";
 import Service from "@/components/common/services";
 import { returnQuoteFinalType } from '../../components/editor/Types';
-import Htmlpdf from "@/components/common/htmltwocanvas";
 import Htmltwocanvas from "@/components/common/htmltwocanvas";
 import { calculateQuote } from "@/lib/ultils/quoteFunctions";
 
@@ -20,12 +16,12 @@ type component_type={
 };
 
 class Quote{
-    _list:quoteCalcItemType[]
-    _nameEmail:{user_id:string|null,name:string,email:string};
-_quoteListParams:returnQuoteFinalType;
-_user:userType | null;
-quotepic:string="/images/quote_600.png";
-phone:string="/images/phone.png";
+    private _list:quoteCalcItemType[]
+    private _nameEmail:{user_id:string|null,name:string,email:string};
+    public _quoteListParams:returnQuoteFinalType;
+    private _user:userType | null;
+    public quotepic:string="/images/quote_600.png";
+    public phone:string="/images/phone.png";
 _componentTypes:component_type[];
 initTypes:component_type[]=[
     {name:"scheduler",desc:"for client booking appointments?",value:undefined,checked:false},
@@ -42,10 +38,8 @@ initTypes:component_type[]=[
         this._list=list;
         //---GET LIST FROM SERVER---//
         if(user){
-            this._nameEmail={name:user.name ? user.name : "",email:user.email,user_id:user.id};
-
-        }
-        console.log("constructor:user",user)
+            this._nameEmail={name:user.name || "",email:user.email,user_id:user.id ||""};
+        };
     }
     get list(){
         return this._list
@@ -107,14 +101,17 @@ initTypes:component_type[]=[
                         });
                         const hasPassed=this.passedTests({parent:res.form,arr});
 
-                        if(( hasPassed && hasPassed.passed)){
-                            this.nameEmail={name,email,user_id:this.user && this.user.id};
+                        if(hasPassed?.passed){
+                            const user_id=this.user?.id || "";
+                            const _name=this.user?.name || name;
+                            const _email=this.user?.email || email;
+                            this.nameEmail={name:_name,email:_email,user_id:user_id};
                             //QUOTE RESULTS PARAMS
                             const returnQuoteFinal:returnQuoteFinalType|undefined = calculateQuote({ nameValue:arr, list:this.list, user:this.user });
                             //QUOTE RESULTS PARAMS
                             // USER
                             let user =this.user ? this.user : {} as userType;
-                            user= {...user,name:this.nameEmail.name,email:this.nameEmail.email,id:user && user.id ? user.id:""}
+                            user= {...user,name:_name,email:_email,id:user_id}
                             //USER
                             if(returnQuoteFinal){
                                 //RETURNING PAGENAMES IN DESCRIPTION
@@ -125,27 +122,11 @@ initTypes:component_type[]=[
                                     if(res){
                                         // This EMAILS THE USER THE QUOTE MADE FROM SHOWPAGEQUOTE
                                         this.generatingQuote({target:res.quoteContainer,user,button:res.button});
-                                    }
+                                    };
                                 });
                                 //generating quote WITHOUT API REQUEST----END 
-                            }
-                            // SETTING UO GETTING QUOTE VIA API-WORKS BELOW!!
-                            // let quoteParams:quoteType={} as quoteType;
-                            // quoteParams={...quoteParams,nameValue:arr}
-                            // if(this.user){
-                            //     quoteParams={...quoteParams,user_id:this.user.id}
-                            // }
-                            // this._service.getQuote({quoteParams}).then(async(res)=>{
-                            //     if(res){
-                            //         this.showPageQuote({parent:container,returnQuoteFinal:res,user}).then(async(res)=>{
-                            //             if(res){
-                            //                 // This EMAILS THE USER THE QUOTE MADE FROM SHOWPAGEQUOTE
-                            //                 this.generatingQuote({target:res.quoteContainer,user,button:res.button});
-                            //             }
-                            //         });
-                            //     }
-                            // });
-                            //SETTING UP GETTING THE QUOTE ----END
+                            };
+                            
                         }
                     }
                 };
@@ -154,14 +135,17 @@ initTypes:component_type[]=[
         parent.appendChild(container);
 
         
-    }
+    };
+
+
+
     insertPageNames(item:{returnQuoteFinal:returnQuoteFinalType,nameValues:{name:string,value:string|undefined}[]}):returnQuoteFinalType{
         const {returnQuoteFinal,nameValues}=item;
         let returnCalcList=returnQuoteFinal.returnCalcList;
         returnCalcList= returnCalcList.map(item=>{
             item.list.map(subItem=>{
                 const nameValue=nameValues.find(item_=>(item_.name==="pageNames"))
-                if(subItem.type==="pages" && nameValue && nameValue.value){
+                if(subItem.type==="pages" && nameValue?.value){
                     subItem.desc+=`for pages:${nameValue.value.toUpperCase()}`;
                 }
                 return subItem;
@@ -169,7 +153,10 @@ initTypes:component_type[]=[
             return item;
         });
         return {...returnQuoteFinal,returnCalcList};
-    }
+    };
+
+
+
     generatingQuote(item:{target:HTMLElement,user:userType,button:HTMLButtonElement}){
         const {target,user,button}=item;
         // GENERATING QUOTE
@@ -207,7 +194,7 @@ initTypes:component_type[]=[
         //GENERATING QUOTE END
     }
     titleContainer(item:{parent:HTMLElement,user:userType|null,css_col:string,less400:boolean}){
-        const {parent,user,css_col,less400}=item;
+        const {parent,css_col,less400}=item;
         const container=document.createElement("div");
         container.id="title-container";
         container.style.cssText=css_col + "justify-content:center;padding:1rem;width:100%;background-color:black;border-radius:12px;font-family:'Poppins-regular';margin-bottom:2rem;";
@@ -251,11 +238,14 @@ initTypes:component_type[]=[
         img.style.cssText="margin:auto;border-radius:inherit;width:100%;";
         anchor.appendChild(img);
         parent.appendChild(anchor);
-    }
+    };
+
+
+
     form(item:{parent:HTMLElement,user:userType|null,css_col:string,css_row:string,less400:boolean}):Promise<{form:HTMLFormElement,user:userType|null}>{
         const {parent,user,css_col,css_row,less400}=item;
-        const name=user && user.name  ? user.name : null;
-        const email=user ? user.email : null;
+        const name=user?.name || "";
+        const email=user?.email || "";
         const form=document.createElement("form");
         form.id="main-container-form";
         form.style.cssText=css_col + " width:100%;border-radius:12px;box-shadow:1px 1px 6px 1px lightblue";
@@ -269,7 +259,7 @@ initTypes:component_type[]=[
         // inName.pattern="\w{3,16}\sw{3,16}"
         inName.type="name";
         inName.name="name";
-        inName.value=name ? name :"";
+        inName.value=name ||"";
         inName.autocomplete="name";
         inName.placeholder="full name please";
         labName.id="label-name";
@@ -283,8 +273,8 @@ initTypes:component_type[]=[
         inEmail.autocomplete="email";
         inEmail.id="email";
         inEmail.name="email";
-        inEmail.pattern="[a-zA-Z0-9\.]{2,}@[a-zA-Z0-9\.]{3,}\.[a-zA-Z0-9\.]{1,3}";
-        inEmail.value=email ? email : "";
+        inEmail.pattern="[a-zA-Z0-9.]{2,}@[a-zA-Z0-9.]{3,}.[a-zA-Z0-9.]{1,3}";
+        inEmail.value=email || "";
         inEmail.type="email";
         inEmail.placeholder="myEmail@mail.com";
         labEmail.id="label-email";
@@ -299,13 +289,13 @@ initTypes:component_type[]=[
         ///----page components------------------///
         const {button}=Misc.simpleButton({anchor:form,type:"submit",text:"submit",bg:"black",color:"white",time:400});
         button.id="submit-btn";
-        // button.disabled=true;
+        
         parent.appendChild(form);
-        return new Promise(resolver=>{
-            resolver({form,user})
-        }) as Promise<{form:HTMLFormElement,user:userType|null}>;
+        return Promise.resolve({form,user}) as Promise<{form:HTMLFormElement,user:userType|null}>;
 
-    }
+    };
+
+
     pageTypeLists({form,css_row,less400}:{form:HTMLFormElement,css_row:string,less400:boolean}){
         const titlePage=document.createElement("h6");
         titlePage.id="titlePage";
@@ -335,15 +325,12 @@ initTypes:component_type[]=[
                 const getBtn=form.querySelector("button#submit-btn") as HTMLButtonElement;
                 const value=(e.currentTarget as HTMLInputElement).value;
                 inPages.value=value;
-                if(getBtn && value){
-                    
-                    if(value){
-                        
-                    }
+                if(value){
+                    getBtn.disabled=false;
                 }
             }
         };
-        // labPages.setAttribute("for",inPages.id);
+       
         const {textarea:inPageNames,label:labPageNames,formGrp:grpPageNames}=Nav.textareaComponent(pages);
         grpPageNames.style.flex=less400 ? "1 0 100%" : "1 0 65%";
         grpPageNames.classList.add("mx-auto");
@@ -362,15 +349,13 @@ initTypes:component_type[]=[
                 const value=(e.currentTarget as HTMLInputElement).value;
                 inPageNames.value=value;
                 if(getBtn && value){
-                    
-                    if(value){
-                        
-                    }
+                  getBtn.disabled=false;
                 }
             }
         };
         form.appendChild(pages);
-    }
+    };
+
     pageComponents({form,css_row,less400,css_col}:{form:HTMLFormElement,css_row:string,less400:boolean,css_col:string}){
         const titlePage=document.createElement("h6");
         titlePage.id="titlePage-components";
@@ -398,14 +383,16 @@ initTypes:component_type[]=[
         this.componentTypes.map((item,index)=>{
             this.rendComponentType({column1:col1,column2:col2,item})
         });
-        this.componentTypes.map((item,index)=>{
-            // this.rendComponentTypeResponse({column2:col2,item,index});
-        });
+        
         pages.appendChild(col1);
         Header.cleanUpByID(pages,"page-components-col2");
         pages.appendChild(col2);
         form.appendChild(pages);
-    }
+    };
+    
+  
+
+
     rendComponentType({column1,column2,item}:{column1:HTMLElement,column2:HTMLElement,item:component_type}){
         
         const desc=document.createElement("small");
@@ -472,7 +459,10 @@ initTypes:component_type[]=[
                     });
                 }
             };
-    }
+    };
+
+
+
     rendComponentTypeResponse({column2,item,index}:{column2:HTMLElement,item:component_type,index:number}){
         if(index===0){
             const h6=document.createElement("h6");
@@ -497,7 +487,9 @@ initTypes:component_type[]=[
             amount.className="text-primary mx-auto";
             column2.appendChild(amount);
         }
-    }
+    };
+
+
     passedTests({parent,arr}:{parent:HTMLElement,arr:{name:string,value:string|undefined}[]}):{
         passed: boolean;
         msg: string;
@@ -507,41 +499,44 @@ initTypes:component_type[]=[
         if(!(arr && arr.length>0)) return {name:"",value:"",passed:false,msg:""};
         let notPassed:{name:string,value:string|undefined,passed:boolean,msg:string}= {name:"",value:"",passed:true,msg:"passed"} ;
         const regName:RegExp=/[a-zA-Z\s]{2,}\s[a-zA-Z\s]{2,}/;
-        const regEmail:RegExp=/[a-zA-Z0-9\.]{2,}@[a-zA-Z0-9\.]{3,}\.[a-zA-Z0-9\.]{1,3}/;
-        const pageNames:RegExp=/[a-zA-Z\s\,\n]{2,}/;
-        const pageNum:RegExp=/[0-9]+/;
+        const regEmail:RegExp=/[a-zA-Z0-9.]{2,}@[a-zA-Z0-9.]{3,}\.[a-zA-Z0-9.]{1,3}/;
+        const pageNames:RegExp=/[a-zA-Z,\n]{2,}/;
+        const pageNum:RegExp=/\d+/;
         const testArr:{name:string,test:RegExp}[]=[
             {name:"name",test:regName},
             {name:"email",test:regEmail},
             {name:"pageNames",test:pageNames},
             {name:"pages",test:pageNum},
         ];
-        console.log("413","arr",arr);
+       
       const testPassed=testArr.map(testItem=>{
           const isPassed= arr.map(item=>{
             if(item.name==="name" && item.value===""){
                 const msg=`you forgot your full name`;
-                return notPassed={...item,passed:false,msg};
+                notPassed={...item,passed:false,msg};
+                return notPassed;
             }else if(item.name==="email" && item.value===""){
                 const msg=`you forgot your email`;
-                return notPassed={...item,passed:false,msg};
+                notPassed={...item,passed:false,msg};
+                return notPassed;
             }else if(item.name==="pages" && item.value===""){
                 const msg=`we need at least 1 # of pages`;
-                return notPassed={...item,passed:false,msg};
-            }else{
-                    //WHEN ITEMS ARE FILLED OUT INCORRECTLY
-                if(item.name===testItem.name && item.value){
+                notPassed={...item,passed:false,msg};
+                return notPassed;
+            }else if(item.name===testItem.name && item.value){
                     if(!testItem.test.test(item.value)){
-                        const msg=`please correct your ${item.name}`
-                       return notPassed={...item,passed:false,msg};
+                        const msg=`please correct your ${item.name}`;
+                        notPassed={...item,passed:false,msg};
+                       return notPassed;
                     }
                 }else{
                     return {...item,passed:true,msg:"passed"};
                 }
-            }
+            
             });
-            return isPassed.filter(notPass=>(notPass && notPass.passed===false))[0]
+            return isPassed.filter(notPass=>(notPass?.passed===false))[0]
         });
+
         const checkNotPassed=testPassed.filter(isPassed=>(isPassed !==undefined)).find(isPassed=>(isPassed.passed===false));
         if(checkNotPassed){
             Misc.message({parent,msg:checkNotPassed.msg,type_:"error",time:1400});
@@ -549,7 +544,9 @@ initTypes:component_type[]=[
             return {...notPassed,passed:true,msg:"passed"}
 
         }
-    }
+    };
+
+
       showPageQuote({parent,returnQuoteFinal,user}:{parent:HTMLElement,returnQuoteFinal:returnQuoteFinalType,user:userType}):Promise<{button:HTMLButtonElement,quoteContainer:HTMLElement,quoteInnerCont:HTMLElement}>{
         const css_col="margin-inline:auto;display:flex;flex-direction:column;align-items:center;";
         const css_row="margin-inline:auto;display:flex;flex-wrap:warp;align-items:center;";
@@ -560,7 +557,6 @@ initTypes:component_type[]=[
         innerCont.id="container-innerCont";
         innerCont.style.cssText="width:100%;overflow:scroll;border-radius:12px;";
         container.appendChild(innerCont);
-        console.log("before",container.style.position);
         container.style.position="absolute";
         this.titleQuoteContainer({parent:innerCont,returnQuoteFinal,css_col,css_row,user})
          this.quoteLayout({parent:innerCont,returnQuoteFinal,css_col,css_row});
@@ -568,12 +564,12 @@ initTypes:component_type[]=[
          button.id="print-quote-btn";
         parent.appendChild(container);
         Misc.growIn({anchor:container,scale:0,opacity:0,time:400});
-        return new Promise(resolver=>{
-            resolver({button,quoteContainer:container,quoteInnerCont:innerCont})
-        }) as Promise<{button:HTMLButtonElement,quoteContainer:HTMLElement,quoteInnerCont:HTMLElement}>;
+        return Promise.resolve({button,quoteContainer:container,quoteInnerCont:innerCont}) as Promise<{button:HTMLButtonElement,quoteContainer:HTMLElement,quoteInnerCont:HTMLElement}>;
         
 
-    }
+    };
+
+
      quoteLayout({parent,returnQuoteFinal,css_col,css_row}:{parent:HTMLElement,returnQuoteFinal:returnQuoteFinalType,css_col:string,css_row:string}){
         const container=document.createElement("div");
        
@@ -582,7 +578,9 @@ initTypes:component_type[]=[
         container.style.cssText=css_col + "border-radius:inherit;";
         this.returnCalcHeader({parent:container,less400,css_col,returnQuoteFinal});
         parent.appendChild(container);
-    }
+    };
+
+
     titleQuoteContainer({parent,returnQuoteFinal,css_col,css_row,user}:{parent:HTMLElement,returnQuoteFinal:returnQuoteFinalType,css_col:string,css_row:string,user:userType}){
         const container=document.createElement("div");
         const less900=window.innerWidth <900;
@@ -596,7 +594,7 @@ initTypes:component_type[]=[
         const img=document.createElement("img");
         img.id=innerContainer.id + "-img";
         img.src=this.quotepic;
-        img.style.cssText="border-radius:50%;shape-outside:circle(50%);filter:drop-shadow(0 0 0.75rem white);aspect-ratio:1 / 1;";
+        img.style.cssText="border-radius:26%;shape-outside:circle(26%);filter:drop-shadow(0 0 0.75rem white);";
         img.style.width=less900 ? ( less400 ? "300px":"350px"):"375px";
         innerContainer.appendChild(img);
         const showTotal=document.createElement("div");
@@ -630,7 +628,9 @@ initTypes:component_type[]=[
         innerContainer.appendChild(showTotal);
         container.appendChild(innerContainer);
         parent.appendChild(container);
-    }
+    };
+
+
     returnCalcHeader({parent,less400,css_col,returnQuoteFinal}:{parent:HTMLElement,less400:boolean,css_col:string,returnQuoteFinal:returnQuoteFinalType}):void{
         const container=document.createElement("div");
         container.id="returnCalcRow-container";
@@ -642,7 +642,9 @@ initTypes:component_type[]=[
         });
         parent.appendChild(container);
         
-    }
+    };
+
+
     tableHeaderTotalHours({parent,item,less400,css_col,index}:{parent:HTMLElement,item:returnCalcType,less400:boolean,css_col:string,index:number}){
         const sectionContainer=document.createElement("section");
                 sectionContainer.id="container-sectionContainer";
@@ -689,7 +691,9 @@ initTypes:component_type[]=[
                  //TABLE
                  this.tableQuoteCalcItems({parent:sectionContainer,calcItems:item.list,index});
                  //TABLE
-    }
+    };
+
+
     tableQuoteCalcItems({parent,calcItems,index}:{parent:HTMLElement,calcItems:quoteCalcItemType[],index:number}){
         //TABLE
         const table=document.createElement('table');
@@ -710,13 +714,12 @@ initTypes:component_type[]=[
         });
         parent.appendChild(table);
 
-    }
+    };
+
+
     genRow({parent,parentH,item}:{parent:HTMLElement,parentH:HTMLElement,item:quoteCalcItemType}){
         const items=Object.entries(item);
-        // const th=document.createElement('th');
-        //         th.setAttribute("scope","col");
-        //         th.textContent=item.type;
-        //         parentH.appendChild(th);
+      
         for(const [key,value] of items){
             if(key==="name" && value){
                 const th=document.createElement('th');
@@ -737,24 +740,16 @@ initTypes:component_type[]=[
                     const newValue=`<span>${isPages[0]}</span><span class='text-danger'> : ${isPages[1]}</span>`
                     td.innerHTML=`${newValue}`;
                 }else{
-                    td.textContent=`${value ? value:"description absent"}`;
+                    td.textContent=`${value || "description absent"}`;
                 }
                 parent.appendChild(td);
-            }else if(key==="time"){
+            }else if(key==="time" || key==="qty"){
                 const th=document.createElement('th');
                 th.setAttribute("scope","row");
                 th.textContent="Hr";
                 parentH.appendChild(th);
                 const td=document.createElement('td');
                 td.textContent=`${value} hrs`;
-                parent.appendChild(td);
-            }else if(key==="qty"){
-                const th=document.createElement('th');
-                th.setAttribute("scope","row");
-                th.textContent=key;
-                parentH.appendChild(th);
-                const td=document.createElement('td');
-                td.textContent=`${value}`;
                 parent.appendChild(td);
             }else if(key==="dollar"){
                 const th=document.createElement('th');
@@ -767,6 +762,7 @@ initTypes:component_type[]=[
             }
 
         }
-    }
+    };
+
 }
 export default Quote;

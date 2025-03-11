@@ -1,3 +1,4 @@
+import { eleEnumType, selRowColType } from '@/lib/attributeTypes';
 import { ChartConfiguration, ChartConfigurationCustomTypesPerDataset, Color } from 'chart.js/auto'
  import { LiteralUnion, ClientSafeProvider} from "next-auth/react";
  import { Languages } from "next/dist/lib/metadata/types/alternative-urls-types";
@@ -101,22 +102,26 @@ export type flexType={
     name?:string,
     col?:number,
     row?:number,
-    order:number,
+    rowOrder:number,
+    colOrder:number,
+    eleOrder:number,
+    selectorNum?:number,
     selectorId?:string,
     colId:string,
     rowId:string,
-    placement:number,
+    placement?:number,
     elementId?:string,
-    user_id?:string,
     position?:string,
-    anchorContainer?:string,
     link?:string,
     email?:string,
     tel?:string,
     time?:string,
     imgKey?:string,
-    attr?:string
-    backgroundImage?:boolean,
+    attr?:string,
+    rowType?:string,
+    colType?:string,
+    eleType?:string,
+    backgroundImg?:boolean,
     shapeOutside?:boolean,
     shapeOutsideCircle?:boolean,
     shapeOutsideSquare?:boolean,
@@ -130,9 +135,9 @@ export type selectelementType={
 }
 export type choiceType={
     name:string,
-    ele:string,
+    ele?:eleEnumType,
     isEle:boolean,
-    attr?:string
+    class_?:string
     level:string
 }
 export type elementType = {
@@ -154,7 +159,6 @@ export type elementType = {
 export type element_selType = {
     id: number, //order of display
     col_id:number,
-    placement?:number,
     selectorId?:number,
     eleId: string,
     name: string,
@@ -178,6 +182,8 @@ export type colType={
     cssText: string,
     elements:element_selType[]
     row_id:number,
+    type?:string,
+    attr?:string,
     order:number
 }
 export type rowType={
@@ -190,6 +196,8 @@ export type rowType={
     cssText: string,
     cols:colType[]
     selector_id:number,
+    attr?:string,
+    type?:string,
     order:number
 }
 export interface flexSelectorType extends selectorType{
@@ -239,6 +247,7 @@ export type optionType={
         }
     }
 }
+
 export type pageCountType={
     id?:number,
     count:number,
@@ -268,7 +277,7 @@ export type headerType={
     name:string,
     image:string,
     isOn:boolean;
-    headerData:{[key:string]:string},
+    headerStyle:{[key:string]:string},
 }
 export type codeBodyType={
     id:number,
@@ -316,6 +325,8 @@ export type chartType={
     id:number,
     type:"bar"|"line",
     eleId:string,
+    cssText:string,
+    class:string,
     chartOption:string,
     placement:number,
     blog_id:number
@@ -526,7 +537,15 @@ export type img_keyType={
 }
 export type arrImgType={start:number,end:number,word:string,found:boolean};
 export type arrImgType2={name:string,img:string,loc:string};
-export type arrImgType3={id:number,html:HTMLElement,name:string,img:string,loc:string,imgKey?:string};
+export type arrImgType3={
+    id:number,
+    html:HTMLElement,
+    name:string,
+    img:string,
+    loc:string,
+    imgKey?:string
+    selRowCol:selRowColType|null
+};
 export type slideType={name:string,expOne:string,expTwo:string|null};
 export type introDescType={
     id:number,
@@ -546,7 +565,8 @@ export type saveProcessType={
 export type adminReplyMsgType={
     msg:messageType,
     reply:string,
-    user_id:string
+    user_id:string,
+    admin_id:string
 }
 export type delteUserType={
     adminemail:string,
@@ -690,6 +710,25 @@ export type sendPostRequestType={
     clientEmail:string
 }
 //------REQUEST POST ANSWER  -------//
+///---ADIMAGEURL----////
+export type imgExtractType={
+    imgUrl?:string,
+    selRowCol:selRowColType|null,
+    imgKey?:string,
+    level:"element"|"col"|"row"|"special",
+    hasBlob:boolean,
+    hasFreeImg:boolean
+}
+export type imgEleType={
+    level:"element"|"col"|"row"|"special",
+    target:HTMLImageElement|HTMLElement,
+    imgUrl?:string,
+    imgKey?:string,
+    selRowCol:selRowColType|null,
+    hasBlob:boolean,
+    hasFreeImg:boolean
+}
+///---ADIMAGEURL----////
 //------headerflag  -------//
 export type cardBodyCssType={
     id:number,
@@ -699,3 +738,35 @@ export type cardBodyCssType={
     img:string
 }
 //------headerflag  -------//
+//------FOR HTMLELEMENT CLASS FOR showElement()  -------//
+export type arrDivContType={
+    divCont:HTMLElement,
+    placement:number,
+    target:HTMLElement,
+    isNormal:boolean,
+    ele:elementType|element_selType|null,
+    sel:selectorType|null,
+    chart:chartType|null,
+    
+}
+//------FOR HTMLELEMENT CLASS FOR showElement()  -------//
+//------FOR BlogDisplays  -------//
+export type arrDivPlaceType={
+    id:number,
+    divCont:HTMLElement,
+    parent:HTMLElement,
+    target:HTMLElement,
+    displayClean:boolean,
+    type:"element"|"chart"|"selector",
+    element:elementType|element_selType|null,
+    chart:chartType|null,
+    selector:selectorType|null,
+}
+//------FOR BlogDisplays  -------//
+//------HTTP TYPE  -------//
+
+export type httpType={
+    http:string
+}
+//------HTTP TYPE  -------//
+

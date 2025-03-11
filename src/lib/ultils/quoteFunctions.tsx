@@ -37,7 +37,7 @@ export function subCalc({ item, list, type }: { item: { name: string, value: str
     let totalCost: number = 0;
     const subArr = list.filter(item => (item.type === type));
     if (!(subArr && subArr.length > 0)) return;
-    if (item && item.value) {
+    if (item?.value) {
         const special = subArr.map(item_ => {
             //special plus basic
             const qty = item_.qty as number;

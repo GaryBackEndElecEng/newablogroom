@@ -1,29 +1,163 @@
 import HtmlElement from "../editor/htmlElement";
 import ModSelector from "../editor/modSelector";
-import { element_selType, elementType } from "../editor/Types";
+import { arrDivContType,elementType, focusOptions } from "../editor/Types";
 import Nav from "../nav/headerNav";
 import Misc from "./misc";
 import Header from "../editor/header";
 import { FaCreate } from "./ReactIcons";
 import { FaCrosshairs } from "react-icons/fa";
 import Main from "../editor/main";
+import { attrDesignEnumType, idEnumType, idValueType, selRowColType, typeEnumType } from "@/lib/attributeTypes";
+import Dataset from './dataset';
+import { attrEnumArr, attrEnumArrTest, typeEnumArr, typeEnumArrTest } from "./lists";
 
 
 
 class Design{
+    _element:elementType;
    
-    constructor(private _modSelector:ModSelector,public htmlelement:HtmlElement){
-        
+    constructor(private _modSelector:ModSelector){
+        this._element=this._modSelector.initElement;
+        this.element={...this.element,type:"design",attr:undefined};
+       
+    }
+
+    get element(){
+        return this._modSelector.element;
+    }
+    set element(element:elementType){
+        this._modSelector.element=element;
     }
     //---------SEMI-CIRCLE-------------------------//
+   showCleanDesign({parent,element,idValues}:{parent:HTMLElement,element:elementType,idValues:idValueType[]}):arrDivContType{
+      
+        const divCont=document.createElement("div");
+        const target=document.createElement(element.name);
+        const eleId=element.eleId;
+        const less400=window.innerWidth < 400;
+        const rand=Math.floor(Math.random() *1000);
+        parent.style.position="relative";
+        divCont.id=`divCont-design-${rand}`;
+        this._modSelector.dataset.insertcssClassIntoComponents({
+            target:divCont,
+            level:"element",
+            headerType:undefined,
+            id:"divContId",
+            loc:"htmlElement",
+            type:"design"
+
+        });
+        
+        divCont.style.paddingInline=less400 ? "0.25rem":"1.5rem";
+        idValues.push({eleId,id:"divContId",attValue:divCont.id});
+        idValues.push({eleId,id:"ele_id",attValue:String(element.id)});
+        target.classList.remove("isActive");
+        target.id=element.eleId;
+        target.className=element.class;
+        target.innerHTML=element.inner_html;
+        
+        target.style.cssText=`${element.cssText}`;
+        //----------//---POPULATING ATTRIBUTES TO TARGET && ADDS ATTR/TYPE/IMGKEY ATTRIBUTES FROM IDVALUES------\\-----///
+        const {idValues:retIdValues2}=this._modSelector.dataset.coreDefaultIdValues({
+            target,
+            level:"element",
+            sel:null,
+            row:null,
+            col:null,
+            ele:element,
+            loc:"htmlElement",
+            idValues,
+            clean:true,
+        });
+        idValues=retIdValues2;
+        this._modSelector.dataset.populateElement(({target,level:"element",loc:"flexbox",idValues,selRowColEle:element,clean:true}));
+        const {cleaned:cleanClasses}=this._modSelector.removeClasses({target,classes:["isActive","box-shadow","showName"]});
+        target.className=cleanClasses.join(" ");
+        divCont.appendChild(target);
+        const arrDivCont:arrDivContType={divCont,target,placement:element.placement,ele:element,isNormal:false,chart:null,sel:null}
+        return arrDivCont
+    }
+   showDesign({parent,element,idValues}:{parent:HTMLElement,element:elementType,idValues:idValueType[]}):arrDivContType{
+      
+        const attrTest=attrEnumArrTest(element);
+        const attrDesign:string[]=["isArt" , "isCircle" , "isWave" , "isArrow" , "isArch"];
+        const isAttrDesign=attrTest ? attrDesign.includes(attrTest.value) :undefined;
+        const divCont=document.createElement("div");
+        const target=document.createElement(element.name);
+        const eleId=element.eleId;
+        const less400=window.innerWidth < 400;
+        const rand=Math.floor(Math.random() *1000);
+        parent.style.position="relative";
+        divCont.id=`divCont-design-${rand}`;
+        this._modSelector.dataset.insertcssClassIntoComponents({
+            target:divCont,
+            level:"element",
+            headerType:undefined,
+            id:"divContId",
+            loc:"htmlElement",
+            type:"design"
+
+        })
+        divCont.setAttribute("data-placement",`${element.placement}-A`);
+        divCont.style.paddingInline=less400 ? "0.25rem":"1.5rem";
+        idValues.push({eleId,id:"divContId",attValue:divCont.id});
+        idValues.push({eleId,id:"ele_id",attValue:String(element.id)});
+        target.classList.remove("isActive");
+        target.id=element.eleId;
+        target.className=element.class;
+        target.innerHTML=element.inner_html;
+        target.style.cssText=`${element.cssText}`;
+        //----------//---POPULATING ATTRIBUTES TO TARGET && ADDS ATTR/TYPE/IMGKEY ATTRIBUTES FROM IDVALUES------\\-----///
+        const {idValues:retIdValues2}=this._modSelector.dataset.coreDefaultIdValues({
+            target,
+            level:"element",
+            ele:element,
+            sel:null,
+            row:null,
+            col:null,
+            loc:"htmlElement",
+            idValues,
+            clean:false
+
+        });
+        idValues=retIdValues2;
+        
+       //----------//---POPULATING ATTRIBUTES TO TARGET && ADDS ATTR/TYPE/IMGKEY ATTRIBUTES FROM IDVALUES------\\-----///
+        if(isAttrDesign){
+            const {cleaned:cleanClasses}=this._modSelector.removeClasses({target,classes:["isActive","box-shadow","showName"]});
+            target.className=cleanClasses.join(" ");
+            divCont.appendChild(target);
+             this._modSelector.editElement({target,idValues});
+                divCont.onclick=async(e:MouseEvent)=>{
+                    if(!e) return;
+                    divCont.classList.toggle("isActive");
+                    target.classList.toggle("isActive");
+                    await this.removeMainElement({parent,divCont,target,idValues}).then(async(res)=>{
+                        if(res&& !res.divCont){
+                            Misc.message({parent,msg:"removed",type_:"success",time:600});
+                        }
+                    });
+            };
+        };
+        
+     
+        const arrDivCont:arrDivContType={divCont,target,placement:element.placement,ele:element,isNormal:false,chart:null,sel:null}
+        return arrDivCont
+    };
+
+
     //PARENT: main.textarea
-    circlesDesign(parent:HTMLElement){
+    circlesDesign(parent:HTMLElement,idValues:idValueType[]){
         const rand=Math.round(Math.random()*100);
+        const idEnum="isCircle";
+
         const minHeight=200;
         const divCont=document.createElement("div");
         divCont.style.cssText="display:flex;flex-direction:column;align-items:center;justify-content:center;padding:1rem;"
         const target=document.createElement("div");
         target.id=`div-circleDesign-${rand}`;
+        const eleId=target.id;
+        const node=target.nodeName.toLowerCase();
         target.setAttribute("is-element","true");
         target.style.cssText=`width:100%;border-radius:12px;display:flex;flex-direction:column;align-items:center;min-height:${minHeight}px;position:relative;justify-content:center;padding:1rem;margin-inline:auto;`;
         target.setAttribute("name","div");
@@ -43,8 +177,21 @@ class Design{
                         const rand=parseInt(formdata.get("random") as string) as number;
                         this.circleOptionGen({target,maxRand:rand,stroke,fill})//generate pattern
                         target.removeChild(res.popup);
+                        idValues.push({eleId,id:idEnum,attValue:idEnum});
+                        idValues.push({eleId,id:"elementId",attValue:eleId});
+                        idValues.push({eleId,id:"ID",attValue:eleId});
+                        idValues.push({eleId,id:"type",attValue:"design"});
+                        const {cleaned}=this._modSelector.removeClasses({target,classes:["isActive","box-shadow"]});
+                        this.element={...this.element,
+                            type:"design",
+                            attr:idEnum,
+                             name:node,
+                             eleId,
+                            inner_html:target.innerHTML,
+                            class:cleaned.join(" "),
 
-                        this._modSelector.promElementAdder(target).then(async(res)=>{
+                        };
+                        this.elementAdder({target,element:this.element,idValues,type:"isCircle"}).then(async(res)=>{
                             if(res){
                                 const ele=res.ele as elementType;
                                 divCont.setAttribute("data-placement",`${ele.placement}`);
@@ -54,11 +201,11 @@ class Design{
                             if(e){
                                 divCont.classList.toggle("isActive");
                                 target.classList.toggle("isActive");
-                                this.removeMainElement(parent,divCont,target);
-                                this._modSelector.updateElement(target);
+                                this.removeMainElement({parent,divCont,target,idValues});
+                                this.updateElement({target,idValues});
                             }
                         };
-                        this._modSelector.editElement(target);
+                        this._modSelector.editElement({target,idValues});
                     }
                 };
             }
@@ -156,9 +303,7 @@ class Design{
                 //GENERATES PATTERN
             }
         }
-        return new Promise((resolve)=>{
-            resolve({form:form,popup:popup})
-        }) as Promise<{form:HTMLFormElement,popup:HTMLElement}>;
+        return Promise.resolve({form:form,popup:popup}) as Promise<{form:HTMLFormElement,popup:HTMLElement}>;
      }
 
      circleOptionGen(item:{target:HTMLElement,maxRand:number|undefined,stroke:string|undefined,fill:string|undefined}){
@@ -168,22 +313,32 @@ class Design{
         [...getelements].map(ele=>(target.removeChild(ele)));
         // CLEAN UP
         const arr:{x:number,y:number,width:number,fill:string,stroke:string}[]=[];
-        const max=maxRand ? maxRand : 40;
+        const max=maxRand || 40;
 
-        const stroke_=stroke ? stroke : "rgba(30, 1, 1,1)";//hsl(0:red-255:blue,0%:light-100%:dark,98%:ligtest-0%:darkest)
-        const fill_= fill ? fill : "rgba(30, 1, 1,1)";
+        const stroke_=stroke || "rgba(30, 1, 1,1)";//hsl(0:red-255:blue,0%:light-100%:dark,98%:ligtest-0%:darkest)
+        const fill_= fill || "rgba(30, 1, 1,1)";
         let x:number=0; let y:number=0;
         for(let i=1;i<=200;i+=5){
             const rand=Math.round(Math.random()*max)
             const _fill_=this.colorInjector(fill,rand) ? this.colorInjector(fill,rand) as string :stroke_;
             const _stroke_=this.colorInjector(stroke,rand) ? this.colorInjector(stroke,rand) as string : fill_;
-            if(i<96){
+            if(rand>100){
+                const randAdjust:number=100-rand;
+                if(i<96){
+                    arr.push({x:i,y:rand*2,width:rand + randAdjust-5,fill:_fill_,stroke:_stroke_})
+                }else{
+                    const xi=200-i + 1;
+                    if(xi>0){
+                    arr.push({x:xi,y:rand*2,width:rand + randAdjust-5,fill:_fill_,stroke:_stroke_})
+                    }
+                }
+            }else if(i <96){
                 arr.push({x:i,y:rand*2,width:rand,fill:_fill_,stroke:_stroke_})
             }else{
                 const xi=200-i + 1;
-                if(xi>0){
-                arr.push({x:xi,y:rand*2,width:rand,fill:_fill_,stroke:_stroke_})
-                }
+                    if(xi>0){
+                    arr.push({x:xi,y:rand*2,width:rand,fill:_fill_,stroke:_stroke_})
+                    }
             }
         }
         arr.map(xy=>{
@@ -202,7 +357,8 @@ class Design{
      }
      colorInjector(color:string|undefined,rand:number){
         if(color){
-            if(/^(rgba\()([0-9]{3,3}\,)([0-9]{3,3}\,)([0-9]{3,3}\,)[0-9]\)/.test(color)){
+            const regColor:RegExp=/^(rgba\()(\d{3},)(\d{3},)(\d{3},)\d\)/;
+            if(regColor.test(color)){
                 const inner=color.split("rgba(")[1];
                 const core=inner.split(")")[0];
                 let hexs=core.split(",");
@@ -238,7 +394,7 @@ class Design{
         const svgCont=document.createElement("div");
         svgCont.className="svgCont-circle";
         svgCont.id=`svgCont-circle -${x}`;
-        svgCont.style.cssText=`position:absolute;padding:5px;width:${(width + 3)*1}px;height:${(width +3)*1}px;display:flex;place-items:center;border-radius:50%;box-shadow:1px 1px 12px 1px ${stroke};`;
+        svgCont.style.cssText=`position:absolute;padding:5px;width:${(width + 3)*1}px;height:${(width +3)*1}px;display:flex;place-items:center;border-radius:50%;box-shadow:1px 1px 12px 1px ${stroke};z-index:20;`;
         svgCont.style.top=`${y}px`;
         svgCont.style.left=`${x}%`;
         const svg=document.createElementNS("http://www.w3.org/2000/svg","svg");
@@ -257,7 +413,8 @@ class Design{
     }
       //---------SEMI-CIRCLE-------------------------//
      //Wave- Art
-     signalWave(parent:HTMLElement){
+     signalWave(parent:HTMLElement,idValues:idValueType[]){
+        const idEnum="isWave"
         const container=document.createElement("div");
         container.id="polyMain";
         container.style.cssText="position:relative;height:auto;background:white;z-index:200;width:100%";
@@ -317,23 +474,38 @@ class Design{
                         const stroke=res.strokeSel.value;
                         const omega=parseInt(res.omegaInput.value);
                         const alpha=parseInt(res.alphaInput.value);
-                        const {ele:svgCont,divCont}=this.polyGenerator({parent:parent,color,omega,alpha,stroke})
-                        this.promElementAdder(svgCont).then(async(svg)=>{
+                        const {target,divCont}=this.polyGenerator({parent:parent,color,omega,alpha,stroke});
+                        const eleId=target.id;
+                        const node=target.nodeName.toLowerCase();
+                        const {cleaned}=this._modSelector.removeClasses({target,classes:["isActive","box-shadow"]});
+                        idValues.push({eleId,id:idEnum,attValue:idEnum});
+                        idValues.push({eleId,id:"design",attValue:"design"});
+                        idValues.push({eleId,id:"type",attValue:"design"});
+                        idValues.push({eleId,id:"attr",attValue:idEnum});
+                        this.element={...this.element,
+                            type:"design",
+                            attr:idEnum,
+                            inner_html:target.innerHTML,
+                            class:cleaned.join(" "),
+                            cssText:target.style.cssText,
+                            name:node
+                        }
+                        this.elementAdder({target,element:this.element,idValues,type:"isWave"}).then(async(svg)=>{
                             if(svg){
                                 const ele=svg.ele as elementType;
-                                svgCont.setAttribute("data-placement",`${ele.placement}-A`);
+                                divCont.setAttribute("data-placement",`${ele.placement}-A`);
                                 Misc.fadeOut({anchor:res.cont,xpos:50,ypos:100,time:400});
                                 setTimeout(()=>{
                                     container.removeChild(res.cont);
                                 });
-                                this._modSelector.editElement(svgCont);
-                                svgCont.onclick=(e:MouseEvent)=>{
+                                this._modSelector.editElement({target:svg.target,idValues});
+                                divCont.onclick=(e:MouseEvent)=>{
                                     if(e){
-                                        svgCont.classList.toggle("isActive");
+                                        svg.target.classList.toggle("isActive");
                                         divCont.classList.toggle("isActive");
                                     }
                                 };
-                                this.promRemoveMainElement({parent:container,divCont,target:svgCont}).then(async(reParent)=>{
+                                this.removeMainElement({parent:container,divCont,target:svg.target,idValues}).then(async(reParent)=>{
                                     if(reParent){
                                         parent.removeChild(container);
                                     }
@@ -388,13 +560,11 @@ class Design{
         parent.appendChild(container);
         Misc.matchMedia({parent:container,maxWidth:900,cssStyle:{left:"20%",right:"20%"}});
         Misc.matchMedia({parent:container,maxWidth:400,cssStyle:{left:"10%",right:"10%"}});
-        return new Promise((resolve)=>{
-            resolve({alphaInput,omegaInput,bgSelect,strokeSel,change,close,cont:container})
-        }) as Promise<{alphaInput:HTMLInputElement,omegaInput:HTMLInputElement,bgSelect:HTMLSelectElement,strokeSel:HTMLSelectElement,change:HTMLButtonElement,close:HTMLButtonElement,cont:HTMLElement}>;
+        return Promise.resolve({alphaInput,omegaInput,bgSelect,strokeSel,change,close,cont:container}) as Promise<{alphaInput:HTMLInputElement,omegaInput:HTMLInputElement,bgSelect:HTMLSelectElement,strokeSel:HTMLSelectElement,change:HTMLButtonElement,close:HTMLButtonElement,cont:HTMLElement}>;
         
      }
 
-     polyGenerator(item:{parent:HTMLElement,omega:number,alpha:number,color:string,stroke:string}):{ele:HTMLElement,divCont:HTMLElement}{
+     polyGenerator(item:{parent:HTMLElement,omega:number,alpha:number,color:string,stroke:string}):{target:HTMLElement,divCont:HTMLElement}{
         const {parent,omega,alpha,color,stroke}=item;
         Header.cleanUpByID(parent,"polyGenerator");
         const container=document.createElement("div");
@@ -481,26 +651,29 @@ class Design{
         divCont.appendChild(svgCont);
         container.appendChild(divCont);
         parent.appendChild(container);
-        return {ele:svgCont,divCont}
+        return {target:svgCont,divCont}
      }
      
      //Wave- Art
 
       ////-------------ARROW-------------------------------///
-     arrowDesign(parent:HTMLElement){
+     arrowDesign(parent:HTMLElement,idValues:idValueType[]){
+        const idEnum="isArrow";
         const width=35;
         const height=window.innerWidth < 900 ?(window.innerWidth < 420 ? "50vh":"20vh"):"15vh";
         const middleWidth=width*0.5;
         const arrow=0.25*width;
         const divCont=document.createElement("div");
         divCont.style.cssText="margin:0;margin-inline:auto;padding:0.5rem";
-        const main=document.createElement("div");
-        main.setAttribute("data-arrow-design","true");
-        main.classList.add("arrowDesign");
-        main.setAttribute("is-element","true");
-        main.id=`arrow-${Math.round(Math.random()*1000)}`;
-        main.style.cssText=`display:inline-flex;flex-wrap:nowrap;margin-block:1.5rem;padding:1rem;align-items:center;justify-content:center;position:relative;min-height:10vh;max-height:50vh;min-width:15vw;height:${height};margin-inline:auto;`;
-        main.style.height=height;
+        const target=document.createElement("div");
+        const node=target.nodeName.toLowerCase();
+        target.setAttribute("data-arrow-design","true");
+        target.classList.add("arrowDesign");
+        target.setAttribute("is-element","true");
+        target.id=`arrow-${Math.round(Math.random()*1000)}`;
+        const eleId=target.id;
+        target.style.cssText=`display:inline-flex;flex-wrap:nowrap;margin-block:1.5rem;padding:1rem;align-items:center;justify-content:center;position:relative;min-height:10vh;max-height:50vh;min-width:15vw;height:${height};margin-inline:auto;`;
+        target.style.height=height;
         const left=document.createElement("div");
         left.id="arrowLeft";
         left.style.cssText="flex:1 1 25%;margin:auto;order:1;clip-path: polygon(100% 0%, 50% 50%, 100% 100%);width:25%;background-color:maroon;height:inherit;";
@@ -519,32 +692,49 @@ class Design{
         left.style.minWidth=`${arrow}vw`;
 
         middle.appendChild(innerText);
-        main.appendChild(left);
-        main.appendChild(middle);
-        main.appendChild(right);
-        divCont.appendChild(main);
-        // Misc.matchMedia({parent:main,maxWidth:1000,cssStyle:{maxHeight:"50vh",height:"20vh"}});
+        target.appendChild(left);
+        target.appendChild(middle);
+        target.appendChild(right);
+        divCont.appendChild(target);
+       
         Misc.matchMedia({parent:middle,maxWidth:400,cssStyle:{flex:"1 1 100%",overflowY:"scroll"}});
-        this.arrowColor(main,left,right);
+        this.arrowColor({main:target,targetLeft:left,targetRight:right,idValues});
+        idValues.push({eleId,id:idEnum,attValue:idEnum});
+        idValues.push({eleId,id:"elementId",attValue:eleId});
+        idValues.push({eleId,id:"ID",attValue:eleId});
+        idValues.push({eleId,id:"type",attValue:"design"});
+        idValues.push({eleId,id:"design",attValue:"design"});
         
-        main.addEventListener("click",(e:MouseEvent)=>{
+        divCont.addEventListener("click",(e:MouseEvent)=>{
             if(e){
-                main.classList.toggle("isActive");
+                target.classList.toggle("isActive");
                 innerText.classList.toggle("isActive")
-                this._modSelector.removeMainElement(parent,divCont,main)
+                this.removeMainElement({parent,divCont,target,idValues})
             }
         });
-        this.promElementAdder(main).then(async(res)=>{
-            if(res){
+        const {cleaned}=this._modSelector.removeClasses({target,classes:["isActive","box-shadow"]});
+        this.element={...this.element,
+            eleId,
+            inner_html:target.innerHTML,
+            class:cleaned.join(" "),
+            cssText:target.style.cssText,
+            attr:idEnum,
+            type:"design",
+            name:node
+        }
+        this.elementAdder({target,element:this.element,idValues,type:"isArrow"}).then(async(res)=>{
+            if(res?.idValues){
+                idValues=res.idValues
                 const ele=res.ele as unknown as elementType;
-                main.setAttribute("data-placement",`${ele.placement}`)
+                divCont.setAttribute("data-placement",`${ele.placement}`)
             }
         });
-        this._modSelector.editElement(main);
+        this._modSelector.editElement({target,idValues});
         parent.appendChild(divCont);
         Misc.fadeIn({anchor:divCont,xpos:100,ypos:50,time:500});
     }
-    arrowColor(main:HTMLElement,targetLeft:HTMLElement,targetRight:HTMLElement){
+    arrowColor({main,targetLeft,targetRight,idValues}:{main:HTMLElement,targetLeft:HTMLElement,targetRight:HTMLElement,idValues:idValueType[]}){
+       
         Header.cleanUpByID(main,"arrowColor");
         targetLeft.style.position="relative";
         targetRight.style.position="relative";
@@ -579,7 +769,7 @@ class Design{
                setTimeout(()=>{
                    targetLeft.style.cssText=HtmlElement.addStyle(targetLeft,attr1);
                 },0);
-                this._modSelector.updateElement(main);
+                this.updateElement({target:main,idValues});
             }
               
               
@@ -595,7 +785,7 @@ class Design{
                 setTimeout(()=>{
                     targetRight.style.cssText=HtmlElement.addStyle(targetRight,attr1);
                 },0);
-                this._modSelector.updateElement(main);
+                this.updateElement({target:main,idValues});
                 }
             }
         });
@@ -605,7 +795,7 @@ class Design{
                 Misc.growOut({anchor:container,scale:0,opacity:0,time:400});
                 setTimeout(()=>{
                     Header.cleanUpByID(gettextarea,"arrowColor");
-                    this._modSelector.updateElement(main);
+                    this.updateElement({target:main,idValues});
                 },398);
                 
             }
@@ -614,7 +804,11 @@ class Design{
     ////-------------ARROW-------------------------------///
 
     ///---------------------SEMI-CIRCLE-----------//////
-    arch(parent:HTMLElement){
+    arch(parent:HTMLElement,idValues:idValueType[]){
+        const idEnum="arch";
+        const attr="isArch";
+        const type="design";
+        
         const container=document.createElement("div");
         container.id="arch";
         container.style.cssText="margin-inline:auto;display:flex;flex-direction:column;position:relative;background-color:white;";
@@ -664,7 +858,7 @@ class Design{
                         this.archGenerator({parent:container,omega,boxShadow:"none",bg,stroke,height});
                     }
                 };
-                res.change.onclick=(e:MouseEvent)=>{
+                res.change.onchange=(e:Event)=>{
                     if(e){
                         omega=parseInt(res.omegaInput.value);
                         bg=res.bgSelect.value;
@@ -674,27 +868,36 @@ class Design{
                     }
                 };
                 
-                res.close.onclick=(e:MouseEvent)=>{
+                res.close.onclick=async(e:MouseEvent)=>{
                     if(e){
+                        const rand=Math.floor(Math.random()* 1000);
                         omega=parseInt(res.omegaInput.value);
                         bg=res.bgSelect.value;
                         stroke=res.strokeSel.value;
                         height=parseInt(res.heightInput.value);
                         Misc.fadeOut({anchor:res.cont,xpos:100,ypos:100,time:400});
-                        setTimeout(()=>{
-                            const {ele,divCont}=this.archGenerator({parent:parent,omega,boxShadow:"none",bg,stroke,height});
+                        setTimeout(async()=>{
+                            const {ele,divCont}= await this.archGenerator({parent:parent,omega,boxShadow:"none",bg,stroke,height});
+                            ele.id=`arch-${rand}`;
+                            const eleId=ele.id;
                             Misc.growOut({anchor:container,scale:0,opacity:0,time:400});
                             setTimeout(()=>{container.removeChild(res.cont);},398);
-                            this.promElementAdder(ele).then(async(ele_)=>{
-                                if(ele_){
-                                    const _ele_=ele_.ele as elementType;
+                            this.element={...this.element,type,attr,name:"div"};
+                            idValues.push({eleId,id:idEnum,attValue:"true"});
+                            idValues.push({eleId,id:"elementId",attValue:eleId});
+                            idValues.push({eleId,id:type,attValue:type});
+                            idValues.push({eleId,id:attr,attValue:attr});
+                            this.elementAdder({target:ele,element:this.element,idValues,type:"isArch"}).then(async(_res)=>{
+                                if(_res){
+                                    const _ele_=_res.ele as elementType;
+                                    idValues=_res.idValues;
                                     divCont.setAttribute("data-placement",`${_ele_.placement}-A`)
-                                    this.promRemoveMainElement({parent,divCont,target:ele}).then(async(reParent)=>{
+                                    this.removeMainElement({parent,divCont,target:_res.target,idValues}).then(async(reParent)=>{
                                         if(reParent){
                                             parent.removeChild(container);
                                         }
                                     });
-                                    this._modSelector.editElement(ele);
+                                    this._modSelector.editElement({target:_res.target,idValues});
                                 }
                             });
                             divCont.onclick=(e:MouseEvent)=>{
@@ -755,20 +958,34 @@ class Design{
         parent.appendChild(container);
         Misc.matchMedia({parent:container,maxWidth:900,cssStyle:{left:"20%",right:"20%"}});
         Misc.matchMedia({parent:container,maxWidth:400,cssStyle:{left:"10%",right:"10%",flexDirection:"column",justifyContent:"center",alignItems:"center"}});
-        return new Promise((resolve)=>{
-            resolve({omegaInput,bgSelect,strokeSel,change,close,cont:container,heightInput})
-        }) as Promise<{omegaInput:HTMLInputElement,bgSelect:HTMLSelectElement,strokeSel:HTMLSelectElement,change:HTMLButtonElement,close:HTMLButtonElement,cont:HTMLElement,heightInput:HTMLInputElement}>;
+        return Promise.resolve({omegaInput,bgSelect,strokeSel,change,close,cont:container,heightInput}) as Promise<{omegaInput:HTMLInputElement,bgSelect:HTMLSelectElement,strokeSel:HTMLSelectElement,change:HTMLButtonElement,close:HTMLButtonElement,cont:HTMLElement,heightInput:HTMLInputElement}>;
         
      }
-    archGenerator(item:{parent:HTMLElement,omega:number,boxShadow:string,bg:string,stroke:string,height:number}):{ele:HTMLElement,divCont:HTMLElement}{
-        const {parent,omega,boxShadow,bg,stroke,height}=item;
+    async archGenerator({parent,omega,boxShadow,bg,stroke,height}:{
+        parent:HTMLElement,
+        omega:number,
+        boxShadow:string,
+        bg:string,
+        stroke:string,
+        height:number
+
+    }):Promise<{ele:HTMLElement,divCont:HTMLElement}>{
+        
         Header.cleanUpByID(parent,"archGenerator");
         const container=document.createElement("div");
         container.id="archGenerator"
-        container.style.cssText="width:100%;box-shadow:1px 1px 10px 1px black;border-radius:16px;position:relative;display:flex;justify-content:center;align-items:center;flex-direction:column;";
+        container.style.cssText="width:100%;border-radius:16px;position:relative;display:flex;justify-content:center;align-items:center;flex-direction:column;";
         const divCont=document.createElement("div");
-        divCont.className="eleContainer";
-        divCont.id="eleContainer-arch"
+        divCont.id="eleContainer-arch";
+         this._modSelector.dataset.insertcssClassIntoComponents({
+            target:divCont,
+            level:"element",
+            headerType:undefined,
+            id:"isArch",
+            loc:"htmlElement",
+            type:"design"
+
+        });
         divCont.style.cssText="padding:1rem;width:100%;";
         divCont.setAttribute("data-placement","A");
         const svgOne = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
@@ -815,6 +1032,7 @@ class Design{
         //svgContainer
         //text//
         const paraH6=document.createElement("h6");
+        paraH6.id="paraH6";
         paraH6.style.cssText="margin-block:2rem;margin-inline:auto;padding:1rem;font-size:1rem;text-wrap:pretty;text-align:center;";
         paraH6.style.position="absolute";
         paraH6.style.inset="20%";
@@ -863,18 +1081,11 @@ class Design{
      }
 
     ///---------------------SEMI-CIRCLE-----------//////
-    async promElementAdder(target:HTMLElement){
-        return new Promise((resolver)=>{
-            resolver(this._modSelector.elementAdder(target))
-        }) as Promise< {
-            target: HTMLElement | HTMLImageElement;
-            ele: element_selType;
-        } | {
-            target: HTMLElement | HTMLImageElement;
-            ele: elementType;
-        } | undefined>;
-    }
-    titleArt(parent:HTMLElement){
+    //FROM SIDEBAR PARENT===Main.textarea
+    titleArt(parent:HTMLElement,idValues:idValueType[]){
+        const idEnum="isArt";
+        const attr="isArt";
+        const type="design";
         parent.style.position="relative";
         Header.cleanUpByID(parent,"popup-title-art");
         const popup=document.createElement("div");
@@ -888,24 +1099,26 @@ class Design{
         const row = document.createElement("div");
         row.className="row";
         row.style.cssText="display:flex;flex-wrap:wrap;gap:1.25rem;"
-        const arrTypes:{name:string,attr:string}[]=[{name:"style-one",attr:"title-art-one"},{name:"style-two",attr:"title-art-two"},{name:"style-three",attr:"title-art-three"},{name:"style-four",attr:"title-art-four"},{name:"style-five",attr:"title-art-five"},{name:"style-six",attr:"title-art-six"},{name:"style-seven",attr:"title-art-seven"},];
+        const arrTypes:{name:string,style:string}[]=[{name:"style-one",style:"title-art-one"},{name:"style-two",style:"title-art-two"},{name:"style-three",style:"title-art-three"},{name:"style-four",style:"title-art-four"},{name:"style-five",style:"title-art-five"},{name:"style-six",style:"title-art-six"},{name:"style-seven",style:"title-art-seven"},];
         arrTypes.map((item)=>{
+            const rand=Math.floor(Math.random()*1000);
             const col=document.createElement("div");
             col.className="col-md-4";
-            col.style.cssText="flex:1 1 33%;display:flex;flex-direction:column;padding-inline:1rem;align-items:center;justify-content:center;padding-block:2rem;;box-shadow:1px 1px 6px grey;border-radius:12px;";
+            col.style.cssText="display:flex;flex-direction:column;padding-inline:1rem;align-items:center;justify-content:center;padding-block:2rem;;box-shadow:1px 1px 6px grey;border-radius:12px;";
             const para=document.createElement("p");
-            para.id=item.attr;
+            para.id=`${item.style}-${rand}`;
             para.style.margin="auto";
             para.textContent =item.name;
-            para.classList.add(item.attr);
+            para.classList.add(item.style);
             col.appendChild(para);
             const {button}=Misc.simpleButton({anchor:col,bg:Nav.btnColor,color:"white",text:item.name,time:400,type:"button"});
             row.appendChild(col);
             button.onclick=(e:MouseEvent)=>{
                 if(e){
                     if(!Main.textarea) return;
+                    const jsonSelected=JSON.stringify(item)
                     //ADD INPUT FOR TITLE=> CAN NOT EDIT!=> then feed it to text in designElement
-                    this.addTextTitleArt(parent,popup,col,item);
+                    this.addTextTitleArt({parent,popup,col,jsonSelected,idEnum,attr,type,idValues});
                 }
             };
         });
@@ -927,8 +1140,20 @@ class Design{
         //DELETE
 
     }
-    addTextTitleArt(parent:HTMLElement,popup:HTMLElement,col:HTMLElement,item:{name:string,attr:string}){
+    addTextTitleArt({parent,popup,col,jsonSelected,attr,idEnum,type,idValues}:{
+        parent:HTMLElement,
+        popup:HTMLElement,
+        col:HTMLElement,
+        jsonSelected:string,
+        attr:idEnumType,
+        idEnum:idEnumType,
+        type:idEnumType,
+        idValues:idValueType[]
+
+    }){
+       
         const form=document.createElement("form");
+        const {name}=JSON.parse(jsonSelected) as {name:string,style:string};
         form.style.cssText="position:absolute;box-shadow:1px 1px 10px black,-1px -1px 12px 1px blue;border-radius:20px;min-height:5vh;z-index:200;background-color:white;display:flex;flex-direction:column;gap:1.5rem;align-items:center;justify-content:center;margin-block:1.5rem;";
         form.id="form-title";
         const {input,label}=Nav.inputComponent(form);
@@ -937,29 +1162,135 @@ class Design{
         input.id="input_title";
         input.name="title";
         label.textContent="your title";
-        const {button:btn}=Misc.simpleButton({anchor:form,bg:Nav.btnColor,color:"White",text:item.name,time:400,type:"button"});
+        const {button:btn}=Misc.simpleButton({anchor:form,bg:Nav.btnColor,color:"White",text:name,time:400,type:"button"});
         btn.disabled=true;
         btn.style.marginBottom="2rem;"
         col.appendChild(form);
         input.onchange=(ev:Event)=>{
             if(ev){
                 btn.disabled=false;
-                const value=(ev.currentTarget as HTMLInputElement).value;
-                (input as HTMLInputElement).value=value;
+                const title=(ev.currentTarget as HTMLInputElement).value;
+                (input as HTMLInputElement).value=title;
             }
         };
         btn.onclick=(e:MouseEvent)=>{
             if(e){
+                const parseSelected=JSON.parse(jsonSelected) as {name:string,style:string};
                     const title=(input as HTMLInputElement).value as string;
-                    this.htmlelement.designElement(Main.textarea as HTMLElement,"p",title,item.attr);
+                    parseSelected.name=title;
+                    const jsonReSelected=JSON.stringify(parseSelected)
+                    this.designElement({
+                        parent:Main.textarea as HTMLElement,
+                        eleName:"p",
+                        selected:jsonReSelected,
+                        idEnum,
+                        attr,
+                        type,
+                        idValues
+
+                    });
                     Misc.fadeOut({anchor:popup,xpos:50,ypos:100,time:400});
                     setTimeout(()=>{parent.removeChild(popup);},398);
                 
             }
         };
-    }
-    addFill(parent:HTMLElement){
+    };
+    //FROM DESIGN
+     designElement({parent,eleName,selected,idEnum,attr,type,idValues}:{
+        parent: HTMLElement,
+        eleName:string,
+        selected:string,
+        idEnum:idEnumType,
+        attr:idEnumType,
+        type:idEnumType,
+        idValues:idValueType[]
+    }){
+        //THIS ADDS ELEMENTS OTHER THAN UL,BLOCKQUOTE,TIME,A,IMG FROM MAIN CLASS
+        
+        const {name,style}=JSON.parse(selected) as {name:string,style:string};
+        const rand=Math.floor(Math.random() * 1000);
+        const less400=window.innerWidth < 400;
+        const divCont=document.createElement('div');
+        divCont.id=`divCont-design-${rand}`;
+
+        divCont.style.paddingInline=less400 ? "0rem":"1.5rem";
+        this._modSelector.dataset.insertcssClassIntoComponents({
+            target:divCont,
+            level:"element",
+            headerType:undefined,
+            id:"divContId",
+            loc:"htmlElement",
+            type:"design"
+
+        });
+        const target = document.createElement(eleName); //ICON.NAME=ELE TYPE
+        target.id=`${eleName}-${rand}`;
+        const eleId=target.id;
+        target.textContent=name;
+        target.classList.add(style);
+        
+        //THIS ADDS ATTRIBUTES ANC CLASSES TO THE ELEMENTS FROM DATASET CLASS
+        idValues.push({eleId,id:"name",attValue:`${eleName}`});
+        idValues.push({eleId,id:"design",attValue:"design"});
+        Main.container=document.querySelector("section#main") as HTMLElement;
+        const checkBgShade=([...(Main.container as HTMLElement).classList as any] as string[]).includes("bgShade");
+        if(checkBgShade){
+            target.classList.add("background-bgShade");
+                divCont.classList.add("background-bgShade");
+            }
+            if(eleName==="p"){
+                target.style.lineHeight="1.75rem";
+            }
+            
+            // ADDING BACKGROUND WHITE TO ELEMENTS WITH BACKGROUND COLOR
+            divCont.appendChild(target);
+            parent.appendChild(divCont);
+            Misc.matchMedia({parent:divCont,maxWidth:920,cssStyle:{marginInline:"1.5rem"}});
+            Misc.matchMedia({parent:divCont,maxWidth:420,cssStyle:{marginInline:"10px"}});
+            Misc.fadeIn({anchor:divCont,xpos:60,ypos:100,time:600});
+            idValues.push({eleId,id:idEnum,attValue:idEnum});
+            idValues.push({eleId,id:attr,attValue:idEnum});
+            idValues.push({eleId,id:type,attValue:type});
+            this.element={...this.element,name:eleName,eleId,type,attr:idEnum}
+           
+            this.elementAdder({target:target,element:this.element,idValues,type:"isArt"}).then(async(res)=>{
+                if(res){
+                   
+                    const ele=res.ele as elementType;
+                    this._modSelector.count=this._modSelector.count + 1;
+                    divCont.setAttribute("data-placement",`${ele.placement}-A`);
+                    
+                    
+                    this._modSelector.footerPlacement();//this shifts footer placement 
+                    const maxcount=ModSelector.maxCount(this._modSelector.blog);
+                    localStorage.setItem("placement",String(maxcount+1));
+                    divCont.addEventListener("click", async(e: MouseEvent) => {
+                        if (e) {
+                            // console.log("click : 521:",target)
+                            res.target.classList.toggle("isActive");
+                            divCont.classList.toggle("isActive");
+                            const focusOptions: focusOptions = { focusVisible: false, preventScroll: false }
+                            target.focus(focusOptions);
+                            
+                            this.updateElement({ target: res.target, idValues });
+                            if(([...target.classList as any] as string[]).includes("isActive")){
+                                
+                                await this.removeMainElement({parent,divCont:divCont,target:res.target,idValues});
+                            }
+                            
+                        }
+                    });
+                }
+            });
+            
+            this._modSelector.editElement({target,idValues})//pulls flex if exist from target attrubutes
+            Misc.matchMedia({parent:divCont,maxWidth:400,cssStyle:{paddingInline:"0px",marginInline:"0px;"}});
+    
+    };
+
+    addFill({parent,idValues}:{parent:HTMLElement,idValues:idValueType[]}){
         parent.style.position="relative";
+        const desc="enter the number of words to be added then click on the button below to complete the request. it adds words after the original content."
         Header.cleanUpByID(parent,"popup-title-art");
         if(!Main.textarea) return;
         const popup=document.createElement("div");
@@ -976,11 +1307,12 @@ class Design{
         row.style.cssText="width:100%;justify-content:flex-start;align-items:center;";
         [...getParas].map((para,index)=>{
             if(para){
-                para.setAttribute("data-addfill",`${index+1}`);
-                para.classList.add("addFill");
+               
                 const col=document.createElement("div");
                 col.className="col-md-6";
                 col.id=`row-column-${index}`;
+                col.setAttribute("data-addfill",desc);
+                col.classList.add("addFill");
                 col.classList.add("add-fill-row-col");
                 col.setAttribute("is-column","true");
                 col.style.cssText="display:flex;align-items:center;justify-content:center;flex-wrap:wrap;position:relative;width:fit-content;padding-inline:1rem;min-height:5vh;border-radius:12px;box-shadow:1px 1px 6px 1px lightgrey;padding-block:2rem;flex:1 1 50%;max-height:40vh;overflow-y:scroll;height:auto;";
@@ -998,6 +1330,8 @@ class Design{
                 text_.textContent=para.textContent;
                 text_.style.cssText="margin:auto;padding:1.5rem;background:#0C090A;color:rgb(12, 175, 255);border-radius:inherit;margin-left:1.5rem;";
                 divCont.appendChild(text_);
+                divCont.setAttribute("data-fillCount",String(index+1));
+                divCont.classList.add("fillCount");
                 const {label,input,formGrp}=Nav.inputComponent(divCont);
                 label.textContent="word count";
                 input.id="word-count";
@@ -1023,18 +1357,28 @@ class Design{
                 popup.appendChild(row);
                 parent.appendChild(popup);
                 Misc.fadeIn({anchor:popup,xpos:100,ypos:50,time:400});
-                btn.onclick=(e:MouseEvent)=>{
+                 btn.onclick=async(e:MouseEvent)=>{
                     if(e){
                         const value=(input as HTMLInputElement).value;
                         const words=Misc.wordGen(parseInt(value as string)).join(" ");
-                        para.textContent +=" " + words;
+                        para.textContent +="added:" + words;
+                        const getSelRowCol=this._modSelector.dataset.getAttribute({target:para,id:"selRowCol"});
                         [...getParas].map(child=>{
                             if(child){
                                 child.classList.remove("addFill");
-                                // this._modSelector.updateElement(child);
                             }
                         });
-                        this._modSelector.updateElement(para);
+                        if(getSelRowCol){
+                            const selRowCol:selRowColType=JSON.parse(getSelRowCol) as selRowColType;
+
+                           await this._modSelector.updateElement({target:para,idValues,selRowCol}).then(async(res)=>{
+                            if(res?.ele){
+                                Misc.message({parent,msg:`${res.ele.eleId}:added`,type_:"success",time:600});
+                            }
+                           });
+                        }else{
+                            this.updateElement({target:para,idValues});
+                        }
                         Misc.growOut({anchor:popup,scale:0,opacity:0,time:400});
                         setTimeout(()=>{parent.removeChild(popup)},398);
                     }
@@ -1051,7 +1395,7 @@ class Design{
                 [...getParas].map(child=>{
                     if(child){
                         child.classList.remove("addFill");
-                        this._modSelector.updateElement(child);
+                        this.updateElement({target:child,idValues});
                     }
                 });
                 Misc.growOut({anchor:popup,scale:0,opacity:0,time:400});
@@ -1059,7 +1403,7 @@ class Design{
             }
         };
         //DELETE
-    }
+    };
     regExp(item:{str:string,frontReg:RegExp,backReg:RegExp}):{arrWords:{word:string,frIndex:number,bkIndex:number}[]}{
         const {str,frontReg,backReg}=item;
         const frmatches=str.matchAll(frontReg) as any;
@@ -1073,14 +1417,118 @@ class Design{
             }
         }
         return {arrWords:arr}
-    }
-    async promRemoveMainElement(item:{parent:HTMLElement,divCont:HTMLElement,target:HTMLElement}):Promise<{parent:HTMLElement}>{
-        const {parent,divCont,target}=item;
-        return new Promise(resolver=>{
-            resolver(this.removeMainElement(parent,divCont,target));
-        }) as Promise<{parent:HTMLElement}>;
-    }
-    removeMainElement(parent:HTMLElement,divCont:HTMLElement,target:HTMLElement):{parent:HTMLElement}{
+    };
+   
+    elementAdder({target,element,idValues,type}:{
+            target:HTMLElement,
+            element:elementType,
+            idValues:idValueType[],
+            type:attrDesignEnumType
+    
+        }):Promise<{ele:elementType|undefined,idValues:idValueType[],target:HTMLElement}>{
+           
+            const len=this._modSelector.elements.length;
+            const eleId=target.id;
+            const blog=this._modSelector.blog;
+            const placement=this._modSelector.placement;
+            const {cleaned:classList}=this._modSelector.removeClasses({target,classes:["isActive","box-shadow"]})
+            const check=this._modSelector.elements.find(ele_=>(ele_.eleId===eleId));
+            if(!check){
+                element={...element,
+                    id:len,
+                    blog_id:blog.id,
+                    placement:placement,
+                    inner_html:target.innerHTML,
+                    cssText:target.style.cssText,
+                    class:classList.join(" "),
+                    attr:type,
+                    type:element.type
+                };
+                const idEnum:idEnumType=element.attr as idEnumType;
+                idValues.push({eleId,id:"elementId",attValue:eleId});
+                idValues.push({eleId,id:idEnum,attValue:idEnum});
+                idValues.push({eleId,id:"ID",attValue:eleId});
+                idValues.push({eleId,id:"design",attValue:"design"});
+                idValues.push({eleId,id:"type",attValue:"design"});
+            
+                 //----------//---POPULATING ATTRIBUTES TO TARGET && ADDS ATTR/TYPE/IMGKEY ATTRIBUTES FROM IDVALUES------\\-----///
+                 const {idValues:retIdValues2}=this._modSelector.dataset.coreDefaultIdValues({
+                    target,
+                    level:"element",
+                    sel:null,
+                    row:null,
+                    col:null,
+                    ele:element,
+                    loc:"htmlElement",
+                    idValues,
+                    clean:false
+                });
+                idValues=retIdValues2;
+                idValues=Dataset.removeIdValueDuplicates({arr:idValues,eleId});
+                const getEleIds=idValues.filter(kat=>(kat.eleId===eleId));
+                this._modSelector.dataset.idValues=this._modSelector.dataset.idValues.concat(getEleIds);
+                this._modSelector.dataset.populateElement({target,selRowColEle:element,level:"element",loc:"htmlElement",clean:false,idValues});
+                getEleIds.map(kat=>{
+                    const attrTest=attrEnumArrTest(element);
+                    const typeTest=typeEnumArrTest(element);
+                    const attr=attrEnumArr.includes(kat.id);
+                    const type=typeEnumArr.includes(kat.id as typeEnumType);
+                    if(kat.attValue){
+                        if(!attrTest && attr){
+                            element.attr=kat.attValue;
+                        }else if(!typeTest && type){
+                            element.type=kat.attValue;
+                        }else if(!element.imgKey && kat.id==="imgKey"){
+                            element.imgKey=kat.attValue;
+                        }
+                    }
+                });
+         
+               
+               //----------//---POPULATING ATTRIBUTES TO TARGET && ADDS ATTR/TYPE/IMGKEY ATTRIBUTES FROM IDVALUES------\\-----///
+                this._modSelector.elements.push(element);
+                const elements=this._modSelector.elements;
+                this._modSelector.blog={...this._modSelector.blog,elements:elements}
+                this._modSelector.placement=placement + 1;
+            }
+            idValues=Dataset.removeIdValueDuplicates({arr:idValues,eleId});
+            return Promise.resolve({ele:element,idValues,target}) as Promise<{ele:elementType|undefined,idValues:idValueType[],target:HTMLElement}>;
+    };
+
+
+    updateElement({target,idValues}:{target:HTMLElement,idValues:idValueType[]}):{ele:elementType,target:HTMLElement,idValues:idValueType[]}{
+        const eleId=target.id;
+        const getEleIds=idValues.filter(kat=>(kat.eleId===eleId));
+        this._modSelector.elements=this._modSelector.elements.map((ele)=>{
+        if(ele.eleId===eleId){
+            ele.cssText=target.style.cssText;
+            ele.class=target.className;
+            ele.inner_html=target.innerHTML;
+            this.element=ele;
+            this._modSelector.dataset.populateElement({target,selRowColEle:ele,level:"element",loc:"htmlElement",clean:false,idValues});
+            getEleIds.map(kat=>{
+                const attrTest=attrEnumArrTest(ele);
+                const typeTest=typeEnumArrTest(ele);
+                const attr=attrEnumArr.includes(kat.id);
+                const type=typeEnumArr.includes(kat.id as typeEnumType);
+                if(kat.attValue){
+                    if(!attrTest && attr){
+                        ele.attr=kat.attValue;
+                    }else if(!typeTest && type){
+                        ele.type=kat.attValue;
+                    }else if(!ele.imgKey && kat.id==="imgKey"){
+                        ele.imgKey=kat.attValue;
+                    }
+                }
+            });
+        }
+        return ele;
+        });
+        return {ele:this.element,target,idValues}
+    };
+
+
+   async removeMainElement({parent,divCont,target,idValues}:{parent:HTMLElement,divCont:HTMLElement,target:HTMLElement,idValues:idValueType[]}):Promise<{parent:HTMLElement,divCont:HTMLElement,target:HTMLElement,idValues:idValueType[]}>{
         const check=([...target.classList as any] as string[]).includes("isActive");
         Header.cleanUpByID(parent,"xIconDiv-design");
         
@@ -1099,42 +1547,62 @@ class Design{
             divCont.appendChild(xIconDiv);
             xIconDiv.addEventListener("click",(e:MouseEvent)=>{
                 if(e){
-                    this.promRemoveElement(target).then(async(res)=>{
-                        if(res){
-                            this._modSelector.shiftPlace(res.placement);///REINDEX PLACEMENT!!!!
+                    this.removeElement({target,idValues}).then(async(res)=>{
+                        if(res?.ele && res?.target && res?.idValues){
+                            const ele=res.ele
+                            this._modSelector.shiftPlace(ele.placement);///REINDEX PLACEMENT!!!!
+                            Misc.message({parent,msg:`item:${ele.name}-${ele.placement} was removed`,type_:"success",time:700});
+                            Misc.fadeOut({anchor:divCont,xpos:100,ypos:100,time:500});
+                            
+                            setTimeout(()=>{
+                                ([...parent.children as any] as HTMLElement[]).map(child=>{
+                                    if(child && child.id===divCont.id){
+                                        parent.removeChild(child);
+                                    }
+                                });
+                            },480);
+                        }else{
+                            Misc.message({parent,msg:`item not removed`,type_:"error",time:1200});
                         }
                     });
-                    Misc.fadeOut({anchor:divCont,xpos:100,ypos:100,time:500});
-                    setTimeout(()=>{
-                        ([...parent.children as any] as HTMLElement[]).map(child=>{
-                            if(child && child.id===divCont.id){
-                                console.log("divCont",divCont)
-                                parent.removeChild(child);
-                            }
-                        });
-                    },480);
                 }
             });
          }else{
             Header.cleanUpByID(parent,"xIconDiv-design");
          }
-         return {parent}
+         return new Promise(resolver=>{
+            if(check){
+                resolver({parent,divCont,target,idValues});
+            }
+         }) as Promise<{parent:HTMLElement,divCont:HTMLElement,target:HTMLElement,idValues:idValueType[]}>;
     }
-    promRemoveElement(target:HTMLElement){
-        return new Promise((resolve)=>{
-            resolve(this.removeElement(target));
-        }) as Promise<elementType|undefined>;
+    
+    removeClasses({target,classes}:{target:HTMLElement,classes:string[]}):{cleaned:string[],target:HTMLElement}{
+        const targetClasses=([...target.classList as any] as string[]);
+        targetClasses.map((cl,index)=>{
+            const check=classes.find(cls=>cls===cl);
+            if(check){
+                targetClasses.splice(index,1);
+            };
+        });
+        return {cleaned:targetClasses,target}
     }
-    removeElement(target:HTMLElement):elementType|undefined{
+    removeElement({target,idValues}:{target:HTMLElement,idValues:idValueType[]}):Promise<{target:HTMLElement,ele:elementType|undefined,idValues:idValueType[]}>{
         let ele_:elementType|undefined;
-        this._modSelector._elements.map((ele,index)=>{
+        const eleId=target.id;
+        this._modSelector.elements.map((ele,index)=>{
                 if(ele.eleId===target.id){
-                    this._modSelector._elements.splice(index,1);
-                    ele_= ele;
+                    this._modSelector.elements.splice(index,1);
+                    idValues.map((kat,index)=>{
+                        if(kat.eleId===eleId){
+                            idValues.splice(index,1);
+                            ele_=ele;
+                        }
+                    });
                 }
         });
-        this._modSelector.elements=this._modSelector._elements;
-        return ele_
+    
+        return Promise.resolve({target,idValues,ele:ele_}) as Promise<{target:HTMLElement,ele:elementType|undefined,idValues:idValueType[]}>;
     }
     static hexToRgbA(hex:string){
         let c:any;
@@ -1147,6 +1615,13 @@ class Design{
             return 'rgba('+[(c>>16)&255, (c>>8)&255, c&255].join(',')+',1)';
         }
         throw new Error('Bad Hex');
+    };
+
+    static HexCode(color:string){
+        const rgba = color.replace(/^rgba?\(|\s+|\)$/g, '').split(',');
+        const hex = `#${((1 << 24) + (parseInt(rgba[0]) << 16) + (parseInt(rgba[1]) << 8) + parseInt(rgba[2])).toString(16).slice(1)}`;
+        
+        return hex;
     }
 }
 export default Design;

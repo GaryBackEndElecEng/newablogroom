@@ -13,12 +13,18 @@ import { onChangeVerifyType } from '../../components/editor/Types';
 
 
 class Register {
+    public static readonly msg:string="When Registering, we Keep Your Information Secret and Provide the Means Allowing You the Option on keeping your Information hiding with the highest regard to safeguard your email.";
+   public readonly btnColor:string="#05099c";
     regSignin:RegSignIn;
     onchangeparams:onChangeVerifyType;
     constructor(private _modSelector:ModSelector,private _service:Service,private _user:User){
         this.regSignin=new RegSignIn(this._modSelector,this._service,this._user);
         this.onchangeparams={name:null,email:null,tel:null};
-    }
+        this.btnColor="#05099c";
+    };
+
+
+
     main(item:{parent:HTMLElement,count:number}):Promise<number>{
         const {parent,count}=item;
         const less400=window.innerWidth < 400;
@@ -41,7 +47,7 @@ class Register {
         this.register({mainContainer:container,section:innerContainer,less400,less900});
         this.resetPassword({parent:container,less400,less900});
         parent.appendChild(container)
-        const {button}=Misc.simpleButton({anchor:parent,bg:Nav.btnColor,color:"white",text:"sign in",type:"button",time:400});
+        const {button}=Misc.simpleButton({anchor:parent,bg:this.btnColor,color:"white",text:"sign in",type:"button",time:400});
         button.id="button-signin";
         button.onclick=(e:MouseEvent)=>{
             if(e){
@@ -53,10 +59,10 @@ class Register {
         };
        
         Misc.matchMedia({parent:container,maxWidth:400,cssStyle:{paddingInline:"0rem",marginInline:"0rem",marginBlock:"auto"}});
-        return new Promise(resolve=>{
-            resolve(count + 1)
-        }) as Promise<number>;
-    }
+        return Promise.resolve(count + 1) as Promise<number>;
+    };
+
+
 
     displayFailedSignin(item:{parent:HTMLElement,less400:boolean,less900:boolean}){
         const {parent,less400,less900}=item;
@@ -90,7 +96,11 @@ class Register {
             ],{duration:1700,iterations:1,"easing":"ease-in-out"});
             
         }
-    }
+    };
+
+
+
+
     getUrlError():string|null{
         const params: { name: string, value: RegExp }[] = [{ name: "account already exist", value: /(OAuthAccountNotLinked)/ },{ name: "account missed configured", value: /(OAuthCallback)/ },{ name: " wrong password or forgotten password", value: /(CredentialsSignin)/ }];
         const url=new URL(window.location.href);
@@ -104,9 +114,12 @@ class Register {
             }
         });
         return word;
-    }
+    };
+
+
+
     register(item:{mainContainer:HTMLElement,section:HTMLElement,less400:boolean,less900:boolean}){
-        const {mainContainer,section,less400,less900}=item;
+        const {mainContainer,section,less400}=item;
         //ADD LOG AND ENSURE SECRETLEY
         //REMOVING SIGNIN AND BUILDING REGISTER
         Header.cleanUpByID(section,"signIn-main");
@@ -122,8 +135,7 @@ class Register {
         section.style.backgroundColor="transparent";
         container.style.cssText = "position:relative;margin-inline:auto;margin-block:1rem;display:flex;justify-content:flex-start;flex-direction:column;align-items:center;gap:1rem;padding-inline:2rem;padding-block:1rem;padding-inline:3rem;backround-color:white;border-radius:16px;background-color:white;padding:1rem;font-size:18px;max-width:650px;width:100%;";
         container.style.zIndex="0";
-        // container.style.inset=section.style.inset;
-        //LOGO
+       
         const paraLogo=document.createElement("p");
         paraLogo.id="paraLogo";
         paraLogo.style.cssText="margin-inline;auto;font-family:LobsterTwo-Regular;color:white;font-size:18px;padding-inline:1rem;line-height:2.75rem;border-radius:15px;background-color:#0C090A";
@@ -132,7 +144,7 @@ class Register {
         img.alt="www.ablogroom.com";
         img.style.cssText="shape-outside:circle(50%);border-radius:50%;aspect-ratio: 1 / 1;width:155px;filter:drop-shadow(0 0 0 0.5rem white);float:left;line-height:2.54rem;margin-right:1rem;margin-block:1.5rem;box-shadow:1px 1px 12px 1px white;";
         paraLogo.appendChild(img);
-        paraLogo.innerHTML+="When Registering, we Keep Your Information Secret and Provide the Means Allowing You the Option on keeping your Information hiding with the highest regard to safeguard your email.";
+        paraLogo.innerHTML+=Register.msg;
         container.appendChild(paraLogo);
         //LOGO
        
@@ -150,7 +162,7 @@ class Register {
         name.placeholder="full name";
         const {input:email,label:lemail,formGrp:femail}=Nav.inputComponent(form);
         email.name="email";
-        email.pattern="[0-9a-zA-Z]{2,}\@[a-z]{2,}\.[a-z]{2,3}";
+        email.pattern="[a-zA-Z0-9.-]{3,}@[a-z]{3,}.[a-z]{2,3}";
         email.id="register-form-email";
         email.type="email";
         email.autocomplete="on";
@@ -164,7 +176,7 @@ class Register {
         divPass.style.paddingInline=less400? "3px":"1rem";
         const {input:pass,label:lpass,formGrp:fpass}=Nav.inputComponent(divPass);
         pass.name="password";
-        pass.pattern="[0-9a-zA-Z\?\!]{5,}";
+        pass.pattern="[0-9a-zA-Z?!]{5,}";
         pass.id="register-form-password";
         pass.type="password";
         pass.value="";
@@ -174,7 +186,7 @@ class Register {
         pass.placeholder="at least five characters please";
         const {input:vpass,label:lvpass,formGrp:fvpass}=Nav.inputComponent(divPass);
         vpass.name="verify-password";
-        vpass.pattern="[0-9a-zA-Z\?\!]{5,}";
+        vpass.pattern="[0-9a-zA-Z?!]{5,}";
         vpass.id="register-form-verify-password";
         vpass.type="password";
         vpass.autocomplete="on";
@@ -199,7 +211,7 @@ class Register {
         showinfo.checked=true;
         lshowinfo.setAttribute("for",pass.id);
         lshowinfo.textContent="show your name and email?";
-        const {button:submit}=Misc.simpleButton({anchor:form,type:"submit",bg:Nav.btnColor,color:"white",text:"submit",time:400});
+        const {button:submit}=Misc.simpleButton({anchor:form,type:"submit",bg:this.btnColor,color:"white",text:"submit",time:400});
         submit.disabled=true;
         email.onchange=(e:Event)=>{
             if(e){
@@ -260,12 +272,16 @@ class Register {
                 });
             }
         };
-    }
+    };
+
+
+
     showPasswordMatch(item:{formPass:HTMLElement,pass:string,vpass:string|null,change:boolean,btn:HTMLButtonElement}){
         const {formPass,pass,vpass,btn}=item;
         Header.cleanUpByID(formPass,"showPasswordmatch");
-        const checkOne=this.regSignin.pReg.test(pass) ? true:false;
-        const checkTwo=(vpass && this.regSignin.pReg.test(pass) && this.regSignin.pReg.test(vpass) && pass===vpass) ? true:false;
+        const checkOne=this.regSignin.pReg.test(pass);
+        const checkOnea=vpass && this.regSignin.pReg.test(vpass) || false;
+        const checkTwo=(checkOnea && pass===vpass);
         const container=document.createElement("div");
         container.id="showPasswordmatch"
         formPass.style.position="relative";
@@ -313,7 +329,7 @@ class Register {
         popup.appendChild(text);
         const divGrp=document.createElement("div");
         divGrp.style.cssText="margin:auto;display:flex;justify-content:space-around;align-items:center;"
-        const {button:close}=Misc.simpleButton({anchor:divGrp,text:"not now",type:"button",bg:"black",color:"white",time:400});
+        const {button:close}=Misc.simpleButton({anchor:divGrp,text:"not now",type:"button",bg:this.btnColor,color:"white",time:400});
         const {button:upload}=Misc.simpleButton({anchor:divGrp,text:"upload image",type:"button",bg:"blue",color:"white",time:400});
         popup.appendChild(divGrp);
         section.appendChild(popup);
@@ -381,6 +397,7 @@ class Register {
         grpEmail.style.width=less900 ? (less400 ? "100%":"65%"):"75%";
         inEmail.type="text";
         inEmail.name="email";
+        inEmail.pattern="[a-zA-Z0-9.-]{3,}@[a-z]{3,}.[a-z]{2,3}";
         inEmail.placeholder="myemail@mail.com";
         inEmail.autocomplete="email";
         inEmail.id="reset-Email";
@@ -434,7 +451,7 @@ class Register {
                 getBtn.disabled=this.verifyResetPassword({onchangeparams:this.onchangeparams,btn:button});
             }
         };
-        const {button}=Misc.simpleButton({anchor:form,bg:Nav.btnColor,text:"submit",type:"submit",time:400,color:"white"});
+        const {button}=Misc.simpleButton({anchor:form,bg:this.btnColor,text:"submit",type:"submit",time:400,color:"white"});
         button.id="reset-btn";
         container.appendChild(form);
         parent.appendChild(container);
@@ -498,7 +515,7 @@ class Register {
         setTimeout(()=>{
             Misc.growOut({anchor:container,time:1200,scale:0,opacity:0});
             parent.removeChild(container);
-            // window.history.go(-1);
+            
         },time);
 
     }

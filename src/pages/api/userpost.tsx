@@ -1,12 +1,7 @@
-import { PrismaClient } from "@prisma/client";
 import { NextApiRequest, NextApiResponse } from "next";
 import { getErrorMessage } from "@/lib/errorBoundaries";
-import { postType, userType } from "@/components/editor/Types";
 import prisma from "@/prisma/prismaclient";
 
-
-// const EMAIL = process.env.EMAIL as string;
-// const PASSWORD = process.env.PASSWORD as string;
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
 
@@ -23,21 +18,22 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
                 });
                 if (posts) {
                     res.status(200).json(posts);
+                    return await prisma.$disconnect();
                 } else {
-                    res.status(400).json({ msg: "no post found" })
+                    res.status(400).json({ msg: "no post found" });
+                    return await prisma.$disconnect();
                 }
             } catch (error) {
                 const msg = getErrorMessage(error);
                 console.error(msg);
                 res.status(400).json(msg);
-
-            } finally {
                 return await prisma.$disconnect();
-            }
+
+            };
         } else {
             res.status(400).json({ msg: "No ID: unauthorized" });
             return await prisma.$disconnect();
-        }
+        };
     } else if (req.method === "DELETE") {
         const get_id = Number(req.query.id);
         if (get_id) {
@@ -49,19 +45,20 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
                     }
                 });
                 if (post_del) {
-                    await markDelete({ imgKey: post_del.imageKey })
+                    await markDelete({ imgKey: post_del.imageKey });
                     res.status(200).json(post_del);
+                    return await prisma.$disconnect();
                 } else {
-                    res.status(400).json({ msg: "no post deleted" })
+                    res.status(400).json({ msg: "no post deleted" });
+                    return await prisma.$disconnect();
                 }
             } catch (error) {
                 const msg = getErrorMessage(error);
                 console.error(msg);
                 res.status(400).json(msg);
-
-            } finally {
                 return await prisma.$disconnect();
-            }
+            };
+
         } else {
             res.status(400).json({ msg: "no ID, delete failed" });
             return await prisma.$disconnect();
@@ -70,9 +67,6 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         res.status(400).json({ msg: "unauthorized" });
         return await prisma.$disconnect();
     }
-
-
-
 
 }
 
@@ -90,8 +84,7 @@ async function markDelete(item: { imgKey: string | null }) {
         });
     } catch (error) {
         const msg = getErrorMessage(error);
-        console.error(msg)
-    } finally {
+        console.error(msg);
         return await prisma.$disconnect();
-    }
+    };
 }

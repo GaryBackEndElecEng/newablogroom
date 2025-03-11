@@ -1,14 +1,11 @@
 import {FaCrosshairs,FaPython, FaHtml5, FaJava} from "react-icons/fa";
 import { TbJson } from "react-icons/tb";
-import { RiJavascriptFill } from "react-icons/ri";
 import ModSelector from "../editor/modSelector";
-import { elementType, userType } from "../editor/Types";
+import { arrDivContType, elementType } from "../editor/Types";
 import Misc from "./misc";
 import { FaCreate } from "./ReactIcons";
 import Service from "./services";
-import Header from "../editor/header";
-import { SiJson } from "react-icons/si";
-import User from "../user/userMain";
+import { idValueType } from "@/lib/attributeTypes";
 
 
 class PasteCode{
@@ -26,11 +23,11 @@ class PasteCode{
             class: "d-flex flex-column align-items-start",
             inner_html: "",
             cssText: "padding:0rem;width:100%;margin-inline:0rem;min-height:40vh;border-radius:12px;padding:1rem;",
-            attr:"data-is-code-paste",
             img: undefined,
             imgKey:undefined,
             blog_id:0,
-            type:"Java"
+            type:"pasteCode",
+            attr:"isPasteCode"
             };
             this.typeArr=["select","Java","Python","HTML","JSON"]
     };
@@ -61,24 +58,28 @@ class PasteCode{
     }
 
     ///-----------------GETTERS/SETTERS-----------------///
-    showClean(item:{divCont:HTMLElement,target:HTMLElement,element:elementType}){
-            const {divCont,target,element}=item;
+    showClean({divCont,target,element,idValues}:{divCont:HTMLElement,target:HTMLElement,element:elementType,idValues:idValueType[]}):arrDivContType{
             const less900= window.innerWidth < 900;
             const less400= window.innerWidth < 400;
+            const node=element.name;
             ////-------TARGET--------//
             //PARENT==INJECTOR
             const css_col="margin-inline:auto;display:flex;flex-wrap:wrap;flex-direction:column;justify-content:center;align-items:center;gap:0rem;width:100%;max-width:800px;";
-            divCont.id="pasterCode-main-divCont";
             divCont.className="eleContainer";
             divCont.style.cssText=css_col;
             divCont.style.padding="1rem";
             divCont.style.paddingInline=less900 ? (less400 ? "0rem":"0.5rem") :"1rem";
-            target.setAttribute("data-is-code-paste","true");
             target.setAttribute("name",element.name);
-            target.setAttribute("type",element.type ? element.type :"no-type");
             target.setAttribute("is-element","true");
-            target.setAttribute("type",element.type ? element.type:"Java");
-            target.id=element.eleId
+            target.id=element.eleId;
+            const eleId=target.id;
+            idValues.push({eleId,id:"isPasteCode",attValue:"isPasteCode"});
+            idValues.push({eleId,id:"name",attValue:node});
+            idValues.push({eleId,id:"isElement",attValue:"true"});
+            idValues.push({eleId,id:"pasteCode",attValue:"pasteCode"});
+            idValues.push({eleId,id:"attr",attValue:String(element.attr)});
+            idValues.push({eleId,id:"editableFalse",attValue:"false"});
+            this._modSelector.dataset.populateElement({target,selRowColEle:element,idValues,level:"element",loc:"htmlElement",clean:true});
             target.className=element.class
             target.innerHTML=element.inner_html;
             target.style.cssText=element.cssText;
@@ -86,8 +87,8 @@ class PasteCode{
             target.style.background="black";
             target.style.color="white";
             divCont.classList.remove("isActive");
+            divCont.appendChild(target);
             const getPre=target.querySelector(`pre#pre`) as HTMLElement;
-            if(!getPre) return;
                 getPre.style.padding=less900 ? (less400 ? "0.25rem":"0.5rem"):"1rem";
                 getPre.style.textAlign="left";
                     getPre.setAttribute("spellcheck","false");
@@ -97,33 +98,88 @@ class PasteCode{
                     getPre.classList.add("text-align-start");
                     getPre.removeAttribute("contenteditable");
                 
-            // parent.appendChild(divCont);
+           
             
             Misc.growIn({anchor:divCont,scale:0,opacity:0,time:400});
-    }
-    initPasteCode(item:{injector:HTMLElement}){
-        const {injector}=item;
-        this.main({parent:injector,element:this.element,isNew:true,isClean:false});
-    }
-    main(item:{parent:HTMLElement,element:elementType,isNew:boolean,isClean:boolean}){
-        const {parent,isNew,isClean,element}=item;
+            const arrDivCont:arrDivContType={divCont,placement:element.placement,target,isNormal:false,ele:element,chart:null,sel:null}
+            return arrDivCont
+    };
+
+
+
+    showCode({divCont,target,element,idValues}:{divCont:HTMLElement,target:HTMLElement,element:elementType,idValues:idValueType[]}):arrDivContType{
+            const less900= window.innerWidth < 900;
+            const less400= window.innerWidth < 400;
+            const node=element.name;
+            ////-------TARGET--------//
+            //PARENT==INJECTOR
+            const css_col="margin-inline:auto;display:flex;flex-wrap:wrap;flex-direction:column;justify-content:center;align-items:center;gap:0rem;width:100%;max-width:800px;";
+            divCont.id="pasterCode-main-divCont";
+            divCont.className="eleContainer";
+            divCont.style.cssText=css_col;
+            divCont.style.padding="1rem";
+            divCont.style.paddingInline=less900 ? (less400 ? "0rem":"0.5rem") :"1rem";
+            target.setAttribute("name",element.name);
+            target.setAttribute("is-element","true");
+            target.id=element.eleId;
+            const eleId=target.id;
+            idValues.push({eleId,id:"isPasteCode",attValue:"isPasteCode"});
+            idValues.push({eleId,id:"name",attValue:node});
+            idValues.push({eleId,id:"isElement",attValue:"true"});
+            idValues.push({eleId,id:"pasteCode",attValue:"pasteCode"});
+            idValues.push({eleId,id:"attr",attValue:String(element.attr)});
+            idValues.push({eleId,id:"editableFalse",attValue:"false"});
+            this._modSelector.dataset.populateElement({target,selRowColEle:element,idValues,level:"element",loc:"htmlElement",clean:false});
+            target.className=element.class
+            target.innerHTML=element.inner_html;
+            target.style.cssText=element.cssText;
+            target.style.paddingInline=less900 ? (less400 ? "0.25rem":"0.5rem"):"1rem";
+            target.style.background="black";
+            target.style.color="white";
+            divCont.classList.remove("isActive");
+            const getPre=target.querySelector(`pre#pre`) as HTMLElement;
+                getPre.style.padding=less900 ? (less400 ? "0.25rem":"0.5rem"):"1rem";
+                getPre.style.textAlign="left";
+                    getPre.setAttribute("spellcheck","false");
+                    getPre.setAttribute("is-element","true");
+                    getPre.classList.remove("isActive");
+                    getPre.classList.remove("text-align-center");
+                    getPre.classList.add("text-align-start");
+                    getPre.removeAttribute("contenteditable");
+                
+      
+            
+            Misc.growIn({anchor:divCont,scale:0,opacity:0,time:400});
+            const arrDivCont:arrDivContType={divCont,placement:element.placement,target,isNormal:false,ele:element,chart:null,sel:null}
+            return arrDivCont
+    };
+
+
+
+    initPasteCode({injector,idValues}:{injector:HTMLElement,idValues:idValueType[]}){
+        
+      this.main({parent:injector,element:this.element,isNew:true,isClean:false,idValues});
+    };
+
+
+    main({parent,isNew,isClean,element,idValues}:{parent:HTMLElement,element:elementType,isNew:boolean,isClean:boolean,idValues:idValueType[]}):arrDivContType|undefined {
+        
         const less900= window.innerWidth < 900;
         const less400= window.innerWidth < 400;
         ////-------TARGET--------//
         //PARENT==INJECTOR
-        const css_col="margin-inline:auto;display:flex;flex-wrap:wrap;flex-direction:column;justify-content:center;align-items:center;gap:0rem;width:100%;max-width:800px;";
+    
         const divCont=document.createElement("div");
         divCont.id="pasterCode-main-divCont";
-        divCont.className="eleContainer";
-        divCont.style.cssText=css_col;
+        this._modSelector.dataset.insertcssClassIntoComponents({target:divCont,level:"element",type:"pasteCode",headerType:undefined,id:"divContId",loc:"htmlElement"});
         divCont.style.padding="1rem";
         divCont.style.paddingInline=less900 ? (less400 ? "0rem":"0.5rem") :"1rem";
         const target=document.createElement("div");
+        const codeType=element.attr ? element.attr : "java";
         target.setAttribute("data-is-code-paste","true");
         target.setAttribute("name",element.name);
-        target.setAttribute("type",element.type ? element.type :"no-type");
         target.setAttribute("is-element","true");
-        target.setAttribute("type",element.type ? element.type:"Java");
+        target.setAttribute("type",codeType );
         target.id=element.eleId
         target.className=element.class
         target.innerHTML=element.inner_html;
@@ -135,6 +191,8 @@ class PasteCode{
                 const rand=`paste-code-${Math.round(Math.random()*1000)}`
                 this._element={...element,eleId:rand}
                 target.id=rand;
+                const eleId=target.id;
+                
                 ////////////////--------PRE (keeps spacing)--------------------////
                 const pre=document.createElement("pre");
                 pre.id=`pre`;
@@ -155,15 +213,17 @@ class PasteCode{
                                 const value=(e.currentTarget as HTMLSelectElement).value;
                                 // do smething
                                 this.postImage({parent:target,value});
-                                this.element={...this.element,type:value};
+                                this.element={...this.element,attr:value};
+                                idValues.push({eleId,id:"pasteCode",attValue:"pasteCode"});
+                                idValues.push({eleId,id:"isPasteCode",attValue:value});
                                 pre.classList.add(`language-${value.toLowerCase()}`);
                                 target.classList.add(`language-${value.toLowerCase()}`);
-                                target.setAttribute("type",`language-${value}`);
+                                target.setAttribute("type",`data-language-${value}`);
                                 Misc.growOut({anchor:res_.container,scale:0,opacity:0,time:400});
                                 setTimeout(()=>{
                                     target.removeChild(res_.container);
                                 },390);
-                                this._modSelector.promElementAdder(target).then(async(res)=>{
+                                this._modSelector.elementAdder({target,sel:null,rowEle:null,colEle:null,idValues}).then(async(res)=>{
                                     if(res){
                                         const ele=res.ele as elementType;
                                         divCont.setAttribute("data-placement",`${ele.placement}-A`);
@@ -186,7 +246,11 @@ class PasteCode{
                         };
                     }
                 });
-                
+                divCont.appendChild(target);
+                parent.appendChild(divCont);
+                Misc.growIn({anchor:divCont,scale:0,opacity:0,time:400});
+                const arrDivCont:arrDivContType={divCont,placement:element.placement,target,isNormal:false,ele:element,chart:null,sel:null}
+                return arrDivCont
                 ////////////////--------PRE (keeps spacing)--------------------////
                 
             }else if(!isNew && !isClean){
@@ -213,6 +277,13 @@ class PasteCode{
                 this.removeMainElement({parent,divCont,target});
                 this.editElement(target);
                 }
+            
+            Misc.growIn({anchor:divCont,scale:0,opacity:0,time:400});
+            divCont.appendChild(target);
+            const arrDivCont:arrDivContType={divCont,placement:element.placement,target,isNormal:false,ele:element,chart:null,sel:null};
+            Misc.growIn({anchor:divCont,scale:0,opacity:0,time:400});
+            return arrDivCont
+
             }else if(isClean){
 
                 divCont.classList.remove("isActive");
@@ -223,12 +294,16 @@ class PasteCode{
                      getPre.setAttribute("is-element","true");
                      getPre.classList.remove("isActive");
                      getPre.removeAttribute("contenteditable");
+                divCont.appendChild(target);
+                const arrDivCont:arrDivContType={divCont,placement:element.placement,target,isNormal:false,ele:element,chart:null,sel:null};
+                Misc.growIn({anchor:divCont,scale:0,opacity:0,time:400});
+                return arrDivCont
             }
-            divCont.appendChild(target);
-            parent.appendChild(divCont);
             
-            Misc.growIn({anchor:divCont,scale:0,opacity:0,time:400});
-    }
+    };
+
+
+    
    async typeOPtion(item:{parent:HTMLElement,typeArr:string[]}):Promise<{select:HTMLSelectElement,container:HTMLElement}>{
         const {parent,typeArr}=item;
         const container=document.createElement("div");
@@ -246,9 +321,7 @@ class PasteCode{
             option.textContent=type;
             select.appendChild(option);
         });
-        return new Promise(resolver=>{
-            resolver({select,container})
-        }) as Promise<{select:HTMLSelectElement,container:HTMLElement}>;
+        return Promise.resolve({select,container}) as Promise<{select:HTMLSelectElement,container:HTMLElement}>;
 
     }
     postImage(item:{parent:HTMLElement,value:string}){
@@ -294,7 +367,6 @@ class PasteCode{
             if(e){
                 this.promRemoveElement(target).then(async(res)=>{
                     if(res){
-                        this._modSelector.elements=this._modSelector._elements;
                         this._modSelector.shiftPlace(res.placement);///REINDEX PLACEMENT!!!!
                         Misc.message({parent,msg:"deleted",type_:"success",time:800});
                     }
@@ -308,15 +380,13 @@ class PasteCode{
         
     };
     promRemoveElement(target:HTMLElement){
-        return new Promise((resolve)=>{
-            resolve(this.removeElement(target));
-        }) as Promise<elementType|undefined>;
+        return Promise.resolve(this.removeElement(target)) as Promise<elementType|undefined>;
     };
     removeElement(target:HTMLElement):elementType|undefined{
         let ele_:elementType|undefined;
-        this._modSelector._elements.map((ele,index)=>{
+        this._modSelector.elements.map((ele,index)=>{
                 if(ele.eleId===target.id){
-                    this._modSelector._elements.splice(index,1);
+                    this._modSelector.elements.splice(index,1);
                     ele_= ele;
                 }
         });
@@ -327,7 +397,7 @@ class PasteCode{
         if(!getPre) return;
         target.addEventListener("input",(e:Event)=>{
             if(e){
-                this.elements=this._modSelector._elements.map(ele=>{
+                this.elements=this._modSelector.elements.map(ele=>{
                 if(ele.eleId===target.id){
                     console.log(target.style.cssText);
                     ele.cssText=target.style.cssText;
@@ -346,7 +416,7 @@ class PasteCode{
         target.onchange=(e:Event)=>{
            
             if(e){
-                this.elements=this._modSelector._elements.map(ele=>{
+                this.elements=this._modSelector.elements.map(ele=>{
                 if(ele.eleId===target.id){
                     console.log(target.style.cssText);
                     ele.cssText=target.style.cssText;

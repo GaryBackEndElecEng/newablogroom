@@ -13,26 +13,27 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
                 where: { name: name },
                 create: {
                     name: name,
-                    blog_id: blog_id ? blog_id : null,
-                    post_id: post_id ? post_id : null,
-                    count: count ? count : 1
+                    blog_id: blog_id || null,
+                    post_id: post_id || null,
+                    count: count || 1,
                 },
                 update: {
-                    count: count ? count : 1
+                    count: count || 1
                 }
             });
             if (pageCount) {
                 res.status(200).json(pageCount);
                 return await prisma.$disconnect();
             } else {
-                res.status(400).json({ msg: "page count not updated" })
+                res.status(400).json({ msg: "page count not updated" });
+                return await prisma.$disconnect();
             }
         } catch (error) {
             const msg = getErrorMessage(error);
             console.log(msg);
-        } finally {
-            await prisma.$disconnect();
-        }
+            return await prisma.$disconnect();
+        };
+
     } else if (req.method === "GET") {
         const { name, blog_id, post_id } = req.query as { name: string, blog_id: string | undefined, post_id: string | undefined };
         const getBlog_id = blog_id && !isNaN(parseInt(blog_id)) ? parseInt(blog_id) : undefined;
@@ -46,13 +47,18 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
                 const getPage = await prisma.pageCount.create({
                     data: {
                         name: name,
-                        blog_id: getBlog_id ? getBlog_id : undefined,
-                        post_id: getPost_id ? getPost_id : undefined,
+                        blog_id: getBlog_id || null,
+                        post_id: getPost_id || null,
                         count: 1
                     }
                 });
-                if (!getPage) { res.status(400).json({ msg: " not created" }) }
-                else { res.status(200).json(getPage) };
+                if (!getPage) {
+                    res.status(400).json({ msg: " not created" });
+                    return await prisma.$disconnect();
+                } else {
+                    res.status(200).json(getPage);
+                    return await prisma.$disconnect();
+                };
             } else {
                 const getPage = await prisma.pageCount.update({
                     where: { id: pageCount.id },
@@ -60,16 +66,21 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
                         count: pageCount.count + 1,
                     }
                 });
-                if (getPage) { res.status(200).json(getPage) }
-                else { res.status(400).json({ msg: " not updated" }) }
+                if (getPage) {
+                    res.status(200).json(getPage);
+                    return await prisma.$disconnect();
+                } else {
+                    res.status(400).json({ msg: " not updated" });
+                    return await prisma.$disconnect();
+                }
             };
 
         } catch (error) {
             const msg = getErrorMessage(error);
             console.log(msg);
-        } finally {
-            await prisma.$disconnect();
-        }
+            res.status(500).json({ msg })
+        };
+
     } else if (req.method === "DELETE") {
         const { id } = req.query as { id: string };
         if (!id) { res.status(400).json({ msg: "no ID,,try again" }); return await prisma.$disconnect() };
@@ -81,7 +92,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         } catch (error) {
             const msg = getErrorMessage(error);
             console.log(msg);
-            res.status(500).json({ msg: "something went wrong" });
+            res.status(500).json({ msg });
             return await prisma.$disconnect();
         }
     }

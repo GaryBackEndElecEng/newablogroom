@@ -4,16 +4,18 @@ import React from 'react';
 import Quote from './quote';
 import ModSelector from '@/components/editor/modSelector';
 import Service from '@/components/common/services';
-import Htmlpdf from '@/components/common/htmltwocanvas';
 import Htmltwocanvas from '@/components/common/htmltwocanvas';
+import Dataset from '@/components/common/dataset';
 
 export default function Index({ user, list }: { user: userType | null, list: quoteCalcItemType[] }) {
     const clientRef = React.useRef(null);
+    const countRef = React.useRef(0);
     React.useEffect(() => {
-        if (typeof window !== "undefined" && clientRef.current, list) {
+        if (typeof window !== "undefined" && clientRef.current) {
             const target = document.querySelector("div#get-quote-injection") as HTMLElement;
-            if (target) {
-                const modSelector = new ModSelector();
+            if (target && list && countRef.current === 0) {
+                const dataset = new Dataset();
+                const modSelector = new ModSelector(dataset);
                 const service = new Service(modSelector);
                 const html2canvas = new Htmltwocanvas(service);
                 const quote = new Quote(service, user, list, html2canvas);

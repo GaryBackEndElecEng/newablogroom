@@ -1,11 +1,12 @@
 import { FaCrosshairs } from "react-icons/fa";
 import Header from "../editor/header";
 import ModSelector from "../editor/modSelector";
-import { arrImgType3, flexType, imageType } from "../editor/Types";
+import { arrImgType3, imageType } from "../editor/Types";
 import Nav from "../nav/headerNav";
 import {FaCreate} from './ReactIcons';
 import Misc from "./misc";
 import Service from "./services";
+import { idValueType, selRowColType, selRowType } from "@/lib/attributeTypes";
 
 
 
@@ -41,7 +42,7 @@ class LoadMisc {
         return this._arrLoadImgs;
     }
     //Injection:Main.textArea
-    main(parent:HTMLElement){
+    main({parent,idValues}:{parent:HTMLElement,idValues:idValueType[]}){
         Header.cleanUpByID(parent,"loadMisc-popup");
         const css="display:flex;justify-content:center;align-items:center;gap:1rem;flex-direction:column;border-radius:12px;";
         parent.style.zIndex="";
@@ -86,7 +87,7 @@ class LoadMisc {
                                     setTimeout(()=>{
                                         const main_container=parent.parentElement;
                                         if(!main_container) return;
-                                        this.injectImage(main_container,item,css);
+                                        this.injectImage({parent:main_container,item,css,idValues});
                                     },300);
                                 },380);
                             }
@@ -103,12 +104,7 @@ class LoadMisc {
         btnGrp.style.cssText="display:flex;justify-content:center;align-items:center;gap:3rem;;padding-block:3rem;margin-block:2rem;"
         popup.appendChild(btnGrp);
         const {button}=Misc.simpleButton({anchor:btnGrp,text:"close",bg:Nav.btnColor,color:"white",type:"button",time:400});
-        const {button:editor}=Misc.simpleButton({anchor:btnGrp,text:"some",bg:"green",color:"white",type:"button",time:400});
-        editor.onclick=(e:MouseEvent)=>{
-            if(e){
-                
-            }
-        };
+        
         button.onclick=(e:MouseEvent)=>{
             if(e){
                 Misc.fadeOut({anchor:popup,xpos:30,ypos:100,time:400});
@@ -121,16 +117,22 @@ class LoadMisc {
         Misc.matchMedia({parent:popup,maxWidth:400,cssStyle:{width:"auto",marginInline:"0rem",paddingInline:"1rem",paddingBlock:"2rem",inset:"auto",top:"2.5%",left:"0%",right:"0%"}});
     }
     //parent=Injection Main.container
-    injectImage(parent:HTMLElement,item:imageType,css:string){
+    injectImage({parent,item,css,idValues}:{
+        parent:HTMLElement,
+        item:imageType,
+        css:string,
+        idValues:idValueType[],
+
+    }){
         //Parent covers Headers and Footer it searches is-elements>img
         Header.cleanUpByID(parent,"injectImage-popup");
         
         //imgs are the same as above( NEED A FILTER TO ELIMATE TO LOADED IMAGES!!)
         //GETTING ELEMENTS
-        const getElements:HTMLElement[]|null=parent.querySelectorAll("[is-element='true']") as any as HTMLElement[] | null;
-        const getColumns:HTMLElement[]|null=parent.querySelectorAll("[is-column='true']") as any as HTMLElement[] | null;
-        const getRows:HTMLElement[]|null=parent.querySelectorAll("[is-row='true']") as any as HTMLElement[] | null;
-        const imgsFound:arrImgType3[]=this.gettingAllimages({elements:getElements,columns:getColumns,rows:getRows});
+        const rows:HTMLElement[]|null=parent.querySelectorAll("[data-is-row='true']") as any as HTMLElement[] | null;
+        const columns:HTMLElement[]|null=parent.querySelectorAll("[data-is-column='true']") as any as HTMLElement[] | null;
+        const elements:HTMLElement[]|null=parent.querySelectorAll("[is-element='true']") as any as HTMLElement[] | null
+        const imgsFound:arrImgType3[]=this.gettingAllimages({elements,columns,rows,idValues});
         if(imgsFound && imgsFound.length>0){
             
             parent.style.zIndex="";
@@ -187,32 +189,25 @@ class LoadMisc {
                 insert.onclick=(e:MouseEvent)=>{
                     //SELECTED IMAGE TO BE INSERTED
                     if(e){
-                        const shapeOutsides=[imgFound.html.getAttribute("data-shapeoutside-circle"),imgFound.html.getAttribute("data-shapeoutside-square"),imgFound.html.getAttribute("data-shapeoutside-polygon")]
-                        const isShapeOutside=shapeOutsides.filter(isShape=>(isShape !==null));
+                        const selRowCol={...imgFound.selRowCol} as selRowColType; 
+                        const isShapeOutside=this._modSelector.dataset.getAttribute({target:imgFound.html,id:"shapeOutside"});
                         if(imgFound.loc==="element" && !(isShapeOutside && isShapeOutside.length>0)){
                             (imgFound.html as HTMLImageElement).src=item.image;//Changing image
                             (imgFound.html as HTMLImageElement).alt=item.name;//Changing image
-                            const {parsed,isJSON}=Header.checkJson(imgFound.html.getAttribute("flex"));
-                            const getImgKey=imgFound.html.getAttribute("imgKey");
-                            if(isJSON){
-                                let flex=parsed as flexType;
-                                flex={...flex,imgKey:undefined};
-                                imgFound.html.setAttribute("flex",JSON.stringify(flex));
-                            }else if(getImgKey){
-                                imgFound.html.setAttribute("imgKey","");
-                            }
+                          
                             if(imgFound.imgKey){
                                 this._service.adminImagemark(imgFound.imgKey).then(async(res)=>{
                                     if(res){
-                                        this._modSelector.updateElement(imgFound.html);
+                                        this._modSelector.updateElement({target:imgFound.html,idValues,selRowCol});
                                         this._arrLoadImgs=[];
                                     }
                                 });
                             }else{
-                                this._modSelector.updateElement(imgFound.html);
+                                this._modSelector.updateElement({target:imgFound.html,idValues,selRowCol});
                                 this._arrLoadImgs=[];
                             }
                         }else if(isShapeOutside){
+                            const selRowCol={...imgFound.selRowCol} as selRowColType;
                             if(!(imgFound.html.getAttribute("data-shapeoutside-polygon"))){
                                 const para=imgFound.html.parentElement;
                                 if(!para) return;
@@ -222,15 +217,16 @@ class LoadMisc {
                                     para.setAttribute("imgKey","");
                                     this._service.adminImagemark(imgFound.imgKey).then(async(res)=>{
                                         if(res){
-                                            this._modSelector.updateElement(para);
+                                            this._modSelector.updateElement({target:para,idValues,selRowCol});
                                             this._arrLoadImgs=[];
                                         }
                                     });
                                 }else{
-                                    this._modSelector.updateElement(para);
+                                    this._modSelector.updateElement({target:para,idValues,selRowCol});
                                             this._arrLoadImgs=[];
                                 }
                             }else{
+                                const selRowCol={...imgFound.selRowCol} as selRowColType;
                                 const child=imgFound.html.parentElement;
                                 if(!child) return;
                                 const para=child.parentElement;
@@ -241,40 +237,34 @@ class LoadMisc {
                                     para.setAttribute("imgKey","");
                                     this._service.adminImagemark(imgFound.imgKey).then(async(res)=>{
                                         if(res){
-                                            this._modSelector.updateElement(para);
+                                            this._modSelector.updateElement({target:para,idValues,selRowCol});
                                             this._arrLoadImgs=[];
                                         }
                                     });
                                 }else{
-                                    this._modSelector.updateElement(para);
+                                    this._modSelector.updateElement({target:para,idValues,selRowCol});
                                             this._arrLoadImgs=[];
                                 }
                             }
 
                         }else if(imgFound.loc==="col"){
-                            const shapeOutsides=[imgFound.html.getAttribute("data-shapeoutside-circle"),imgFound.html.getAttribute("data-shapeoutside-square"),imgFound.html.getAttribute("data-shapeoutside-polygon")]
-                            const isShapeOutside=shapeOutsides.filter(isShape=>(isShape !==null));
-                            if(!isShapeOutside){
+                            const isShape=this._modSelector.dataset.getAttribute({target:imgFound.html,id:"shapeOutside"});
+                            const selRowCol={...imgFound.selRowCol} as selRowColType;
+                            if(!isShape){
                                 imgFound.html.style.backgroundImage="url(" + item.image + ")";
-                                const {parsed,isJSON}=Header.checkJson(imgFound.html.getAttribute("flex"));
-                                if(isJSON){
-                                    let flex=parsed as flexType;
-                                    flex={...flex,imgKey:undefined};
-                                    imgFound.html.setAttribute("flex",JSON.stringify(flex));
-                            
                                     if(imgFound.imgKey){
                                         this._service.adminImagemark(imgFound.imgKey).then(async(res)=>{
                                             if(res){
-                                                this._modSelector.updateColumn(imgFound.html,flex);
+                                                const selRowCol:selRowColType={...imgFound.selRowCol} as selRowColType;
+                                                this._modSelector.updateColumn({target:imgFound.html,idValues,selRowCol});
                                                 this._arrLoadImgs=[];
                                             }
                                         });
                                     }
-                                    this._modSelector.updateColumn(imgFound.html,flex);
+                                    this._modSelector.updateColumn({target:imgFound.html,idValues,selRowCol});
                                     this._arrLoadImgs=[];
-                                }
-                            }else{
-                                if(!(imgFound.html.getAttribute("data-shapeoutside-polygon"))){
+                               
+                            }else if(!(imgFound.html.getAttribute("data-shapeoutside-polygon"))){
                                     const para=imgFound.html.parentElement;
                                     if(!para) return;
                                     (imgFound.html as HTMLImageElement).src=item.image;//Changing image
@@ -283,12 +273,14 @@ class LoadMisc {
                                         para.setAttribute("imgKey","");
                                         this._service.adminImagemark(imgFound.imgKey).then(async(res)=>{
                                             if(res){
-                                                this._modSelector.updateElement(para);
+                                                const selRowCol={...imgFound.selRowCol} as selRowColType;
+                                                this._modSelector.updateElement({target:para,idValues,selRowCol});
                                                 this._arrLoadImgs=[];
                                             }
                                         });
                                     }else{
-                                        this._modSelector.updateElement(para);
+                                        const selRowCol={...imgFound.selRowCol} as selRowColType;
+                                        this._modSelector.updateElement({target:para,idValues,selRowCol});
                                                 this._arrLoadImgs=[];
                                     }
                                 }else{
@@ -296,41 +288,40 @@ class LoadMisc {
                                     if(!child) return;
                                     const para=child.parentElement;
                                     if(!para) return;
+                                    const selRowCol={...imgFound.selRowCol} as selRowColType;
                                     (imgFound.html as HTMLImageElement).src=item.image;//Changing image
                                     (imgFound.html as HTMLImageElement).alt=item.name;//Changing image
                                     if(imgFound.imgKey){
                                         para.setAttribute("imgKey","");
                                         this._service.adminImagemark(imgFound.imgKey).then(async(res)=>{
                                             if(res){
-                                                this._modSelector.updateElement(para);
+                                                this._modSelector.updateElement({target:para,idValues,selRowCol});
                                                 this._arrLoadImgs=[];
                                             }
                                         });
                                     }else{
-                                        this._modSelector.updateElement(para);
+                                        this._modSelector.updateElement({target:para,idValues,selRowCol});
                                                 this._arrLoadImgs=[];
                                     }
                                 }
-                            }
-                        }if(imgFound.loc==="row"){
+                            
+                        } else if(imgFound.loc==="row"){
                             imgFound.html.style.backgroundImage="url(" + item.image + ")";
-                            const {parsed,isJSON}=Header.checkJson(imgFound.html.getAttribute("flex"));
-                            if(isJSON){
-                                let flex=parsed as flexType;
-                                flex={...flex,imgKey:undefined};
-                                imgFound.html.setAttribute("flex",JSON.stringify(flex));
+                            const {selectorId,rowId}=imgFound.selRowCol as selRowColType
+                            const selRow={selectorId,rowId};
+                          
                             
                                 if(imgFound.imgKey){
                                     this._service.adminImagemark(imgFound.imgKey).then(async(res)=>{
                                         if(res){
-                                            this._modSelector.updateRow(imgFound.html,flex);
+                                            this._modSelector.updateRow({target:imgFound.html,idValues,selRow});
                                             this._arrLoadImgs=[];
                                         }
                                     });
                                 }
-                                this._modSelector.updateRow(imgFound.html,flex);
+                                this._modSelector.updateRow({target:imgFound.html,idValues,selRow});
                                     this._arrLoadImgs=[];
-                            }
+                            
                         }
                         
                         Misc.growOut({anchor:popup,scale:0,opacity:0,time:400});
@@ -352,190 +343,107 @@ class LoadMisc {
 
 
     }
-    gettingAllimages(item:{elements:HTMLElement[]|null,columns:HTMLElement[]|null,rows:HTMLElement[]|null}):arrImgType3[]{
-        const {elements,columns,rows}=item;
+    gettingAllimages(item:{elements:HTMLElement[]|null,columns:HTMLElement[]|null,rows:HTMLElement[]|null,idValues:idValueType[]}):arrImgType3[]{
+        const {elements,columns,rows,idValues}=item;
+        const getElements:{html:HTMLElement,selRowCol:selRowColType|null}[]=[];
+        const getColumns:{html:HTMLElement|null,selRowCol:selRowColType}[]=[];
+        const getRows:{html:HTMLElement|null,selRow:selRowType}[]=[];
         if(elements && elements.length>0){
-            const shapeOutsides_circle=[...elements].filter(ele=>(ele.nodeName==="P")).filter(para=>(para.getAttribute("data-shapeOutside-circle")));
-            const shapeOutsides_square=[...elements].filter(ele=>(ele.nodeName==="P")).filter(para=>(para.getAttribute("data-shapeOutside-square")));
-            const shapeOutsides_polygon=[...elements].filter(ele=>(ele.nodeName==="P")).filter(para=>(para.getAttribute("data-shapeOutside-polygon")));
+            const shapeOutsides=[...elements].filter(ele=>(ele.nodeName==="P")).filter(para=>(this._modSelector.dataset.getAttribute({target:para,id:"shapeOutside"})));
+            
             const imgs=[...elements].filter(ele=>(ele.nodeName==="IMG")) as HTMLImageElement[] | null
             if(imgs && imgs.length>0){
                 imgs.map((img,index)=>{
                     if(img){
-                        const {parsed,isJSON}=Header.checkJson(img.getAttribute("flex"));
-                        const getImgKey=img.getAttribute("imgKey");
-                        let imgKey:string|undefined;
-                        if(isJSON){
-                            const flex=parsed as flexType;
-                            imgKey=flex.imgKey ? flex.imgKey : undefined;
-                        }else if(getImgKey){
-                            imgKey=getImgKey;
-                        }
-                        this._arrLoadImgs.push({id:index,html:img,name:img.alt,img:img.src,loc:"element",imgKey:imgKey})
+                        const idValue=this._modSelector.dataset.getIdValue({target:img,id:"imgKey",idValues});
+                        const getselRowCol=this._modSelector.dataset.getIdValue({target:img,idValues,id:"selRowCol"});
+                        const imgKey=idValue?.attValue || undefined;
+                        const selRowCol=getselRowCol ?  JSON.parse(getselRowCol.attValue) as selRowColType:null;
+                        this._arrLoadImgs.push({id:index,html:img,name:img.alt,img:img.src,loc:"element",imgKey:imgKey,selRowCol})
                     }
                 });
             }
-            if(((shapeOutsides_circle && shapeOutsides_circle.length>0) || (shapeOutsides_square && shapeOutsides_square.length>0) || (shapeOutsides_polygon && shapeOutsides_polygon.length>0))){
-                if(shapeOutsides_circle){
-                    ([...shapeOutsides_circle as any] as HTMLParagraphElement[]).map(para=>{
+            if(shapeOutsides && shapeOutsides.length>0){
+                    ([...shapeOutsides as any] as HTMLParagraphElement[]).map(para=>{
                         if(para && para.nodeName==="P"){
-                            let imgKey:string|undefined;
-                            imgKey=para.getAttribute("imgKey") ? para.getAttribute("imgKey") as string:undefined;
-                            const {isJSON,parsed}=Header.checkJson(para.getAttribute("flex"));
-                            if(isJSON){
-                                const flex=parsed as flexType;
-                                imgKey=flex.imgKey;
-                            }
+                            const idValue=this._modSelector.dataset.getIdValue({target:para,id:"imgKey",idValues});
+                            const getselRowCol=this._modSelector.dataset.getIdValue({target:para,idValues,id:"selRowCol"});
+                            const imgKey=idValue?.attValue || undefined;
+                            const selRowCol=getselRowCol ?  JSON.parse(getselRowCol.attValue) as selRowColType:null;
                             ([...para.children as any] as HTMLElement[]).map((child,index)=>{
                                 if(child && child.nodeName==="IMG"){
                                     const img=child as HTMLImageElement;
-                                    this._arrLoadImgs.push({id:index,html:img,name:img.alt,img:img.src,loc:"element",imgKey:imgKey})
+                                    this._arrLoadImgs.push({id:index,html:img,name:img.alt,img:img.src,loc:"element",imgKey:imgKey,selRowCol})
                                 }
                             });
                         }
                     });
-                }
-                if(shapeOutsides_square){
-                    ([...shapeOutsides_square as any] as HTMLParagraphElement[]).map(para=>{
-                        if(para && para.nodeName==="P"){
-                            let imgKey:string|undefined;
-                            imgKey=para.getAttribute("imgKey") ? para.getAttribute("imgKey") as string:undefined;
-                            const {isJSON,parsed}=Header.checkJson(para.getAttribute("flex"));
-                            if(isJSON){
-                                const flex=parsed as flexType;
-                                imgKey=flex.imgKey;
-                            }
-                            ([...para.children as any] as HTMLElement[]).map((child,index)=>{
-                                if(child && child.nodeName==="IMG"){
-                                    const img=child as HTMLImageElement;
-                                    this._arrLoadImgs.push({id:index,html:img,name:img.alt,img:img.src,loc:"element",imgKey:imgKey})
-                                }
-                            });
-                        }
-                    });
-                }
-                if(shapeOutsides_polygon && shapeOutsides_polygon.length>0){
-                    ([...shapeOutsides_polygon as any] as HTMLParagraphElement[]).map(para=>{
-                        if(para && para.nodeName==="P"){
-                            let imgKey:string|undefined;
-                            imgKey=para.getAttribute("imgKey") ? para.getAttribute("imgKey") as string:undefined;
-                            const {isJSON,parsed}=Header.checkJson(para.getAttribute("flex"));
-                            if(isJSON){
-                                const flex=parsed as flexType;
-                                imgKey=flex.imgKey;
-                            }
-                            ([...para.children as any] as HTMLElement[]).map((child,index)=>{
-                                ([...child.children as any] as HTMLElement[]).map(ch=>{
-                                    if(ch && ch.nodeName==="IMG"){
-                                        const img=ch as HTMLImageElement;
-                                        this._arrLoadImgs.push({id:index,html:img,name:img.alt,img:img.src,loc:"element",imgKey:imgKey});
-                                    }
-                                });
-                            });
-                        }
-                    });
-                }
+                
+             
             }
         }
         if(columns && columns.length>0){
             const getColumns=[...columns as any] as HTMLElement[];
-            const shapeOutsides_circle_col=[...columns].filter(ele=>(ele.nodeName==="P")).filter(para=>(para.getAttribute("data-shapeOutside-circle")));
-            const shapeOutsides_square_col=[...columns].filter(ele=>(ele.nodeName==="P")).filter(para=>(para.getAttribute("data-shapeOutside-square")));
-            const shapeOutsides_polygon_col=[...columns].filter(ele=>(ele.nodeName==="P")).filter(para=>(para.getAttribute("data-shapeOutside-polygon")));
             getColumns.map(col=>{
-                const {parsed}=Header.checkJson(col.getAttribute("flex"));
-                const flex=parsed as flexType;
+                const idValue=this._modSelector.dataset.getIdValue({target:col,id:"imgKey",idValues});
+                const getselRowCol=this._modSelector.dataset.getIdValue({target:col,idValues,id:"selRowCol"});
+                const imgKey=idValue?.attValue || undefined;
+                const selRowCol=getselRowCol ?  JSON.parse(getselRowCol.attValue) as selRowColType:null;
                 if(col){
                     let index=0;
                     for(const [key,value] of Object.entries(col.style) ){
                         if(key==="backgroundImage" && value){
-                            const imgKey:string|undefined = flex.imgKey;
-                            index+=1
-                            if(!value)return;
                             const getSrc=this.regClean({str:value,start:/url\(/g,end:/\)/g});;
-                            this._arrLoadImgs.push({id:index,html:col,name:col.nodeName,img:getSrc,imgKey:imgKey,loc:"col"})
+                            this._arrLoadImgs.push({id:index,html:col,name:col.nodeName,img:getSrc,imgKey:imgKey,loc:"col",selRowCol});
+                            index++;
                         }
-                    }
+                    };
+
+                    ([...col.children as any] as HTMLElement[]).map(divCont=>{
+                            if(divCont){
+                                ([...divCont.children as any] as HTMLElement[]).map(targ=>{
+                                    if(targ && targ.nodeName==="P"){
+                                        const isShape=this._modSelector.dataset.getAttribute({target:targ,id:"shapeOutside"});
+                                        if(isShape){
+                                            const idValue=this._modSelector.dataset.getIdValue({target:targ,id:"imgKey",idValues});
+                                            const getselRowCol=this._modSelector.dataset.getIdValue({target:targ,idValues,id:"selRowCol"});
+                                            const imgKey=idValue?.attValue || undefined;
+                                            const selRowCol=getselRowCol ?  JSON.parse(getselRowCol.attValue) as selRowColType:null;
+                                            ([...targ.children as any ] as HTMLElement[]).map(img=>{
+                                                if(img && img.nodeName==="IMG"){
+                                                    const img_=img as HTMLImageElement
+                                                    this._arrLoadImgs.push({id:index,html:col,name:col.nodeName,img:img_.src,imgKey:imgKey as string,loc:"col",selRowCol});
+                                                }
+                                            });
+                                        }
+                                    }
+                                });
+                            }
+                    });
                     
                 }
             });
-            if(((shapeOutsides_circle_col && shapeOutsides_circle_col.length>0) || (shapeOutsides_square_col && shapeOutsides_square_col.length>0) || (shapeOutsides_polygon_col && shapeOutsides_polygon_col.length>0))){
-                if(shapeOutsides_circle_col){
-                    ([...shapeOutsides_circle_col as any] as HTMLParagraphElement[]).map(para=>{
-                        if(para && para.nodeName==="P"){
-                            let imgKey:string|undefined;
-                            const {isJSON,parsed}=Header.checkJson(para.getAttribute("flex"));
-                            if(isJSON){
-                                const flex=parsed as flexType;
-                                imgKey=flex.imgKey;
-                            }
-                            ([...para.children as any] as HTMLElement[]).map((child,index)=>{
-                                if(child && child.nodeName==="IMG"){
-                                    const img=child as HTMLImageElement;
-                                    this._arrLoadImgs.push({id:index,html:img,name:img.alt,img:img.src,loc:"col",imgKey:imgKey})
-                                }
-                            });
-                        }
-                    });
-                }
-                if(shapeOutsides_square_col){
-                    ([...shapeOutsides_square_col as any] as HTMLParagraphElement[]).map(para=>{
-                        if(para && para.nodeName==="P"){
-                            let imgKey:string|undefined;
-                            const {isJSON,parsed}=Header.checkJson(para.getAttribute("flex"));
-                            if(isJSON){
-                                const flex=parsed as flexType;
-                                imgKey=flex.imgKey;
-                            }
-                            ([...para.children as any] as HTMLElement[]).map((child,index)=>{
-                                if(child && child.nodeName==="IMG"){
-                                    const img=child as HTMLImageElement;
-                                    this._arrLoadImgs.push({id:index,html:img,name:img.alt,img:img.src,loc:"col",imgKey:imgKey})
-                                }
-                            });
-                        }
-                    });
-                }
-                if(shapeOutsides_polygon_col && shapeOutsides_polygon_col.length>0){
-                    ([...shapeOutsides_polygon_col as any] as HTMLParagraphElement[]).map(para=>{
-                        if(para && para.nodeName==="P"){
-                            let imgKey:string|undefined;
-                            const {isJSON,parsed}=Header.checkJson(para.getAttribute("flex"));
-                            if(isJSON){
-                                const flex=parsed as flexType;
-                                imgKey=flex.imgKey;
-                            }
-                            ([...para.children as any] as HTMLElement[]).map((child,index)=>{
-                                ([...child.children as any] as HTMLElement[]).map(ch=>{
-                                    if(ch && ch.nodeName==="IMG"){
-                                        const img=ch as HTMLImageElement;
-                                        this._arrLoadImgs.push({id:index,html:img,name:img.alt,img:img.src,loc:"col",imgKey:imgKey});
-                                    }
-                                });
-                            });
-                        }
-                    });
-                }
-            }
+           
+              
+            
             
         }
         if(rows && rows.length>0){
             const getRows=[...rows as any] as HTMLElement[]
             getRows.map(row=>{
-                const {parsed}=Header.checkJson(row.getAttribute("flex"));
-                const flex=parsed as flexType;
+                const idValue:idValueType|undefined=this._modSelector.dataset.getIdValue({target:row,idValues,id:"imgKey"});
+                const imgKey=idValue?.attValue || null;
+                const idValueSel=this._modSelector.dataset.getIdValue({target:row,id:"selRow",idValues});
+                const selRow_=idValueSel ? JSON.parse(idValueSel.attValue) as selRowType : null;
+                const selRow=idValueSel?.attValue ? JSON.parse(idValueSel.attValue) as selRowType:selRow_;
                 if(row){
                     let index=0;
                     for(const [key,value] of Object.entries(row.style) ){
                         if(key==="backgroundImage" && value){
-                            const imgKey:string|undefined = flex.imgKey;
-                            index+=1
-                            if(!value) return
                             const getSrc=this.regClean({str:value,start:/url\(/g,end:/\)/g});
-                            if(getSrc){
-                            }
-                            console.log(getSrc)
-                            this._arrLoadImgs.push({id:index,html:row,name:row.nodeName,img:getSrc,imgKey:imgKey,loc:"row"})
+                            const selRowCol:selRowColType|null= selRow ? {...selRow,colId:""}:null
+                            this._arrLoadImgs.push({id:index,html:row,name:row.nodeName,img:getSrc,imgKey:imgKey as string,loc:"row",selRowCol})
+                            index++;
                         }
                     }
                     
@@ -557,8 +465,8 @@ class LoadMisc {
             }
         }
         if(!word) return "";
-        const start2:RegExp=/(https\:\/\/)[0-9a-z\-\.\?\=\/]{2,}|(blob\:http\:\/\/)[0-9a-z\-\:\/]{2,}/g;
-        const end2:RegExp=/\"/g;
+        const start2:RegExp=/(https:\/\/)[0-9a-z-.?=/]{2,}|(blob:http:\/\/)[0-9a-z\-:/]{2,}/g;
+        const end2:RegExp=/"/g;
         const start2Match=word.matchAll(start2) as any;
         const end2Match=word.matchAll(end2) as any;
         console.log(end2Match)

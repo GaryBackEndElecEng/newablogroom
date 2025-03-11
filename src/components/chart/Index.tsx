@@ -8,11 +8,12 @@ import User from '@/components/user/userMain';
 import Header from '../editor/header';
 import Climate from './climate';
 import style from "./chart.module.css";
-import { useSession } from 'next-auth/react';
+import Dataset from '../common/dataset';
+import AuthService from '../common/auth';
+import Message from '../common/message';
 
 
 export default function Index() {
-    const { data: session, status } = useSession();
     const refChart = React.useRef(null);
     const countRef = React.useRef(0);
     React.useEffect(() => {
@@ -21,21 +22,36 @@ export default function Index() {
             const docChart = document.getElementById("chart") as HTMLElement;
             Header.cleanUp(docChart);
             const climate = new Climate();
-            const modSelector = new ModSelector();
+            const dataset = new Dataset();
+            const idValues = dataset.idValues;
+            const modSelector = new ModSelector(dataset);
             const service = new Service(modSelector);
-            const user = new User(modSelector, service);
-            const chart = new ChartJS(modSelector, service, user);
-            const blog = modSelector.blog;
+            const auth = new AuthService(modSelector, service);
+            auth.generateUser().then(async (res) => {
+                if (res) {
+                    const _user = res.user
+                    const user = new User(modSelector, service, auth);
+                    user.user = _user;
+                    modSelector.asyncBlogInitializer({ user: _user }).then(async (res) => {
+                        if (res) {
+                            const message = new Message(modSelector, service, res, null);
+                            const chart = new ChartJS(modSelector, service, user, message);
+                            countRef.current = 2;
 
-            chart.mainChart(docChart, blog).then(() => {
-                countRef.current = 2;
-                // Header.cleanUp(docChart);// cleans up:works
-                // chart.cleanUpKeepOne({ parent: docChart, class_: "mainBarChart-divCont" });//doesnt work
+                            chart.mainChart({ injector: docChart, blog: res, idValues }).then((inject) => {
+                                if (inject) {
+                                    climate.generateGraph({ parent: inject })
+                                }
+
+
+
+                            });
+                        }
+                    });
+                }
             });
 
-            setTimeout(async () => {
-                climate.generateGraph({ parent: docChart })
-            }, 0)
+
 
         }
 
@@ -49,13 +65,11 @@ export default function Index() {
 
 export async function awaitWindow() {
     "use client"
-    return new Promise((resolver,) => {
-        resolver({
-            window: () => {
-                if (typeof window !== "undefined") {
-                    return true;
-                }
+    return Promise.resolve({
+        window: () => {
+            if (typeof window !== "undefined") {
+                return true;
             }
-        })
+        }
     }) as Promise<{ window: () => boolean | undefined }>;
 }

@@ -1,12 +1,9 @@
 import { type NextAuthOptions } from "next-auth"
 import CredentialsProvider from "next-auth/providers/credentials";
-// import Providers from "next-auth/providers/credentials";
 import GoogleProvider from "next-auth/providers/google";
 import prisma from "@/prisma/prismaclient";
-import bcrypt from "bcryptjs";
 import { PrismaAdapter } from "@auth/prisma-adapter";
-import { hashKey, hashComp } from "@/lib/ultils/bcrypt";
-// const logo = `${process.env.NEXT_PUBLIC_aws_static}/logo.png`;
+import { hashComp } from "@/lib/ultils/bcrypt";
 const EMAIL = process.env.EMAIL as string;
 const EMAIL2 = process.env.EMAIL2 as string;
 
@@ -33,7 +30,7 @@ const authOptions: NextAuthOptions = {
 
         jwt: async ({ token, user, account }) => {
             // console.log("token from authOptions",token,user)// works jwt executes first before session
-            if (user && user.email) {
+            if (user?.email) {
                 const tUser = await prisma.user.findUnique({
                     where: { email: user.email as string }
                 });
@@ -55,21 +52,10 @@ const authOptions: NextAuthOptions = {
             return token
         },
         session: async ({ session, user, token }) => {
-            if (token && session.user && session.user.email) {
-                // const diff = endDate - today
-                // token {
-                //     name: 'test3 blogger',
-                //     email: 'test3@gmail.com',
-                //     sub: 'cm30gng560000q8gs6muswqe1',
-                //     id: 'cm30gng560000q8gs6muswqe1',=>user.id
-                //     username: 'test3 blogger',
-                //     iat: 1730648512,
-                //     exp: 1733240512,
-                //     jti: '218228f7-1ea6-4e7d-a06e-dea1c992606a'
-                //   }
+            if (token && session?.user?.email) {
                 session.user.email = token.email;
 
-                if (user && token && token.id) {
+                if (user && token.id) {
 
                     session = { ...session, user: user }
                 }
@@ -139,7 +125,7 @@ const authOptions: NextAuthOptions = {
                     return null
                 }
                 if (retUser.password) {
-                    const check = await hashComp(cred?.password, retUser?.password) ? true : false;
+                    const check = await hashComp(cred?.password, retUser?.password);
 
                     if (!check) {
                         await prisma.$disconnect()

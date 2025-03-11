@@ -1,4 +1,4 @@
-import { PrismaClient } from "@prisma/client";
+
 import { NextApiRequest, NextApiResponse } from "next";
 import { messageType } from "@/components/editor/Types";
 import { getErrorMessage } from "@/lib/errorBoundaries";
@@ -22,7 +22,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
                         name: name,
                         email: email,
                         msg: msg,
-                        rate: rate ? rate : 1,
+                        rate: rate || 1,
                         blog_id: blog_id,
                         secret: secret,
                         sent: false
@@ -40,7 +40,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
                         name: name,
                         email: email,
                         msg: msg,
-                        rate: rate ? rate : 1,
+                        rate: rate || 1,
                         blog_id: null,
                         secret: secret,
                         sent: false
@@ -109,7 +109,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
                 return await prisma.$disconnect();
             }
         }
-    } else if (req.method = "DELETE") {
+    } else if (req.method === "DELETE") {
         if (!msg_id) { res.status(400).json({ msg: "no msg.id" }); return await prisma.$disconnect() }
         try {
             const delMsg = await prisma.message.delete({
@@ -128,7 +128,9 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         res.status(400).json({ msg: "not authorized" });
     }
     await prisma.$disconnect();
-}
+};
+
+
 
 export async function saveAvgRating(input: { blog_id: number, rate: number }): Promise<boolean> {
     const { blog_id, rate } = input;
@@ -178,7 +180,9 @@ export async function getMessagesLen(blog_id: number): Promise<{ avgRate: number
         await prisma.$disconnect();
         return { avgRate: 1, len: 1 }
     }
-}
+};
+
+
 export function calcAvg(rates: number[]): { avgRate: number, len: number } {
     if (!(rates && rates.length > 0)) return { avgRate: 1, len: 1 };
     const sum: number = rates.reduce((a, b) => (a + b), 0);

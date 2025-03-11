@@ -21,8 +21,8 @@ export type featureType={
 }
 
 class Features{
-    effectImg:string="/images/feature/effect.png";
-    descList:descType[]=[
+    public readonly effectImg:string="/images/feature/effect.png";
+    public readonly descList:descType[]=[
         {id:0,li1:"authorized allowed url viewing",li2:"life time viewing one hour",li3:"AI upload preventable",li4:"high resolution",li5:"accepts png/jpg only",li6:"quick Upload"},
         {id:1,li1:"password && email changeout",li2:"blog-meta editing",li3:"comment viewing && email responses",li4:"personalize profile",li5:"blog-quick editing",li6:"quick online/off-line toggling"},
         {id:2,li1:"Selective Title-effect",li2:"Customize Ven-diagram",li3:"arrow text-emphasize art",li4:"Customized wave art",li5:"Customize Arch-art",li6:"Customize bubble art"},
@@ -32,7 +32,7 @@ class Features{
         {id:6,li1:"keyword filtering",li2:"brief decsription display",li3:"twitter, Facebook, Google, Explorer and safari compatible",li4:"title and tab display",li5:"dynamic Google registration",li6:"reference section for back-link population."},
         {id:7,li1:"bar or line graph display option;",li2:"floating cursor message display",li3:"easy data creation form with multi-color display;",li4:"multi-color display;",li5:null,li6:null},
     ];
-    featureList:featureType[]=[
+   public readonly featureList:featureType[]=[
         {id:0,name:"AWS image protection",summary:"Aws provides a signed key, allowing a one time upload from source. This allows for absolute image protection, preserved to the originator and disallows AI to unlock and use the image.",list:this.descList[0],img:"/images/feature/aws.png"},
         {id:1,name:"Floating Secure Profile",summary:"Secure profile for quick streamline blog management. It display your blogs and allows you to quickly edit your blogs, while viewing and answering viewers comments, along with personalizable issuances and references.",list:this.descList[1],img:"/images/feature/profile.png"},
         {id:2,name:"Text-Art",summary:"encourages viewer text focus through text emphasis with graphics centered on a statement or idea in an enjoyable and enlightening way, enlightning the pleasure of understanding, which draws pleasure of reading.",list:this.descList[2],img:"/images/feature/art.png"},
@@ -42,9 +42,10 @@ class Features{
         {id:6,name:"Dynamic Metadata",summary:"Dynamic Metadata population to each blog,for easy media site, browsers and MSM link sharing with a professional approach, allowing  topic sharing with ease. Dynamic Meta extracts keywords,images and description with AI assistance and inserts descriptors on the fly on each blog.",list:this.descList[6],img:"/images/feature/meta.png"},
         {id:7,name:"Custom graphs",summary:"Customizeable graph generation, allowing you to present your data as seen fit so that your viewers can visually see visual facts. The graph tool can hold upto 1000 points and provides a floating message cursor identifying the points value for improved client interaction. It provides the following:",list:this.descList[7],img:"/images/feature/graph.png"},
     ];
-    constructor(){
 
-    }
+    constructor(){};
+
+
     feature(parent:HTMLElement){
         const name=parent.nodeName.toLowerCase();
         window.scroll(0,0);
@@ -72,7 +73,7 @@ class Features{
         mainTitle.textContent="Features";
         container.appendChild(mainTitle);
         window.scroll(0,0);
-        this.backgroundEffect({parent:container,time:30000});//background-effects;
+        this.backgroundEffect({parent:container,time:30000});
         Misc.matchMedia({parent:popup,maxWidth:400,cssStyle:{inset:"5% 2% 50% 2%"}});
         if(name==="body"){
             Misc.matchMedia({parent:popup,maxWidth:900,cssStyle:{inset:"5% 10% 40% 10%"}});
@@ -107,7 +108,7 @@ class Features{
         const paddingInline=window.innerWidth <900 ? "0.5rem" :"1rem";
         const css=`margin-inline:auto;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:1rem;padding-inline:${paddingInline};`;
         const css_flex=`margin-inline:auto;display:flex;flex-direction:${direction};align-items:center;justify-content:center;gap:1rem;padding-inline:${paddingInline};`;
-        const flex="margin-inline:auto;width:100%;display:flex !important;align-items:center;gap:2rem;padding-inline:1rem;flex-wrap:nowrap;";
+
         const container=document.createElement("div");
         container.id="card-container" + `${feature.id}`;
         container.style.cssText=css + "width:100%";
@@ -153,8 +154,10 @@ class Features{
                     li.style.cssText="order:1;text-wrap:pretty;width:100%;"
                     li.innerHTML=`<span>${value}</span>`;
                     div1.appendChild(li);
-                    if(i===3 && len>3){ desc.appendChild(div1)}
-                    else if(len<3){desc.appendChild(div1)};
+                    if(i===3 && len>3 || len<3){
+                         desc.appendChild(div1)
+
+                    };
                 }else if(i >=4 && i<7){
                     const li=document.createElement("li");
                     li.style.cssText="order:1;text-wrap:pretty;width:100%;"

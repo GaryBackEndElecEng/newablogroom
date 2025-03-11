@@ -11,10 +11,10 @@ import Nav from "../nav/headerNav";
 import AddImageUrl from "../common/addImageUrl";
 import User from "../user/userMain";
 import Post from "../posts/post";
-import { IconType } from "react-icons";
-import { FaCircleUp } from "react-icons/fa6";
 import EditText from "../common/editText";
 import Message from "../common/message";
+import AuthService from "../common/auth";
+import { idValueType } from "@/lib/attributeTypes";
 
 
 
@@ -29,7 +29,7 @@ class PostDetail{
     postLogo:string;
     logo:string;
     injector:HTMLElement|null;
-    constructor(private _modSelector:ModSelector,private _service:Service,private _user:User,user:userType|null){
+    constructor(private _modSelector:ModSelector,private _service:Service,private auth:AuthService,private _user:User,user:userType|null){
         this.injector=document.querySelector("section#postdetail") as HTMLElement;
         this.postLogo="/images/posts.png";
         this.logo="/images/gb_logo.png";
@@ -72,12 +72,14 @@ class PostDetail{
         return this._user.user
     }
     set user(user:userType){
+        this.auth.user=user
         this._user.user=user
     }
     
 
    async main(item:{injector:HTMLElement,post:postType,count:number,poster:userType |null,isPage:boolean,isUser:boolean,user:userType|null}):Promise<number>{
         const {injector,post,poster,count,isPage,isUser,user}=item;
+        const idValues=this._modSelector.dataset.idValues;
         const less1550=window.innerWidth < 1550;
         const less900=window.innerWidth < 900;
         const less400=window.innerWidth < 400;
@@ -94,13 +96,12 @@ class PostDetail{
         const container=document.createElement("div");
         container.className="postdetail-main-container";
         container.id="postdetail-main-container";
-        container.style.cssText=css_col + "background-color:white;color:black;font-family:'Poppins-Regular';position:relative;border-radius:12px;box-shadow:1px 1px 3px 1px lightblue;overflow-x:hidden;";
-        // container.style.width=less400 ? "100%":"auto";
+        container.style.cssText=css_col + "background-color:white;color:black;font-family:'Poppins-Regular';position:relative;border-radius:12px;box-shadow:1px 1px 3px 1px lightblue;overflow-x:hidden;min-height:100vh;";
+       
         container.style.width="100%";
         if(!isPage){
             //FLOATING
             injector.style.position="relative;";
-            const parent=injector.parentElement;
             container.style.position="absolute";
             container.style.zIndex="200";
             container.style.top="0%";
@@ -112,7 +113,7 @@ class PostDetail{
         }else{
             //NON FLOATING
             this.injector=injector as HTMLElement;
-            this.injector.style.width=less1550 ? (less900 ? (less400 ? "100%" :"100%"): "65%"):"50%";
+            this.injector.style.width=less1550 ? (less900 ? "100%": "65%"):"50%";
             this.injector.style.paddingInline=less400 ? "0rem":"1rem";
             this.injector.style.paddingTop=less400 ? "0.25rem":"1rem";
             this.injector.style.marginTop=less400 ? "0rem":"1rem";
@@ -141,7 +142,7 @@ class PostDetail{
         }else{
             img.style.width=less900 ? (less400 ? "300px" : "420px") :"400px";
         }
-        img.style.marginRight=less900 ? (less400 ? "0.85rem" : "0.85rem") :"1rem";
+        img.style.marginRight=less900 ? "0.85rem" :"1rem";
         const widthConv=parseInt(img.style.width.split("px")[0]) as number;
         if(post.image){
             img.src=imageLoader({src:post.image,width:widthConv,quality:75});
@@ -149,7 +150,7 @@ class PostDetail{
             shapeOutside.appendChild(img);
             Misc.blurIn({anchor:img,blur:"20px",time:700});
             const postMod=Post.brInserter({targetStr:post.content});
-            shapeOutside.innerHTML+=postMod ? postMod : "";
+            shapeOutside.innerHTML+=postMod||"";
         }else if(post.imageKey){
             await this._service.getSimpleImg(post.imageKey).then(async(res)=>{
                 if(res){
@@ -158,18 +159,16 @@ class PostDetail{
                     shapeOutside.appendChild(img);
                     Misc.blurIn({anchor:img,blur:"20px",time:700});
                     const postMod=Post.brInserter({targetStr:post.content});
-                    shapeOutside.innerHTML+=postMod ? postMod : "";
+                    shapeOutside.innerHTML+=postMod ||"";
                 }
             });
         }else{
-            const url=new URL(window.location.href)
-            const newUrl=new URL(this.postLogo,url.origin)
             img.src=imageLoader({src:"/images/posts.png",width:widthConv,quality:75});
              img.alt="www.ablogroom.com";
             shapeOutside.appendChild(img);
             Misc.blurIn({anchor:img,blur:"20px",time:700});
             const postMod=Post.brInserter({targetStr:post.content});
-            shapeOutside.innerHTML+=postMod ? postMod : "";
+            shapeOutside.innerHTML+=postMod ||"";
         }
         card.appendChild(shapeOutside);
         const cardBody=document.createElement("div");
@@ -199,7 +198,7 @@ class PostDetail{
         }
         if(post.sendReqKey || post.sendMsg){
             //THIS SENDS AN EMAIL WITH THE ANSWER TO THE CLIENT AND THEN SHOWS THE ANSWER IN A POPUP
-            const {button:btnGetAns}=Misc.simpleButton({anchor:btnContainer,text:"get answer",type:"button",bg:Nav.btnColor,color:"white",time:400});
+            const {button:btnGetAns}=Misc.simpleButton({anchor:btnContainer,text:"get answer",type:"button",bg:"black",color:"white",time:400});
             btnGetAns.onclick=async(e:MouseEvent)=>{
                 if(e){
                     btnGetAns.disabled=true;
@@ -207,14 +206,14 @@ class PostDetail{
                   await this._message.sendPostmessage({
                     parent:container,
                     post,
-                    func:async()=>{this.showAnswer({parent:card,post,css_col,css_row,less400,less900});}
+                    func:async()=>{this.showAnswer({parent:card,post,css_col,less400,less900});}
 
                   });
                 }
             };
         }
         if(!isPage){
-            const {button:btnClose}=Misc.simpleButton({anchor:btnContainer,text:"close",type:"button",bg:Nav.btnColor,color:"white",time:400});
+            const {button:btnClose}=Misc.simpleButton({anchor:btnContainer,text:"close",type:"button",bg:"black",color:"white",time:400});
             btnClose.onclick=(e:MouseEvent)=>{
                 if(e){
                     Misc.fadeOut({anchor:container,xpos:30,ypos:100,time:400});
@@ -225,7 +224,7 @@ class PostDetail{
             };
             
         }else{
-            const {button:btnBack}=Misc.simpleButton({anchor:btnContainer,text:"back",type:"button",bg:Nav.btnColor,color:"white",time:400});
+            const {button:btnBack}=Misc.simpleButton({anchor:btnContainer,text:"back",type:"button",bg:"black",color:"white",time:400});
             btnBack.onclick=(e:MouseEvent)=>{
                 if(e){
                     window.history.go(-1);
@@ -234,16 +233,14 @@ class PostDetail{
           
             if(isUser && user){
 
-                const {button:btnEdit}=Misc.simpleButton({anchor:btnContainer,text:"edit",type:"button",bg:Nav.btnColor,color:"white",time:400});
+                const {button:btnEdit}=Misc.simpleButton({anchor:btnContainer,text:"edit",type:"button",bg:"black",color:"white",time:400});
                 btnEdit.onclick=(e:MouseEvent)=>{
                     if(e){
-                        //it works but not used
-                        // this.editPostContentEditable({card,targetImg:img,post,user,imgWidth:widthConv,isPage:true,shapoutside});//not used
-                        //it works but not used
-                        this.editPost({card,targetImg:img,post,user:user,imgWidth:widthConv});
+                       
+                        this.editPost({card,targetImg:img,post,user:user,imgWidth:widthConv,idValues});
                     }
                 };
-                this.removePost({parent:injector,target:container,post,user:user})
+                this.removePost({target:container,post,user:user})
             }
         }
         
@@ -259,13 +256,11 @@ class PostDetail{
         if(!isPage){
             Misc.growIn({anchor:container,scale:0,opacity:0,time:400});
         }
-        return new Promise(resolver=>{
-            resolver(count + 1)
-        }) as Promise<number>;
+        return Promise.resolve(count + 1) as Promise<number>;
     }
-    showAnswer(item:{parent:HTMLElement,post:postType,css_col:string,css_row:string,less400:boolean,less900:boolean}){
-        const {parent,post,css_col,css_row,less400,less900}=item;
-        // parent.style.position="relative";
+    showAnswer(item:{parent:HTMLElement,post:postType,css_col:string,less400:boolean,less900:boolean}){
+        const {parent,post,css_col,less400,less900}=item;
+      
         const popup=document.createElement("div");
         popup.id="showAnswer-popup";
         popup.style.cssText=css_col + "position:absolute;inset:20% 0% 0% 0%;padding:1rem;background-color:white;box-shadow:1px 1px 12px 1px black;border-radius:12px;z-index:10;overflow-y:scroll;justify-content:flex-start;";
@@ -303,10 +298,7 @@ class PostDetail{
         const {parent,poster}=item;
         const less900=window.innerWidth < 900;
         const less400=window.innerWidth < 400;
-        if(!(poster && poster.id)) return;
-        const css_col="margin-inline:auto;display:flex;flex-direction:column;justify-content:center;align-items:center;gap:0.7rem;color:inherit;border-radius:inherit;width:100%";
-        const shapoutside="padding:1rem;text-wrap:wrap;color:black;font-family:'Poppins-Thin';font-weight:bold;font-size:120%;line-height:2.05rem;color:inherit;border-radius:12px;box-shadow:1px 1px 12px white;"
-        const css_row="margin-inline:auto;display:flex;flex-direction:row;flex-wrap:wrap;justify-content:center;align-items:center;gap:0.27rem;color:inherit;border-radius:inherit;";
+        if(!(poster.id)) return;
        
         Header.cleanUpByID(parent,"showPoster-user-container");
         parent.style.position="relative";
@@ -364,13 +356,12 @@ class PostDetail{
         parent.appendChild(container);
     }
   
-    editPost(item:{card:HTMLElement,targetImg:HTMLImageElement,post:postType,user:userType,imgWidth:number}){
-        const {card,targetImg,post,user,imgWidth}=item;
+    editPost(item:{card:HTMLElement,targetImg:HTMLImageElement,post:postType,user:userType,imgWidth:number,idValues:idValueType[]}){
+        const {card,targetImg,post,user,imgWidth,idValues}=item;
         this.post=post;
-        const modSelector= new ModSelector();
-        const editTool=new EditText(modSelector);
-        const less900= window.innerWidth < 900 ? true:false;
-        const less400= window.innerWidth < 400 ? true:false;
+        const editTool=new EditText(this._modSelector);
+        const less900= window.innerWidth < 900 ;
+        const less400= window.innerWidth < 400 ;
         Header.cleanUpByID(card,`postdetail-editPost-popup-${post.id}`);
         const css_col="margin-inline:auto;display:flex;flex-direction:column;justify-content:flex-start;align-items:center;";
         const css_row="margin-inline:auto;display:flex;flex-direction:row;flex-wrap:wrap;justify-content:center;align-items:center;gap:0.7rem;";
@@ -436,7 +427,7 @@ class PostDetail{
         lSendMsg.setAttribute("for",textareaSendMsg.id);
         //MSG INPUT FOR EMAILING
         //EDIT TOOL FOR TEXT HIGHLIGHTS
-        editTool.toolbar({parent:popup,target:inContent,submit:getButton});
+        editTool.toolbar({parent:popup,target:inContent,submit:getButton,idValues});
         //EDIT TOOL FOR TEXT HIGHLIGHTS
         inContent.value=post.content ? post.content : "";
         lContent.className="text-primary text-center display-6 grpTextarea-label";
@@ -481,7 +472,7 @@ class PostDetail{
                 const pub=formdata.get("pub") as string;
                 const link=formdata.get("link") as string;
                 if(title && content){
-                    const send_msg=sendMsg ? sendMsg : undefined;
+                    const send_msg=sendMsg ||undefined;
                     this.post={...this.post,title:title as string,content:content as string,sendMsg:send_msg,published:Boolean(pub),link:link};
                    await this._service.saveUpdatepost({post:this.post}).then(async(res)=>{
                        if(res){
@@ -504,13 +495,15 @@ class PostDetail{
                 }
             }
         };
-    }
+    };
+
+
    
    async editPostContentEditable(item:{card:HTMLElement,targetImg:HTMLImageElement,post:postType,user:userType,imgWidth:number,isPage:boolean,shapoutside:string}){
         const {card,targetImg,post,user,imgWidth,isPage,shapoutside}=item;
         this.post=post;
-        const less900= window.innerWidth < 900 ? true:false;
-        const less400= window.innerWidth < 400 ? true:false;
+        const less900= window.innerWidth < 900 ;
+        const less400= window.innerWidth < 400 ;
         Header.cleanUpByID(card,`postdetail-editPost-popup-${post.id}`);
         const css_col="margin-inline:auto;display:flex;flex-direction:column;justify-content:center;align-items:center;";
         const css_row="margin-inline:auto;display:flex;flex-direction:row;flex-wrap:wrap;justify-content:center;align-items:center;gap:0.7rem;";
@@ -518,7 +511,7 @@ class PostDetail{
         const popup=document.createElement('div');
         popup.id=`postdetail-editPost-popup-${post.id}`;
         popup.style.cssText=css_col + "position:absolute;inset:0%;height:auto;background-color:white;border-radius:12px;box-shadow:1px 1px 12px 1px #0CAFFF;padding:7px;z-index:10;border:none;overflow-y:scroll;";
-        // popup.style.height=less900? ( less400 ? "150vh":"110vh"):"100vh";
+      
         card.appendChild(popup);
         //-------DELETE----------//
         const xDiv=document.createElement("div");
@@ -579,7 +572,7 @@ class PostDetail{
         }else{
             img.style.width=less900 ? (less400 ? "300px" : "420px") :"400px";
         }
-        img.style.marginRight=less900 ? (less400 ? "0.85rem" : "0.85rem") :"1rem";
+        img.style.marginRight=less900 ? "0.85rem" :"1rem";
         const widthConv=parseInt(img.style.width.split("px")[0]) as number;
         if(post.image){
             img.src=imageLoader({src:post.image,width:widthConv,quality:75});
@@ -598,8 +591,7 @@ class PostDetail{
                 }
             });
         }else{
-            const url=new URL(window.location.href)
-            const newUrl=new URL(this.postLogo,url.origin)
+
             img.src=imageLoader({src:"/images/posts.png",width:widthConv,quality:75});
              img.alt="www.ablogroom.com";
             shapeOutside.appendChild(img);
@@ -652,8 +644,7 @@ class PostDetail{
                 const img=para.querySelector(`img#posts-shapeOutside-img-${post.id}`) as HTMLParagraphElement;
                 if(!(para && img)) return;
                 const formdata=new FormData(e.currentTarget as HTMLFormElement);
-                const test=formdata.get("shapeOutside");
-                // console.log("shapeoutside",test);
+              
                 const title=formdata.get("title") as string;
                 const sendMsg=formdata.get("sendMsg") as string;
                 img.remove();
@@ -662,7 +653,7 @@ class PostDetail{
                 const pub=formdata.get("pub") as string;
                 const link=formdata.get("link") as string;
                 if(title && content){
-                    const send_msg=sendMsg ? sendMsg:undefined;
+                    const send_msg=sendMsg ||undefined ;
                     this.post={...this.post,title:title as string,sendMsg:send_msg,content:content as string,published:Boolean(pub),link:link};
                    await this._service.saveUpdatepost({post:this.post}).then(async(res)=>{
                        if(res){
@@ -700,7 +691,7 @@ class PostDetail{
             const subLike=document.createElement("small");
             subLike.id=`posts-likes-subLike-${post.id}`;
             subLike.style.color="#23f803";
-            subLike.textContent=`: ${post && post.likes ? post.likes :0}`;
+            subLike.textContent=`: ${ post.likes ||0}`;
             likes.appendChild(xDiv);
             likes.appendChild(subLike);
             parent.appendChild(likes);
@@ -710,7 +701,7 @@ class PostDetail{
     removePopup(item:{parent:HTMLElement,popup:HTMLElement}){
         const {parent,popup}=item;
         Header.cleanUpByID(popup,`delete-removePopup-${3}`);
-        const css_col="margin-inline:auto;display:flex;flex-direction:column;justify-content:center;align-items:center;gap:0.7rem;";
+
         const css_row="margin-inline:auto;display:flex;flex-direction:row;flex-wrap:wrap;justify-content:center;align-items:center;gap:0.7rem;";
         const xDiv=document.createElement("div");
         xDiv.id=`delete-removePopup-${3}`;
@@ -725,11 +716,11 @@ class PostDetail{
 
         
     }
-    removePost(item:{parent:HTMLElement,target:HTMLElement,post:postType,user:userType}){
-        const {parent,target,post,user}=item;
+    removePost(item:{target:HTMLElement,post:postType,user:userType}){
+        const {target,post,user}=item;
         Header.cleanUpByID(target,`delete-${post.id}`);
         target.style.position="relative";
-        const css_col="margin-inline:auto;display:flex;flex-direction:column;justify-content:center;align-items:center;gap:0.7rem;";
+     
         const css_row="margin-inline:auto;display:flex;flex-direction:row;flex-wrap:wrap;justify-content:center;align-items:center;gap:0.7rem;";
         if(post.userId===user.id){
             const xDiv=document.createElement("div");
@@ -739,15 +730,15 @@ class PostDetail{
             target.appendChild(xDiv);
             xDiv.onclick=(e:MouseEvent) =>{
                 if(e){
-                    this.askToDelete({parent,target,post,user});
+                    this.askToDelete({target,post});
                 }
             };
 
         }
     }
 
-    askToDelete(item:{parent:HTMLElement,target:HTMLElement,post:postType,user:userType}){
-        const {parent,target,post,user}=item;
+    askToDelete(item:{target:HTMLElement,post:postType}){
+        const {target,post}=item;
         target.style.position="relative";
         const css_row="margin-inline:auto;display:flex;flex-direction:row;flex-wrap:wrap;justify-content:center;align-items:center;gap:0.7rem;";
         const container=document.createElement("div");
@@ -798,7 +789,7 @@ class PostDetail{
         editPopup.appendChild(btnContainer);
         uploadBtn.onclick=(e:MouseEvent)=>{
             if(e){
-                this.uploadPic({card,editPopup,targetImg,post,user,imgWidth});
+                this.uploadPic({editPopup,targetImg,post,user,imgWidth});
                 uploadBtn.disabled=true;
                 editPopup.removeChild(btnContainer);
             }
@@ -806,7 +797,7 @@ class PostDetail{
         freePicBtn.onclick=(e:MouseEvent)=>{
             if(e){
                 //import  class for image selection
-                this.freePic({card,editPopup,targetImg,post,user,imgWidth});
+                this.freePic({editPopup,targetImg,post,user,imgWidth});
                 uploadBtn.disabled=true;
                 editPopup.removeChild(btnContainer);
             }
@@ -814,7 +805,7 @@ class PostDetail{
         btn_sendReqKey.onclick=(e:MouseEvent)=>{
             if(e){
                 //import  class for image selection
-                this.uploadSendMsgPic({card,editPopup,post,user,css_col,less400,less900});
+                this.uploadSendMsgPic({editPopup,post,css_col});
                 uploadBtn.disabled=true;
                 editPopup.removeChild(btnContainer);
             }
@@ -832,7 +823,7 @@ class PostDetail{
                         targetImg.hidden=true;
                         this.injector=document.querySelector("section#postdetail") as HTMLElement;
                         if(!this.injector) return;
-                        // Header.cleanUpByID(this.injector,`postdetail-main-container`);
+                      
                         Misc.growOut({anchor:editPopup,scale:0,opacity:0,time:400});
                         setTimeout(()=>{
                             card.removeChild(editPopup);
@@ -845,8 +836,8 @@ class PostDetail{
         };
     }
    
-    uploadSendMsgPic(item:{card:HTMLElement,editPopup:HTMLElement,post:postType,user:userType,css_col:string,less400:boolean,less900:boolean}){
-        const {card,editPopup,post,user,less400,less900,css_col}=item;
+    uploadSendMsgPic(item:{editPopup:HTMLElement,post:postType,css_col:string}){
+        const {editPopup,post,css_col}=item;
         this.post=post;
         editPopup.style.zIndex="1";
         const popup=document.createElement('div');
@@ -890,7 +881,7 @@ class PostDetail{
                     submit.disabled=true;
                   const {Key}=this._service.generatePostSendReqKey({formdata,post}) as {Key:string};
                     this.post={...post,sendReqKey:Key};
-                  this._service.uploadfreeimage({parent:editPopup,formdata}).then(async(res)=>{
+                  this._service.uploadfreeimage({formdata}).then(async(res)=>{
                     if(res){
                         const img=document.createElement("img");
                         img.id="form-img-show";
@@ -915,8 +906,8 @@ class PostDetail{
         };
 
     };
-    freePic(item:{card:HTMLElement,editPopup:HTMLElement,targetImg:HTMLImageElement,post:postType,user:userType,imgWidth}){
-        const {card,editPopup,post,targetImg,user,imgWidth}=item;
+    freePic(item:{editPopup:HTMLElement,targetImg:HTMLImageElement,post:postType,user:userType,imgWidth:number}){
+        const {editPopup,post,targetImg,user,imgWidth}=item;
         //ADD BTNURL
         // this.addImageClass.getImages({parent})//NEED TO BUILD AN ACCESSPOINT
         this.addImageClass.asyncPicImage({parent:editPopup}).then(async(res)=>{
@@ -924,8 +915,7 @@ class PostDetail{
             
                 res.arr.map((btnUrl,index)=>{
                     if(btnUrl){
-                        // const getBtnEle=res.popup.querySelector(`button#${btnUrl.btn.id}`) as HTMLButtonElement;
-                        // if(!getBtnEle) return;
+                 
                         btnUrl.btn.onclick=async(e:MouseEvent)=>{
                             if(e){
                                 this.post=this.initPost;
@@ -947,13 +937,12 @@ class PostDetail{
             }
         });
     }
-    uploadPic(item:{card:HTMLElement,editPopup:HTMLElement,targetImg:HTMLImageElement,post:postType,user:userType,imgWidth:number}){
-        const {card,editPopup,post,targetImg,user,imgWidth}=item;
+    uploadPic(item:{editPopup:HTMLElement,targetImg:HTMLImageElement,post:postType,user:userType,imgWidth:number}){
+        const {editPopup,post,targetImg,user,imgWidth}=item;
         const less900= window.innerWidth <900;
         const less400= window.innerWidth <400;
         this.post={...post,userId:user.id};
         const css_col="margin-inline:auto;display:flex;flex-direction:column;justify-content:center;align-items:center;gap:0.7rem;";
-        const css_row="margin-inline:auto;display:flex;flex-direction:row;justify-content:center;align-items:center;width:100%;flex-wrap:wrap;";
         const formPopup=document.createElement("div");
         formPopup.id="editPopup-formPopup";
         formPopup.style.cssText=css_col + "position:absolute;border-radius:12px;box-shadow:1px 1px 6px 1px white;padding-block:0.25rem;padding-inline:0rem;z-index:20;backdrop-filter:blur(20px);";
@@ -990,6 +979,8 @@ class PostDetail{
                 const file=formdata.get("file") as File | null;
                 if(file ){
                     const urlImg=URL.createObjectURL(file as File);
+                    targetImg.src=urlImg;
+                    targetImg.alt="www.ablogroom.com";
                    const {Key} = this._service.generatePostImgKey(formdata,this.post) as {Key:string};
                     // console.log("file",file)
                     await this._service.simpleImgUpload(editPopup,formdata).then(async(res)=>{

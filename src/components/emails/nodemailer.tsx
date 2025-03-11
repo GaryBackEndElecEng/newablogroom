@@ -24,7 +24,8 @@ export const mailOptions = (toEmail: string) => {
         }]
     })
 }
-export const sendOptions = (toEmail: string, viewerEmail: string) => {
+export const sendOptions = ({ toEmail, viewerEmail }: { toEmail: string, viewerEmail: string }) => {
+    //VIEWEREMAIL===CLIENT!!
     return ({
         from: email,
         to: viewerEmail,

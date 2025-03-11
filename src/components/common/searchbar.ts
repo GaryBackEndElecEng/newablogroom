@@ -1,7 +1,7 @@
-import Header from "../editor/header";
-import { blogType, postType, searchbarType } from "../editor/Types";
+
+import { blogType, postType } from "../editor/Types";
 import Nav from "../nav/headerNav";
-import Misc from "./misc";
+
 
 
 class Searchbar{
@@ -10,8 +10,8 @@ class Searchbar{
     
     constructor(item:{blogs:blogType[]|null,posts:postType[]|null}){
         const {blogs,posts}=item;
-        this._blogs=blogs ? blogs : [] as blogType[];
-        this._posts=posts ? posts : [] as postType[];
+        this._blogs=blogs ||[] as blogType[];
+        this._posts=posts || [] as postType[];
     };
     // ------------GETTERS SETTERS-------//
     get blogs(){
@@ -50,10 +50,8 @@ class Searchbar{
         container.appendChild(row);
         parent.appendChild(container);
         const blogs=this.searchBlogWord({parent:searchBox,funcBlog});//search word input
-        return new Promise(resolver=>{
-            resolver(blogs);
-        }) as Promise<blogType[]> ;
-    }
+        return Promise.resolve(blogs) as Promise<blogType[]> ;
+    };
     async mainPost(item:{parent:HTMLElement,funcPost:({posts}:{posts:postType[]})=>Promise<void> | void}):Promise<{posts_:postType[],parent:HTMLElement}> {
         const {parent,funcPost}=item;
         let posts_:postType[]=[];
@@ -64,7 +62,7 @@ class Searchbar{
         container.id="searchbar-main-container";
         container.style.cssText=css_col + "border-radius:12px;";
         parent.appendChild(container);
-        if(!(posts_.length>0)){
+        if(posts_.length===0){
             const text=document.createElement("h6");
             text.className="text-primary text-center";
             text.innerHTML="No Posts, check back later,,<pre><br>  sorry about this</pre>";
@@ -85,18 +83,17 @@ class Searchbar{
             row.appendChild(searchBox);
             container.appendChild(row);
             const posts=await this.searchPostWord({parent:searchBox,funcPost});//search word input
-        }
-            
-        
-        return new Promise(resolver=>{
-            resolver({posts_,parent});
-        }) as Promise<{posts_:postType[],parent:HTMLElement}> ;
-    }
+            return Promise.resolve({posts_:posts,parent}) as Promise<{posts_:postType[],parent:HTMLElement}>;
+        };
+        return Promise.resolve({posts_,parent}) as Promise<{posts_:postType[],parent:HTMLElement}>;
+    };
+
+
     getKeyWords(item:{blog:blogType}){
         const {blog}=item;
         let words:string[]=[];
-        const title=blog && blog.title ? blog.title : "no title";
-        const desc:string[]|undefined=blog.desc?.split(" ") ? blog.desc?.split(" ") :[];
+        const title=blog.title || "no title";
+        const desc:string[]|undefined= blog.desc?.split(" ") || [];
         words.push(title)
         words= words.concat(desc)
         return words
@@ -107,21 +104,23 @@ class Searchbar{
         parent:HTMLElement,
         funcBlog:({blogs}:{blogs:blogType[]})=>Promise<void> | void
     }
+
     ){
         const {parent,funcBlog}=item;
         const {input,label,formGrp}=Nav.inputComponent(parent);
         let blog_s:blogType[]=this.blogs;
-        label.textContent="";
+        label.textContent="title";
         formGrp.className="mx-auto px-0 py-0 my-0";
         formGrp.id="formGrp";
         label.id="searchWord-labe-input";
         input.id="searchWord-input";
         input.name="input";
         input.placeholder="title search";
+        label.setAttribute("for",input.id);
         input.oninput=(e:Event)=>{
             if(e){
                 const word=(e.currentTarget as HTMLInputElement).value;
-                const mainBlogs=this.blogs.sort((a,b)=>{if(a.rating > b.rating) return -1;return 1});
+                const mainBlogs=this.blogs.toSorted((a,b)=>{if(a.rating > b.rating) return -1;return 1});
                 const nameBlogs=mainBlogs.filter(bl=>(bl.title?.toLowerCase().includes(word.toLowerCase())));
                 blog_s=nameBlogs;
                 funcBlog({blogs:blog_s})
@@ -132,6 +131,8 @@ class Searchbar{
         funcBlog({blogs:blog_s});
         return blog_s
     };
+
+
     async searchPostWord(
         item:{
         parent:HTMLElement,
@@ -141,22 +142,23 @@ class Searchbar{
         const {parent,funcPost}=item;
         const {input,label,formGrp}=Nav.inputComponent(parent);
         let post_s:postType[]=this.posts;
-        label.textContent="";
+        label.textContent="title";
         formGrp.className="mx-auto px-0 py-0 my-0";
         formGrp.id="formGrp";
         label.id="searchWord-labe-input";
         input.id="searchWord-input";
         input.name="input";
+        label.setAttribute("for",input.id);
         input.placeholder="title search";
         await funcPost({posts:post_s});
         input.oninput=async(e:Event)=>{
             if(e){
                 const word=(e.currentTarget as HTMLInputElement).value;
-                const mainBlogs=this.posts.sort((a,b)=>{if(a.likes > b.likes) return -1;return 1});
+                const mainBlogs=this.posts.toSorted((a,b)=>{if(a.likes > b.likes) return -1;return 1});
                 const nameBlogs=mainBlogs.filter(bl=>(bl.title?.toLowerCase().includes(word.toLowerCase())));
                 post_s=nameBlogs;
                 await funcPost({posts:post_s})
-                return post_s.sort((a,b)=>{if(a.likes > b.likes) return -1;return 1});
+                return post_s.toSorted((a,b)=>{if(a.likes > b.likes) return -1;return 1});
                 
             }
         };

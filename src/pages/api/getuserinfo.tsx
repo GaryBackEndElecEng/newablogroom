@@ -1,4 +1,4 @@
-import { PrismaClient } from "@prisma/client";
+
 import { NextApiRequest, NextApiResponse } from "next";
 import { userType } from "@/components/editor/Types";
 import { getErrorMessage } from "@/lib/errorBoundaries";
@@ -42,10 +42,8 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
             const msg = getErrorMessage(error);
             console.log("error: ", msg)
             res.status(400).json({ message: msg })
-        } finally {
-            await prisma.$disconnect()
+            return await prisma.$disconnect()
         }
-
     }
 
 

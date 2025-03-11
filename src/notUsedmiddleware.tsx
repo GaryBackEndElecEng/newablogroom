@@ -4,18 +4,7 @@ import { NextResponse, NextRequest } from "next/server";
 
 export function middleware(req: NextRequest) {
     const pages = ['/', '/blog/', '/blogs', "/register", "/editor", "/policy", "/termsOfService", "/admin", "/chart", "/posts", "/profile"];
-    // const csrf = req.cookies.get("next-auth.csrf-token")?.value;
-    // if (req && req.url) {
-    //     const baseUrl = req.nextUrl;
-    //     const url = new URL(`/error_page`, baseUrl.basePath);
-    //     const error = pages.find(pathname => (req.url.includes(pathname)))
-    //     const match = pages.find(pathname => (pathname === baseUrl.pathname))
-    //     if (error && !match) {
-    //         url.searchParams.set("misc", baseUrl.pathname);
-    //         return NextResponse.redirect(url)
 
-    //     }
-    // }
     return NextResponse.next()
 }
 // export const config = {

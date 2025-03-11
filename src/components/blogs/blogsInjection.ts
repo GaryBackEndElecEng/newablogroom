@@ -1,49 +1,44 @@
 import {blogType} from "@/components/editor/Types";
 import { slateColors } from "../editor/main";
-import DisplayBlog from "@/components/blog/displayBlog";
 import ModSelector from "@/components/editor/modSelector";
-import {  buttonReturn, imageLoader } from "../common/tsFunctions";
+import { imageLoader } from "../common/tsFunctions";
 import Misc from "../common/misc";
 import Service from "../common/services";
-import Header from "../editor/header";
+import Header from "../editor/header"
 import { FaCreate } from "../common/ReactIcons";
 import { BsHandThumbsUpFill } from "react-icons/bs";
 import AllMsgs from "../home/allMsgs";
 import Message from "../common/message";
-import Nav from "../nav/headerNav";
 import Searchbar from "../common/searchbar";
-import styles from "./blogs.module.css";
 
-const base_url="http://localhost:3000";
-// const base_url=process.env.BASE_URL as string;
 
 class Blogs{
-    bendImg:string="/images/bend.png";
-    bendImg1:string="/images/bend1.png";
-    static text=`<span>sorry there are no blogs just yet. Be the first to create a blog.</span><span> We garrantee data preservation, with the following advantage:</span>
+    public bendImg:string="/images/bend.png";
+    public bendImg1:string="/images/bend1.png";
+    public static  text=`<span>sorry there are no blogs just yet. Be the first to create a blog.</span><span> We garrantee data preservation, with the following advantage:</span>
     <ul> <pre>
-   <li style="text-wrap:wrap;"> You can create your own flamboyant poster and or design</li>
-   <li style="text-wrap:wrap;"> Your post and or poster are small format compatible, meaning you can print your site as a blog or web-site and or poster fitting ( smat phone and or Ipad format)</li>
-   <li style="text-wrap:wrap;"> its absolutely free with tight security protocol to protect your information.</li>
-   </pre>
-   </ul>
-   <blockquote>
-   <pre style="font-style:italic"> "to create is to learn and grow",,, <span style="font-size:22px;font-weight:bold">try it out</span><span style="color:red;font-weight:bold;font-size:30px;margin-right:1rem;">!</span></pre>
-   </blockquote>
-   <prev> yours truly Gary Wallace</prev>`
-    baseUrl:string;
-    bgColor:string;
-    static bg_color:string="#34282C"
-    gbLogo:string;
-    logo:string;
-_blogs:blogType[];
-_blog:blogType;
-allMsgs:AllMsgs;
-message:Message;
-searchbar:Searchbar;
+    <li style="text-wrap:wrap;"> You can create your own flamboyant poster and or design</li>
+    <li style="text-wrap:wrap;"> Your post and or poster are small format compatible, meaning you can print your site as a blog or web-site and or poster fitting ( smat phone and or Ipad format)</li>
+    <li style="text-wrap:wrap;"> its absolutely free with tight security protocol to protect your information.</li>
+    </pre>
+    </ul>
+    <blockquote>
+    <pre style="font-style:italic"> "to create is to learn and grow",,, <span style="font-size:22px;font-weight:bold">try it out</span><span style="color:red;font-weight:bold;font-size:30px;margin-right:1rem;">!</span></pre>
+    </blockquote>
+    <prev> yours truly Gary Wallace</prev>`
+    public baseUrl:string;
+    public bgColor:string;
+    public static bg_color:string="#34282C"
+    public gbLogo:string="/images/gb_logo.png";
+    public logo:string="gb_logo.png";
+    private _blogs:blogType[];
+    private _blog:blogType;
+    private allMsgs:AllMsgs;
+    private message:Message;
+    private searchbar:Searchbar;
     constructor( private _modSelector:ModSelector,private _service:Service){
-        this.baseUrl=base_url
-       this.gbLogo=`${base_url}/images/gb_logo.png`;
+        this.baseUrl=window.location.origin;
+       this.gbLogo=`/images/gb_logo.png`;
        this.logo=`gb_logo.png`;
        this._blogs=[] as blogType[];
         this._blog={} as blogType;
@@ -55,53 +50,58 @@ searchbar:Searchbar;
     //GETTERS SETTERS
     set blogs(blogs:blogType[]){
         this._blogs=blogs;
-        this._modSelector.blogs=blogs;
+        
     }
     get blogs(){
         return this._blogs;
     }
     set blog(blog:blogType){
         this._blog=blog;
-        this._modSelector._blog=blog;
+      
     }
     get blog(){
         return this._blog;
     }
 
    async awaitBlogs(blogs:blogType[]){
-        const promiseBlog=new Promise((resolve,reject)=>{
-            resolve(blogs as blogType[]);
-            reject("could not find item")
-        });
+        this._blogs=blogs;
+        const promiseBlog=Promise.resolve(blogs as blogType[]);
         return promiseBlog as Promise<blogType[]>
     }
 //GETTERS SETTERS
 //main injector ---MAIN INJECTION----
    async showBlogs({parent,home,blogs}:{parent:HTMLElement,home:boolean,blogs:blogType[]}){
+  
     this.searchbar= new Searchbar({blogs:blogs,posts:null});
     const less900=window.innerWidth < 900;
     const less500=window.innerWidth < 500;
     const less400=window.innerWidth < 400;
     const css_col="display:flex;flex-direction:column;align-items:center;gap:1rem;position:relative;width:100%";
-    const css_row="display:flex;justify-content:center;align-items:center;gap:0.5rem;position:relative;";
-    this.baseUrl=new URL(window.location.href).origin;
+    this.baseUrl=new URL(window.location.origin).origin;
     this.blogs=blogs;
-    // this.blogs=blogs.sort((a,b)=>{if(a.rating > b.rating) return -1;return 1});
+    const len=blogs.length;
     const m_block= less500 ? "0rem" : "0.25rem";
-        const container=document.createElement("section");
-        container.className="blogs-container";
-        container.id="blogs-container";
-        container.classList.add("mx-auto");
-        container.style.cssText=css_col + "width:100%;border-radius:12px;min-height:110vh;";
-        container.style.marginBlock=`${m_block}`;
-        await this.titlePage({container,home,time:1200}).then(async(res)=>{
-            if(res){
-                const paraSize=less900 ? (less400 ? "130%":"150%"):"175%";
-                const preParaSize=less900 ? (less400 ? "130%":"170%"):"200%";
-                await this.searchbar.mainBlog({
-                    parent:res.container,
-                    funcBlog:async({blogs})=>{ await this.generateBlogs({parent:container,blogs,less400,less900})}
-                });//searchbar
+    const container=document.createElement("section");
+    container.className="blogs-container";
+    container.id="blogs-container";
+    container.classList.add("mx-auto");
+    container.style.cssText=css_col + "width:100%;border-radius:12px;min-height:110vh;";
+    container.style.marginBlock=`${m_block}`;
+    await this.titlePage({container,home,time:1200}).then(async(res)=>{
+        if(res){
+            const paraSize=less900 ? (less400 ? "130%":"150%"):"175%";
+            const preParaSize=less900 ? (less400 ? "130%":"170%"):"200%";
+                if(len===0){
+                    this.noBlogs({parent:res.container});
+                }else{
+                    
+                    await this.searchbar.mainBlog({
+                        parent:res.container,
+                        funcBlog:async({blogs})=>{ 
+                            await this.generateBlogs({parent:container,blogs,less400,less900});
+                    }
+                    });//searchbar
+                }
                 res.textContainer.style.opacity="1";
                 res.textContainer.style.transform="scale(1)";
                 res.textContainer.animate([
@@ -116,7 +116,7 @@ searchbar:Searchbar;
                         {transform:"translateX(0%)",opacity:"1",fontSize:paraSize,backgroundColor:"transparent",color:"#1dcbfb"},
                     ],{duration:res.time,iterations:1,"easing":"ease-in-out"});
                 },res.time);
-                this.noBlogs({parent:res.container,blogs:this.blogs});
+                
             }
         });
             
@@ -127,22 +127,35 @@ searchbar:Searchbar;
             ],{duration:1100,iterations:1,"easing":"ease-in-out"});
         
         Misc.matchMedia({parent:container,maxWidth:500,cssStyle:{"borderRadius":"16px",border:"1px solid #0E3386"}});
-    }
-    blogsLoading({parent,loaded}:{parent:HTMLElement,loaded:boolean}){
-        if(!loaded){
+    };
+
+
+   async blogsLoading({parent,loaded,blogs}:{parent:HTMLElement,loaded:boolean,blogs:blogType[]}):Promise<boolean|undefined>{
+        const time=loaded ? 0 : 300;
+        if( blogs.length>0){
             Header.cleanUpByID(parent,"blogsLoading-container");
             const container=document.createElement("div");
             container.id="blogsLoading-container";
-            container.style.cssText="display:flex;justify-content:center;align-items:center;padding-inline:2rem;";
+            container.style.cssText="display:flex;justify-content:center;align-items:center;padding-inline:2rem;min-height:100vh;";
             const para=document.createElement("p");
             para.textContent=".......Loading........";
             container.appendChild(para);
-                parent.appendChild(container);
+            parent.appendChild(container);
+            return Promise.resolve(true) as Promise<boolean>;
         }else{
+           
             Header.cleanUpByID(parent,"blogsLoading-container");
+            return Promise.resolve(true) as Promise<boolean>;
         }
 
-    }
+    };
+
+    async sleep({time}:{time:number}){
+        return new Promise(resolve=>{
+            setTimeout(()=>{resolve(true)},time)
+        }) as Promise<boolean>
+    };
+
    async titlePage(item:{container:HTMLElement,home:boolean,time:number}):Promise<{textContainer:HTMLElement,container:HTMLElement,para:HTMLElement,time:number}>{
         const {container,home,time}=item;
         const less900=window.innerWidth < 900;
@@ -151,9 +164,9 @@ searchbar:Searchbar;
         const textContainer=document.createElement("div");
         textContainer.id="titlepage-textContainer";
         textContainer.style.cssText=css_col + "background-color:black;border-radius:12px;margin-top:1rem;filter:drop-shadow(0 0 0.5rem white);width:100%;overflow-x:hidden;";
-        textContainer.style.width=less900 ? (less400 ? "100%":"100%") : "100%";
+        textContainer.style.width="100%";
         textContainer.style.paddingBottom=less900 ? (less400 ? "2rem":"2.5rem") : "2rem";
-        textContainer.style.paddingInline=less900 ? (less400 ? "1rem":"1rem") : "2rem";
+        textContainer.style.paddingInline=less900 ? "1rem" : "2rem";
         const text=document.createElement("p");
         text.id="container-mainTitle";
         text.className="subTitleStyleThreeNoBorder text-center  my-2 mb-4 mx-auto lean";
@@ -214,9 +227,7 @@ searchbar:Searchbar;
         textContainer.style.transform="scale(0.8)";
         
         container.appendChild(textContainer);
-        return new Promise(resolve=>{
-            resolve({textContainer,container,para,time});
-        }) as Promise<{textContainer:HTMLElement,container:HTMLElement,para:HTMLElement,time:number}>;
+        return Promise.resolve({textContainer,container,para,time}) as Promise<{textContainer:HTMLElement,container:HTMLElement,para:HTMLElement,time:number}>;
     }
     triangleL({parent,less400,less900}:{parent:HTMLElement,less400:boolean,less900:boolean}):Promise<{triangleL:HTMLElement}>{
         const gradiant="linear-gradient(rgb(255, 255, 255), rgb(6, 233, 247))";
@@ -224,15 +235,12 @@ searchbar:Searchbar;
         parent.style.position="relative";
         const triangleL= document.createElement("span");
         triangleL.id="contL-triangleL";
-        // triangleL.className="lineStyleOne";
         triangleL.style.cssText=spanTria;
         triangleL.style.transform=less900 ? ( less400 ? "translate(-50px,-21px)":"translate(-67px,-20px)"):"translate(-133px,-20px)";
         triangleL.style.width=less900 ? ( less400 ? "75px":"100px"):"208px";
         triangleL.style.background=gradiant;
         parent.appendChild(triangleL);
-        return new Promise(resolver=>{
-            resolver({triangleL})
-        }) as Promise<{triangleL:HTMLElement}>;
+        return Promise.resolve({triangleL}) as Promise<{triangleL:HTMLElement}>;
     }
     triangleR({parent,less400,less900}:{parent:HTMLElement,less400:boolean,less900:boolean}):Promise<{triangleR:HTMLElement}>{
         const gradiant="linear-gradient(rgb(255, 255, 255), rgb(6, 233, 247))";
@@ -240,16 +248,16 @@ searchbar:Searchbar;
         parent.style.position="relative";
         const triangleR= document.createElement("span");
         triangleR.id="contR-triangleR";
-        // triangleR.className="lineStyleOne";
+      
         triangleR.style.cssText=spanTria;
         triangleR.style.transform=less900 ? ( less400 ? "translate(50px,-21px)":"translate(67px,-21px)"):"translate(133px,-20px)";
         triangleR.style.width=less900 ? ( less400 ? "75px":"100px"):"208px";
         triangleR.style.background=gradiant;
         parent.appendChild(triangleR);
-        return new Promise(resolver=>{
-            resolver({triangleR})
-        }) as Promise<{triangleR:HTMLElement}>;
-    }
+        return Promise.resolve({triangleR}) as Promise<{triangleR:HTMLElement}>;
+    };
+
+
    async generateBlogs({parent,blogs,less400,less900}:{parent:HTMLElement,blogs:blogType[],less400:boolean,less900:boolean}){
        Header.cleanUpByID(parent,"showBlogs-generateBlogs-mainRow");
        parent.style.position="relative";
@@ -259,13 +267,11 @@ searchbar:Searchbar;
             mainRow.id="showBlogs-generateBlogs-mainRow";
             const blogBaseCss=`display:flex;justify-content:center;flex-direction:column;margin-top:0rem;position:relative;width:100%;`;
                 mainRow.style.cssText=blogBaseCss;
-                // mainRow.style.paddingInline=window.innerWidth <900 ? (window.innerWidth <600 ? "0px":"10px"):"10px";
                 mainRow.style.paddingInline=less900 ? (less400 ? "0.25rem":"2rem"): "4rem";
-                // mainRow.style.backgroundColor="#e7e8ee";
                 mainRow.style.borderRadius="16px";
             
                 await Promise.all(
-                    blogs && blogs.sort((a,b)=>{if(a.rating > b.rating) return -1; return 1}).
+                    blogs.toSorted((a,b)=>{if(a.rating > b.rating) return -1; return 1}).
                         sort((a,b)=>{if(a.update > b.update) return -1; return 1}).map(async(blog,index)=>{
                     const colBlog=document.createElement("div");
                     colBlog.style.cssText=blogBaseCss ;
@@ -278,13 +284,12 @@ searchbar:Searchbar;
                     }else{
                         colBlog.style.backgroundImage=`url(${this.bendImg1})`;
                     }
-                    // colBlog.style.paddingInline=window.innerWidth <900 ? (window.innerWidth <600 ? "0px":"10px"):"1rem";
+                  
                     colBlog.style.paddingInline="10px";
                     colBlog.style.marginBlock=window.innerWidth <400 ? "1rem":"0.5rem";
                     colBlog.style.borderRadius=`inherit`;
                     colBlog.style.backgroundSize=`100% 100%`;
                     colBlog.style.backgroundPosition=`50% 50%`;
-                    // colBlog.style.boxShadow=`1px 1px 4px 1px #0aa2db,-1px -1px 4px 1px #0aa2db`;
                     await this.displayCard(colBlog,blog);
                     this.allMsgs.blogMsgs({col:colBlog,blog});
                     const {button:btn}=Misc.simpleButton({anchor:colBlog,text:"view details",bg:"#0C090A",color:"white",type:"button",time:400});
@@ -296,8 +301,6 @@ searchbar:Searchbar;
                         if(e){
                             const blogUrl=new URL(`/blog/${blog.id}`,this.baseUrl);
                             window.location.href=blogUrl.href; //going to page
-                            // this.blog=blog;//feeds it to Mod
-                            // this._displayBlog.main(parent);
                         }
                     });
                      //---------------divider------------------//
@@ -311,12 +314,12 @@ searchbar:Searchbar;
                 }));
             
             parent.appendChild(mainRow)
-        }
+        };
     }
     async displayCard(column:HTMLElement,blog:blogType){
         const flex_between= window.innerWidth < 500 ? "center" : "space-between";
         const css_col="margin:auto;display:flex;flex-direction:column;justify-content:center;align-items:center;";
-        const css_row="margin:auto;display:flex;flex-wrap:wrap;justify-content:center;align-items:center;";
+       
         const less900= window.innerWidth <900;
         const less400= window.innerWidth <400;
         column.style.position="relative";
@@ -337,7 +340,7 @@ searchbar:Searchbar;
         text.style.fontSize=window.innerWidth<900 ? (window.innerWidth<400 ? "130%" : "175%") : "220%";
         text.textContent=blog.title ? blog.title : " your title";
         textDiv.appendChild(text);
-        // Misc.thumbsUp({parent:textDiv,cssStyle:{fontSize:"22px",color:"rgba(8, 4, 249,0.5)",zIndex:"1"},time:400,rating:blog.rating,limit:3});
+      
         column.appendChild(textDiv);
         const imgCont=document.createElement("div");
         imgCont.id="displayCard-card-imgCont";
@@ -395,7 +398,7 @@ searchbar:Searchbar;
         cardBody.id="cardBody";
         cardBody.className="C";
         cardBody.style.cssText=`padding-inline:5px;flex:1 1 auto;border-radius:6px;margin-inline:auto;`;
-        cardBody.style.flex=less900 ? (less400 ? "1 0 100%" : "1 0 100%"):"1 1 55%";
+        cardBody.style.flex=less900 ? "1 0 100%":"1 1 55%";
         cardBody.style.width=less900 ? "100%":"auto";
         const update=document.createElement("small");
         update.style.cssText="margin-inline:auto;margin-block:0.5rem;margin-bottom:1rem;margin-bottom:1rem;";
@@ -444,10 +447,11 @@ searchbar:Searchbar;
                 Misc.starRating({parent:div,rating:rating,cssStyle,rowCssStyle:rowCssStyle2});
                 parent.appendChild(div);
             }
-    }
-      noBlogs(item:{parent:HTMLElement,blogs:blogType[]}){
-        const {parent,blogs}=item;
-        if(!(blogs.length===0)) return;
+    };
+
+
+      noBlogs(item:{parent:HTMLElement}){
+        const {parent}=item;
         const container=document.createElement("section");
         container.style.cssText=`margin:auto;width:80%;padding-inline:1rem;padding-block:5rem;background-color:${Blogs.bg_color};color:white;border-radius:7px;position:relative;font-size:18px;`;
         Misc.matchMedia({parent:container,maxWidth:900,cssStyle:{"width":"100%","paddingInline":"5px;","marginBlock":"2rem","paddingBlock":"2rem","maxWidth":"700px"}});
@@ -464,7 +468,9 @@ searchbar:Searchbar;
         Misc.matchMedia({parent:container,maxWidth:600,cssStyle:{"maxWidth":"500px"}});
         Misc.matchMedia({parent:container,maxWidth:460,cssStyle:{"maxWidth":"350px"}});
 
-    }
+    };
+
+
     static slateColorAlways(index:number){
         const colors=slateColors();
         let count=index;

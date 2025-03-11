@@ -6,32 +6,37 @@ import ModSelector from '@/components/editor/modSelector';
 import User from '@/components/user/userMain';
 import SigninClass from './signinClass';
 import Header from '@/components/editor/header';
+import Dataset from '@/components/common/dataset';
+import RegSignIn from '@/components/nav/regSignin';
 
 
 export default function Index() {
-    let count = 0;
+
     const readyRef = React.useRef(null);
+    const countRef = React.useRef(0);
     React.useEffect(() => {
-        if (readyRef.current && count === 0) {
-            if (typeof window !== "undefined") {
-                const modSelector = new ModSelector();
+        if (readyRef.current) {
+            if (typeof window !== "undefined" && countRef.current === 0) {
+                const dataset = new Dataset();
+                const modSelector = new ModSelector(dataset);
                 const service = new Service(modSelector);
-                const user = new User(modSelector, service);
-                // const auth = new AuthService(modSelector,service,user);
-                const signin = new SigninClass(modSelector, service, user);
+                const auth = new AuthService(modSelector, service);
+                const user = new User(modSelector, service, auth);
+                const regSignIn = new RegSignIn(modSelector, service, user)
+                const signin = new SigninClass(modSelector, service, user, regSignIn);
                 const parent = document.querySelector("div#signin_page") as HTMLElement;
                 Header.cleanUp(parent);
-                if (parent && count === 0) {
-                    signin.main(parent).then(async (parent_: HTMLElement) => {
-                        if (parent_) {
-                            count++;
+                if (parent) {
+                    signin.main({ parent, count: countRef.current }).then(async (res) => {
+                        if (res) {
+                            countRef.current = res.count;
 
                         }
                     });
                 }
             }
         }
-    }, [count]);
+    }, []);
     return (
         <div id="signin_page" ref={readyRef}></div>
     )

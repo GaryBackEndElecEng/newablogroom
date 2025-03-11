@@ -1,13 +1,11 @@
 
-import { buttonCheckType, navLinkBtnType, blogType, messageType } from "../editor/Types";
-
-import AuthService from "../common/auth";
+import { buttonCheckType, navLinkBtnType, messageType } from "../editor/Types";
 import Service from "../common/services";
 import ModSelector from "../editor/modSelector";
 import Header from "@/components/editor/header";
 import Misc from "../common/misc";
 import User from "../user/userMain";
-import { getCsrfToken, signIn } from 'next-auth/react';
+import { getCsrfToken } from 'next-auth/react';
 
 
 
@@ -62,7 +60,7 @@ class Nav{
    
     contact(parent:HTMLElement){
         Nav.navHeader=document.querySelector("header#navHeader") as HTMLElement;
-        const useParent= parent ? parent :Nav.navHeader;
+        const useParent= parent ||Nav.navHeader;
         window.scroll(0,0);
         useParent.style.zIndex="";
         const cont=document.createElement("div");
@@ -122,7 +120,7 @@ class Nav{
         const email=document.createElement("input");
         email.name="email";
         email.className="form-control";
-        email.pattern="[a-zA-Z0-9\.]{2,}@[a-zA-Z0-9]{2,}\.[a-z]{2,3}";
+        email.pattern="[a-zA-Z0-9.]{2,}@[a-zA-Z0-9]{2,}.[a-z]{2,3}";
         email.type="text";
         formGrp.appendChild(email);
         formGrp.className="form-group";
@@ -226,7 +224,7 @@ class Nav{
        });
        email.addEventListener("input",(e:Event)=>{
         if(e){
-            const reg:RegExp=/[a-zA-Z0-9\.]{2,}@[a-zA-Z0-9]{2,}\.[a-z]{2,3}/g;
+            const reg:RegExp=/[a-zA-Z0-9.]{2,}@[a-zA-Z0-9]{2,}.[a-z]{2,3}/g;
             const mail=(e.currentTarget as HTMLInputElement).value;
             
             if(reg.test(mail)){
@@ -319,7 +317,9 @@ class Nav{
         }else{
             return parent.innerHTML
         }
-    }
+    };
+
+    
     static splitString(str:string,splitCount:number):string|undefined{
         let word="";
         const arrWord:string[]=[];
@@ -362,64 +362,13 @@ class Nav{
             parent.style.textWrap="pretty";
             return parent.innerHTML
         }
-    }
+    };
+  
 
-    async send_contact(parent:HTMLElement,msg:messageType){
-        return this._service.sendMsgToServer(parent,msg) as Promise<messageType>
-        
-    }
-    async loadBlog():Promise<blogType | null>{
-        return this.getLocal("blog").then(async(value)=>{
-            const {parsed,isJSON}=Header.checkJson(value as string);
-            if(isJSON){
-                return parsed as blogType;
-            }
-        }) as Promise<blogType|null>
-    }
-    async loadUserId():Promise<string|null>{
-        return this.getLocal("user_id").then(async(value:string|null)=>{
-            return value as string
-        }) as Promise<string | null>
-    }
-    async getLocal(item:string){
-        return new Promise((resolver,reject)=>{
-            if(typeof window !=="undefined"){
-                resolver(localStorage.getItem(item));
-                reject("nav:no localStorage blogs");
-            };
-        }) as Promise<string | null>;
-    }
-    hoverEffect(item:{target:HTMLElement,time:number}){
-        const {target,time}=item;
-        const boxshadow1=target.style.boxShadow;
-        const transform1=target.style.transform;
-        const boxshadow2="1px 1px 20px 1px white";
-        const transform2="scale(1)";
-        target.onmouseover=(e:Event)=>{
-            if(e){
-                target.animate([
-                    {transform:transform1,boxShadow:boxshadow1},
-                    {transform:transform2,boxShadow:boxshadow2},
-                    {transform:transform2,boxShadow:boxshadow2},
-                    {transform:transform1,boxShadow:boxshadow1},
-                ],{duration:time,iterations:1,"easing":"ease-in-out"})
-            }
-        };
-        target.onmouseout=(e:Event)=>{
-            if(e){
-                target.animate([
-                    {transform:transform2,boxShadow:boxshadow2},
-                    {transform:transform1,boxShadow:boxshadow1},
-                ],{duration:time,iterations:1,"easing":"ease-in-out"})
-            }
-        };
-        
-        
-    }
    
    static regTest({item,value}:{item:string,value:string}):{item:string,value:string}{
-        const reg_pswd=/[a-zA-z0-9\.\?\-\!]{6,}/g;
-        const reg_email=/[a-zA-Z0-9\.]{2,}@[a-zA-Z0-9]{2,}\.[a-z]{2,3}/g;
+        const reg_pswd=/[a-zA-Z0-9.?\-!]{6,}/g;
+        const reg_email=/[a-zA-Z0-9.]{2,}@[a-zA-Z0-9]{2,}\.[a-z]{2,3}/g;
         if(item==="password" && !reg_pswd.test(value)){
             return {item:"fail",value:"password"};
         }else if(item==="email" && !reg_email.test(value)){
@@ -431,9 +380,8 @@ class Nav{
 
    static cancel(parent:HTMLElement,target:HTMLElement){
         Nav.navHeader=document.querySelector("header#navHeader") as HTMLElement;
-        const useParent= parent ? parent :Nav.navHeader;
+        const useParent= parent ||Nav.navHeader;
         const btn=document.createElement("button");
-        // FaBtn({parent:btn,icon:FaTrash,cssStyle:css});
         btn.style.cssText="position:absolute;top:0px;right:0px;transform:translate(-9px,9px);border-radius:50%;border:1px solid white;z-index:1000;padding:0px;font-size:10px;width:11px;height:11px;";
         btn.textContent="X";
         btn.className="btn text-danger btn-sm";
@@ -510,7 +458,7 @@ class Nav{
             Nav.btnLinkChecks=Nav.btnLinkChecks.map(linkCheck=>{
                 if(url_ && linkCheck.link && url_.includes(linkCheck.link)){
                     linkCheck.check=true;
-                    linkCheck.isUser=isUser?true:false;
+                    linkCheck.isUser=isUser;
                     if(linkCheck.count >0){
                         linkCheck.count+=1;
                     }else{
@@ -572,7 +520,7 @@ class Nav{
         email.id=`email-${rand}`;
         label.setAttribute("for",email.id);
         email.className="form-control";
-        email.pattern="[a-zA-Z0-9\.]{2,}@[a-zA-Z0-9]{2,}\.[a-z]{2,3}";
+        email.pattern="[a-zA-Z0-9.]{2,}@[a-zA-Z0-9]{2,}.[a-z]{2,3}";
         email.type="email";
         formGrp_email.appendChild(label);
         formGrp_email.appendChild(email);
@@ -588,7 +536,7 @@ class Nav{
         email.addEventListener("input",(e:Event)=>{
             if(e){
                 const email_=(e.currentTarget as HTMLInputElement).value;
-                const Reg:RegExp=/[a-zA-Z0-9\.]{2,}@[a-zA-Z0-9]{2,}\.[a-z]{2,3}/g;
+                const Reg:RegExp=/[a-zA-Z0-9.]{2,}@[a-zA-Z0-9]{2,}\.[a-z]{2,3}/g;
                 if(!Reg.test(email_)){
                     res_e1.textContent=" Form=> MyMail@mail.com"
                 }else{
@@ -620,7 +568,7 @@ class Nav{
         pass.type="password";
         pass.name="password";
         pass.className="form-control";
-        pass.pattern="[a-zA-Z0-9\.\!\?\%]{5,}";
+        pass.pattern="[a-zA-Z0-9.!?%]{5,}";
         formGrp_pass.appendChild(label);
         formGrp_pass.appendChild(pass);
         formGrp_pass.appendChild(pass_cont);
@@ -635,7 +583,7 @@ class Nav{
         pass.addEventListener("input",(e:Event)=>{
             if(e){
                 const pass_=(e.currentTarget as HTMLInputElement).value;
-                const Reg:RegExp=/[a-zA-Z0-9\^\$\!]{5,}/g;
+                const Reg:RegExp=/[a-zA-Z0-9^$!]{5,}/g;
                 if(!Reg.test(pass_)){
                     res_p.textContent="12345..characters with/without $,#,!,,,"
                 }else{

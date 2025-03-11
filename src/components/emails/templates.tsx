@@ -24,7 +24,7 @@ export const signUpHTML = async (item: { user: userType }) => {
     const { user } = item;
     const newUser = await getUserImage(user)
     const username = user.name ? user.name : "blogger";
-    const image = user.imgKey ? await getUserImage(user) : userpic;
+    const image = newUser.imgKey || userpic;
     return (
         `<!DOCTYPE html>
         <html lang="en">
@@ -142,6 +142,142 @@ export const signUpHTML = async (item: { user: userType }) => {
     `
     )
 }
+export const simpleSignUpText = (item: { email: string, name: string }) => {
+    const { email, name } = item;
+    return (
+        `<h1>Community member</h1>
+        <h4>${name || "blogger"}, Thank for signing up with Us</h4>
+    <br>
+    <span><img src="${logo}" alt="www.ablogroom.com" style="width:100px;height:100px;"/><h4>${"ABLOGROOM.COM"}</h4></span>
+    <br/>
+    <p>We are always updating our free services and will let you know when, new services are available</p>
+    <p>We will email as soon as new services become available to your email @: ${email}</p>
+    <br>
+    <br>
+    <a href="www.masterconncet.ca">master connect</a>
+    <p>email: masterultils@gmail.com</p>`
+    )
+}
+export const simpleSignUpHTML = (item: { name: string, email: string }) => {
+    const { name, email } = item;
+
+    return (
+        `<!DOCTYPE html>
+        <html lang="en">
+        <head>
+            <meta charset="UTF-8">
+            <meta name="viewport" content="width=device-width, initial-scale=1.0">
+            <title>You've signed up</title>
+            <style>
+                body{
+                    border-radius:10px;
+                    box-shadow:1px 1px 5px 20px grey,-1px -1px -5px 20px grey;
+                }
+                h4{
+                    color:blue;
+                }
+                h1{ 
+                font:bold;
+                text-decoration:underline;
+                text-underline-offset:0.5rem;
+                color:#0848ea;
+                }
+                .masterultils{
+                    background:whitesmoke;
+                    margin-block:20px;
+                    padding-block:20px;
+                    border-radius:10%;
+                    width:30%;
+                    padding:2rem;
+                    text-align:left;
+                    box-shadow:1px 1px 20px 2px grey,-1px -1px 20px 2px grey;
+                }
+                p{margin-block:10px}
+                .list{
+                    margin-block:20px;
+                    background:white;
+                    border-radius:10px;
+                    padding:7px;
+                    box-shadow:1px 1px 5px 20px grey,-1px -1px -5px 20px grey;
+                }
+                    .list>li{
+                    padding-block:3px;
+                }
+                img{
+                    border-radius:50%;
+                    padding:1rem;
+                    box-shadow: 2px 2px 10px 2px black,-2px -2px 10px 2px white;
+                    width:100px;
+                    aspect-ratio:1 /1;
+                    background-color:whitesmoke;
+                    filter:drop-shadow(0 0 0 0.75rem white);
+                    float:left;
+                    shape-outside:circle(50%);
+                    margin-right:1rem;
+                }
+                .img2{
+                    border-radius:50%;
+                    padding:1rem;
+                    box-shadow: 2px 2px 10px 2px black,-2px -2px 10px 2px white;
+                    width:65px;
+                    aspect-ratio:1 /1;
+                    background-color:whitesmoke;
+                    filter:drop-shadow(0 0 0 0.75rem white);
+                    float:left;
+                    margin-right:1rem;
+                }
+                #thankyou{
+                border-radius:12px;
+                box-shadow: 2px 2px 10px 2px black,-2px -2px 10px 2px lightblue;
+                width:100px;
+                padding:1rem;
+                background-color:blue;
+                filter:drop-shadow(0 0 0 0.75rem lightblue);
+                float:left;
+                shape-outside:inset(10px 10px 10px 10px);
+                margin-right:1rem;
+                }
+                    .flex-row{
+                    display:flex;
+                    flex-direction:row;
+                    flex-wrap:wrap;
+                    justify-content:center;
+                    align-items:center;
+                    gap:1rem;
+                    }
+            </style>
+        </head>
+        <body>
+            <h1>Community Member.</h1>
+           <h4>Thank you ${name} for Signing up with us.</h4>
+            <br/>
+            <span><img class="img2" src=${logo} /><h4>ABLOGROOM.COM</h4></span>
+            <br/>
+            <p>We are always updating our free services and will let you know when, new services are available</p>
+            <p>We will email as soon as new services become available to your email @: ${email}</p>
+            <p> please do not hesitate to communicate with us.We work hard to provide free services for your needs.</p>
+            <h4> additional interesting things you might like</h4>
+            <ul class="list">
+                <li><a href="https://www.masterultils.com/articles">articles</a></li>
+                <li><a href="https://www.masterultils.com/contact">Contact Us</a></li>
+                <li><a href="https://www.masterultils.com/register">register</a></li>
+                <li><a href="https://www.masterconnect.ca/design">Our Designs</a></li>
+            </ul>
+            
+            <p style="max-width:600px;">
+
+                <img id=thankyou src=${thankyou} alt="www.masterconnect.ca"
+                
+                />
+                We try to make your life easy and equally ensure that you are connected. Please let us know if we can improve your needs.
+                <a href="www.masterconncet.ca">master connect</a>
+                Gary Wallace,<a href="mailto: masterultils@gmail.com">send us an email.</a>
+            </p>
+        </body>
+        </html>
+    `
+    )
+}
 export const clientMsgText = (item: { viewerName: string | null, viewerEmail: string, msg: string, user: userType }) => {
     const { viewerName, viewerEmail, msg, user } = item;
     return (
@@ -150,7 +286,7 @@ export const clientMsgText = (item: { viewerName: string | null, viewerEmail: st
     <br>
         ${msg}
         <br/>
-    <span><img src="${user.image ? user.image : logo}" alt="${viewerName}" style="width:100px;height:100px;"/><h4>${viewerName ? viewerName : "blogger"}</h4></span>
+    <span><img src="${user.image ? user.image : logo}" alt="${viewerName}" style="width:100px;height:100px;"/><h4>${viewerName || "blogger"}</h4></span>
     <br/>
     <p>We are always updating our free services and will let you know when, new services are available</p>
     <p>We will email as soon as new services become available to your email @: ${viewerEmail}</p>
@@ -162,7 +298,8 @@ export const clientMsgText = (item: { viewerName: string | null, viewerEmail: st
 }
 export const clientMsgHTML = async (item: { viewerName: string | null, viewerEmail: string, msg: string, user: userType }) => {
     const { viewerName, viewerEmail, msg, user } = item;
-    const userImage = user.imgKey ? await getUserImage(user) : userpic;
+    const newUser = user ? await getUserImage(user) : null;
+    const userImage = newUser?.imgKey ? newUser.image : userpic;
 
     return (
         `<!DOCTYPE html>
@@ -241,7 +378,7 @@ export const clientMsgHTML = async (item: { viewerName: string | null, viewerEma
         <body>
             <h1>Community member</h1>
             <br/>
-            <span class="flex-row"><img class="img2" src=${userImage} /><h4>${viewerName ? viewerName : "Blogger"}</h4></span>
+            <span class="flex-row"><img class="img2" src=${userImage} /><h4>${viewerName || "blogger"}</h4></span>
             <br/>
             <p>${msg}</p>
             <br/>
@@ -277,7 +414,7 @@ export const adminMsgText = (item: { message: messageType, user: userType, reply
     return (
         `<h1>Community member</h1>
     <br>
-    <h1>Thanks for your request ${name ? name : "Blogger"}</h1>
+    <h1>Thanks for your request ${name || "Blogger"}</h1>
     <ul>
     <li>email:<u>${email}</u></li>
     <li><u>your rquest:</u><span> ${msg}</span></li>
@@ -401,7 +538,7 @@ export const adminMsgHTML = (item: { message: messageType, user: userType, reply
             </style>
         </head>
         <body>
-            <h3>Thanks for your request ${name ? name : "Blogger"}</h3>
+            <h3>Thanks for your request ${name || "Blogger"}</h3>
             <ul>
             <li>email:${email}</li>
             <li>your request:<span class="reply"> ${msg}</span></li>
@@ -559,7 +696,7 @@ export const QuoteHTML = (item: { message: { msg: string }, user: userType, quot
     </style>
 </head>
 <body>
-    <h3>Thanks for your request ${name ? name : "Blogger"}</h3>
+    <h3>Thanks for your request ${name || "Blogger"}</h3>
     <ul>
     <li>email:${email}</li>
     <li>your request:<span class="reply"> ${msg}</span></li>
@@ -607,7 +744,7 @@ export const QuoteText = (item: { message: { msg: string }, user: userType, quot
     return (
         `<h1>Community member</h1>
     <br>
-    <h1>Thanks for your request ${name ? name : "Blogger"}</h1>
+    <h1>Thanks for your request ${name || "Blogger"}</h1>
     <ul>
     <li>email:<u>${email}</u></li>
     <li><u>your request:</u><span> ${msg}</span></li>
@@ -654,7 +791,7 @@ export const sendReqAnswerText = async (item: { clientName: string | undefined, 
     <br>
     <p>safe amazon link registered link to the answer, below</p>
         <br/>
-        ${post.sendReqKey ? `<a href=${uri ? uri : "#"}>${uri ? uri.slice(0, 25) : ""}</a>` : `<p> ${msg}</p>`}
+        ${post.sendReqKey ? `<a href=${uri || "#"}>${uri ? uri.slice(0, 25) : ""}</a>` : `<p> ${msg}</p>`}
     <br>
     <a href="www.masterconncet.ca">master connect</a>
     <p>email: masterultils@gmail.com</p>
@@ -665,7 +802,7 @@ export const sendReqAnswerText = async (item: { clientName: string | undefined, 
     )
 }
 export const sendReqAnswerHTML = async (item: { clientName: string | undefined, clientEmail: string, msg: string | undefined, user: userType, post: postType, uri: string | null }) => {
-    const { clientName, clientEmail, msg, user, post, uri } = item;
+    const { clientName, msg, user, post, uri } = item;
     const user_aws = user.imgKey ? await getUserImage(user) : { ...user, image: userpic };
 
     return (
@@ -795,7 +932,7 @@ export const sendReqAnswerHTML = async (item: { clientName: string | undefined, 
             <br>
             <p>safe amazon link registered link to the ${post.title ? post.title : "post"}. The answer is below</p>
             <br/>
-            ${post.sendReqKey ? `<div class="sendReqKeyImgCont"><img src=${uri ? uri : "#"} alt=" sorry your email does not accept styling"></div>` : ""}
+            ${post.sendReqKey ? `<div class="sendReqKeyImgCont"><img src=${uri || "#"} alt=" sorry your email does not accept styling"></div>` : ""}
             ${post.sendMsg ? `<div class="msgContainer"><p>cont: ${msg}</p></div>` : ""}
             <br>
             <br>

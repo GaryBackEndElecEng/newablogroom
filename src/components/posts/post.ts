@@ -2,19 +2,18 @@ import Misc from "../common/misc";
 import Service from "../common/services";
 import ModSelector from "../editor/modSelector";
 import { postType, userType } from "../editor/Types";
-// import { DeleteObjectCommand } from '@aws-sdk/client-s3';
 import User from "../user/userMain";
 import Nav from "../nav/headerNav";
 import Header from "../editor/header";
-import { FaCrosshairs } from "react-icons/fa";
+import { FaCrosshairs,FaThumbsUp } from "react-icons/fa";
 import { FaCreate } from "../common/ReactIcons";
 import Blogs from "../blogs/blogsInjection";
-import { FaThumbsUp } from "react-icons/fa";
 import { FaHandBackFist } from "react-icons/fa6";
 import { imageLoader } from "../common/tsFunctions";
 import AddImageUrl from "../common/addImageUrl";
 import PostDetail from "../postDetail/postdetail";
 import Searchbar from "../common/searchbar";
+import AuthService from "../common/auth";
 
 
 class Post{
@@ -33,7 +32,7 @@ class Post{
     postDetail:PostDetail;
     _usersinfo:userType[];
     searchbar:Searchbar;
-    constructor(private _modSelector:ModSelector,private _service:Service,private _user:User){
+    constructor(private _modSelector:ModSelector,private _service:Service,private auth:AuthService,private _user:User){
         this.smile="/images/emojiSmile.png";
         this.logo="/images/gb_logo.png";
         this.postLogo="/images/posts.png";
@@ -45,7 +44,7 @@ class Post{
         this._usersinfo=[] as userType[];
         this.addImageClass= new AddImageUrl(this._modSelector,this._service);
         const thisuser=this._user.user
-        this.postDetail=new PostDetail(this._modSelector,this._service,this._user,thisuser);
+        this.postDetail=new PostDetail(this._modSelector,this._service,this.auth,this._user,thisuser);
         this.count=0;
         this.handPic="/images/hand.png";
     }
@@ -76,18 +75,25 @@ class Post{
     }
     get user(){
         return this._user.user;
+    };
+
+    loadPosts({posts}:{posts:postType[]}):Promise<postType[]>{
+
+        this.posts=posts;
+        return Promise.resolve(this.posts) as Promise<postType[]>
     }
     
     //----GETTERS SETTERS----////
 
     async main(item:{injector:HTMLElement,posts:postType[],usersinfo:userType[]}){
         const {injector,posts,usersinfo}=item;
-        this.searchbar= new Searchbar({blogs:null,posts:posts});//INPUT INTO POST DISPLAYS
+        //recieved posts:posts from index
+        this.posts=posts;
+        this.searchbar= new Searchbar({blogs:null,posts:this.posts});//INPUT INTO POST DISPLAYS
         const less900=window.innerWidth < 900;
         const less400=window.innerWidth < 400;
         this.usersinfo=usersinfo;
-        // console.log(this.usersinfo);//all users showinfo works
-        this.posts=posts;
+        
         Header.cleanUpByID(injector,"main-post-container");
         const css_col="margin-inline:auto;display:flex;flex-direction:column;align-items:center;margin-block:1.65rem;";
         this.injector=injector;
@@ -96,7 +102,7 @@ class Post{
         container.style.cssText=css_col + " width:100%;min-height:110vh;";
         container.style.gap=less900 ? (less400 ? "3rem":"2.5rem"):"2rem";
         injector.appendChild(container);
-        if(this.user && this.user.id && this.user.email){
+        if(this.user.id!=="" && this.user.email!==""){
             const {button:create_post}=Misc.simpleButton({anchor:container,type:"button",bg:Nav.btnColor,color:"white",time:400,text:"create a post"});
             create_post.style.marginBottom="1rem;"
             create_post.onclick=(e:MouseEvent) =>{
@@ -115,11 +121,12 @@ class Post{
                 await this.searchbar.mainPost({
                     parent:container,
                     funcPost:async({posts})=>{
-
-                        await this.Posts({injector:container,container,posts:posts,user:this.user}).then(async(res_)=>{
+                        //RETURN FILED POSTS
+                        await this.Posts({container,posts:posts,user:this.user}).then(async(res_)=>{
                             if(res_){
+                               
                                 if(res_.posts && res_.posts.length>0){
-                                    this.posts=res_.posts.sort((a,b)=>{if(a.likes > b.likes)return -1;return 1}).map(post=>(post));
+                                    this.posts=res_.posts.toSorted((a,b)=>{if(a.likes > b.likes)return -1;return 1}).map(post=>(post));
                         
                                     this.posts.map(async(post,index)=>{
                                         if(post){
@@ -154,7 +161,7 @@ class Post{
         textContainer.style.cssText=css_col + "background-color:black;border-radius:12px;margin-top:1rem;filter:drop-shadow(0 0 0.5rem white);position:relative;";
         textContainer.style.width="100%";
         textContainer.style.paddingBottom=less900 ? (less400 ? "2rem":"2.5rem") : "2rem";
-        textContainer.style.paddingInline=less900 ? (less400 ? "1rem":"1rem") : "2rem";
+        textContainer.style.paddingInline=less900 ? "1rem" : "2rem";
         const text=document.createElement("p");
         text.id="textContainer-mainTitle";
         text.className="subTitleStyleThreeNoBorder text-center  my-2 mb-4 mx-auto lean";
@@ -177,7 +184,7 @@ class Post{
         div2.style.height=less900 ? (less400 ? "5px":"8px"):"9px";
         const para=document.createElement("p");
         para.id="textContainer-para";
-        // para.textContent="updates, comments && Miscelanous";
+       
         para.style.cssText="padding-block:1rem;padding-inline:1rem;margin-inline:auto;margin-top:0.5rem;text-wrap:wrap;text-align:center;box-shadow:1px 1px 3px 1px #06a4f7;";
         para.style.fontSize=less900 ? (less400 ? "130%":"150%"):"175%";
         para.style.color="#06a4f7";
@@ -241,9 +248,7 @@ class Post{
         ///--------------------------title display ----------------------///
         
         container.appendChild(textContainer);
-        return new Promise(resolve=>{
-            resolve({textContainer,container,para,time});
-        }) as Promise<{textContainer:HTMLElement,container:HTMLElement,para:HTMLElement,time:number}>;
+        return Promise.resolve({textContainer,container,para,time}) as Promise<{textContainer:HTMLElement,container:HTMLElement,para:HTMLElement,time:number}>;
     };
     phraseArt({target,phrase,less400,less900,time}:{target:HTMLElement,phrase:string,less400:boolean,less900:boolean,time:number}):Promise<{target:HTMLElement}>{
         const wordArr=phrase.split("");
@@ -256,9 +261,7 @@ class Post{
                 target.appendChild(span);
             }
         });
-        return new Promise(resolver=>{
-            resolver({target})
-        }) as Promise<{target:HTMLElement}>;
+        return Promise.resolve({target}) as Promise<{target:HTMLElement}>;
        
     }
     handSmileWave({introContainer,innerParent,less400,less900,time}:{introContainer:HTMLElement,innerParent:HTMLElement,less400:boolean,less900:boolean,time:number}){
@@ -284,7 +287,7 @@ class Post{
         smile.style.cssText="margin-auto;filter:drop-shadow(0 0 0.5rem lightblue);position:relative;";
         smile.style.width=less900 ? (less400 ? "48px":"68px"):"78px";
         hand.style.width=less900 ? (less400 ? "28px":"35px"):"35px";
-        hand.style.left=less900 ? (less400 ? "13%":"13%"):"13%";
+        hand.style.left="13%";
         hand.style.transform=less900 ? (less400 ? "translate(10px,-12px)":"translate(8px,25px)"):"translate(-20px,-20px)";
         smile.style.transform=less900 ? (less400 ? "translate(10px,20px)":"translate(8px,25px)"):"translate(10px,36px)";
         imgContainer.appendChild(hand);
@@ -344,7 +347,7 @@ class Post{
 
     }
     async showIntroduction({introContainer,less900,less400}:{introContainer:HTMLElement,less400:boolean,less900:boolean}):Promise<{introContainer:HTMLElement,para:HTMLElement,small:HTMLElement}>{
-        const css_col="display:flex;justify-content:center;flex-direction:column;align-items:center;"
+       
         const para=document.createElement("p");
         para.innerHTML="Science, Technology, Puzzles,Thoughts and Riddles all on one page for your<span style=font-weight:bold;> Interest.</span>";
         const small=document.createElement("small");
@@ -356,14 +359,12 @@ class Post{
         introContainer.style.opacity="0";
         introContainer.style.paddingInline=less900 ? (less400 ? "10px":"1rem"):"2rem";
         introContainer.style.minHeight=less900 ? (less400 ? "170px":"100px"):"75px";
-        return new Promise(resolver=>{
-            resolver({introContainer,para,small});
-        }) as Promise<{introContainer:HTMLElement,para:HTMLElement,small:HTMLElement}>;
+        return Promise.resolve({introContainer,para,small}) as Promise<{introContainer:HTMLElement,para:HTMLElement,small:HTMLElement}>;
     }
-    async Posts(item:{injector:HTMLElement,container:HTMLElement,posts:postType[],user:userType}):Promise<{container:HTMLElement,subDiv:HTMLElement,row:HTMLElement,posts:postType[],user:userType}>{
-        const {injector,container,posts,user}=item;
-        const less900=window.innerWidth < 900 ? true:false;
-        const less400=window.innerWidth < 400 ? true:false;
+    async Posts(item:{container:HTMLElement,posts:postType[],user:userType}):Promise<{container:HTMLElement,subDiv:HTMLElement,row:HTMLElement,posts:postType[],user:userType}>{
+        const {container,posts,user}=item;
+        const less900=window.innerWidth < 900 ;
+        const less400=window.innerWidth < 400 ;
         Header.cleanUpByID(container,"main-post-container-subDiv");//CLEANING UP
         const css="margin-inline:auto;display:flex;flex-direction:column;justify-content:flex-start;align-items:center;gap:1.5rem;";
         const css_row="margin-inline:auto;display:flex;justify-content:flex-start;align-items:flex-start;flex-wrap:wrap;width:100%;";
@@ -385,9 +386,7 @@ class Post{
         }
         subDiv.appendChild(row);
         container.appendChild(subDiv);
-        return new Promise(resolve=>{
-            resolve({container,subDiv,row,posts,user})
-        }) as Promise<{container:HTMLElement,subDiv:HTMLElement,row:HTMLElement,posts:postType[],user:userType}>;
+        return Promise.resolve({container,subDiv,row,posts,user}) as Promise<{container:HTMLElement,subDiv:HTMLElement,row:HTMLElement,posts:postType[],user:userType}>;
     };
     createPost(item:{injector:HTMLElement,user:userType}){
         const {injector,user}=item;
@@ -451,7 +450,7 @@ class Post{
         lpub.textContent="publish";
         lpub.style.cssText="font-size:140%;text-decoration:underline;text-underline-offset:0.5rem;margin-bottom:1rem;";
         lpub.setAttribute("for",pub.id);
-        const {input:link,label:lLink,formGrp:grplink}=Nav.inputComponent(form);
+        const {input:link,label:lLink}=Nav.inputComponent(form);
         link.id="link";
         link.name="link";
         link.placeholder="https://example.com";
@@ -470,7 +469,7 @@ class Post{
                 submit.disabled=false;
             }
         };
-        if(user && user.id && user.email){
+        if(user.id!=="" && user.email!==""){
             popup.appendChild(form);
             injector.appendChild(popup);
             Misc.fadeIn({anchor:popup,xpos:100,ypos:100,time:500});
@@ -502,7 +501,7 @@ class Post{
                 const pub=formdata.get("pub") as string;
                 const link=formdata.get("link") as string;
                 if(content && title){
-                    const send_msg=sendMsg ? sendMsg : undefined;
+                    const send_msg=sendMsg || "Message";
                     const post:postType={...this.initPost,userId:user.id,sendMsg:send_msg,title:title as string,content:content as string,published:Boolean(pub),link}
                     this.uploadFreeNone({injector,popup:popup,post:post,user,css_col,css_row});
                     const labelDisplay2=injector.querySelector("div#labelDisplay2") as HTMLElement;
@@ -547,7 +546,7 @@ class Post{
         };
         addSendReqKey.onclick=(e:MouseEvent)=>{
             if(e){
-                this.uploadSendMsgPic({card:injector,editPopup:popup,post,user,css_col,less400,less900});
+                this.uploadSendMsgPic({editPopup:popup,post,user,css_col,});
                 btnContainer.removeChild(addSendReqKey);
                 
             }
@@ -565,9 +564,9 @@ class Post{
                         if(getScrollCol1){
                             //USED BY Profile: client account
                             const getCont=getScrollCol1.querySelector("div#main-post-container") as HTMLElement;
-                            await this.Posts({injector:getScrollCol1,container:getCont,posts:this.posts,user}).then(async(res_)=>{
+                            await this.Posts({container:getCont,posts:this.posts,user}).then(async(res_)=>{
                                 if(res_.posts && res_.posts.length>0){
-                                    this.posts=res_.posts.sort((a,b)=>{if(a.likes > b.likes)return -1;return 1}).map(post=>(post));
+                                    this.posts=res_.posts.toSorted((a,b)=>{if(a.likes > b.likes)return -1;return 1}).map(post=>(post));
                                     this.posts.map(async(post,index)=>{
                                         if(post){
                                             const userinfo=this.usersinfo.find(user_=>(user_.id===post.userId));
@@ -580,9 +579,9 @@ class Post{
                             injector.style.height="auto";
                         }else{
                             const getCont=this.injector.querySelector("div#main-post-container") as HTMLElement;
-                            await this.Posts({injector:this.injector,container:getCont,posts:this.posts,user}).then(async(res_)=>{
+                            await this.Posts({container:getCont,posts:this.posts,user}).then(async(res_)=>{
                                 if(res_.posts && res_.posts.length>0){
-                                    this.posts=res_.posts.sort((a,b)=>{if(a.likes > b.likes)return -1;return 1}).map(post=>(post));
+                                    this.posts=res_.posts.toSorted((a,b)=>{if(a.likes > b.likes)return -1;return 1}).map(post=>(post));
                                     this.posts.map(async(post,index)=>{
                                         if(post){
                                             const userinfo=this.usersinfo.find(user_=>(user_.id===post.userId));
@@ -614,15 +613,13 @@ class Post{
             if(res){
                 res.arr.map((btnUrl,index)=>{
                     if(btnUrl){
-                        // const getBtnEle=res.reParent.querySelector(`button#${btnUrl.btn.id}`) as HTMLButtonElement;
-                        // if(!getBtnEle) return;
-                        // console.log("click",btnUrl.btn)//works
+                        
                         btnUrl.btn.onclick=async(e:MouseEvent)=>{
                             if(e){
                                 this.post=this.initPost;
                                 const image=res.arr[index].imageUrl;
                                 this.post={...post,userId:user.id,image:image};
-                                // console.log("outside:",this.post);//works
+                               
                                 await this._service.saveUpdatepost({post:this.post}).then(async(post_)=>{
                                     if(post_){
                                         this.posts=[...this._posts,post_];
@@ -631,9 +628,9 @@ class Post{
                                         if(getScrollCol1){
                                             //USED BY Profile: client account
                                             const getCont=getScrollCol1.querySelector("div#main-post-container") as HTMLElement;
-                                            await this.Posts({injector:getScrollCol1,container:getCont,posts:this.posts,user}).then(async(res_)=>{
+                                            await this.Posts({container:getCont,posts:this.posts,user}).then(async(res_)=>{
                                                 if(res_.posts && res_.posts.length>0){
-                                                    this.posts=res_.posts.sort((a,b)=>{if(a.likes > b.likes)return -1;return 1}).map(post=>(post));
+                                                    this.posts=res_.posts.toSorted((a,b)=>{if(a.likes > b.likes)return -1;return 1}).map(post=>(post));
                                                     this.posts.map(async(post,index)=>{
                                                         if(post){
                                                             const userinfo=this.usersinfo.find(user_=>(user_.id===post.userId));
@@ -646,10 +643,10 @@ class Post{
                                             res.reParent.style.height="auto";
                                         }else{
                                             const getCont=this.injector.querySelector("div#main-post-container") as HTMLElement;
-                                            // console.log("getCont",getCont)//works
-                                            await this.Posts({injector:injector,container:getCont,posts:this.posts,user}).then(async(res_)=>{
+                                            
+                                            await this.Posts({container:getCont,posts:this.posts,user}).then(async(res_)=>{
                                                 if(res_.posts && res_.posts.length>0){
-                                                    this.posts=res_.posts.sort((a,b)=>{if(a.likes > b.likes)return -1;return 1}).map(post=>(post));
+                                                    this.posts=res_.posts.toSorted((a,b)=>{if(a.likes > b.likes)return -1;return 1}).map(post=>(post));
                                                     this.posts.map(async(post,index)=>{
                                                         if(post){
                                                             const userinfo=this.usersinfo.find(user_=>(user_.id===post.userId));
@@ -707,7 +704,7 @@ class Post{
                 const file=formdata.get("file") as File | null;
                 if(file ){
                     submitBtn.disabled=true;
-                    const urlImg=URL.createObjectURL(file as File);
+                    
                     this._service.generatePostImgKey(formdata,post) as {Key:string};
                    await this._service.simpleImgUpload(injector,formdata).then(async(res)=>{
                         if(res){
@@ -719,10 +716,10 @@ class Post{
                                     if(getScrollCol1){
                                         //USED BY Profile: client account
                                         const getCont=getScrollCol1.querySelector("div#main-post-container") as HTMLElement;
-                                        await this.Posts({injector:getScrollCol1,container:getCont,posts:this.posts,user}).then(async(res_)=>{
+                                        await this.Posts({container:getCont,posts:this.posts,user}).then(async(res_)=>{
                                             if(res_.posts && res_.posts.length>0){
-                                                this.posts=res_.posts.sort((a,b)=>{if(a.likes > b.likes)return -1;return 1}).map(post=>(post));
-                                                this.posts.sort((a,b)=>{if(a.likes > b.likes)return -1;return 1}).map(async(post,index)=>{
+                                                this.posts=res_.posts.toSorted((a,b)=>{if(a.likes > b.likes)return -1;return 1}).map(post=>(post));
+                                                this.posts.toSorted((a,b)=>{if(a.likes > b.likes)return -1;return 1}).map(async(post,index)=>{
                                                     if(post){
                                                         const userinfo=this.usersinfo.find(user_=>(user_.id===post.userId));
                                                         this.postCard({row:res_.row,post,user:this.user,userinfo,index});
@@ -734,10 +731,10 @@ class Post{
                                         injector.style.height="auto";
                                     }else{
                                         const getCont=injector.querySelector("div#main-post-container") as HTMLElement;
-                                        await this.Posts({injector,container:getCont,posts:this.posts,user}).then(async(res_)=>{
+                                        await this.Posts({container:getCont,posts:this.posts,user}).then(async(res_)=>{
                                             if(res_.posts && res_.posts.length>0){
-                                                this.posts=res_.posts.sort((a,b)=>{if(a.likes > b.likes)return -1;return 1}).map(post=>(post));
-                                                this.posts.sort((a,b)=>{if(a.likes > b.likes)return -1;return 1}).map(async(post,index)=>{
+                                                this.posts=res_.posts.toSorted((a,b)=>{if(a.likes > b.likes)return -1;return 1}).map(post=>(post));
+                                                this.posts.toSorted((a,b)=>{if(a.likes > b.likes)return -1;return 1}).map(async(post,index)=>{
                                                     if(post){
                                                         const userinfo=this.usersinfo.find(user_=>(user_.id===post.userId));
                                                         this.postCard({row:res_.row,post,user:this.user,userinfo,index});
@@ -767,8 +764,8 @@ class Post{
         popup.appendChild(form);
         injector.appendChild(popup)
     }
-    uploadSendMsgPic(item:{card:HTMLElement,editPopup:HTMLElement,post:postType,user:userType,css_col:string,less400:boolean,less900:boolean}){
-        const {card,editPopup,post,user,less400,less900,css_col}=item;
+    uploadSendMsgPic(item:{editPopup:HTMLElement,post:postType,user:userType,css_col:string}){
+        const {editPopup,post,css_col}=item;
         this.post=post;
         editPopup.style.zIndex="1";
         const popup=document.createElement('div');
@@ -812,7 +809,7 @@ class Post{
                     submit.disabled=true;
                   const {Key}=this._service.generatePostSendReqKey({formdata,post}) as {Key:string};
                     this.post={...post,sendReqKey:Key};
-                  this._service.uploadfreeimage({parent:editPopup,formdata}).then(async(res)=>{
+                  this._service.uploadfreeimage({formdata}).then(async(res)=>{
                     if(res){
                         const img=document.createElement("img");
                         img.id="form-img-show";
@@ -906,12 +903,13 @@ class Post{
         cardBody.style.cssText=css_col +"gap:2rem;padding:1rem;" ;
         const datePosterCont=document.createElement("div");
         datePosterCont.id=`datePosterCont-${index}`;
-        datePosterCont.style.cssText=css_row + "position:relative;gap:1.5rem;"
+        datePosterCont.style.cssText=css_row + "position:relative;";
+        datePosterCont.style.gap=less900 ?(less400 ? "1rem":"1.25rem"):"1.5rem";
         const date=document.createElement("small");
         date.id=`date-${index}`;
         const poster=document.createElement("small");
         poster.id=`userinfo-poster-name-${index}`;
-        poster.textContent=(userinfo && userinfo.name) ? userinfo.name :"blogger";
+        poster.textContent=(userinfo?.name) ||"blogger";
         date.textContent= post.date ? Blogs.tolocalstring(post.date):"no date";
         datePosterCont.appendChild(date);
         datePosterCont.appendChild(poster);
@@ -972,13 +970,14 @@ class Post{
     }
     likepost(item:{parent:HTMLElement,post:postType}){
         const {parent,post}=item;
-        const less400=window.innerWidth <400 ? true:false;
-        const less900=window.innerWidth <900 ? true:false;
+        const less400=window.innerWidth <400 ;
+        const less900=window.innerWidth <900 ;
         parent.style.position="relative";
         parent.style.zIndex="0";
         const popup=document.createElement("div");
         popup.style.cssText="position:absolute;width:auto;height:auto;border-radius:50%;top:0%;right:0%;z-index:1;aspect-ratio:1 / 1;padding:0px;";
-        popup.style.transform=less400 ? "translate(10px,-20px)" :"translate(20px,-20px)";
+        popup.style.top=less900 ? (less400 ? "45%":"50%"):"15%";
+        popup.style.transform=less400 ? "translate(5px,-27px)" :"translate(20px,-20px)";
         popup.id=`popup-likepost-${post.id}`;
         popup.className="popup";
         const xDiv=document.createElement("div");
@@ -986,15 +985,13 @@ class Post{
         xDiv.style.cssText="padding:2px;border-radius:50%;background-color:black;color:white;position:relative;display:flex;justify-content:center;align-items:center;aspect-ratio:inherit;";
         popup.appendChild(xDiv);
         const root=FaCreate({parent:xDiv,name:FaHandBackFist,cssStyle:{fontSize:"20px",borderRadius:"50%",color:"white",margin:"auto",zIndex:"1"}});
-        Misc.matchMedia({parent:popup,maxWidth:900,cssStyle:{transform:"translate(30px,-30px)"}});
-        Misc.matchMedia({parent:popup,maxWidth:400,cssStyle:{transform:"translate(25px,-25px)"}});
         parent.appendChild(popup);
         xDiv.onclick=async(e:MouseEvent)=>{
             if(e){
 
                 root?.unmount();
                 Header.cleanUp(xDiv);
-                const root2=FaCreate({parent:xDiv,name:FaThumbsUp,cssStyle:{fontSize:"20px",borderRadius:"50%",color:"white",margin:"auto",zIndex:"1"}});
+                FaCreate({parent:xDiv,name:FaThumbsUp,cssStyle:{fontSize:"20px",borderRadius:"50%",color:"white",margin:"auto",zIndex:"1"}});
                 xDiv.style.backgroundColor="blue";
                 xDiv.style.color="green";
                 xDiv.animate([
@@ -1002,7 +999,8 @@ class Post{
                     {transform:"scale(1.1)",backgroundColor:"red",color:"blue"},
                     {transform:"scale(1)",backgroundColor:"blue",color:"green"},
                 ],{duration:1000,iterations:1});
-                const isPost= await this._service.checkPostlike({post:post});
+                const addLikePost={...post,likes:post.likes +1};
+                const isPost= await this._service.checkPostlike({post:addLikePost});
                 if(isPost !==false){
                     this.post=isPost as postType;
                     //-----------------------show likes-----------------//
@@ -1033,7 +1031,7 @@ class Post{
             const subLike=document.createElement("small");
             subLike.id=`posts-likes-subLike-${post.id}`;
             subLike.style.color="#23f803";
-            subLike.textContent=`: ${post && post.likes ? post.likes :0}`;
+            subLike.textContent=`: ${ post?.likes ||0}`;
             likes.appendChild(xDiv);
             likes.appendChild(subLike);
             parent.appendChild(likes);
@@ -1118,7 +1116,7 @@ class Post{
         lpub.textContent="publish";
         lpub.style.cssText="font-size:140%;text-decoration:underline;text-underline-offset:0.5rem;margin-bottom:1rem;";
         lpub.setAttribute("for",pub.id);
-        const {input:link,label:lLink,formGrp:grplink}=Nav.inputComponent(form);
+        const {input:link,label:lLink}=Nav.inputComponent(form);
         link.id="link";
         link.name="link";
         link.value=post.link ? post.link : "";
@@ -1140,19 +1138,21 @@ class Post{
                 if(title && content){
                     this.post={...post,title:title as string,content:content as string,published:Boolean(pub),link:link};
                    await this._service.saveUpdatepost({post:this.post}).then(async(res)=>{
-                    //    if(res){
-                            
+                        if(res){
+
                             const getPopup=col.querySelector(`div#editPost-popup-${post.id}`) as HTMLElement;
                             if(getPopup){
                                 Misc.growOut({anchor:getPopup,scale:0,opacity:0,time:400});
                                 setTimeout(()=>{
                                     col.removeChild(getPopup);
                                 },390);
-
+    
                             }
                             const userinfo=this.usersinfo.find(user_=>(user_.id===post.userId));
                             this.postCard({row:parent,post:this.post,user,userinfo,index:index});
-                        // }
+                        }
+                            
+                        
                     });
 
                 }
@@ -1164,7 +1164,7 @@ class Post{
         const {parent,target,post,user}=item;
         Header.cleanUpByID(target,`delete-${post.id}`);
         target.style.position="relative";
-        const css_col="margin-inline:auto;display:flex;flex-direction:column;justify-content:center;align-items:center;gap:0.7rem;";
+       
         const css_row="margin-inline:auto;display:flex;flex-direction:row;flex-wrap:wrap;justify-content:center;align-items:center;gap:0.7rem;";
         if(post.userId===user.id){
             const xDiv=document.createElement("div");
@@ -1209,9 +1209,9 @@ class Post{
                                 this._posts.splice(ind,1);
                                 const getCont=this.injector.querySelector("div#main-post-container") as HTMLElement;
                                 if(!getCont) return;
-                                await this.Posts({injector:this.injector,container:getCont,posts:this.posts,user}).then(async(res_)=>{
+                                await this.Posts({container:getCont,posts:this.posts,user}).then(async(res_)=>{
                                     if(res_.posts && res_.posts.length>0){
-                                        this.posts=res_.posts.sort((a,b)=>{if(a.likes > b.likes)return -1;return 1}).map(post=>(post));
+                                        this.posts=res_.posts.toSorted((a,b)=>{if(a.likes > b.likes)return -1;return 1}).map(post=>(post));
                                         this.posts.map(async(post,index)=>{
                                             if(post){
                                                 const userinfo=this.usersinfo.find(user_=>(user_.id===post.userId));
@@ -1249,9 +1249,7 @@ class Post{
         const reg8:RegExp=/(8)\./g;
         const reg9:RegExp=/(9)\./g;
         const reg10:RegExp=/(10)\.|(10)\.\)/g;
-        const reg11:RegExp=/(NOTE)\:/g;
-        const reg12:RegExp=/\"[a-zA-Z0-9\s\']+\"/g;
-        const reg13:RegExp=/\([a-zA-Z0-9\s\,\'\"]{2,25}\)/g;
+        const reg11:RegExp=/(NOTE):/g;
         const arrReg:{id:number,reg:RegExp}[]=[
             {id:0,reg:reg1},
             {id:1,reg:reg2},
@@ -1268,12 +1266,10 @@ class Post{
         ];
         if(text2 && text){
             arrReg.map((regItem,index)=>{
-                const {id,reg}=regItem;
+                const {reg}=regItem;
                 const matches=text.matchAll(reg) as any;
                 // let index=0
                 for(const match of matches){
-                    const start=match.index;
-                    const end=match[0].length;
                     if(index !==11){
                         text2=text2.replace(regItem.reg,`<br/> ${match[0]}`);
                     }else if(index===11){

@@ -1,20 +1,16 @@
-import {flexType,elementType,selectorType,element_selType,codeType,blogType, gets3ImgKey, userType,messageType, imageType, generalInfoType, deletedImgType, img_keyType, adminImageType, credentialType, providerType, pageCountType, delteUserType, sendEmailMsgType, categoryListType, barOptionType, chartType, postType, infoType2, bucketType, quoteType, returnQuoteFinalType, quoteimgType, signupQuoteType, rowType, sendPostRequestType} from "@/components/editor/Types";
+import {elementType,selectorType,element_selType,codeType,blogType, gets3ImgKey, userType,messageType, deletedImgType, img_keyType, adminImageType, providerType, pageCountType, delteUserType, sendEmailMsgType, chartType, postType, infoType2, bucketType, quoteType, returnQuoteFinalType, quoteimgType, signupQuoteType, rowType, sendPostRequestType} from "@/components/editor/Types";
 import Misc from "../common/misc";
 import ModSelector from "@/components/editor/modSelector";
 import { getErrorMessage } from "@/lib/errorBoundaries";
 import { v4 as uuidv4 } from 'uuid';
 import Main from "../editor/main";
-import AuthService from "./auth";
-// import { genHash } from "@/lib/ultils/bcrypt";
-import { getCsrfToken,getProviders } from "next-auth/react";
-import {signOut } from "next-auth/react";
+import { getCsrfToken,getProviders,signOut } from "next-auth/react";
 import Header from "../editor/header";
 import Nav from "../nav/headerNav";
-import MainHeader from "../nav/mainHeader";
 import { onChangeVerifyType } from '../editor/Types';
+import { idValueType, selRowColType } from "@/lib/attributeTypes";
 
 class Service {
-    usersignin="/api/usersignin";
     awsimgUrl:string="/api/awsimg";
     postlike:string="/api/postlike";
     liveonoffUrl:string="/api/liveonoff";
@@ -59,10 +55,11 @@ class Service {
     quoteUrl:string="/api/quote";
     quoteimgUrl:string="/api/quoteimg";
     signupUrl:string="/api/signup";
+    simpleSignupUrl:string="/api/simplesignup";
     putimagefileUrl:string="/api/imagefile";
     showCustomHeader:boolean;
     showHeader:boolean;
-    bucket:bucketType; //"masterultils-postimages" | "newablogroom-free-bucket";
+    bucket:bucketType; 
     element:elementType | element_selType | undefined;
     isSignedOut:boolean;
     deletemarkImg:string="/api/admin/deletemarkimg";
@@ -71,7 +68,6 @@ class Service {
     // getInitBlog:blogType;
     constructor(private _modSelector:ModSelector){
         this.bucket="masterultils-postimages";
-        this.usersignin="/api/usersignin";
         this.awsimgUrl="/api/awsimg";
         this.deletemarkImg="/api/admin/deletemarkimg";
         this.liveonoffUrl="/api/liveonoff";
@@ -97,6 +93,7 @@ class Service {
         this.getuserinfo_url="/api/getuserinfo";
         this.emailUrl="/api/email";
         this.signupemailUrl="/api/signupemail";
+        this.simpleSignupUrl="/api/simplesignup";
         this.sendEmailUrl="/api/sendemail";
         this.registeruserUrl="/api/registeruser";
         this.user_blogs="/api/user_blogs";
@@ -120,8 +117,8 @@ class Service {
         this.showHeader=false;
         this.bgColor=this._modSelector._bgColor;
         this.btnColor=this._modSelector.btnColor;
-        this.user=this._modSelector._user;
         this.isSignedOut=true;
+        // console.log("SERVICE:CONSTRUCTOR")
     }
 ///GETTERS SETTERS///////////////////
 async apiUploadSaveFree(item:{parent:HTMLElement,Key:string,formdata:FormData}):Promise<gets3ImgKey | null|void
@@ -139,13 +136,9 @@ async apiUploadSaveFree(item:{parent:HTMLElement,Key:string,formdata:FormData}):
         return fetch(this.uploadfreeimageUrl,option).then(async(res)=>{
             // /api/uploadfreeimage
             if(res){
-                if(res){
-                    return{
-                        img:`${this.freeurl}/${Key as string}`,
-                        Key:Key as string
-                    }
-                }else{
-                    return null
+                return{
+                    img:`${this.freeurl}/${Key as string}`,
+                    Key:Key as string
                 }
             }else{
                 Misc.message({parent,msg:"did not upload",type_:"error",time:800});
@@ -154,46 +147,35 @@ async apiUploadSaveFree(item:{parent:HTMLElement,Key:string,formdata:FormData}):
         });
 
     };
-}
+};
 
- async getUsersignin(item:{user:userType}):Promise<userType|undefined>{
-    const {user}=item;
-    if(user.email){
-        const option={
-            headers:{"Content-Type":"application/json"},
-            method:"POST",
-            body:JSON.stringify(user)
-        }
-        const res = await fetch(this.usersignin,option)
-        if(res){
-           this.isSignedOut=false;
-            const body= await res.json() as userType
-            return body;
-           }
-    }
- }
+getFreeBgImageUrl({imgKey}:{imgKey:string}):string{
+    return `${this.freeurl}/${imgKey}`
+};
+
+ 
     saveItems(item:{blog:blogType,user:userType|null}):blogType{
         //REORGS THE MODSELECTOR.BLOG AND ADDS USER ID TO BLOG IF EXISTS
         const {blog,user}=item;
         const show=blog.show;
         const username=blog.username;
-        const css=blog.cssText;const class_=blog.class;
-        this._modSelector._elements=this.checkElements({blog}) as elementType[];
-        this._modSelector._selectors=this.checkSelectors({blog});
-        this._modSelector._codes=this.checkCodes({blog});
-        this._modSelector._charts=this.checkCharts({blog});
-        this._modSelector._pageCounts=blog.pageCounts;
-        const findHeader=blog.selectors && blog.selectors.find(sel=>(sel.header===true)) ? blog.selectors.find(sel=>(sel.header===true)):null;
-        const findFooter=blog.selectors && blog.selectors.find(sel=>(sel.footer===true)) ? blog.selectors.find(sel=>(sel.footer===true)) :null;
-        this._modSelector._blog={...blog,cssText:css,class:class_,show:show,username:username};
-        this._modSelector.blog=this._modSelector._blog;
+        const css=blog.cssText;
+        const class_=blog.class;
+        this._modSelector.elements=this.checkElements({blog}) as elementType[];
+        this._modSelector.selectors=this.checkSelectors({blog});
+        this._modSelector.charts=this.checkCharts({blog});
+        this._modSelector.pageCounts=blog.pageCounts;
+        const findHeader= blog?.selectors ? blog.selectors.find(sel=>(sel.header===true)):null;
+        const findFooter= blog?.selectors ? blog.selectors.find(sel=>(sel.footer===true)) :null;
+        this._modSelector.blog={...blog,cssText:css,class:class_,show:show,username:username};
+        
         if(findHeader){
-            this._modSelector._header=findHeader;
+            this._modSelector.header=findHeader;
         }
         if(findFooter){
-            this._modSelector._footer=findFooter;
+            this._modSelector.footer=findFooter;
         }
-        if(user && user.id){
+        if(user && user.id!==""){
             this._modSelector.blog={...this._modSelector.blog,user_id:user.id};
         }
         const maxcount=ModSelector.maxCount(blog);
@@ -201,23 +183,21 @@ async apiUploadSaveFree(item:{parent:HTMLElement,Key:string,formdata:FormData}):
             localStorage.setItem("placement",String(maxcount + 1));
         }
         localStorage.setItem("blog",JSON.stringify(this._modSelector.blog));
-        return this._modSelector.blog;
-    }
-    promsaveItems(item:{blog:blogType,user:userType}):Promise<blogType>{
+        return blog;
+    };
+
+
+    promsaveItems(item:{blog:blogType,user:userType|null}):Promise<blogType>{
         const {blog,user}=item;
-        return new Promise((resolver,reject)=>{
-            // console.log("BLOG",blog)
-            resolver( this.saveItems({blog,user}));
-            reject(`no user:${user}`)
-        }) as Promise<blogType>
+        return Promise.resolve(this.saveItems({blog,user})) as Promise<blogType>
         
     }
     checkElements(item:{blog:blogType}):elementType[]{
         const {blog}=item;
         let eles=blog.elements as elementType[];
-        eles=eles.sort((a,b)=>{if(a.placement < b.placement) return -1;return 1});
+        eles=eles?.toSorted((a,b)=>{if(a.placement < b.placement) return -1;return 1});
         // console.log("checkEle: eles",eles)
-        if(eles && eles.length>0){
+        if(eles?.length>0){
              eles=eles.map(ele=>{
                 ele.blog_id=blog.id;
                 return ele;
@@ -231,8 +211,8 @@ async apiUploadSaveFree(item:{parent:HTMLElement,Key:string,formdata:FormData}):
     checkSelectors(item:{blog:blogType}){
         const {blog}=item;
         let selects:selectorType[]=blog.selectors;
-        selects=selects.sort((a,b)=>{if(a.placement < b.placement) return -1;return 1});
-        if(selects && selects.length>0){
+        selects=selects?.toSorted((a,b)=>{if(a.placement < b.placement) return -1;return 1});
+        if(selects?.length>0){
             selects=selects.map(select=>{
                 select.blog_id=blog.id;
                 return select;
@@ -241,12 +221,15 @@ async apiUploadSaveFree(item:{parent:HTMLElement,Key:string,formdata:FormData}):
         }else{
             return [] as selectorType[]
         }
-    }
+    };
+
+
+
     checkCodes(item:{blog:blogType}){
         const {blog}=item;
         let codes:codeType[]=blog.codes;
-        codes=codes.sort((a,b)=>{if(a.placement < b.placement) return -1;return 1});
-        if(codes && codes.length>0){
+        codes=codes?.toSorted((a,b)=>{if(a.placement < b.placement) return -1;return 1});
+        if(codes?.length>0){
             codes=codes.map(code=>{
                 code.blog_id=blog.id;
                 return code;
@@ -257,11 +240,14 @@ async apiUploadSaveFree(item:{parent:HTMLElement,Key:string,formdata:FormData}):
         }
         
     };
+
+
+
     checkCharts(item:{blog:blogType}){
         const {blog}=item;
         let charts:chartType[]=blog.charts;
-        charts=charts.sort((a,b)=>{if(a.placement < b.placement) return -1;return 1});
-        if(charts && charts.length>0){
+        charts=charts?.toSorted((a,b)=>{if(a.placement < b.placement) return -1;return 1});
+        if(charts?.length>0){
             charts=charts.map(chart=>{
                 chart.blog_id=blog.id;
                 return chart;
@@ -273,15 +259,14 @@ async apiUploadSaveFree(item:{parent:HTMLElement,Key:string,formdata:FormData}):
         
     };
     initializeBlog(){
-        let blog={} as blogType
         this._modSelector.pageCounts=[] as pageCountType[];
-        this._modSelector._elements=[] as elementType[];
-        this._modSelector._selectors=[] as selectorType[];
+        this._modSelector.elements=[] as elementType[];
+        this._modSelector.selectors=[] as selectorType[];
         this._modSelector.selectCodes=[] as codeType[];
         this._modSelector.charts=[] as chartType[];
-        blog={id:0,name:undefined,desc:undefined,user_id:"",class:ModSelector.main_class,inner_html:undefined,cssText:ModSelector.main_css,img:undefined,imgKey:undefined,show:false,username:undefined,rating:0,selectors:[] as selectorType[],elements:[] as elementType[],codes:[] as codeType[],pageCounts:[] as pageCountType[],messages:[] as messageType[],charts:[] as chartType[],date:new Date(),update:new Date(),attr:"circle",barOptions:[]};
-        this._modSelector._blog=blog;
-        this._modSelector.blog=this._modSelector._blog;
+        const blog:blogType={id:0,name:undefined,desc:undefined,user_id:"",class:ModSelector.main_class,inner_html:undefined,cssText:ModSelector.main_css,img:undefined,imgKey:undefined,show:false,username:undefined,rating:0,selectors:[] as selectorType[],elements:[] as elementType[],codes:[] as codeType[],pageCounts:[] as pageCountType[],messages:[] as messageType[],charts:[] as chartType[],date:new Date(),update:new Date(),attr:"circle",barOptions:[]};
+        this._modSelector.blog=blog;
+       
     }
     async get_csrfToken(){
         return await getCsrfToken();
@@ -303,35 +288,29 @@ async apiUploadSaveFree(item:{parent:HTMLElement,Key:string,formdata:FormData}):
 
     //---------------------THIS MARKS DELETE MAIN:ADDS:TO BE DELETED--------------------------------------///
 
-    async imgKeyMarkDelete(item:{targetParent:HTMLElement|null,targetImage:HTMLImageElement|null,oldKey:string|null}):Promise<void>{
-        const {oldKey,targetParent,targetImage}=item;
+    async imgKeyMarkDelete({oldKey,targetParent,targetImage,selRowCol,idValues}:{
+        targetParent:HTMLElement|null,
+        targetImage:HTMLImageElement|null,
+        oldKey:string|null,
+        selRowCol:selRowColType|null,
+        idValues:idValueType[]
+    }):Promise<void>{
+        const idValue=targetParent !==null ? this._modSelector.dataset.getIdValue({target:targetParent,id:"imgKey",idValues}):null;
+        const getKey=targetParent ? targetParent.getAttribute("data-img-key"):null;
+        const keyResolve=idValue ? idValue.attValue:(getKey)
         switch(true){
             case oldKey !==null && targetParent ===null && targetImage ===null:
                  await this.markDelKey({del:true,imgKey:oldKey,date:new Date()});
             return;
             case oldKey ===null && targetParent !==null && targetImage ===null:
-                const {isJSON,parsed}=Header.checkJson(targetParent.getAttribute("flex"));
-                if(isJSON){
-                    const flex=parsed as flexType;
-                //IF IMGkEY MARK DELETE
-                    await this.markDelKey({del:true,imgKey:flex.imgKey as string,date:new Date()});
+                
+                if(!(keyResolve)) return;
+                    await this.markDelKey({del:true,imgKey:keyResolve,date:new Date()});
                     //IF IMGkEY MARK DELETE
-                }else{
-                    const imgKey=targetParent.getAttribute("imgKey") as string;
-                    await this.markDelKey({del:true,imgKey:imgKey,date:new Date()});
-                }
             return;
             case oldKey ===null && targetParent ===null && targetImage !==null:
-                const {isJSON:isJSON_1,parsed:parsed_1}=Header.checkJson(targetImage.getAttribute("flex"));
-                if(isJSON_1){
-                    const flex=parsed_1 as flexType;
-                //IF IMGkEY MARK DELETE
-                    await this.markDelKey({del:true,imgKey:flex.imgKey as string,date:new Date()});
-                    //IF IMGkEY MARK DELETE
-                }else{
-                    const imgKey=targetImage.getAttribute("imgKey") as string;
-                    await this.markDelKey({del:true,imgKey:imgKey,date:new Date()});
-                }
+                    if(!keyResolve) return;
+                    await this.markDelKey({del:true,imgKey:keyResolve,date:new Date()});
             return;
             default:
                 return;
@@ -340,97 +319,7 @@ async apiUploadSaveFree(item:{parent:HTMLElement,Key:string,formdata:FormData}):
        };
 
     //---------------------THIS MARKS DELETE MAIN DELETE (ADDS MARK TO BE DELETED)--------------------------------------///
-    //YOU NEED A BLOG WITH IMAGE IT NEEDS A KEY SET IN FORMDATA
-    async uploadSaveImage(parent:HTMLElement,formData:FormData,image:HTMLImageElement,blog:blogType,flex:flexType|null):Promise<{
-        blog: blogType;
-        data: {
-            Key: string | null;
-            img: string | null;
-        };
-    } | null | undefined>{
-        // console.log(formData,formData.get("file"),formData.get("Key"));
-        // headers:{"Content-Type":"multipart/form-data"}=>DOES NOT WORK,
-        const option={
-            method: "PUT",
-            body: formData
-            
-        }
-        const file=formData.get("file");
-        const Key=formData.get("Key");
-        if(file && Key){
-            return fetch(this.urlUpload,option).then(async(res)=>{
-                ///api/uploadImage
-                
-                if(res.ok){
-                    const formdata_key=formData.get("Key") as string;
-                    const file=formData.get("file") as File;
-                    const filename=file.name as string;
-                    image.alt=filename;
-                    //GETTING IMAGE URL////////
-                    const data =await this.getImg(parent,image,formdata_key) as {Key:string|null,img:string|null};
-                    //GETTING IMAGE URL-STORED IMGURL IN IMAGE.SRC////////
-                    if(data){
-                        if(flex ){
-                            const {selectorId,rowId,colId}=flex;
-                        this._modSelector._selectors= blog.selectors.map(sel=>{
-                                if(sel.eleId===selectorId){
-                                    const rows=JSON.parse(sel.rows as string) as rowType[];
-                                    rows.map(row=>{
-                                        if(row.eleId===rowId){
-                                            row.cols.map(col=>{
-                                                if(col.eleId===colId){
-                                                    col.elements.map(ele=>{
-                                                        if(ele.eleId===image.id){
-                                                            ele.img=data.img ? data.img : undefined;
-                                                            ele.inner_html=image.alt;
-                                                            ele.imgKey=data.Key ? data.Key : undefined;
-                                                        }
-                                                        return ele;
-                                                    });
-                                                }
-                                                return col;
-                                            });
-                                        }
-                                        return row;
-                                    });
-                                }
-                            return sel;
-                        });
-                        blog={...blog,selectors:this._modSelector._selectors};
-                        this._modSelector.blog=blog;
-                        
-                        }else{
-                            let eles=blog && blog.elements;
-                            if(eles && eles.length>=0){
-                                eles=eles.map(ele=>{
-                                    if(ele.eleId===image.id){
-                                        ele.img=image.src;
-                                        ele.inner_html=image.alt;
-                                        ele.imgKey=formdata_key;
-                                    }
-                                    return ele;
-                                });
-                                blog={...blog,elements:eles};
-                            }
-                            if(blog.eleId===image.id){
-                                blog={...blog,img:image.src,imgKey:formdata_key}
-                            }
-                            this._modSelector.blog=blog;
-                        }
-                        localStorage.setItem("blog",JSON.stringify(blog));
-                        return{blog,data};
-                        }else{
-                           
-                            Misc.message({parent,msg:"image was not uploaded",type_:"error",time:400});
-                        }
-                        return null
-                }
-            });
-        }else{
-            
-            Misc.message({parent,msg:"missing a Key and or File",type_:"error",time:600})
-        }
-    };
+   
     
     //RETURNS PROMISE<{KEY,IMG}>
     async simpleImgUpload(parent:HTMLElement,formData:FormData):Promise<void | gets3ImgKey|null>{
@@ -455,7 +344,7 @@ async apiUploadSaveFree(item:{parent:HTMLElement,Key:string,formdata:FormData}):
                         //store key//
                         //GETTING IMAGE URL////////
                         const data:gets3ImgKey|null =await this.getSimpleImg(formdata_key);
-                        if(data && data.Key){
+                        if(data ){
                             _res_= data as gets3ImgKey|null;
                         }
                         return _res_
@@ -474,13 +363,15 @@ async apiUploadSaveFree(item:{parent:HTMLElement,Key:string,formdata:FormData}):
         }
         
         return null;
-    }
-    async uploadfreeimage(item:{parent:HTMLElement,formdata:FormData}):Promise<gets3ImgKey|null>{
-        const {parent,formdata}=item;
+    };
+
+    
+    async uploadfreeimage(item:{formdata:FormData}):Promise<gets3ImgKey|null>{
+        const {formdata}=item;
         // console.log("before sending",formdata.get("file"))
         if(!formdata) return null;
         const Key=formdata.get("Key");
-        // if( Key)return null;
+        
         const option={
             method:"PUT",
             body:formdata
@@ -556,9 +447,7 @@ async apiUploadSaveFree(item:{parent:HTMLElement,Key:string,formdata:FormData}):
                     let blog_:blogType;
                     if(res.ok){
                     blog_= await res.json();
-                    this.promsaveItems({blog:blog_,user:user}).then(((newBlog:blogType)=>{
-                        localStorage.setItem("blog",JSON.stringify(newBlog));
-                    }));
+                    await this.promsaveItems({blog:blog_,user:user});
                     return blog_ as blogType;
                     }
                 
@@ -612,25 +501,21 @@ async apiUploadSaveFree(item:{parent:HTMLElement,Key:string,formdata:FormData}):
         Header.cleanUpByID(Nav.navHeader,"user-signature");
         this.isSignedOut=true;
         const loc=url.pathname;
-        if(loc==="/admin"){
-            await signOut()
-        }else{
-            if(loc==="/editor"){
-                if(Main.container){
-                    Header.cleanUp(Main._mainFooter as HTMLElement);
-                    Header.cleanUp(Main.textarea as HTMLElement);
-                    Header.cleanUp(Main._mainHeader as HTMLElement);
-                }
-            }
-            if(redirect){
-                await signOut({redirect:true});
-            }else{
-                await signOut({redirect:false});
+        switch(true){
+            case loc==="/admin":
+                await signOut();
+            break;
+            case loc==="/editor":
+                Header.cleanUp(Main._mainFooter as HTMLElement);
+                Header.cleanUp(Main.textarea as HTMLElement);
+                Header.cleanUp(Main._mainHeader as HTMLElement);
+                await signOut({redirect});
+            break;
+            default:
+                await signOut({redirect});
+            return;
 
-            }
-        }
-      
-        return;
+        };
     }
 
     //THIS GETS IMAGE FROM AWS USING ONLY A KEY
@@ -640,101 +525,16 @@ async apiUploadSaveFree(item:{parent:HTMLElement,Key:string,formdata:FormData}):
         return fetch(`${this.urlGetImg}?Key=${Key}`).then(async(res)=>{
             if(res.ok){
                 const getimg:gets3ImgKey= await res.json();
-                const {Key}=getimg;
                 return getimg;
             }else{
                 return null ;
             }
             
         });
-    }
-
-
-   async blogSaveProcess(parent:HTMLElement,blog:blogType,user:userType|null): Promise<{user: () => Promise<userType | void>,blog: () => Promise<blogType | void>}>{
-        return  {
-                user:async():Promise<userType|void>=>{
-                    if(!blog.user_id && user){
-                        const pass=user.password ? user.password :undefined
-                            const credent:credentialType={id:user.id,email:user.email,password:pass,admin:false};
-                            if(credent && credent.id){
-                                user={...user,id:credent.id as string,email:credent.email}
-                                blog={...blog,user_id:credent.id}
-                                const newBlog= await this.saveBlog({blog,user});
-                                if(newBlog){
-                                    blog={...blog,id:newBlog.id,user_id:newBlog.user_id};
-                                    this._modSelector.blog=blog;
-                                    Misc.message({parent,msg:"saved",type_:"success",time:400})
-                                }
-                                return user
-                            }
-                    }
-
-                },
-                blog:async():Promise<blogType|void>=>{
-                    if(blog.user_id && user){
-                        const savedBlog= await this.saveBlog({blog,user});
-                        if(savedBlog){
-                            blog={...blog,id:savedBlog.id};
-                            this._modSelector.blog=blog;
-                            Misc.message({parent,msg:"saved",type_:"success",time:400})
-                            return blog as blogType;
-                        }
-                    }
-                }
-            } 
-        
-   }
-   
+    };
    
    //PARENT _user.REFRESHIMAGES
-   
-
-    async getFlexElement(item:{target:HTMLElement,flex:flexType|null,user:userType}){
-        const {target,flex,user}=item;
-        await this.promsaveItems({blog:this._modSelector.blog,user}).then((blog:blogType)=>{
-        const prom= new Promise((resolver,reject)=>{
-            resolver(this.flexElement(target,flex,blog))
-            reject("could not get element")
-        });
-        return prom as Promise<elementType |element_selType>;
-    
-       });
-       
-    }
-    flexElement(target:HTMLElement,flex:flexType|null,blog:blogType){
-        let ele_={} as elementType|element_selType|undefined;
-        if(flex && target && blog){
-            ele_=ele_ as element_selType;
-            const children=[...target.children as any] as HTMLElement[];
-            const {selectorId,rowId,colId,elementId}=flex;
-            const checkEle=children.map(ele=>(ele.id)).includes(elementId as string)
-            const checkEle1=target.id===elementId ? true : false;
-            if(checkEle || checkEle1){
-                const select=blog.selectors.find(sel=>(sel.eleId===selectorId));
-                if(select){
-                    const rows=JSON.parse(select.rows as string) as rowType[];
-                    const row=rows.find(row=>(row.eleId===rowId))
-                    if(row){
-                        // console.log("row",row)
-                        const col=row.cols.find(col=>(col.eleId===colId));
-                        if(col){
-                            // console.log("col",col)
-                            ele_=col.elements.find(ele=>(ele.eleId===elementId));
-                        }
-                    }
-
-                }
-            }
-        }else if(target && blog){
-            ele_=ele_ as elementType;
-            ele_=blog.elements.find(ele=>(ele.eleId===target.id));
-            
-        }
-        return ele_;
-    }
-    sendMessage(parent:HTMLElement,msg:string,type_:"warning"|"success"|"error",time:number){
-        Misc.message({parent,msg,type_,time});
-    }
+  
     generateImgKey(formdata:FormData,blog:blogType):{Key:string}|undefined{
         //THIS GENERATES AN IMAGE KEY=> NEEDS FORMDATA && BLOG.NAME && user_id
         const getKey=formdata.get("Key");
@@ -752,7 +552,9 @@ async apiUploadSaveFree(item:{parent:HTMLElement,Key:string,formdata:FormData}):
             return {Key:getKey as string}
 
         }
-    }
+    };
+
+
     generateFreeImgKey(item:{formdata:FormData,user:userType}):{Key:string}|undefined{
         //THIS GENERATES AN IMAGE KEY=> NEEDS FORMDATA &&  (N/A)=>user
         const {formdata,user}=item;
@@ -760,7 +562,6 @@ async apiUploadSaveFree(item:{parent:HTMLElement,Key:string,formdata:FormData}):
         const file=formdata.get("file") as File;
         if(!file)return;
         if(!getKey){
-            const rand=uuidv4().split("-")[0];
             const name=user.name ? user.name.split(" ").join("").trim() :"unknownUser";
             const user_id=user.id ? user.id : "no_userid"
             const Key=`${user_id}-${name}-${file.name}`;
@@ -771,7 +572,9 @@ async apiUploadSaveFree(item:{parent:HTMLElement,Key:string,formdata:FormData}):
             return {Key:getKey as string}
 
         }
-    }
+    };
+
+
     generateQuoteKey(item:{formdata:FormData,user:userType}):{Key:string|undefined}{
         //THIS GENERATES AN IMAGE KEY=> NEEDS FORMDATA &&  (N/A)=>user. IF USER then all quotes will have unique keys for user account
         const {formdata,user}=item;
@@ -828,7 +631,9 @@ async apiUploadSaveFree(item:{parent:HTMLElement,Key:string,formdata:FormData}):
                 }
             }).catch((err)=>{const msg=getErrorMessage(err); console.error(msg)});
         }
-    }
+    };
+
+
     async markDelKey(item:deletedImgType):Promise<void | deletedImgType>{
         // DEL=TRUE  AND KEY EXIST FOR DELETE: it does not delete item from the db (DeletedImg table) only changes its del state. it deletes teh image fro aws
         const {del,imgKey}=item;
@@ -848,7 +653,9 @@ async apiUploadSaveFree(item:{parent:HTMLElement,Key:string,formdata:FormData}):
                 }
             }).catch((err)=>{const msg=getErrorMessage(err); console.error(msg)});
         }
-    }
+    };
+
+
     async getimgsAndKeys(item:{user_id:string,email:string}): Promise<void | img_keyType[]>{
         // THIS GETS ALL IMAGES FROM ALL REGISTERED BLOGS
         const {user_id,email}=item;
@@ -866,7 +673,8 @@ async apiUploadSaveFree(item:{parent:HTMLElement,Key:string,formdata:FormData}):
                 }
             }).catch((err)=>{const msg=getErrorMessage(err); console.error(msg)});
         }
-    }
+    };
+
 
     async hashGenerator(pswd:string|null){
         //RETURN hashPswd WHEN READY!!
@@ -878,7 +686,10 @@ async apiUploadSaveFree(item:{parent:HTMLElement,Key:string,formdata:FormData}):
             //create message did not get password
             return null;
         }
-       }
+       };
+
+
+
     async sendMsgToServer(parent:HTMLElement,msg:messageType){
     const option={
         method:"POST",
@@ -893,13 +704,14 @@ async apiUploadSaveFree(item:{parent:HTMLElement,Key:string,formdata:FormData}):
 
             Misc.message({parent:parent,msg:`thanks ${message.name}`,type_:"success",time:500});
             return message
-        }
-    }).catch((err)=>{
-        const msg=getErrorMessage(err);
-        console.error(msg)
-        Misc.message({parent:parent,msg:msg,type_:"error",time:600});
-    }) as Promise<messageType>;
-    }
+        };
+        }).catch((err)=>{
+            const msg=getErrorMessage(err);
+            console.error(msg)
+            Misc.message({parent:parent,msg:msg,type_:"error",time:600});
+        }) as Promise<messageType>;
+    };
+
 
     sendClientMessage(msg:messageType){
         const option={
@@ -918,7 +730,9 @@ async apiUploadSaveFree(item:{parent:HTMLElement,Key:string,formdata:FormData}):
             const msg=getErrorMessage(err);
             console.error(msg)
         }) as Promise<messageType>;
-    }
+    };
+
+
     async getAdminMessages(user:userType){
             const option={
                 headers:{"Content-Type":"application/json"},
@@ -930,7 +744,9 @@ async apiUploadSaveFree(item:{parent:HTMLElement,Key:string,formdata:FormData}):
                     return await res.json() as messageType[];
                 }
             });
-    }
+    };
+
+
     async adminDelMsg(msg_id:number): Promise<{
         id: string|null;
     } | undefined>{
@@ -943,7 +759,9 @@ async apiUploadSaveFree(item:{parent:HTMLElement,Key:string,formdata:FormData}):
                     return await res.json() as {id:string|null};
                 }
             });
-    }
+    };
+
+
     async getBlogMessages(blog_id:number){
             const option={
                 headers:{"Content-Type":"application/json"},
@@ -954,7 +772,9 @@ async apiUploadSaveFree(item:{parent:HTMLElement,Key:string,formdata:FormData}):
                     return await res.json() as messageType[];
                 }
             });
-    }
+    };
+
+
     async getUserMessages(user_id:string){
             const option={
                 headers:{"Content-Type":"application/json"},
@@ -965,7 +785,9 @@ async apiUploadSaveFree(item:{parent:HTMLElement,Key:string,formdata:FormData}):
                     return await res.json() as messageType[];
                 }
             });
-    }
+    };
+
+
     async deleteMessage(msg_id:number){
             const option={
                 headers:{"Content-Type":"application/json"},
@@ -973,10 +795,12 @@ async apiUploadSaveFree(item:{parent:HTMLElement,Key:string,formdata:FormData}):
             }
             return fetch(`${this.urlMsg}?msg_id=${msg_id}`,option).then(async(res:Response)=>{
                 if(res){
-                    return await res.json() as {id:string};
+                    return await res.json() as {id:number};
                 }
             });
-    }
+    };
+
+
     async getAllmsgs(item:{rating:number|null,secret:boolean|null}):Promise<messageType[] | undefined>{
         const {rating,secret}=item;
         //ONLY RECIEVES NON SECRET MESSAGES WITH BLOG_ID
@@ -990,7 +814,8 @@ async apiUploadSaveFree(item:{parent:HTMLElement,Key:string,formdata:FormData}):
                 return allmsgs;
             }
         });
-    }
+    };
+
 
     async userBlogs(user_id:string):Promise<blogType[]|void>{
         //GETS ALL USER BLOGS (/api/user_blogs)
@@ -1005,7 +830,8 @@ async apiUploadSaveFree(item:{parent:HTMLElement,Key:string,formdata:FormData}):
                 return blogs;
             }
         });
-    }
+    };
+
 
     async getBlog(blog_id:number){
         const option={
@@ -1020,7 +846,10 @@ async apiUploadSaveFree(item:{parent:HTMLElement,Key:string,formdata:FormData}):
                 return await res.json() as blogType;
             }
         }).catch((err)=>{const msg=getErrorMessage(err);console.log(msg);return msg});
-    }
+    };
+
+
+
     async getUserBlog(item:{user_id:string|undefined,blog_id:number}){
         const {user_id,blog_id}=item;
         const option={
@@ -1038,7 +867,10 @@ async apiUploadSaveFree(item:{parent:HTMLElement,Key:string,formdata:FormData}):
                 }
             }).catch((err)=>{const msg=getErrorMessage(err);console.log(msg);return msg});
         }
-    }
+    };
+
+
+
     async newBlog(blog:blogType):Promise<blogType | void>{
         blog={...blog,id:0};
         const option={
@@ -1055,7 +887,10 @@ async apiUploadSaveFree(item:{parent:HTMLElement,Key:string,formdata:FormData}):
                 return blog;
             }
         }).catch((err)=>{const msg=getErrorMessage(err);console.error(msg);console.log(msg)});
-    }
+    };
+
+
+
    async deleteBlog(blog:blogType):Promise<number|void |undefined>{
         const option={
             headers:{"Content-Type":"application/json"},
@@ -1069,24 +904,8 @@ async apiUploadSaveFree(item:{parent:HTMLElement,Key:string,formdata:FormData}):
             const msg=getErrorMessage(err);
             console.error(msg);
         });
-    }
-    // async getImages(){
-    //     const option={
-    //         headers:{
-    //         "Content-Type":"application/json",
-    //         },
-    //         method:"GET"
-    //     }
-    //     return fetch(this.images,option).then(async(res)=>{
-    //         if(res){
-    //             const body:any= await res.json() as any;
-    //             const imageCat=body.filter(obj=>(obj.name==="extraImages"))[0]?.imageCategory as imageType[];
-    //             const imageCat2=body.filter(obj=>(obj.name==="FlowerShop"))[0]?.imageCategory as imageType[];
-    //             return imageCat.concat(imageCat2);
-    //         }
-    //     });
-    //     //FlowerShop
-    // }
+    };
+
 
     async registerUser(user:userType):Promise<userType|void>{
         if(!user) return;
@@ -1104,7 +923,10 @@ async apiUploadSaveFree(item:{parent:HTMLElement,Key:string,formdata:FormData}):
                 return user;
             }
         }).catch((err)=>{const msg=getErrorMessage(err);console.error(msg)});
-    }
+    };
+
+
+
     async newUserEMailTo(user_id:string):Promise<{msg:string}|undefined>{
         const option={
             headers:{"Content-Type":"application/json"},
@@ -1118,9 +940,12 @@ async apiUploadSaveFree(item:{parent:HTMLElement,Key:string,formdata:FormData}):
                 return body
             }
         });
-    }
+    };
+
+
+
     async updateUser(user:userType):Promise<userType|undefined>{
-        if(!(user && user.id && user.email)) return;
+        if(!(user.id && user.email)) return;
         const option={
             headers:{
             "Content-Type":"application/json",
@@ -1135,7 +960,10 @@ async apiUploadSaveFree(item:{parent:HTMLElement,Key:string,formdata:FormData}):
                 return user;
             }
         }).catch((err)=>{const msg=getErrorMessage(err);console.error(msg)});
-    }
+    };
+
+
+
     async getSimpleUser(user_id:string):Promise<userType|void>{
         if(!user_id) return;
         const option={
@@ -1151,7 +979,10 @@ async apiUploadSaveFree(item:{parent:HTMLElement,Key:string,formdata:FormData}):
                 return user;
             }
         }).catch((err)=>{const msg=getErrorMessage(err);console.error(msg)});
-    }
+    };
+
+
+
     async deleteUser(user:userType):Promise<{id:string}|void>{
         if(!user) return;
         const option={
@@ -1168,7 +999,10 @@ async apiUploadSaveFree(item:{parent:HTMLElement,Key:string,formdata:FormData}):
                 return ID;
             }
         }).catch((err)=>{const msg=getErrorMessage(err);console.error(msg)});
-    }
+    };
+
+
+
     async getUserInfo(user_id:string|undefined):Promise<userType|void>{
         if(!user_id) return;
         const option={
@@ -1185,7 +1019,10 @@ async apiUploadSaveFree(item:{parent:HTMLElement,Key:string,formdata:FormData}):
                 return user;
             }
         }).catch((err)=>{const msg=getErrorMessage(err);console.error(msg)});
-    }
+    };
+
+
+
     async authorizeRequest(email:string):Promise<{user:userType} | undefined>{
         const option={
             headers:{
@@ -1199,7 +1036,10 @@ async apiUploadSaveFree(item:{parent:HTMLElement,Key:string,formdata:FormData}):
                 return user
             }
         });
-    }
+    };
+
+
+
     async adminImages(user:userType):Promise<adminImageType[] | undefined>{
         const option={
             headers:{
@@ -1214,7 +1054,10 @@ async apiUploadSaveFree(item:{parent:HTMLElement,Key:string,formdata:FormData}):
                 return await res.json() as adminImageType[]
             }
         });
-    }
+    };
+
+
+
     async adminImagecount(imgKey:string):Promise<adminImageType | undefined>{
         //adds 1 to the image count
         const option={
@@ -1229,7 +1072,10 @@ async apiUploadSaveFree(item:{parent:HTMLElement,Key:string,formdata:FormData}):
                 return await res.json() as adminImageType
             }
         });
-    }
+    };
+
+
+
     async adminImageDel(img_id:number):Promise<adminImageType | undefined>{
         const option={
             headers:{
@@ -1243,7 +1089,9 @@ async apiUploadSaveFree(item:{parent:HTMLElement,Key:string,formdata:FormData}):
                 return await res.json() as adminImageType
             }
         });
-    }
+    };
+
+
     async markHeaderImgKey(blog:blogType):Promise<(adminImageType | undefined)[] | undefined>{
         const header=blog.selectors.find(sel=>(sel.header));
         if(header){
@@ -1284,7 +1132,9 @@ async apiUploadSaveFree(item:{parent:HTMLElement,Key:string,formdata:FormData}):
             
         return retRows
         }
-    }
+    };
+
+
     async adminImagemark(imgKey:string):Promise<adminImageType | undefined>{
         const option={
             headers:{
@@ -1299,7 +1149,9 @@ async apiUploadSaveFree(item:{parent:HTMLElement,Key:string,formdata:FormData}):
                 return await res.json() as adminImageType
             }
         });
-    }
+    };
+
+
     async welcomeEmail(user_id:string):Promise<{msg:string}|undefined>{
         const option={
             headers:{
@@ -1312,7 +1164,9 @@ async apiUploadSaveFree(item:{parent:HTMLElement,Key:string,formdata:FormData}):
                 return await res.json() as {msg:string}
             }
         });
-    }
+    };
+
+
     async respondEmail(item:sendEmailMsgType){
         //USER CLIENTS RESPONSE TO VIEWERS COMMENTS( GET SENT TO VIEWER)
         // const {user_id,messageId,msg,viewerEmail,viewerName}=item;
@@ -1329,7 +1183,9 @@ async apiUploadSaveFree(item:{parent:HTMLElement,Key:string,formdata:FormData}):
             };
 
         }).catch((err)=>{const msg=getErrorMessage(err);console.error(msg)});
-    }
+    };
+
+
     async adminUsers(email:string,user_id:string):Promise<{users: userType[]} | undefined>{
         //"/api/admin/users"
         const option={
@@ -1344,7 +1200,9 @@ async apiUploadSaveFree(item:{parent:HTMLElement,Key:string,formdata:FormData}):
                 return users;
             }
         });
-    }
+    };
+
+
     async adminDelUser(item:{adminemail:string,adminId:string,delete_id:string}):Promise<{id:string} | undefined>{
         // api/admin/users
         const {adminemail,adminId,delete_id}=item as delteUserType;
@@ -1360,10 +1218,11 @@ async apiUploadSaveFree(item:{parent:HTMLElement,Key:string,formdata:FormData}):
                 return del_user;
             }
         });
-    }
+    };
+
+
     
     async adminSendEmail(item:{msg:messageType,user_id:string,reply:string}):Promise<{msg:string,success:boolean} | undefined>{
-        // const {msg,user_id,reply}=item as adminReplyMsgType;
         const option={
             headers:{
                 "Content-Type":"application/json",
@@ -1377,7 +1236,9 @@ async apiUploadSaveFree(item:{parent:HTMLElement,Key:string,formdata:FormData}):
                 return delivered;
             }
         });
-    }
+    };
+
+
     async getToken(): Promise<void | {token: string} |null>{
         const option={
             Headers:{"Content-Type":"application/json"},
@@ -1390,7 +1251,9 @@ async apiUploadSaveFree(item:{parent:HTMLElement,Key:string,formdata:FormData}):
             }
             return null
         }).catch((err)=>{const msg=getErrorMessage(err);console.error(msg)});
-    }
+    };
+
+
     async getAdminPageCounts(user_id:string): Promise<void |  pageCountType[] | null>{
         const option={
             Headers:{"Content-Type":"application/json"},
@@ -1403,7 +1266,9 @@ async apiUploadSaveFree(item:{parent:HTMLElement,Key:string,formdata:FormData}):
             }
             return null
         }).catch((err)=>{const msg=getErrorMessage(err);console.error(msg)});
-    }
+    };
+
+
     async getPageCount(item:{page:string,blog_id:number|undefined,post_id:number|undefined}): Promise<void |  pageCountType | null>{
         const {page,blog_id,post_id}=item;
         const option={
@@ -1417,7 +1282,9 @@ async apiUploadSaveFree(item:{parent:HTMLElement,Key:string,formdata:FormData}):
             }
             return null
         }).catch((err)=>{const msg=getErrorMessage(err);console.error(msg)});
-    }
+    };
+
+
     async delPageCount(id:number): Promise<void |  {id:string} | null>{
         const option={
             Headers:{"Content-Type":"application/json"},
@@ -1430,7 +1297,9 @@ async apiUploadSaveFree(item:{parent:HTMLElement,Key:string,formdata:FormData}):
             }
             return null
         }).catch((err)=>{const msg=getErrorMessage(err);console.error(msg)});
-    }
+    };
+
+
     async check_email(user:userType):Promise<{name:string|null,email:string|null}|void>{
         const option={
             headers:{
@@ -1441,13 +1310,15 @@ async apiUploadSaveFree(item:{parent:HTMLElement,Key:string,formdata:FormData}):
         }
         return fetch(this.checkemail,option).then(async(res)=>{
             ///api/checkemail
-            if(res){
+            if(res.ok){
                 //if res exist has email else {name:str}
                 const user= await res.json() as {name:string|null,email:string|null};
                 return user;
             }
         }).catch((err)=>{console.error(err)})
-    }
+    };
+
+
     async updateBlogMeta(blogmeta:blogType){
         //UPDATES ONLY THE BLOG AS PUT
         const option={
@@ -1458,12 +1329,14 @@ async apiUploadSaveFree(item:{parent:HTMLElement,Key:string,formdata:FormData}):
             body:JSON.stringify(blogmeta)
         }
         return fetch(this.metaUrl,option).then(async(res)=>{
-            if(res){
+            if(res.ok){
                 const blogOnly=await res.json() as blogType;
                 return blogOnly
             }
-        });
-    }
+        }).catch((err)=>{const msg=getErrorMessage(err);console.log(msg)});
+    };
+
+
 
     async getposts():Promise<postType[] |void>{
         //api/posts
@@ -1480,7 +1353,9 @@ async apiUploadSaveFree(item:{parent:HTMLElement,Key:string,formdata:FormData}):
                 return posts;
             }
         });
-    }
+    };
+
+
     async getpost(item:{id:number}):Promise<postType |void>{
         const {id}=item;
         const option={
@@ -1496,7 +1371,9 @@ async apiUploadSaveFree(item:{parent:HTMLElement,Key:string,formdata:FormData}):
                 return post;
             }
         });
-    }
+    };
+
+
     async saveUpdatepost(item:{post:postType}):Promise<postType |void>{
         const {post}=item;
         const option={
@@ -1513,7 +1390,9 @@ async apiUploadSaveFree(item:{parent:HTMLElement,Key:string,formdata:FormData}):
                 return post;
             }
         });
-    }
+    };
+
+
     async getUserposts(item:{user:userType}):Promise<postType[] |void>{
         const {user}=item;
         const option={
@@ -1528,7 +1407,9 @@ async apiUploadSaveFree(item:{parent:HTMLElement,Key:string,formdata:FormData}):
                 return post;
             }
         });
-    }
+    };
+
+
     async delpost(item:{id:number}):Promise<postType |void>{
         const {id}=item;
         const option={
@@ -1543,7 +1424,9 @@ async apiUploadSaveFree(item:{parent:HTMLElement,Key:string,formdata:FormData}):
                 return post;
             }
         });
-    }
+    };
+
+
     generatePostImgKey(formdata:FormData,post:postType):{Key:string}|undefined{
         //THIS GENERATES AN IMAGE KEY=> NEEDS FORMDATA && BLOG.NAME && user_id
         const getKey=formdata.get("Key");
@@ -1561,7 +1444,9 @@ async apiUploadSaveFree(item:{parent:HTMLElement,Key:string,formdata:FormData}):
             return {Key:getKey as string}
 
         }
-    }
+    };
+
+
     async checkPostlike(item:{post:postType}):Promise<postType|boolean>{
         const {post}=item;
         const option={
@@ -1576,22 +1461,27 @@ async apiUploadSaveFree(item:{parent:HTMLElement,Key:string,formdata:FormData}):
             }
             return false;
         });
-    }
+    };
+
+
    
-       async peronalInfo2():Promise<infoType2|undefined>{
-        //THIS PULLS THE PERSONAL INFO FROM newablogroom-free-bucket
-        const option={
-            headers:{"Content-Type":"application/json"},
-            method:"GET"
+    async peronalInfo2():Promise<infoType2|undefined>{
+    //THIS PULLS THE PERSONAL INFO FROM newablogroom-free-bucket
+    const option={
+        headers:{"Content-Type":"application/json"},
+        method:"GET"
+    }
+    return fetch(`${this.freeurl}/info.json`,option).then(async(res_)=>{
+        if(res_){
+            const body= await res_.json() as infoType2
+            return body;
         }
-        return fetch(`${this.freeurl}/info.json`,option).then(async(res_)=>{
-            if(res_){
-                const body= await res_.json() as infoType2
-                return body;
-            }
-        });
-        
-       }
+    });
+    
+    };
+
+
+
     async admin_update_info(item:{info:string |infoType2,user_id:string}):Promise<{info:infoType2|null,success:boolean}>{
         const {info,user_id}=item;
 
@@ -1612,7 +1502,9 @@ async apiUploadSaveFree(item:{parent:HTMLElement,Key:string,formdata:FormData}):
                 return {info:null,success:false};
             }
         });
-    }
+    };
+
+
     ////------------WORKS BUT NOT USING START-------------------//
     async getQuote(item:{quoteParams:quoteType}):Promise<returnQuoteFinalType|undefined>{
         const {quoteParams}=item;
@@ -1630,7 +1522,9 @@ async apiUploadSaveFree(item:{parent:HTMLElement,Key:string,formdata:FormData}):
                 return body;
             }
         });
-    }
+    };
+
+
     ////----------WORKS BUT NOT USING END--------////
     async putQuoteimg(item:{formdata:FormData}):Promise<{success:string,Key:string}|undefined>{
         const {formdata}=item;
@@ -1648,7 +1542,9 @@ async apiUploadSaveFree(item:{parent:HTMLElement,Key:string,formdata:FormData}):
                 return body;
             }
         });
-    }
+    };
+
+
     async postQuoteimg(item:{quoteimgParams:quoteimgType}):Promise<{msg:string}|undefined>{
         const {quoteimgParams}=item;
         console.log("sent",quoteimgParams)
@@ -1666,7 +1562,9 @@ async apiUploadSaveFree(item:{parent:HTMLElement,Key:string,formdata:FormData}):
                 return body;
             }
         });
-    }
+    };
+
+
     async getQuoteimg(item:{imgKey:string}):Promise<string|undefined>{
         const {imgKey}=item;
         const option={
@@ -1682,7 +1580,9 @@ async apiUploadSaveFree(item:{parent:HTMLElement,Key:string,formdata:FormData}):
                 return body;
             }
         });
-    }
+    };
+
+
     async signup(item:{signupquote:signupQuoteType}):Promise<{msg:string}|undefined>{
         const {signupquote}=item;
         const option={
@@ -1699,7 +1599,28 @@ async apiUploadSaveFree(item:{parent:HTMLElement,Key:string,formdata:FormData}):
                 return body;
             }
         });
-    }
+    };
+
+
+    async newSignup(item:{email:string,name:string}):Promise<{msg:string}|undefined>{
+        const {email,name}=item;
+        const option={
+            headers:{
+                "Content-Type":"application/json"
+            },
+            method:"POST",
+            body:JSON.stringify({email,name})
+        }
+        return fetch(this.signupUrl,option).then(async(res)=>{
+            //api/quoteimg
+            if(res.ok){
+                const body= await res.json() as {msg:string} 
+                return body;
+            }
+        });
+    };
+
+
 
     //------------------REST PASSWORD REQUEST-----------------///////
    async sendRestePassword(item:{params:onChangeVerifyType}):Promise<messageType|void>{
@@ -1718,7 +1639,7 @@ async apiUploadSaveFree(item:{parent:HTMLElement,Key:string,formdata:FormData}):
                 return body
             }
         });
-    }
+    };
     //------------------REST PASSWORD REQUEST-----------------///////
     //---------- REQUEST POST ANSWER-----------------///////
     async requestPost(item:{sendRequest:sendPostRequestType}):Promise<{msg:string}|void>{
@@ -1735,8 +1656,48 @@ async apiUploadSaveFree(item:{parent:HTMLElement,Key:string,formdata:FormData}):
                 return body;
             }
         });
-    }
+    };
     //---------- REQUEST POST ANSWER-----------------///////
+    //-------------CHECK URL------------------------/////
+    async checkUrl({url}:{url:string|undefined}){
+        if(!(url && url=="undefined" || url===undefined || url==="null" || url===null)) return false;
+        if(url){
+            return fetch(url).then(async(res)=>{
+                if(res.ok) return true;
+                return false;
+            });
+        }
+    };
+
+
+    async checkFreeImgKey({key}:{key:string|undefined}){
+        if(!(key && key==="undefined" || key===undefined || key==="null" || key===null)) return false;
+        if(key){
+
+            return fetch(`${this.freeurl}/${key}`).then(async(res)=>{
+                if(res.ok) return true;
+                return false;
+            });
+        }
+    };
+
+
+    async simpleSignUp(item:{name:string,email:string}):Promise<{email:string,name:string}|undefined>{
+        const option={
+            headers:{"Content-Type":"application/json"},
+            method:"POST",
+            body:JSON.stringify(item)
+        };
+            
+            return fetch(this.simpleSignupUrl,option).then(async(res)=>{
+                if(res.ok){
+                    const body= await res.json();
+                    return body;
+                };
+            });
+        
+    };
+
 
    
 

@@ -1,11 +1,8 @@
-import { PrismaClient } from "@prisma/client";
 import { NextApiRequest, NextApiResponse } from "next";
 import { getErrorMessage } from "@/lib/errorBoundaries";
 import prisma from "@/prisma/prismaclient";
-import { blogType, userType } from "@/components/editor/Types";
+import { blogType } from "@/components/editor/Types";
 
-// const EMAIL = process.env.EMAIL as string;
-// const PASSWORD = process.env.PASSWORD as string;
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
 
@@ -34,9 +31,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
                 console.log("error: ", msg)
                 res.status(400).json({ message: msg });
                 return await prisma.$disconnect();
-            } finally {
-                await prisma.$disconnect()
-            }
+            };
         } else {
             res.status(400).json({ msg: `unauthorized-no ID` });
             return await prisma.$disconnect();

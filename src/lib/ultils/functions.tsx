@@ -117,8 +117,8 @@ export async function findCountKeys(blog: blogType): Promise<void> {
     //ADDS VIEW COUNT TOKEYS
 
     const arr: { key: string }[] = [];
-    const selects = (blog.selectors && blog.selectors.length) ? blog.selectors as selectorType[] : null;
-    const elements = (blog.elements && blog.elements.length) ? blog.elements as elementType[] : null;
+    const selects = (blog?.selectors?.length) ? blog.selectors as selectorType[] : null;
+    const elements = (blog?.elements?.length) ? blog.elements as elementType[] : null;
     if (selects) {
         selects.map(select => {
             if (select) {
@@ -127,14 +127,14 @@ export async function findCountKeys(blog: blogType): Promise<void> {
                     if (row) {
                         if (row.imgKey) {
                             arr.push({ key: row.imgKey });
-                        }
+                        };
                         row.cols.map(col => {
                             if (col) {
                                 if (col.imgKey) {
                                     arr.push({ key: col.imgKey });
-                                }
+                                };
                                 col.elements.map(ele => {
-                                    if (ele && ele.imgKey) {
+                                    if (ele?.imgKey) {
                                         arr.push({ key: ele.imgKey })
                                     }
                                 });
@@ -144,30 +144,29 @@ export async function findCountKeys(blog: blogType): Promise<void> {
                 });
             }
         });
-    }
-    if (elements) {
+    } else if (elements) {
         elements.map(ele => {
-            if (ele && ele.imgKey) {
+            if (ele?.imgKey) {
                 arr.push({ key: ele.imgKey })
             }
         });
 
-    }
-    if (blog && blog.imgKey) {
+    };
+    if (blog.imgKey) {
         arr.push({ key: blog.imgKey });
     }
-    if (blog && blog.imgBgKey) {
+    if (blog.imgBgKey) {
         arr.push({ key: blog.imgBgKey });
     }
     await MarkCountKeys({ keys: arr });
 
 };
 
-export async function MarkCountKeys(item: { keys: { key: string }[] }) {
+export async function MarkCountKeys(item: { keys: { key: string }[] }): Promise<void> {
     const { keys } = item;
     try {
         await Promise.all(keys.map(async (res) => {
-            if (res && res.key) {
+            if (res.key) {
                 const markDel = await prisma.deletedImg.findUnique({
                     where: { imgKey: res.key },
 
@@ -183,11 +182,16 @@ export async function MarkCountKeys(item: { keys: { key: string }[] }) {
 
             }
         }));
-    } finally {
-        await prisma.$disconnect();
+        return await prisma.$disconnect();
+    } catch (error) {
+        const msg = getErrorMessage(error);
+        console.log(msg);
+        return await prisma.$disconnect();
     }
-}
-export async function markUserBlogsPosts(item: { user_id: string }) {
+};
+
+
+export async function markUserBlogsPosts(item: { user_id: string }): Promise<void> {
     //MARKS ALL IMGKEY:IMAGES FOR BLOGS AND POSTS
     const { user_id } = item;
     try {
@@ -215,7 +219,8 @@ export async function markUserBlogsPosts(item: { user_id: string }) {
     } finally {
         await prisma.$disconnect();
     }
-}
+};
+
 
 
 export async function markDelete(item: { imgKey: string }) {
@@ -227,13 +232,15 @@ export async function markDelete(item: { imgKey: string }) {
                 del: true
             }
         });
+        return await prisma.$disconnect();
     } catch (error) {
         const msg = getErrorMessage(error);
         console.log(msg);
-    } finally {
-        await prisma.$disconnect();
-    }
+        return await prisma.$disconnect();
+    };
 };
+
+
 export async function markBlogImgs(item: { blog: blogType }) {
     const { blog } = item;
     await markSelectors({ selectors: blog.selectors });
@@ -275,12 +282,12 @@ export async function markSelectorImg(item: { selector: selectorType }) {
                 });
             }
         });
+        return await prisma.$disconnect();
     } catch (error) {
         const msg = getErrorMessage(error);
         console.log(msg);
-    } finally {
-        await prisma.$disconnect();
-    }
+        return await prisma.$disconnect();
+    };
 }
 export async function markElements(item: { elements: elementType[] }) {
     const { elements } = item;
@@ -295,7 +302,7 @@ export async function markElements(item: { elements: elementType[] }) {
 export async function markPostsImg(item: { posts: postType[] }) {
     const { posts } = item;
     posts.map(async (post) => {
-        if (post && post.imageKey) {
+        if (post?.imageKey) {
             await markDelete({ imgKey: post.imageKey });
         }
     });

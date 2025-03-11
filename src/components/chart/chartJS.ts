@@ -6,12 +6,10 @@ import Misc from '../common/misc';
 import Header from '../editor/header';
 import Chart from 'chart.js/auto';
 import Message from '../common/message';
-import { chartType, lineOptionType, barOptionType, optionType, blogType } from '../editor/Types';
-import { ChartConfiguration, ChartConfigurationCustomTypesPerDataset } from 'chart.js/auto';
+import { chartType, lineOptionType, barOptionType, optionType, blogType, arrDivContType } from '../editor/Types';
 import { FaCreate } from '../common/ReactIcons';
 import { FaCrosshairs } from 'react-icons/fa';
-import Main from '../editor/main';
-import { getErrorMessage } from '@/lib/errorBoundaries';
+import { idValueType } from '@/lib/attributeTypes';
 
 export type barDataType={
     xaxis:number|string,yaxis:number,bg:string,bdr:string
@@ -20,14 +18,13 @@ export type barDataType={
 
 class ChartJS {
     
-    message:Message;
     _placement:number;
     barData:barDataType[];
     _barOption:barOptionType;
     _lineOption:lineOptionType;
     _chart:chartType;
     _charts:chartType[];
-    constructor(private _modSelector:ModSelector,private _service:Service,private _user:User) {
+    constructor(private _modSelector:ModSelector,private _service:Service,private _user:User,private message:Message) {
         this._barOption=this._modSelector.barOption;
         this._placement=1;
         this._lineOption=this._modSelector.lineOption;
@@ -41,9 +38,9 @@ class ChartJS {
         { xaxis: 2016, yaxis: 28,bg:"rgba(201, 203, 207, 0.2)",bdr:"rgb(201, 203, 207)" },
       ];
       this._charts=[];
-      this._charts=this._modSelector._charts;
-      this._chart=this._modSelector._chart;
-      this.message=new Message(this._modSelector,this._service,this._modSelector.blog,null);
+      this._charts=this._modSelector.charts;
+      this._chart=this._modSelector.chart;
+      
     }
     //---------SETTERS/GETTERS------------//
     get placement(){
@@ -78,7 +75,8 @@ class ChartJS {
     }
     set chart(chart:chartType){
         this._chart=chart;
-        this._modSelector._chart=chart;
+        this._modSelector.chart=chart;
+        this._modSelector.localStore({blog:this._modSelector.blog});
     }
     get charts(){
         return this._charts;
@@ -89,27 +87,38 @@ class ChartJS {
     }
   
     //---------SETTERS/GETTERS------------//
-    async showCleanChart(item:{parent:HTMLElement,chart:chartType}){
+    async showCleanChart(item:{parent:HTMLElement,chart:chartType}): Promise<{
+        divCont: HTMLElement;
+        placement: number;
+        target:HTMLCanvasElement;
+    } | undefined>{
         //THIS IS SHOWN IN DISPLAY_BLOG && CHARTS;
         const {chart,parent}=item;
-        await this.cleanChart({chart,parent}).then(async(res)=>{
+
+        return await this.cleanChart({chart,parent}).then(async(res)=>{
             if(res){
-                const getCtx=parent.querySelector(`canvas#${res.ctx.id}`) as HTMLCanvasElement;
+                
                 // console.log("getCtx",getCtx)//works
-                Misc.matchMedia({parent:getCtx,maxWidth:900,cssStyle:{maxwidth:"900px",width:"100%",height:"750px",minWidth:"600px"}});
-                Misc.matchMedia({parent:getCtx,maxWidth:400,cssStyle:{maxWidth:"380px",height:"400px",width:"100%",minWidth:"340px"}});
-                const option=JSON.parse(res.chart.chartOption as string) as barOptionType | lineOptionType;
+                Misc.matchMedia({parent:res.target,maxWidth:900,cssStyle:{maxwidth:"900px",width:"100%",height:"750px",minWidth:"600px"}});
+                Misc.matchMedia({parent:res.target,maxWidth:400,cssStyle:{maxWidth:"380px",height:"400px",width:"100%",minWidth:"340px"}});
+                // const option=JSON.parse(res.chart.chartOption as string) as barOptionType | lineOptionType;
                 // console.log("OPTION",option);//works
-                const isChart= new Chart(getCtx,option);
+                //CHART RETURNS THE CHART:const isChart= new Chart(getCtx,option);
                 // console.log(isChart)//works
+                return {divCont:res.divCont,placement:chart.placement,target:res.target}
             }
         });
 
 
-    }
-    async cleanChart(item:{parent:HTMLElement,chart:chartType}):Promise<{ctx:HTMLCanvasElement,chart:chartType}>{
+    };
+
+
+    async cleanChart(item:{parent:HTMLElement,chart:chartType}):Promise<{target:HTMLCanvasElement,chart:chartType,divCont:HTMLElement}>{
         const {parent,chart}=item;
         Header.cleanUpByID(parent,chart.eleId);
+        const divCont=document.createElement("div");
+        divCont.id="divCont-cleanChart";
+        divCont.style.cssText="width:100%;max-width:1000px;display:flex;flex-direction:column;justify-content:center;align-items:center;";
         parent.style.position="relative";
         parent.style.width="100%";
         //use await + promise on ctx
@@ -117,70 +126,66 @@ class ChartJS {
         ctx.id=chart.eleId;
         ctx.style.cssText="min-width:350px;width:694px;maxWidth:1200px;height:800px;min-height:496px;border-radius:12px;margin-inline:auto;margin-block:2rem;padding-block:1rem;padding:1rem;margin-inline:auto;";
         ctx.style.width="100%";
-        parent.appendChild(ctx);
+        divCont.appendChild(ctx);
+        parent.appendChild(divCont);
         Misc.matchMedia({parent:ctx,maxWidth:900,cssStyle:{maxwidth:"900px",width:"100%",height:"750px",minWidth:"700px"}});
         Misc.matchMedia({parent:ctx,maxWidth:400,cssStyle:{maxWidth:"380px",height:"400px",minWidth:"340px"}});
-        return new Promise(resolve=>{
-            resolve({ctx,chart});
-        }) as Promise<{ctx:HTMLCanvasElement,chart:chartType}>;
-    }
+        return Promise.resolve({target:ctx,chart,divCont}) as Promise<{target:HTMLCanvasElement,chart:chartType,divCont:HTMLElement}>;
+    };
+
     
-    async viewChart(item:{parent:HTMLElement,chart:chartType}){
-        const {chart,parent}=item;
-        await this.asyncChart({parent,chart}).then(async(res)=>{
+    async viewChart(item:{parent:HTMLElement,chart:chartType,idValues:idValueType[]}){
+        const {chart,parent,idValues}=item;
+        return await this.asyncChart({parent,chart,idValues}).then(async(res)=>{
             if(res){
-                this.removeElement({parent,divCont:res.divCont,target:res.ctx});
-                const getCtx=res.divCont.querySelector(`canvas#${res.ctx.id}`) as HTMLCanvasElement;
-                Misc.matchMedia({parent:getCtx,maxWidth:900,cssStyle:{maxWidth:"575px",width:"100%"}});
-                Misc.matchMedia({parent:getCtx,maxWidth:400,cssStyle:{maxWidth:"340px",width:"100%"}});
-                const getDivCont=parent.querySelector(`div#divCont-${chart.eleId}`) as HTMLElement;
-                const option=JSON.parse(chart.chartOption as string) as barOptionType|lineOptionType;
+                
+                Misc.matchMedia({parent:res.ctx,maxWidth:900,cssStyle:{maxWidth:"575px",width:"100%"}});
+                Misc.matchMedia({parent:res.ctx,maxWidth:400,cssStyle:{maxWidth:"340px",width:"100%"}});
+                const option=JSON.parse(res.chart.chartOption as string) as barOptionType|lineOptionType;
                 res.divCont.setAttribute("data-placement",String(chart.placement));
-                getCtx.hidden=true;
-                getDivCont.onclick=(e:MouseEvent)=>{
-                    if(e){
-                        getDivCont.classList.toggle("showGraph");
-                    }
-                };
-                   await this.viewChartInner({divCont:getDivCont,option:option,getCtx:getCtx,chart});
+                const arrDiv= await this.viewChartInner({parent,divCont:res.divCont,option:option,getCtx:res.ctx,chart});
+                   return arrDiv
             }
         });
 
        
-    }
-    async asyncChart(item:{parent:HTMLElement,chart:chartType}):Promise<{divCont:HTMLElement,ctx:HTMLCanvasElement}>{
-        const {parent,chart}=item;
+    };
+
+
+    async asyncChart({parent,chart,idValues}:{parent:HTMLElement,chart:chartType,idValues:idValueType[]}):Promise<{divCont:HTMLElement,ctx:HTMLCanvasElement,chart:chartType,idValues:idValueType[]}>{
+       
+        const less900=window.innerWidth <900;
+        const less400=window.innerWidth <400;
         Header.cleanUpByID(parent,`divCont-${chart.eleId}`);
         const divCont=document.createElement("div");
-        const width=window.innerWidth <900 ? (window.innerWidth < 600 ? (window.innerWidth <400 ? "340px":"500px") : "600px") : "730px";
-        divCont.style.cssText=`max-width:${width};aspect-ratio:1 /1.6;margin-inline:auto;border-radius:20px;width:100%;position:relative;display:flex;justify-content:center;align-items:center;flex-direction:column;gap:1rem;background-color:white;border-radius:12px;overflow-y:scroll;`;
-        divCont.style.height="auto";
+        const width=less900 ? (window.innerWidth < 600 ? (less400 ? "340px":"500px") : "600px") : "730px";
+        divCont.style.cssText=`max-width:${width};aspect-ratio:1 /1;margin-inline:auto;border-radius:20px;width:100%;position:relative;display:flex;justify-content:center;align-items:center;flex-direction:column;gap:1rem;background-color:white;border-radius:12px;overflow-y:scroll;`;
+        divCont.style.minHeight=less900 ? (less400 ? "200px":"300px"):"400px;";
+        divCont.style.maxHeight=less900 ? (less400 ? "600px":"500px"):"470px;";
+        divCont.style.height=less900 ? (less400 ? "430px !important":"400px !important"):"470px !important";
         divCont.style.maxWidth=width;
         divCont.style.width=width;
         divCont.classList.add("eleContainer");
         divCont.id=`divCont-${chart.eleId}`;
-        divCont.style.maxHeight="800px";
-        divCont.style.minHeight="auto";
         const ctx=document.createElement("canvas") as HTMLCanvasElement;
         ctx.id=chart.eleId;
-        ctx.style.cssText=`max-width:${width};width:100%;aspect-ratio:1/1.6;border-radius:12px;margin-inline:auto;margin-block:2rem;padding-block:1rem`;
+        ctx.style.cssText=`max-width:${width};width:100%;aspect-ratio:1/1;border-radius:12px;margin-inline:auto;margin-block:2rem;padding-block:1rem`;
         ctx.style.maxWidth=width
         divCont.appendChild(ctx);
-        Misc.matchMedia({parent:ctx,maxWidth:900,cssStyle:{maxWidth:"575px",width:"100%"}});
-        Misc.matchMedia({parent:ctx,maxWidth:400,cssStyle:{maxWidth:"340px",width:"100%"}});
-        parent.appendChild(divCont);
-        return new Promise(resolve=>{
-            resolve({divCont,ctx});
-        }) as Promise<{divCont:HTMLElement,ctx:HTMLCanvasElement}>;
-    }
-    async viewChartInner(item:{divCont:HTMLElement,getCtx:HTMLCanvasElement,option:barOptionType|lineOptionType,chart:chartType}){
-        const {divCont,option,getCtx,chart}=item;
+        const {idValues:retIdValues}=this._modSelector.dataset.coreChartIdValues({target:ctx,idValues,chart,clean:true})
+        idValues=retIdValues;
+        return Promise.resolve({divCont,ctx,chart,idValues}) as Promise<{divCont:HTMLElement,ctx:HTMLCanvasElement,chart:chartType,idValues:idValueType[]}>;
+    };
+
+
+    async viewChartInner(item:{parent:HTMLElement,divCont:HTMLElement,getCtx:HTMLCanvasElement,option:barOptionType|lineOptionType,chart:chartType}){
+        const {divCont,option,getCtx,chart,parent}=item;
         //draw graph
         Header.cleanUpByID(divCont,"viewChartInner-view-chart-btn");
         const btnCont=document.createElement("div");
         btnCont.id="viewChartInner-view-chart-btn";
         btnCont.style.cssText="margin-block:1.5rem;margin-inline:auto;display:flex;justify-content:center;align-items:center:padding-block:1rem;gap:1rem";
-        let newChart:Chart<"line" | "bar", number[], string | number>;
+        let newChart:Chart<"line" | "bar", number[], string | number>= {} as Chart<"line" | "bar", number[], string | number> ;
         const {button:open}=Misc.simpleButton({anchor:btnCont,bg:Nav.btnColor,color:"white",text:"open-graph",time:400,type:"button"});
         const {button:close}=Misc.simpleButton({anchor:btnCont,bg:Nav.btnColor,color:"white",text:"close-graph",time:400,type:"button"});
         const {button:edit}=Misc.simpleButton({anchor:btnCont,bg:"rgba(0, 34, 68,0.5)",color:"red",text:"edit-graph",time:400,type:"button"});
@@ -195,6 +200,7 @@ class ChartJS {
                 getCtx.style.height="500px";
                 getCtx.hidden=false;
                 newChart=new Chart(getCtx,option);
+                this.removeElement({parent,divCont:divCont,target:getCtx,chart:newChart});
                 open.hidden=true;
                 close.hidden=false;
                 divCont.animate([
@@ -220,10 +226,7 @@ class ChartJS {
         };
         edit.onclick=(e:MouseEvent)=>{
             if(e){
-                divCont.style.maxHeight="800px";
-                divCont.style.aspectRatio="auto";
-                divCont.style.height="700px";
-                getCtx.style.height="600px";
+                newChart.destroy();
                 if(!newChart){
                     newChart=new Chart(getCtx,option);
                 }
@@ -236,7 +239,7 @@ class ChartJS {
                     const xaxis=formdata.get("xaxis") as string;
                     const yaxis=formdata.get("yaxis") as string;
                     const barType=formdata.get("barType") as string;
-                    console.log("xaxis",xaxis,"yaxis",yaxis,"type:",barType)
+                   
                     if(xaxis && yaxis && barType){
 
                         const con_xaxis=this.convertXaxis({parent:divCont,strX:xaxis});
@@ -262,6 +265,7 @@ class ChartJS {
                             //save
                             const remain=this._modSelector.charts.filter(chart_=>(chart_.eleId !==chart.eleId));
                             this.charts=[...remain,this.chart];
+                            this._modSelector.localStore({blog:this._modSelector.blog});
                             Misc.growOut({anchor:popup,scale:0,opacity:0,time:400});
                             setTimeout(()=>{
                                 divCont.removeChild(popup);
@@ -275,39 +279,55 @@ class ChartJS {
             }
         };
 
-
-    }
+        const arrDiv:arrDivContType={divCont,placement:chart.placement,target:getCtx,isNormal:false,ele:null,chart:chart,sel:null};
+        return Promise.resolve(arrDiv) as Promise<arrDivContType>
     
-    async mainChart(injector:HTMLElement,blog:blogType){
+    };
+
+        //INJECTION POINT
+    async mainChart({injector,blog,idValues}:{injector:HTMLElement,blog:blogType,idValues:idValueType[]}){
         this._modSelector.blog={...blog};
-        await this.titlePage({container:injector,time:1200}).then(async(res)=>{
+        return await this.titlePage({container:injector,time:1200}).then(async(res)=>{
             if(res){
-                await this.mainBarChart({injector,blog});
-        
-                    res.textContainer.style.opacity="1";
-                    res.textContainer.style.width="100%";
-                    res.para.style.opacity="1";
-                    res.para.style.marginTop="1rem";
-                    res.para.style.transform="translateX(0%)";
-                    res.textContainer.animate([
-                        {transform:"translateY(-100%)",opacity:"0"},
-                        {opacity:"1"},
-                    ],{duration:res.time,iterations:1,"easing":"ease-in-out"});
-                    res.para.animate([
-                        {transform:"translateX(-75%)",opacity:"0.3",color:"white"},
-                        {opacity:"1",color:res.para.style.color},
-                    ],{duration:res.time + 700,iterations:1,"easing":"ease-in-out"});
-        
+               return await this.mainBarChart({injector,blog,idValues}).then((inject)=>{
+                    if(inject){
+                        res.textContainer.style.opacity="1";
+                        res.textContainer.style.width="100%";
+                        res.para.style.opacity="1";
+                        res.para.style.marginTop="1rem";
+                        res.para.style.transform="translateX(0%)";
+                        res.textContainer.animate([
+                            {transform:"translateY(-100%)",opacity:"0"},
+                            {opacity:"1"},
+                        ],{duration:res.time,iterations:1,"easing":"ease-in-out"});
+                        res.para.animate([
+                            {transform:"translateX(-75%)",opacity:"0.3",color:"white"},
+                            {opacity:"1",color:res.para.style.color},
+                        ],{duration:res.time + 700,iterations:1,"easing":"ease-in-out"});
+                        return inject;
+                    }
+                });
+            
 
             }
         });
 
-    }
-    async editorChart(injector:HTMLElement,blog:blogType){
-        this._modSelector.blog={...blog};
-        await this.mainBarChart({injector,blog});
+    };
+   
 
-    }
+    async sleep({ms}:{ms:number}):Promise<()=>boolean>{
+        return Promise.resolve(()=>{setTimeout(()=>{return true},ms)}) as Promise<()=>boolean>;
+    };
+
+
+    //FROM SIDEBAR MENU: INJECTION
+    async editorChart(injector:HTMLElement,blog:blogType,idValues:idValueType[]){
+        this._modSelector.blog={...blog};
+        await this.mainBarChart({injector,blog,idValues});
+
+    };
+
+
    async titlePage(item:{container:HTMLElement,time:number}):Promise<{textContainer:HTMLElement,container:HTMLElement,para:HTMLElement,time:number}>{
         const {container,time}=item;
         const less900=window.innerWidth < 900;
@@ -318,7 +338,7 @@ class ChartJS {
         textContainer.style.cssText=css_col + "background-color:black;border-radius:12px;margin-top:1rem;filter:drop-shadow(0 0 0.5rem white);width:100%;";
         textContainer.style.width=less900 ? (less400 ? "100%":"80%") : "70%";
         textContainer.style.paddingBottom=less900 ? (less400 ? "2rem":"2.5rem") : "2rem";
-        textContainer.style.paddingInline=less900 ? (less400 ? "1rem":"1rem") : "2rem";
+        textContainer.style.paddingInline=less900 ? "1rem" : "2rem";
         await this.leftEllipe({parent:textContainer,less400,less900}).then(async(res)=>{
             if(res){
                 res.ellipseL.animate([
@@ -344,7 +364,7 @@ class ChartJS {
         const dividerStyle="background-clip:border-box;-webkit-background-clip:border-box;background:linear-gradient(180deg, #fff, #0668f7);"
         div1.style.cssText="margin-inline:auto;width:85%;height:3px;filter:drop-shadow(0 0 0.25rem blue);" + dividerStyle;
         div1.style.height=less900 ? (less400 ? "5px":"8px"):"9px";
-        // div1.className="lineStyleOne";
+       
         const div2=document.createElement("div");
         div2.id="textContainer-div1";
         div2.className="lineStyleOne";
@@ -365,10 +385,10 @@ class ChartJS {
         
         
         container.appendChild(textContainer);
-        return new Promise(resolve=>{
-            resolve({textContainer,container,para,time});
-        }) as Promise<{textContainer:HTMLElement,container:HTMLElement,para:HTMLElement,time:number}>;
-    }
+        return Promise.resolve({textContainer,container,para,time}) as Promise<{textContainer:HTMLElement,container:HTMLElement,para:HTMLElement,time:number}>;
+    };
+
+
     leftEllipe({parent,less400,less900}:{parent:HTMLElement,less400:boolean,less900:boolean}): Promise<{ellipseL:HTMLElement,ellipseR:HTMLElement}>{
         parent.style.position="relative";
         const cssEllipsL="display:block;clip-path: ellipse(80px 90px at -7% -19%);position:absolute;z-index:1;top:0%;left:0%;transform:translate(0px,0px);background: rgb(29, 203, 251);width:100px;height:100px;";
@@ -379,15 +399,16 @@ class ChartJS {
         ellipseR.id="ellipse1";
         ellipseL.style.cssText=cssEllipsL;
         ellipseR.style.cssText=cssEllipsR;
-        // ellipse.style.width=less900 ? ( less400 ? "":"") :"";
+
         parent.appendChild(ellipseL);
         parent.appendChild(ellipseR);
-        return new Promise(resolver=>{
-            resolver({ellipseL,ellipseR});
-        }) as Promise<{ellipseL:HTMLElement,ellipseR:HTMLElement}>;
+        return Promise.resolve({ellipseL,ellipseR}) as Promise<{ellipseL:HTMLElement,ellipseR:HTMLElement}>;
     };
-    async mainBarChart(item:{injector:HTMLElement,blog:blogType}){
-        const {injector,blog}=item;
+
+
+    //parent:editorChart(): SIDEBAR LINE
+    async mainBarChart({injector,blog,idValues}:{injector:HTMLElement,blog:blogType,idValues:idValueType[]}):Promise<HTMLElement>{
+       
         const less900=window.innerWidth < 900;
         const less500=window.innerWidth < 500;
         const less400=window.innerWidth < 400;
@@ -395,9 +416,10 @@ class ChartJS {
         const lenId=this.charts.length;
         const widthMax=less900 ? (less500 ? (less400 ? "340px":"400px") : "500px") : "800px";
         const widthMin=less900 ? (less500 ? (less400 ? "300px":"375px") : "400px") : "700px";
+        const heightMax=less900 ? (less500 ? (less400 ? "400px":"500px") : "600px") : "900px";
+        const heightMin=less900 ? (less500 ? (less400 ? "350px":"450px") : "500px") : "800px";
         if(!isTextarea){
             injector.style.minWidth=widthMin;
-            // injector.style.maxWidth=widthMax;
         }else{
             injector.style.width="100%";
         }
@@ -410,27 +432,29 @@ class ChartJS {
         const divCont=document.createElement("section");
         divCont.className="mainBarChart-divCont";
         divCont.id="ctx-container-target";
-        divCont.style.cssText="margin-inline:auto;margin-block:2rem;padding-inline:2rem; width:100%;display:flex;flex-direction:column;gap:1rem;align-items:center;justify-content:flex-start;gap:1rem;background-color:white;border-radius:20px;overflow-y:scroll;overflow-x:hidden;";
+        divCont.style.cssText="margin-inline:auto;margin-block:2rem;padding-inline:2rem; width:100%;display:flex;flex-direction:column;gap:1rem;align-items:center;justify-content:flex-start;gap:1rem;background-color:white;border-radius:20px;overflow-y:scroll;overflow-x:hidden;height:100%;";
+        divCont.style.minHeight=less900 ? (less400 ? "200px":"300px"):"400px;";
+        divCont.style.maxHeight=less900 ? (less400 ? "600px":"500px"):"470px;";
         divCont.style.minWidth=widthMin;
         divCont.style.maxWidth=widthMax;
         const ctx=document.createElement("canvas") as HTMLCanvasElement;
         ctx.id=`ctx-graph-${lenId}`;
-        ctx.style.cssText="width:100%;height:100%;max-height:400px;border-radius:12px;margin-inline:auto;margin-block:2rem;padding-block:1rem;";
+        ctx.style.cssText=`width:100%;height:100%;max-height:${heightMax};min-height:${heightMin};min-width:${widthMin};max-width:${widthMax};border-radius:12px;margin-inline:auto;margin-block:2rem;padding-block:1rem;`;
         ctx.style.minWidth=widthMin;
         ctx.style.maxWidth=widthMax;
+        ctx.style.minHeight=heightMin;
+        ctx.style.maxHeight=heightMax;
         divCont.appendChild(ctx);
-        Misc.matchMedia({parent:divCont,maxWidth:900,cssStyle:{width:"100%",maxWidth:"850px",height:"900px"}});
-        Misc.matchMedia({parent:divCont,maxWidth:400,cssStyle:{width:"100%",maxWidth:"350px",height:"400px"}});
         injector.appendChild(divCont);
         this.cleanUpKeepOne({parent:injector,class_:"mainBarChart-divCont"});
         const getCtx=document.getElementById(`ctx-graph-${lenId}`) as HTMLCanvasElement;
-        if(!getCtx)return;
-        Misc.matchMedia({parent:getCtx,maxWidth:900,cssStyle:{maxWidth:"890px",width:"100%",minWidth:"575px"}});
-        Misc.matchMedia({parent:getCtx,maxWidth:400,cssStyle:{maxWidth:"380px",width:"100%",minWidth:"320px"}});
-        this.removeElement({parent:injector,divCont,target:ctx});
-        this.barGraph({parent:injector,divCont,getCtx,blog,less900,less500,less400});
+        if(!getCtx)return injector;
+        await this.barGraph({parent:injector,divCont,getCtx,blog,less900,less500,less400,idValues});
+        return Promise.resolve(injector) as Promise<HTMLElement>;
+    };
 
-    }
+
+
     editGraph(item:{divCont:HTMLElement,option:barOptionType|lineOptionType,chart:chartType}):{form:HTMLFormElement,popup:HTMLElement}{
         const {divCont,option,chart}=item;
         divCont.style.position="relative";
@@ -470,23 +494,32 @@ class ChartJS {
         Misc.growIn({anchor:popup,scale:0,opacity:0,time:400});
         return {popup,form}
       
-    }
-    async barGraph(item:{parent:HTMLElement,divCont:HTMLElement,getCtx:HTMLCanvasElement,blog:blogType,less900:boolean,less500:boolean,less400:boolean}){
-        const {parent,divCont,getCtx,blog,less900,less500,less400}=item;
+    };
+
+
+
+    async barGraph({parent,divCont,getCtx,blog,less900,less500,less400,idValues}:{
+        parent:HTMLElement,
+        divCont:HTMLElement,
+        getCtx:HTMLCanvasElement,
+        blog:blogType,
+        less900:boolean,
+        less500:boolean,
+        less400:boolean,
+        idValues:idValueType[]
+
+    }){
+      
         let chart:Chart<"bar", number[], string | number>|Chart<"line", number[], string | number>
         divCont.style.position="relative";
-        const widthMax=window.innerWidth <900 ? (window.innerWidth < 600 ? (window.innerWidth <400 ? "340px":"500px") : "600px") : "800px";
-        const widthMin=window.innerWidth <900 ? (window.innerWidth < 600 ? (window.innerWidth <400 ? "300px":"450px") : "500px") : "700px";
-        getCtx.style.width=widthMin;
         const option=this.bar_options({barData:this.barData,label:"add your data"}) as unknown as optionType;
-        await this.addChart({divCont,Ctx:getCtx,option,blog,less900,less400,less500}).then(async(res)=>{
+        await this.addChart({divCont,target:getCtx,option,blog,idValues}).then(async(res)=>{
             if(res){
-                // chart.destroy();
                 this.cleanUpKeepOne({parent,class_:res.divCont.className});
                 this.barOption=res.option as barOptionType;
-                chart=new Chart(res.Ctx,this.barOption)
+                chart=new Chart(res.target,this.barOption)
                 res.divCont.setAttribute("data-placement",String(this.placement));
-                this.removeElement({parent,divCont:res.divCont,target:res.Ctx})
+                this.removeElement({parent,divCont:res.divCont,target:res.target,chart})
             }
         });
         const btnContainer=document.createElement("div");
@@ -510,10 +543,9 @@ class ChartJS {
                         const label=formdata.get("label") ? formdata.get("label") as string :"add your label";
                         if(xaxis && yaxis){
                             //convert yaxis from string=>number[]
-                            // console.log("xaxis",xaxis,"yaxis",yaxis);//works
                             const yaxisSet=this.convertYaxis({parent:divCont,strY:yaxis});
                             const xaxisSet=this.convertXaxis({parent:divCont,strX:xaxis});
-                            // console.log("yaxisSet",yaxisSet,"xaxisSet",xaxisSet)//works
+                        
                             if(yaxisSet && xaxisSet){
                             const barData=this.convergeBarData({xaxis:xaxisSet,yaxis:yaxisSet});
                             // console.log("this.barData",this.barData)//works
@@ -522,11 +554,11 @@ class ChartJS {
                                     //redo graph
                                     if(graphType==="bar"){
                                         const option_=this.bar_options({barData:barData,label}) as unknown as optionType;
-                                        await this.addChart({divCont,Ctx:getCtx,option:option_,blog,less900,less400,less500}).then(async(res)=>{
+                                        await this.addChart({divCont,target:getCtx,option:option_,blog,idValues}).then(async(res)=>{
                                             if(res){
                                                 chart.destroy();
                                                 this.barOption=res.option as barOptionType
-                                                chart= new Chart(res.Ctx,this.barOption);
+                                                chart= new Chart(res.target,this.barOption);
                                                 res.divCont.onclick=(e:MouseEvent)=>{
                                                     if(e){
                                                         divCont.classList.toggle("showGraph");
@@ -537,13 +569,13 @@ class ChartJS {
 
                                     }else if(graphType==="line"){
                                         const _option=this.line_options({barData:barData,label}) as unknown as optionType;
-                                        // console.log("_option",_option);
-                                        await this.addChart({divCont,Ctx:getCtx,option:_option,blog,less900,less400,less500}).then(async(res)=>{
+                                        
+                                        await this.addChart({divCont,target:getCtx,option:_option,blog,idValues}).then(async(res)=>{
                                             if(res){
                                                 chart.destroy();
                                                 this.lineOption=res.option as lineOptionType;
-                                                chart= new Chart(res.Ctx,this.lineOption);
-                                                // console.log("chart",chart);
+                                                chart= new Chart(res.target,this.lineOption);
+                                                
                                                 res.divCont.onclick=(e:MouseEvent)=>{
                                                     if(e){
                                                         divCont.classList.toggle("showGraph");
@@ -575,25 +607,23 @@ class ChartJS {
             if(e){
                 const url=new URL(window.location.href);
                 const pathname=url.pathname;
-                const user=this._user.user;
+                
                 const _blog=this._modSelector.blog;
                 this.charts=_blog.charts ? _blog.charts :[] as chartType[]
                 if(pathname !=="/editor" && this.charts.length>0){
+                    //SAVE OR CANCEL REQUEST-popup
                     this.message.chartmessage(divCont,this.charts);
                 }else if(pathname==="/editor"){
-                    if(user && user.id && blog.name && user.email){
-                        // console.log(user,blog)
-                        const _blog={...blog,user_id:user.id,name:blog.name};
-                        const getBtnCont=divCont.querySelector("div#btnContainer") as HTMLElement;
-                                Misc.growOut({anchor:getBtnCont,scale:0,opacity:0,time:400});
-                                setTimeout(()=>{
-                                    divCont.removeChild(getBtnCont);
-                                    getCtx.style.height="auto";
-                                    divCont.style.height="auto";
-                                    view.hidden=true;
-                                    hide.hidden=false;
-                                },390);
-                    }
+                    const getBtnCont=divCont.querySelector("div#btnContainer") as HTMLElement;
+                            Misc.growOut({anchor:getBtnCont,scale:0,opacity:0,time:400});
+                            setTimeout(()=>{
+                                divCont.removeChild(getBtnCont);
+                                getCtx.style.height="auto";
+                                divCont.style.height="auto";
+                                view.hidden=true;
+                                hide.hidden=false;
+                            },390);
+                   
                 }
             }
         };
@@ -625,7 +655,9 @@ class ChartJS {
         //SEEN AFTER SAVED
         divCont.appendChild(btnContainer);
         divCont.appendChild(btnView);
-    }
+    };
+
+
     bar_options(item:{barData:barDataType[],label:string}):barOptionType{
         const {barData,label}=item;
         
@@ -654,7 +686,9 @@ class ChartJS {
             }
         }
 
-    }
+    };
+
+
     line_options(item:{barData:barDataType[],label:string}):lineOptionType{
         const {barData,label}=item;
         
@@ -682,14 +716,16 @@ class ChartJS {
             }
         }
 
-    }
+    };
+
+
     optionForm(item:{divCont:HTMLElement}):{form:HTMLFormElement,popup:HTMLElement}{
         //async and returns form
         const {divCont}=item;
         divCont.style.position="relative";
         const popup=document.createElement("div");
         popup.id="popup-bar-form";
-        popup.style.cssText="margin:auto;position:absolute;inset:20% 10% -50% 10%;backdrop-filter:blur(10px);display:flex;justify-content:flex-start;align-items:center;flex-direction:column;padding:1rem;padding-block:2rem;";
+        popup.style.cssText="margin:auto;position:absolute;inset:0% 0% auto;backdrop-filter:blur(10px);display:flex;justify-content:flex-start;align-items:center;flex-direction:column;padding:1rem;padding-block:2rem;overflow-y:scroll;";
         const form=document.createElement("form");
         form.id="bar-form";
         form.style.cssText="width:100%;margin:auto;display:flex;justify-content:center;align-items:center;flex-direction:column;gap:1.25rem";
@@ -715,7 +751,7 @@ class ChartJS {
         lyaxis.textContent="vertical data";
         yaxis.placeholder="data1,data2,data3,,,";
         const graphTypes=[{name:"select",value:""},{name:"bar",value:"bar"},{name:"line",value:"line"},]
-        const {select,label:slabel,formGrp:sGrp}=Misc.selectComponent({parent:form,name:"graph types",selects:graphTypes,cssStyle:{backgroundColor:"black",color:"white"}});
+        const {select,label:slabel}=Misc.selectComponent({parent:form,name:"graph types",selects:graphTypes,cssStyle:{backgroundColor:"black",color:"white"}});
         select.id="graphType";
         select.name="graphType";
         slabel.textContent="bar or line";
@@ -738,46 +774,63 @@ class ChartJS {
         return {form,popup}
 
 
-    }
+    };
+
+
     convertToBarLineOption(item:{option:barOptionType|lineOptionType}):barDataType[]{
         const {option}=item;
-        let option_:optionType=option as unknown as optionType;
-        option_=option as unknown as optionType;
         const labels=option.data.labels;
         const numbers=option.data.datasets[0].data;
-        const check=( labels && labels.length>0 && numbers && numbers.length>0)?true:false;
+        const check=(labels && numbers?.length>0)|| false;
         if(check && labels){
             return this.convergeBarData({xaxis:labels as string[],yaxis:numbers})
         }
         return [] as barDataType[]
-    }
+    };
+
+
     
     convertYaxis(item:{parent:HTMLElement,strY:string}):void | number[]{
         const {parent,strY}=item;
         const yaxisNum:number[]=[];
+        const regOpen:RegExp=/\[|\{/;
+        const regClose:RegExp=/\]|\}/;
         if(strY){
-            const yaxisStr:string[]=strY.split(",");
-            const leny=yaxisStr.length;
-            yaxisStr[0]=yaxisStr[0].split("[")[1];
-            yaxisStr[leny-1]=yaxisStr[leny-1].split("]")[0];
-            const checkComma=yaxisStr.length && yaxisStr.length>0 ?true:false;
-            if(checkComma){
-                yaxisStr.map(str=>{
-                    if(str){
-                        const isNum=isNaN(parseInt(str)) ? false:true;
-                        if(isNum){
-                            yaxisNum.push(parseInt(str));
-                        }
+            const testStart=regOpen.test(strY);
+            const testEnd=regClose.test(strY);
+            const len=strY.split(",").length;
+            if(testStart ||testEnd){
+                const start=RegExp(regOpen).exec(strY) as any;
+                const end=RegExp(regClose).exec(strY) as any;
+                const startIn=start.index + start[0].length;
+                const endIn=end.index;
+                const middle=strY.slice(startIn,endIn);
+                const yaxisArr:string[]=middle.split(",");
+                const testNum=yaxisArr.find(kv=>(isNaN(Number(kv))));
+                if(testNum){
+                    Misc.message({parent,msg:"please enter ONLY numbers on the y-axis,,try again",type_:"error",time:3000});
+                    return;
+                }else if(len===0){
+                    Misc.message({parent,msg:"please enter an array,try again",type_:"error",time:3000});
+                    return;
+                }else{
+                    const arr=yaxisArr.map(kv=>(Number(kv)));
+                    if(arr.length<=0){
+                        Misc.message({parent,msg:"must have atleast one number in the y-array,,,,try again",type_:"error",time:3000});
+                        return;
                     }
-                });
-                return yaxisNum;
+                    return arr;
+                }
             }else{
-                return Misc.message({parent,type_:"error",msg:"There is no Y data,,it can not be done",time:800});
-            }
+                const yaxisStr:string[]=strY.split(",");
+                return yaxisStr.map(kv=>(Number(kv)));
+            };
         }else{
-            return Misc.message({parent,type_:"error",msg:"there is no string: null!",time:800});
+            return Misc.message({parent,type_:"error",msg:"you did not enter an array in the y-axs,,,try again",time:800});
         }
-    }
+    };
+
+
     convertXaxis(item:{parent:HTMLElement,strX:string}):void | string[]{
         const {parent,strX}=item;
         if(strX){
@@ -789,7 +842,7 @@ class ChartJS {
             if(yaxisStr[leny-1].split("]")[0]){
                 yaxisStr[leny-1]=yaxisStr[leny-1].split("]")[0];
             }
-            const checkComma=yaxisStr.length && yaxisStr.length>0 ?true:false;
+            const checkComma=yaxisStr?.length>0 || false;
             if(checkComma){
                 return yaxisStr;
             }else{
@@ -798,7 +851,9 @@ class ChartJS {
         }else{
             return Misc.message({parent,type_:"error",msg:"There is no strX=>null",time:800});
         }
-    }
+    };
+
+
     convergeBarData(item:{xaxis:number[]|string[],yaxis:number[]}):barDataType[]{
         const {xaxis,yaxis}=item;
         const lenx=xaxis.length
@@ -813,7 +868,9 @@ class ChartJS {
            
         });
         return arr;
-    }
+    };
+
+
     generatColors(item:{bg:string[],bdr:string[],qty:number}):{bg:string,bdr:string}[]{
         const {bg,bdr,qty}=item;
         const arr:{bg:string,bdr:string}[]=[];
@@ -833,68 +890,82 @@ class ChartJS {
             });
         }
         return arr;
-    }
-    removeElement(item:{parent:HTMLElement,divCont:HTMLElement,target:HTMLElement}){
-        const {parent,divCont,target}=item;
+    };
+
+
+    removeElement(item:{parent:HTMLElement,divCont:HTMLElement,target:HTMLElement,chart:Chart<"bar"|"line", number[], string | number> | Chart<"line", number[], string | number>}){
+        const {parent,divCont,target,chart}=item;
         const xDiv=document.createElement("div");
+        xDiv.id="delete-popup";
         xDiv.style.cssText="position:absolute;top:0%;right:0%;transform:translate(-20px,10px);padding:0.25rem;border-radius:50%;background-color:black;color:white;";
         FaCreate({parent:xDiv,name:FaCrosshairs,cssStyle:{fontSize:"18px",borderRadius:"50%"}});
         divCont.appendChild(xDiv);
+        console.log("divCont",divCont)
         xDiv.onclick=(e:MouseEvent)=>{
             if(e){
+                chart.destroy();
                 Misc.fadeOut({anchor:divCont,xpos:100,ypos:100,time:400});
                 setTimeout(()=>{
-                    this._modSelector._charts.map((chart,index)=>{
-                        // console.log("outside:side:eleId",chart.eleId,"targetId",target.id)//works
+                    this._modSelector.charts.map((chart,index)=>{
                         if(chart.eleId===target.id){
-                            this._modSelector._charts.splice(index,1);
+                            this._modSelector.charts.splice(index,1);
                             this._modSelector.shiftPlace(chart.placement);
                             this.placement=this.placement - 1;
-                            this._modSelector.charts=this._modSelector._charts;
                             parent.removeChild(divCont);
-                           this.placement=this.placement;
+                            this._modSelector.blog={...this._modSelector.blog,charts:this._modSelector.charts}
+                            this._modSelector.localStore({blog:this._modSelector.blog});
                         }
                         
                     })
                 },390);
             }
         };
-    }
-   async addChart(item:{divCont:HTMLElement,Ctx:HTMLCanvasElement,option:optionType,blog:blogType,less900:boolean,less400:boolean,less500}):Promise<{option:optionType,divCont:HTMLElement,Ctx:HTMLCanvasElement}>{
-        const {divCont,Ctx,option,blog,less900,less400,less500}=item;
+    };
+
+
+   async addChart({target,divCont,option,blog,idValues}:{
+    divCont:HTMLElement,
+    target:HTMLCanvasElement,
+    option:optionType,
+    blog:blogType,
+    idValues:idValueType[]
+
+   }):Promise<{option:optionType,divCont:HTMLElement,target:HTMLCanvasElement,idValues:idValueType[]}>{
+        
+        const eleId=target.id;
         const maxcount=ModSelector.maxCount(blog);
         this.placement=maxcount + 1;
         localStorage.setItem("placement",String(maxcount + 1));
-        const remainder=blog.charts ? blog.charts.filter(ctx=>(ctx.eleId !==Ctx.id)) : [] as chartType[];
-        const foundChart=blog.charts ? blog.charts.find(ctx=>(ctx.eleId ===Ctx.id)) : undefined;
-        let eleId:string;
+        const remainder=blog.charts ? blog.charts.filter(ctx=>(ctx.eleId !==eleId)) : [] as chartType[];
+        const foundChart=blog.charts ? blog.charts.find(ctx=>(ctx.eleId ===eleId)) : undefined;
+        const {cleaned}=this._modSelector.removeClasses({target,classes:["isActive","box-shadow"]});
         let chart:chartType;
         const len=blog.charts ? blog.charts.length :0;
         if(!foundChart){
-            const rand=Math.round(Math.random()*100);
-            eleId=`ctx-chart-${rand}`;
-            divCont.id=`divCont-ctx-chart-${rand}`;
-            Ctx.id=eleId;
             chart={
                 id:len,
                 type:option.type,
                 eleId,
+                cssText:target.style.cssText,
+                class:cleaned.join(" "),
                 placement:this.placement,
                 chartOption:JSON.stringify(option) as string,
                 blog_id:blog.id
             };
             divCont.setAttribute("data-placement",`${String(maxcount+1)}-A`);
-            // console.log("maxcount",maxcount);
             this.placement=this.placement + 1;
+            const {idValues:retIdValues}=this._modSelector.dataset.coreChartIdValues({target,idValues,chart,clean:true});
+            idValues=retIdValues
         }else{
             chart=foundChart
             chart.chartOption=JSON.stringify(option) as string;
         }
         this._modSelector.charts=[...remainder,chart];
-        return new Promise((resolve)=>{
-            resolve({option,divCont,Ctx});
-        }) as Promise<{option:optionType,divCont:HTMLElement,Ctx:HTMLCanvasElement}>;
-    }
+        this.placement=this.placement + 1;
+        return Promise.resolve({option,divCont,target,idValues}) as Promise<{option:optionType,divCont:HTMLElement,target:HTMLCanvasElement,idValues:idValueType[]}>;
+    };
+
+
     cleanUpKeepOne(item:{parent:HTMLElement,class_:string}){
         const {parent,class_}=item;
         const getEles=parent.querySelectorAll(`.${class_}`) as any as HTMLElement[];

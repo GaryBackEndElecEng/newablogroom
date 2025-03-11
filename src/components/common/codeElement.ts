@@ -1,7 +1,6 @@
 import Service from "./services";
 import ModSelector from "../editor/modSelector";
 import { regJavaType } from "../editor/newCode";
-import { createRoot } from 'react-dom/client';
 import { arrCatchType, elementType } from "../editor/Types";
 import Misc from "./misc";
 import Nav from "../nav/headerNav";
@@ -10,6 +9,7 @@ import {FaCreate} from "@/components/common/ReactIcons";
 import {FaCrosshairs,FaPython, FaHtml5} from "react-icons/fa";
 import { TbJson } from "react-icons/tb";
 import { RiJavascriptFill } from "react-icons/ri";
+import { idValueType } from "@/lib/attributeTypes";
 
 
 class CodeElement{
@@ -23,24 +23,24 @@ class CodeElement{
     _codeElements:elementType[];
     constructor(private _modSelector:ModSelector,private _service:Service){
         this.regJavaArr=[
-            {name:"=document",searchwd:/\=(document)\./g,replacewd:(name)=>{return `<code id=document><b>${name}</b></code>`},text:""},
+            {name:"=document",searchwd:/=(document)\./g,replacewd:(name)=>{return `<code id=document><b>${name}</b></code>`},text:""},
             {name:"const",searchwd:/\s(const)\s/g,replacewd:(name)=>{return `<code id=const><b>${name}</b></code>`},text:""},
-            {name:"method",searchwd:/\.[a-zA-Z]{3,}\(([a-zA-Z\:\{\}\"\']{1,})\)/g,replacewd:(name)=>{return`<code id=method><b>${name}</b></code>`},text:""},
+            {name:"method",searchwd:/\.\w{3,}\(([a-zA-Z:{}"']+)\)/g,replacewd:(name)=>{return`<code id=method><b>${name}</b></code>`},text:""},
             {name:"async",searchwd:/\s(async)\s/g,replacewd:(name)=>{return`<code id=async style=color:#ff0048;font-weight:bold;><b>${name}</b></code>`},text:""},
             {name:"export",searchwd:/(export)\s/g,replacewd:(name)=>{return`<code id=export ><b>${name}</b></code>`},text:""},
             {name:"function",searchwd:/\s(function)\s/g,replacewd:(name)=>{return`<code id=function><b>${name}</b></code>`},text:""},
             {name:"let",searchwd:/(let)\s/g,replacewd:(name)=>{return`<code id=let><b>${name}</b></code>`},text:""},
-            {name:"arrow",searchwd:/(\=\>)/g,replacewd:(name)=>{return`<code id=arrow ><b>${name}</b></code>`},text:""},
+            {name:"arrow",searchwd:/(=>)/g,replacewd:(name)=>{return`<code id=arrow ><b>${name}</b></code>`},text:""},
             {name:"map",searchwd:/\.(map\()/g,replacewd:(name)=>{return`<code id=map><b>${name}</b></code>`},text:""},
             {name:"filter",searchwd:/\.(filter\()/g,replacewd:(name)=>{return`<code id=filter ><b>${name}</b></code>`},text:""},
             {name:"return",searchwd:/(return)/g,replacewd:(name)=>{return`<code id=return><b>${name}</b></code>`},text:""},
-            {name:"reduce",searchwd:/\.(reduce\(\([a-zA-Z\.\+\-\,\s\-]{1,}\))/g,replacewd:(name)=>{return`<code id=reduce ><b>${name}</b></code>`},text:""},
-            {name:"comment",searchwd:/\/\/[a-zA-Z0-9\.\,\.\s]{6,}\./g,replacewd:(name)=>{return`<p id=comment>${name}</p>`},text:""},
-            {name:"text",searchwd:/\"[\sa-zA-Z0-9\;\:\s]{6,}\"/g,replacewd:(name)=>{return`<code id=text><b>${name}</b></code>`},text:""},
-            {name:"if_",searchwd:/\s(if)\([a-zA-Z0-9\=\"\']{1,}\)\{/g,replacewd:(name)=>{return`<code id=if_><b>${name}</b></code>`},text:""},
+            {name:"reduce",searchwd:/\.(reduce\(\([a-zA-Z.+-,\s-]+\))/g,replacewd:(name)=>{return`<code id=reduce ><b>${name}</b></code>`},text:""},
+            {name:"comment",searchwd:/\/\/[a-zA-Z0-9,.\s]{6,}\./g,replacewd:(name)=>{return`<p id=comment>${name}</p>`},text:""},
+            {name:"text",searchwd:/"\s[a-zA-Z0-9;:\s]{6,}"/g,replacewd:(name)=>{return`<code id=text><b>${name}</b></code>`},text:""},
+            {name:"if_",searchwd:/\s(if)\([a-zA-Z0-9="']+\)\{/g,replacewd:(name)=>{return`<code id=if_><b>${name}</b></code>`},text:""},
             {name:"class",searchwd:/(class)\s/g,replacewd:(name)=>{return`<code id=class><b>${name}</b></code>`},text:""},
             {name:"constructor",searchwd:/\s(constructor)\(/g,replacewd:(name)=>{return`<code id=constructor><b>${name}</b></code>`},text:""},
-            {name:"htmlElement",searchwd:/\:(HTMLElement)/g,replacewd:(name)=>{return`<code id=htmlElement><b>${name}</b></code>`},text:""},
+            {name:"htmlElement",searchwd:/:(HTMLElement)/g,replacewd:(name)=>{return`<code id=htmlElement><b>${name}</b></code>`},text:""},
             {name:"this",searchwd:/(this)\./g,replacewd:(name)=>{return`<code id=this><b>${name}</b></code>`},text:""},
             {name:"as",searchwd:/\s(as)\s/g,replacewd:(name)=>{return`<code id=as ><b>${name}</b></code>`},text:""},
             {name:"createElement",searchwd:/(createElement)/g,replacewd:(name)=>{return`<code id=createElement><b>${name}</b></code>`},text:""},
@@ -49,37 +49,37 @@ class CodeElement{
             {name:"querySelectorAll",searchwd:/(querySelectorAll)/g,replacewd:(name)=>{return`<code id=querySelectorAll><b>${name}</b></code>`},text:""},
             {name:"Promise",searchwd:/\s(Promise\()/g,replacewd:(name)=>{return`<code id=Promise><b>${name}</b></code>`},text:""},
             {name:"Promiseall",searchwd:/\s(Promise.all)\(/g,replacewd:(name)=>{return`<code id=promiseall><b>${name}</b></code>`},text:""},
-            {name:"className",searchwd:/(\.className\=)/g,replacewd:(name)=>{return`<code id=className ><b>${name}</b></code>`},text:""},
-            {name:"class_name",searchwd:/(class)\s[a-zA-Z]+/g,replacewd:(name)=>{return`<code id=class_name><b>${name.split(" ")[0]}</b></code>`},text:""},
+            {name:"className",searchwd:/(\.className=)/g,replacewd:(name)=>{return`<code id=className ><b>${name}</b></code>`},text:""},
+            {name:"class_name",searchwd:/(class)\s\+/g,replacewd:(name)=>{return`<code id=class_name><b>${name.split(" ")[0]}</b></code>`},text:""},
             {name:"new",searchwd:/\s(new)\s/g,replacewd:(name)=>{return`<code id=new><b>${name}</b></code>`},text:""},
             {name:"resolver",searchwd:/(resolver\()/g,replacewd:(name)=>{return `<code id=resolver><b>${name}</b></code>`},text:""},
             {name:"default",searchwd:/\s(default)\s/g,replacewd:(name)=>{return`<code id=default><b>${name}</b></code>`},text:""},
-            {name:"onclick",searchwd:/\.(onclick)\=/g,replacewd:(name)=>{return`<code id=onclick><b>${name}</b></code>`},text:""},
+            {name:"onclick",searchwd:/\.(onclick)=/g,replacewd:(name)=>{return`<code id=onclick><b>${name}</b></code>`},text:""},
             {name:"eventListener",searchwd:/(addEventListener)/g,replacewd:(name)=>{return`<code id=addEventListener style=color:yellow;font-weight:bold;><b>${name}</b></code>`},text:""},
-            {name:"string",searchwd:/\:(string)/g,replacewd:(name)=>{return`<code id=string><b>${name.split(":")[1]}</b></code>`},text:""},
-            {name:"number",searchwd:/\:(number)/g,replacewd:(name)=>{return`<code id=number ><b>${name.split(":")[1]}</b></code>`},text:""},
+            {name:"string",searchwd:/:(string)/g,replacewd:(name)=>{return`<code id=string><b>${name.split(":")[1]}</b></code>`},text:""},
+            {name:"number",searchwd:/:(number)/g,replacewd:(name)=>{return`<code id=number ><b>${name.split(":")[1]}</b></code>`},text:""},
         ]
         this.regPythonArr=[
             // {name:"class",searchwd:/(class)+/g,replacewd:`<span id="class_" style="color:green;font-weight:bold;">class</span>
             // `,text:""},
             //NOTE =>$& = THE MATCH[0] OR FOUND WORD.YOU CAN USE IT HERE INSTEAD OF NAME
             {name:"class",searchwd:/\s(class)\s/g,replacewd:(name)=>{return `<code id=pclass style=color:lightgreen;><b>${name}</b></code>`},text:""},
-            {name:"method",searchwd:/[a-zA-Z0-9\_]{2,}\([a-zA-Z0-9\.\,]+\)\:/g,replacewd:(name)=>{return `<code id=method style=color:yellow;><b>${name}</b></code><br/>`},text:""},
-            {name:"for",searchwd:/(for)[a-zA-Z0-9\+\-\s\(\)]{2,}\:/g,replacewd:(name)=>{return `<code id=for style=color:green;><b>${name}</b></code>`},text:""},
-            {name:"items",searchwd:/[a-zA-Z0-9]+\.(items)\(\)\:/g,replacewd:(name)=>{return `<code id=items style=color:yellow;><b>${name}</b></code>`},text:""},
+            {name:"method",searchwd:/\w{2,}\([a-zA-Z0-9.,]+\):/g,replacewd:(name)=>{return `<code id=method style=color:yellow;><b>${name}</b></code><br/>`},text:""},
+            {name:"for",searchwd:/(for)[a-zA-Z0-9+-\s()]{2,}:/g,replacewd:(name)=>{return `<code id=for style=color:green;><b>${name}</b></code>`},text:""},
+            {name:"items",searchwd:/[a-zA-Z0-9]+\.(items)\(\):/g,replacewd:(name)=>{return `<code id=items style=color:yellow;><b>${name}</b></code>`},text:""},
             {name:"enumerate",searchwd:/(enumerate)/g,replacewd:(name)=>{return `<code id=enumerate style=color:yellow;><b>${name}</b></code>`},text:""},
-            {name:"comment",searchwd:/\#[\s a-zA-Z0-9\?\.\-]{5,}/g,replacewd:(name)=>{return `<p id=comment style=color:lightgreen><b>${name}</b></p>`},text:""},
-            {name:"Range",searchwd:/(Range)\([a-zA-Z0-9\,]{3,}\)\:/g,replacewd:(name)=>{return `<code id=range style=color:green;><b>${name}</b></code>`},text:""},
+            {name:"comment",searchwd:/#[ a-zA-Z0-9?.-]{5,}\s/g,replacewd:(name)=>{return `<p id=comment style=color:lightgreen><b>${name}</b></p>`},text:""},
+            {name:"Range",searchwd:/(Range)\([a-zA-Z0-9,]{3,}\):/g,replacewd:(name)=>{return `<code id=range style=color:green;><b>${name}</b></code>`},text:""},
             {name:"in",searchwd:/\s(in)\s/g,replacewd:(name)=>{return `<code id=in style=color:green;><b>${name}</b></code>`},text:""},
             {name:"self",searchwd:/(self)/g,replacewd:(name)=>{return `<code id=self style=color:#ee8080;><b>${name}</b></code>`},text:""},
-            {name:"__init__()",searchwd:/(_init_)\([a-zA-Z0-9\.\,\s]{5,}\)/g,replacewd:(name)=>{return `<code id=__init__ style=color:lightblue><b>${name}</b></code>`},text:""},
-            {name:"if",searchwd:/(if)\s[a-zA-Z0-9\s\<\>\=]{2,}\:/g,replacewd:(name)=>{return `<code id=if style=color:lightgreen><b>${name}</b><span style=color:white>${name.split("if")[1]}</span></code>`},text:""},
+            {name:"__init__()",searchwd:/(_init_)\([a-zA-Z0-9.,\s]{5,}\)/,replacewd:(name)=>{return `<code id=__init__ style=color:lightblue><b>${name}</b></code>`},text:""},
+            {name:"if",searchwd:/(if)\s[a-zA-Z0-9\s<>=]{2,}:/g,replacewd:(name)=>{return `<code id=if style=color:lightgreen><b>${name}</b><span style=color:white>${name.split("if")[1]}</span></code>`},text:""},
             {name:"return",searchwd:/(return)/g,replacewd:(name)=>{return `<code id=return style=color:green><b>${name}</b></code>`},text:""},
             
         ]
         this.regJSONArr=[
-            {name:"json",searchwd:/\"[a-zA-Z0-9\s]{1,}\"\:\"[a-zA-Z0-9\s]{1,}\"/g,replacewd:(name)=>{return `<code class='language-json' id=json style=color:lime><b>${name}</b></code>`},text:""},
-            {name:",",searchwd:/\,/g,replacewd:(name)=>{return `<pre class='language-json' id=comma><b>,</b></pre>`},text:""},
+            {name:"json",searchwd:/"[a-zA-Z0-9\s]":"[a-zA-Z0-9\s]"/g,replacewd:(name)=>{return `<code class='language-json' id=json style=color:lime><b>${name}</b></code>`},text:""},
+            {name:",",searchwd:/,/g,replacewd:(name)=>{return `<pre class='language-json' id=comma><b>,</b></pre>`},text:""},
             {name:"[",searchwd:/\[/g,replacewd:(name)=>{return `<pre><code class='language-json' id=openBracket ><b>[</b></code></pre>`},text:""},
             {name:"]",searchwd:/\]/g,replacewd:(name)=>{return `<pre><code class='language-json' id=closeBracket ><b>]</b></code></pre>`},text:""},
             
@@ -87,32 +87,32 @@ class CodeElement{
         //<=&lt;>=&gt;
         this.regHtmlArr=[
             
-            {name:"divClass",searchwd:/\<(div)\s((class)\=\"[a-zA-Z0-9\s\-]+\")\>/g,replacewd:(name)=>{return `<code id=divClass ><b>${name}</b></code>`},text:"html"},
-            {name:"divId",searchwd:/\<(div)\s((id)\=\"[a-zA-Z\-]+\")\>/g,replacewd:(name)=>{return `<code id=divId ><b>${name}</b></code>`},text:"html"},
-            {name:"xml",searchwd:/\<([a-zA-Z0-9\-]{2,})\/\>/g,replacewd:(name)=>{return `<code class=language-xml style=color:green;><b>${name}</b></code>`},text:"xml"},
-            {name:"comment",searchwd:/\#[ a-zA-Z0-9\?\.\-\s]{5,}/g,replacewd:(name)=>{return `<p id=comment>${name}</p>`},text:"html"},
-            {name:"div",searchwd:/\<(div)\>/g,replacewd:(name)=>{return `<code class=language-html id=div style=color:lime;><b>${name}</b></code>`},text:""},
-            {name:"div",searchwd:/\<\/(div)\>/g,replacewd:(name)=>{return `<code class=language-html id=div style=color:lime;><b>&lt;/${name}</b></code>`},text:""},
-            {name:"div",searchwd:/\<(div)\>([a-zA-Z0-9\-\,\!\s\.]{2,})\<\/(div)\>/g,replacewd:(name)=>{return `<code class=language-html id=divB style=color:lime;><b>div&gt;${name}&lt;/div&gt;</b></code>`},text:""},
-            {name:"spanClass",searchwd:/\<(span)((class)(id)[a-zA-Z0-9\-\s\"\'\=]{1,})\>/g,replacewd:(name)=>{return `<code class=language-html id=span style=color:lime;><b>${name}</b></code>`},text:"html"},
-            {name:"h1",searchwd:/\<(h1)\>/g,replacewd:(name)=>{return `<code class=language-html id=h1 style=color:lime;><b>${name}</b></code>`},text:"html"},
-            {name:"h1",searchwd:/\<\/(h1)\>/g,replacewd:(name)=>{return `<code class=language-html id=h1B style=color:lime;><b>&lt;/${name}</b></code>`},text:"html"},
-            {name:"h2",searchwd:/\<(h2)\>/g,replacewd:(name)=>{return `<code class=language-html id=h2 style=color:lime;><b>${name}</b></code>`},text:"html"},
-            {name:"h2",searchwd:/\<\/(h2)\>/g,replacewd:(name)=>{return `<code class=language-html id=h2B style=color:lime;><b>&lt;/${name}</b></code>`},text:"html"},
-            {name:"h3",searchwd:/\<(h3)\>/g,replacewd:(name)=>{return `<code class=language-html id=h3 style=color:lime;><b>${name}</b></code>`},text:"html"},
-            {name:"h3",searchwd:/\<\/(h3)\>/g,replacewd:(name)=>{return `<code class=language-html id=h3B style=color:lime;><b>&lt;/${name}</b></code>`},text:"html"},
-            {name:"h4",searchwd:/\<(h4)\>/g,replacewd:(name)=>{return `<code class=language-html id=h4 style=color:lime;><b>${name}</b></code>`},text:"html"},
-            {name:"h4",searchwd:/\<\/(h4)\>/g,replacewd:(name)=>{return `<code class=language-html id=h4B style=color:lime;><b>&lt;/${name}</b></code>`},text:"html"},
-            {name:"h5",searchwd:/\<(h5)\>/g,replacewd:(name)=>{return `<code class=language-html id=h5 style=color:lime;><b>${name}</b></code>`},text:"html"},
-            {name:"h5",searchwd:/\<\/(h5)\>/g,replacewd:(name)=>{return `<code class=language-html id=h5B style=color:lime;><b>&lt;/${name}</b></code>`},text:"html"},
-            {name:"h6",searchwd:/\<(h6)\>/g,replacewd:(name)=>{return `<code class=language-html id=h6 style=color:lime;><b>${name}</b></code>`},text:"html"},
-            {name:"h6",searchwd:/\<\/(h6)\>/g,replacewd:(name)=>{return `<code class=language-html id=h6B style=color:lime;><b>&lt;/${name}</b></code>`},text:"html"},
-            {name:"span",searchwd:/\<(span)\>/g,replacewd:(name)=>{return `<code class=language-html id=h6 style=color:lime;><b>${name}</b></code>`},text:"html"},
-            {name:"span",searchwd:/\<\/(span)\>/g,replacewd:(name)=>{return `<code class=language-html id=spanB style=color:lime;><b>&lt;/${name}</b></code>`},text:"html"},
-            {name:"detail",searchwd:/\<(detail)\>/g,replacewd:(name)=>{return `<code class=language-html id=detail><b>${name}</b></code>`},text:"html"},
-            {name:"detail",searchwd:/\<\/(detail)\>/g,replacewd:(name)=>{return `<code class=language-html id=detailB><b>&lt;/${name}</b></code>`},text:"html"},
-            {name:"summary",searchwd:/\<(summary)\>/g,replacewd:(name)=>{return `<code class=language-html id=summary><b>${name}</b></code>`},text:"html"},
-            {name:"summary",searchwd:/\<\/(summary)\>/g,replacewd:(name)=>{return `<code class=language-html id=summaryB><b>&lt;/${name}</b></code>`},text:"html"},
+            {name:"divClass",searchwd:/<(div)\s((class)="[a-zA-Z0-9\s-]+")>/g,replacewd:(name)=>{return `<code id=divClass ><b>${name}</b></code>`},text:"html"},
+            {name:"divId",searchwd:/<(div)\s((id)="[a-zA-]+")>/g,replacewd:(name)=>{return `<code id=divId ><b>${name}</b></code>`},text:"html"},
+            {name:"xml",searchwd:/<([a-zA-Z0-9-]{2,})\/>/g,replacewd:(name)=>{return `<code class=language-xml style=color:green;><b>${name}</b></code>`},text:"xml"},
+            {name:"comment",searchwd:/#[a-zA-Z0-9?.-\s]{5,}/g,replacewd:(name)=>{return `<p id=comment>${name}</p>`},text:"html"},
+            {name:"div",searchwd:/<(div)>/g,replacewd:(name)=>{return `<code class=language-html id=div style=color:lime;><b>${name}</b></code>`},text:""},
+            {name:"div",searchwd:/<\/(div)>/g,replacewd:(name)=>{return `<code class=language-html id=div style=color:lime;><b>&lt;/${name}</b></code>`},text:""},
+            {name:"div",searchwd:/<(div)>([a-zA-Z0-9\-,!\s.]{2,})<\/(div)>/g,replacewd:(name)=>{return `<code class=language-html id=divB style=color:lime;><b>div&gt;${name}&lt;/div&gt;</b></code>`},text:""},
+            {name:"spanClass",searchwd:/<(span)((class)(id)[a-zA-Z0-9\-\s"'=]+)>/g,replacewd:(name)=>{return `<code class=language-html id=span style=color:lime;><b>${name}</b></code>`},text:"html"},
+            {name:"h1",searchwd:/<(h1)>/g,replacewd:(name)=>{return `<code class=language-html id=h1 style=color:lime;><b>${name}</b></code>`},text:"html"},
+            {name:"h1",searchwd:/<\/(h1>)/g,replacewd:(name)=>{return `<code class=language-html id=h1B style=color:lime;><b>&lt;/${name}</b></code>`},text:"html"},
+            {name:"h2",searchwd:/<(h2)>/g,replacewd:(name)=>{return `<code class=language-html id=h2 style=color:lime;><b>${name}</b></code>`},text:"html"},
+            {name:"h2",searchwd:/<\/(h2)>/g,replacewd:(name)=>{return `<code class=language-html id=h2B style=color:lime;><b>&lt;/${name}</b></code>`},text:"html"},
+            {name:"h3",searchwd:/<(h3)>/g,replacewd:(name)=>{return `<code class=language-html id=h3 style=color:lime;><b>${name}</b></code>`},text:"html"},
+            {name:"h3",searchwd:/<\/(h3)>/g,replacewd:(name)=>{return `<code class=language-html id=h3B style=color:lime;><b>&lt;/${name}</b></code>`},text:"html"},
+            {name:"h4",searchwd:/<(h4)>/g,replacewd:(name)=>{return `<code class=language-html id=h4 style=color:lime;><b>${name}</b></code>`},text:"html"},
+            {name:"h4",searchwd:/<\/(h4)>/g,replacewd:(name)=>{return `<code class=language-html id=h4B style=color:lime;><b>&lt;/${name}</b></code>`},text:"html"},
+            {name:"h5",searchwd:/<(h5)>/g,replacewd:(name)=>{return `<code class=language-html id=h5 style=color:lime;><b>${name}</b></code>`},text:"html"},
+            {name:"h5",searchwd:/<\/(h5)>/g,replacewd:(name)=>{return `<code class=language-html id=h5B style=color:lime;><b>&lt;/${name}</b></code>`},text:"html"},
+            {name:"h6",searchwd:/<(h6)>/g,replacewd:(name)=>{return `<code class=language-html id=h6 style=color:lime;><b>${name}</b></code>`},text:"html"},
+            {name:"h6",searchwd:/<\/(h6)>/g,replacewd:(name)=>{return `<code class=language-html id=h6B style=color:lime;><b>&lt;/${name}</b></code>`},text:"html"},
+            {name:"span",searchwd:/<(span)>/g,replacewd:(name)=>{return `<code class=language-html id=h6 style=color:lime;><b>${name}</b></code>`},text:"html"},
+            {name:"span",searchwd:/<\/(span)>/g,replacewd:(name)=>{return `<code class=language-html id=spanB style=color:lime;><b>&lt;/${name}</b></code>`},text:"html"},
+            {name:"detail",searchwd:/<(detail)>/g,replacewd:(name)=>{return `<code class=language-html id=detail><b>${name}</b></code>`},text:"html"},
+            {name:"detail",searchwd:/<\/(detail)>/g,replacewd:(name)=>{return `<code class=language-html id=detailB><b>&lt;/${name}</b></code>`},text:"html"},
+            {name:"summary",searchwd:/<(summary)>/g,replacewd:(name)=>{return `<code class=language-html id=summary><b>${name}</b></code>`},text:"html"},
+            {name:"summary",searchwd:/<\/(summary)>/g,replacewd:(name)=>{return `<code class=language-html id=summaryB><b>&lt;/${name}</b></code>`},text:"html"},
            
         ]
         this.regArrs=[
@@ -154,6 +154,7 @@ class CodeElement{
     }
     set elements(elements:elementType[]){
         this._modSelector.elements=elements;
+        this._modSelector.localStore({blog:this._modSelector.blog});
     }
     get placement(){
         const getPlace=localStorage.getItem("placement");
@@ -169,13 +170,12 @@ class CodeElement{
     }
 
     ///-----------------GETTERS/SETTERS-----------------///
-    cleanCodeElement(item:{injector:HTMLElement,element:elementType}){
-        const {injector,element}=item;
-        this.main({injector,element,isNew:false,isClean:true});
+    cleanCodeElement({injector,element,idValues}:{injector:HTMLElement,element:elementType,idValues:idValueType[]}){
+        this.main({injector,element,isNew:false,isClean:true,idValues});
 
     }
-    codeTemplate(item:{injector:HTMLElement}) {
-         const {injector}=item;
+    codeTemplate({injector,idValues}:{injector:HTMLElement,idValues:idValueType[]}) {
+         
          let count=0
         const container = document.createElement("section");
         injector.classList.add("position-relative");
@@ -197,7 +197,7 @@ class CodeElement{
                     const eleId=(this.element.type ? this.element.type :"java") + String(rand);
                     this.element={...this.element,id:len,eleId:eleId,placement:this.placement,class:`language-${this.element.type}`};
                     //ABOVE:  ADDING NEW element TO elementS FOR BLOG.CODES
-                    this.main({injector,element:this.element,isNew:true,isClean:false})
+                    this.main({injector,element:this.element,isNew:true,isClean:false,idValues})
                     injector.removeChild(container);
                     Misc.fadeIn({anchor:container,xpos:50,ypos:100,time:400});
                     
@@ -208,8 +208,15 @@ class CodeElement{
         });
     }
 
-    main(item:{injector:HTMLElement,element:elementType,isNew:boolean,isClean:boolean}){
-        const {injector,element,isNew,isClean}=item;
+    main({injector,element,isNew,isClean,idValues}:{
+        injector:HTMLElement,
+        element:elementType,
+        isNew:boolean,
+        isClean:boolean,
+        idValues:idValueType[]
+
+    }){
+       
         const less900=window.innerWidth < 900;
         const less400=window.innerWidth < 400;
         Header.cleanUpByID(injector,`main-container-${element.type ? element.type : "not-assigned"}`);
@@ -217,7 +224,6 @@ class CodeElement{
         const container=document.createElement("div");
         container.id=`main-container-${element.type ? element.type : "not-assigned"}`
         const css_col="margin-inline:auto;display:flex;flex-direction:column;justify-content:flex-start;align-items:center;gap:0rem";
-        const css_row="display:flex;flex-wrap:wrap;justify-content:center;align-items:center;gap:0rem;";
         container.style.cssText=css_col + "box-shadow:1px 1px 12px 1px blue;background-color:black;color:white;min-height:15vh;border-radius:12px;max-width:800px;position:relative;width:100%;margin-block:2rem;";
         container.style.paddingInline=less900 ?(less400 ? "0.25rem":"0.5rem"):"1rem";
         const divCont=document.createElement("div");
@@ -230,13 +236,25 @@ class CodeElement{
         divCont.style.background="black";
         divCont.style.color="white";
         divCont.id=`divCont-${element.name}-${element.id ? element.id :0}`;
-        this.divTarget({parent:injector,container,divCont:divCont,isNew,isClean,element,css_col});
+        this.divTarget({parent:injector,container,divCont:divCont,isNew,isClean,element,css_col,idValues});
         container.appendChild(divCont);
         injector.appendChild(container);
 
-    }
-    divTarget(item:{parent:HTMLElement,container:HTMLElement,divCont:HTMLElement,element:elementType,isNew:boolean,isClean:boolean,css_col:string}){
-        const {parent,container,divCont,element,isNew,css_col,isClean}=item;
+    };
+
+
+    divTarget({parent,container,divCont,element,isNew,css_col,isClean,idValues}:{
+        parent:HTMLElement;
+        container:HTMLElement;
+        divCont:HTMLElement;
+        element:elementType;
+        isNew:boolean;
+        isClean:boolean;
+        css_col:string;
+        idValues:idValueType[];
+       
+    }){
+        
         const less900= window.innerWidth < 900;
         ////-------TARGET--------//
         //PARENT==INJECTOR
@@ -262,7 +280,7 @@ class CodeElement{
             pre.style.width="100%";
             pre.style.overflowX=less900 ? "scroll":"hidden";
             target.appendChild(pre);
-            this._modSelector.promElementAdder(target).then(async(res)=>{
+            this._modSelector.elementAdder({target,sel:null,rowEle:null,colEle:null,idValues}).then(async(res)=>{
                 if(res){
                     const ele=res.ele as elementType
                     divCont.setAttribute("data-placement",`${ele.placement}-A`);
@@ -281,6 +299,18 @@ class CodeElement{
             target.setAttribute("data-is-code-element","true");
             target.setAttribute("is-element","true");
             divCont.setAttribute("data-placement",`${element.placement}-A`);
+            const {idValues:retIdValues}=this._modSelector.dataset.coreDefaultIdValues({
+                target,sel:null,
+                row:null,
+                col:null,
+                ele:element,
+                idValues,
+                loc:"htmlElement",
+                level:"element",
+                clean:false
+
+            });
+            idValues=retIdValues;
             const getPre=target.querySelector("pre#pre") as HTMLElement;
             if(!getPre){
                 Misc.message({parent,msg:"your code is empty",type_:"error",time:1300});
@@ -302,7 +332,7 @@ class CodeElement{
         this.titleContainer({divCont,target,element,css_col,isNew,isClean});
         divCont.appendChild(target)
         if(!isClean){
-            this.removeMainElement({parent,container,divCont,target});
+            this.removeMainElement({parent,container,divCont,target,idValues});
             divCont.onclick=(e:MouseEvent)=>{
                 if(e){
                     const check=([...target.classList as any] as string[]).includes("isActive");
@@ -338,10 +368,10 @@ class CodeElement{
                     if(!getTarget) {
                         Misc.message({parent:divCont,type_:"error",msg:"could not find target",time:1200});
                     }else{
-                        this._modSelector.promUpdateElement({target:getTarget}).then(async(res)=>{
+                        this._modSelector.updateElement({target:getTarget,idValues,selRowCol:null}).then(async(res)=>{
                             if(res){
-                                
-                                Misc.message({parent:divCont,type_:`success`,time:2000,msg:`${res.eleId} is updated to local`});
+                                const ele= res.ele as elementType
+                                Misc.message({parent:divCont,type_:`success`,time:2000,msg:`${ele.eleId} is updated to local`});
                             }
                         });
                     };
@@ -399,7 +429,7 @@ class CodeElement{
                             const matches=(child.textContent as string).matchAll(reg.searchwd) as any;
                             for( const match of matches){
                                 // console.log("match",match)
-                                if(match && match[0]){
+                                if( match[0]){
                                     //FILLING ARRCATCH ARRAY WITH REPLACEMENTS
                                     const end=match.index + match[0].length
                                     const start=match.index;
@@ -414,9 +444,7 @@ class CodeElement{
                 }); 
                 // console.log("arrCatch",arrCatch)   
         }
-        return new Promise(resolver=>{
-            resolver({childs,arrCatch})
-        }) as Promise<{childs:HTMLElement[],arrCatch:arrCatchType[]}>;
+        return Promise.resolve({childs,arrCatch}) as Promise<{childs:HTMLElement[],arrCatch:arrCatchType[]}>;
     }
     matchHtmlInsert(item:{pre:HTMLPreElement,regArr:regJavaType[]}):Promise<{childs:HTMLElement[],arrCatch:arrCatchType[]}>{
         //THIS IS USERDINDIVIDUALLY @ DisplayBlog: THIS ADDS COLOR TO THE CODE
@@ -425,7 +453,7 @@ class CodeElement{
         const arrCatch:arrCatchType[]=[]
         const childs=([...pre.children as any] as HTMLElement[]);
         childs.map((child,index)=>{
-            if(child && child.textContent){
+            if(child?.textContent){
                 child.id="innerPre-html-" + String(index);
                 const child_=child.textContent as string;
                 regArr.map(reg=>{
@@ -433,11 +461,11 @@ class CodeElement{
                     if(!matches) return;
                     if(reg.text==="html"){
                         child.classList.add("language-html");
-                    } if(reg.text==="xml"){
+                    }else if(reg.text==="xml"){
                         child.classList.add("language-xml");
                     }
                     let count=0;
-                    // console.log(child.textContent);
+                 
                     for( const match of matches){
                         if(match){
                             // console.log(match)
@@ -456,18 +484,16 @@ class CodeElement{
             }
         });
         // console.log("arrCatch",arrCatch)
-        return new Promise(resolver=>{
-            resolver({childs,arrCatch})
-        }) as Promise<{childs:HTMLElement[],arrCatch:arrCatchType[]}>;
+        return Promise.resolve({childs,arrCatch}) as Promise<{childs:HTMLElement[],arrCatch:arrCatchType[]}>;
     }
     getWord(item:{match:string[]}):{word:string|undefined,isAncClose:boolean}{
         const {match}=item;
         let retStr:string="";
         let isAnchorClose:boolean=false;
-        const lt:{name:string,reg:RegExp}={name:"lt",reg:/\</};
-        const gt:{name:string,reg:RegExp}={name:"gt",reg:/\>/};
+        const lt:{name:string,reg:RegExp}={name:"lt",reg:/</};
+        const gt:{name:string,reg:RegExp}={name:"gt",reg:/>/};
         const sl:{name:string,reg:RegExp}={name:"sl",reg:/\//};
-        const regClose:RegExp=/\<\//;
+        const regClose:RegExp=/<\//;
         [lt,gt,sl].map((reg,index)=>{
             if(match[index] && match[index] !=="undefined"){
                 if(regClose.test(match[index])){
@@ -484,7 +510,7 @@ class CodeElement{
         const {childs,arrCatch}=item;
         childs.map((child,index)=>{
             if(child){
-                arrCatch.sort((a,b)=>{if(a.index < b.index) return -1;return 1}).map(cat=>{
+                arrCatch.toSorted((a,b)=>{if(a.index < b.index) return -1;return 1}).map(cat=>{
                     //REPLACING WRITTEN TEXT WITH COLOR
                     if(cat.id===child.id && cat.index===index){
                         child.innerHTML=(child.textContent as string).replace(cat.word,cat.replace);
@@ -497,8 +523,8 @@ class CodeElement{
     }
     titleContainer(item:{divCont:HTMLElement,target:HTMLElement,element:elementType,css_col:string,isNew:boolean,isClean:boolean}){
         const {divCont,target,element,css_col,isNew,isClean}=item;
-        const less900=window.innerWidth < 900 ;
-        const less400=window.innerWidth < 400 ;
+        
+       
         Header.cleanUpByID(target,"imgDiv");
         Header.cleanUpByID(divCont,"titleContainer-titleCont");
         const title=document.createElement("h5");
@@ -515,7 +541,7 @@ class CodeElement{
         imgDive.id="imgDiv";
         imgDive.style.cssText="display:block;position:absolute;top:-50px;right:-40px;z-index:20;";
         imgDive.style.transform="translate(0px,-10px)";
-        imgDive.style.right=less400 ? "0px" : "0px";
+        imgDive.style.right="0px";
         const xDiv=document.createElement("div");
         xDiv.id="titleContainer-xDiv";
         xDiv.style.cssText="padding:1rem;max-width:75px;border-radius:25%;background-color:black;color:white;display:flex;justify-content:center;align-items:center;gap:1rem;position:relative;z-index:20;box-shadow:1px 1px 12px 1px black;";
@@ -523,9 +549,8 @@ class CodeElement{
         const span=document.createElement("span");
         span.style.cssText="margin-inline:auto;position:absolute;top:100%;left:0%;transform:translate(15px,-20px);z-index:60;color:white;"
         span.textContent=element.type ? element.type :"Code";
-        if(element && element.type){
-            const check=this.initTypes.includes(element.type);
-            // console.log("TRUE/FALSE",check,element.type)
+        if(element?.type){
+            
             if(element.type==="Java"){
                 FaCreate({parent:xDiv,name:RiJavascriptFill,cssStyle:{fontSize:"40px",margin:"auto"}});
                 xDiv.style.color="yellow";
@@ -535,9 +560,6 @@ class CodeElement{
                 FaCreate({parent:xDiv,name:TbJson,cssStyle:{fontSize:"40px",margin:"auto"}});
             }else if(element.type==="HTML"){
                 FaCreate({parent:xDiv,name:FaHtml5,cssStyle:{fontSize:"40px",margin:"auto"}});
-            }else{
-                FaCreate({parent:xDiv,name:RiJavascriptFill,cssStyle:{fontSize:"40px",margin:"auto"}});
-                xDiv.style.color="yellow";
             }
         }
         titleCont.appendChild(title);
@@ -550,22 +572,22 @@ class CodeElement{
         target.appendChild(imgDive);
     }
     promRemoveElement(target:HTMLElement){
-        return new Promise((resolve)=>{
-            resolve(this.removeElement(target));
-        }) as Promise<elementType|undefined>;
+        return Promise.resolve(this.removeElement(target)) as Promise<elementType|undefined>;
     }
     removeElement(target:HTMLElement):elementType|undefined{
         let ele_:elementType|undefined;
-        this._modSelector._elements.map((ele,index)=>{
+        this._modSelector.elements.map((ele,index)=>{
                 if(ele.eleId===target.id){
-                    this._modSelector._elements.splice(index,1);
+                    this._modSelector.elements.splice(index,1);
                     ele_= ele;
                 }
         });
         return ele_
-    }
-    removeMainElement(item:{parent:HTMLElement,container:HTMLElement,divCont:HTMLElement,target:HTMLElement}){
-        const {parent,container,divCont,target}=item;
+    };
+
+
+    removeMainElement(item:{parent:HTMLElement,container:HTMLElement,divCont:HTMLElement,target:HTMLElement,idValues:idValueType[]}){
+        const {parent,container,divCont,target,idValues}=item;
         Header.cleanUpByID(parent,"xIconDiv-" + container.id);
         const css="position:absolute;transform:translate(10px,26px);background:white;font-size:16px;background:lightgrey;font-weight:bold;border-radius:50%;color:red;top:0%;left:0%;z-index:10;";
         divCont.classList.add("position-relative");
@@ -580,9 +602,8 @@ class CodeElement{
         divCont.appendChild(xIconDiv);
         xIconDiv.addEventListener("click",(e:MouseEvent)=>{
             if(e){
-                this.promRemoveElement(target).then(async(res)=>{
+                this._modSelector.removeElement({target,idValues,selRowCol:null}).then(async(res)=>{
                     if(res){
-                        this._modSelector.elements=this._modSelector._elements;
                         this._modSelector.shiftPlace(res.placement);///REINDEX PLACEMENT!!!!
                         Misc.message({parent,msg:"deleted",type_:"success",time:800});
                     }

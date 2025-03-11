@@ -4,12 +4,16 @@ import { FaCreate } from "../common/ReactIcons";
 import Service from "../common/services";
 import Main from "./main";
 import ModSelector from "./modSelector";
-import { element_selType, elementType, flexType, gets3ImgKey, iconType } from "./Types";
+import { arrDivContType, colType, element_selType, elementType, flexType, gets3ImgKey, iconType, rowType, selectorType } from "./Types";
 import Misc from "../common/misc";
 import { buttonReturn, imageLoader } from "../common/tsFunctions";
 import Nav from "../nav/headerNav";
 import User from "../user/userMain";
 import Header from "./header";
+import { attrEnumArrTest, IDKeys, IDKeyValuepairs, typeEnumArrTest} from "../common/lists";
+import { idEnumType, idValueType, selRowColType, } from "@/lib/attributeTypes";
+import Dataset from "../common/dataset";
+
 
 export type attributeType={
     id:number,
@@ -19,8 +23,38 @@ export type attributeType={
 }
 
 class ShapeOutside{
-    _element:elementType={} as elementType;
-    initElement:elementType={} as elementType;
+   private  _element:elementType={} as elementType;
+    private _elementSel:element_selType={} as element_selType;
+    private readonly initElement:elementType={
+        id: 0, 
+        placement:0,
+        selectorId:undefined,
+        eleId: "",
+        name: "div",
+        class: "",
+        inner_html:"",
+        cssText: "",
+        attr:"shapeOutsideCircle",
+        img:"",
+        imgKey:undefined,
+        blog_id:0,
+        type:"shapeOutside"
+    };
+   private readonly initElementSel:element_selType={
+        id: 0, 
+        order:0,
+        selectorId:undefined,
+        eleId: "",
+        col_id:0,
+        name: "div",
+        class: "",
+        inner_html:"",
+        cssText: "",
+        attr:"shapeOutsideCircle",
+        img:"",
+        imgKey:undefined,
+        type:"shapeOutside"
+    };
     logo:string="/images/gb_logo.png";
     btnColor:string;
     bgColor:string;
@@ -42,8 +76,23 @@ class ShapeOutside{
         this.btnColor=this._modSelector.btnColor;
         this.bgColor=this._modSelector._bgColor;
         this.icons=Main.icons;
-        this.divCont_css="display:flex;align-items:center;justify-content:center;flex-direction:column;padding:0.5rem;border-radius:12px;margin-inline:3rem;padding-inline:1rem;";
-        this.divCont_class="eleContainer";
+        
+        this.initElementSel={
+            id: 0, 
+            order:0,
+            col_id:0,
+            selectorId:undefined,
+            eleId: "",
+            name: "div",
+            class: "",
+            inner_html:"",
+            cssText: "",
+            attr:"shapeOutsideCircle",
+            img:"",
+            imgKey:undefined,
+            type:"shapeOutside"
+        }
+        this._elementSel=this.initElementSel;
         this.initElement={
             id: 0, 
             placement:0,
@@ -53,11 +102,11 @@ class ShapeOutside{
             class: "",
             inner_html:"",
             cssText: "",
-            attr:"",
+            attr:"shapeOutsideCircle",
             img:"",
             imgKey:undefined,
             blog_id:0,
-            type:"shapeoutside"
+            type:"shapeOutside"
         }
         this._element=this.initElement;
     }
@@ -76,157 +125,323 @@ class ShapeOutside{
         this._modSelector.elements=elements;
     }
     get element(){
-        return this._element;
+        return {...this._element,type:"shapeOutside"};
     }
     set element(element:elementType){
-        this._element=element;
+        this._element={...element,type:"shapeOutside"};
+    }
+    get elementSel(){
+        return {...this._elementSel,type:"shapeOutside"};
+    }
+    set elementSel(elementSel:element_selType){
+        this._elementSel={...elementSel,type:"shapeOutside"};
     }
     //////------GETTERS/SETTERS-----/////////
     ///-----FROM HTMLEMENT CLASS///
-    showShapeOutside(item:{parent:HTMLElement,flex:flexType|null,element:elementType|element_selType}){
+    async showCleanShapeOutside({parent,selRowCol,element,idValues}:{parent:HTMLElement,selRowCol:selRowColType|null,element:elementType|element_selType,idValues:idValueType[]}):Promise<arrDivContType|undefined>{
         //FOR HTMLELEMENT ON REFRESH; HTMLELEMENT THEN GOES TO EDIT
-        const {parent,flex,element}=item;
         const less900=window.innerWidth < 900;
-        const less800=window.innerWidth < 800;
-        const less500=window.innerWidth < 500;
         const less400=window.innerWidth < 400;
-        let ele:elementType|element_selType={} as elementType|element_selType;
-        ele={...element};
-        const type:string=ele.type ? ele.type : "shapeoutside";
-        const attr=ele.attr ? ele.attr :"data-shapeoutside-undefined";
-        const cssPara="position:relative;padding:0.35rem;";
-        const rand=`${Math.round(Math.random()*1000)}`;
+        const typeTest=typeEnumArrTest(element);
+        const isShape= typeTest && typeTest.id==="shapeOutside";
+        if(!isShape) return;
+        
+        const rand=Math.floor(Math.random()*1000);
+        const parent_id= parent ? parent.id:null;
+        const attrTest=attrEnumArrTest(element);
+        
+        
         const para=document.createElement("p");
-        para.setAttribute("type",type);
-        const {parsed}=Header.checkJson(parent.getAttribute("flex"));
-        let flex_={...parsed as flexType|null};
-        flex_=parsed ? parsed as flexType : flex as flexType;
-        if(!flex_){
-            
-        }else{
-            if(attr.includes("circle") || attr.includes("square")){
-                flex_={...flex_,shapeOutsideSquare:true};
-            }else{
-                flex_={...flex_,shapeOutsidePolygon:true};
-            }
-            
-            const paraFlex=Main.flexTracker({target:para,flex:flex_ as flexType,isNew:false});
-            flex_=paraFlex
+        para.id=element.eleId;
+        para.innerHTML=element.inner_html;
+        para.style.cssText=element.cssText;
+        const eleId=para.id;
+        if(less400){
+            para.style.display="flex";
+            para.style.flexDirection="column";
+            para.style.alignItems="center";
+            para.style.justifyContent="center";
+            para.style.height="";
+            para.style.width="100%";
+            para.style.marginInline="auto";
+            para.style.paddingInline="3px";
         }
         const divCont=document.createElement("div");
-        divCont.id=this.divCont_class;
+        divCont.className=this.divCont_class;
         divCont.style.cssText=this.divCont_css;
-        if((element as elementType).type){
-            divCont.setAttribute("data-placememt",`${ele.placement}-A`);
-        }else if(flex){
-            ele=ele as element_selType
-            divCont.setAttribute("data-placememt",`${ele.order}-A`);
+        divCont.id=`divCont-div-${rand}`;
+        if(selRowCol){
+            const {colId}=selRowCol as selRowColType;
+            const idValue:idValueType={eleId,id:"selRowCol",attValue:JSON.stringify(selRowCol)};
+            this._modSelector.dataset.upDateIdValue({target:para,idValues,idValue});
+            idValues.push({eleId,id:"colId",attValue:parent.id});
+            idValues.push({eleId,id:"dFlex",attValue:"true"});
+            idValues.push({eleId,id:"colId",attValue:colId});
+            this._modSelector.dataset.insertcssClassIntoComponents({
+                target:divCont,
+                level:"element",
+                loc:"flexbox",
+                id:"divContId",
+                headerType:undefined,
+                type:"shapeOutside"
+
+            });
+        }else{
+            idValues.push({eleId,id:"parentId",attValue:parent.id});
+            idValues.push({eleId,id:"noFlex",attValue:"true"});
+            idValues.push({eleId,id:"divContId",attValue:divCont.id});
+            this._modSelector.dataset.insertcssClassIntoComponents({
+                target:divCont,
+                level:"element",
+                loc:"htmlElement",
+                id:"divContId",
+                headerType:undefined,
+                type:"shapeOutside"
+
+            });
         }
-        para.setAttribute("has-innerimage","true");
-        para.setAttribute("contenteditable","true");
-        para.setAttribute("data-shapeoutside","true");
-        para.setAttribute("name","p");
-        para.setAttribute(attr,attr);
-        para.setAttribute("is-element","true");
-        para.classList.add("shape-outside");
-        const img=document.createElement("img");
-        const imgCss="max-width:350px;width:100%;float:left !important;margin-block:1rem;";
+       const img=para.querySelector("img") as HTMLImageElement;
         img.setAttribute("contenteditable","false");
         img.setAttribute("is-shapeoutside","true");
-        img.src=this.logo;
+        img.src=element.img || this.logo;
         img.alt="ww.ablogroom.com";
-        para.id=element.eleId;
-        if(attr.includes("circle")){
-            para.style.cssText=cssPara +"width:100%;";
-            para.classList.add("shape-outside-circle");
-            img.setAttribute("is-shapeoutside-circle","true");
-            img.style.cssText=imgCss + "margin-right:4rem;shape-outside:circle();border-radius:50%;";
-            img.id="shape-outside-circle";
-            img.style.width=less900 ? ( less400 ? "300px":"320px"):"330px";
-            img.style.aspectRatio="1 / 1";
-            para.appendChild(img);
-        }else if(attr.includes("square")){
-            para.style.cssText=cssPara +"width:100%;";
-            para.classList.add("shape-outside-square");
-            img.setAttribute("is-shapeoutside-square","true");
-            img.style.cssText=imgCss ;
-            img.id="shape-outside-square";
-            img.style.width=less900 ? ( less400 ? "300px":"320px"):"330px";
-            img.style.aspectRatio="1 / 1";
-            para.appendChild(img);
-        }else if(attr.includes("polygon")){
-            divCont.style.marginBlock="2rem";
-            divCont.style.paddingBlock="1rem";
-            divCont.id=this.divCont_class + "-" + "poly";
-            para.style.cssText=cssPara;
-            para.classList.add("shape-outside-polygon");
-            const imgDiv=document.createElement("div");
-            imgDiv.id="polygon";
-            imgDiv.setAttribute("contenteditable","false");
-            imgDiv.id="polygon";
-            imgDiv.setAttribute("contenteditable","false");
-            const css="border-radius:10%;position:relative;float:left !important;margin-right:5rem;margin-block:3rem;transform:rotate(45deg);shape-outside:polygon(50% 0%,75% 25%,100% 50%,100% 50%,100% 50%,100% 50%, 90% 50%,80% 60%,70% 70%, 50% 80%,50% 80%,45% 85%,40% 90%,35% 100%);";
-            imgDiv.style.cssText=css;
-            imgDiv.style.marginBottom="7rem";
-            imgDiv.style.overflow="hidden";
-            imgDiv.style.aspectRatio="1 / 1";
-            imgDiv.style.width=less900 ? (less800 ? (less500 ? (less400 ? "200px":"220px"):"275px"):"300px"):"350px";
-            const img=document.createElement("img");
-            img.style.cssText="width:100%;border:none;transform:rotate(-45deg);";
-            img.style.aspectRatio="1 / 1";
-            img.src=this.logo;
-            img.id="shape-outside-polygon";
-            img.alt="ww.ablogroom.com";
-            img.setAttribute("contenteditable","false");
-            img.setAttribute("is-shapeoutside","true");
-            imgDiv.appendChild(img);
-            para.appendChild(imgDiv);
-            Misc.matchMedia({parent:imgDiv,maxWidth:920,cssStyle:{width:"300px",height:"300px"}});
-            Misc.matchMedia({parent:imgDiv,maxWidth:800,cssStyle:{width:"275px",height:"275px"}});
-            Misc.matchMedia({parent:imgDiv,maxWidth:500,cssStyle:{width:"220px",height:"220px"}});
-            Misc.matchMedia({parent:imgDiv,maxWidth:400,cssStyle:{width:"200px",height:"200px"}});
+        img.style.width=less900 ? ( less400 ? "300px":"320px"):"330px";
+        if(img){
+            if(element.imgKey){
+              const url=this._service.getFreeBgImageUrl({imgKey:element.imgKey});
+              const getWidth=Number(getComputedStyle(img).getPropertyValue("width").split("px")[0]);
+              img.src=imageLoader({src:url,width:getWidth,quality:90});
+              img.alt=element.imgKey;
+              idValues.push({eleId,id:"imgKey",attValue:element.imgKey});
+            };
+            if(less400){
+                img.style.shapeOutside="";
+                img.style.width="100%";
+
+            }
+
         }
+        idValues.push({eleId,id:"shapeOutside",attValue:"shapeOutside"});
+        idValues.push({eleId,id:"type",attValue:"shapeOutside"});
+        if(parent_id) idValues.push({eleId,id:"parent_id",attValue:parent_id});
+        
+        const isCircle=attrTest && attrTest.id==="shapeOutsideCircle" ? attrTest.value: undefined;
+        const isSquare=attrTest && attrTest.id==="shapeOutsideSquare" ? attrTest.value : undefined;
+        const isPolygon=attrTest && attrTest.id==="shapeOutsidePolygon" ? attrTest.value : undefined;
+       
+
+            if(isCircle){
+                idValues.push({eleId,id:"shapeOutsideCircle",attValue:"true"});
+                img.id="shape-outside-circle";
+            }else if(isSquare){
+                idValues.push({eleId,id:"shapeOutsideSquare",attValue:"true"});
+                img.id="shape-outside-square";
+            }else if(isPolygon){
+                idValues.push({eleId,id:"shapeOutsidePolygon",attValue:"true"});
+                img.id="shape-outside-polygon";
+            }
+            //APPENDING ATTRIBUTES TO PARA
+            const getEleIds=idValues.filter(kat=>(kat.eleId===eleId));
+            this._modSelector.dataset.idValues=this._modSelector.dataset.idValues.concat(getEleIds);
+            //appending attributes for BOT FLEX AND NON FLEX TARGET ELEMENT
+            const {idValues:retidValues3}=this._modSelector.dataset.generateIdValues({
+               target:para,
+               idValues,
+               rowColEle:element,
+               level:"element",
+               loc:selRowCol? "flexbox":"htmlElement",
+               index:selRowCol ? (element as element_selType).order : (element as elementType).placement
+               
+             });
+             idValues=retidValues3
+             
+             
+             //appending attributes for BOT FLEX AND NON FLEX TARGET ELEMENT
+            idValues.map(kat=>{
+                if(kat.attValue && kat.eleId===eleId){
+                    IDKeys.map(kv=>{
+                        if(kv.id===kat.id && kv.key){
+                            para.setAttribute(kv.key,kat.attValue)
+                        }
+                    });
+                }
+            });
+            //--------COMPLETE:=> ADD SETATTRIBUTES TO SHOWSHAPEOS/////////////
+           
+       
+          para.innerHTML =element.inner_html;
+          divCont.appendChild(para);
+          Header.cleanUpByID(divCont,"setAttributes");
+          
+          
+          Misc.matchMedia({parent:divCont,maxWidth:920,cssStyle:{marginInline:"1.5rem"}});
+          Misc.matchMedia({parent:divCont,maxWidth:420,cssStyle:{marginInline:"10px"}});
+          
+          this.setAttributes({column:parent,divCont,target:para,idValues,selRowCol});//ID=shape-outside-${rand}
+          
+          if((element as elementType).placement){
+           
+            const ele=element as elementType
+            this._modSelector.dataset.populateElement({target:para,level:"element",loc:"htmlElement",selRowColEle:ele,idValues,clean:true});
+            const arrDivCont:arrDivContType={divCont,target:para,placement:ele.placement,ele,isNormal:false,chart:null,sel:null};
+            para.removeAttribute("contenteditable");
+            return Promise.resolve(arrDivCont) as Promise<arrDivContType>;
+
+        }else{
+            
+            const ele=element as element_selType
+            this._modSelector.dataset.populateElement({target:para,level:"element",loc:"flexbox",selRowColEle:ele,idValues,clean:true});
+            const arrDivCont:arrDivContType={divCont,target:para,placement:ele.order,ele,isNormal:false,sel:null,chart:null};
+            para.removeAttribute("contenteditable");
+            return Promise.resolve(arrDivCont) as Promise<arrDivContType>;
+
+        }
+    };
+
+
+     showShapeOutside({parent,element,idValues,selRowCol}:{parent:HTMLElement,element:elementType|element_selType,idValues:idValueType[],selRowCol:selRowColType|null}):arrDivContType{
+        //FOR HTMLELEMENT ON REFRESH; HTMLELEMENT THEN GOES TO EDIT
+        // console.log("element:SH",element)//works
+        const rand=Math.floor(Math.random()*1000);
+        const parent_id= parent ? parent.id:null;
+        let ele:elementType|element_selType={} as elementType|element_selType;
+        // console.log("element",element);//NOT GENERATING FROM HTMLELEMENT BECAUSE TYPE!===shapeOutside
+        const para=document.createElement("p");
+        para.id=element.eleId;
+        para.innerHTML=element.inner_html;
+        para.style.cssText=element.cssText;
+        const eleId=para.id;
+       
+        const divCont=document.createElement("div");
+        divCont.className=this.divCont_class;
+        divCont.style.cssText=this.divCont_css;
+        divCont.id=`divCont-div-${rand}`;
+        if(selRowCol){
+            const {rowId,colId}= selRowCol as selRowColType
+            ele=element as element_selType;
+            divCont.setAttribute("data-placement",`${ele.order}-A`);
+            idValues.push({eleId,id:"colId",attValue:parent.id});
+            idValues.push({eleId,id:"dFlex",attValue:"true"});
+            idValues.push({eleId,id:"colId",attValue:colId});
+            idValues.push({eleId,id:"rowId",attValue:rowId});
+        }else{
+            ele=element as elementType;
+            divCont.setAttribute("data-placement",`${ele.placement}-A`);
+            idValues.push({eleId,id:"noFlex",attValue:"true"});
+            idValues.push({eleId,id:"divContId",attValue:divCont.id});
+        }
+         //----------//---POPULATING ATTRIBUTES TO TARGET && ADDS ATTR/TYPE/IMGKEY ATTRIBUTES FROM IDVALUES------\\-----///
+         this._modSelector.dataset.populateElement({
+            target:para,
+            level:"element",
+            selRowColEle:element,
+            loc: selRowCol ?  "flexbox":"htmlElement",
+            idValues,
+            clean:false
+
+        });
+        
+       //----------//---POPULATING ATTRIBUTES TO TARGET && ADDS ATTR/TYPE/IMGKEY ATTRIBUTES FROM IDVALUES------\\-----///
+       const attrTest=attrEnumArrTest(element);
+       const isCircle=(attrTest && attrTest.id==="shapeOutsideCircle")? attrTest.value:undefined;
+       const isSquare=(attrTest && attrTest.id==="shapeOutsideSquare")? attrTest.value:undefined;
+       const isPolygon=(attrTest && attrTest.id==="shapeOutsidePolygon")? attrTest.value:undefined;
+        const img=para.querySelector("img") as HTMLImageElement;
+        img.setAttribute("contenteditable","false");
+        img.setAttribute("is-shapeoutside","true");
+        img.src=element.img || this.logo;
+        img.alt="ww.ablogroom.com";
+        if(element.imgKey){
+            const url=this._service.getFreeBgImageUrl({imgKey:element.imgKey});
+            const getWidth=Number(getComputedStyle(img).getPropertyValue("width").split("px")[0]);
+            img.src=imageLoader({src:url,width:getWidth,quality:90});
+            img.alt=element.imgKey;
+            idValues.push({eleId,id:"imgKey",attValue:element.imgKey});
+          }
+        
+        if(parent_id) idValues.push({eleId,id:"parent_id",attValue:parent_id});
+            if(isCircle){
+                idValues.push({eleId,id:"shapeOutsideCircle",attValue:String(isCircle)});
+                img.id="shape-outside-circle";
+            }else if(isSquare){
+                idValues.push({eleId,id:"shapeOutsideSquare",attValue:isSquare});
+                img.id="shape-outside-square";
+            }else if(isPolygon){
+                idValues.push({eleId,id:"shapeOutsidePolygon",attValue:isPolygon});
+                divCont.id=this.divCont_class + "-" + "poly";
+            };
+            //--------COMPLETE:=> ADD SETATTRIBUTES TO SHOWSHAPEOS/////////////
+            const getEleIds=idValues.filter(kat=>(kat.eleId===eleId));
+            this._modSelector.dataset.idValues=this._modSelector.dataset.idValues.concat(getEleIds);
+            //APPENDING ATTRIBUTES TO PARA
+            this._modSelector.dataset.populateElement({
+                target:para,
+                selRowColEle:element,
+                idValues,level:"element",
+                loc:selRowCol ? "flexbox":"htmlElement",
+                clean:false
+
+            });
+       
+        //appending attributes for BOT FLEX AND NON FLEX TARGET ELEMENT
         para.innerHTML =element.inner_html;
         divCont.appendChild(para);
-        parent.appendChild(divCont);
-        this._modSelector.editElement(para);
+       
+        this._modSelector.editElement({target:para,idValues});
+        
         Misc.matchMedia({parent:divCont,maxWidth:920,cssStyle:{marginInline:"1.5rem"}});
         Misc.matchMedia({parent:divCont,maxWidth:420,cssStyle:{marginInline:"10px"}});
         
-            this.setAttributes({column:parent,divCont,target:para});//ID=shape-outside-${rand}
-            this.removeMainElement({parent,divCont,target:para,show:false});
-                    divCont.addEventListener("click",(e:MouseEvent)=>{
+            this.setAttributes({column:parent,divCont,target:para,idValues,selRowCol});//ID=shape-outside-${rand}
+           
+                    divCont.addEventListener("click",async(e:MouseEvent)=>{
                         if(e){
+                           
                             ShapeOutside.cleanUpByID(para,"setAttributes");
-                            this._modSelector.updateElement(para);
                             para.classList.toggle("isActive");
                             divCont.classList.toggle("isActive");
-                            this.removeMainElement({parent,divCont,target:para,show:true});
-                            
-                           
+                            this.removeMainElement({parent,divCont,target:para,idValues,selRowCol});
                         }
                     });
-    }
+        if(!selRowCol){
+            const ele=element as elementType
+            this._modSelector.dataset.populateElement({target:para,level:"element",loc:"htmlElement",selRowColEle:ele,idValues,clean:false});
+            const arrDivCont:arrDivContType={divCont,target:para,placement:ele.placement,ele,isNormal:false,sel:null,chart:null};
+            return arrDivCont
+        }else{
+            const ele=element as element_selType
+            this._modSelector.dataset.populateElement({target:para,level:"element",loc:"flexbox",selRowColEle:ele,idValues,clean:false});
+            const arrDivCont:arrDivContType={divCont,target:para,placement:ele.order,ele,isNormal:false,sel:null,chart:null};
+            return arrDivCont
+        }
+    };
     //FROM SIDEBAR BTN
-    sidebarMain(parent:HTMLElement){
-        const less900=window.innerWidth < 900;
-        const less400=window.innerWidth < 400;
+    
+    sidebarMain({parent,idValues}:{parent:HTMLElement,idValues:idValueType[]}){
+        
+       
         parent.style.position="relative";
         parent.style.zIndex="";
         const popup=document.createElement("div");
         popup.style.cssText="margin:auto;position:absolute;background-color:white;border-radius:18px;box-shadow:1px 1px 12px 1px black,-1px -1px 12px 1px black;padding:1rem;z-index:200;height:padding-inline:2rem;display:flex;justify-content:center;align-items:center;flex-direction:column;background-color:#0a2351;height:20vh;";
         popup.id="popup-shape-outside";
-        // popup.style.top="16%";
+        
         popup.style.left="15%";
         popup.style.right="15%";
         const title=document.createElement("h6");
         title.className="text-light text-center my-2 display-6 lean";
-        title.textContent="image-text-merger:shape-outside"
-        const arr=[
-            {name:"select",desc:"please select below",value:"select"},
-            {name:"circular image",desc:"circular image embedded within your paragraph",value:"data-shapeoutside-circle"},
-            {name:"square image",desc:"square image embedded within your paragraph",value:"data-shapeoutside-square"},
-            {name:"polygon image",desc:"polgon image embedded within your paragraph",value:"data-shapeoutside-polygon"},
+        title.textContent="image-text-merger:shape-outside";
+        const shapeOutsideCircle=IDKeyValuepairs.find(kv=>(kv.id==="shapeOutsideCircle"));
+        const shapeOutsideSquare=IDKeyValuepairs.find(kv=>(kv.id==="shapeOutsideSquare"));
+        const shapeOutsidePolygon=IDKeyValuepairs.find(kv=>(kv.id==="shapeOutsidePolygon"));
+        const circle=shapeOutsideCircle ? shapeOutsideCircle.key :"data-shapeoutside-circle";
+        const square=shapeOutsideSquare ? shapeOutsideSquare.key :"data-shapeoutside-circle";
+        const polygon=shapeOutsidePolygon ? shapeOutsidePolygon.key :"data-shapeoutside-polygon";
+        const arr:{id:idEnumType|undefined,name:string,desc:string,value:string}[]=[
+            {id:undefined,name:"select",desc:"please select below",value:"select"},
+            {id:"shapeOutsideCircle",name:"circular image",desc:"circular image embedded within your paragraph",value:circle},
+            {id:"shapeOutsideSquare",name:"square image",desc:"square image embedded within your paragraph",value:square},
+            {id:"shapeOutsidePolygon",name:"polygon image",desc:"polgon image embedded within your paragraph",value:polygon},
 
         ]
         const select=document.createElement("select");
@@ -246,17 +461,24 @@ class ShapeOutside{
         Misc.matchMedia({parent:popup,maxWidth:900,cssStyle:{inset:"180% 5% 60% 5%"}});
         Misc.matchMedia({parent:popup,maxWidth:500,cssStyle:{inset:"220% 0% 60% 0%"}});
         arr.forEach(item=>{
+            const stringThis=JSON.stringify(item)
             const option=document.createElement("option");
             option.innerHTML=`<span style="color:purple;font-size:18px;">${item.name}</span><span> :=> ${item.desc}</span>`;
-            option.value=item.value;
+            option.value=stringThis;
             select.appendChild(option);
         });
         select.onchange=(e:Event)=>{
             if(e){
-                const attr=(e.currentTarget as HTMLSelectElement).value;
-                if(attr){
-                    this.element={...this.element,attr:attr};
-                    this.addShapeOutside({parent,flex:null,element:this.element})
+                const parseThis=(e.currentTarget as HTMLSelectElement).value;
+                const {id,value}=JSON.parse(parseThis) as {id:idEnumType,name:string,desc:string,value:string}
+                if(value){
+                    const rand=Math.floor(Math.random()*1000);
+                    const eleId=`${id}-${rand}`;
+                    this.element={...this.element,attr:id,eleId,type:"shapeOutside"};
+                    idValues.push({eleId,id:"shapeOutside",attValue:"true"});
+                    idValues.push({eleId,id:"type",attValue:"shapeOutside"});
+                    idValues.push({eleId,id:id,attValue:id});
+                    this.addShapeOutside({parent,sel:null,rowEle:null,colEle:null,element:this.element,idValues})
                     Misc.fadeOut({anchor:popup,xpos:100,ypos:50,time:420});
                     setTimeout(()=>{parent.removeChild(popup);},400);
                 }
@@ -270,84 +492,88 @@ class ShapeOutside{
         });
     }
 
-    addShapeOutside(item:{parent:HTMLElement,flex:flexType|null,element:elementType|element_selType}){
-        const {parent,flex,element}=item;
+   async addShapeOutside({parent,sel,rowEle,colEle,element,idValues}:{
+    parent:HTMLElement,
+    sel:selectorType|null,
+    rowEle:rowType|null,
+    colEle:colType|null,
+    element:elementType|element_selType,
+    idValues:idValueType[]
+
+   }){
+    const selRowCol:selRowColType|null=(sel && rowEle && colEle) ? {selectorId:sel.eleId,rowId:rowEle.eleId,colId:colEle.eleId}: null;
+    if(selRowCol){
+        sel=sel as selectorType;
+        rowEle=rowEle as rowType;
+        colEle=colEle as colType
+        const eleId=element.eleId;
+       idValues.push({eleId,id:"selRowCol",attValue:JSON.stringify(selRowCol)});
+    };
+        const rand=Math.floor(Math.random()*1000);
         const less900=window.innerWidth < 900;
         const less800=window.innerWidth < 800;
         const less500=window.innerWidth < 500;
         const less400=window.innerWidth < 400;
-        let ele:elementType|element_selType={} as elementType|element_selType;
-        ele={...element};
-        const type=ele.type ? ele.type : "shapeoutside";
-        const attr=ele.attr ? ele.attr :"data-shapeoutside-undefined";
-        const cssPara="position:relative;padding:0.35rem;";
-        const rand=`${Math.round(Math.random()*1000)}`;
+        element={...element,type:"shapeOutside"};
+        const typeTest=typeEnumArrTest(element);
+        const attrTest=attrEnumArrTest(element);
+        if(!typeTest) element.type="shapeOutside";
         const para=document.createElement("p");
-        para.setAttribute("type",type);
-        para.setAttribute("name","p");
-        para.setAttribute("has-innerimage","true");
-        para.setAttribute("contenteditable","true");
-        para.setAttribute("data-shapeoutside","true");
-        para.setAttribute(attr,attr);
-        para.setAttribute("is-element","true");
-        para.classList.add("shape-outside");
+        para.id=element.eleId;
+        const eleId=para.id;
+        idValues=Dataset.removeIdValueDuplicates({arr:idValues,eleId});
+        const cssPara="position:relative;padding:0.35rem;";
+        
         para.style.lineHeight="2.27rem;";
         const divCont=document.createElement("div");
-        divCont.id=this.divCont_class;
+        divCont.id=`div-cont-${rand}`;
+        divCont.className=this.divCont_class;
         divCont.style.cssText=this.divCont_css;
-        const {parsed}=Header.checkJson(parent.getAttribute("flex"));
-        let flex_={...parsed as flexType|null};
-        flex_=parsed ? parsed as flexType : flex as flexType;
-        if(!flex_){
-            
-        }else{
-            if(attr.includes("circle") || attr.includes("square")){
-                flex_={...flex_,shapeOutsideSquare:true};
-            }else{
-                flex_={...flex_,shapeOutsidePolygon:true};
-            }
-            divCont.style.marginBlock="2rem";
-            const paraFlex=Main.flexTracker({target:para,flex:flex_ as flexType,isNew:true});
-            flex_=paraFlex
+        idValues.push({eleId,id:"parentId",attValue:parent.id});
+        idValues.push({eleId,id:"type",attValue:"shapeOutside"});
+        idValues.push({eleId,id:"divContId",attValue:divCont.id});
+        idValues.push({eleId,id:"backgroundImg",attValue:"true"});
+        if(selRowCol){
+            const idValue={eleId,id:"selRowCol",attValue:JSON.stringify(selRowCol)} as idValueType;
+            this._modSelector.dataset.upDateIdValue({target:para,idValue,idValues})
         }
+        const isCircle=attrTest && attrTest.id==="shapeOutsideCircle" ? attrTest:undefined;
+        const isSquare=attrTest && attrTest.id==="shapeOutsideSquare" ? attrTest:undefined;
+        const isPolygon=attrTest && attrTest.id==="shapeOutsidePolygon" ? attrTest:undefined;
+    if(selRowCol) idValues.push({eleId,id:"colId",attValue:parent.id});
+    if(selRowCol) idValues.push({eleId,id:"dFlex",attValue:"true"});
+    if(!selRowCol) idValues.push({eleId,id:"parent_id",attValue:parent.id});
+    if(!selRowCol) idValues.push({eleId,id:"noFlex",attValue:"true"});
         const img=document.createElement("img");
         const imgCss="max-width:350px;width:100%;float:left !important;margin-block:1rem;";
-        img.setAttribute("contenteditable","false");
-        img.setAttribute("is-shapeoutside","true");
         img.src=this.logo;
         img.alt="ww.ablogroom.com";
-        if(attr.includes("circle")){
-            para.id=`shape-outside-circle-${rand}`;
+        if(isCircle){
+            idValues.push({eleId,id:isCircle.id as idEnumType,attValue:isCircle.value});
             para.style.cssText=cssPara +"width:100%;";
-            para.classList.add("shape-outside-circle");
-            img.setAttribute("is-shapeoutside-circle","true");
             img.style.cssText=imgCss + "margin-right:4rem;shape-outside:circle();border-radius:50%;";
             img.id="shape-outside-circle";
             img.style.width=less900 ? ( less400 ? "300px":"320px"):"330px";
             img.style.aspectRatio="1 / 1";
             para.appendChild(img);
-        }else if(attr.includes("square")){
-            para.id=`shape-outside-square-${rand}`;
+        }else if(isSquare){
+            idValues.push({eleId,id:isSquare.id as idEnumType,attValue:isSquare.value});
             para.style.cssText=cssPara +"width:100%;";
-            para.classList.add("shape-outside-square");
-            img.setAttribute("is-shapeoutside-square","true");
             img.style.cssText=imgCss ;
             img.id="shape-outside-square";
             img.style.width=less900 ? ( less400 ? "300px":"320px"):"330px";
             img.style.aspectRatio="1 / 1";
             para.appendChild(img);
-        }else if(attr.includes("polygon")){
-            para.id=`shape-outside-polygon-${rand}`;
+        }else if(isPolygon){
+            idValues.push({eleId,id:isPolygon.id as idEnumType,attValue:isPolygon.value});
             divCont.style.marginBlock="2rem";
             divCont.style.paddingBlock="1rem";
             divCont.id=this.divCont_class + "-" + "poly";
             para.style.cssText=cssPara;
-            para.classList.add("shape-outside-polygon");
             const imgDiv=document.createElement("div");
-            imgDiv.id="polygon";
             imgDiv.setAttribute("contenteditable","false");
             imgDiv.id="polygon";
-            imgDiv.setAttribute("contenteditable","false");
+            imgDiv.id="polygon";
             const css="border-radius:10%;position:relative;float:left !important;margin-right:5rem;margin-block:3rem;transform:rotate(45deg);shape-outside:polygon(50% 0%,75% 25%,100% 50%,100% 50%,100% 50%,100% 50%, 90% 50%,80% 60%,70% 70%, 50% 80%,50% 80%,45% 85%,40% 90%,35% 100%);";
             imgDiv.style.cssText=css;
             imgDiv.style.marginBottom="7rem";
@@ -360,8 +586,7 @@ class ShapeOutside{
             img.src=this.logo;
             img.id="shape-outside-polygon";
             img.alt="ww.ablogroom.com";
-            img.setAttribute("contenteditable","false");
-            img.setAttribute("is-shapeoutside","true");
+          
             imgDiv.appendChild(img);
             para.appendChild(imgDiv);
             Misc.matchMedia({parent:imgDiv,maxWidth:920,cssStyle:{width:"300px",height:"300px"}});
@@ -369,62 +594,253 @@ class ShapeOutside{
             Misc.matchMedia({parent:imgDiv,maxWidth:500,cssStyle:{width:"220px",height:"220px"}});
             Misc.matchMedia({parent:imgDiv,maxWidth:400,cssStyle:{width:"200px",height:"200px"}});
         }
+       
+        //appending attributes for BOT FLEX AND NON FLEX TARGET ELEMENT
         para.innerHTML +=`ENTER YOUR TEXT HERE=> ${Misc.wordGen(100)}`;
         divCont.appendChild(para);
         parent.appendChild(divCont);
         Misc.matchMedia({parent:divCont,maxWidth:920,cssStyle:{marginInline:"1.5rem"}});
         Misc.matchMedia({parent:divCont,maxWidth:420,cssStyle:{marginInline:"10px"}});
-        
-            this.setAttributes({column:parent,divCont,target:para});//ID=shape-outside-${rand}
-            this._modSelector.promElementAdder(para).then(async(res)=>{
-                if(res){
-                    if((res.ele as elementType).type){
+            //POPUP PROVIDING OPTIONS TO CLIENT
+            this.setAttributes({column:parent,divCont,target:para,idValues,selRowCol});//ID=shape-outside-${rand}
+             //POPUP PROVIDING OPTIONS TO CLIENT
+            this.elementAdder({target:para,sel,rowEle,colEle,element,idValues}).then(async(res)=>{
+                if(res ){
+                    const isFlex=(sel && rowEle && colEle);
+                    if(!(isFlex)){
+                       
                         const ele=res.ele as unknown as elementType;
                         divCont.setAttribute("data-placememt",`${ele.placement}-A`);
-                    }else if(flex_){
+                    }else{
                         const ele=res.ele as unknown as element_selType;
                         divCont.setAttribute("data-placememt",`${ele.order}-A`);
-                    }
-                    this.removeMainElement({parent,divCont,target:res.target,show:false});
+                    };
                     divCont.addEventListener("click",(e:MouseEvent)=>{
                         if(e){
-                            ShapeOutside.cleanUpByID(res.target,"setAttributes");
-                            this._modSelector.updateElement(res.target);
-                            para.classList.toggle("isActive");
+                        
+                            res.target.classList.toggle("isActive");
                             divCont.classList.toggle("isActive");
-                            this.removeMainElement({parent,divCont,target:res.target,show:true});
+                            this.removeMainElement({parent,divCont,target:res.target,idValues,selRowCol});
                             
                            
                         }
                     });
-                    this._modSelector.editElement(res.target);
+                    this._modSelector.editElement({target:res.target,idValues});
                 }
             });
-        
-        
-       
-    }
+
+    };
+
+
+    async elementAdder({target,sel,rowEle,colEle,element,idValues}:{
+        target:HTMLElement,
+        sel:selectorType|null,
+        rowEle:rowType|null,
+        colEle:colType|null,
+        idValues:idValueType[]
+        element:elementType|element_selType
+    }): Promise<{
+        target: HTMLElement;
+        flex: flexType | null;
+        ele: element_selType;
+        idValues:idValueType[];
+    } | {
+        target: HTMLElement;
+        sel:selectorType|null;
+        rowEle:rowType|null;
+        colEle:colType|null;
+        ele: elementType | element_selType;
+        idValues:idValueType[];
+    } | undefined>{
+        const blog=this._modSelector.blog;
+        const eleId=target.id;
+        const {cleaned}=this._modSelector.removeClasses({target,classes:["isActive","box-shadow"]});
+        const getEleIds=idValues.filter(kat=>(kat.eleId===eleId));
+        const node=target.nodeName.toLowerCase();
+        const placement=this.placement;
+        idValues=Dataset.removeIdValueDuplicates({arr:idValues,eleId});
+        if(sel && rowEle && colEle){
+            sel=sel as selectorType;
+            rowEle=rowEle as rowType;
+            colEle=colEle as colType;
+            const selRowCol:selRowColType={selectorId:sel.eleId,rowId:rowEle.eleId,colId:colEle.eleId}
+            idValues.push({eleId,id:"selRowCol",attValue:JSON.stringify(selRowCol)});
+            target.setAttribute("is-element","true");
+            //ADDING ATTRIBUTES
+            const {rows}=this._modSelector.checkGetRows({select:sel});
+            rowEle.cols = rowEle.cols.map(col=>{
+                if(colEle && sel){
+                    if(col.eleId===colEle.eleId){
+    
+                        const ID=col.elements ? col.elements.length:0;
+                        const check= col.elements.map(ele_=>(ele_.eleId)).includes(target.id as string);
+                            if(node && !check){
+                            element=element as element_selType
+                                element={
+                                    ...element,
+                                    id:ID ,
+                                    selectorId:sel.id,
+                                    name:node,
+                                    class:cleaned.join(" "),
+                                    eleId:target.id,
+                                    cssText:target.style.cssText,
+                                    inner_html:target.innerHTML,
+                                    col_id:col.id,
+                                    order:ID,
+                                    
+                                } as element_selType;
+                                //LOADING ATTRIBUTES INTO ELEMENT, BELOW
+                                idValues.push({eleId,id:"eleOrder",attValue:String(ID)});
+                                getEleIds.map(kat=>{
+                                    if(kat.id==="imgKey"){
+                                         element.imgKey=kat.attValue;
+                                     }
+                                 });
+                                //----------//---POPULATING ATTRIBUTES TO TARGET && ADDS ATTR/TYPE/IMGKEY ATTRIBUTES FROM IDVALUES------\\-----///
+                                const {idValues:retIdValues2}=this._modSelector.dataset.coreDefaultIdValues({
+                                    target,
+                                    level:"element",
+                                    sel,
+                                    row:rowEle,
+                                    col:colEle,
+                                    ele:element,
+                                    loc:"flexbox",
+                                    idValues,
+                                    clean:false
+                                });
+                                //----------//---POPULATING ATTRIBUTES TO TARGET && ADDS ATTR/TYPE/IMGKEY ATTRIBUTES FROM IDVALUES------\\-----///
+                                this._modSelector.dataset.populateElement({
+                                    target,
+                                    selRowColEle:element,
+                                    level:"selector",
+                                    loc:"flexbox",
+                                    idValues:retIdValues2,
+                                    clean:false
+                                    });
+                                idValues=retIdValues2;
+                                idValues=Dataset.removeIdValueDuplicates({arr:idValues,eleId})
+                                //----------//---POPULATING ATTRIBUTES TO TARGET------\\-----///
+                                
+                                
+                                //RE-ASSIGNMENT HAS NEW INFO FROM TARGET
+                                // ele={...newEle} as element_selType
+                                //RE-ASSIGNMENT HAS NEW INFO FROM TARGET
+                                col.elements.push(element)
+                                // console.log("ELEMENT ADDER:INSIDE",col.elements)
+                            }
+    
+                    }
+
+                }
+                return col;
+            });
+            const newRows= rows.map(row=>{
+                    if(rowEle && row.eleId===rowEle.eleId){
+                        row=rowEle;
+                    }
+                return row;
+            });
+            const strRows=JSON.stringify(newRows);
+            sel={...sel,rows:strRows} as selectorType;
+            this._modSelector.selectors = this._modSelector.selectors.map(select=>{
+                    if(select.eleId===(sel as selectorType).eleId){
+                        select=sel as selectorType;
+                    }
+                return select;
+            });
+            
+            return Promise.resolve({target,ele:element as element_selType,sel:sel as selectorType,rowEle:rowEle as rowType,colEle:colEle as colType,idValues}) as Promise<{target:HTMLElement,ele:element_selType,sel:selectorType,rowEle:rowType,colEle:colType,idValues:idValueType[]}>;
+        }else{
+            element=element as elementType
+            const ID=this.elements.length;
+            const imgKey=target.getAttribute("imgKey");
+            const check=this.elements.map(ele_=>(ele_.eleId)).includes(target.id as string);
+                if(node && !check){
+                    element={
+                        ...element,
+                        id:ID ,
+                        blog_id:blog.id,
+                        selectorId:undefined,
+                        placement:placement,
+                        name:node,
+                        class:cleaned.join(" "),
+                        eleId:target.id,
+                        imgKey:imgKey ||undefined,
+                        cssText:target.style.cssText,
+                        inner_html:target.innerHTML,
+                    };
+                   
+                    //LOADING ATTRIBUTES INTO TARGET ELEMENT, BELOW
+                    idValues.push({eleId,id:"numEles",attValue:String(ID)});
+                    idValues.push({eleId,id:"elementId",attValue:target.id});
+                    idValues.push({eleId,id:"elePlacement",attValue:String(this.placement)});
+                    idValues.push({eleId,id:"ele_id",attValue:String(ID)});
+                     //LOADING ATTRIBUTES INTO ELEMENT, BELOW
+                     idValues.push({eleId,id:"eleOrder",attValue:String(ID)});
+                     getEleIds.map(kat=>{
+                       if(kat.id==="imgKey"){
+                            element.imgKey=kat.attValue;
+                        }
+                    });
+                     //----------//---POPULATING ATTRIBUTES TO TARGET && ADDS ATTR/TYPE/IMGKEY ATTRIBUTES FROM IDVALUES------\\-----///
+                     const {idValues:retIdValues2}=this._modSelector.dataset.coreDefaultIdValues({
+                         target,
+                         level:"element",
+                         sel:null,
+                         row:null,
+                         col:null,
+                         ele:element,
+                         loc:"htmlElement",
+                         idValues,
+                        clean:false
+                     });
+                     this._modSelector.dataset.populateElement({
+                        target,
+                        selRowColEle:element,
+                        level:"element",
+                        loc:"htmlElement",
+                        idValues:retIdValues2,
+                        clean:false
+                       });
+                     idValues=retIdValues2;
+                    //----------//---POPULATING ATTRIBUTES TO TARGET && ADDS ATTR/TYPE/IMGKEY ATTRIBUTES FROM IDVALUES------\\-----///
+
+                    //RE-ASSIGNMENT HAS NEW INFO FROM TARGET
+                    this._modSelector.elements.push(element);
+                    this.elements=this._modSelector.elements;
+                    this.placement= placement + 1;
+                    idValues=Dataset.removeIdValueDuplicates({arr:idValues,eleId})
+                    return Promise.resolve({target,ele:element as elementType,sel:null,rowEle:null,colEle:null,idValues}) as Promise<{target:HTMLElement,ele:elementType,sel:null,rowEle:null,colEle:null,idValues:idValueType[]}>;
+                    
+                }
+        }
+
+    };
+
    
   
-    removeMainElement(item:{parent:HTMLElement,divCont:HTMLElement,target:HTMLElement,show:boolean}){
-        const {parent,divCont,target,show}=item;
+    removeMainElement({parent,divCont,target,idValues,selRowCol}:{
+        parent:HTMLElement,
+        divCont:HTMLElement,
+        target:HTMLElement,
+        idValues:idValueType[],
+        selRowCol:selRowColType|null
+
+    }){
         divCont.style.position="relative";
         divCont.style.zIndex="";
         const isActive=([...target.classList as any] as string[]).includes("isActive");
-        const getxDiv=divCont.querySelector("div#xIconDiv-shapOutside") as HTMLElement;
-        const {isJSON}=Header.checkJson(target.getAttribute("flex"));
         
-        if(!show){
-            const rand=Math.round(Math.random()*1000);
+        if(isActive){
             const css="position:absolute;transform:translate(-2px,-3px);background:inherit;font-size:16px;background:lightgrey;font-weight:bold;border-radius:50%;color:black;top:0px;right:0px;";
             divCont.classList.add("position-relative");
             const xIconDiv=document.createElement("div");
             xIconDiv.setAttribute("contenteditable","false");
             xIconDiv.setAttribute("is-icon","true");
-            xIconDiv.className="xIconDiv-shapeOutside";
+            xIconDiv.className="xIconDiv-shapeOutside delete-popup";
             xIconDiv.id=`xIconDiv-shapeOutside`;
             xIconDiv.style.cssText=`${css}`;
-            if(isJSON){
+            if(selRowCol){
                 xIconDiv.style.transform="translate(-2px,-15px)";
                 xIconDiv.style.left="10%";
                 xIconDiv.style.right="";
@@ -439,11 +855,12 @@ class ShapeOutside{
             xIconDiv.addEventListener("click",(e:MouseEvent)=>{
                 if(e){
                    
-                    this._modSelector.promRemoveElement(target).then(async(res)=>{
+                    this._modSelector.removeElement({target,idValues,selRowCol}).then(async(res)=>{
                         if(res){
-                                Misc.message({parent,msg:`removed : ${res.eleId}`,type_:"success",time:800});
-                                if((res as elementType).type){
-                                    const ele=res as elementType;
+                            idValues=res.idValues;
+                                Misc.message({parent,msg:`removed : ${res.ele.eleId}`,type_:"success",time:800});
+                                if((res.ele as elementType).type){
+                                    const ele=res.ele as elementType;
                                     this._modSelector.shiftPlace(ele.placement);
                                 }
                         }
@@ -459,21 +876,18 @@ class ShapeOutside{
                 }
             });
          }else{
-            if(getxDiv){
-                if(isActive){
-                    getxDiv.style.display="flex";
-                }else{
-                    getxDiv.style.display="none";
-                }
-
-            }
+            Header.cleanUpByID(divCont,"xIconDiv-shapeOutside")
          }
     }
-    setAttributes(item:{column:HTMLElement,divCont:HTMLElement,target:HTMLParagraphElement}){
-        const {column,divCont,target}=item;
-        // console.log("setAttributes=>column",column)
-        const {isJSON,parsed}=Header.checkJson(target.getAttribute("flex"));
-        const flex= parsed as flexType|null;
+    setAttributes({column,divCont,target,idValues,selRowCol}:{
+        column:HTMLElement,
+        divCont:HTMLElement,
+        target:HTMLParagraphElement,
+        idValues:idValueType[],
+        selRowCol:selRowColType|null
+
+    }){
+        
         column.style.zIndex="";
         divCont.style.zIndex="";
        divCont.classList.add("isActive");
@@ -485,7 +899,7 @@ class ShapeOutside{
         anchor.id="setAttributes";
         anchor.classList.add("popup");
         anchor.style.cssText="position:absolute;display:flex;flex-direction:column;align-items:center;z-index:2;";
-        if(!isJSON){
+        if(!selRowCol){
             anchor.style.top="85%";
             anchor.style.left="30%";
             anchor.style.right="30%";
@@ -538,29 +952,29 @@ class ShapeOutside{
                        
                         divCont.classList.add("isActive");
                         target.classList.add("isActive");
-                        this.selectAdjustSize(column,divCont,target);
+                        this.selectAdjustSize({column,divCont,target,idValues,selRowCol});
                     }else if(item.name==="color"){
-                        // ShapeOutside.cleanUpByID(divCont,"setAttributes");
+                        
                         divCont.classList.add("isActive");
                         target.classList.add("isActive");
-                        this.selectParaColor(column,divCont,target);
+                        this.selectParaColor({column,divCont,target,idValues,selRowCol});
                     }else if(item.name==="upload image"){
-                        // ShapeOutside.cleanUpByID(divCont,"setAttributes");
+                       
                         divCont.classList.add("isActive");
                         target.classList.add("isActive");
                         ([...target.children as any] as HTMLElement[]).map(child=>{
                             if(child && child.nodeName==="IMG"){
                                 const img=child as HTMLImageElement;
-                                return this.uploadImage(column,divCont,target,img);
+                                return this.uploadImage({column,divCont,para:target,img,idValues,selRowCol});
 
                             }
                         });
                     }
                 }else if(item.attr && item.attr !=="remove"){
                     const subCont=([...target.children as any] as HTMLElement[]).find(child=>(child.nodeName !=="IMG"));
-                    this.selectChangeAttribute(divCont,subCont,target,item.attr);
+                    this.selectChangeAttribute({divCont,subCont,target,key:item.attr,idValues,selRowCol});
                 }else{
-                    // ShapeOutside.cleanUpByID(target,"setAttributes");
+                   
                     ShapeOutside.cleanUpByID(divCont,"setAttributes");
                     ShapeOutside.cleanUpByID(target,"selectChangeAttribute");
                     return 
@@ -569,17 +983,31 @@ class ShapeOutside{
         }
     }
 
-    selectAdjustSize(column:HTMLElement,divCont:HTMLElement,target:HTMLElement){
+    selectAdjustSize({column,divCont,target,idValues,selRowCol}:{
+        column:HTMLElement,
+        divCont:HTMLElement,
+        target:HTMLElement,
+        idValues:idValueType[],
+        selRowCol:selRowColType|null
+
+    }){
         //para level
         const {isJSON}=Header.checkJson(column.getAttribute("flex"));
         if(isJSON){
-            this.adjustImgSize(column,target);
+            this.adjustImgSize({column,target,idValues,selRowCol});
         }else{
-            this.adjustImgSize(divCont,target);
+            this.adjustImgSize({column:divCont,target,idValues,selRowCol});
         }
         
     }
-    selectParaColor(column:HTMLElement,divCont:HTMLElement,target:HTMLElement){
+    selectParaColor({column,divCont,target,idValues,selRowCol}:{
+        column:HTMLElement,
+        divCont:HTMLElement,
+        target:HTMLElement,
+        idValues:idValueType[],
+        selRowCol:selRowColType|null
+
+    }){
         const popup=document.createElement("div");
         popup.setAttribute("is-popup","true");
         popup.style.cssText="position:absolute;display:flex;flex-direction:column;align-items:center;";
@@ -610,7 +1038,7 @@ class ShapeOutside{
                 const color=formdata.get("color") as string;
                 if(color){
                     target.style.color=color;
-                    this._modSelector.promUpdateElement({target}).then(async(res)=>{
+                    this._modSelector.updateElement({target,idValues,selRowCol}).then(async(res)=>{
                         if(res){
                             Misc.message({parent:column,type_:"success",time:600,msg:"saved"});
                         }
@@ -624,16 +1052,23 @@ class ShapeOutside{
             }
         });
     }
-    selectChangeAttribute(divCont:HTMLElement,subCont:HTMLElement|undefined,target:HTMLElement,key:string){
+    selectChangeAttribute({divCont,subCont,target,key,idValues,selRowCol}:{
+        divCont:HTMLElement,
+        subCont:HTMLElement|undefined,
+        target:HTMLElement,
+        key:string,
+        idValues:idValueType[],
+        selRowCol:selRowColType|null
+    }){
         target.style.zIndex="0";
-        const {isJSON}=Header.checkJson(target.getAttribute("flex"));
+       
         ShapeOutside.cleanUpByID(target,"selectChangeAttribute");
         const popup=document.createElement("div");
         popup.setAttribute("is-popup","true");
         popup.id="selectChangeAttribute";
         popup.style.cssText="position:absolute;display:flex;flex-direction:column;align-items:center;z-index:200";
         popup.style.width="clamp(250px,300px,400px)";
-        if(isJSON){
+        if(selRowCol){
             popup.style.top="0%";
         }else{
             popup.style.top="40%";
@@ -668,7 +1103,7 @@ class ShapeOutside{
             Misc.growIn({anchor:popup,scale:0,opacity:0,time:400});
             break;
             case key==="fontFamily":
-            this.font_family(divCont,target);
+            this.font_family({column:divCont,target,idValues,selRowCol});
             break;
             case key==="marginRight":
             input.name="marginRight";
@@ -696,7 +1131,6 @@ class ShapeOutside{
                 Misc.growOut({anchor:popup,scale:0,opacity:0,time:399});
                 setTimeout(()=>{
                     ShapeOutside.cleanUpByID(divCont,"selectChangeAttribute");
-                    // target.removeChild(popup);
                 },400);
             }
         };
@@ -710,21 +1144,21 @@ class ShapeOutside{
                 const marginRight=formdata.get("marginRight");
                 switch(true){
                     case lineHeight !==null:
-                        target.style.lineHeight=`${lineHeight}px`;
-                        setTimeout(()=>{this._modSelector.updateElement(target)},0);
+                        target.style.lineHeight=`${Number(lineHeight)}px`;
+                        setTimeout(()=>{this._modSelector.updateElement({target:target,idValues,selRowCol})},0);
                         ShapeOutside.cleanUpByID(divCont,"selectChangeAttribute");
                         divCont.classList.toggle("isActive");
                         target.classList.toggle("isActive");
-                        // target.removeChild(popup);
+                    
                     return;
                     case marginRight !==null:
-                        target.style.marginRight=`${marginRight}px`;
-                        divCont.style.marginRight=`${marginRight}px`;
+                        target.style.marginRight=`${Number(marginRight)}px`;
+                        divCont.style.marginRight=`${Number(marginRight)}px`;
                                target.classList.toggle("isActive");
                                divCont.classList.toggle("isActive");
-                        setTimeout(()=>{this._modSelector.updateElement(target)},0);
+                        setTimeout(()=>{this._modSelector.updateElement({target,idValues,selRowCol})},0);
                         ShapeOutside.cleanUpByID(divCont,"selectChangeAttribute");
-                        // target.removeChild(popup);
+                     
                     return;
                     
                     default:
@@ -736,7 +1170,12 @@ class ShapeOutside{
        
         
     }
-    font_family(column:HTMLElement,target:HTMLElement){
+    font_family({column,target,idValues,selRowCol}:{
+        column:HTMLElement,
+        target:HTMLElement,
+        idValues:idValueType[],
+        selRowCol:selRowColType|null
+    }){
         const parent= window.innerWidth <900 ? column : target;
         const fontFamilys=Misc.fontFamilys;
             const popup=document.createElement("div");
@@ -781,10 +1220,14 @@ class ShapeOutside{
                     if(getValue){
                         const fontFamily=getValue.get("fontFamily") as string;
                         parent.style.fontFamily=fontFamily;
+
+                        const idValue:idValueType={eleId:target.id,id:"text",attValue:"true"}
+                        this._modSelector.dataset.upDateIdValue({target,idValues,idValue});
+
                         Misc.fadeOut({anchor:popup,xpos:40,ypos:100,time:400});
                         setTimeout(()=>{parent.removeChild(popup);},398);
                         setTimeout(()=>{
-                            return this._modSelector.updateElement(target);
+                            return this._modSelector.updateElement({target,idValues,selRowCol});
                         },0);
                         ShapeOutside.cleanUpByID(target,"setAttributes");
                         return  ShapeOutside.cleanUpByID(target,"setAttributes");
@@ -794,30 +1237,42 @@ class ShapeOutside{
 
     }
 
-    adjustImgSize(column:HTMLElement,target:HTMLElement){
+    adjustImgSize({column,target,idValues,selRowCol}:{
+        column:HTMLElement,
+        target:HTMLElement,
+        idValues:idValueType[],
+        selRowCol:selRowColType|null
+
+    }){
+        const idValue:idValueType={eleId:target.id,id:"img",attValue:"true"}
+                this._modSelector.dataset.upDateIdValue({target,idValues,idValue});
         ([...target.children as any] as HTMLElement[]).map(child=>{
             if(child && (child.nodeName==="IMG" && child.id!=="shape-outside-polygon")){
                 const img_or_poly=child as HTMLImageElement | HTMLElement;
-                this.adjustSize(column,target,img_or_poly);
+                this.adjustSize({column,target,img_or_poly,idValues,selRowCol});
                 
             }else if(child){
                 ([...child.children as any] as HTMLElement[]).map(ch=>{
                     if(ch && ch.nodeName==="IMG"){
                         const img=ch as HTMLImageElement;
-                        this.adjustSize(column,target,img);
+                        this.adjustSize({column,target,img_or_poly:img,idValues,selRowCol});
                     }
                 });
             }
         });
     }
     //parent:adjustImgSize() :GENERATED FROM POPUP LIS
-    adjustSize(column:HTMLElement,target:HTMLElement,img_or_poly:HTMLImageElement|HTMLElement){
+    adjustSize({column,target,img_or_poly,idValues,selRowCol}:{
+        column:HTMLElement,
+        target:HTMLElement,
+        img_or_poly:HTMLImageElement|HTMLElement,
+        idValues:idValueType[],
+        selRowCol:selRowColType|null
+    }){
         ShapeOutside.cleanUpByID(target,"adjustSize");
         column.style.zIndex="0";
         target.classList.add("isActive");
         (target.parentElement as HTMLElement).classList.add("isActive");
-        // const startWidth=img_or_poly.style.width;
-        // let polyNum="50% 0%,75% 25%,100% 50%,100% 50%,100% 50%,100% 50%, 90% 50%,80% 60%,70% 70%, 50% 80%,50% 80%,30% 90%";
         ShapeOutside.cleanUpByID(target,"popup");
         target.style.position="relative";
         const popup=document.createElement("div");
@@ -840,7 +1295,7 @@ class ShapeOutside{
         column.appendChild(popup)
         Misc.matchMedia({parent:popup,maxWidth:900,cssStyle:{left:"15%",right:"15%"}});
         Misc.matchMedia({parent:popup,maxWidth:410,cssStyle:{left:"5%",right:"5%"}});
-        // let width_=parseInt(`${startWidth.split("px")[0]}`);
+      
         const btn=buttonReturn({parent:popup,text:"okay",bg:Nav.btnColor,color:"white",type:"button"});
         input.addEventListener("input",(e:Event)=>{
             if(e){
@@ -854,29 +1309,46 @@ class ShapeOutside{
                 target.classList.remove("isActive");
                 (target.parentElement as HTMLElement).classList.remove("isActive");
                 Misc.growOut({anchor:popup,opacity:0,scale:0,time:400});
+                const idValue:idValueType={eleId:target.id,id:"text",attValue:"true"}
+                this._modSelector.dataset.upDateIdValue({target,idValues,idValue});
                 setTimeout(()=>{
                     ShapeOutside.cleanUpByID(column,"adjustSize");
 
                 },395);
-                setTimeout(()=>{this._modSelector.updateElement(target)},0);
+                setTimeout(()=>{this._modSelector.updateElement({target,idValues,selRowCol})},0);
                 ShapeOutside.cleanUpByID(target,"setAttributes");
                 (target.parentElement as HTMLElement).classList.toggle("isActive");
                 target.classList.toggle("isActive");
                 return  ShapeOutside.cleanUpByID(target,"setAttributes");
-            }
+            };
         });
-    }
-    uploadImage(column:HTMLElement,divCont:HTMLElement,para:HTMLParagraphElement,img:HTMLImageElement){
+    };
+
+
+
+   async uploadImage({column,divCont,para,img,idValues,selRowCol}:{
+        column:HTMLElement,
+        divCont:HTMLElement,
+        para:HTMLParagraphElement,
+        img:HTMLImageElement,
+        idValues:idValueType[],
+        selRowCol:selRowColType|null
+    }){
         //polygon
-        
-        const {isJSON,parsed}=Header.checkJson(para.getAttribute("flex"));
-        if(isJSON){
+       
+        const user=this._user.user;
+        if(!(user.email && user.id)){
+            Nav.navHeader=document.querySelector("header#navHeader") as HTMLElement;
+            await this._service.signIn(Nav.navHeader);
+        }
+        if(selRowCol){
             column.classList.add("coliIsActive");
         }
         divCont.style.position="relative";
         divCont.style.zIndex="";
         // ShapeOutside.cleanUpByID(para,"popup")
             if(divCont && para && img){
+                const eleId=para.id;
                 const popup=document.createElement("div");
                 popup.setAttribute("is-popup","true");
                 popup.style.cssText="position:absolute;width:300px;height:300px;inset:0%;z-index:200";
@@ -904,7 +1376,7 @@ class ShapeOutside{
                 const {button}=Misc.simpleButton({anchor:form,text:"submit",bg:this.btnColor,color:"white",type:"submit",time:400});
                 form.appendChild(xdiv);
                 popup.appendChild(form);
-                if(isJSON){
+                if(selRowCol){
                     column.appendChild(popup);
                 }else{
                     divCont.appendChild(popup);
@@ -915,14 +1387,14 @@ class ShapeOutside{
                     }
                 };
                 
-                form.addEventListener("submit",(e:SubmitEvent)=>{
+                form.addEventListener("submit",async(e:SubmitEvent)=>{
                     if(e){
                         e.preventDefault();
                         const user=this._user.user
                         const formdata=new FormData(e.currentTarget as HTMLFormElement);
                         const file=formdata.get("file") as File;
                         if(!file){
-                            if(isJSON){
+                            if(selRowCol){
                              return Misc.message({parent:column,msg:`could not find file`,type_:"error",time:700});}else{
                                 return Misc.message({parent:para,msg:`could not find file`,type_:"error",time:700});
                              };
@@ -930,60 +1402,51 @@ class ShapeOutside{
                         const url=URL.createObjectURL(file as File);
                         const {Key}=this._service.generateFreeImgKey({formdata,user}) as {Key:string};
                         img.src=url;
-                        this._service.uploadfreeimage({parent:column,formdata}).then(async(res)=>{
-                            if(res){
-                                const {isJSON,parsed:flex}=Header.checkJson(para.getAttribute("flex"));
-                                if(isJSON){
-                                    const flex_={...flex,imgKey:Key,isShapeOutside:true,level:"element"}
-                                    para.setAttribute("flex",JSON.stringify(flex_));
-                                }
-                                img.setAttribute("imgKey",res.Key);
-                                img.setAttribute("data-shapeoutside","true");
-                                para.setAttribute("data-shapeoutside","true");
-                                para.setAttribute("type","shapeoutside");
-                                const getImgWidth=parseInt(window.getComputedStyle(img).getPropertyValue("width").split("px")[0]);
-                                const width= getImgWidth ? getImgWidth : 300;
-                                img.src=imageLoader({src:res.img,width:width,quality:75});
-                                img.alt=res.Key
-                                this._modSelector.promUpdateElement({target:para}).then(async(res)=>{
+                        const idValue:idValueType={eleId,id:"imgKey",attValue:Key};
+                        this._modSelector.dataset.upDateIdValue({target:para,idValues,idValue});
+                        await this._modSelector.updateElement({target:para,idValues,selRowCol}).then(async(res)=>{
+                            if(res ){
+
+                                this._service.uploadfreeimage({formdata}).then(async(res)=>{
                                     if(res){
-                                        Misc.message({parent:column,msg:" saved",type_:"success",time:900});
+                                        
+                                        img.setAttribute("imgKey",res.Key);
+                                        idValues.push({eleId,id:"imgKey",attValue:Key});
+                                        const getImgWidth=parseInt(window.getComputedStyle(img).getPropertyValue("width").split("px")[0]);
+                                        img.src=imageLoader({src:res.img,width:getImgWidth,quality:75});
+                                        img.alt=res.Key
+                                       await this._modSelector.updateElement({target:para,idValues,selRowCol}).then(async(res)=>{
+                                            if(res){
+                                                Misc.message({parent:column,msg:" saved",type_:"success",time:900});
+                                            }
+                                        });
                                     }
                                 });
                             }
-                        });
-                        img.setAttribute("is-shapeOutside","true");
+                        })
                         Misc.blurIn({anchor:img,blur:"20px",time:700});
                         setTimeout(()=>{
                             Misc.growOut({anchor:popup,scale:0,opacity:0,time:400});
-                            if(isJSON){
+                            if(selRowCol){
                                 setTimeout(()=>{column.removeChild(popup);},390);
-                                // column.classList.toggle("coliIsActive");
+                              
                             }else{
                                 setTimeout(()=>{divCont.removeChild(popup);},390);
                             }
-                            // HtmlElement.cleanUpWithID(para,"popup");
+                         
                             divCont.classList.toggle("isActive");
                             para.classList.toggle("isActive");
-                            // ShapeOutside.cleanUpByID(para,"popup")
+                           
                         },380);
-                        this._modSelector.updateElement(para);
-                        img.setAttribute("is-shapeoutside","true");
-                        if(isJSON){
-                            const flex=parsed as flexType;
-                            img.setAttribute("flex",JSON.stringify(flex));
-                        }else{
-                            img.setAttribute("para-id",`${para.id}`);
-                        }
-                        const blog=this._modSelector._blog;
+                       
 
-                        // this._user.askSendToServer({bg_parent:para,formdata,image:img,blog,oldKey:null});
+                       
                     }
                 },true);
                 xdiv.addEventListener("click",(e:MouseEvent)=>{
                     if(e){
                         Misc.fadeOut({anchor:popup,xpos:50,ypos:100,time:400});
-                        if(isJSON){
+                        if(selRowCol){
                             setTimeout(()=>{column.removeChild(popup);},380);
                         }else{
                             setTimeout(()=>{divCont.removeChild(popup);},380);
@@ -992,8 +1455,10 @@ class ShapeOutside{
                 });
                
                 
-            }
-    }
+            };
+    };
+
+
 
     setShapeOutside(target:HTMLElement|null,btn:HTMLButtonElement){
         //This is located in Main for btn activities
@@ -1039,7 +1504,7 @@ class ShapeOutside{
    
    static polyNumCalc(polyNum:string,perc:number):string{
         const xy_perc:string[]=polyNum.split(",");
-        // console.log("perc",xy_perc);
+       
         let xy_num:{x:number,y:number}[]=[];
         xy_perc.map(_xy_perc=>{
             let x=parseInt(_xy_perc.split(" ")[0].split("%")[0]);
@@ -1062,12 +1527,13 @@ class ShapeOutside{
         return xy_num.map(xy=>(`${xy.x}% ${xy.y}%`)).join(",")
     }
    
-    // static deleteItem(target:HTMLElement){
-    //     const divIcon=document.createElement("div");
-    //     divIcon.style.cssText="position:absolute;display:flex;flex-direction:column;align-items:center;justify-content:center;";
+   
+    selectFileFormComponent({parent,idValues,selRowCol}:{
+        parent:HTMLElement,
+        idValues:idValueType[],
+        selRowCol:selRowColType|null
 
-    // }
-    selectFileFormComponent(parent:HTMLElement){
+    }){
         //RETURN IMG WITH NEW URL.CRETAED IMAGE FILE LOADED
         parent.style.position="relative";
         parent.style.zIndex="";
@@ -1126,7 +1592,7 @@ class ShapeOutside{
                                     img.src=urlImg;
                                     img.alt=filename;
                                     Misc.blurIn({anchor:img,blur:"20px",time:700});
-                                    this._user.refreshImageShow(parent,img,formdata,null);
+                                    this._user.refreshImageShow({parent,image:img,formdata,selRowCol,idValues});
                                     Misc.growOut({anchor:form,scale:0,opacity:0,time:400});
                                     if(!form) return
                                     setTimeout(()=>{form.remove()},398);

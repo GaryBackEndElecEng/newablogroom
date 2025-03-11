@@ -66,85 +66,90 @@ class Intro{
         {id:2,name:"sidebar-part-three",title:"title-three",intro:this.introDesc[2],img:"./images/instruction/sidebarThree.png"},
         {id:3,name:"toolbar",title:"title-four",intro:this.introDesc[3],img:"./images/instruction/toolBar.png"},
     ];
+    msg:string;
   
     constructor(private _modSelector:ModSelector,private _service:Service){
-
+        this.msg="sorry. the introductory display, opens on screen that are larger than 920px wide. The reason is"
     }
    
 
     viewInstruction(parent:HTMLElement){
+        const less920=window.innerWidth < 920 ;
         parent.style.position="relative";
         const popup=document.createElement("div");
-        popup.style.cssText="position:absolute;min-height:30vh;background:white;border-radius:20px;box-shadow:1px 1px 12px 1px black;display:flex;flex-direction:column;align-items:center:gap:2rem;;justify-content:center;z-index:200;padding-block:2rem;";
+        popup.id="viewInstruction-main";
+        popup.style.cssText="position:absolute;min-height:30vh;background:white;border-radius:20px;box-shadow:1px 1px 12px 1px black;display:flex;flex-direction:column;align-items:center:gap:2rem;;justify-content:center;z-index:200;padding-block:2rem;width:100%;";
         popup.style.alignItems="center";
         popup.style.gap="2rem";
         const innerPopup=document.createElement("div");
         innerPopup.style.cssText="margin:auto;position:relative;display:flex;flex-direction:row;flex-wrap:wrap;align-items:center;justify-content:center;z-index:200;width:100%;";
         popup.appendChild(innerPopup);
-        //explain
+   
+            //INTRO-EXPLAINED OPENS IF WIDTH >920
+            const explain=document.createElement("div");
+            explain.id="explain";
+            explain.style.cssText="flex:1 1 25%;display:flex;align-items:center;flex-direction:column;width:25%;position:relative;padding-inline:1rem;";
+            explain.style.opacity="0";
+            const titleOne=document.createElement("h6");
+            titleOne.className="text-center text-primary lean display-6 my-2 text-decoration-underline";
+            titleOne.textContent=" title one";
+            explain.appendChild(titleOne);
+           
+            const titleTwo=document.createElement("p");
+            titleTwo.className="text-center text-primary my-2";
+            titleTwo.style.fontSize="130%";
+            titleTwo.style.textWrap="nowrap";
+            titleTwo.textContent="This is a title to be displayed";
+            explain.appendChild(titleTwo);
+            const desc=document.createElement("p");
+            desc.style.cssText="margin-inline:auto;padding-inline:1rem;line-height:1.9rem;text-wrap:pretty;";
+            desc.textContent="";
+            explain.appendChild(desc);
+            innerPopup.appendChild(explain);
+            //explain
+            //slider
+            const row=document.createElement("div");
+            row.className="";
+            row.style.cssText=`max-width:800px;align-items:center;display:flex;flex-wrap:nowrap;height:auto;overflow-x:scroll;position:relative;`;
+            row.style.scrollSnapType="x mandatory";
+            this.imgInstructArr.map(item=>{
+                if(item){
+                    
+                    const col=document.createElement("div");
+                    col.id=item.name;
+                    col.style.cssText=`margin:auto;display:flex;justify-content:center;align-items:center;flex-direction:column;position:relative;height:auto;flex:1 0 100% !important;`;
+                    col.style.scrollSnapAlign="center";
+                    col.style.scrollSnapStop="always";
+                    const para=document.createElement("p");
+                    para.style.cssText="margin-inline:auto;margin-block:0px;padding-block:2rem;";
+                    para.textContent=item.name;
+                    col.appendChild(para);
+                    const img=document.createElement("img");
+                    img.src=item.img;
+                    img.alt=item.name;
+                    img.style.cssText=`width:100%`;
+                    col.appendChild(img);
+                    row.appendChild(col);
+                    col.onmouseover=(e:Event)=>{
+                        if(e){
+                            titleOne.textContent=item.name;
+                            titleTwo.textContent=item.title;
+                            desc.innerHTML=item.intro.desc;
+                            this.createIntroDesc(col,explain,item.intro.slide,less920);
+                            explain.style.opacity="1";
+                            Misc.blurIn({anchor:explain,blur:"20px",time:700});
+                        }
+                    };
+                }
+            });
+            innerPopup.appendChild(row);
+            //slider
+            parent.appendChild(popup);
+            Misc.matchMedia({parent:explain,maxWidth:900,cssStyle:{flex:"1 1 100%",width:"100%",paddingInline:"0.75rem"}});
+            Misc.matchMedia({parent:innerPopup,maxWidth:900,cssStyle:{flexDirection:"column"}});
+            Misc.matchMedia({parent:row,maxWidth:900,cssStyle:{flex:"1 1 100%",width:"100%",maxWidth:"800px"}});
+            Misc.fadeIn({anchor:popup,xpos:100,ypos:100,time:400});
         
-        const explain=document.createElement("div");
-        explain.id="explain";
-        explain.style.cssText="flex:1 1 25%;display:flex;align-items:center;flex-direction:column;width:25%;position:relative;padding-inline:1rem;";
-        explain.style.opacity="0";
-        const titleOne=document.createElement("h6");
-        titleOne.className="text-center text-primary lean display-6 my-2 text-decoration-underline";
-        titleOne.textContent=" title one";
-        explain.appendChild(titleOne);
-       
-        const titleTwo=document.createElement("p");
-        titleTwo.className="text-center text-primary my-2";
-        titleTwo.style.fontSize="130%";
-        titleTwo.style.textWrap="nowrap";
-        titleTwo.textContent="This is a title to be displayed";
-        explain.appendChild(titleTwo);
-        const desc=document.createElement("p");
-        desc.style.cssText="margin-inline:auto;padding-inline:1rem;line-height:1.9rem;text-wrap:pretty;";
-        desc.textContent="";
-        explain.appendChild(desc);
-        innerPopup.appendChild(explain);
-        //explain
-        //slider
-        const row=document.createElement("div");
-        row.className="";
-        row.style.cssText=`width:800px;align-items:center;display:flex;flex-wrap:nowrap;height:auto;overflow-x:scroll;flex:1 1 75%;position:relative;`;
-        row.style.scrollSnapType="x mandatory";
-        this.imgInstructArr.map(item=>{
-            if(item){
-                const col=document.createElement("div");
-                col.id=item.name;
-                col.style.cssText=`margin:auto;display:flex;justify-content:center;align-items:center;flex-direction:column;position:relative;height:auto;flex:1 1 800px`;
-                col.style.scrollSnapAlign="center";
-                col.style.scrollSnapStop="always";
-                const para=document.createElement("p");
-                para.style.cssText="margin-inline:auto;margin-block:0px;padding-block:2rem;";
-                para.textContent=item.name;
-                col.appendChild(para);
-                const img=document.createElement("img");
-                img.src=item.img;
-                img.alt=item.name;
-                img.style.cssText=`width:800px`;
-                col.appendChild(img);
-                row.appendChild(col);
-                col.onmouseover=(e:Event)=>{
-                    if(e){
-                        titleOne.textContent=item.name;
-                        titleTwo.textContent=item.title;
-                        desc.innerHTML=item.intro.desc;
-                        this.createIntroDesc(col,explain,item.intro.slide);
-                        explain.style.opacity="1";
-                        Misc.blurIn({anchor:explain,blur:"20px",time:700});
-                    }
-                };
-            }
-        });
-        innerPopup.appendChild(row);
-        //slider
-        parent.appendChild(popup);
-        Misc.matchMedia({parent:explain,maxWidth:900,cssStyle:{flex:"1 1 100%",width:"100%",paddingInline:"0.75rem"}});
-        Misc.matchMedia({parent:innerPopup,maxWidth:900,cssStyle:{flexDirection:"column"}});
-        Misc.matchMedia({parent:row,maxWidth:900,cssStyle:{flex:"1 1 100%",width:"100%",maxWidth:"800px"}});
-        Misc.fadeIn({anchor:popup,xpos:100,ypos:100,time:400});
         const {button}=Misc.simpleButton({anchor:popup,bg:Nav.btnColor,color:"white",type:"button",time:400,text:"close"});
         button.style.maxWidth="200px";
         button.onclick=(e:MouseEvent) =>{
@@ -153,14 +158,18 @@ class Intro{
                 setTimeout(()=>{parent.removeChild(popup)},398);
             }
         };
+        
+        
 
     }
-    createIntroDesc(col:HTMLElement,explain:HTMLElement,slide:slideType[]){
+    createIntroDesc(col:HTMLElement,explain:HTMLElement,slide:slideType[],less920:boolean){
         col.style.position="relative";
+        const height= less920 ? "40vh":"auto";
+        const overflow=less920 ? "scroll":"auto";
         Header.cleanUpByID(explain,"createIntroDesc");
         const container=document.createElement("div");
         container.id="createIntroDesc";
-        container.style.cssText="width:100%;box-shadow:1px 1px 12px 1px lightgrey;margin:0px;padding-inline:10px;";
+        container.style.cssText=`width:100%;height:${height};overflow:${overflow};box-shadow:1px 1px 12px 1px lightgrey;margin:0px;padding-inline:10px;`;
         const ul=document.createElement("ul");
         ul.style.cssText="height:40vh;overflow-y:scroll;box-shadow:1px 1px 12px 1px lightblue;padding-block:2rem;display:flex;flex-direction:column;"
         slide.map((item)=>{

@@ -1,6 +1,6 @@
 
 import {FaCreate} from "@/components/common/ReactIcons";
-import { FaArrowRight,FaConnectdevelop,FaFingerprint, FaInfoCircle, FaSignInAlt, FaSignOutAlt } from "react-icons/fa";
+import { FaArrowRight,FaFingerprint, FaInfoCircle, FaSignInAlt, FaSignOutAlt } from "react-icons/fa";
 import Misc from "../common/misc";
 import { buttonReturn } from "../common/tsFunctions";
 import ModSelector from "../editor/modSelector";
@@ -11,34 +11,40 @@ import Dataflow from "../common/dataflow";
 import Header from "../editor/header";
 import RegSignIn from "../nav/regSignin";
 import User from "../user/userMain";
-import NavArrow from "../nav/arrow";
 import Features from "../home/feature";
 import { userType } from "../editor/Types";
 import AllMsgs from "../home/allMsgs";
 import { FaGooglePlay, FaMobileScreen, FaRightLong } from "react-icons/fa6";
 import styles from "./footer.module.css";
+import AuthService from "../common/auth";
+import CommonInfo from "../common/commonInfo";
 
 
 
 
 class MainFooter{
-    baseUrl:URL;
-    noteAddUrl:string;
-    closeInfoMsg:boolean;
-    centerBtnsParent:HTMLElement|null;
-    infoMsg:string;
-    bioPhrase:string;
-    _regSignin:RegSignIn;
-    thankYouImg:string;
-    btnColor:string;
-    privacyUlr:string="/policy";
-    policyUrl:string="/policy";
-    logoUrl:string;
-    _status:"authenticated" | "loading" | "unauthenticated";
+    public static entry:HTMLElement;
+   public baseUrl:URL;
+   public noteAddUrl:string;
+   public closeInfoMsg:boolean;
+   public centerBtnsParent:HTMLElement|null;
+   public infoMsg:string;
+   public bioPhrase:string;
+   private _regSignin:RegSignIn;
+   public thankYouImg:string;
+   public readonly btnColor:string=Nav.btnColor;
+   public readonly privacyUlr:string="/policy";
+   public readonly policyUrl:string="/policy";
+   public logoUrl:string;
+   private _status:"authenticated" | "loading" | "unauthenticated";
     termsOfServiceUrl:string="/termsOfService";
     masterultilsUrl:string="https://www.masterultils.com";
-    arrUrl:{name:string,link:string}[]
-    constructor(private _modSelector:ModSelector,private _service:Service,private _user:User,private _nav:Nav,private _navArrow:NavArrow,public dataflow:Dataflow,public feature:Features,public allMsgs:AllMsgs){
+    arrUrl:{name:string,link:string}[];
+    public injector_:HTMLElement
+    constructor(private _modSelector:ModSelector,private _service:Service,injector:HTMLElement,private auth:AuthService,private _user:User,public dataflow:Dataflow,public feature:Features,public allMsgs:AllMsgs,public commonInfo:CommonInfo){
+        this.btnColor=Nav.btnColor
+        this.injector_=injector;
+        MainFooter.entry=injector;
         this.arrUrl=[{name:"masterconnect",link:"https://www.masterconnect.ca"},{name:"masterultils",link:this.masterultilsUrl},{name:"policy",link:"/policy"},{name:"privacy",link:"/termsOfService"},];
         this.noteAddUrl="https://chromewebstore.google.com/detail/note-adder/ipdhlngobmbmoaoheaiflbdmgjmeeoad?hl=en-US&utm_source=ext_sidebar";
         this._regSignin= new RegSignIn(this._modSelector,this._service,this._user);
@@ -64,17 +70,16 @@ class MainFooter{
 
     //-------GETTERS ------SETTERS------///
     get status(){
-        return this._status;
+        return this.auth.status;
     }
     set status(status:"authenticated" | "loading" | "unauthenticated"){
         this._status=status;
-        console.log("SET STATUS",status);
+       
     }
     //-------GETTERS ------SETTERS------///
 
-    main(item:{injector:HTMLElement,isAuthenticated:boolean}){
-        const {injector,isAuthenticated}=item;
-        const user=this._user.user;
+    main(item:{injector:HTMLElement,isAuthenticated:boolean,user:userType}){
+        const {injector,isAuthenticated,user}=item;
         this.status=isAuthenticated ? "authenticated" : "unauthenticated";
         const less900=window.innerWidth < 900;
         const less400= window.innerWidth < 400;
@@ -122,22 +127,25 @@ class MainFooter{
             }
             
             
-            this.addElement({col,str,isAuthenticated,less400,less900});
+            this.addElement({col,str,isAuthenticated,less400,less900,user});
             row.appendChild(col);
         });
       
         container.appendChild(row);
        
-    }
-    async addElement(item:{col:HTMLElement,str:string,isAuthenticated:boolean,less400:boolean,less900:boolean}){
-        const {col,str,isAuthenticated,less400,less900}=item;
+    };
+
+   
+
+    async addElement(item:{col:HTMLElement,str:string,isAuthenticated:boolean,less400:boolean,less900:boolean,user:userType}){
+        const {col,str,isAuthenticated,less400,less900,user}=item;
         const size:{width:string,height:string}= window.innerWidth <1000 ? {width:"60px",height:"60px"} : {width:"80px",height:"80px"};
         const container=document.createElement("div");
         container.id="addElement";
         container.style.cssText="margin:0px;padding:0px;position:relative;width:100%;height:100%;";
         switch(true){
             case str==="col-md-4 left-side":
-            this.leftSide({col:container,size,isAuthenticated}).then(async(res)=>{
+            this.leftSide({col:container,size}).then(async(res)=>{
                 if(res){
                     // DESCRIPTION
                     this.description(res.container);
@@ -146,7 +154,7 @@ class MainFooter{
             col.appendChild(container);
             return;
             case str==="col-md-5 center":
-             this.centerSide({col:container,isAuthenticated,less400,less900});
+             this.centerSide({col:container,isAuthenticated,less400,less900,user});
             col.appendChild(container);
             return;
             case str==="col-md-3 right-side":
@@ -154,9 +162,11 @@ class MainFooter{
             col.appendChild(container);
             return;
         }
-    }
-    leftSide(item:{col:HTMLElement,size:{width:string,height:string},isAuthenticated:boolean}):Promise<{container:HTMLElement}>{
-        const {col,size,isAuthenticated}=item;
+    };
+
+
+    leftSide(item:{col:HTMLElement,size:{width:string,height:string}}):Promise<{container:HTMLElement}>{
+        const {col,size,}=item;
         const {width,height}=size;
         this.scrollToTop({parent:col});
         const container=document.createElement("div");
@@ -205,20 +215,22 @@ class MainFooter{
                 this.allMsgs.advertise({col});
             }
         };
-        return new Promise(resolve=>{
-            resolve({container});
-        }) as Promise<{container:HTMLElement}>;
-    }
-    centerSide(item:{col:HTMLElement,isAuthenticated:boolean,less400:boolean,less900:boolean}){
-        const {col,isAuthenticated,less400,less900}=item;
+        return Promise.resolve({container}) as Promise<{container:HTMLElement}>;
+    };
+
+
+    centerSide(item:{col:HTMLElement,isAuthenticated:boolean,less400:boolean,less900:boolean,user:userType}){
+        const {col,isAuthenticated,less400,less900,user}=item;
         const container=document.createElement("div");
         container.style.cssText="margin:0px;padding:0px;position:relative;width:100%;min-height:10vh;height:100%;display:flex;flex-direction:column;justify-content:center;align-items:center";
         container.id="center";
-        this.centerBtns({parent:container,isAuthenticated});//BUTTONS
-        this.centerSideContent({parent:container,isAuthenticated,less400,less900});
+        this.centerBtns({parent:container,isAuthenticated,user});//BUTTONS
+        this.centerSideContent({parent:container,less400});
         this.copyRight({parent:container,less400,less900});
         col.appendChild(container);
-    }
+    };
+
+
     rightSide(item:{col:HTMLElement,isAuthenticated:boolean}){
         const {col,isAuthenticated}=item;
         const less900=window.innerWidth < 900;
@@ -239,12 +251,14 @@ class MainFooter{
         this.privacy({parent:container,isAuthenticated})
         col.appendChild(container);
        
-    }
+    };
+
+
     privacy(item:{parent:HTMLElement,isAuthenticated:boolean}){
-        const {parent,isAuthenticated}=item;
+        const {parent}=item;
         parent.style.position="relative";
         parent.style.zIndex="3";
-        const trans=window.innerWidth <600 ? "translate(10px,-5px)":"translate(0px,-5px)";
+       
         const flexDir=window.innerWidth <600 ? "flex-direction:row" :"flex-direction:column;"
         const overflow=window.innerWidth <600 ? "overflow-x:scroll":"overflow-y:scroll"
         const width=window.innerWidth < 900 ? (window.innerWidth <500 ? "270px" :"290px;") :"300px";
@@ -361,19 +375,22 @@ class MainFooter{
                 },480);
             }
         }
-    }
+    };
+
+
     removeSlash(item:{url:string}):string{
         const {url}=item;
         let retStr=url;
-        const template="https://main.d2qer3lk2obzqm.amplifyapp.com/";
-        const match:{name:string,reg:RegExp}={name:"https://main",reg:/(https\:\/\/main\.)/};
+        const match:{name:string,reg:RegExp}={name:"https://main",reg:/(https:\/\/main\.)/};
         if(match.reg.test(url)){
            const lts=url.split("");
            const len=lts.length;
            retStr=lts.slice(0,len-1).join("");
         }
         return retStr;
-    }
+    };
+
+
     //LEFT SIDE
     description(row:HTMLElement){
         const column=document.createElement("div");
@@ -413,7 +430,9 @@ class MainFooter{
         column.append(email);
         column.append(phone);
         row.appendChild(column); 
-    }
+    };
+
+
     //CENTER
     copyRight({parent,less400,less900}:{parent:HTMLElement,less400:boolean,less900:boolean}){
         const container=document.createElement("div");
@@ -428,36 +447,37 @@ class MainFooter{
         parent.appendChild(container);
         Misc.matchMedia({parent:container,maxWidth:500,cssStyle:{"top":"95%"}});
         Misc.matchMedia({parent:container,maxWidth:900,cssStyle:{"top":"98%"}});
-    }
-    async centerBtns(item:{parent:HTMLElement,isAuthenticated:boolean}){
-        const {parent,isAuthenticated}=item;
+    };
+
+
+    async centerBtns(item:{parent:HTMLElement,isAuthenticated:boolean,user:userType}){
+        const {parent,isAuthenticated,user}=item;
         const container=document.createElement("div");
         container.id="footer-centerBtns-container";
         const css_row="display:flex;justify-content:center;align-items:center;width:100%;margin-inline:auto;";
         container.style.cssText=css_row;
         container.style.maxHeight=window.innerWidth <900 ? "8vh":"6vh";
-        this.centerBtnsRow({container,isAuthenticated});
+        this.centerBtnsRow({container,isAuthenticated,user});
         parent.appendChild(container);
-    }
-    centerBtnsRow(item:{container:HTMLElement,isAuthenticated:boolean}){
+    };
+
+
+    centerBtnsRow(item:{container:HTMLElement,isAuthenticated:boolean,user:userType}){
         //!!! NOTE:THIS GETS TOGGLED TO LOGOUT FROM auth.getUser() AND A DUPLICATE FUNCTION IS ATTACHED TO NAVARROW.CENTERBTNSROW() FOR LOGOUT
-        const {container,isAuthenticated}=item;
-        const getHeader=document.querySelector("header#navHeader") as HTMLElement;
+        const {container,isAuthenticated,user}=item;
         Header.cleanUpByID(container,"footer-centerBtns-row")
         const row=document.createElement("div");
         row.id="footer-centerBtns-row";
         row.style.cssText="display:flex; justify-content:space-around;align-items:center;margin:auto;width:100%;";
         const arr=["contact","signup","quote generator"];
-        console.log("isAuthenticated",isAuthenticated);
         arr.forEach(async(item)=>{
             if(item==="contact"){
                 const cssStyle={backgroundColor:"#34282C",color:"white",borderRadius:"20px",padding:"5px"}
                 const btn=Misc.btnIcon({anchor:row,icon:FaMobileScreen,msgHover:"contact info",label:"contact us",cssStyle,time:400});
-                // if(!getHeader) return
                 btn.addEventListener("click",(e:MouseEvent)=>{
                     if(e){
                            window.scroll(0,0);
-                           this._navArrow.contact(getHeader)
+                           this.commonInfo.contact({user,isAuthenticated})
                         }
                 });
             }else if(item==="signup"){
@@ -470,17 +490,12 @@ class MainFooter{
                             if(e){
 
                                    window.scroll(0,0);
-                                   this._navArrow.logout({func:()=>undefined,redirect:true}).then(()=>{
-                                    // const getRedue=document.querySelector("div#footer-centerBtns-container") as HTMLElement;
-                                    // this._navArrow.signInDisplay(getHeader,null).then(async(res_)=>{
-                                    //     if(res_){
+                                   this.auth.logout({
+                                    func:()=>{this.centerBtnsRow({container,isAuthenticated,user})},
+                                    redirect:true
 
-                                    //         this.status="unauthenticated";
-                                    //         this.centerBtnsParent=getRedue;
-                                    //         this.status="unauthenticated";
-                                    //         this.centerBtnsRow({container:getRedue,isAuthenticated});
-                                    //     }
-                                    // });
+                                   }).then(()=>{
+                                    
                                    });
                                 }
                         });
@@ -508,12 +523,13 @@ class MainFooter{
             }
         });
         container.appendChild(row);
-    }
-    centerSideContent(item:{parent:HTMLElement,isAuthenticated:boolean,less900:boolean,less400:boolean}){
-        const {parent,isAuthenticated,less900,less400}=item;
+    };
+
+
+    centerSideContent(item:{parent:HTMLElement,less400:boolean}){
+        const {parent,less400}=item;
        
         const container=document.createElement("div");
-        const css_btn="margin:auto;display:grid;place-items:center;gap:0.5rem;flex-direction:column;cursor:pointer;box-shadow:1px 1px 7px 1px #0CAFFF,-1px -1px 7px 1px #0CAFFF;border-radius:23px;background-color:#0C090A;color:white;";
         container.id="centerSideContent";
         container.style.cssText="margin-inline:auto;margin-block:0.5rem;width:100%;min-height:inherit;border-top:1px solid white;border-bottom:1px solid white;padding-block:0.25rem;display:flex;justify-content:space-around;align-items:center;";
         container.style.paddingInline=less400 ? "1rem":"2rem";
@@ -522,7 +538,7 @@ class MainFooter{
         btn.addEventListener("click",(e:MouseEvent)=>{
             if(e){
                 window.scroll(0,0);
-                this._navArrow.generalInfo(MainHeader.header as HTMLElement);
+                this.commonInfo.generalInfo(MainHeader.header as HTMLElement);
             }
         });
         const cssStyle_1={backgroundColor:"#34282C",color:"white",borderRadius:"20px",padding:"3px",fontSize:"20px",boxShadow:"1px 1px 12px 1px blue"};
@@ -535,9 +551,11 @@ class MainFooter{
         };
         // Misc.btnHover({parent:div,bg:"white",color:"black",bRadius1:"10px",bRadius2:"23px",time:700})
         parent.appendChild(container);
-    }
+    };
+
+
     rightSideContent(item:{innerContainer:HTMLElement,isAuthenticated:boolean}){
-        const {innerContainer,isAuthenticated}=item;
+        const {innerContainer}=item;
         const container=document.createElement("div");
         container.id="rightSideContent";
         container.style.cssText="display:flex;height:inherit;overflow-y:scroll;align-items:center;width:100%;justify-content:flex-start;flex-direction:column;";
@@ -546,10 +564,9 @@ class MainFooter{
         text.textContent="items";
         text.className="text-center text-primary text-decoration-underline text-underline-offset-3 mb-3 ms-auto";
         text.style.cssText="margin-inline:auto;"
-        // container.appendChild(text);
-        const {button}=Misc.simpleButton({anchor:container,text:"data-flow",bg:"rgba(10, 35, 81,0.5)",color:"white",type:"button",time:400});
-        // const cssStyle={width:"100%",height:"130%",backgroundColor:"black",color:"white"}
-        // Misc.buttonMouseoverMsg({btn:button,cssStyle:cssStyle,msg:"Editor explained",time:600});
+        
+        const {button}=Misc.simpleButton({anchor:container,text:"data-flow",bg:this.btnColor,color:"white",type:"button",time:400});
+       
         button.onclick=(e:MouseEvent)=>{
             if(e){
                 if(!MainHeader.header) return;
@@ -558,8 +575,8 @@ class MainFooter{
                 
             }
         };
-        const {button:btnStorage}=Misc.simpleButton({anchor:container,text:"storage message",bg:Nav.btnColor,color:"white",type:"button",time:600});
-        // Misc.buttonMouseoverMsg({btn:btnStorage,cssStyle:cssStyle,msg:"storage explained",time:600});
+        const {button:btnStorage}=Misc.simpleButton({anchor:container,text:"storage message",bg:this.btnColor,color:"white",type:"button",time:600});
+        
         btnStorage.onclick=(e:MouseEvent)=>{
             if(e){
                 const header=document.querySelector("header#navHeader") as HTMLElement;
@@ -567,7 +584,7 @@ class MainFooter{
                 this.dataflow.storageMessage(header);
             }
         };
-        const {button:btnFeature}=Misc.simpleButton({anchor:container,text:"features",bg:Nav.btnColor,color:"white",type:"button",time:600});
+        const {button:btnFeature}=Misc.simpleButton({anchor:container,text:"features",bg:this.btnColor,color:"white",type:"button",time:600});
         btnFeature.onclick=(e:MouseEvent)=>{
             if(e){
                 const body=document.body;
@@ -577,13 +594,16 @@ class MainFooter{
         innerContainer.appendChild(container);
         Misc.matchMedia({parent:container,maxWidth:900,cssStyle:{paddingInline:"1rem",overflowX:"scroll",overflowY:"hidden",alignItems:"center",flexDirection:"row",flexWrap:"wrap",justifyContent:"space-around",paddingBottom:"1.5rem"}});
         Misc.matchMedia({parent:container,maxWidth:400,cssStyle:{paddingInline:"0.5rem",overflowY:"scroll",alignItems:"center",flexDirection:"column",gap:"0.5rem",overflowX:"hidden"}});
-    }
+    };
+
+
 
     bio(){
        
         const parent=document.querySelector("header#navHeader") as HTMLElement;
         if(parent){
-            
+            const less900=window.innerWidth < 900;
+            const less400=window.innerWidth < 400;
             parent.style.position="relative";
             parent.style.zIndex="";
             const container=document.createElement("div");
@@ -592,9 +612,9 @@ class MainFooter{
             Misc.matchMedia({parent:container,maxWidth:900,cssStyle:{"top":"120%","left":"13%","right":"13%","width":"100%"}});
             Misc.matchMedia({parent:container,maxWidth:800,cssStyle:{"top":"120%","left":"9%","right":"9%"}});
             Misc.matchMedia({parent:container,maxWidth:420,cssStyle:{"top":"120%","left":"0%","right":"0%"}});
-            container.style.top=window.innerWidth <900 ? (window.innerWidth <400 ? "160%" :"160%") :"160%";
-            container.style.left=window.innerWidth <900 ? (window.innerWidth <400 ? "0%" :"16%") :"34%";
-            container.style.right=window.innerWidth <900 ? (window.innerWidth <400 ? "0%" :"16%") :"34%";
+            container.style.top="160%";
+            container.style.left=less900 ? less400 ? "0%" :"16%" :"34%";
+            container.style.right=less900 ? less400 ? "0%" :"16%" :"34%";
             const card=document.createElement("div");
             card.className="card";
             card.style.cssText="width:100%;border-radius:inherit;";
@@ -633,8 +653,9 @@ class MainFooter{
                 }
             });
         }
-    }
+    };
 
+    
   
     static cleanUp(parent:HTMLElement){
         if(typeof window !=="undefined" ){
@@ -656,7 +677,7 @@ class MainFooter{
                 this.storageMsg({parent,msgCont,show:false,closeInfoMsg});
             }
         },{threshold:0.5});
-        if(parent && !closeInfoMsg && url.pathname==="/" && !(user && user.id)){
+        if(parent && !closeInfoMsg && url.pathname==="/" && user.id!==""){
             setTimeout(()=>{
                 observer.observe(msgCont);
             },5000);
@@ -706,14 +727,9 @@ class MainFooter{
             }
         };
         parent.appendChild(popup);
-        const getPopup=parent.querySelector("div#popup-storageMsg") as HTMLElement;
-        // getPopup.style.transform=less900 ? (less700 ? (less400 ? "-120%":"-120%"):"-110%"):"-100%";
-        
-        
-        const height=less900 ? (less700 ? (less400 ? "-120%":"-115%"):"-110%"):"-100%";
-        // const height=popup.style.transform;
+    
         if(show && !closeInfoMsg){
-            popup.style.transform=height;
+            popup.style.transform="translateY(-100%)";//height, above was replaced because issues with variables included in animate()
             popup.animate([
                 {transform:"translateY(0%)",opacity:"0"},
                 {opacity:"1"},
@@ -721,7 +737,7 @@ class MainFooter{
         }else{
             popup.style.transform="translateY(100%)";
             popup.animate([
-                {transform:height,opacity:"1"},
+                {transform:"translateY(-100%)",opacity:"1"},
                 {transform:"translateY(0%)",opacity:"0"},
             ],{iterations:1,duration:800});
             setTimeout(()=>{
@@ -737,7 +753,7 @@ class MainFooter{
     scrollToTop(item:{parent:HTMLElement}){
         const {parent}=item;
         const less900= window.innerWidth < 900;
-        const less400= window.innerWidth < 400;
+       
         const css_col="display:flex;justify-content:center;align-items:center;flex-direction:column;";
         const css_row="display:flex;justify-content:center;align-items:center;";
         const name=FaFingerprint;
@@ -746,7 +762,7 @@ class MainFooter{
         container.style.cssText=css_col + "position:absolute;transform:translate(15px,15px);gap:8px;z-index:100";
         container.style.top="0%";
         container.style.left="0%";
-        container.style.transform=less900 ? (less400 ? "translate(0px,0px)":"translate(0px,0px)"): "translate(0px,-10px)";
+        container.style.transform=less900 ? "translate(0px,0px)": "translate(0px,-10px)";
         const text=document.createElement("p");
         text.textContent="TOP";
         text.className="text-center text-primary";
@@ -773,9 +789,7 @@ class MainFooter{
         }) as Promise<userType | undefined>;
     }
     asyncGetUser(){
-        return new Promise(resolver=>{
-            resolver(localStorage.getItem("user"));
-        });
+        return Promise.resolve(localStorage.getItem("user"));
     }
    
 }

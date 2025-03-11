@@ -1,4 +1,4 @@
-import { PrismaClient } from "@prisma/client";
+
 import { NextApiRequest, NextApiResponse } from "next";
 import { blogType } from "@/components/editor/Types";
 import { getErrorMessage } from "@/lib/errorBoundaries";
@@ -19,12 +19,11 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
                 const blog = await prisma.blog.update({
                     where: { id: getBlog.id },
                     data: {
-                        show: show_ === true ? false : true,
+                        show: !show_,
                     },
 
                 });
                 if (blog) {
-                    // console.log("show", blog.show, "before", show_);
                     res.status(200).json(blog);
                     return await prisma.$disconnect();
                 } else {
@@ -34,9 +33,8 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
             } catch (error) {
                 const msg = getErrorMessage(error);
                 res.status(400).json({ message: msg })
-            } finally {
-                return await prisma.$disconnect()
-            }
+                return await prisma.$disconnect();
+            };
         } else {
             res.status(400).json({ message: "no ID" });
             return await prisma.$disconnect();

@@ -14,7 +14,6 @@ import Header from "../editor/header";
 import { FaCrosshairs } from "react-icons/fa";
 import { FaCreate } from "../common/ReactIcons";
 import { IoArrowRedoSharp } from "react-icons/io5";
-import { img_keyType } from '../editor/Types';
 import { SiAnswer } from "react-icons/si";
 
 export type imageType2={
@@ -88,7 +87,7 @@ class Home{
     ////-----------------GETTERS//SETTERS------------------//
     //INJECTION !! STYLE FOR PARENT IS DONE VIA home.module.css
     async main(parent:HTMLElement){
-        const css_col="display:flex;flex-direction:column;align-items:center;gap:1.5rem;width:100%";
+        
         Header.cleanUp(parent);
         const show=true;
         await this.introTitleDisplay({parent,show,time:500}).then(async(container)=>{
@@ -102,7 +101,7 @@ class Home{
                         this.feature.feature(parent);//features
                     }
                 };
-                // this.editorAttributeDisplay(res.sectionOne);//SNAP-SCROLL IMAGES
+                
                 this.editorAttributeDisplay(container);//SNAP-SCROLL IMAGES
             }
             });
@@ -114,7 +113,7 @@ class Home{
                     {opacity:"1"}
                 ],{duration:1000,iterations:1,"easing":"ease-in-out"});
 
-            //    const  showImages=this.getImages.filter((im,index)=>(index<=cutOff)) as imageType2[];
+            
             Header.cleanUp(res.sectionOne);//clean up
                
                 //----------------------SHOW HOME SECTION-------------------------//
@@ -153,13 +152,13 @@ class Home{
                             ///-----------display Blogs-------////
                                 await this.listBlogs(res.showBlogs).then(async(_res)=>{
                                     //MAX 4 BLOGS SCROLLING
-                                if(_res && _res.blogs && _res.blogs.length>0){
+                                if(_res?.blogs && _res.blogs.length>0){
                                     _res.blogs.map(async(blog)=>{
                                         if(blog){
                                             this.blogCard({parent:_res.blogMsgCont,blog})
                                         }
                                     });
-                                    // this._blogs.showBlogs(_res.container,true,_res.blogs);
+                                    
                                     
                                 }
                             });
@@ -170,10 +169,10 @@ class Home{
         });
     
     };
+    
 
     async asyncMain(item:{parent:HTMLElement}): Promise<{showBlogs:HTMLElement,showPosts:HTMLElement,sectionOne:HTMLElement}|undefined>{
         const less900=window.innerWidth < 900;
-        const less600=window.innerWidth < 600;
         const less400=window.innerWidth < 400;
 
         window.scroll(0,0);
@@ -188,11 +187,6 @@ class Home{
         const showPosts=document.createElement("div");
         showPosts.id="asyncmain-showPosts";
         showPosts.style.cssText=css_col + "max-width:1000px;width:100%;";
-        
-        // const titleShowDisplay=document.createElement("div");
-        // titleShowDisplay.id="asyncmain-titleShowDisplay";
-        // titleShowDisplay.style.cssText=css_col ;
-        // titleShowDisplay.style.width=less900 ? "100%":"80%";
 
         const messageDisplay=document.createElement("div");
         messageDisplay.id="messageDisplay";
@@ -221,16 +215,16 @@ class Home{
         parent.appendChild(sectionOne);
         parent.appendChild(showBlogs);
         parent.appendChild(showPosts);
-        return new Promise(resolve=>{
-            resolve({showBlogs,sectionOne,showPosts})
-        }) as Promise<{showBlogs:HTMLElement,showPosts:HTMLElement,sectionOne:HTMLElement}>;
-    }
+        return Promise.resolve({showBlogs,sectionOne,showPosts}) as Promise<{showBlogs:HTMLElement,showPosts:HTMLElement,sectionOne:HTMLElement}>;
+    };
+
+
     sleep(item:{time:number}){
         const {time}=item;
         return new Promise((resolve)=>{
             setTimeout(resolve,time)
         });
-    }
+    };
 
   
     mainLinks(parent:HTMLElement){
@@ -251,10 +245,9 @@ class Home{
         outerContainer.appendChild(divBottom);
 
         MainHeader.links.map((link,index)=>{
-            if(!(link.name==="home")){
+            if(link.name !== "home"){
                 const anchor=document.createElement("a");
                 anchor.id=`mainLinks-container-link-${index}`;
-                // anchor.href="#";
                 anchor.textContent=link.name;
                 anchor.style.cssText="text-decoration:none; text-decoration:underline; text-underline-offset:0.5rem;color:black;position:relative;border-radius:2rem;padding-inline:2rem;padding-block:0.5rem;box-shadow:1px 1px 6px 1px black;cursor:pointer;background-color:#0C090A;color:white;";
                 anchor.style.fontSize="110%";
@@ -299,7 +292,7 @@ class Home{
         parent.appendChild(outerContainer);
         Misc.fadeIn({anchor:container,xpos:100,ypos:0,time:1200});
        
-    }
+    };
   
      editorAttributeDisplay(parent:HTMLElement){
         //DISPLAYS THE SCOLLING -SNAP-TO-CENTER-IMAGES
@@ -376,7 +369,8 @@ class Home{
         Misc.observe({arr:itemArr,root:null,cssStyleOn:cssStyleOn,cssStyleOff:cssStyleOff,time:2000});
        
         
-    }
+    };
+
     //LIST SCROLL
     normalCreateYourBlog(parent: HTMLElement){
         //THIS IS THE ROLLING DISPLAY ON THE SCREEN,roll=>"create your blog,,,,etc"
@@ -400,12 +394,13 @@ class Home{
             {transform:"translateX(100%)"},
             {transform:"translateX(-100%)"},
         ],{duration:20000,iterations:Infinity});
-    }
+    };
+
+
     async listBlogs(parent:HTMLElement): Promise<{blogs:blogType[] | undefined,blogMsgCont:HTMLElement}>{
         //MAXIMUM OF QTY=4 && RATING > 3
         const less900=window.innerWidth < 900;
         const less400=window.innerWidth < 400;
-        const less375=window.innerWidth < 375;
         parent.style.position="relative";
         const css_col="margin-inline:auto;display:flex;flex-direction:column;";
         const container=document.createElement("section");
@@ -438,18 +433,18 @@ class Home{
                 this._modSelector.blogs=blogs;
                  return {blogMsgCont:blogMsgCont,blogs:limitBlogs};
                 
-                    // return Blogs.noBlogs(container);
-                
-            }
+            };
+
         }) as Promise<{blogMsgCont:HTMLElement,blogs:blogType[] | undefined}>;
 
         
-    }
+    };
+
+
     blogPostTitle(item:{parent:HTMLElement,css_col:string,context:string}){
         const {parent,css_col,context}=item;
         const less900=window.innerWidth < 900;
         const less400=window.innerWidth < 400;
-        const less375=window.innerWidth < 375;
         const textCont=document.createElement("div");
         textCont.id="container-textCont";
         textCont.style.cssText=css_col + "gap:0.25rem;width:100%;margin-block:1rem;background-color:black;padding-block:0.5rem;border-radius:6px;";
@@ -474,7 +469,9 @@ class Home{
         textCont.appendChild(line1);
         textCont.appendChild(line2);
         parent.appendChild(textCont);
-    }
+    };
+
+
     async blogCard(item:{parent:HTMLElement,blog:blogType}){
         const {parent,blog}=item;
         const less900=window.innerWidth <900;
@@ -569,16 +566,14 @@ class Home{
         };
 
         //--------------CARD BOTTOM ---------------------//
-
-
         parent.appendChild(card);
-    }
+    };
+
+
     blogMsgs(item:{col:HTMLElement,blog:blogType}){
         const {col,blog}=item;
         const less900=window.innerWidth < 900;
         const less400=window.innerWidth < 400;
-        const less375=window.innerWidth < 375;
-        const url=new URL(window.location.href);
 
         const css_col="display:flex;flex-direction:column;align-items:center;justify-content:flex-start;gap:1rem;";
         const msgs=blog.messages ? blog.messages : [] as messageType[];
@@ -595,16 +590,18 @@ class Home{
                 if(msg){
                     
                     this.singleMsgTwo({col:col,contScroll:contScroll,msg,imgKey:blog.imgKey})
-                }
+                };
             });
-        }
-    }
+        };
+    };
+
+
     singleMsgTwo(item:{col:HTMLElement,contScroll:HTMLElement,msg:messageType,imgKey:string|undefined}){
         const {col,contScroll,msg,imgKey}=item;
-        const less900=window.innerWidth <900 ? true:false;
-        const less600=window.innerWidth <600 ? true:false;
-        const less400=window.innerWidth <400 ? true:false;
-        const less375=window.innerWidth <375 ? true:false;
+        const less900=window.innerWidth <900 ;
+        const less600=window.innerWidth <600 ;
+        const less400=window.innerWidth <400 ;
+
         const css_col="display:flex;flex-direction:column;align-items:center;justify-content:center;";
         const css_row="display:flex;flex-direction:row;align-items:center;justify-content:center;gap:1rem;flex-wrap:wrap;";
         Header.cleanUpByID(contScroll,`allMsgs-singleMsgTwo-msg-card-${msg.id}`);
@@ -632,25 +629,16 @@ class Home{
         card.appendChild(nameCont);
         //APPENDING ICONDIV && NAME
         //STARS AND RATING
-        const rating=document.createElement("p");
-        rating.id="contStar-rating";
-        rating.style.cssText="position:absolute;top:0%;margin-right:0.5rem;text-decoration:underline;text-underline-offset:0.25rem;width:40px;font-size:70%;";
-        rating.style.top=less900 ?(less600 ? "0%":"0%"):"10%"
-        rating.style.left=less900 ? (less600 ? (less400 ? "65%":"10%"):"10%"):"88%";
-        rating.style.fontSize=less900 ? (less600 ? (less400 ? "90&":"100%"):"100%"):"110%";
-        rating.style.transform=window.innerWidth <900 ? (window.innerWidth <400 ? "translate(-30px,0px)" : "translate(-40px,5px)") : "translate(20px,-5px)";
-       
-        rating.innerHTML=`<span style=color:red;font-size:80%;>R</span> : ${msg.rate}`;
-
         const contStar=document.createElement("span");
+        contStar.classList.add("show-rating");
+        contStar.setAttribute("data-rate",String(msg.rate))
         contStar.id="nameCont-contStar";
-        contStar.style.cssText=css_row;
-        contStar.appendChild(rating);
+        contStar.style.cssText=css_row + "position:relative;";
         //,boxShadow:"1px 1px 3px #07f9e2"
         const cssStyle={color:"yellow",padding:"1px",borderRadius:"50%"};
         const rowCssStyle={filter:"drop-shadow(0 0 0.25rem black)",backgroundColor:"#0c0326",borderRadius:"8px"};
-        Misc.starRating({parent:contStar,rating:msg.rate,cssStyle,rowCssStyle});
         //APPENDING rating and contStar
+        Misc.starRating({parent:contStar,rating:msg.rate,cssStyle,rowCssStyle});
         //APPENDING rating and contStar
         nameCont.appendChild(contStar);
         contScroll.appendChild(card);
@@ -660,15 +648,16 @@ class Home{
             }
         });
        
-    }
+    };
+
+
    async viewCard(item:{parent:HTMLElement,msg:messageType,imgKey:string|undefined}){
         const {parent,msg,imgKey}=item;
         parent.style.position="relative";
-        const url=new URL(window.location.href);
-        const less900=window.innerWidth <900 ? true:false;
-        const less600=window.innerWidth <600 ? true:false;
-        const less400=window.innerWidth <400 ? true:false;
-        const less375=window.innerWidth <375 ? true:false;
+        const less900=window.innerWidth <900 ;
+        const less600=window.innerWidth <600 ;
+        const less400=window.innerWidth <400 ;
+
         if(less900){
             window.scrollBy(0,-80)
         }else if(less400){
@@ -676,7 +665,7 @@ class Home{
         }
         const container=document.createElement("div");
         container.id="home-viewCard-container";
-        container.style.cssText ="max-width:800px;padding-inline:1rem;display:flex;flex-direction:column;place-items:center;position:absolute;border-radius:14px;box-shadow:1px 1px 10px 1px #022537,-1px -1px 10px 1px #0CAFFF;z-index:100;background-color:white;padding-block:1rem;";
+        container.style.cssText ="max-width:800px;padding-inline:1rem;display:flex;flex-direction:column;place-items:center;position:absolute;border-radius:14px;box-shadow:1px 1px 10px 1px #022537,-1px -1px 10px 1px #0CAFFF;z-index:100;background-color:white;padding-block:1rem;min-height:26vh;background-color:#e6f1f4;";
         container.style.inset=less900 ? (less400 ? "-83% 0% 70% 0%" : "-115% 5% 90% 5%") :"-110% 10% 95% 10%";
         parent.appendChild(container);
         const card=document.createElement("div");
@@ -737,13 +726,14 @@ class Home{
             }
         });
 
-    }
+    };
+
+
    async posts(item:{parent:HTMLElement}){
         const {parent}=item;
         parent.style.position="relative";
         const less900=window.innerWidth < 900;
         const less400=window.innerWidth < 400;
-        const less375=window.innerWidth < 375;
         const minLikes=3;
         const css_col="margin-inline:auto;display:flex;flex-direction:column;align-items:center;gap:0.75rem;";
         const css_row="margin-inline:auto;display:flex;flex-wrap:wrap;align-items:center;gap:0.5rem;";
@@ -784,7 +774,9 @@ class Home{
         });
 
 
-    }
+    };
+
+
     async postCard(item:{row:HTMLElement,post:postType,css_col:string,css_row:string,less900:boolean,less400:boolean}){
         const {row,post,css_col,css_row,less900,less400}=item;
         const imgWidth=75;
@@ -856,8 +848,10 @@ class Home{
             
             Misc.msgSourceImage({parent,msg:"thanks for comming!!",width:175,quality:75,time:3500,src:"gb_logo.png",cssStyle:{borderRadius:"20px",backgroundColor:"black",color:"white",boxShadow:"1px 1px 12px 1px rgb(8, 4, 249);",inset:"-760% 0% -1600% 0%",zIndex:"4000"}});
             console.log("533:signedOutFromEditor:isSignout",isSignout)
-        }
-    }
+        };
+    };
+
+
     //SIGNOUTFROMEDITOR NOT USED:=> MESSAGE IS EXECUTED FROM navArrow.logout()
     showMaskDetail(_item:{container:HTMLElement,item:arrItemType,index:number}){
         const {container,item,index}=_item;
@@ -941,7 +935,7 @@ class Home{
 
         Misc.growIn({anchor:popup,scale:0.2,opacity:0.2,time:500});
 
-    }
+    };
 
     introTitleDisplay(item:{parent:HTMLElement,show:boolean,time:number}):Promise<HTMLElement>{
         const {parent,show,time}=item;
@@ -972,10 +966,10 @@ class Home{
         this.subTitle({parent:container,text:" the best blog editor in canada",show:show,time:(time*1.62)*1.62*1.62,less900,less600,less400});
         //----------------subTitle-------------------------//
         parent.appendChild(container);
-        return new Promise((resolver=>{
-            resolver(container)
-        })) as Promise<HTMLElement>;
-    }
+        return Promise.resolve(container) as Promise<HTMLElement>;
+    };
+
+
     titleOneLine(item:{parent:HTMLElement,text:string,show:boolean,time:number,less900:boolean,less600:boolean,less400:boolean}):number{
         const {parent,show,time,text,less900,less600,less400}=item;
         const lineHeightratio=0.4;
@@ -1023,7 +1017,9 @@ class Home{
         }
         parent.appendChild(titleOneLineCont);//append
         return calcHeight;
-    }
+    };
+
+
     titleTwoOnLine(item:{parent:HTMLElement,text:string,less900:boolean,less600:boolean,less400:boolean,show:boolean,time:number}){
         const {parent,show,time,text,less900,less600,less400}=item;
         const timeDiff=time + 1000;
@@ -1043,7 +1039,9 @@ class Home{
             ],{duration:timeDiff,iterations:1,"easing":"ease-in-out"});
         }
         parent.appendChild(titleTwo);
-    }
+    };
+
+
     titleThreeOnLine(item:{parent:HTMLElement,text:string,less900:boolean,less600:boolean,less400:boolean,show:boolean,time:number}){
         const {parent,time,text,less900,less600,less400,show}=item;
         const timeDiff=time + 1000;
@@ -1081,7 +1079,9 @@ class Home{
             ],{duration:timeDiff,iterations:1,"easing":"ease-in-out"});
         }
         parent.appendChild(underline);
-    }
+    };
+
+
     subTitle(item:{parent:HTMLElement,text:string,less900:boolean,less600:boolean,less400:boolean,show:boolean,time:number}){
         const {parent,show,time,text,less900,less600,less400}=item;
         const timeDiff=time + 1000;
@@ -1121,13 +1121,15 @@ class Home{
                 this.intro.main(parent,url.origin);
             }
         });
-    }
+    };
   
   
     static cleanUp(parent:HTMLElement){
         while(parent.firstChild){
             parent.removeChild(parent.lastChild as ChildNode);
-        }
-    }
-}
+        };
+    };
+
+
+};
 export default Home;

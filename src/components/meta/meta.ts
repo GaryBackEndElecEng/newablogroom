@@ -1,10 +1,10 @@
 import type { Metadata,ResolvingMetadata,MetadataRoute } from 'next';
-import { awsImage, getAllBlogImages, getOnlyBlogImages, getUserImage, getUsersImage } from '@/lib/awsFunctions';
+import { awsImage, getAllBlogImages, getOnlyBlogImages} from '@/lib/awsFunctions';
 import { blogType, postType, userType } from '../editor/Types';
 import { getErrorMessage } from '@/lib/errorBoundaries';
-import prisma from "@/prisma/prismaclient";
-// import {PrismaClient} from "@prisma/client";
-// const prisma=new PrismaClient();
+import { HTTP_METHOD } from 'next/dist/server/web/http';
+
+
 
 export type Props = {
   params: {id:string },
@@ -35,16 +35,16 @@ class Meta{
       //BELOW PAGES HELPS REDIRECT THE PAGE TO THE ERROR_PAGE IF THE PAGE DOES NOT EXIST
         this.pages=[
           {page:'/az',redir:/\/[a-z]{1,3}\//,match:/\//},
-          {page:'/blog/',redir:/\/(blog)\/[0-9]+[a-z\/]+/,match:/\/(blog)\/[0-9]+/},
-          {page:'/post/',redir:/\/(post)\/[0-9]+[a-z\/]+/,match:/\/(post)\/[0-9]+/},
-          {page:'/blogs',redir:/\/(blogs)[a-zA-Z\/]+/,match:/\/(blogs)/},
-          {page:"/register",redir:/\/(register)[a-zA-Z\/]+/,match:/\/(register)/},
-          {page:"/editor",redir:/\/(editor)[a-zA-Z\/]+/,match:/\/(editor)/},
-          {page:"/policy",redir:/\/(policy)[a-zA-Z\/]+/,match:/\/(policy)/},
-          {page:"/termsOfService",redir:/\/(termsOfService)[a-zA-Z\/]+/,match:/\/(termsOfService)/},
-          {page:"/admin",redir:/\/(admin)[a-zA-Z\/]+/,match:/\/(admin)/},
-          {page:"/error_page",redir:/\/(error_page)[a-zA-Z\/]+/,match:/\/(error_page)/},
-          {page:"/posts",redir:/\/(posts)[a-zA-Z\/]+/,match:/\/(posts)/},
+          {page:'/blog/',redir:/\/(blog)\/\d{2,}\w+/,match:/\/(blog)\/\d+/},
+          {page:'/post/',redir:/\/(post)\/\d{2,}\w+/,match:/\/(post)\/\d+/},
+          {page:'/blogs',redir:/\/(blogs)\w+/,match:/\/(blogs)/},
+          {page:"/register",redir:/\/(register)\w+/,match:/\/(register)/},
+          {page:"/editor",redir:/\/(editor)\w+/,match:/\/(editor)/},
+          {page:"/policy",redir:/\/(policy)\w+/,match:/\/(policy)/},
+          {page:"/termsOfService",redir:/\/(termsOfService)\w+/,match:/\/(termsOfService)/},
+          {page:"/admin",redir:/\/(admin)\w+/,match:/\/(admin)/},
+          {page:"/error_page",redir:/\/(error_page)\w+/,match:/\/(error_page)/},
+          {page:"/posts",redir:/\/(posts)\w+/,match:/\/(posts)/},
 
         ]
         this.params=["blog_id","misc","intent"];
@@ -65,7 +65,8 @@ class Meta{
         }
       });
      
-  }
+  };
+
 
      metaBlogs():Metadata{
         const kwords=[ "comments and messages", "comments", "ask Us something", "helping you connect", " message board"];
@@ -111,7 +112,9 @@ class Meta{
           }
         }
         return metadata;
-    }
+    };
+
+
      metaPosts():Metadata{
         const kwords=[ "comments and messages", "posts", "Free Posts", "publisize your thoughts", "Happy Posts"];
         const metadata:Metadata ={
@@ -154,7 +157,9 @@ class Meta{
           }
         }
         return metadata;
-    }
+    };
+
+
      metaHome(item:{baseUrl:string}):Metadata{
       const {baseUrl}=item;
         return {
@@ -249,7 +254,8 @@ class Meta{
               ],
             },
           }
-    }
+    };
+
      metaBlog():Metadata{
         return {
             title: {
@@ -336,7 +342,8 @@ class Meta{
           
           
           }
-    }
+    };
+
      metaChart():Metadata{
       const kwords=[ "custom charts", "realtime climate change", "make your own graph", "helping you connect", "free Graph making"];
       const metadata:Metadata ={
@@ -379,7 +386,9 @@ class Meta{
         }
       }
       return metadata;
-    }
+    };
+
+
      metaEditor():Metadata{
       const kwords=[ "Best Blog Builder in Canada","customize your Blog", "Dynamic Blog/Website editor", "Free Web/Blog builder", "helping you connect through Blogging", "Best in Canada"];
       const metadata:Metadata ={
@@ -504,11 +513,11 @@ class Meta{
         if(res){
           const blog= await res.json() as blogType;
           const newBlog=blog ? await getOnlyBlogImages(blog as unknown as blogType): {} as blogType;
-          image=newBlog && newBlog.img ? newBlog.img :"/images/gb_logo.png"
-          name=newBlog && newBlog.name ? newBlog.name : "ablogroom";
-          title=newBlog && newBlog.title ? newBlog.title : "no Title";
-          desc=(newBlog && newBlog.desc) ? newBlog.desc : "no desc";
-          user_id=(newBlog && newBlog.user_id) ? newBlog.user_id as string: "";
+          image=newBlog?.img ? newBlog.img :"/images/gb_logo.png"
+          name=newBlog?.name ? newBlog.name : "ablogroom";
+          title=newBlog?.title ? newBlog.title : "no Title";
+          desc=(newBlog?.desc) ? newBlog.desc : "no desc";
+          user_id=(newBlog?.user_id) ? newBlog.user_id as string: "";
         }
         return {image,name,desc,user_id,title};
       });
@@ -517,15 +526,13 @@ class Meta{
     //--------------------------FOR PRISMA POSTS-----------------------------//
      
   
-    async retPostsMetadata(item: {parent: ResolvingMetadata}): Promise<Metadata> {
-      const { parent } = item;
+    async retPostsMetadata({ parent,posts }: {parent: ResolvingMetadata,posts:postType[]}): Promise<Metadata> {
+     
       const par= await parent ? await parent : undefined;
-      const url=par && par.metadataBase ? par.metadataBase.origin :"https://www.ablogroom.com";
+      const url=par?.metadataBase?.origin || "https://www.ablogroom.com";
       const initKeywords = ["The Blog Room, Free to use", "blogs for you", "web info", "free blog posts", " The World is Your Oyster", " Create Your Own Blog", "Gary's Blogs"];
-      const posts =await prisma.post.findMany({where:{published:true},select:{title:true,content:true,imageKey:true}}) as postType[];
-      await prisma.$disconnect();
       const images=(posts && posts.length>0) ? await Promise.all(posts.slice(0,2).map(async(post)=>({url:post.imageKey ? await awsImage(post.imageKey) : "/images/gb_logo.png"} ))) : [];
-      const keywords=(posts && posts.length>0) ? posts.map(post=>(post.title)) : [];
+      const keywords=(posts.length>0) ? posts.map(post=>(post.title)) : [];
       const initImgs: { url: string}[] = [
           {
               url: "/images/gb_logo.png"
@@ -563,8 +570,12 @@ class Meta{
     }
     //--------------------------FOR PRISMA POSTS-----------------------------//
     
-     async genSitemapArray(item:{baseUrl:string}):Promise<MetadataRoute.Sitemap>{
-      const {baseUrl}=item;
+     async genSitemapArray({baseUrl,blogIds,postIds}:{
+      baseUrl:string,
+      blogIds:{id:number}[],
+      postIds:{id:number}[]
+    }):Promise<MetadataRoute.Sitemap>{
+    
       let arr:MetadataRoute.Sitemap=[];
       const retBaseUrl=this.sitmapCheckUrl({url:baseUrl});
       // console.log(retBaseUrl)//works
@@ -581,40 +592,32 @@ class Meta{
           {url:`${retBaseUrl}/signin`,lastModified:new Date(),changeFrequency:'yearly',priority:1},
           {url:`${retBaseUrl}/chart`,lastModified:new Date(),changeFrequency:'monthly',priority:1},
         ];
-        const blogIds =await prisma.blog.findMany({
-          where:{show:true},
-          select:{id:true}
-        }) as {id:number}[];
-        const postIds =await prisma.post.findMany({
-          where:{published:true},
-          select:{id:true}
-        }) as {id:number}[];
-        await prisma.$disconnect();
-        if(blogIds && blogIds.length>0){
+    
+        if(blogIds?.length>0){
           blogIds.map(blog=>{
             arr.push({url:`${retBaseUrl}/blog/${blog.id}`,lastModified:new Date(),changeFrequency:'always',priority:1})
           });
         }
-        if(postIds && postIds.length>0){
+        if(postIds?.length>0){
           postIds.map(post=>{
             arr.push({url:`${retBaseUrl}/post/${post.id}`,lastModified:new Date(),changeFrequency:'always',priority:1})
           });
-        }
+        };
+        return arr;
        
       } catch (error) {
         const msg=getErrorMessage(error)
         console.log(msg);
-        
-      }finally{
-        return arr;
-      }
+        return [] as MetadataRoute.Sitemap
+      };
 
-    }
+    };
+
     
     sitmapCheckUrl(item:{url:string}){
       const {url}=item;
-      //https://main.d2qer3lk2obzqm.amplifyapp.com/
-      const reg:RegExp=/(https\:\/\/main\.)/;
+  
+      const reg:RegExp=/(https:\/\/main.)/;
       const len=url.length;
       if(reg.test(url)){
         return url.split("").slice(0,len-1).join("");
@@ -625,14 +628,11 @@ class Meta{
 
     //--------------------------------------PRISMA-FOR BLOGS--------------------------//
     
-    async generate_blogs_meta(item: { parent: ResolvingMetadata }): Promise<Metadata> {
-      const { parent } = item;
+    async generate_blogs_meta(item: { parent: ResolvingMetadata,blogs:blogType[],users:userType[] }): Promise<Metadata> {
+      const { parent,blogs,users } = item;
       const logo = "/images/gb_logo.png";
       const par = (await parent) ? (await parent) : undefined;
-      const url = par && par.metadataBase && par.metadataBase.origin ? par.metadataBase.origin : "https://www.ablogroom.com";
-      const blogs = await prisma.blog.findMany({ where: { show: true } }) as blogType[];
-      const users = await prisma.user.findMany({ where: { showinfo: true } }) as userType[];
-      await prisma.$disconnect();
+      const url = par?.metadataBase?.origin || "https://www.ablogroom.com";
       const titles: string[] = blogs.map(blog => (blog.title ? blog.title : "no title"));
       const authors = users.map(user => ({ name: user.name ? user.name : "blogger", url }));
       const imagesOnly = await Promise.all(blogs.map(async (blog) => (blog.imgKey ? await awsImage(blog.imgKey) : `${url}${logo}`)));
@@ -645,14 +645,15 @@ class Meta{
       });
       return await this.retBlogsMetadata({ keywords: titles, images, url, authors })
   };
+
   
-  async  retBlogsMetadata(item: { 
-    keywords: string[] | undefined,
-     images: { url: string, width: number, height: number }[] | undefined,
-     url: string | undefined,
-     authors: { name: string, url: string }[] | undefined
+  async  retBlogsMetadata({ keywords, images, url, authors }: { 
+      keywords: string[] | undefined,
+      images: { url: string, width: number, height: number }[] | undefined,
+      url: string | undefined,
+      authors: { name: string, url: string }[] | undefined
    }): Promise<Metadata> {
-      const { keywords, images, url, authors } = item;
+   
       const initKeywords = ["The Blog Room, Free to use", "blogs for you", "web info", "free blog posts", " The World is Your Oyster", " Create Your Own Blog", "Gary's Blogs"];
       const initImgs: { url: string, width: number, height: number }[] = [
           {
@@ -682,36 +683,31 @@ class Meta{
           openGraph: {
               title: "ablogroom",
               description: 'Generated by www.masterconnect.ca,tools for you',
-              url: url ? url : "www.ablogroom.com",
+              url: url ||"www.ablogroom.com",
               siteName: "ablogroom",
               images: images ? images.concat(initImgs) : initImgs,
           },
   
       }
-      return new Promise((resolve) => {
-          resolve(metaReturn)
-      }) as Promise<Metadata>;
-  }
+      return Promise.resolve(metaReturn) as Promise<Metadata>;
+  };
+
+
   //--------------------------------------PRISMA-FOR BLOGS--------------------------//
   //--------------------------------------PRISMA-FOR BLOG/ID--------------------------//
-  async genMetadata(item: { id: number, parent: ResolvingMetadata }): Promise<Metadata> {
-    const { id, parent } = item;
+  async genBlogMeta(item: { parent: ResolvingMetadata,blog:blogType|null,user:userType|null }): Promise<Metadata> {
+    const { parent,blog,user } = item;
     const par = (await parent);
-    const blog = await prisma.blog.findUnique({
-        where: { id }
-    }) as blogType;
-    const title = blog && blog.title ? blog.title as string : "Ablogroom blogs";
-    const keywds = blog && blog.desc ? this.genKeywords({ desc: blog.desc, title }) : [];
-    const url = (par && par.metadataBase && par.metadataBase.origin) ? par.metadataBase.origin : "www.ablogroom.com";
-    const user = blog ? await prisma.user.findUnique({
-        where: { id: blog.user_id }
-    }) : null;
-    const authors = user ? [{ name: user.name as string, url }] : undefined
-    await prisma.$disconnect();
-    return this.retMetadata({ title, keywords: keywds, images: undefined, url, authors });
+    const title = blog?.title as string || "Ablogroom blogs";
+    const keywds = blog?.desc ? this.genKeywords({ desc: blog.desc, title }) : [];
+    const url = par?.metadataBase?.origin || "www.ablogroom.com";
+   
+    const authors = [{ name: user?.name as string, url }] 
+    return this.retBlogMetadata({ title, keywords: keywds, images: undefined, url, authors });
 
-}
-  retMetadata(item: { title: string | undefined, keywords: string[] | undefined, images: { url: string, width: number, height: number }[] | undefined, url: string | undefined, authors: { name: string, url: string }[] | undefined }): Promise<Metadata> {
+};
+
+  retBlogMetadata(item: { title: string | undefined, keywords: string[] | undefined, images: { url: string, width: number, height: number }[] | undefined, url: string | undefined, authors: { name: string, url: string }[] | undefined }): Promise<Metadata> {
     const { title, keywords, images, url, authors } = item;
     const initKeywords = ["The Blog Room, Free to use", "blogs for you", "web info", "free blog posts", " The World is Your Oyster", " Create Your Own Blog", "Gary's Blogs"]
     const initImgs: { url: string, width: number, height: number }[] = [
@@ -730,8 +726,8 @@ class Meta{
 
     const metaReturn: Metadata = {
         title: {
-            default: title ? title : "ablogroom blog",
-            template: `%s | ${title ? title : "ablogroom blog"}`,
+            default: title || "ablogroom blog",
+            template: `%s | ${title || "ablogroom blog"}`,
 
         },
 
@@ -750,14 +746,12 @@ class Meta{
         openGraph: {
             title: "ablogroom",
             description: 'Generated by www.masterconnect.ca,tools for you',
-            url: url ? url : "www.ablogroom.com",
+            url: url || "www.ablogroom.com",
             siteName: "ablogroom",
             images: images ? images.concat(initImgs) : initImgs,
         },
     }
-    return new Promise((resolve) => {
-        resolve(metaReturn)
-    }) as Promise<Metadata>;
+    return Promise.resolve(metaReturn) as Promise<Metadata>;
 }
    genKeywords(item: { desc: string, title: string }):string[] {
     const { desc, title } = item;

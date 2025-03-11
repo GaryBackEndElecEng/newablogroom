@@ -3,7 +3,7 @@ import { gets3ImgKey } from '@/components/editor/Types';
 import { S3Client, GetObjectCommand } from "@aws-sdk/client-s3";
 import { getSignedUrl } from "@aws-sdk/s3-request-presigner";
 import { getErrorMessage } from "@/lib/errorBoundaries";
-import { PrismaClient } from "@prisma/client";
+
 import prisma from "@/prisma/prismaclient";
 
 
@@ -65,5 +65,5 @@ export async function countImage(item: { imgKey: string }) {
         }
         await prisma.$disconnect();
     }
-    return
+
 }

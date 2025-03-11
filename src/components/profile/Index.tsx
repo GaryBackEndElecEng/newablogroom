@@ -9,6 +9,14 @@ import MetaBlog from '../editor/metaBlog';
 import ChartJS from '../chart/chartJS';
 import Post from '../posts/post';
 import Headerflag from '../editor/headerflag';
+import Dataset from '../common/dataset';
+import HtmlElement from '../editor/htmlElement';
+import ShapeOutside from '../editor/shapeOutside';
+import Design from '../common/design';
+import Ven from '../common/venDiagram';
+import Reference from '../editor/reference';
+import PasteCode from '../common/pasteCode';
+import AuthService from '../common/auth';
 
 export default function Index({ user }: { user: userType | null }) {
   const countRef = React.useRef(0);
@@ -16,17 +24,30 @@ export default function Index({ user }: { user: userType | null }) {
   React.useEffect(() => {
     if (typeof window !== "undefined" && countRef.current === 0 && profileRef.current && user) {
       const profileMainInjector = document.querySelector("div#profileMainIndex") as HTMLElement;
-      const modSelector = new ModSelector();
+      const dataset = new Dataset();
+      const modSelector = new ModSelector(dataset);
       const service = new Service(modSelector);
-      const _user = new User(modSelector, service);
-      const metablog = new MetaBlog(modSelector, service, _user);
-      const chart = new ChartJS(modSelector, service, _user);
-      const post = new Post(modSelector, service, _user);
-      const headerFlag = new Headerflag(modSelector, service, _user);
-      const profile = new ProfileMain(modSelector, service, _user, user, metablog, chart, post, headerFlag);
-      profile.main({ parent: profileMainInjector }).then(() => {
-        countRef.current++;
-        profile.cleanUpKeepOne(profileMainInjector, "section#main-outerMain")
+      const auth = new AuthService(modSelector, service)
+      auth.getUser({ user, count: countRef.current }).then(async (res) => {
+        if (res?.user) {
+          const _user = new User(modSelector, service, auth);
+          _user.user = res.user
+          const shapeOutside = new ShapeOutside(modSelector, service, _user);
+          const design = new Design(modSelector);
+          const ven = new Ven(modSelector);
+          const reference = new Reference(modSelector);
+          const headerFlag = new Headerflag(modSelector, service, _user);
+          const pasteCode = new PasteCode(modSelector, service);
+          const metablog = new MetaBlog(modSelector, service, _user);
+          const htmlElement = new HtmlElement(modSelector, service, _user, shapeOutside, design, ven, reference, headerFlag, pasteCode)
+          const chart = new ChartJS(modSelector, service, _user);
+          const post = new Post(modSelector, service, auth, _user);
+          const profile = new ProfileMain(modSelector, service, _user, metablog, chart, post, htmlElement);
+          await profile.main({ parent: profileMainInjector, user: res.user }).then(() => {
+            countRef.current++;
+            profile.cleanUpKeepOne(profileMainInjector, "section#main-outerMain")
+          });
+        }
       });
     }
 

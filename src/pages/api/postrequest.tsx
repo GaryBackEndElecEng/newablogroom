@@ -21,48 +21,44 @@ const handler = async (req: NextApiRequest, res: NextApiResponse) => {
                     id: post.userId
                 }
             });
-            if (user) {
+            if (user && post) {
                 let uri: string | null = null;
-                if (post && post.sendReqKey) {
+                if ((post?.sendReqKey || post?.sendMsg)) {
                     uri = `${freepicurl}/${post.sendReqKey}`;
-                }
 
-                if (post && user && (post.sendReqKey || post.sendMsg)) {
                     await transporter.sendMail({
-                        ...sendOptions(user.email, clientEmail as string),
+                        ...sendOptions({ toEmail: user.email, viewerEmail: clientEmail as string }),
                         subject: `Thank you ${clientName} for the Request!`,
                         text: await sendReqAnswerText({ clientName, clientEmail, uri: uri, msg: post.sendMsg, post: post as postType, user: user as unknown as userType }),
                         html: await sendReqAnswerHTML({ clientName, clientEmail, uri: uri, msg: post.sendMsg, post: post as postType, user: user as unknown as userType })
                     });
 
-                }
+                };
                 //CONFIRM SENT
-                if (post) {
-                    await prisma.post.update({
-                        where: { id: post.id },
-                        data: {
-                            likes: post.likes ? post.likes + 1 : 1
-                        }
-                    });
-                }
-                await prisma.$disconnect();
+                await prisma.post.update({
+                    where: { id: post.id },
+                    data: {
+                        likes: post.likes ? post.likes + 1 : 1
+                    }
+                });
                 //CONFIRM SENT
-                return res.status(200).json({ msg: "sent" });
+                res.status(200).json({ msg: "sent" });
+                return await prisma.$disconnect();
             } else {
-                await prisma.$disconnect();
-                return res.status(400).json({ msg: "no user" });
+                res.status(400).json({ msg: "no user" });
+                return await prisma.$disconnect();
             }
 
         } catch (error) {
             console.log(error)
             const msg = getErrorMessage(error);
-            res.status(400).json({ msg: msg })
+            res.status(500).json({ msg: msg })
             return await prisma.$disconnect();
-        } finally {
-            await prisma.$disconnect();
-        }
+        };
+    } else {
+        res.status(400).json({ message: "Bad request" });
+
     }
-    res.status(400).json({ message: "Bad request" });
     return await prisma.$disconnect();
 }
 export default handler;

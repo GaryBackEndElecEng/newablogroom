@@ -1,64 +1,69 @@
-import {blogType,selectorType,elementType,element_selType,codeType, flexType, userType,  colType, chartType, rowType} from "@/components/editor/Types";
+import {blogType,selectorType,elementType,element_selType,codeType, userType,  colType, chartType, rowType, arrDivPlaceType} from "@/components/editor/Types";
 import Blogs from "@/components/blogs/blogsInjection";
-import {modAddEffect} from "@/components/editor/modSelector";
-import ModSelector from "@/components/editor/modSelector";
+import ModSelector,{modAddEffect} from "@/components/editor/modSelector";
 import User from "@/components/user/userMain"
 import Misc, {  mediaQueryType} from "../common/misc";
-import Edit from "../editor/edit";
 import Service from "@/components/common/services";
-import { AWSImageLoader, btnReturnType, buttonReturn, imageLoader, smallbtnReturn } from '../common/tsFunctions';
+import { btnReturnType, buttonReturn, imageLoader, smallbtnReturn } from '../common/tsFunctions';
 import Main from "../editor/main";
 import Message from "@/components/common/message";
-import { FaPython, FaHtml5} from "react-icons/fa";
-import {FaCreate} from "@/components/common/ReactIcons";
 import ShapeOutside from "../editor/shapeOutside";
 import Header from "../editor/header";
 import Reference from "../editor/reference";
-import NewCode, { regJavaType } from "../editor/newCode";
-import { RiJavascriptFill } from "react-icons/ri";
-import { TbJson } from "react-icons/tb";
+
+
 import ChartJS from "../chart/chartJS";
-import CodeElement from "../common/codeElement";
 import HtmlElement from "../editor/htmlElement";
 import PasteCode from "../common/pasteCode";
-import Htmlpdf from "../common/htmltwocanvas";
-import Headerflag from "../editor/headerflag";
+import { idEnumType, idValueType, selRowColType, typeEnumType, } from "@/lib/attributeTypes";
+import Dataset from '../common/dataset';
+import { attrEnumArrTest, typeEnumArrTest } from "../common/lists";
+import { Chart } from "chart.js";
+import { barOptionType, lineOptionType } from "../common/chartTypes";
 
-const baseUrl="http://localhost:3000";
-// const baseUrl=process.env.BASE_URL as string;
 
 
 class DisplayBlog{
-    count:number;
-    baseUrl:URL;
-    url:string;
-    signin:string;
-    imgLoad:string;
-    logo:string;
-    logo2:string;
+    public count:number;
+    public baseUrl:URL;
+    public url:string;
+    public signin:string;
+    public imgLoad:string;
+    public logo:string;
+    public logo2:string;
+    public phone:string;
+    public mail:string;
+    public link:string;
+    public mainSection:HTMLElement|null;
+    private _blog:blogType;
+    private _codes:codeType[];
+    private _charts:chartType[];
+    private _selector:selectorType;
+    private _selectors:selectorType[];
+    private _elements:elementType[];
+    private _element:elementType;
+    private _element_sel:element_selType;
+    private _element_sels:element_selType[];
+    private _bgColor:string="#41393C";
+    private _pasteCode:PasteCode;
+    public btnColor:string;
+    // _edit:Edit;
+    private reference:Reference;
+    _onlyMeta:boolean=false;
+    _showOn:boolean;
+    _showMeta=false;
+    public printThis:boolean;
+    private _arrDivPlaces:arrDivPlaceType[]
+    public static noBlogText:string;
 
-
-mainSection:HTMLElement|null;
-_blog:blogType;
-_codes:codeType[];
-_charts:chartType[];
-_selector:selectorType;
-_selectors:selectorType[];
-_elements:elementType[];
-_element:elementType;
-_element_sel:element_selType;
-_element_sels:element_selType[];
-_bgColor:string="#41393C";
-btnColor:string;
-// _edit:Edit;
-reference:Reference;
-_onlyMeta:boolean=false;
- static _showOn:boolean;
- _showMeta=false;
- printThis:boolean;
- _pasteCode:PasteCode;
- static noBlogText:string;
-    constructor(private _modSelector:ModSelector,private _service:Service,private _user:User,private _shapeOutside:ShapeOutside,private _code:NewCode,private chart:ChartJS,private _message:Message,private codeElement:CodeElement, private headerFlag:Headerflag){
+    private _modSelector:ModSelector;
+    constructor(modSelector:ModSelector,private _service:Service,private _user:User,blog:blogType|null,private chart:ChartJS,private _message:Message,private htmlElement:HtmlElement){
+        this._modSelector=modSelector
+        // console.log("Display",blog)
+        this.mail="/images/mail.png";
+        this.phone="/images/phone.png";
+        this.link="/images/link.png";
+        this._arrDivPlaces=[];
         this.count=0;
         this.mainSection=document.querySelector("section#main");
         this.printThis=false;
@@ -70,13 +75,13 @@ _onlyMeta:boolean=false;
         this.url="/api/blog";
         this.signin="/api/user";
         this.imgLoad="/api/imgload";
-        DisplayBlog._showOn=true;
-        this._blog={} as blogType;
-        this._codes=[] as codeType[];
-        this._charts=[] as chartType[];
+        this._showOn=true;
+        this._blog=blog || {} as blogType;
+        this._codes=blog?.codes || [] as codeType[];
+        this._charts=blog?.charts || [] as chartType[];
         this._selector={} as selectorType;
-        this._selectors=[] as selectorType[];
-        this._elements=[] as elementType[];
+        this._selectors=blog?.selectors || [] as selectorType[];
+        this._elements=blog?.elements || [] as elementType[];
         this._element={} as elementType;
         this._element_sel={} as element_selType;
         this._element_sels=[] as element_selType[];
@@ -95,64 +100,26 @@ _onlyMeta:boolean=false;
        <prev> yours truly Gary Wallace</prev>`;
       this._pasteCode=new PasteCode(this._modSelector,this._service);
       
-    }
+    };
     //GETTERS SETTERS
     
     get blog(){
         return this._blog;
-    }
+    };
     set blog(blog:blogType){
         this._blog=blog;
-        this._modSelector._blog=blog;
-       
+
     }
-    set selector(selector:selectorType){
-        this._selector=selector;
-    }
-    get selector(){
-        return this._selector;
-    }
-    set selectors(selectors:selectorType[]){
-        this._selectors=selectors;
-    }
-    get selectors(){
-        return this._selectors;
-    }
-    get elements(){
-        return this._elements;
-    }
-    set elements(elements:elementType[]){
-        this._elements=elements;
-    }
-    set codes(codes:codeType[]){
-        this._codes=codes;
-    }
-    get codes(){
-        return this._codes;
-    }
-    set charts(charts:chartType[]){
-        this._charts=charts;
-    }
-    get charts(){
-        return this._charts;
-    }
+   
      //GETTERS SETTERS
-     //DATA PARSERS
-     parseSelectors(blog:blogType){
-        this._selectors=blog.selectors;
-     }
-     parseElements(blog:blogType){
-        this._elements=blog.elements;
-     }
-     parseCodes(blog:blogType){
-        this._codes=blog.codes;
-     }
-     //DATA PARSERS
+     
 
      //MAIN INJECTION DONE @ Index.tsx//id=client_blog
     async main(item:{parent:HTMLElement,blog:blogType|null,user:userType|null}){
         const {parent,blog,user}=item;
-        if(blog && user){
+        const idValues=this._modSelector.dataset.idValues
+        this._arrDivPlaces=[];
+        if(blog ){
             const less400=window.innerWidth < 420;
             const less900=window.innerWidth < 900;
             const paddingInline=less900 ? (less400 ? "0rem" : "2px") :"1rem";
@@ -161,7 +128,7 @@ _onlyMeta:boolean=false;
             outerContainer.id="display-main";
             outerContainer.style.cssText="margin-inline:auto;margin-block:1rem;padding-block:auto;width:100%;position:relative;min-height:110vh;";
             outerContainer.style.paddingInline=paddingInline;
-            outerContainer.style.paddingBlock=less900 ? (less400 ? "0rem" : "0rem") :"2rem";
+            outerContainer.style.paddingBlock=less900 ? "0%" :"2rem";
             outerContainer.style.opacity="0";
             outerContainer.style.paddingBlock=less400 ? "0rem":"2rem";
             outerContainer.style.paddingBottom=less400 ? "2rem":"";
@@ -254,11 +221,11 @@ _onlyMeta:boolean=false;
                 },800);
                 
                 //SHOWS PAGE
-                await this.saveFinalWork({innerContainer:container,blog}).then(async(res)=>{
+                await this.saveFinalWork({innerContainer:container,blog,idValues,arrDivPlaces:this._arrDivPlaces}).then(async(res)=>{
                     if(res){
 
                         this.getUserInfo({htmlUserInfo:outerContainer,user:user}).then(async(_res)=>{
-                            if(_res && _res.outerContainer){
+                            if(_res?.outerContainer){
     
                                 //BTN CONTAINER
                                 outerContainer.appendChild(btnContainer);
@@ -294,34 +261,25 @@ _onlyMeta:boolean=false;
 
     async awaitBlog(blog:blogType):Promise<{blog:()=>blogType}>{
         //NOTE: RELAY PLACEMENT THROUGH HERE
-        return  new Promise((resolve,reject)=>{
-            resolve({
+        return  Promise.resolve({
                 blog:()=>{
                     this._selectors=blog.selectors;
                     this._elements=blog.elements;
                     this._codes=blog.codes;
                     this._charts=blog.charts;
-                    this.blog={...blog,selectors:this._selectors,elements:this._elements,codes:this._codes,charts:this.charts};
+                    this.blog={...blog,selectors:this._selectors,elements:this._elements,codes:this._codes,charts:this._charts};
                     return blog;
                 }
 
-            });
-            reject("could not get")
-        }) as Promise<{blog:()=>blogType}>;
-       
+            })
      }
      ///////////////////FINALE SHOW/////////////////////////////
      //INJECTED IN MAIN (BUTTON => final)
-     async promShowFinal(parent:HTMLElement,blog:blogType){
-        return new Promise((resolver,reject)=>{
-            resolver(this.showFinal(parent,blog));
-            reject("can not show")
-        }) as Promise<HTMLElement|undefined>;
-     }
-    async showFinal(parent:HTMLElement,blog:blogType):Promise<HTMLElement|undefined>{
-        // this.blog=blog;
+    
+    async showFinal(parent:HTMLElement,blog:blogType,idValues:idValueType[]):Promise<HTMLElement|undefined>{
+        this._arrDivPlaces=[];
         this.cleanAttributes(parent,true);
-        const checkBlog=(blog && ( blog.elements || blog.codes)) ? true:false;
+        const checkBlog=(( blog?.elements.length>0 || blog?.selectors.length>0) || blog?.charts.length>0);
         blog={...blog,name:"blog one"};
         if(checkBlog){
            
@@ -347,7 +305,7 @@ _onlyMeta:boolean=false;
             innerContainer.style.cssText="width:100%; padding:1rem;margin:1rem;border-radius:10px;margin-inline:auto;padding-inline:1rem;display:flex;flex-direction:column;justify-content:center;align-items:center;";
             innerContainer.className="mx-auto";
             mainContainer.appendChild(innerContainer);
-           await this.saveFinalWork({innerContainer,blog}).then(async(res)=>{
+           await this.saveFinalWork({innerContainer,blog,idValues,arrDivPlaces:this._arrDivPlaces}).then(async(res)=>{
             if(res){
 
                 //BUTTON SELECTION
@@ -367,7 +325,7 @@ _onlyMeta:boolean=false;
                         if(e){
                             if( str==="close"){
                                 parent.style.zIndex="0";
-                                // localStorage.removeItem("blog");
+                               
                                 Misc.growOut({anchor:mainContainer,scale:0,opacity:0,time:400});
                                 setTimeout(()=>{parent.removeChild(mainContainer);},398);
                             }else if( str==="save"){
@@ -397,8 +355,14 @@ _onlyMeta:boolean=false;
         }
     }
     //--PARENT:showFinal(parent)-----------PARENT Edit.editSetup.saveWorkSetup-()---------///
-   async saveFinalWork(item:{innerContainer:HTMLElement,blog:blogType}):Promise<{blogContainer:HTMLElement,innerContainer:HTMLElement}>{
-        const {innerContainer,blog}=item;
+   async saveFinalWork({innerContainer,blog,idValues,arrDivPlaces}:{
+    innerContainer:HTMLElement,
+    blog:blogType,
+    idValues:idValueType[],
+    arrDivPlaces:arrDivPlaceType[]
+
+   }):Promise<{blogContainer:HTMLElement,innerContainer:HTMLElement}>{
+       
         ShapeOutside.cleanUpByID(innerContainer,"popup");
         ShapeOutside.cleanUpByID(innerContainer,"setAttributes");
         const rmList=["overflow-y","overflow-x"];
@@ -406,7 +370,7 @@ _onlyMeta:boolean=false;
         blog.cssText=DisplayBlog.removeCleanCss({css:blog.cssText,rmList,addList});
         const container=document.createElement("div");
         container.className="final-work d-flex flex-column";
-        container.style.cssText=blog.cssText ? blog.cssText : "margin-inline:auto;width:100%;height:100vh;overflow-y:scroll;margin-top:2rem;justify-content:flex-start;";
+        container.style.cssText=blog.cssText ? blog.cssText : "margin-inline:auto;width:100%;height:100vh;overflow-y:scroll;margin-top:2rem;justify-content:flex-start;gap:2rem";
         container.style.flexDirection="column";
         container.style.width="100%";
         container.style.display="flex";
@@ -414,59 +378,79 @@ _onlyMeta:boolean=false;
         container.id="saveFinalWork-container";
         if(blog.imgBgKey){
             container.setAttribute("data-backgroundimage","true");
-        //     const cssStyle={backgroundPosition:"50% 50%",backgroundSize:"100% 100%"};
-        //    await this._service.injectBgAwsImage({target:container,imgKey:blog.imgBgKey,cssStyle});
+    
         }
 
-        //META
-        if(this._onlyMeta){
-            // await this.onlyMeta(container,blog);
-        }else{
-            // await this.showMeta(container,blog,printThis,_showMeta);
-        }
-        //META
-        const header=blog.selectors && blog.selectors.find(sel=>(sel.header));
-        const sels=(blog.selectors && blog.selectors) ? blog.selectors.filter(sel=>(!sel.header)).filter(sel=>(!sel.footer)) as selectorType[] : [] as selectorType[];
-        const eles=(blog && blog.elements && blog.elements.length>0)? blog.elements : [] as elementType[];
+        const header=blog.selectors.find(sel=>(sel.header));
+        const sels=( blog.selectors) ? blog.selectors.filter(sel=>(!sel.header)).filter(sel=>(!sel.footer)) as selectorType[] : [] as selectorType[];
+        const eles=(blog.elements && blog.elements.length>0)? blog.elements : [] as elementType[];
         const maxCount=ModSelector.maxCount(blog);
-        const footer=blog.selectors && blog.selectors.find(sel=>(sel.footer));
-        const codes=(blog && blog.codes && blog.codes.length>0) ? blog.codes : [] as codeType[];
-        const charts=(blog && blog.charts && blog.charts.length>0) ? blog.charts : [] as chartType[]
-        
-
+        const footer= blog.selectors.find(sel=>(sel.footer));
+        const charts=(blog.charts && blog.charts.length>0) ? blog.charts : [] as chartType[]
+       
         if(header){
             const head=document.createElement(header.name);
             head.style.cssText=ModSelector.mainHeader_css ? ModSelector.mainHeader_css as string : "margin-inline:0px;width:100%;display:flex;flex-direction:column;align-items:center;";
             head.className=ModSelector.mainHeader_class ? ModSelector.mainHeader_class :"sectionHeader";
             head.id=Main._mainHeader? Main._mainHeader.id as string :"mainHeader";
-            await this.showCleanSelector({parent:head,selector:header});
-            container.appendChild(head);
+           const _header= await this.showCleanSelector({parent:head,selector:header,idValues});
+            container.appendChild(_header);
         }
         if(maxCount>0){
             const main=document.createElement("section");
             main.id="saveFinalWork-section-main";
             main.style.cssText="width:100%;margin-inline:auto;position:relative;height:auto;";
-           
             await Promise.all(Array.from(Array(maxCount+3).keys()).map(async(num)=>{
-                const select =sels.find(sel=>(sel.placement===num+1));
-                if(select){
-                    await this.showCleanSelector({parent:main,selector:select});
+                const check=arrDivPlaces.find(item=>(item.id===num));
+                if(num>0 && !check){
 
+                    const select =sels.find(sel=>(sel.placement===num));
+                    if(select){
+                      const divCont= await this.showCleanSelector({parent:main,selector:select,idValues});
+                        arrDivPlaces.push({id:num,divCont,displayClean:true,parent:main,type:"selector",selector:select,element:null,chart:null,target:divCont})
+    
+                    }
+                    const chart=charts.find(ch=>(ch.placement===num));
+                    if(chart){
+                        // console.log("chart:insideside",chart)//works
+                        await this.chart.showCleanChart({parent:main,chart}).then(_res=>{
+                            if(_res){
+                              
+                                arrDivPlaces.push({id:_res.placement,parent:main,displayClean:true,type:"chart",divCont:_res.divCont,target:_res.target,chart:chart,selector:null,element:null});
+                            }
+                        });
+                    }
+                    const ele=eles.find(el=>(el.placement===num));
+                    if(ele){
+                      
+                        await this.htmlElement.showCleanElement({parent:main,element:ele,idValues}).then(async(res)=>{
+                            if(res?.div_cont){
+                                const {target,divCont}=res.div_cont;
+                                arrDivPlaces.push({id:res.div_cont.placement,parent:main,displayClean:true,type:"element",divCont,element:ele,selector:null,chart:null,target});
+                               
+                            }
+                        });
+                    }
+                
                 }
-                const chart=charts.find(ch=>(ch.placement===num+1));
-                if(chart){
-                    // console.log("chart:insideside",chart)//works
-                    await this.chart.showCleanChart({parent:main,chart});
-                }
-                const ele=eles.find(el=>(el.placement===num+1));
-                if(ele){
-                    await this.showCleanElement({parent:main,element:ele});
-                }
-                const code=codes.find(cd=>(cd.placement===num+1));
-                if(code){
-                   await this._code.showCleanCode({parent:main,selectCode:code});
-                }
-            }));
+            })).then(()=>{
+                arrDivPlaces.toSorted((a,b)=>{if(a.id <b.id) return -1;return 1}).map(item=>{
+                    if(item){
+                   
+                        if(item.type==="element" || item.type==="selector"){
+                            item.parent.appendChild(item.divCont);
+                            Header.cleanUpByID(item.divCont,"setAttributes");
+                        }else if(item.type==="chart" && item.chart){
+                            const {divCont,chart}=item
+                            const ctx=item.target as HTMLCanvasElement;
+                            const option=JSON.parse(chart.chartOption) as barOptionType|lineOptionType;
+                            item.parent.appendChild(divCont);
+                            const _chart=new Chart(ctx,option);
+
+                        }
+                    }
+                });
+            });
             container.appendChild(main);
             Misc.matchMedia({parent:main,maxWidth:400,cssStyle:{paddingInline:"0px"}});
             }
@@ -474,26 +458,20 @@ _onlyMeta:boolean=false;
             const foot=document.createElement(footer.name);
             foot.className=ModSelector.mainFooter_class;
             foot.style.cssText=ModSelector.mainFooter_css;
-           await this.showCleanSelector({parent:foot,selector:footer});
-            container.appendChild(foot);
+           const _footer=await this.showCleanSelector({parent:foot,selector:footer,idValues});
+            container.appendChild(_footer);
         }
         innerContainer.appendChild(container);
-        return new Promise(resolve=>{
-            resolve({blogContainer:container,innerContainer})
-        }) as Promise<{blogContainer:HTMLElement,innerContainer:HTMLElement}>;
+        return Promise.resolve({blogContainer:container,innerContainer}) as Promise<{blogContainer:HTMLElement,innerContainer:HTMLElement}>;
         
     }
-   async showCleanSelector(item:{parent:HTMLElement,selector:selectorType}){
-        const {parent,selector}=item;
-        let flex:flexType={} as flexType;
-        // console.log("Header selector",selector)//works
-        if(selector.header){
-            // console.log(parent)
-        }
-        if(selector && selector.name){
-            const innerCont=document.createElement(selector.name);
-            const less900=window.innerWidth < 900 ;
-            const less400=window.innerWidth < 400 ;
+   async showCleanSelector({parent,selector,idValues}:{parent:HTMLElement,selector:selectorType,idValues:idValueType[]}):Promise<HTMLElement>{
+   
+       
+        const innerCont=document.createElement(selector.name);
+       
+        const less400=window.innerWidth < 400 ;
+        if(selector?.name){
             const maxWidthImg=selector.header ? "100px":"auto";
             innerCont.id=selector.eleId;
             innerCont.className=selector.class;
@@ -505,590 +483,337 @@ _onlyMeta:boolean=false;
             innerCont.style.display="flex";
             innerCont.style.flexDirection="column";
             innerCont.style.alignItems="center";
-            parent.appendChild(innerCont);
-            flex={...flex,selectorId:selector.eleId,placement:selector.placement}
-            const rows=JSON.parse(selector.rows) as rowType[];
-                await Promise.all(rows.sort((a,b)=>{if(a.order < b.order){return -1}; return 1}).map(async(row_)=>{
-                    const row=document.createElement("div");
-                    row.className=row_.class.split(" ").filter(cl=>(cl !=="box-shadow")).join(" ");
-                    row.style.cssText=row_.cssText;
-                    row.setAttribute("name",row_.name);
-                    row.setAttribute("rowID",`${row_.id}`);
-                    row.setAttribute("order",String(row_.order));
-                    row.id=row_.eleId;
-                    if(less400){
-                        row.style.flexDirection="column";
-                    }
-                    flex={...flex,rowId:row_.eleId,imgKey:row_.imgKey};
-                    innerCont.appendChild(row);
-                    Misc.matchMedia({parent:row,maxWidth:420,cssStyle:{flexDirection:"column"}});
-                    if(row_.imgKey){
-                        row.setAttribute("data-backgroundimage","true");
-                    //     const cssStyle={backgroundPosition:"50% 50%",backgroundSize:"100% 100%"};
-                    //    await this._service.injectBgAwsImage({target:row,imgKey:row_.imgKey,cssStyle});
-                    }
-                    await Promise.all(row_.cols && row_.cols.sort((a,b)=>{if(a.order < b.order){return -1}; return 1}).map(async(col_)=>{
-                        const col=document.createElement("div");
-                        col.id=col_.eleId;
-                        col.setAttribute("colID",`${col_.id}`);
-                        col.setAttribute("order",String(col_.order));
-                        col.style.cssText=col_.cssText;
-                        col.style.paddingInline="0rem";
+            
+            const {rows}=this._modSelector.checkGetRows({select:selector});
+            if(rows && rows.length>0){
+
+                await Promise.all(rows.toSorted((a,b)=>{if(a.order < b.order){return -1}; return 1}).map(async(row_)=>{
+                    if(row_){
+
+                        const eleId=row_.eleId;
+                        const len=row_.cols.length
+                        const numRows=selector.rowNum;
+                        idValues.push({eleId,id:"rowId",attValue:eleId});
+                        idValues.push({eleId,id:"rowOrder",attValue:String(row_.order)});
+                        idValues.push({eleId,id:"numCols",attValue:String(len)});
+                        idValues.push({eleId,id:"rowNum",attValue:String(numRows)});
+                        const row=document.createElement("div");
+                        row.className=row_.class.split(" ").filter(cl=>(cl !=="box-shadow")).join(" ");
+                        row.style.cssText=row_.cssText;
+                        row.id=eleId;
                         if(less400){
-                            col.style.flex="0 0 100%";
-                            col.classList.remove("col-md-3");
-                            col.classList.remove("col-md-4");
-                            col.classList.remove("col-md-6");
-                            col.classList.add("col-md-12");
-                        }
-                        col.className=col_.class.split(" ").filter(cl=>(cl !=="coliIsActive")).join(" ");
-                        flex={...flex,colId:col_.eleId,imgKey:col_.imgKey}
-                        col.setAttribute("flex",JSON.stringify(flex));
-                        row.appendChild(col);
-                        await this.showCleanColumnToEle({parent:parent,col:col,col_:col_,flex:flex,maxWidthImg:maxWidthImg}).then(async(res)=>{
-                             if(res){
-                                if(res.col && res.eles){
-                                    const order=res.col.getAttribute("order") ? parseInt(res.col.getAttribute("order") as string):null;
-                                    if(order===col_.order ){
-                                        res.eles.map(ele=>{
-                                            if(ele){
-                                                res.col.appendChild(ele)
-                                                
+                            row.style.flexDirection="column";
+                        };
+                        
+                        innerCont.appendChild(row);
+                        Misc.matchMedia({parent:row,maxWidth:420,cssStyle:{flexDirection:"column"}});
+                        if(row_.imgKey){
+                            row.setAttribute("data-backgroundImg","true");
+                            idValues.push({eleId,id:"imgKey",attValue:row_.imgKey});
+                            idValues.push({eleId,id:"backgroundImg",attValue:"true"});
+                        };
+                        this._modSelector.dataset.populateElement({target:row,level:"row",loc:"flexbox",idValues,selRowColEle:row_,clean:true});
+                        await Promise.all(row_.cols.toSorted((a,b)=>{if(a.order < b.order){return -1}; return 1}).map(async(col_)=>{
+                            if(col_){
+                                const selRowCol:selRowColType={
+                                    selectorId:selector.eleId,
+                                    rowId:row_.eleId,
+                                    colId:col_.eleId
+
+                                }
+
+                               await this.generateCleanColumn({row,sel:selector,row_,col_,selRowCol,idValues,less400:less400}).then(async(cres)=>{
+                                    if(cres){
+                                        cres.col_.elements.map(async(element)=>{
+                                            if(element){
+                                                await this.generateCleanElement({
+                                                    selRowCol,
+                                                    col:cres.col,
+                                                    col_:cres.col_,
+                                                    element:element,
+                                                    maxWidthImg:maxWidthImg,
+                                                    idValues:cres.idValues,
+                                                    less400:cres.less400
+        
+                                                }).then(async(res)=>{
+                                                     if(res){
+                                                        res.parent.appendChild(res.divCont);
+                                                        Misc.blurIn({anchor:res.divCont,blur:"20px",time:600});
+                                                     };
+                                                 });
                                             }
                                         });
+
                                     }
-                                }
- 
-                                 if(col_.imgKey){
-                                     col.setAttribute("data-backgroundimage","true");
-                                //      const cssStyle={backgroundPosition:"50% 50%",backgroundSize:"100% 100%"};
-                                //    await this._service.injectBgAwsImage({target:resCol,imgKey:col_.imgKey,cssStyle});
-                                 }
-                             }
-                         });
-                    }));
+                                });
+                            };
+                        }));
+                    };
                     
                    
                 }));
-            
-           
-        }
-    };
-    async showCleanColumnToEle(item:{parent:HTMLElement,col:HTMLElement,col_:colType,flex:flexType,maxWidthImg:string}): Promise<{
-        col: HTMLElement;
-        eles: (HTMLElement | undefined)[];
-    }>{
-        const {parent,col,col_,flex,maxWidthImg}=item;
-        const less400=window.innerWidth < 400 ;
-        const eles=await Promise.all(col_.elements && col_.elements.sort((a,b)=>{if(a.order < b.order){return -1}; return 1}).map(async (element)=>{
-            const checkArr=["img","ul","blockquote","a","logo","image","time"].includes(element.name);
-            const link=element && element.attr && element.attr.startsWith("http") ? element.attr : null;
-            const email=element && element.attr && element.attr.startsWith("mail") ? element.attr : null;
-            const tel=element && element.attr && element.attr.startsWith("tel") ? element.attr : null;
-            const eleClass=element.class.split(" ").filter(cl=>(cl !=="box-shadow")).join(" ");
-            let flex_={...flex,elementId:element.eleId,name:element.name,imgKey:element.imgKey};
-            if(!checkArr){
-                const ele:HTMLElement=document.createElement(element.name);
-                ele.setAttribute("is-element","true");
-                ele.setAttribute("aria-selected","true");
-                ele.setAttribute("order",String(element.order));
-                ele.setAttribute("name",element.name);
-                ele.className=eleClass;
-                ele.setAttribute("name",element.name);
-                ele.id=element.eleId;
-                ele.style.cssText=element.cssText;
-                if(less400){
-                    ele.style.paddingInline="0.5rem";
-                }
-                if(element.name==="p"){
-                    ele.style.lineHeight="1.75rem";
-                }
-                ele.innerHTML=element.inner_html;
-                // col.appendChild(ele);
-                if(element.attr==="data-backgroundImage" && element.imgKey){
-                    ShapeOutside.cleanUpByID(parent,"popup");
-                    ele.setAttribute("data-backgroundImage","true");
-                    flex_={...flex_,backgroundImage:true,imgKey:element.imgKey};
-                    // const cssStyle={backgroundPosition:"50% 50%",backgroundSize:"100% 100%"};
-                    // await this._service.injectBgAwsImage({target:ele,imgKey:element.imgKey,cssStyle});
-                    Misc.blurIn({anchor:ele,blur:"20px",time:500});
-                }else if(element.attr==="data-shapeoutside-circle" && element.imgKey){
-                    flex_={...flex_,shapeOutsideCircle:true,imgKey:element.imgKey};
-                    ele.setAttribute("data-shapeoutside-circle","true");
-                    // await this._shapeOutside.shapeOutsideInjectImage({para:ele,imgKey:element.imgKey});
-                    Misc.blurIn({anchor:ele,blur:"20px",time:500});
-                }else if(element.attr==="data-shapeoutside-square" && element.imgKey){
-                    flex_={...flex_,shapeOutsideCircle:true,imgKey:element.imgKey};
-                    ele.setAttribute("data-shapeoutside-square","true");
-                    // await this._shapeOutside.shapeOutsideInjectImage({para:ele,imgKey:element.imgKey});
-                    Misc.blurIn({anchor:ele,blur:"20px",time:500});
-                }else if(element.attr==="data-shapeoutside-polygon" && element.imgKey){
-                    ele.setAttribute("data-shapeoutside-polygon","true")
-                    flex_={...flex_,shapeOutsidePolygon:true,imgKey:element.imgKey};
-                    // await this._shapeOutside.shapeOutsideInjectImage({para:ele,imgKey:element.imgKey});
-                    Misc.blurIn({anchor:ele,blur:"20px",time:500});
-                }
-                ele.setAttribute("flex",JSON.stringify(flex_));
-                
-                return ele;
-            }else if(checkArr && element.name==="ul"){
-                const ele=document.createElement("ul");
-                ele.setAttribute("is-element","true");
-                ele.setAttribute("aria-selected","true");
-                ele.setAttribute("order",String(element.order));
-                ele.setAttribute("name",element.name);
-                ele.className=eleClass;
-                ele.classList.remove("isActive");
-                ele.id=element.eleId;
-                ele.setAttribute("name",element.name);
-                ele.style.cssText=element.cssText;
-                ele.innerHTML=element.inner_html;
-                ele.setAttribute("flex",JSON.stringify(flex));
-                // col.appendChild(ele);
-                return ele;
-            }else if(checkArr && element.name==="blockquote"){
-                const ele=document.createElement("blockquote");
-                ele.setAttribute("is-element","true");
-                ele.setAttribute("aria-selected","true");
-                ele.setAttribute("order",String(element.order));
-                ele.setAttribute("name",element.name);
-                ele.className=eleClass;
-                ele.classList.remove("isActive");
-                ele.id=element.eleId;
-                ele.setAttribute("name",element.name);
-                ele.style.cssText=element.cssText;
-                ele.innerHTML=element.inner_html;
-                ele.setAttribute("flex",JSON.stringify(flex));
-                // col.appendChild(ele);
-                return ele;
-            }else if(checkArr && element.name==="time"){
-                const datetime=element.attr as string;// data-time for popup on hover
-                const ele=document.createElement("time");
-                ele.setAttribute("datetime",String(datetime))
-                ele.id=element.eleId;
-                ele.className=element.class;
-                ele.classList.add("show-time");
-                ele.classList.remove("isActive");
-                ele.style.cssText=element.cssText;
-                ele.innerHTML=element.inner_html;
-                // col.appendChild(ele);
-                return ele;
-            }else if(checkArr && element.name==="a"){
-                const linkObj=element && element.attr && element.attr.startsWith("http") && JSON.parse(element.attr) as {link:string};
-                const emailObj=element && element.attr && element.attr.startsWith("mail") && JSON.parse(element.attr) as {email:string};
-                const telObj=element && element.attr && element.attr.startsWith("tel") && JSON.parse(element.attr) as {tel:string};
-                if(linkObj){
-                    const {link}=linkObj as {link:string}
-                    const ele=document.createElement("a");
-                    ele.setAttribute("data-href",link);
-                    ele.className=element.class;
-                    ele.id=element.eleId;
-                    ele.setAttribute("is-element","true");
-                    ele.setAttribute("aria-selected","true");
-                    ele.setAttribute("order",String(element.order));
-                    ele.setAttribute("name",element.name);
-                    ele.style.cssText=element.cssText;
-                    ele.innerHTML=element.inner_html;
-                    ele.href="";
-                    // col.appendChild(divCont);
-                    ele.addEventListener("click",(e:MouseEvent)=>{
-                        if(e){
-                            return window.open(link,"_blank")
-                        }
-                    });
-                    return ele;
-                }else if(emailObj){
-                    const {email}=emailObj;
-                    const ele=document.createElement("a");
-                    ele.setAttribute("is-element","true");
-                    ele.setAttribute("aria-selected","true");
-                    ele.setAttribute("order",String(element.order));
-                    ele.setAttribute("name",element.name);
-                    ele.className=eleClass;
-                    ele.id=element.eleId;
-                    ele.setAttribute("name",element.name);
-                    ele.style.cssText=element.cssText;
-                    ele.innerHTML=element.inner_html;
-                    (ele as HTMLAnchorElement).href=email;
-                    ele.setAttribute("data-href-email",email);
-                    ele.setAttribute("flex",JSON.stringify(flex));
-                    // col.appendChild(ele);
-                    return ele;
-                }else if(telObj){
-                    const {tel}=telObj;
-                    const ele=document.createElement("a");
-                    ele.setAttribute("is-element","true");
-                    ele.setAttribute("aria-selected","true");
-                    ele.setAttribute("order",String(element.order));
-                    ele.setAttribute("name",element.name);
-                    ele.className=eleClass;
-                    ele.id=element.eleId;
-                    ele.setAttribute("name",element.name);
-                    ele.style.cssText=element.cssText;
-                    ele.innerHTML=element.inner_html;
-                    (ele as HTMLAnchorElement).href=tel;
-                    ele.setAttribute("data-href-tel",tel);
-                    ele.setAttribute("flex",JSON.stringify(flex));
-                    // col.appendChild(ele);
-                    return ele;
-                }
-            }else if(element.name==="logo"){
-                const ele=document.createElement("img");
-                ele.setAttribute("is-element","true");
-                ele.setAttribute("aria-selected","true");
-                ele.setAttribute("order",String(element.order));
-                ele.setAttribute("name",element.name);
-                ele.className=eleClass;
-                ele.src=element.img as string;
-                ele.id=element.eleId;
-                ele.setAttribute("name",element.name);
-                ele.setAttribute("flex",JSON.stringify(flex));
-                ele.style.cssText=element.cssText;
-                ele.style.maxWidth=maxWidthImg;
-                ele.alt=element.inner_html;
-                ele.setAttribute("flex",JSON.stringify(flex));
-                // col.appendChild(ele);
-                if(element.imgKey){
-                    const res= await this._service.getSimpleImg(element.imgKey);
-                    if(res){
-                        ele.src=res.img as string;
-                        ele.alt=res.Key as string;
-                        Misc.blurIn({anchor:ele,blur:"20px",time:500});
-                    }
-                }
-                return ele;
-                // this._user.refreshImageUpload(innerCont,col,ele,flex);
-            }else if(element.name==="image"){
-                // const link=element.attr as string;
-                const ele=document.createElement("img");
-                ele.setAttribute("is-element","true");
-                ele.setAttribute("aria-selected","true");
-                ele.setAttribute("order",String(element.order));
-                ele.setAttribute("name",element.name);
-                ele.className=eleClass;
-                ele.src=element.img as string;
-                ele.id=element.eleId;
-                ele.setAttribute("name",element.name);
-                ele.style.cssText=element.cssText;
-                ele.style.maxWidth=maxWidthImg;
-                ele.alt=element.inner_html;
-                ele.setAttribute("flex",JSON.stringify(flex));
-                // col.appendChild(ele);
-                if(element.imgKey){
-                    await this._service.getSimpleImg(element.imgKey).then(async(res)=>{
-                        if(res){
-                            ele.src=res.img as string;
-                            ele.alt=res.Key as string;
-                            Misc.blurIn({anchor:ele,blur:"20px",time:500});
-
-                        }
-                   });
-                }
-                return ele
-            }else if(element.name==="img" ){
-                const ele:HTMLImageElement=document.createElement(element.name);
-                ele.setAttribute("is-element","true");
-                ele.setAttribute("aria-selected","true");
-                ele.setAttribute("order",String(element.order));
-                ele.setAttribute("name",element.name);
-                ele.className=eleClass;
-                ele.id=element.eleId;
-                ele.src=element.img as string;
-                ele.style.cssText=element.cssText;
-                ele.style.maxWidth=maxWidthImg;
-                ele.src=element.img as string;
-                ele.setAttribute("flex",JSON.stringify(flex));
-                // col.appendChild(ele);
-                if(element.imgKey){
-                    const res= await this._service.getSimpleImg(element.imgKey);
-                    if(res){
-                        ele.src=res.img as string;
-                        ele.alt=res.Key as string;
-                        Misc.blurIn({anchor:ele,blur:"20px",time:500});
-                    }
-                }
-                return ele;
-            }
-            
-        }));
-        return {col,eles};
-    }
-    async showCleanElement(item:{parent:HTMLElement,element:elementType}){
-        const {parent,element}=item;
-        const less400= window.innerWidth < 400;
-        await this.cleanElement({parent,element}).then(async(res)=>{
-            if(res){
-
-                const checkEle=["p","h1","h2","h3","h4","h5","h6","div","blockquote","ul","hr"].includes(res.element.name);
-                const imgKey=res.element.imgKey;
-                const attrArr=["data-shapeoutside-circle","data-shapeoutside-square","data-shapeoutside-polygon"]
-                const link=res.element.attr && res.element.attr.startsWith("http") ? res.element.attr : null;
-                const email=res.element.attr && res.element.attr.startsWith("mail") ? res.element.attr : null;
-                const tel=res.element.attr && res.element.attr.startsWith("tel") ? res.element.attr : null;
-                const type=res.element.type ? res.element.type : undefined;
-                const headerflag=type==="headerflag";
-                const shapeoutside=type==="shapeoutside";
-                const checkType=["headerflag","shapeoutside"].find(ch=>(ch ===res.element.type));
-                // console.log(element.name,checkEle)//works
-                switch(true){
-                    case checkEle && !checkType:
-                        if(([...res.ele.classList as any] as string[]).includes("reference")){
-                            this.reference.showCleanLinks({parent,ele:res.element});
-                        }
-                        if(imgKey){
-                                if(res.element.attr==="data-backgroundImage"){
-                                    ShapeOutside.cleanUpByID(parent,"popup");
-                                    res.ele.setAttribute("data-backgroundImage","true");
-                                }else if(res.element.attr="data-arrow-design"){
-                                    res.ele.setAttribute("data-arrow-design","true");
-                                    res.ele.setAttribute("imgKey",imgKey);
-            
-                                }else{
-                                    ShapeOutside.cleanUpByID(res.ele,"popup");
-                                    ShapeOutside.cleanUpByID(res.ele,"setAttributes");
-                                }
-                            
-                        }if( res.element.attr==="data-is-code-element"){
-                            res.ele.setAttribute(`${res.element.attr ? res.element.attr :"data-is-code-element"}`,"true");
-                            this.codeElement.main({injector:parent,element:res.element,isNew:false,isClean:true});
-                        }else if(res.element.attr==="data-is-code-paste"){
-                            this._pasteCode.showClean({divCont:res.divCont,target:res.ele,element:res.element});
-                        }else{
-
-                            if(element.attr==="data-arrow-design"){
-                                Misc.matchMedia({parent:res.ele,maxWidth:400,cssStyle:{paddingInline:"0rem",padding:"0px",height:"50vh"}});
-                            }
-                            res.ele.innerHTML=element.inner_html;
-                        }
-                        
-                    return;
-                    case shapeoutside && checkType !==undefined:
-                        if(imgKey){
-                            res.ele.setAttribute("imgKey",imgKey);
-                            //    await this._shapeOutside.shapeOutsideInjectImage({para:res.ele,imgKey:imgKey});
-                        }
-                        const attrTest=res.element.attr;
-                        if(attrTest && attrArr.includes(attrTest)){
-                            res.ele.setAttribute(attrTest,attrTest);
-                            res.ele.setAttribute(type,type);
-                        }
-                        res.ele.style.display=less400 ? "flex":"block";
-                       res.ele.style.flexDirection=less400 ? "column":"";
-                       res.ele.innerHTML=element.inner_html;
-                       res.ele.style.cssText=element.cssText;
-                       res.ele.className=element.class;
-                    return;
-                    case headerflag && checkType !==undefined:
-                        res.divCont.removeChild(res.ele);//needed because cleanElement append ele;
-                        this.headerFlag.showCleanHeaderflag({parent:res.divCont,element:res.element});
-                    return;
-                    case element.name==="img":
-                        const width:number=700;
-                        const img=res.ele as HTMLImageElement;
-                        img.alt=element.inner_html;
-                        res.ele.setAttribute("is-element","true");
-                        img.src=element.img as string;
-                        res.ele.style.cssText=element.cssText;
-                        res.ele.style.width=`${width}px`;
-                        res.ele.style.maxHeight="50vh";
-                        if(element.imgKey){
-                            const res_= await this._service.getSimpleImg(element.imgKey);
-                            if(res_){
-                                (res.ele as HTMLImageElement).src=res_.img;
-                                (res.ele as HTMLImageElement).alt=res_.Key as string;
-                            }
-                        }else{
-                            (res.ele as HTMLImageElement).src=this.logo;
-                        }
-                        const desc=document.createElement("SMALL");
-                        desc.style.cssText=HtmlElement.imgDesc_css;
-                        if(res.element.attr){
-                            desc.textContent=res.element.attr ;
-                            res.divCont.appendChild(desc);
-                        }
-                        Misc.blurIn({anchor:res.ele,blur:"20px",time:600});
-                        // this._user.refreshImageUpload(parent,image);
-                    return;
-                    case element.name==="time":
-                        res.ele.innerHTML=element.inner_html;
-                        res.ele.setAttribute("datetime",`${element.inner_html}`)
-                        res.ele.onmouseover=()=>{
-                            res.ele.classList.add("show-time");
-                        };
-                        res.ele.onmouseout=()=>{
-                            res.ele.classList.remove("show-time");
-                        };
-                    return;
-                    case element.name==="a":
-                        if(link){
-                            res.ele.innerHTML=element.inner_html;
-                            // (ele as HTMLAnchorElement).href="#";
-                            res.ele.setAttribute("data-href",link);
-                            res.ele.onclick=()=>{return window.open(link,"_blank")};
-                            res.ele.onmouseover=()=>{
-                                res.ele.classList.add("show-link");
-                            };
-                            res.ele.onmouseout=()=>{
-                                res.ele.classList.remove("show-link");
-                            };
-                        }else if(email){
-                            
-                            (res.ele as HTMLAnchorElement).innerHTML=element.inner_html;
-                            // (ele as HTMLAnchorElement).href="#";
-                            (res.ele as HTMLAnchorElement).setAttribute("data-href",email);
-                            (res.ele as HTMLAnchorElement).href=email;
-                            res.ele.onmouseover=()=>{
-                                res.ele.classList.add("show-link");
-                            };
-                            res.ele.onmouseout=()=>{
-                                res.ele.classList.remove("show-link");
-                            };
-                        }else if(tel){
-                            (res.ele as HTMLAnchorElement).innerHTML=element.inner_html;
-                            // (ele as HTMLAnchorElement).href="#";
-                            (res.ele as HTMLAnchorElement).setAttribute("data-href",tel);
-                            (res.ele as HTMLAnchorElement).href=tel;
-                            res.ele.onmouseover=()=>{
-                                res.ele.classList.add("show-link");
-                            };
-                            res.ele.onmouseout=()=>{
-                                res.ele.classList.remove("show-link");
-                            };
-                        }
-                    return;
-                    default:
-                        return;
-                }
-            }
-        });
-        
-    };
-    cleanElement(item:{parent:HTMLElement,element:elementType}):Promise<{ele:HTMLElement,divCont:HTMLElement,element:elementType}>{
-        const {element,parent}=item;
-        const less400=window.innerWidth < 400 ;
-        const ele=document.createElement(element.name);
-        ele.setAttribute("name",element.name);
-        ele.setAttribute("is-element","true");
-        if(element.type && element.attr){
-            ele.setAttribute(element.attr,"true");
-        }
-        ele.classList.remove("isActive");
-        ele.id=element.eleId;
-        ele.className=element.class.split(" ").filter(cl=>(cl !=="box-shadow")).join(" ");
-        ele.classList.remove("isActive");
-        ele.style.cssText=element.cssText;
-        ele.style.paddingInline=less400 ? "0.25rem":"1rem";
-        if(element.name==="p"){
-            ele.style.lineHeight="1.75rem";
-        }
-        if(ele.nodeName==="UL" || ele.nodeName==="OL"){
-            ele.style.lineHeight="1.85rem";
-            const lis=(ele as HTMLElement).querySelectorAll("li") as any as HTMLElement[];
-            lis.forEach(li=>{
-                if(li && li.textContent===""){
-                    li.remove();
-                }
-            });
-        }
-        if(less400){
-            ele.style.paddingInline="0.5rem";
-            ele.classList.remove("columns-3");
-            ele.classList.remove("columns-4");
-            ele.classList.remove("columns-2");
-            ele.classList.remove("columns");
-        };
-        ele.style.marginInline="auto";
-        const divCont=document.createElement("div");
-        divCont.id="eleContainer";
-        divCont.style.cssText="margin-block:auto;padding:0.25rem;position:relative;width:100%;display:flex;flex-direction:column;align-items:center;";
-        divCont.appendChild(ele);
-        parent.appendChild(divCont);
-        return new Promise(resolve=>(
-            resolve({ele,divCont,element})
-        )) as Promise<{ele:HTMLElement,divCont:HTMLElement,element:elementType}>;
-    }
-    showCleanCode(item:{parent:HTMLElement,selectCode:codeType}){
-        const {parent,selectCode}=item;
-        if(selectCode){
-            const regArr:{name:string,arrType:regJavaType[]}[]=[
-                {name:"java",arrType:NewCode.regJavaArr},
-                {name:"python",arrType:NewCode.regPythonArr},
-                {name:"html",arrType:NewCode.regHtmlArr},
-                {name:"JSON",arrType:NewCode.regJSONArr},
-
-            ]
-            const innerContainer=document.createElement("div");
-            innerContainer.id="innerContainer";
-            innerContainer.style.cssText="width:100%;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:1rem;"
-            parent.style.position="relative";
-            //------title container----------//
-
-            const imgDive=document.createElement("div");
-            imgDive.id="imgDiv";
-            imgDive.style.cssText="display:flex;justify-content:center;align-items:center;gap:1.25rem;";
-            const xDiv=document.createElement("div");
-            xDiv.style.cssText="padding:1rem;max-width:75px;border-radius:25%;background-color:black;color:white;display:flex;justify-content:center;align-items:center;gap:1rem;position:relative;z-index:20;box-shadow:1px 1px 12px 1px black;";
-            if(selectCode.name==="html"){
-                imgDive.style.transform="translate(-155px,15px)";
-            }
-            const span=document.createElement("span");
-            span.textContent=selectCode.name;
-            span.className="text-primary lean text-bold text-lg text-capitalize";
-            if(selectCode.name==="java"){
-                FaCreate({parent:xDiv,name:RiJavascriptFill,cssStyle:{fontSize:"30px",margin:"auto",padding:"5px",borderRadius:"50%",color:"yellow",backgroundColor:"white"}});
-                xDiv.style.color="yellow";
-            }else if(selectCode.name==="python"){
-                FaCreate({parent:xDiv,name:FaPython,cssStyle:{fontSize:"30px",margin:"auto",padding:"5px",borderRadius:"50%",color:"blue",backgroundColor:"white"}});
-            }else if(selectCode.name==="JSON"){
-                FaCreate({parent:xDiv,name:TbJson,cssStyle:{fontSize:"30px",margin:"auto",padding:"5px",borderRadius:"50%",color:"red",backgroundColor:"white"}});
-            }else if(selectCode.name==="html"){
-                FaCreate({parent:xDiv,name:FaHtml5,cssStyle:{fontSize:"30px",margin:"auto",padding:"5px",borderRadius:"50%",color:"blue",backgroundColor:"white"}});
-            }
-            imgDive.appendChild(xDiv);
-            imgDive.appendChild(span);
-            innerContainer.appendChild(imgDive);
-            const target=document.createElement("code");
-            target.id=selectCode.eleId;
-            target.setAttribute("is-element","true");
-            target.setAttribute("name",selectCode.name);
-            target.style.cssText=selectCode.cssText;
-            target.className=selectCode.class;
-            const pre=document.createElement("pre");
-            pre.setAttribute("contenteditable","true");
-            target.setAttribute("placement",`${String(selectCode.placement)}-A`)
-            pre.id="pre";
-            pre.style.cssText="color:white;padding-block:1rem;width:100%;";
-            target.onclick=(e:MouseEvent)=>{
-                if(e){
-                    target.classList.toggle("isActive");
-                }
             };
-            const regType=regArr.find(reg=>(reg.name===selectCode.name));
-            if(regType){
-                selectCode.linecode.map(line=>{
-                    if(line && line.text){
-
-                        const para=document.createElement("p");
-                        if(selectCode.name==="java"){
-                            this._code.matchInsert({preChild:para,regArr:regType.arrType});
-                        }else if(selectCode.name==="html"){
-                            this._code.matchInsert({preChild:para,regArr:regType.arrType});
-                        }else if(selectCode.name==="python"){
-                            this._code.matchInsert({preChild:para,regArr:regType.arrType});
-                        }else if(selectCode.name==="JSON"){
-                            this._code.matchInsert({preChild:para,regArr:regType.arrType});
-                        }
-                        pre.appendChild(para);
-                    }
-                });
-
-                }
             
-            target.appendChild(pre)
-            innerContainer.appendChild(target);
-            parent.appendChild(innerContainer);
+            };
+            return innerCont
+    };
+
+
+   async generateCleanColumn({row,sel,selRowCol,col_,row_,idValues,less400}:{
+        row:HTMLElement;
+        selRowCol:selRowColType;
+        sel:selectorType;
+        col_:colType;
+        row_:rowType;
+        idValues:idValueType[],
+        less400:boolean
+    }):Promise<{row:HTMLElement,sel:selectorType,col:HTMLElement,col_:colType,row_:rowType,less400:boolean,idValues:idValueType[]}>{
+        const eleId=col_.eleId;
+        const col=document.createElement("div");
+        col.id=eleId;
+        idValues.push({eleId,id:"colId",attValue:eleId});
+        idValues.push({eleId,id:"colOrder",attValue:(String(col_.order))});
+        idValues.push({eleId,id:"rowId",attValue:row_.eleId});
+        idValues.push({eleId,id:"selRowCol",attValue:JSON.stringify(selRowCol)});
+        col.style.cssText=col_.cssText;
+        col.style.paddingInline="0rem";
+        if(less400){
+            col.style.flex="0 0 100%";
+            col.classList.remove("col-md-3");
+            col.classList.remove("col-md-4");
+            col.classList.remove("col-md-6");
+            col.classList.add("col-md-12");
         }
+        if(col_.imgKey){
+            idValues.push({eleId,id:"imgKey",attValue:col_.imgKey});
+            idValues.push({eleId,id:"backgroundImg",attValue:"true"});
+        }
+        col.className=col_.class;
+
+        this._modSelector.dataset.populateElement({target:col,level:"col",loc:"flexbox",idValues,selRowColEle:col_,clean:true});
+        idValues=Dataset.removeIdValueDuplicates({arr:idValues,eleId})
+        const {cleaned}=this._modSelector.removeClasses({target:col,classes:["isActive","box-shadow","coliIsActive"]});
+        col.className=cleaned.join(" ");
+        row.appendChild(col);
+        return Promise.resolve({row,sel,col,row_,col_,idValues,less400}) as Promise<{row:HTMLElement,sel:selectorType,col:HTMLElement,row_:rowType,col_:colType,idValues:idValueType[],less400:boolean}>;
+    };
+
+
+    async generateCleanElement({selRowCol,col,element,col_,maxWidthImg,idValues,less400}:{
+        selRowCol:selRowColType;
+        col:HTMLElement;
+        element:element_selType;
+        col_:colType;
+        maxWidthImg:string;
+        idValues:idValueType[];
+        less400:boolean;
+
+    }): Promise<arrDivPlaceType|undefined>{
+       //USE TYPE TO PULL (SHAPEOUTSIDE && REFERENCE TO PULL FROM)
+       const checkTypeArr:{id:typeEnumType,test:boolean|undefined,value:string|undefined}[]=[];
+       const len=col_.elements.length;
+        const eleId=element.eleId;
+        const node=element.name;
+        const checkArr=["img","blockquote","ol","ul","a","logo","image","time"].includes(node);
+        
+        const attrTest=attrEnumArrTest(element);
+        const typeTest=typeEnumArrTest(element);
+        const isShapeOutSide=(typeTest && typeTest.id==="shapeOutside") ? typeTest:undefined;
+        if(isShapeOutSide) checkTypeArr.push(isShapeOutSide);
+        const isHeaderflag=(typeTest && typeTest.id==="headerflag") ? typeTest:undefined;
+        if(isHeaderflag) checkTypeArr.push(isHeaderflag);
+        const isDesign=(typeTest && typeTest.id==="design") ? typeTest:undefined;
+        if(isDesign)checkTypeArr.push(isDesign);
+        const isVen=(typeTest && typeTest.id==="ven") ? typeTest:undefined;
+        if(isVen) checkTypeArr.push(isVen);
+        const isReference=(typeTest && typeTest.id==="reference") ? typeTest:undefined;
+        if(isReference) checkTypeArr.push(isReference);
+        const isCircle=(attrTest && attrTest.id==="shapeOutsideCircle") ? attrTest:undefined; 
+        const isSquare=(attrTest && attrTest.id==="shapeOutsideSquare") ? attrTest:undefined; 
+        const isPolygon=(attrTest && attrTest.id==="shapeOutsidePolygon") ? attrTest:undefined; 
+        const isBg=(attrTest && attrTest.id==="backgroundImg") ? attrTest:undefined; 
+        const isImgkey=(attrTest && attrTest.id==="imgKey") ? attrTest:undefined; 
+        const isLink=(attrTest && attrTest.id==="link") ? attrTest:undefined; 
+        const isEmail=(attrTest && attrTest.id==="email") ? attrTest:undefined; 
+        const isTel=(attrTest && attrTest.id==="tel") ? attrTest:undefined; 
+        const link= isLink ? isLink.value:undefined; 
+        const email= isEmail ? isEmail.value:undefined; 
+        const tel= isTel ? isTel.value:undefined;
+        const isTime=(attrTest && attrTest.id==="time") ? attrTest:undefined; 
+        const time= isTime ? isTime.value:undefined;
+        if(isHeaderflag) idValues.push({eleId,id:"headerflag",attValue:isHeaderflag.value});
+        if(isDesign) idValues.push({eleId,id:"design",attValue:isDesign.value});
+        if(isVen) idValues.push({eleId,id:"ven",attValue:isVen.value});
+        if(link) idValues.push({eleId,id:"link",attValue:link});
+        if(email) idValues.push({eleId,id:"email",attValue:email});
+        if(tel) idValues.push({eleId,id:"tel",attValue:tel});
+        if(time) idValues.push({eleId,id:"time",attValue:time});
+        if(isCircle) idValues.push({eleId,id:isCircle.id as idEnumType,attValue:isCircle.value});
+        if(isSquare) idValues.push({eleId,id:isSquare.id as idEnumType,attValue:isSquare.value});
+        if(isPolygon) idValues.push({eleId,id:isPolygon.id as idEnumType,attValue:isPolygon.value});
+        idValues=Dataset.removeIdValueDuplicates({arr:idValues,eleId});
+        const checkType=checkTypeArr.find(blur=>(blur.test));
+        if(checkType){
+            //REDIRECT
+            if(checkType.id==="shapeOutside"){
+                const arrDivContShape=await this.htmlElement.shapeOutside.showCleanShapeOutside({
+                    parent:col,
+                    selRowCol,
+                    element,
+                    idValues
+                });
+                if(arrDivContShape){
+                    const {divCont,placement:id,target,ele}=arrDivContShape;
+                    return {id,divCont,parent:col,displayClean:true,type:"element",chart:null,element:ele,selector:null,target};
+                };
+            }else if(checkType.id==="ven"){
+                const arrDivConVen=this.htmlElement.ven.showCleanVen({
+                    parent:col,
+                    element:element as any as elementType,
+                    idValues
+                });
+                if(arrDivConVen){
+                    const {divCont,placement:id,target}=arrDivConVen;
+                    return {id,divCont,parent:col,displayClean:true,type:"element",chart:null,element,selector:null,target};
+                }
+            }else if(checkType.id==="design"){
+                const arrDivConDesign=this.htmlElement.design.showCleanDesign({
+                    parent:col,
+                    element:element as any as elementType,
+                    idValues
+                });
+                if(arrDivConDesign){
+                    const {divCont,placement:id,target}=arrDivConDesign;
+                    return {id,divCont,parent:col,displayClean:true,type:"element",chart:null,element,selector:null,target};
+                }
+            }
+        }else{
+            const rand=Math.floor(Math.random()*1000);
+            const divCont=document.createElement("div");
+            divCont.id=`divCont-clean-${rand}`;
+            divCont.style.cssText="margin:auto;padding:5px;margin-block:1rem;";
+            divCont.className="eleContainer-clean divCont";
+            const target:HTMLElement=document.createElement(element.name);
+            target.setAttribute("is-element","true");
+            target.setAttribute("aria-selected","true");
+            target.setAttribute("order",String(element.order));
+            target.setAttribute("name",element.name);
+            target.className=element.class;
+            const {cleaned}=this._modSelector.removeClasses({target,classes:["isActive","box-shadow"]});
+            target.className=cleaned.join(" ")
+            target.setAttribute("name",element.name);
+            target.id=element.eleId;
+            target.style.cssText=element.cssText;
+            target.innerHTML=element.inner_html;
+            idValues.push({eleId,id:"eleOrder",attValue:String(element.order)});
+            idValues.push({eleId,id:"elementId",attValue:eleId});
+            idValues.push({eleId,id:"colId",attValue:col_.eleId});
+            idValues.push({eleId,id:"numCols",attValue:String(len)});
+            idValues.push({eleId,id:"selRowCol",attValue:JSON.stringify(selRowCol)});
+            this._modSelector.dataset.populateElement({target,selRowColEle:element,idValues,level:"element",loc:"flexbox",clean:true});
+            if(!checkArr){
+                //p,hs
+                if(less400){
+                    target.style.paddingInline="0.5rem";
+                }
+                if(node==="p"){
+                    target.style.lineHeight="1.75rem";
+                }
+                target.innerHTML=element.inner_html;
+                
+                if(isBg || isImgkey){
+                    ShapeOutside.cleanUpByID(col,"popup");
+                    Misc.blurIn({anchor:target,blur:"20px",time:500});
+                };
+
+                divCont.appendChild(target);
+                
+                return {id:element.order,divCont,parent:col,displayClean:true,type:"element",chart:null,element,selector:null,target};
+            }else if( node==="ul" || node==="ol"){
+                divCont.style.marginBlock="2rem";
+                divCont.style.marginInline="0px";
+                divCont.style.alignSelf="flex-start";
+                divCont.style.justifySelf="flex-start";
+                divCont.appendChild(target);
+                return {id:element.order,divCont,parent:col,displayClean:true,type:"element",chart:null,element,selector:null,target};
+            }else if( node==="blockquote"){
+                divCont.style.marginTop="3rem";
+                divCont.style.marginInline="0px";
+                divCont.style.alignSelf="flex-start";
+                divCont.style.justifySelf="flex-start";
+                divCont.style.marginLeft="2rem";
+                divCont.appendChild(target);
+                return {id:element.order,divCont,parent:col,displayClean:true,type:"element",chart:null,element,selector:null,target};
+            }else if(node==="time" && time){
+                target.setAttribute("data-time",time)
+                divCont.style.marginInline="0px";
+                divCont.style.alignSelf="flex-start";
+                divCont.style.justifySelf="flex-start";
+                divCont.style.paddingBlock="0.5rem";
+                divCont.style.marginLeft="0rem";
+                divCont.appendChild(target);
+                return {id:element.order,divCont,parent:col,displayClean:true,type:"element",chart:null,element,selector:null,target};
+            }else if(node==="a"){
+                divCont.style.marginTop="3rem";
+                divCont.style.marginInline="0px";
+                divCont.style.alignSelf="flex-start";
+                divCont.style.justifySelf="flex-start";
+                divCont.style.marginLeft="2rem";
+                const name=target.textContent ||"name";
+                    Header.cleanUp(target);
+                    if(isLink){
+                        this.addLinkEmailTelImg({
+                            target:(target as HTMLAnchorElement),
+                            image:this.link,
+                            href:isLink.value,
+                            name,
+                            type:"link"
+                        });
+                    }else if(isEmail){
+                        this.addLinkEmailTelImg({
+                            target:(target as HTMLAnchorElement),
+                            image:this.mail,
+                            href:isEmail.value,
+                            name,
+                            type:"email"
+                        });
+                    }else if(isTel){
+                        this.addLinkEmailTelImg({
+                            target:(target as HTMLAnchorElement),
+                            image:this.phone,
+                            href:isTel.value,
+                            name,
+                            type:"tel"
+                        });
+                    };
+                    divCont.appendChild(target);
+                    
+                    return {id:element.order,divCont,parent:col,displayClean:true,type:"element",chart:null,element,selector:null,target};
+                    
+            }else if(node==="img"){
+                
+                target.setAttribute("contenteditable","false");
+                (target as HTMLImageElement).src=element.img as string;
+                target.style.cssText=element.cssText;
+                target.style.maxWidth=maxWidthImg;
+                (target as HTMLImageElement).alt=element.inner_html;
+                if(element.imgKey){
+                    const res= await this._service.getSimpleImg(element.imgKey);
+                    if(res){
+                        (target as HTMLImageElement).src=res.img as string;
+                        (target as HTMLImageElement).alt=res.Key as string;
+                        Misc.blurIn({anchor:target,blur:"20px",time:500});
+                        
+                    }
+                }
+                return {id:element.order,divCont,parent:col,displayClean:true,type:"element",chart:null,element,selector:null,target};
+                
+            }
+            
+        };
     }
+   
+  
     genStars(parent:HTMLElement,rating:number){
         if(rating){
             const container=document.createElement("div");
@@ -1122,7 +847,7 @@ _onlyMeta:boolean=false;
         container.style.cssText="margin-inline:auto;margin-block:1.25rem;display:flex;align-items:center;justify-content:space-around;flex-wrap:wrap;background-color:white;border-radius:11px;padding-inline:1.25rem;box-shadow:1px 1px 12px 2px #10c7e9ab,-1px -1px 12px 1px #10c7e9ab;max-width:800px;";
         container.style.width=less900 ? (less400 ? "100%" :"85%" ) : "67%";
         container.style.paddingInline=less900 ? (less400 ? "1rem" :"1.5rem" ) : "2rem";
-        if(!(user && user.id && user.showinfo)) return {user:null,outerContainer:htmlUserInfo};
+        if(!(user?.id!=="" && user?.showinfo)) return {user:null,outerContainer:htmlUserInfo};
                 const img=document.createElement("img");
                 const maximgwidth=less400 ? 90 : 120;
                 img.style.cssText=`max-width:${maximgwidth}px;border-radius:50%;aspect-ratio: 1 / 1;box-shadow:1px 1px 10px 1px black;float:left; `;
@@ -1170,8 +895,8 @@ _onlyMeta:boolean=false;
                 bioCont.style.cssText=css_col + "border-radius:12px;height:100%;overflow-y:scroll;background-color:black;color:white;";
                 bioCont.style.flex=less400 ? "1 0 100%": "1 0 70%";
                 bioCont.style.width=less400 ? "100%": "auto";
-                bioCont.style.boxShadow=user && user.bio ? "1px 1px 12px 1px #04788f" : "";
-                bioCont.style.padding=user && user.bio ? "0.25rem" : "";
+                bioCont.style.boxShadow=user?.bio ? "1px 1px 12px 1px #04788f" : "";
+                bioCont.style.padding= user?.bio ? "0.25rem" : "";
                 bioCont.style.maxHeight=less900 ? (less400 ? "300px":"200px"):"150px";
                 const bio=document.createElement("p");
                 bio.id="bio";
@@ -1186,10 +911,11 @@ _onlyMeta:boolean=false;
         
             
       
-    }
+    };
+
+
     //PARENT MAIN: INJECTOR ON show button
     cleanAttributes(parent:HTMLElement,showOn:boolean){
-        DisplayBlog._showOn=showOn;
        
         //OBJECT IS TO HAVE CONTROL ON THE TEXTAREA'S CONTAINER AND TURNON AND OFF ALL ATTRIBUTES ASSOCIATED TO EDITING
         const elements=document.querySelectorAll("[is-element=true]") as any as HTMLElement[];//this covers all selector's eles and eles
@@ -1202,8 +928,7 @@ _onlyMeta:boolean=false;
         const contentEditsFalse=parent.querySelectorAll("[contenteditable='false']");
         const IconHeaders=document.querySelectorAll("[is-icon='true']") as any as HTMLElement[];
         const formGroups=document.querySelectorAll("[data-form-group ='true']");
-        // const textarea=document.querySelector("div#textarea");
-        // const allIcons=textarea?.querySelectorAll("i");
+       
         const flexchoices=document.querySelectorAll("div.flex-choices");
         const removeDesignSelectArrows=document.querySelectorAll("select.select-arrow") as unknown as HTMLElement[];
 
@@ -1262,8 +987,6 @@ _onlyMeta:boolean=false;
                         if(col as HTMLElement && showOn){
                             (col as HTMLElement).classList.remove("box-shadow");
                             (col as HTMLElement).classList.remove("coliIsActive");
-                        }else{
-                            // (col as HTMLElement).classList.add("box-shadow");
                         }
                     });
                     //Parent=textarea
@@ -1302,21 +1025,19 @@ _onlyMeta:boolean=false;
                         }
                     });
 
-                    if(contentEdits && contentEdits.length && contentEdits.length>0){
+                    if(contentEdits.length && contentEdits.length>0){
                         contentEdits.forEach((element)=>{
                             if(element && showOn){
                                 element.setAttribute("contenteditable","false");
                             }
                         });
-                    }else{
-                        if(contentEditsFalse && contentEditsFalse.length){
+                    }else if( contentEditsFalse.length){
                             contentEditsFalse.forEach((element)=>{
                                 if(element && element.nodeName!=="I"){
                                     element.setAttribute("contenteditable","true");
                                     
                                 }
                             });
-                        }
                     };
 
                     ([...formGroups as any] as HTMLElement[]).map(formGrp=>{
@@ -1328,18 +1049,27 @@ _onlyMeta:boolean=false;
                             }
                         }
                     });
-                
+    };
 
 
-    }
-  
-   
-    loadBlog(blog:blogType){
-        this._blog=blog;
-        this._selectors=blog.selectors;
-        this._elements=blog.elements;
-        this._codes=blog.codes;
-    }
+    addLinkEmailTelImg({target,image,href,name,type}:{target:HTMLAnchorElement,image:string,href:string,name:string,type:"link"|"email"|"tel"}){
+        target.textContent="";
+        const text=new Text(name);
+        const span=document.createElement("span");
+        span.style.cssText="display:inline-flex;align-items:center;gap:4px;";
+        const img=document.createElement("img");
+        img.src=image;
+        img.alt="www.ablogroom.com";
+        this._modSelector.dataset.insertcssClassIntoComponents({target:img,level:"element",loc:"flexbox",type:"customHeader",id:"linkImgs",headerType:"custom"});
+        span.appendChild(img);
+        span.appendChild(text);
+        target.appendChild(span);
+        if(type==="link") window.open(href,"_blank");
+        if(type==="email") target.href=href;
+        if(type==="tel") target.href=href;
+    };
+
+    //NOT USED
      async onlyMeta(parent:HTMLElement,blog:blogType){
         const container=document.createElement("div");
         container.style.cssText="display:flex;place-items:center;width:100%;background:white;";
@@ -1380,7 +1110,9 @@ _onlyMeta:boolean=false;
         Misc.divider({parent:metaCont,numLines:2,divCont,color:"blue"});
         parent.appendChild(container)
         container.appendChild(metaCont);
-    }
+    };
+
+    //NOT USED
     static noBlog(item:{parent:HTMLElement}){
         const {parent}=item;
         const container=document.createElement("section");
@@ -1399,8 +1131,10 @@ _onlyMeta:boolean=false;
         Misc.matchMedia({parent:container,maxWidth:600,cssStyle:{"maxWidth":"500px"}});
         Misc.matchMedia({parent:container,maxWidth:460,cssStyle:{"maxWidth":"350px"}});
 
-    }
+    };
 
+
+    //NOT USED
     async showMeta(parent:HTMLElement,blog:blogType,printThis:boolean){
         const topContainer=document.createElement("section");
         topContainer.id="topContainer";
@@ -1478,20 +1212,17 @@ _onlyMeta:boolean=false;
                     
                 }
                
-                }
-           });
-            
-      
-       
-    }
-  
+            }
+        });
+    };
+    
 
     static removeCleanCss(item:{css:string|undefined,rmList:string[],addList:string[]}){
         const {css,rmList,addList}=item;
         if(!css) return "";
-        let modList:string=css;
+
         //REMOVE FROM CSS
-        let arr:string[]=modList.split(";");
+        let arr:string[]=css.split(";");
         if(arr && arr.length>0){
             rmList.map(chList=>{
                 arr=arr.filter(cl=>(!cl.includes(chList)));
@@ -1501,14 +1232,16 @@ _onlyMeta:boolean=false;
                 addList.map(chList=>{
                         arr.push(chList);
                 });
-                modList=arr.join(";");
+                
             }
             return arr.join(";").trim();
         }
-    }
+    };
+
+
      static cleanUp(parent:HTMLElement){
-        if(parent && parent.children){
-        const check=([...parent.children as any] as HTMLElement[]).length>0 ? true:false;
+        if(parent.children){
+        const check=([...parent.children as any] as HTMLElement[]).length>0 ;
         if(check){
             while(parent.firstChild){
                 if(parent.lastChild){
@@ -1517,7 +1250,10 @@ _onlyMeta:boolean=false;
             }
         }
         }
-     }
+     };
+
+
+
      static separator(parent:HTMLElement,bg:string){
         const div=document.createElement("div");
         div.style.cssText="display:flex;flex-direction:column;align-items:center;justify-content:center;";

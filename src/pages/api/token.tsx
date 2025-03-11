@@ -8,7 +8,6 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     if (req.method === "GET") {
         const token = await getToken({ req, secret })
         res.status(200).json({ token });
-
     }
     res.end()
 }

@@ -14,15 +14,18 @@ export default async function Header() {
     return (
         <Index _user_={user} />
     )
-}
+};
 
 export async function getuser(item: { session: Session | null }): Promise<userType | null> {
     const { session } = item;
     let user: userType | null = null;
-    if (!(session && session.user && session.user.email)) return null;
+    if (session === null) return null;
+    if (session.user === undefined) return null;
+    if (!(session.user.email)) return null;
+    const email = session.user.email;
     try {
         user = await prisma.user.findUnique({
-            where: { email: session.user.email },
+            where: { email: email },
             select: {
                 id: true,
                 name: true,
@@ -36,15 +39,22 @@ export async function getuser(item: { session: Session | null }): Promise<userTy
                 username: true
             }
         }) as unknown as userType;
-        if (user && (user.email === EMAIL || user.email === EMAIL2)) {
-            user.admin = true;
-        }
+        if (user) {
+            if ((user.email === EMAIL || user.email === EMAIL2)) {
+                user.admin = true;
+            };
+            await prisma.$disconnect();
+            return user;
+        } else {
+            await prisma.$disconnect();
+            return null;
+        };
+
     } catch (error) {
         const msg = getErrorMessage(error);
         console.log(msg);
-    } finally {
         await prisma.$disconnect();
-        return user;
-    }
+        return null;
+    };
 }
 

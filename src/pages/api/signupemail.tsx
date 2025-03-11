@@ -1,6 +1,5 @@
 import { transporter, mailOptions, } from "@/components/emails/nodemailer";
 import { NextApiRequest, NextApiResponse } from "next";
-import { PrismaClient } from "@prisma/client";
 import { userType } from "@/components/editor/Types";
 import { signUpHTML, signUpText } from "@/components/emails/templates";
 import { getErrorMessage } from "@/lib/errorBoundaries";
@@ -14,7 +13,7 @@ const handler = async (req: NextApiRequest, res: NextApiResponse) => {
         if (!(user_id)) {
             res.status(302).json({ message: "I think you forgot something" })
             return await prisma.$disconnect();
-        }
+        };
         try {
             const user = await prisma.user.findUnique({
                 where: {
@@ -52,7 +51,7 @@ export default handler;
 
 async function regEmailSignUp(item: { user: userType }) {
     const { user } = item;
-    if (!(user && user.id)) return;
+    if (!(user.id)) return;
     try {
         await prisma.signup.create({
             data: {
@@ -60,10 +59,10 @@ async function regEmailSignUp(item: { user: userType }) {
                 name: user.name ? user.name : "noname"
             }
         });
+        return await prisma.$disconnect();
     } catch (error) {
         const msg = getErrorMessage(error);
         console.log(msg);
-    } finally {
-        await prisma.$disconnect();
-    }
+        return await prisma.$disconnect();
+    };
 }

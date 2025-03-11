@@ -1,9 +1,9 @@
-import { PrismaClient } from "@prisma/client";
+
 import { NextApiRequest, NextApiResponse } from "next";
 import { userType } from "@/components/editor/Types";
 import { getErrorMessage } from "@/lib/errorBoundaries";
 import { genHash, hashComp } from "@/lib/ultils/bcrypt";
-import { getUserImage, getUsersImage } from "@/lib/awsFunctions";
+import { getUserImage } from "@/lib/awsFunctions";
 import prisma from "@/prisma/prismaclient";
 
 
@@ -15,7 +15,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         //{user,passwords,emails:null}<= recieved
         const reciever = req.body;
         const { user, passwords, emails } = reciever as { user: userType, passwords: passwordType, emails: emailType }
-        const { email, name, imgKey, bio, id, showinfo, username } = user as userType;
+        const { email, image, name, imgKey, bio, id, showinfo, username } = user as userType;
         const passNew: string | null = passwords ? passwords.passNew as string : null;
         const passOld: string | null = passwords ? passwords.passOld as string : null;
         const emailNew: string | null = emails ? emails.emailNew as string : null;
@@ -33,7 +33,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
                         const user = await prisma.user.update({
                             where: { email: email, password: getUser.password },
                             data: {
-                                password: new_pass ? new_pass : getUser.password,
+                                password: new_pass || getUser.password,
                             },
                             select: {
                                 password: false,
@@ -45,23 +45,25 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
                         });
                         const userWithImg = await getUserImage(user as unknown as userType);
                         res.status(200).json(userWithImg);
+                        return await prisma.$disconnect();
                     } else {
-                        res.status(400).json({ message: "no user" });
+                        res.status(308).json({ message: "no user" });
                         console.error("no user")
+                        return await prisma.$disconnect();
                     }
                 } else {
-                    res.status(400).json({ message: "unmatched password" });
-                    console.error("unmatched password")
-                }
+                    res.status(309).json({ message: "unmatched password" });
+                    console.error("unmatched password");
+                    return await prisma.$disconnect();
+                };
+
             } catch (error) {
                 const msg = getErrorMessage(error);
                 console.error(msg);
                 res.status(500).json({ message: msg });
-            } finally {
-                await prisma.$disconnect();
-            }
-        }
-        if (emails) {
+                return await prisma.$disconnect();
+            };
+        } else if (emails) {
             try {
                 const getUser = await prisma.user.findUnique({
                     where: { email: email, id: id }
@@ -70,7 +72,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
                     const user = await prisma.user.update({
                         where: { id: id, email: getUser.email },
                         data: {
-                            email: emailNew ? emailNew : getUser.email,
+                            email: emailNew || getUser.email,
                         },
                         select: {
                             password: false,
@@ -82,16 +84,18 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
                     });
                     const userWithImg = await getUserImage(user as unknown as userType);
                     res.status(200).json(userWithImg);
-                }
+                    return await prisma.$disconnect();
+                } else {
+                    res.status(309).json({ msg: "forgotten email,,not changed" });
+                    return await prisma.$disconnect();
+                };
             } catch (error) {
                 const msg = getErrorMessage(error);
                 console.error(msg);
                 res.status(500).json({ message: msg });
-            } finally {
-                await prisma.$disconnect();
-            }
-        }
-        if (!passwords && !emails) {
+                return await prisma.$disconnect();
+            };
+        } else if (!passwords && !emails) {
             try {
                 const user = await prisma.user.update({
                     where: { id: id },
@@ -100,7 +104,8 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
                         bio: bio,
                         imgKey: imgKey,
                         showinfo: showinfo,
-                        username: username ? username : null
+                        image: image,
+                        username: username || null
                     },
                     select: {
                         password: false,
@@ -116,33 +121,38 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
                     }
                 });
                 if (user) {
-                    await Promise.all(user.blogs && user.blogs.map(async (blog) => {
+                    await Promise.all(user?.blogs.map(async (blog) => {
 
-                        return await prisma.blog.update({
+                        await prisma.blog.update({
                             where: { id: blog.id },
                             data: {
-                                username: username ? username : null
+                                username: username || null
                             }
                         });
 
                     }));
-                }
-
-                res.status(200).json(user);
+                    res.status(200).json(user);
+                    return await prisma.$disconnect();
+                } else {
+                    res.status(309).json({ msg: "no user" });
+                    return await prisma.$disconnect();
+                };
 
             } catch (error) {
                 const msg = getErrorMessage(error);
                 console.error(msg);
                 res.status(500).json({ message: msg });
-            } finally {
-                await prisma.$disconnect();
-            }
-        }
+                return await prisma.$disconnect();
+            };
+        };
 
 
     } else if (req.method === "GET") {
         const email = req.query.email as string;
-        if (!email) return;
+        if (!email) {
+            res.status(309).json({ msg: "missing email" });
+            return await prisma.$disconnect();
+        };
         try {
             const user = await prisma.user.findUnique({
                 where: { email },
@@ -160,20 +170,22 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
             });
             if (user) {
                 const userImage = await getUserImage(user as unknown as userType)
-                res.status(200).json(userImage)
+                res.status(200).json(userImage);
+                return await prisma.$disconnect();
             } else {
                 res.status(307).json({ msg: "user could not be found" });
+                return await prisma.$disconnect();
             }
         } catch (error) {
             const msg = getErrorMessage(error);
             console.log(msg);
-            res.status(400).json({ msg: "coul not sign in, something went wrong" });
-        } finally {
+            res.status(400).json({ msg });
             return await prisma.$disconnect();
         }
     } else {
         res.status(400).json({ msg: "not authorized" });
-    }
+        return await prisma.$disconnect();
+    };
 
 
 

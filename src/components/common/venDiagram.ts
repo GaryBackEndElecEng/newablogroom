@@ -1,19 +1,130 @@
 import ModSelector from "../editor/modSelector";
-import { element_selType, elementType } from "../editor/Types";
+import {  arrDivContType, elementType } from "../editor/Types";
 import Nav from "../nav/headerNav";
 import Misc from "./misc";
 import Header from "../editor/header";
 import { FaCreate } from "./ReactIcons";
 import { FaCrosshairs } from "react-icons/fa";
+import { idEnumType, idValueType } from "@/lib/attributeTypes";
+import Dataset from './dataset';
 
 
 class Ven{
+    _element:elementType
     constructor(private _modSelector:ModSelector){
-
+        this._element=this._modSelector.initElement;
+        this.element={...this.element,attr:"isVen",type:"ven"};
+    };
+    /////----GETTTERS/SETTERS------//////
+    get element(){
+        return this._element;
+    };
+    set element(element:elementType){
+        this._element=element;
     }
+    /////----GETTTERS/SETTERS------//////
 
+    showCleanVen({parent,element,idValues}:{parent:HTMLElement,element:elementType,idValues:idValueType[]}):arrDivContType{
+        const divCont=document.createElement("div");
+        const target=document.createElement(element.name);
+        const eleId=element.eleId;
+        
+        const rand=Math.floor(Math.random() *1000);
+        parent.style.position="relative";
+        divCont.id=`divCont-ven-${rand}`;
+        target.classList.remove("isActive");
+        target.id=element.eleId;
+        target.innerHTML=element.inner_html;
+        target.className=element.class;
+        this._modSelector.dataset.insertcssClassIntoComponents({target:divCont,level:"element",headerType:undefined,id:"divContId",type:"ven",loc:"htmlElement"});
+        const {cleaned:cleanClasses}=this._modSelector.removeClasses({target:target,classes:["isActive","showName"]});
+        target.className=cleanClasses.join(" ");
+        target.classList.remove("showName");
+       
+        target.style.cssText=`${element.cssText}`;
+        idValues.push({eleId,id:"divContId",attValue:divCont.id});
+        idValues.push({eleId,id:"ele_id",attValue:String(element.id)});
+        idValues.push({eleId,id:"name",attValue:element.name});
+        //----------//---POPULATING ATTRIBUTES TO TARGET && ADDS ATTR/TYPE/IMGKEY ATTRIBUTES FROM IDVALUES------\\-----///
+        const {idValues:retIdValues2}=this._modSelector.dataset.coreDefaultIdValues({
+            target,
+            level:"element",
+            ele:element,
+            sel:null,
+            row:null,
+            col:null,
+            loc:"htmlElement",
+            idValues,
+            clean:false
+
+        });
+        idValues=retIdValues2;
+        this._modSelector.dataset.populateElement({target,level:"element",loc:"htmlElement",clean:true,idValues,selRowColEle:element});
+       //----------//---POPULATING ATTRIBUTES TO TARGET && ADDS ATTR/TYPE/IMGKEY ATTRIBUTES FROM IDVALUES------\\-----///
+       target.classList.remove("showName");
+       divCont.appendChild(target);
+       const arrDivCont:arrDivContType={divCont,target,placement:element.placement,ele:element,isNormal:false,chart:null,sel:null}
+       return arrDivCont
+    };
+
+
+
+     showVen({parent,element,idValues}:{parent:HTMLElement,element:elementType,idValues:idValueType[]}):arrDivContType{
+        const divCont=document.createElement("div");
+        console.log("VEN YES",element)
+        const target=document.createElement(element.name);
+        const eleId=element.eleId;
+        const less400=window.innerWidth < 400;
+        const rand=Math.floor(Math.random() *1000);
+        parent.style.position="relative";
+        divCont.id=`divCont-ven-${rand}`;
+        this._modSelector.dataset.insertcssClassIntoComponents({target:divCont,level:"element",headerType:undefined,id:"divContId",type:"ven",loc:"htmlElement"});
+        divCont.setAttribute("data-placement",`${element.placement}-A`);
+        divCont.style.paddingInline=less400 ? "0.25rem":"1.5rem";
+        target.classList.remove("isActive");
+        target.id=element.eleId;
+        target.innerHTML=element.inner_html;
+        target.className=element.class;
+        const {cleaned:cleanClasses}=this._modSelector.removeClasses({target:target,classes:["isActive","showName"]});
+        target.className=cleanClasses.join(" ");
+        target.classList.remove("showName");
+       
+        target.style.cssText=`${element.cssText}`;
+        idValues.push({eleId,id:"divContId",attValue:divCont.id});
+        idValues.push({eleId,id:"ele_id",attValue:String(element.id)});
+        idValues.push({eleId,id:"name",attValue:element.name});
+        //----------//---POPULATING ATTRIBUTES TO TARGET && ADDS ATTR/TYPE/IMGKEY ATTRIBUTES FROM IDVALUES------\\-----///
+        const {idValues:retIdValues2}=this._modSelector.dataset.coreDefaultIdValues({
+            target,
+            level:"element",
+            ele:element,
+            sel:null,
+            row:null,
+            col:null,
+            loc:"htmlElement",
+            idValues,
+            clean:false
+
+        });
+        idValues=retIdValues2;
+       //----------//---POPULATING ATTRIBUTES TO TARGET && ADDS ATTR/TYPE/IMGKEY ATTRIBUTES FROM IDVALUES------\\-----///
+       target.classList.remove("showName");
+       divCont.appendChild(target);
     
-    venDiagram(parent:HTMLElement){
+        this._modSelector.editElement({target,idValues});
+
+       divCont.onclick=async(e:MouseEvent)=>{
+        if(!e) return;
+            divCont.classList.toggle("isActive");
+            target.classList.toggle("isActive");
+            await this.removeMainElement({parent,divCont,target,idValues});
+        };
+    const arrDivCont:arrDivContType={divCont,target,placement:element.placement,ele:element,isNormal:false,chart:null,sel:null}
+    return arrDivCont
+    };
+    
+    
+    venDiagram({parent,idValues}:{parent:HTMLElement,idValues:idValueType[]}){
         const rand=Math.round(Math.random()*1000);
         Header.cleanUpByID(parent,"container-divCont");
         const container=document.createElement("div");
@@ -24,7 +135,7 @@ class Ven{
         divCont.style.cssText="margin-inline:auto;margin-block:0px;padding:3px;width:100%;display:flex;justify-content:center;align-items;center;flex-direction:column;";
         divCont.setAttribute("data-placement","A");
         const venMain=document.createElement("div");
-        venMain.id=`div-venMain-${rand}`;
+        venMain.id=`target-venMain-${rand}`;
         venMain.setAttribute("is-element","true");
         venMain.setAttribute("is-vendiagram","true");
         venMain.setAttribute("name","div");
@@ -55,8 +166,10 @@ class Ven{
                         const cssStyleTwo={top:"0%",right:"30%",transform:`translateX(${trans}px)`,width:`${width}px`,height:`${width}px`};
                         Array.from(Array(2).keys()).map((num,index)=>{
                             if(index===0){
+                                //left circle
                                 this.ven({id:index,parent:venMain,shade1:"black",width:width,shade2:"#0CAFFF",title:"edit one",text:"edit one",isSizeAdjust:true,cssStyle:cssStyleOne});
                             }else{
+                                //right circle
                                 this.ven({id:index,parent:venMain,shade1:"black",width:width,shade2:"#0CAFFF",title:"edit two",text:"edit Two",isSizeAdjust:true,cssStyle:cssStyleTwo});
                             }
                         });
@@ -87,7 +200,7 @@ class Ven{
                                     this.ven({id:index,parent:venMain,shade1:"black",width:venHeight,shade2:"#0CAFFF",title:"edit two",text:"edit Two",isSizeAdjust:false,cssStyle:cssStyleTwo});
                                 }
                             });
-                            this._modSelector.updateElement(venMain);//updating
+                            this.updateElement({target:venMain,idValues});//updating
                             ///-------ADDING LINEAR GRADIENT------------///
                             ///-------ADDING LINEAR GRADIENT BTN BUTTON-----------------------////
                             const grpBtn=document.createElement("div");
@@ -109,10 +222,7 @@ class Ven{
                                                 child.setAttribute("contenteditable","true");
                                             }
                                         });
-                                        this._modSelector.updateElement(venMain);
-                                        setTimeout(()=>{
-                                            // container.removeChild(grpBtn);
-                                        },1000);
+                                        this.updateElement({target:venMain,idValues});
                     
                                        setTimeout(()=>{
                                         container.removeChild(grpBtn)
@@ -123,7 +233,7 @@ class Ven{
                             ///-------ADDING LINEAR GRADIENT BTN BUTTON-----------------------////
                             ////-----ADDING MID TEXT-----------------////
                             this.paraTextMd(venMain,textMd,venHeight);
-                            this._modSelector.updateElement(venMain);
+                            this.updateElement({target:venMain,idValues});
                             ////-----ADDING MID TEXT-----------------////
                         }
                        
@@ -134,26 +244,39 @@ class Ven{
         divCont.appendChild(venMain);
         container.appendChild(divCont);
         parent.appendChild(container);
-
-        this._modSelector.promElementAdder(venMain).then(async(res)=>{
+        const eleId=venMain.id;
+        const idEnum:idEnumType="isVen";
+        const type="ven";
+        const node=venMain.nodeName.toLowerCase();
+        const {cleaned}=this._modSelector.removeClasses({target:venMain,classes:["isActive","box-shadow"]});
+        idValues.push({eleId,id:idEnum,attValue:idEnum});
+        idValues.push({eleId,id:type,attValue:type});
+        idValues.push({eleId,id:"type",attValue:type});
+        idValues.push({eleId,id:"attr",attValue:idEnum});
+        const placement=this._modSelector.placement
+        this.element={...this.element,
+            eleId,
+            placement,
+            attr:idEnum,
+            type,
+            inner_html:venMain.innerHTML,
+            name:node,
+            class:cleaned.join(" "),
+        }
+        this.elementAdder({target:venMain,element:this.element,idValues}).then(async(res)=>{
             if(res){
                 const ele=res.ele as elementType;
                 divCont.setAttribute("data-placment",`${ele.placement}-A`);
-                divCont.classList.add("isActive");
-                venMain.classList.add("isActive");
+                divCont.onclick=(e:MouseEvent)=>{
+                    if(e){
+                        divCont.classList.toggle("isActive");
+                        res.target.classList.toggle("isActive");
+                        this.removeMainElement({parent,divCont:container,target:res.target,idValues:res.idValues});
+                    }
+                };
             }
         });
-        divCont.onclick=(e:MouseEvent)=>{
-            if(e){
-                divCont.classList.toggle("isActive");
-                venMain.classList.toggle("isActive");
-                const check=([...venMain.classList as any] as string[]).includes("isActive");
-                if(check){
-                    this.removeMainElement(parent,container,venMain);
-                }
-            }
-        };
-        this._modSelector.editElement(venMain);
+        this._modSelector.editElement({target:venMain,idValues});
     }
     ven(item:{id:number,parent:HTMLElement,shade1:string,shade2:string,width:number,title:string,text:string,isSizeAdjust:boolean,cssStyle:{[key:string]:string}}){
         const {id,parent,shade1,width,shade2,title,text,isSizeAdjust,cssStyle}=item;
@@ -250,9 +373,7 @@ class Ven{
         blShades.id="blueShades";
         blShades.name="blueShades";
         anchor.appendChild(container);
-         return new Promise((resolver)=>{
-            resolver({effect,container,blShades})
-         }) as Promise<{effect:HTMLSelectElement,blShades:HTMLSelectElement,container:HTMLElement}>;
+         return Promise.resolve({effect,container,blShades}) as Promise<{effect:HTMLSelectElement,blShades:HTMLSelectElement,container:HTMLElement}>;
         
     }
     paraText(ven:HTMLElement,text:string,width:number,id:number){
@@ -316,9 +437,7 @@ class Ven{
         Misc.matchMedia({parent:container,maxWidth:900,cssStyle:{left:"30%",right:"30%"}});
         Misc.matchMedia({parent:container,maxWidth:400,cssStyle:{left:"20%",right:"20%"}});
 
-        return new Promise((resolver)=>{
-            resolver({input,button,container});
-        }) as Promise<{input:HTMLInputElement,button:HTMLButtonElement,container:HTMLElement}>; 
+        return Promise.resolve({input,button,container}) as Promise<{input:HTMLInputElement,button:HTMLButtonElement,container:HTMLElement}>; 
 
     }
     regExp(item:{str:string,frontReg:RegExp,backReg:RegExp}):{arrWords:{word:string,frIndex:number,bkIndex:number}[]}{
@@ -334,76 +453,139 @@ class Ven{
             }
         }
         return {arrWords:arr}
-    }
-    removeMainElement(parent:HTMLElement,divCont:HTMLElement,target:HTMLElement){
+    };
+
+     elementAdder({target,element,idValues}:{
+                target:HTMLElement,
+                element:elementType,
+                idValues:idValueType[]
+        
+    }):Promise<{ele:elementType|undefined,idValues:idValueType[],target:HTMLElement}>{
+        console.log("BEFORE :INADDER",element)//OK
+        const len=this._modSelector.elements.length;
+        const eleId=target.id;
+        const blog=this._modSelector.blog;
+        const placement=this._modSelector.placement;
+        const {cleaned:classList}=this._modSelector.removeClasses({target,classes:["isActive","box-shadow"]})
+        const check=this._modSelector.elements.find(ele_=>(ele_.eleId===eleId));
+        if(!check){
+            element={...element,
+                id:len,
+                blog_id:blog.id,
+                placement:placement,
+                inner_html:target.innerHTML,
+                cssText:target.style.cssText,
+                class:classList.join(" "),
+                type:"ven",
+                attr:"isVen"
+                
+            };
+            idValues.push({eleId,id:"elementId",attValue:eleId});
+            idValues.push({eleId,id:"ID",attValue:eleId});
+            console.log("tempEle before",element)//NOT OK
+                //----------//---POPULATING ATTRIBUTES TO TARGET && ADDS ATTR/TYPE/IMGKEY ATTRIBUTES FROM IDVALUES------\\-----///
+                const {idValues:retIdValues2}=this._modSelector.dataset.coreDefaultIdValues({
+                target,
+                level:"element",
+                sel:null,row:null,col:null,
+                ele:element,
+                loc:"htmlElement",
+                idValues,
+                clean:false
+            });
+            idValues=retIdValues2;
+          
+            //----------//---POPULATING ATTRIBUTES TO TARGET && ADDS ATTR/TYPE/IMGKEY ATTRIBUTES FROM IDVALUES------\\-----///
+            this._modSelector.elements.push(element as elementType);
+            const elements=this._modSelector.elements;
+            this._modSelector.blog={...this._modSelector.blog,elements:elements}
+            this._modSelector.placement=placement + 1;
+            idValues=Dataset.removeIdValueDuplicates({arr:idValues,eleId});
+            this._modSelector.dataset.upDateIdValues({idValues});
+        }
+        return Promise.resolve({ele:element,idValues,target}) as Promise<{ele:elementType|undefined,idValues:idValueType[],target:HTMLElement}>;
+    };
+    async removeMainElement({parent,divCont,target,idValues}:{parent:HTMLElement,divCont:HTMLElement,target:HTMLElement,idValues:idValueType[]}):Promise<{parent:HTMLElement,divCont:HTMLElement,target:HTMLElement,idValues:idValueType[]}>{
         const check=([...target.classList as any] as string[]).includes("isActive");
-        Header.cleanUpByID(parent,"xIconDiv");
+        Header.cleanUpByID(parent,"xIconDiv-design");
         
         if(check){
-            const css="position:absolute;transform:translate(-2px,-3px);background:inherit;font-size:16px;background:lightgrey;font-weight:bold;border-radius:50%;color:black;top:0px;left:0px;";
+            const css="position:absolute;transform:translate(-2px,-3px);background:inherit;font-size:16px;background:lightgrey;font-weight:bold;border-radius:50%;color:black;top:0px;left:0px;z-index:2000";
             divCont.classList.add("position-relative");
             const xIconDiv=document.createElement("div");
             xIconDiv.setAttribute("contenteditable","false");
             xIconDiv.setAttribute("is-icon","true");
             xIconDiv.className="xIconDiv";
-            xIconDiv.id=`xIconDiv`;
+            xIconDiv.id=`xIconDiv-design`;
             xIconDiv.style.cssText=`${css}`;
+            xIconDiv.style.zIndex=`2000`;
             const cssStyle={background:"inherit",fontSize:"inherit"};
             FaCreate({parent:xIconDiv,name:FaCrosshairs,cssStyle})
             divCont.appendChild(xIconDiv);
             xIconDiv.addEventListener("click",(e:MouseEvent)=>{
                 if(e){
-                    this.promRemoveElement(target).then(async(res)=>{
-                        if(res){
-                            this._modSelector.shiftPlace(res.placement);///REINDEX PLACEMENT!!!!
+                    this.removeElement({target,idValues}).then(async(res)=>{
+                        if(res?.ele && res?.target && res?.idValues){
+                            const ele=res.ele
+                            this._modSelector.shiftPlace(ele.placement);///REINDEX PLACEMENT!!!!
+                            Misc.message({parent,msg:`item:${ele.name}-${ele.placement} was removed`,type_:"success",time:700});
+                            Misc.fadeOut({anchor:divCont,xpos:100,ypos:100,time:500});
+                            
+                            setTimeout(()=>{
+                                ([...parent.children as any] as HTMLElement[]).map(child=>{
+                                    if(child && child.id===divCont.id){
+                                        parent.removeChild(child);
+                                    }
+                                });
+                            },480);
+                        }else{
+                            Misc.message({parent,msg:`item not removed`,type_:"error",time:1200});
                         }
                     });
-                    Misc.fadeOut({anchor:divCont,xpos:100,ypos:100,time:500});
-                    setTimeout(()=>{
-                        ([...parent.children as any] as HTMLElement[]).map(child=>{
-                            if(child && child.id===divCont.id){
-                                console.log("divCont",divCont)
-                                parent.removeChild(child);
-                            }
-                        });
-                    },480);
-                    
-                    
-                   
                 }
             });
          }else{
-            Header.cleanUpByID(parent,"xIconDiv");
+            Header.cleanUpByID(parent,"xIconDiv-design");
          }
+         return new Promise(resolver=>{
+            if(check){
+                resolver({parent,divCont,target,idValues});
+            }
+         }) as Promise<{parent:HTMLElement,divCont:HTMLElement,target:HTMLElement,idValues:idValueType[]}>;
+    };
+
+    updateElement({target,idValues}:{target:HTMLElement,idValues:idValueType[]}):{ele:elementType,target:HTMLElement,idValues:idValueType[]}{
+        const eleId=target.id;
+        this._modSelector.elements=this._modSelector.elements.map((ele)=>{
+        if(ele.eleId===eleId){
+            ele.cssText=target.style.cssText;
+            ele.class=target.className;
+            ele.inner_html=target.innerHTML;
+            this.element=ele;
+        }
+        return ele;
+        });
+        this._modSelector.datasetSincUpdate({target,ele:this.element,idValues,level:"element",loc:"htmlElement"});
+        return {ele:this.element,target,idValues}
     }
 
-    async promElementAdder(target:HTMLElement){
-        return new Promise((resolver)=>{
-            resolver(this._modSelector.elementAdder(target))
-        }) as Promise< {
-            target: HTMLElement | HTMLImageElement;
-            ele: element_selType;
-        } | {
-            target: HTMLElement | HTMLImageElement;
-            ele: elementType;
-        } | undefined>;
-    }
-    promRemoveElement(target:HTMLElement){
-        return new Promise((resolve)=>{
-            resolve(this.removeElement(target));
-        }) as Promise<elementType|undefined>;
-    }
-    removeElement(target:HTMLElement):elementType|undefined{
+    removeElement({target,idValues}:{target:HTMLElement,idValues:idValueType[]}):Promise<{target:HTMLElement,ele:elementType|undefined,idValues:idValueType[]}>{
         let ele_:elementType|undefined;
-        this._modSelector._elements.map((ele,index)=>{
+        const eleId=target.id;
+        this._modSelector.elements.map((ele,index)=>{
                 if(ele.eleId===target.id){
-                    this._modSelector._elements.splice(index,1);
-                    ele_= ele;
+                    this._modSelector.elements.splice(index,1);
+                    idValues.map((kat,index)=>{
+                        if(kat.eleId===eleId){
+                            idValues.splice(index,1);
+                            ele_=ele;
+                        }
+                    });
                 }
         });
-        this._modSelector.elements=this._modSelector._elements;
-        return ele_
-    }
+        
+        return Promise.resolve({target,idValues,ele:ele_}) as Promise<{target:HTMLElement,ele:elementType|undefined,idValues:idValueType[]}>;
+    };
 }
 
 export default Ven;

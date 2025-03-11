@@ -1,17 +1,14 @@
-import { PrismaClient } from "@prisma/client";
+
 import { NextApiRequest, NextApiResponse } from "next";
 import { getErrorMessage } from "@/lib/errorBoundaries";
 import { postType } from "@/components/editor/Types";
 import prisma from "@/prisma/prismaclient";
 
 
-// const EMAIL = process.env.EMAIL as string;
-// const PASSWORD = process.env.PASSWORD as string;
-
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
     const get_id = Number(req.query.id);
     const { id, title, content, link, imageKey, sendReqKey, published, userId, likes, image, sendMsg } = req.body as postType;
-    const ID = id ? id : 0;
+    const ID = Number(id) || 0;
 
 
     if (req.method === "POST") {
@@ -73,9 +70,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
                 console.log("error: ", msg)
                 res.status(400).json({ message: msg });
                 return await prisma.$disconnect();
-            } finally {
-                await prisma.$disconnect()
-            }
+            };
         } else {
             res.status(400).json({ msg: `unauthorized-no user found;${userId}` });
             return await prisma.$disconnect();
@@ -86,7 +81,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
             try {
                 const post = await prisma.post.findUnique({
                     where: {
-                        id: get_id
+                        id: Number(get_id)
                     },
                     select: {
                         id: true,
@@ -105,17 +100,17 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
                 });
                 if (post) {
                     res.status(200).json(post);
+                    return await prisma.$disconnect();
                 } else {
-                    res.status(400).json({ msg: "no post found" })
+                    res.status(400).json({ msg: "no post found" });
+                    return await prisma.$disconnect();
                 }
             } catch (error) {
                 const msg = getErrorMessage(error);
                 console.error(msg);
                 res.status(400).json(msg);
-
-            } finally {
                 return await prisma.$disconnect();
-            }
+            };
         } else {
             try {
                 const posts = await prisma.post.findMany({
@@ -126,15 +121,15 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
                 });
                 if (posts) {
                     res.status(200).json(posts);
+                    return await prisma.$disconnect();
                 } else {
-                    res.status(400).json({ msg: "no posts" })
+                    res.status(304).json({ msg: "no posts" });
+                    return await prisma.$disconnect();
                 }
             } catch (error) {
                 const msg = getErrorMessage(error);
                 console.error(msg);
-                res.status(400).json(msg);
-
-            } finally {
+                res.status(500).json(msg);
                 return await prisma.$disconnect();
             }
         }
@@ -142,35 +137,38 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         try {
             const post_del = await prisma.post.delete({
                 where: {
-                    id: get_id
+                    id: Number(get_id)
                 }
             });
             if (post_del) {
                 await markDelete({ imgKey: post_del.imageKey })
                 res.status(200).json(post_del);
             } else {
-                res.status(400).json({ msg: "no post deleted" })
+                res.status(400).json({ msg: "no post deleted" });
+                return await prisma.$disconnect();
             }
         } catch (error) {
             const msg = getErrorMessage(error);
             console.error(msg);
-            res.status(400).json(msg);
-
-        } finally {
+            res.status(500).json(msg);
             return await prisma.$disconnect();
-        }
-    }
+        };
+    } else {
+        res.status(404).json({ msg: "bad regquest" });
+        return await prisma.$disconnect();
+    };
 
 
 
-}
+};
+
 
 async function markDelete(item: { imgKey: string | null }) {
     const { imgKey } = item;
     if (!imgKey) return
     try {
 
-        const isImg = await prisma.deletedImg.update({
+        await prisma.deletedImg.update({
             where: {
                 imgKey: imgKey
             },
@@ -178,11 +176,10 @@ async function markDelete(item: { imgKey: string | null }) {
                 del: true
             }
         });
-        if (!isImg) return
+        return
     } catch (error) {
         const msg = getErrorMessage(error);
         console.error(msg)
-    } finally {
-        return await prisma.$disconnect();
+        return
     }
 }

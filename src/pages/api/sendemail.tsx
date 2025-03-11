@@ -1,6 +1,5 @@
 import { transporter, sendOptions } from "@/components/emails/nodemailer";
 import { NextApiRequest, NextApiResponse } from "next";
-import { PrismaClient } from "@prisma/client";
 import { sendEmailMsgType, userType } from "@/components/editor/Types";
 import { clientMsgHTML, clientMsgText } from "@/components/emails/templates";
 import { getErrorMessage } from "@/lib/errorBoundaries";
@@ -23,7 +22,7 @@ const handler = async (req: NextApiRequest, res: NextApiResponse) => {
             });
             if (user) {
                 await transporter.sendMail({
-                    ...sendOptions(user.email, viewerEmail as string),
+                    ...sendOptions({ viewerEmail, toEmail: user.email }),
                     subject: `Thank you ${viewerName} for responding!`,
                     text: clientMsgText({ viewerName, viewerEmail, msg: msg, user: user as unknown as userType }),
                     html: await clientMsgHTML({ viewerName, viewerEmail, msg: msg, user: user as unknown as userType })
@@ -35,10 +34,9 @@ const handler = async (req: NextApiRequest, res: NextApiResponse) => {
                         sent: true
                     }
                 });
-                await prisma.$disconnect();
-                //CONFIRM SENT
-                return res.status(200).json({ msg: "sent" });
-            }
+                res.status(200).json({ msg: "sent" });
+                return await prisma.$disconnect();
+            };
 
         } catch (error) {
             console.log(error)

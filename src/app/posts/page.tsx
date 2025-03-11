@@ -4,7 +4,7 @@ import Index from "@/components/posts/Index";
 import styles from "@/components/posts/post.module.css";
 import prisma from "@/prisma/prismaclient";
 import { getErrorMessage } from '@/lib/errorBoundaries';
-import { postType, userSignInType, userType } from '@/components/editor/Types';
+import { postType, userType } from '@/components/editor/Types';
 import { Metadata, ResolvingMetadata } from 'next';
 
 type Props = {
@@ -12,8 +12,6 @@ type Props = {
     searchParams: Promise<{ [key: string]: string | string[] | undefined }>
 }
 export async function generateMetadata(props: Props, parent: ResolvingMetadata): Promise<Metadata> {
-    const params = await props.params;
-    const id = Number(params.id)
     const posts = await getPosts();
     const singleBlog = await genMetadata(parent, { posts });
     return singleBlog;
@@ -47,13 +45,14 @@ export async function getUsersinfo(): Promise<userType[]> {
                 username: true
             }
         }) as unknown as userType[];
+        await prisma.$disconnect()
+        return users;
     } catch (error) {
         const msg = getErrorMessage(error);
         console.log(msg);
-    } finally {
-        await prisma.$disconnect()
-        return users;
-    }
+        await prisma.$disconnect();
+        return [] as userType[];
+    };
 };
 export async function getPosts(): Promise<postType[]> {
     let posts: postType[] = [];
@@ -76,23 +75,22 @@ export async function getPosts(): Promise<postType[]> {
                 userId: true
             }
         }) as unknown as postType[];
+        return posts;
     } catch (error) {
         const msg = getErrorMessage(error);
         console.log(msg);
-    } finally {
         await prisma.$disconnect();
-        return posts;
-    }
+        return [] as postType[];
+    };
 }
 export async function genMetadata(parent: ResolvingMetadata, { posts }: { posts: postType[] }): Promise<Metadata> {
     const par = await parent;
     let keywords: string[] = [];
     keywords = posts.map(post => (post.title));
-    const contentArr = posts.sort((a, b) => { if (a.likes > b.likes) return -1; return 1 }).map(post => (post.content ? `${post.content.split(" ").slice(0, 10).join(" ")}...` : "ablogroom post")).slice(0, 4);
+    const contentArr = posts.toSorted((a, b) => { if (a.likes > b.likes) return -1; return 1 }).map(post => (post.content ? `${post.content.split(" ").slice(0, 10).join(" ")}...` : "ablogroom post")).slice(0, 4);
     keywords = keywords.concat(contentArr);
     const images = [{ url: "https://new-master.s3.ca-central-1.amazonaws.com/ablogroom/posts.png" }, { url: "https://www.ablogroom.com/images/posts.png" }]
     const desc = `Free Posts && Blogs by ABLOGROOM -Blogs Creation by Bloggers for You, such as:${contentArr.join(",")}`;
-    const url = (par && par.metadataBase && par.metadataBase.origin) ? par.metadataBase.origin : "www.ablogroom.com";
     const prevImages = images || par?.openGraph?.images
     const prevDesc = desc || par.openGraph?.description;
     const prevKeywords = keywords || par.keywords;

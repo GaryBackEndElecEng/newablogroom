@@ -8,7 +8,7 @@ import Index from "./index";
 
 export default async function page() {
     const session = await getServerSession();
-    const hasEmail = session && session.user && session.user.email ? session.user.email : null;
+    const hasEmail = session?.user?.email || null;
     const user = await getUser({ email: hasEmail });
     const list = await getQuoteList();
     return (
@@ -35,24 +35,35 @@ async function getUser({ email }: { email: string | null }) {
 
             }
         }) as unknown as userType;
+        await prisma.$disconnect();
+        if (user) {
+            return user;
+        } else {
+            return null
+        }
     } catch (error) {
         const msg = getErrorMessage(error);
         console.log(msg);
-    } finally {
         await prisma.$disconnect();
-        return user;
-    }
-}
+        return null;
+    };
+};
+
 async function getQuoteList(): Promise<quoteCalcItemType[]> {
     let list: quoteCalcItemType[] = [];
     try {
         list = await prisma.quote.findMany() as unknown as quoteCalcItemType[];
+        if (list) {
+            await prisma.$disconnect();
+            return list as unknown as quoteCalcItemType[];
+        } else {
+            return [] as quoteCalcItemType[];
+        }
     } catch (error) {
         const msg = getErrorMessage(error);
         console.log(msg);
-    } finally {
         await prisma.$disconnect();
-        return list;
+        return [] as quoteCalcItemType[];
     }
 }
 

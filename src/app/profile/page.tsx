@@ -8,17 +8,19 @@ import { getErrorMessage } from '@/lib/errorBoundaries';
 
 export default async function page() {
     const session = await getServerSession();
-    const isEmail = (session && session.user && session.user.email) ? session.user.email : null;
+    const isEmail = session?.user?.email ? session.user.email : null;
     if (isEmail) {
         const user = await getUser({ email: isEmail });
+
         return (
             <Index user={user} />
         )
 
     } else {
         redirect("/");
-    }
-}
+    };
+
+};
 
 export async function getUser(item: { email: string }) {
     const { email } = item;
@@ -42,11 +44,19 @@ export async function getUser(item: { email: string }) {
                 devpDeployimgs: true
             }
         }) as unknown as userType;
+        if (user) {
+            await prisma.$disconnect();
+            return user;
+        } else {
+            await prisma.$disconnect();
+            return null;
+        };
+
     } catch (error) {
         const msg = getErrorMessage(error);
         console.log(msg);
-    } finally {
         await prisma.$disconnect();
-        return user;
-    }
+        return null;
+    };
+
 }

@@ -5,24 +5,25 @@ import Nav from "@/components/nav/headerNav";
 
 
 class ErrorClass {
-  
-    urls_:string[];
-    logo:string="/images/gb_logo.png";
-    bend:string="/images/bend.png";
-   _params:{[key:string]:string}[];
-   pages:{id:number,page:string,redir:RegExp,match:RegExp}[]
+  public readonly btnColor:string=Nav.btnColor;
+  public urls_:string[];
+  public readonly logo:string="/images/gb_logo.png";
+  public readonly bend:string="/images/bend.png";
+  public _params:{[key:string]:string}[];
+  public pages:{id:number,page:string,redir:RegExp,match:RegExp}[]
     constructor(){
+        this.btnColor=Nav.btnColor;
        this._params=[];
        this.pages=[
         {id:0,page:'/az',redir:/\/[a-z]{1,3}\//,match:/\//},
-        {id:1,page:'/blog/',redir:/\/(blog)\/[0-9]+[a-z\/]+/,match:/\/(blog)\/[0-9]+/},
-        {id:2,page:'/blogs',redir:/\/(blogs)[a-zA-Z\/]+/,match:/\/(blogs)/},
-        {id:3,page:"/register",redir:/\/(register)[a-zA-Z\/]+/,match:/\/(register)/},
-        {id:4,page:"/editor",redir:/\/(editor)[a-zA-Z\/]+/,match:/\/(editor)/},
-        {id:5,page:"/policy",redir:/\/(policy)[a-zA-Z\/]+/,match:/\/(policy)/},
-        {id:6,page:"/termsOfService",redir:/\/(termsOfService)[a-zA-Z\/]+/,match:/\/(termsOfService)/},
-        {id:7,page:"/admin",redir:/\/(admin)[a-zA-Z\/]+/,match:/\/(admin)/},
-        {id:8,page:"/posts",redir:/\/(posts)[a-zA-Z\/]+/,match:/\/(posts)/},
+        {id:1,page:'/blog/',redir:/\/(blog)\/\d+[a-z/]+/,match:/\/(blog)\/\d+/},
+        {id:2,page:'/blogs',redir:/\/(blogs)[a-zA-Z/]+/,match:/\/(blogs)/},
+        {id:3,page:"/register",redir:/\/(register)\w+/,match:/\/(register)/},
+        {id:4,page:"/editor",redir:/\/(editor)\/\w+/,match:/\/(editor)/},
+        {id:5,page:"/policy",redir:/\/(policy)[a-zA-Z/]+/,match:/\/(policy)/},
+        {id:6,page:"/termsOfService",redir:/\/(termsOfService)[a-zA-Z/]+/,match:/\/(termsOfService)/},
+        {id:7,page:"/admin",redir:/\/(admin)[a-zA-Z/]+/,match:/\/(admin)/},
+        {id:8,page:"/posts",redir:/\/(posts)[a-zA-Z/]+/,match:/\/(posts)/},
       ]
       
       
@@ -34,8 +35,9 @@ class ErrorClass {
     set params(params:{[key:string]:string}[]){
         this._params=params
     }
-    async main(item:{parent:HTMLElement,urls:string[]}){
-        const {parent,urls}=item;
+    async main(item:{parent:HTMLElement,urls:string[],params:{[key:string]:string}[]}){
+        const {parent,urls,params}=item;
+        this.params=params;
         const less900=window.innerWidth < 900;
         const less400=window.innerWidth < 400;
         this.getUrl();//Getting paramters from url && feeding params
@@ -95,7 +97,9 @@ class ErrorClass {
         parent.appendChild(container)
         
 
-    }
+    };
+
+
     ShapeOutside(item:{parent:HTMLElement,subParent:HTMLElement}):Promise<{back:HTMLButtonElement,home:HTMLButtonElement}>{
         const {parent,subParent}=item;
         const less900= window.innerWidth < 900;
@@ -116,14 +120,14 @@ class ErrorClass {
         parent.appendChild(para);
         const btnGrp=document.createElement("div");
         btnGrp.style.cssText="margin-inline:auto;display:flex;flex-wrap:wrap;align-items:center;gap:1.25rem;"
-        const {button:back}=Misc.simpleButton({anchor:btnGrp,type:"button",bg:Nav.btnColor,color:"white",time:500,text:"go back"});
-        const {button:home}=Misc.simpleButton({anchor:btnGrp,type:"button",bg:Nav.btnColor,color:"white",time:500,text:"go home"});
+        const {button:back}=Misc.simpleButton({anchor:btnGrp,type:"button",bg:"black",color:"white",time:500,text:"go back"});
+        const {button:home}=Misc.simpleButton({anchor:btnGrp,type:"button",bg:"black",color:"white",time:500,text:"go home"});
         subParent.appendChild(btnGrp);
         Object.values(this.params).map((item,index)=>{
             if(item.key && item.value && index >0){
                 para.innerHTML+=`<span style="color:white;font-weight:bold;">${item.key}</span> : <span style="color:white;font-weight:bold;">${item.value}</span> <br/>`;
                 if(item.key==="intent"){
-                    const {button:intent}=Misc.simpleButton({anchor:btnGrp,type:"button",bg:Nav.btnColor,color:"white",time:500,text:`${item.value}`});
+                    const {button:intent}=Misc.simpleButton({anchor:btnGrp,type:"button",bg:"black",color:"white",time:500,text:`${item.value}`});
                     intent.onclick=(e:MouseEvent)=>{
                         if(e){
                             const pathname=item.value;
@@ -137,10 +141,10 @@ class ErrorClass {
             }
 
         });
-        return new Promise(resolver=>{
-            resolver({back,home})
-        }) as Promise<{back:HTMLButtonElement,home:HTMLButtonElement}>;
-    }
+        return Promise.resolve({back,home}) as Promise<{back:HTMLButtonElement,home:HTMLButtonElement}>;
+    };
+
+
     async getUrl(){
         //GETTING PARAMETERS FROM URL
         const url=new URL(window.location.href);
@@ -154,7 +158,9 @@ class ErrorClass {
             }
         });
 
-    }
+    };
+
+
     otherSites(item:{parent:HTMLElement,urls:string[]}){
         const {parent,urls}=item;
         const text=document.createElement("h6");
@@ -169,32 +175,34 @@ class ErrorClass {
 
        urls.map(site=>{
         const li=document.createElement("li");
-        const anchor=document.createElement("a");
-        anchor.style.cssText="text-decoration:underline;cursor:pointer";
-        anchor.href=site;
-        anchor.textContent=site;
-        li.appendChild(anchor);
+        li.textContent=site;
+        li.style.cssText="text-decoration:underline;cursor:pointer;";
+        li.className="text-primary";
         ol.appendChild(li);
+        li.onclick=(e:MouseEvent)=>{
+            if(!e) return;
+            window.location.replace(site);
+        };
        });
        otherSite.appendChild(ol);
        parent.appendChild(otherSite);
-    }
+    };
+
 
     retPage(item: { pathname: string }) {
         const { pathname } = item;
         let rtPage: string = '';
-        const params = ["blog_id", "misc", "intent"]
         if (!pathname) return `/error_page?misc=${pathname}`;
         const pages: { id: number, page: string, redir: RegExp, match: RegExp }[] = [
-            { id: 0, page: '/az', redir: /\/[a-z]{1,3}\//, match: /\// },
-            { id: 1, page: '/blog/', redir: /\/(blog)\/[0-9]+[a-z\/]+/, match: /\/(blog)\/[0-9]+/ },
-            { id: 2, page: '/blogs', redir: /\/(blogs)[a-zA-Z\/]+/, match: /\/(blogs)/ },
-            { id: 3, page: "/register", redir: /\/(register)[a-zA-Z\/]+/, match: /\/(register)/ },
-            { id: 4, page: "/editor", redir: /\/(editor)[a-zA-Z\/]+/, match: /\/(editor)/ },
-            { id: 5, page: "/policy", redir: /\/(policy)[a-zA-Z\/]+/, match: /\/(policy)/ },
-            { id: 6, page: "/termsOfService", redir: /\/(termsOfService)[a-zA-Z\/]+/, match: /\/(termsOfService)/ },
-            { id: 7, page: "/admin", redir: /\/(admin)[a-zA-Z\/]+/, match: /\/(admin)/ },
-            { id: 8, page: "/posts", redir: /\/(posts)[a-zA-Z\/]+/, match: /\/(posts)/ },
+            { id: 0, page: '/az', redir: /\/\w+\//, match: /\// },
+            { id: 1, page: '/blog/', redir: /\/(blog)\/\d{2,}\w+/, match: /\/(blog)\/\d+/ },
+            { id: 2, page: '/blogs', redir: /\/(blogs)\w+/, match: /\/(blogs)/ },
+            { id: 3, page: "/register", redir: /\/(register)\w+/, match: /\/(register)/ },
+            { id: 4, page: "/editor", redir: /\/(editor)\w+/, match: /\/(editor)/ },
+            { id: 5, page: "/policy", redir: /\/(policy)\w+/, match: /\/(policy)/ },
+            { id: 6, page: "/termsOfService", redir: /\/(termsOfService)\w+/, match: /\/(termsOfService)/ },
+            { id: 7, page: "/admin", redir: /\/(admin)\w+/, match: /\/(admin)/ },
+            { id: 8, page: "/posts", redir: /\/(posts)\w+/, match: /\/(posts)/ },
         ]
         pages.map(page => {
             if (page.match.test(pathname)) {
@@ -209,7 +217,9 @@ class ErrorClass {
             }
         });
         return rtPage
-    }
+    };
+
+
     titlePage(item:{parent:HTMLElement}){
         const {parent}=item;
         const less900=window.innerWidth < 900;

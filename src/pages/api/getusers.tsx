@@ -1,4 +1,4 @@
-import { PrismaClient } from "@prisma/client";
+
 import { NextApiRequest, NextApiResponse } from "next";
 import { userType } from "@/components/editor/Types";
 import { getErrorMessage } from "@/lib/errorBoundaries";
@@ -27,27 +27,25 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
                         admin: true
                     }
 
-                });
+                }) as unknown[] as userType[];
                 if (!users) { res.status(400).json({ msg: ` no users` }); return await prisma.$disconnect(); };
-                let users_ = users as unknown as userType[];
-                users_ = await Promise.all(
+
+                const users_ = await Promise.all(
                     users.map(async (user) => {
-                        let _user: userType = user as unknown as userType;
-                        if (user && user.imgKey && user.name) {
-                            _user = await getUserImage(user as unknown as userType) as unknown as userType
+                        if (user?.imgKey && user?.name) {
+                            user = await getUserImage(user as unknown as userType)
                         }
-                        return _user
-                    })
+                        return user
+                    }) as unknown[] as userType[]
                 )
                 res.status(301).json(users_);
-
+                return await prisma.$disconnect();
             } catch (error) {
                 const msg = getErrorMessage(error);
                 console.log("error: ", msg)
-                res.status(400).json({ message: msg })
-            } finally {
-                await prisma.$disconnect()
-            }
+                res.status(400).json({ message: msg });
+                return await prisma.$disconnect();
+            };
         } else {
             try {
                 const user = await prisma.user.findUnique({
@@ -67,15 +65,16 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
                 if (user) {
                     const user_ = await getUserImage(user as unknown as userType) as unknown as userType;
                     res.status(200).json(user_);
+                    return await prisma.$disconnect();
                 } else {
                     res.status(400).json({ msg: "no user found" });
+                    return await prisma.$disconnect();
                 }
             } catch (error) {
                 const msg = getErrorMessage(error);
                 console.error(msg);
-            } finally {
-                await prisma.$disconnect();
-            }
+                return await prisma.$disconnect();
+            };
         }
 
     }

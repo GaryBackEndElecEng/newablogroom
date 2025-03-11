@@ -1,35 +1,36 @@
 import { IconType } from "react-icons";
-import { FaBold, FaCaretSquareDown, FaPalette, FaParagraph, FaUnderline,FaThumbsUp, FaHighlighter, FaFonticons, FaAlignCenter, FaItalic, FaBraille, FaBoxOpen, FaDoorClosed, FaDoorOpen } from "react-icons/fa";
-import { FaCircleUp, FaSpaceAwesome } from "react-icons/fa6";
+import { FaBold, FaCaretSquareDown, FaPalette, FaParagraph, FaUnderline, FaHighlighter, FaFonticons, FaAlignCenter, FaItalic, FaBraille, FaDoorClosed, FaDoorOpen } from "react-icons/fa";
+
 import Misc from "./misc";
 import Header from "../editor/header";
-import { FaCreate } from "./ReactIcons";
+
 import ModSelector from "../editor/modSelector";
-import { elementType} from "../editor/Types";
+import { element_selType, elementType} from "../editor/Types";
+import { idValueType } from "@/lib/attributeTypes";
 
 
 class EditText{
-    toolbar_arr:{name:string,icon:IconType,class:string|undefined,show:boolean}[];
+    toolbar_arr:{name:string,icon:IconType,class:string|undefined,show:boolean,cssStyle:{[key:string]:string}|undefined}[];
     _selected:string;
     _startEnd:{start:number,end:number};
     _content:string;
     _replaceText:string;
-    _element:elementType;
+    private _element:elementType;
 
     constructor(private _modSelector:ModSelector){
         this.toolbar_arr=[
-            {name:"p",icon:FaParagraph,class:"my-1",show:false},
-            {name:"underline",icon:FaUnderline,class:"text-decoration-underline text-underline-offset-2",show:true},
-            {name:"return",icon:FaCaretSquareDown,class:"my-1",show:false},
-            {name:"bold",icon:FaBold,class:"font-bold",show:true},
-            {name:"italic",icon:FaItalic,class:"font-italic",show:true},
-            {name:"italic-bracket",icon:FaBraille,class:"font-italic",show:true},
-            {name:"color",icon:FaPalette,class:undefined,show:true},
-            {name:"bg",icon:FaHighlighter,class:undefined,show:true},
-            {name:"fontSize",icon:FaFonticons,class:undefined,show:true},
-            {name:"text-center",icon:FaAlignCenter,class:"text-center mb-2",show:true},
+            {name:"p",icon:FaParagraph,class:"my-1",show:false,cssStyle:{marginLeft:"0.5rem"}},
+            {name:"underline",icon:FaUnderline,class:"text-decoration-underline text-underline-offset-2",show:true,cssStyle:{marginInline:"auto"}},
+            {name:"return",icon:FaCaretSquareDown,class:"my-1",show:false,cssStyle:undefined},
+            {name:"bold",icon:FaBold,class:"font-bold",show:true,cssStyle:undefined},
+            {name:"italic",icon:FaItalic,class:"font-italic",show:true,cssStyle:undefined},
+            {name:"italic-bracket",icon:FaBraille,class:"font-italic",show:true,cssStyle:undefined},
+            {name:"color",icon:FaPalette,class:undefined,show:true,cssStyle:undefined},
+            {name:"bg",icon:FaHighlighter,class:undefined,show:true,cssStyle:undefined},
+            {name:"fontSize",icon:FaFonticons,class:undefined,show:true,cssStyle:undefined},
+            {name:"text-center",icon:FaAlignCenter,class:"text-center mb-2",show:true,cssStyle:undefined},
         
-            ]
+            ];
             this._content="";
             this._selected="";
             this._startEnd={start:0,end:0};
@@ -71,7 +72,7 @@ class EditText{
 
 
 
-    toolbar(item:{parent:HTMLElement,target:HTMLTextAreaElement,submit:HTMLButtonElement|null}){
+    toolbar(item:{parent:HTMLElement,target:HTMLTextAreaElement,submit:HTMLButtonElement|null,idValues:idValueType[]}){
         const {parent,target,submit}=item;
         this.content=target.value;
         target.onselectionchange=(e:Event)=>{
@@ -84,7 +85,6 @@ class EditText{
                 const selected=target.value.slice(start,end);
                 this.selected=selected;//works
                 Header.cleanUpByID(parent,"textTool-popup");
-                // parent.style.position="relative";
                 const css_col="margin-inline:auto;display:flex;flex-direction:column;justify-content:center;align-items:center;max-width:400;width:100%;padding-inline:0.25rem;"
                 const css_row_block="margin-inline:auto;display:inline-flex;justify-content:space-around;align-items:center;width:100%;height:30px;flex-wrap:wrap;padding-inline:1rem;"
                 const popup=document.createElement("div");
@@ -102,7 +102,8 @@ class EditText{
                     const btn=Misc.btnIcon({anchor:toolbar,cssStyle,icon:item.icon,label:null,msgHover:item.name,time:400});
                     btn.onclick=(e:MouseEvent)=>{
                         if(e){
-                            this.textTool({btn,target,selected:selected,name:item.name,submit,start,end}).then(async(res)=>{
+                            const {cssStyle:cssStyle_}=item;
+                            this.textTool({btn,target,selected:selected,name:item.name,submit,start,end,cssStyle:cssStyle_}).then(async(res)=>{
                                 if(res){
                                     target.value=res.content;
                                     if(res.submit){
@@ -119,9 +120,11 @@ class EditText{
             }
         };
 
-    }
-    paragraphEditorbar(item:{parent:HTMLElement,target:HTMLElement}){
-        const {parent,target}=item;
+    };
+
+
+    paragraphEditorbar(item:{parent:HTMLElement,target:HTMLElement,idValues:idValueType[]}){
+        const {parent,target,idValues}=item;
         const less900=window.innerWidth < 900;
         const less400=window.innerWidth < 400;
         const btnContainer=document.createElement("div");
@@ -132,8 +135,6 @@ class EditText{
         const cssStyle={backgroundColor:"black",color:"white",textDecoration:"underline",fontWeight:"bold",fontSize:"26px",width:"auto"};
         let getToolbar: HTMLButtonElement | null;
         let getHidebar:HTMLButtonElement | null;
-        // Header.cleanUpByID(btnContainer,"toolbar-btn");
-        // Header.cleanUpByID(btnContainer,"hide-btn");
         ["showBtn","hideBtn"].map(itemBtn=>{
             if(itemBtn==="showBtn"){
                 const icon:IconType=FaDoorOpen
@@ -166,7 +167,7 @@ class EditText{
                         const btn=(e.currentTarget as HTMLButtonElement);
                         btn.style.opacity="0";
                         btn.style.order="1";
-                        this.paraEditorbarPopup({parent,target,less900,less400,show:false});
+                        this.paraEditorbarPopup({parent,target,less900,less400,show:false,idValues});
                     };
                 }
                 getToolbar.onclick=(e:MouseEvent)=>{
@@ -177,25 +178,25 @@ class EditText{
                         btn.style.order="1";
                         getHidebar.style.opacity="1";
                         getHidebar.style.order="-1";
-                        this.paraEditorbarPopup({parent,target,less900,less400,show:true});   
+                        this.paraEditorbarPopup({parent,target,less900,less400,show:true,idValues});   
                         }
                     }
             };
         }
 }
 
-    paraEditorbarPopup(item:{parent:HTMLElement,target:HTMLElement,less900:boolean,less400:boolean,show:boolean}){
-        const {parent,target,less900,less400,show}=item;
+    paraEditorbarPopup(item:{parent:HTMLElement,target:HTMLElement,less900:boolean,less400:boolean,show:boolean,idValues:idValueType[]}){
+        const {parent,target,show,idValues}=item;
         if(show){
 
             Header.cleanUpByID(parent,"paragraphEditorbar-popup");
-            // parent.style.position="relative";
+          
             const css_col="margin-inline:auto;display:flex;flex-direction:column;justify-content:center;align-items:center;max-width:400;width:100%;padding-inline:0.25rem;"
             const css_row_block="margin-inline:auto;display:inline-flex;justify-content:space-around;align-items:center;width:100%;height:30px;flex-wrap:wrap;padding-inline:1rem;"
             const popup=document.createElement("div");
             popup.id="paragraphEditorbar-popup";
             popup.style.cssText=css_col + "position:absolute;background-color:white;color:black;box-shadow:1px 1px 12px 1px lightblue;border-radius:12px;height:auto;z-index:100;";
-            popup.style.top=less900 ? (less400 ? "-10px":"-10px") : "-10px";
+            popup.style.top="-10px";
             const toolbar=document.createElement("div");
             toolbar.id="textTool-popup-toolbar";
             toolbar.style.cssText=css_row_block;
@@ -207,13 +208,13 @@ class EditText{
                     btn.setAttribute("name",item.name)
                     btn.onclick=(e:MouseEvent)=>{
                         if(e){
-                            const {selected,start,end,len,node}=this.getSelectionText({target});
+                            const {selected,start,end,node}=this.getSelectionText({target});
                             this.startEnd={start,end};
                             this.selected=selected;
                             // console.log("node",node)// this is the node that the item is heightlighted
                             const class_=item.class;
                             if(selected && start && end){
-                                this.textToolEditorClass({parent,btn,selected,class_,target,start,end,node});
+                                this.textToolEditorClass({parent,btn,selected,class_,target,start,end,node,idValues});
                             }
                         }
                     };
@@ -225,7 +226,9 @@ class EditText{
         }else{
             Header.cleanUpByID(parent,"paragraphEditorbar-popup");
         }
-    }
+    };
+
+
     getSelectionText({target}:{target:HTMLElement}):{selected:string,start:number,end:number,len:number,node:Node}{
         const words=target.innerHTML as string;
         let text="";
@@ -242,6 +245,9 @@ class EditText{
             start=doc.focusOffset;
             end=start + text.length;
             node=doc.focusNode as Node;
+            // console.log("node",node);
+            // console.log("text",text);
+            // console.log("doc",doc);
         });
         // }
         return{
@@ -252,251 +258,275 @@ class EditText{
             node:node
         }
         
-    }
+    };
 
-   async textToolEditorClass(item:{parent:HTMLElement,btn:HTMLButtonElement,selected:string,class_:string|undefined,start:number,end:number,target:HTMLElement,node:Node}){
-        const {parent,btn,target,selected,start,end,class_,node}=item;
+   async textToolEditorClass(item:{
+    parent:HTMLElement,
+    btn:HTMLButtonElement,
+    selected:string,
+    class_:string|undefined,
+    start:number,
+    end:number,
+    target:HTMLElement,
+    node:Node,
+    idValues:idValueType[]
+
+   }){
+        const {parent,btn,target,selected,start,end,class_,node,idValues}=item;
         const name=btn.getAttribute("name");
         
         //create span, add class && appendTo Target
-        switch(true){
-            case name==="underline":
-                const under=document.createElement("u");
-                under.textContent=selected;
-                return await this.insertWord({target,span:under,selected,start,end,node})?.then(async(res_)=>{
-                    console.log(res_);
-                    if(res_ && res_.found){
-                        this.element=res_.ele;
-                    }
-                    return this.element;
-                });
-            
-            case name==="italic":
-                const ital=document.createElement("i");
-                ital.textContent=selected;
-                return await this.insertWord({target,span:ital,selected,start,end,node})?.then(async(res_)=>{
-                    console.log(res_);
-                    if(res_ && res_.found){
-                        this.element=res_.ele;
-                    }
-                    return this.element;
-                });
-            
-            case name==="italic-bracket":
-                const italic=document.createElement("i");
-                italic.textContent=selected;
-                if(class_){
-                    italic.className=class_;
+        if(name==="underline"){
+            const under=document.createElement("u");
+            under.textContent=selected;
+            return await this.insertWord({target,span:under,start,end,node,idValues})?.then(async(res_)=>{
+                if(res_?.found){
+                    this.element=res_.ele as elementType;
                 }
-               return await  this.insertWord({target,span:italic,selected,start,end,node})?.then(async(res_)=>{
-                    console.log(res_);
-                    if(res_ && res_.found){
-                        this.element=res_.ele;
-                    }
-                    return this.element;
-                });
-            
-            case name==="p":
-                const para=document.createElement("p");
-                para.textContent=selected;
-               return await this.insertWord({target,span:para,selected,start,end,node})?.then(async(res_)=>{
-                    if(res_ && res_.found){
-                        this.element=res_.ele;
-                    }
-                    return this.element;
-                });
-           
-            case name==="return":
-                const ret=document.createElement("div");
-                ret.textContent=selected;
-                if(class_){
-                    ret.className=class_;
+                return this.element;
+            });
+        }else if(name==="italic"){
+            const ital=document.createElement("i");
+            ital.textContent=selected;
+            return await this.insertWord({target,span:ital,start,end,node,idValues})?.then(async(res_)=>{
+                if(res_?.found){
+                    this.element=res_.ele as elementType;
                 }
-              return await  this.insertWord({target,span:ret,selected,start,end,node})?.then(async(res_)=>{
-                    console.log(res_);
-                    if(res_ && res_.found){
-                        this.element=res_.ele;
-                    }
-                    return this.element;
-                });
-           
-            case name==="bold":
-                const b=document.createElement("b");
-                b.textContent=selected;
-                if(class_){
-                    b.className=class_
+                return this.element;
+            });
+        }else if(name==="italic-bracket"){
+            const italic=document.createElement("i");
+            italic.textContent=selected;
+            if(class_){
+                italic.className=class_;
+            }
+           return await  this.insertWord({target,span:italic,start,end,node,idValues})?.then(async(res_)=>{
+                if(res_?.found){
+                    this.element=res_.ele as elementType;
                 }
-               return await this.insertWord({target,span:b,selected,start,end,node})?.then(async(res_)=>{
-                    console.log(res_)
-                    if(res_ && res_.found){
-                        this.element=res_.ele;
-                    }
-                    return this.element;
-                });
-           
-            case name==="color":
-               return await this.colorTwoPalette({parent,selected}).then(async(res)=>{
-                    if(res){
+                return this.element;
+            });
+        }else if(name==="p"){
+            const para=document.createElement("p");
+            para.textContent=selected;
+           return await this.insertWord({target,span:para,start,end,node,idValues})?.then(async(res_)=>{
+                if(res_?.found){
+                    this.element=res_.ele as elementType;
+                }
+                return this.element;
+            });
+        }else if(name==="return"){
+            const ret=document.createElement("div");
+            ret.textContent=selected;
+            if(class_){
+                ret.className=class_;
+            }
+          return await  this.insertWord({target,span:ret,start,end,node,idValues})?.then(async(res_)=>{
+                console.log(res_);
+                if(res_?.found){
+                    this.element=res_.ele as elementType;
+                }
+                return this.element;
+            });
+        }else if(name==="bold"){
+            const b=document.createElement("b");
+            b.textContent=selected;
+            if(class_){
+                b.className=class_
+            }
+           return await this.insertWord({target,span:b,start,end,node,idValues})?.then(async(res_)=>{
+                console.log(res_)
+                if(res_?.found){
+                    this.element=res_.ele as elementType;
+                }
+                return this.element;
+            });
+        }else if(name==="color"){
+            return await this.colorTwoPalette({parent,selected}).then(async(res)=>{
+                if(res){
+                    res.form.onsubmit=async(e:SubmitEvent)=>{
+                        if(e){
+                            e.preventDefault();
+                            const formdata=new FormData(e.currentTarget as HTMLFormElement);
+                            const getColor=formdata.get("color") as string;
+                            const span=document.createElement("color");
+                            span.textContent=selected;
+                            span.style.cssText=`color:${getColor};`;
+                            if(!getColor) return;
+                           return await this.insertWord({target,span,start,end,node,idValues})?.then(async(res_)=>{
+                                console.log(res_);
+                                if(res_?.found){
+                                    this.element=res_.ele as elementType;
+                                }
+                                res.parent.removeChild(res.popup);
+                                return this.element;
+                            });
+                        }
+                    };
 
-                        res.form.onsubmit=async(e:SubmitEvent)=>{
-                            if(e){
-                                e.preventDefault();
-                                const formdata=new FormData(e.currentTarget as HTMLFormElement);
-                                const getColor=formdata.get("color") as string;
-                                const span=document.createElement("span");
-                                span.textContent=selected;
-                                span.style.cssText=`color:${getColor};`;
-                                if(!getColor) return;
-                               return await this.insertWord({target,span,selected,start,end,node})?.then(async(res_)=>{
-                                    console.log(res_);
-                                    if(res_ && res_.found){
-                                        this.element=res_.ele;
-                                    }
-                                    res.parent.removeChild(res.popup);
-                                    return this.element;
-                                });
-                            }
-                        };
-
-                    }
-                });
-           
-            case name==="bg":
-               return await this.colorTwoPalette({parent,selected}).then(async(res)=>{
-                    if(res){
-                        res.form.onsubmit=async(e:SubmitEvent)=>{
-                            if(e){
-                                e.preventDefault();
-                                const formdata=new FormData(e.currentTarget as HTMLFormElement);
-                                const getColor=formdata.get("color") as string;
-                                const span=document.createElement("span");
-                                span.textContent=selected;
-                                span.style.cssText=`background-color:${getColor};`;
-                                if(!getColor) return;
-                                this.insertWord({target,span,selected,start,end,node})?.then(async(res_)=>{
-                                    console.log(res_);
-                                    if(res_ && res_.found){
-                                        this.element=res_.ele;
-                                    }
-                                    res.parent.removeChild(res.popup);
-                                    return this.element;
-                                });
-                            }
-                        };
-                    }
-                });
-           
-            case name==="fontSize":
-               return await this.fontsize({parent,selected}).then(async(res)=>{
-                    if(res){
-                        res.form.onsubmit=(e:SubmitEvent)=>{
-                            if(e){
-                                e.preventDefault();
-                                const formdata=new FormData(e.currentTarget as HTMLFormElement);
-                                const getNum=formdata.get("num") as string;
-                                const span=document.createElement("span");
-                                span.textContent=selected;
-                                span.style.cssText=`font-size:${getNum}px;`
-                                if(!getNum) return;
-                                this.insertWord({target,span,selected,start,end,node})?.then(async(res_)=>{
-                                    // console.log(res_);
-                                    if(res_ && res_.found){
-                                        this.element=res_.ele;
-                                    }
-                                    res.parent.removeChild(res.popup);
-                                    return this.element;
-                                });
-                            }
-                        };
-
-                    }
-                });
-          
-            case name==="text-center":
-                const span=document.createElement("div");
-                span.textContent=selected;
-                if(class_){
-                    span.className=class_;
                 }
-               return await this.insertWord({target,span,selected,start,end,node})?.then(async(res)=>{
-                    if(res && res.found){
-                        this.element=res.ele;
-                    }
-                    return this.element;
-                });
-            default:
-                return;
-           
+            });
+        }else if(name==="bg"){
+            return await this.colorTwoPalette({parent,selected}).then(async(res)=>{
+                if(res){
+                    res.form.onsubmit=async(e:SubmitEvent)=>{
+                        if(e){
+                            e.preventDefault();
+                            const formdata=new FormData(e.currentTarget as HTMLFormElement);
+                            const getColor=formdata.get("color") as string;
+                            const span=document.createElement("color");
+                            span.textContent=selected;
+                            span.style.cssText=`background-color:${getColor};`;
+                            if(!getColor) return;
+                            this.insertWord({target,span,start,end,node,idValues})?.then(async(res_)=>{
+                                console.log(res_);
+                                if(res_?.found){
+                                    this.element=res_.ele as elementType;
+                                }
+                                res.parent.removeChild(res.popup);
+                                return this.element;
+                            });
+                        }
+                    };
+                }
+            });
+        }else if(name==="fontSize"){
+            return await this.fontsize({parent,selected}).then(async(res)=>{
+                if(res){
+                    res.form.onsubmit=(e:SubmitEvent)=>{
+                        if(e){
+                            e.preventDefault();
+                            const formdata=new FormData(e.currentTarget as HTMLFormElement);
+                            const getNum=formdata.get("num") as string;
+                            const span=document.createElement("span");
+                            span.textContent=selected;
+                            span.style.cssText=`font-size:${getNum}px;`
+                            if(!getNum) return;
+                            this.insertWord({target,span,start,end,node,idValues})?.then(async(res_)=>{
+                                
+                                if(res_?.found){
+                                    this.element=res_.ele as elementType;
+                                }
+                                res.parent.removeChild(res.popup);
+                                
+                            });
+                        }
+                    };
+
+                }
+            });
+        }else if(name==="text-center"){
+            const span=document.createElement("div");
+            span.textContent=selected;
+            if(class_){
+                span.className=class_;
+            }
+           return await this.insertWord({target,span,start,end,node,idValues})?.then(async(res)=>{
+                if(res?.found){
+                    this.element=res.ele as elementType;
+                }
+                return this.element;
+            });
         }
+
 
     };
-    async textTool(item:{btn:HTMLButtonElement,target:HTMLTextAreaElement,selected:string,name:string,submit:HTMLButtonElement|null,start:number,end:number}):Promise<{content:string,submit:HTMLButtonElement|null}|void>{
+    
+
+    async textTool(item:{
+        btn:HTMLButtonElement;
+        target:HTMLTextAreaElement;
+        selected:string;
+        name:string;
+        submit:HTMLButtonElement|null;
+        start:number;
+        end:number;
+        cssStyle:{[key:string]:string}|undefined;
+
+    }):Promise<{content:string,submit:HTMLButtonElement|null}|void>{
         const {btn,target,selected,name,submit,start,end}=item;
-        switch(true){
-            case name==="P":
-                this.replaceText=`<p>${selected}</p>`;
-                const text0=`<p>${selected}</p>`;
-                // submit.disabled=false;
-                return await this.matchword({target,selected,replace_:text0,start,end,submit});
-            case name==="underline":
-                this.replaceText=`<span style=text-decoration:underline;>${selected}</span>`;
-                const text=`<span style=text-decoration:underline;>${selected}</span>`;
-                // submit.disabled=false;
-                return await this.matchword({target,selected,replace_:text,start,end,submit});
-            case name==="upperCase":
-                this.replaceText=`<span>${selected.toUpperCase()}</span>`;
-                const text2=`<span>${selected.toUpperCase()}</span>`;
-                // submit.disabled=false;
-                return await this.matchword({target,selected,replace_:text2,start,end,submit});
-            case name==="return":
-                const text4=`${selected}<br>`;
-            return await this.matchword({target,selected,replace_:text4,start,end,submit});
-            case name==="bold":
-                this.replaceText=`<span style=font-weight:bold;>${selected}</span>`;
-                const text3=`<span style=font-weight:bold;>${selected}</span>`;
-                // submit.disabled=false;
-                return await this.matchword({target,selected,replace_:text3,start,end,submit});
-            case name==="bg":
-                const text5=`<span style=background-color:black;color:white;padding-inline:10px;>${selected}</span>`;
-                // submit.disabled=false;
-                return await this.matchword({target,selected,replace_:text5,start,end,submit});
-            case name==="color":
-                return await this.colorPalette({parent:btn,selected}).then(async(input)=>{
-                    if(input){
-                        input.onchange=async (e:Event)=>{
-                            if(e){
-                                const selectedColor=(e.currentTarget as HTMLInputElement).value;
-                                const text=`<span style=color:${selectedColor};>${selected}</span>`;
-                                const result= await this.matchword({target,selected,replace_:text,start,end,submit});
-                                target.value=result.content;
-                                // submit.disabled=false;
-                                input.remove();
-                            }
-                        };
+        if(name==="color"){
+            await this.colorPalette({parent:btn,selected}).then(async(input)=>{
+                if(input){
+                    input.onchange=async (e:Event)=>{
+                        if(e){
+                            const selectedColor=(e.currentTarget as HTMLInputElement).value;
+                            const html=this.cssClassInserter({name,highlighted:selected,cssStyle:{color:selectedColor}});
+                            input.remove();
+                            return await this.matchword({target,selected,replace_:html as string,start,end,submit});
+                        }
                     };
-                });
-            return;
-            default:
-                return undefined;
-            
-        }
-    }
+                };
+            });
+        }else if(name==="bg"){
+            await this.colorPalette({parent:btn,selected}).then(async(input)=>{
+                if(input){
+                    input.onchange=async (e:Event)=>{
+                        if(e){
+                            const selectedColor=(e.currentTarget as HTMLInputElement).value;
+                            const html=this.cssClassInserter({name,highlighted:selected,cssStyle:{backgroundColor:selectedColor}});
+                            input.remove();
+                            return await this.matchword({target,selected,replace_:html as string,start,end,submit});
+                        }
+                    };
+                };
+            });
+        }else{
+            const html=this.cssClassInserter({name,highlighted:selected,cssStyle:{color:"black"}});
+            return await this.matchword({target,selected,replace_:html as string,start,end,submit});
+        };
+       
+    };
+
+
+    cssClassInserter({name,highlighted,cssStyle}:{
+        name:string;
+        highlighted:string;
+        cssStyle:{[key:string]:string}|undefined;
+    }):string|undefined{
+        const span=document.createElement("span");
+        if(cssStyle){
+            for(const [key,value] of Object.entries(cssStyle)){
+                if(key && value){
+                    span.style[key]=value;
+                };
+            };
+        };
+        const css=span.style.cssText;
+        const cssInsert=css!=="" ? css :"";
+        const toolArr:{name:string,html:string}[]=[
+            {name:"P",html:`<p style=${cssInsert}><br/>${highlighted}</p>`},
+            {name:"underline",html:`<span style=${cssInsert}><u>${highlighted}</u></span>`},
+            {name:"upperCase",html:`<span style=${cssInsert}>${highlighted.toUpperCase()}</span>`},
+            {name:"bold",html:`span style=${cssInsert}><strong>${highlighted}</strong></span>`},
+            {name:"bg",html:`<span style=${cssInsert}>${highlighted}</span>`},
+            {name:"color",html:`<span style=${cssInsert}>${highlighted}</span>`},
+        ];
+        const selected=toolArr.find(kv=>(kv.name===name));
+        if(selected){
+            return selected.html
+        };
+        
+    };
+
+
+
    async colorPalette(item:{parent:HTMLElement,selected:string}):Promise<HTMLInputElement>{
-        const {parent,selected}=item;
+        const {parent}=item;
         const input=document.createElement("input");
         input.id="colorPallette-input";
         input.type="color";
         parent.append(input);
-        return new Promise(resolved=>{
-            resolved(input)
-        }) as Promise<HTMLInputElement>;
-    }
+        return Promise.resolve(input) as Promise<HTMLInputElement>;
+    };
+
+
    async colorTwoPalette(item:{parent:HTMLElement,selected:string}):Promise<{input:HTMLInputElement,parent:HTMLElement,popup:HTMLElement,form:HTMLFormElement}>{
-        const {parent,selected}=item;
+        const {parent}=item;
         Header.cleanUpByID(parent,"popup-colorTwopalette");
         const popup=document.createElement("div");
         popup.id="popup-colorTwopalette";
-        popup.style.cssText="position:absolute;top:-30%;width:fit-content;z-index:100;";
+        popup.style.cssText="position:absolute;top:-10%;width:fit-content;z-index:100;";
         const form=document.createElement("form");
         form.style.cssText="display:flex;margin:1rem;border-radius:12px;flex-direction:column;width:200px;align-items:center;";
         form.id="color-form";
@@ -504,16 +534,16 @@ class EditText{
         input.id="colorPallette-input";
         input.type="color";
         input.name="color";
-        const {button}=Misc.simpleButton({anchor:form,text:"submit",bg:"black",color:"white",type:"submit",time:400});
+        Misc.simpleButton({anchor:form,text:"submit",bg:"black",color:"white",type:"submit",time:400});
         form.append(input);
         popup.appendChild(form);
         parent.appendChild(popup);
-        return new Promise(resolved=>{
-            resolved({input,parent,popup,form})
-        }) as Promise<{input:HTMLInputElement,parent:HTMLElement,popup:HTMLElement,form:HTMLFormElement}>;
-    }
+        return Promise.resolve({input,parent,popup,form}) as Promise<{input:HTMLInputElement,parent:HTMLElement,popup:HTMLElement,form:HTMLFormElement}>;
+    };
+
+
    async fontsize(item:{parent:HTMLElement,selected:string}):Promise<{input:HTMLInputElement,parent:HTMLElement,popup:HTMLElement,form:HTMLFormElement}>{
-        const {parent,selected}=item;
+        const {parent,}=item;
         Header.cleanUpByID(parent,"popup-fontsize");
         const popup=document.createElement("div");
         popup.id="popup-fontsize";
@@ -525,32 +555,30 @@ class EditText{
         input.id="fontsize-input";
         input.type="number";
         input.name="num";
-        const {button}=Misc.simpleButton({anchor:form,text:"submit",bg:"black",color:"white",type:"submit",time:400});
+        Misc.simpleButton({anchor:form,text:"submit",bg:"black",color:"white",type:"submit",time:400});
         form.append(input);
         popup.appendChild(form);
         parent.appendChild(popup);
-        return new Promise(resolved=>{
-            resolved({input,parent,popup,form})
-        }) as Promise<{input:HTMLInputElement,parent:HTMLElement,popup:HTMLElement,form:HTMLFormElement}>;
-    }
+        return Promise.resolve({input,parent,popup,form}) as Promise<{input:HTMLInputElement,parent:HTMLElement,popup:HTMLElement,form:HTMLFormElement}>;
+    };
+
+
     matchword(item:{target:HTMLTextAreaElement,selected:string,replace_:string,start:number,end:number,submit:HTMLButtonElement|null}):Promise<{content:string,submit:HTMLButtonElement|null}>{
         const {target,selected,replace_,start,end,submit}=item;
         const content=target.value;
         let newText="";
         if(content.includes(selected)){
-            // const start=this.startEnd.start;
-            // const end=this.startEnd.end;
             const len=content.length;
             const textStart=content.slice(0,start);
             const textEnd=content.slice(end,len);
             newText=textStart + " " + replace_ + " " + textEnd
         }
-        return new Promise(resolver=>{
-            resolver({content:newText,submit})
-        }) as Promise<{content:string,submit:HTMLButtonElement|null}>;
-    }
-    insertWord(item:{target:HTMLElement,span:HTMLElement,selected:string,start:number,end:number,node:Node}):Promise<{ele:elementType,found:boolean}>|undefined{
-        const {target,span,selected,start,end,node}=item;
+        return Promise.resolve({content:newText,submit}) as Promise<{content:string,submit:HTMLButtonElement|null}>;
+    };
+
+
+    async insertWord({target,span,start,end,node,idValues}:{target:HTMLElement,span:HTMLElement,start:number,end:number,node:Node,idValues:idValueType[]}):Promise<{ele:elementType|element_selType,found:boolean,idValues:idValueType[]}|undefined>{
+        
         const selectionWords=node.textContent;
         let found:boolean=false;
         if(!selectionWords) return ;
@@ -559,77 +587,100 @@ class EditText{
         const endStr=selectionWords.slice(end,len);
         const isChildNode=target.childNodes && [...target.childNodes].find(node_=>((node_.textContent)?.includes(selectionWords)));
         if(isChildNode){
-            let targetNew:string="";
             let count=0;
-                [...target.childNodes].map((child,index)=>{
+              const retResults= await Promise.all([...target.childNodes].map(async(child,index)=>{
+                    //TEXT CONTENT CONTAINING THE SELECTED TEXT FOUND
                     count++;
                     const check=child.textContent===node.textContent;
-                    const newEle=document.createElement("div");
+                    const hasChilds=[...child.childNodes].length >0;
                     if(child.nodeName==="#text" && check){
+                        const newEle=document.createElement("div");
+                        //check===FOUND SELECTED TEXT
                         const startText= new Text(startStr);
                         const endText= new Text(endStr);
                         newEle.appendChild(startText) ;
                         newEle.appendChild(span);
                         newEle.appendChild(endText);
-                        targetNew +=newEle.innerHTML;
+                        [...target.childNodes].forEach((ch,ind)=>{
+                            const check=ch.textContent===child.textContent;
+                            if(index===ind && check){
+                                target.removeChild(ch);
+                                target.appendChild(newEle);
+                            }
+                        });
                         found=true;
-                        // console.log("newEle.innerHTML",newEle.innerHTML);
-                    }else{
-                        const {newFound,inner_html}=this.secondLevel({child,span,found,node,startStr,endStr});
-                        newEle.innerHTML=inner_html;
+
+                        const{ ele:element,idValues:retValues}=await this._modSelector.updateElement({target,idValues,selRowCol:null});
+                         this.element= element as elementType;
+                         idValues=retValues
+                     
+                     return {ele:this.element,found:true,idValues};
+                      
+                    }else if(hasChilds){
+                        const {newFound}=this.secondLevel({target,child,span,found,node,startStr,endStr,index});
+                        
                         if(newFound){
-                           
-                            found=newFound
-                        }else{
-                            // console.log(child)
-                            newEle.appendChild(child);
+                            //SECONDLEVEL ALREADY EMBEDDED THE MODIFIED TEXT IN TARGET GIVEN=>newFound===true
+                            const{ ele:element,idValues:retValues}=await this._modSelector.updateElement({target,idValues,selRowCol:null});
+                             this.element= element as elementType;
+                             idValues=retValues
+                             return {ele:this.element,found:true,idValues};
+                            };
                         }
-                        targetNew+=newEle.innerHTML;
-                        // found=newFound;
-                    }
-                });
-                target.innerHTML=targetNew;
-        }
-        
-        
-        if(found){
-          
-            this.element=this._modSelector.updateElement(target)as elementType;
-            
-        }
-        return new Promise(resolver=>{
-            resolver({ele:this.element,found})
-        }) as Promise<{ele:elementType,found:boolean}>;
+                        return {ele:undefined,found:false,idValues};
+                    }));
+                    const result=retResults.find(res=>(res.found)) || {ele:undefined,found:false,idValues};
+                    return Promise.resolve(result) as Promise<{ele:elementType|element_selType,found:boolean,idValues:idValueType[]}>;
+                }
+    };
 
-    }
 
-    secondLevel(item:{child:ChildNode,span:HTMLElement,found:boolean,node:Node,startStr:string,endStr:string}):{newFound:boolean,inner_html:string}{
-        const {child,found,node,startStr,endStr,span}=item;
-        let targetNew:string="";
-        let newFound:boolean=false;
+
+    secondLevel(item:{
+        target:HTMLElement,
+        child:ChildNode,
+        span:HTMLElement,
+        found:boolean,
+        node:Node,
+        startStr:string,
+        endStr:string,
+        index:number
+
+    }):{newFound:boolean,inner_html:string}{
+        const {target,child,found,node,startStr,endStr,span,index}=item;
+        
+
         if(!found && child){
             const selectionWords=node.textContent as string;
-            [...child.childNodes].map((enfant,index)=>{
+           const results= [...child.childNodes].map((enfant,ind)=>{
                 const check=enfant.textContent===selectionWords;
             //    console.log("enfant",enfant,"check",check)
                 const newEle=document.createElement("div");
                 if( check){
-                    child.removeChild(enfant);
-                    const startText= new Text(startStr);
-                    const endText= new Text(endStr);
-                    newEle.appendChild(startText) ;
-                    newEle.appendChild(span);
-                    newEle.appendChild(endText);
-                    targetNew +=`<div>${newEle.innerHTML}</div>`;
-                    newFound=true;
-                } else{
-                    newEle.appendChild(enfant);
-                    targetNew+=newEle.innerHTML;
-                }
-                // console.log(targetNew)
+                  const responses=([...target.childNodes] as any as ChildNode[]).map((ch,indx)=>{
+                        const check=ch.textContent===child.textContent
+                        if(indx===index && check){
+                            //WORKS
+                            ch.removeChild(enfant);
+                            const startText= new Text(startStr);
+                            const endText= new Text(endStr);
+                            newEle.appendChild(startText) ;
+                            newEle.appendChild(span);
+                            newEle.appendChild(endText);
+                            ch.appendChild(newEle);
+                            return{newFound:true,inner_html:target.innerHTML};
+                        };
+                        return {newFound:false,inner_html:target.innerHTML}
+                    });
+                    const response=responses.find(res=>(res.newFound)) || {newFound:false,inner_html:target.innerHTML}
+                    return response
+                }else{
+                    return {newFound:false,inner_html:target.innerHTML}
+                };
             });
+            return results.find(res=>(res.newFound))|| {newFound:false,inner_html:target.innerHTML};
         };
-        return {newFound,inner_html:targetNew}
+        return {newFound:false,inner_html:target.innerHTML};
     };
 };
 export default EditText;

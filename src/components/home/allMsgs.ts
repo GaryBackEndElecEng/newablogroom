@@ -47,14 +47,15 @@ class AllMsgs{
             this.singleMsg({container:container,msg});
         });
         parent.appendChild(container);
-       }
-    }
+       };
+    };
+
+
     // for individual Card
     blogMsgs(item:{col:HTMLElement,blog:blogType}){
         const {col,blog}=item;
         const less900=window.innerWidth <900;
         const less400=window.innerWidth <400;
-        const url=new URL(window.location.href);
 
         const css_col="display:flex;flex-direction:column;align-items:center;justify-content:center;gap:1rem;";
         const msgs=blog.messages ? blog.messages : [] as messageType[];
@@ -70,10 +71,12 @@ class AllMsgs{
                 if(msg){
                     
                     this.singleMsgTwo({col:col,contScroll:contScroll,msg,imgKey:blog.imgKey})
-                }
+                };
             });
-        }
-    }
+        };
+    };
+
+
     addMsgsToBlogs(item:{blogs:blogType[],msgs:messageType[]}){
         const {blogs,msgs}=item;
         this._modSelector.blogs=blogs.map(blog=>{
@@ -84,13 +87,14 @@ class AllMsgs{
           });
             return blog
         });
-    }
+    };
+
+
     singleMsg(item:{container:HTMLElement,msg:messageType}){
         const {container,msg}=item;
         Header.cleanUpByID(container,`msg-card-${msg.id}`);
-        const less900=window.innerWidth <900 ? true:false;
-        const less400=window.innerWidth <400 ? true:false;
-        const less375=window.innerWidth <375 ? true:false;
+        const less900=window.innerWidth <900 ;
+        const less400=window.innerWidth <400 ;
         if(less900){
             window.scrollBy(0,-200)
         }else if(less400){
@@ -147,7 +151,9 @@ class AllMsgs{
             }
         });
        
-    }
+    };
+
+
     singleMsgTwo(item:{col:HTMLElement,contScroll:HTMLElement,msg:messageType,imgKey:string|undefined}){
         const {col,contScroll,msg,imgKey}=item;
         const css_col="display:flex;flex-direction:column;align-items:center;justify-content:center;gap:1rem;";
@@ -199,16 +205,18 @@ class AllMsgs{
         card.addEventListener("click",(e:MouseEvent)=>{
             if(e){
                 this.viewCard({parent:col,msg,imgKey});
-            }
+            };
         });
        
-    }
+    };
+
+
    async viewCard(item:{parent:HTMLElement,msg:messageType,imgKey:string|undefined}){
         const {parent,msg,imgKey}=item;
         const url=new URL(window.location.href);
-        const less900=window.innerWidth <900 ? true:false;
-        const less400=window.innerWidth <400 ? true:false;
-        const less375=window.innerWidth <375 ? true:false;
+        const less900=window.innerWidth <900 ;
+        const less400=window.innerWidth <400 ;
+       
         if(less900){
             window.scrollBy(0,-80)
         }else if(less400){
@@ -278,15 +286,16 @@ class AllMsgs{
                 setTimeout(()=>{
                     parent.removeChild(container);
                 },380);
-            }
+            };
         });
 
-    }
+    };
+
+
     advertise(item:{col:HTMLElement}){
         const {col}=item;
-        const less900=window.innerWidth <900 ? true:false;
-        const less400=window.innerWidth <400 ? true:false;
-        const less375=window.innerWidth <375 ? true:false;
+        const less900=window.innerWidth <900 ;
+        const less400=window.innerWidth <400 ;
         if(less900){
             window.scrollBy(0,-200)
         }else if(less400){
@@ -309,7 +318,7 @@ class AllMsgs{
         const css_textL="text-align:center;text-wrap:pretty;padding-inline:0.5rem;font-family:'LobsterTwo-Regular';line-height:2.75rem;";
         popup.style.cssText=css + css_col;
         popup.style.top=less900 ? (less400 ? "-10%":"-30%"): "-35%";
-        // popup.style.left="0%";
+        
         popup.style.width="100%";
         if(less900){
                 popup.style.paddingInline="1rem";
@@ -344,7 +353,7 @@ class AllMsgs{
         uppertext.textContent=this.brief;
         uppertext.style.cssText=css_textL;
         uppertext.style.width="100%";
-        uppertext.style.fontSize=less900 ? (less400 ? "120%" : "120%"): "150%";
+        uppertext.style.fontSize=less900 ? "120%": "150%";
         upperCard.appendChild(uppertext);//APPENDING
         //----------DIVIDER------------------------//
         const hr=document.createElement("div");
@@ -363,7 +372,7 @@ class AllMsgs{
         lowertext.innerHTML=this.assistant;
         lowertext.style.cssText=css_textP;
         lowertext.style.width="100%";
-        lowertext.style.fontSize=less900 ? (less400 ? "120%" : "120%"): "150%";
+        lowertext.style.fontSize=less900 ? "120%": "150%";
         lowerCard.appendChild(lowertext);//appending
         const signed=document.createElement("img");
         signed.style.cssText="width:150px;aspect-ratio:16 / 9;align-self:center;margin-bottom:1rem;";

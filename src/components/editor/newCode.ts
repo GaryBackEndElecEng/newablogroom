@@ -3,13 +3,13 @@ import Service from "../common/services";
 import Nav from "../nav/headerNav";
 import Header from "./header";
 import ModSelector from "./modSelector";
-import {codeType,replType, linecodeType, blogType,} from "./Types";
+import {codeType,replType, linecodeType, } from "./Types";
 import {FaCreate} from "@/components/common/ReactIcons";
 import {FaCrosshairs,FaPython, FaHtml5} from "react-icons/fa";
 import { TbJson } from "react-icons/tb";
 import { RiJavascriptFill } from "react-icons/ri";
 import User from "../user/userMain";
-import { getErrorMessage } from "@/lib/errorBoundaries";
+
 import Main from "./main";
 
 
@@ -96,27 +96,25 @@ class NewCode{
              },
          ];
     constructor(private _modSelector:ModSelector,private _service:Service,private _user:User){
-        this._selectCodes=this._modSelector._selectCodes;
-        this._count=this._modSelector._count;
+        this._selectCodes=this._modSelector.selectCodes;
+        this._count=this._modSelector.count;
         Main.textarea=document.querySelector("div#textarea");
-        // this.divCont_class=="eleContainer";
-        // this.divCont_css=="margin:auto;padding:0.75rem;";
         NewCode.regJavaArr=[
             {name:"=document",searchwd:/\=(document)/g,replacewd:(name)=>{return `<code id=doc style=color:lightblue;text-wrap:nowrap;>${name}</code>`},text:""},
             {name:"const",searchwd:/( const )/g,replacewd:(name)=>{return `<code id=const style=color:green;text-wrap:nowrap;font-weight:bold;>${name}</code>`},text:""},
-            {name:"func",searchwd:/\.[a-zA-Z]{3,}\(\"[a-zA-Z]{1,}\"\)/g,replacewd:(name)=>{return`<code id=func1_ style=color:yellow;text-wrap:nowrap;>${name}</code>`},text:""},
+            {name:"func",searchwd:/\.[a-zA-Z]{3,}\("[a-zA-Z]+"\)/g,replacewd:(name)=>{return`<code id=func1_ style=color:yellow;text-wrap:nowrap;>${name}</code>`},text:""},
             {name:"async",searchwd:/(async)/g,replacewd:(name)=>{return`<code id=func_ style=color:#ff0048;font-weight:bold;>${name}</code>`},text:""},
             {name:"async",searchwd:/(export)/g,replacewd:(name)=>{return`<code id=func_ style=color:#ff0048;font-weight:bold;>${name}</code>`},text:""},
             {name:"func2",searchwd:/(function)/g,replacewd:(name)=>{return`<code id=func2 style=color:lightblue;>${name}</code>`},text:""},
             {name:"let",searchwd:/(let)/g,replacewd:(name)=>{return`<code id=let_ style=color:#00d6ff;font-weight:bold;>${name}</code>`},text:""},
-            {name:"arrow",searchwd:/(\=\>)/g,replacewd:(name)=>{return`<code id=arrow style=color:red;font-weight:bold;>${name}</code>`},text:""},
+            {name:"arrow",searchwd:/(=>)/g,replacewd:(name)=>{return`<code id=arrow style=color:red;font-weight:bold;>${name}</code>`},text:""},
             {name:"map",searchwd:/\.(map\()/g,replacewd:(name)=>{return`<code id=map style=color:yellow;font-weight:bold;>${name}</code>`},text:""},
             {name:"filter",searchwd:/\.(filter\()/g,replacewd:(name)=>{return`<code id=filter style=color:yellow;font-weight:bold;>${name}</code>`},text:""},
             {name:"return",searchwd:/(return)/g,replacewd:(name)=>{return`<code id=return style=color:green;font-weight:bold;><br/>${name}</code>`},text:""},
-            {name:"reduce",searchwd:/\.(reduce\(\([a-zA-Z\.\+\-\,\s\-]{1,}\))/g,replacewd:(name)=>{return`<code id=filter style=color:yellow;font-weight:bold;>${name}</code>`},text:""},
-            {name:"comment",searchwd:/(\/\/[\sa-zA-Z0-9\.\,\.\\s]{6,})/g,replacewd:(name)=>{return`<p id=comment style=color:#00ff5c;font-weight:bold;>${name}</p>`},text:""},
-            {name:"text",searchwd:/\"[\sa-zA-Z0-9\;\s]{6,}\"/g,replacewd:(name)=>{return`<code id=text style=color:lightbrown;font-weight:bold;>${name}</code>`},text:""},
-            {name:"if",searchwd:/(if\([a-zA-Z0-9\=\"\'\s]{1,}\))/g,replacewd:(name)=>{return`<code id=if_ style=color:white;><b>${name}</b></code>`},text:""},
+            {name:"reduce",searchwd:/\.(reduce\(\([a-zA-Z.+\-,\s]+\))/g,replacewd:(name)=>{return`<code id=filter style=color:yellow;font-weight:bold;>${name}</code>`},text:""},
+            {name:"comment",searchwd:/(\/\/\s[a-zA-Z0-9.,\s]{6,})/g,replacewd:(name)=>{return`<p id=comment style=color:#00ff5c;font-weight:bold;>${name}</p>`},text:""},
+            {name:"text",searchwd:/\s"[a-zA-Z0-9;\s]{6,}"/g,replacewd:(name)=>{return`<code id=text style=color:lightbrown;font-weight:bold;>${name}</code>`},text:""},
+            {name:"if",searchwd:/(if\([a-zA-Z0-9="'\s]+\))/g,replacewd:(name)=>{return`<code id=if_ style=color:white;><b>${name}</b></code>`},text:""},
             {name:"class",searchwd:/(class)\s/g,replacewd:(name)=>{return`<code id=class style=color:green;font-weight:bold;padding-right:15px;>${name}</code>`},text:""},
             {name:"constructor",searchwd:/(constructor)\s/g,replacewd:(name)=>{return`<code id=constructor style=color:lightgreen;font-weight:bold;padding-right:25px;>${name}</code>`},text:""},
             {name:"htmlElement",searchwd:/(HTMLElement)/g,replacewd:(name)=>{return`<code id=htmlElement style=color:green;font-weight:bold;>${name}</code>`},text:""},
@@ -137,52 +135,47 @@ class NewCode{
             {name:"eventListener",searchwd:/(addEventListener)/g,replacewd:(name)=>{return`<code id=addEventListener style=color:yellow;font-weight:bold;>${name}</code>`},text:""},
             {name:"openBrack",searchwd:/\{/g,replacewd:(name)=>{return`{ `},text:""},
             {name:"openBrack",searchwd:/\}/g,replacewd:(name)=>{return` }`},text:""},
-            {name:"semi-colon",searchwd:/\;\s/g,replacewd:(name)=>{return`<br>}`},text:""},
-            {name:"string",searchwd:/\:(string)/g,replacewd:(name)=>{return`<code class='language-java' id=string style=color:green;font-weight:bold;>${name.split(":")[1]}</code>`},text:""},
-            {name:"number",searchwd:/\:(number)/g,replacewd:(name)=>{return`<code class='language-java' id=number style=color:green;font-weight:bold;>${name.split(":")[1]}</code>`},text:""},
+            {name:"semi-colon",searchwd:/;\s/g,replacewd:(name)=>{return`<br>}`},text:""},
+            {name:"string",searchwd:/:(string)/g,replacewd:(name)=>{return`<code class='language-java' id=string style=color:green;font-weight:bold;>${name.split(":")[1]}</code>`},text:""},
+            {name:"number",searchwd:/:(number)/g,replacewd:(name)=>{return`<code class='language-java' id=number style=color:green;font-weight:bold;>${name.split(":")[1]}</code>`},text:""},
         ]
         NewCode.regPythonArr=[
             // {name:"class",searchwd:/(class)+/g,replacewd:`<span id="class_" style="color:green;font-weight:bold;">class</span>
             // `,text:""},
             {name:"class",searchwd:/\s(class)\s/g,replacewd:(name)=>{return `<code id=doc style=color:lightgreen;font-weight:bold;>${name}</code>`},text:""},
-            {name:"method",searchwd:/[a-zA-Z0-9\_]{2,}\([a-zA-Z0-9\.\,]+\)\:/g,replacewd:(name)=>{return `<code id=doc style=color:yellow;font-weight:bold;>${name}</code><br/>`},text:""},
-            {name:"for",searchwd:/(for)\\s[a-zA-Z0-9\;\=\+\-\\s]{2,}\:/g,replacewd:(name)=>{return `<code id=doc style=color:lightblue;font-weight:bold;margin-left:1rem;>${name}</code>`},text:""},
-            {name:"items",searchwd:/\.(items)\(\)\:/g,replacewd:(name)=>{return `<span id=doc style=color:yellow;>${name}</span>`},text:""},
-            {name:"comment",searchwd:/\#[\\s a-zA-Z0-9\?\.\-]{5,}/g,replacewd:(name)=>{return `<code id=doc style=color:green;margin-left:1rem;>${name}</code>`},text:""},
-            {name:"Range",searchwd:/(Range)\([a-zA-Z0-9\,]{3,}\)\:/g,replacewd:(name)=>{return `<code id=doc style=color:yellow;>${name}</code>`},text:""},
-            {name:"in",searchwd:/\\s(in)\\s/g,replacewd:(name)=>{return `<code id=doc style=color:green;font-weight:bold;>${name}</code>`},text:""},
+            {name:"method",searchwd:/\w{2,}\([a-zA-Z0-9.,]+\):/g,replacewd:(name)=>{return `<code id=doc style=color:yellow;font-weight:bold;>${name}</code><br/>`},text:""},
+            {name:"for",searchwd:/(for)\s[a-zA-Z0-9;=+\-\s]{2,}:/g,replacewd:(name)=>{return `<code id=doc style=color:lightblue;font-weight:bold;margin-left:1rem;>${name}</code>`},text:""},
+            {name:"items",searchwd:/\.(items)\(\):/g,replacewd:(name)=>{return `<span id=doc style=color:yellow;>${name}</span>`},text:""},
+            {name:"comment",searchwd:/#\s[ a-zA-Z0-9?.-]{5,}/g,replacewd:(name)=>{return `<code id=doc style=color:green;margin-left:1rem;>${name}</code>`},text:""},
+            {name:"Range",searchwd:/(Range)\([a-zA-Z0-9,]{3,}\):/g,replacewd:(name)=>{return `<code id=doc style=color:yellow;>${name}</code>`},text:""},
+            {name:"in",searchwd:/\s(in)\s/g,replacewd:(name)=>{return `<code id=doc style=color:green;font-weight:bold;>${name}</code>`},text:""},
             {name:"self",searchwd:/(self)/g,replacewd:(name)=>{return `<code id=doc style=color:#ee8080;>${name}</code>`},text:""},
-            {name:"__init__()",searchwd:/(_init_)\([a-zA-Z0-9\.\,\\s]{5,}\)/g,replacewd:(name)=>{return `<code id=doc style=color:lightblue;font-weight:bold;>${name}</code>`},text:""},
-            {name:"if",searchwd:/(if)\s[a-zA-Z0-9]{2,}\:/g,replacewd:(name)=>{return `<code id=doc style=color:#8c0505;>${name}</code>`},text:""},
+            {name:"__init__()",searchwd:/(_init_)\([a-zA-Z0-9.,\s]{5,}\)/g,replacewd:(name)=>{return `<code id=doc style=color:lightblue;font-weight:bold;>${name}</code>`},text:""},
+            {name:"if",searchwd:/(if)\s[a-zA-Z0-9]{2,}:/g,replacewd:(name)=>{return `<code id=doc style=color:#8c0505;>${name}</code>`},text:""},
             {name:"return",searchwd:/(return)/g,replacewd:(name)=>{return `<code id=doc style=color:violet;font-weight:bold;>${name}</code>`},text:""},
         ]
         NewCode.regJSONArr=[
-            {name:"keyValue1",searchwd:/[a-zA-Z0-9\s\"\']{1,}\:/g,replacewd:(name)=>{return `<code class='language-json' id=keyValue1 style=color:#f30915;margin-left:1rem;><b>${name}</b></code>`},text:""},
-            {name:"keyValue2",searchwd:/\:[a-zA-Z0-9\"\'\s]{1,}/g,replacewd:(name)=>{return `<code class='language-json' id=keyValue2 style=color:#f30915;margin-right:1rem;><b>${name.split(":")[1]}</b></code>`},text:""},
+            {name:"keyValue1",searchwd:/[a-zA-Z0-9\s"']+:/g,replacewd:(name)=>{return `<code class='language-json' id=keyValue1 style=color:#f30915;margin-left:1rem;><b>${name}</b></code>`},text:""},
+            {name:"keyValue2",searchwd:/:[a-zA-Z0-9"'\s]+/g,replacewd:(name)=>{return `<code class='language-json' id=keyValue2 style=color:#f30915;margin-right:1rem;><b>${name.split(":")[1]}</b></code>`},text:""},
             {name:"{",searchwd:/\{/g,replacewd:(name)=>{return `<pre id=opencurl style=color:red;font-weight:bold;margin-inline:1rem;>{</pre>`},text:""},
             {name:"}",searchwd:/\}/g,replacewd:(name)=>{return `<pre><code class='language-json' id=closecurl style=color:red;font-weight:bold;margin-inline:1rem;>}</code></pre>`},text:""},
-            {name:",",searchwd:/\,/g,replacewd:(name)=>{return `<code class='language-json' id=comma style=color:green;font-weight:bold;margin-inline:0.25rem;font-size:120%;>,</code>`},text:""},
+            {name:",",searchwd:/,/g,replacewd:(name)=>{return `<code class='language-json' id=comma style=color:green;font-weight:bold;margin-inline:0.25rem;font-size:120%;>,</code>`},text:""},
             {name:"[",searchwd:/\[/g,replacewd:(name)=>{return `<pre><code code class='language-json' id=openBracket style=color:pink;font-weight:bold;margin-left:1rem;>${name}</code></pre>`},text:""},
             {name:"]",searchwd:/\]/g,replacewd:(name)=>{return `<pre><code class='language-json' id=closeBracket style=color:pink;font-weight:bold;margin-right:2rem;>]</code></pre>`},text:""},
             
         ]
         //<=&lt;>=&gt;
         NewCode.regHtmlArr=[
-            {name:"class",searchwd:/(class)\=[a-zAA-Z0-9\-\s\"\']{3,}/g,replacewd:(name)=>{return `<code  style=color:lightgreen;text-wrap:nowrap><b>${name}</b></code>`},text:"html"},
-            {name:"id",searchwd:/(id)\=[a-zAA-Z0-9\-\"\']{2,}/g,replacewd:(name)=>{return `<code style=color:lightblue;text-wrap:nowrap;><b>${name}</b></code>`},text:"html"},
-            {name:"anchor-open",searchwd:/(\<[a-zA-Z0-9\-]{1,}\>)/g,replacewd:(name)=>{return `<code class='language-html' style=color:lime;text-wrap:nowrap;><b>${name}</b></code>`},text:""},
-            {name:"anchor-close",searchwd:/(\<\/[a-zA-Z0-9\-]{1,}\>)/g,replacewd:(name)=>{return `<code class='language-html' style=color:lime;text-wrap:nowrap;><b>${name}</b></code>`},text:"html"},
-            {name:"xml",searchwd:/\<[a-zA-Z0-9\-]{2,}\/\>/g,replacewd:(name)=>{return `<code class=language-xml style=color:green;text-wrap:nowrap;><b>${name}</b></code>`},text:"xml"},
-            {name:"comment",searchwd:/\#[ a-zA-Z0-9\?\.\-\s]{5,}/g,replacewd:(name)=>{return `<code  style=color:green;text-wrap:nowrap;>${name}</code>`},text:"html"},
+            {name:"class",searchwd:/(class)=[a-zA-Z0-9\-\s"']{3,}/g,replacewd:(name)=>{return `<code  style=color:lightgreen;text-wrap:nowrap><b>${name}</b></code>`},text:"html"},
+            {name:"id",searchwd:/(id)=[a-zA-Z0-9\-"']{2,}/g,replacewd:(name)=>{return `<code style=color:lightblue;text-wrap:nowrap;><b>${name}</b></code>`},text:"html"},
+            {name:"anchor-open",searchwd:/(<[a-zA-Z0-9-]+>)/g,replacewd:(name)=>{return `<code class='language-html' style=color:lime;text-wrap:nowrap;><b>${name}</b></code>`},text:""},
+            {name:"anchor-close",searchwd:/(<\/[a-zA-Z0-9-]+>)/g,replacewd:(name)=>{return `<code class='language-html' style=color:lime;text-wrap:nowrap;><b>${name}</b></code>`},text:"html"},
+            {name:"xml",searchwd:/<[a-zA-Z0-9-]{2,}\/>/g,replacewd:(name)=>{return `<code class=language-xml style=color:green;text-wrap:nowrap;><b>${name}</b></code>`},text:"xml"},
+            {name:"comment",searchwd:/#[a-zA-Z0-9?.\-\s]{5,}/g,replacewd:(name)=>{return `<code  style=color:green;text-wrap:nowrap;>${name}</code>`},text:"html"},
            
         ]
         this.textArr=[];
-        // this._codes=this._codes.map(code=>{
-        //         const rand=Math.round(Math.random()*1000);
-        //         const eleId="selectCode" + code.name + "-eleId-" + String(rand);
-        //         code.eleId=eleId;
-        //     return code;
-        // });
+        
     }
 
     //----GETTERS SETTERS---///
@@ -262,7 +255,7 @@ class NewCode{
                 
                 const regType=res.regArr.find(reg=>(reg.name===this.selectCode.name));
                 if(regType){
-                    // this.innerPreAdd({pre:res.pre,regArr:regType.arrType as regJavaType[],selectCode:this.selectCode});
+                    
                     this.showLinecode({pre:res.pre,selectCode:selectCode,regArr:regType.arrType});
                     this.refreshSave({parent:res.divCont,selectCode:selectCode,pre:res.pre})
                     this.removeMainElement({parent,container:res.divCont,target:res.target});
@@ -331,7 +324,7 @@ class NewCode{
                     this.placement=this.placement + 1;
                     //ABOVE:  ADDING NEW SELECTCODE TO SELECTCODES FOR BLOG.CODES
                     await this.genCode({parent,container,selectCode:this.selectCode}).then(async(res)=>{
-                        if(res && res.arrType){
+                        if(res?.arrType){
                             this.selectCode=res.selectCode;
                             this.preElementStart({pre:res.pre,regArr:res.arrType as regJavaType[],selectCode:res.selectCode});
                             this.refreshSave({parent:res.divCont,selectCode:res.selectCode,pre:res.pre});
@@ -368,9 +361,7 @@ class NewCode{
        const {target,divCont,selectCode:selectCode_,pre}= await this.divContTarget({parent,selectCode});
         this.removeMainElement({parent,container:divCont,target});
         
-        return new Promise(resolver=>{
-            resolver({parent,container,pre,divCont,target,selectCode:selectCode_,arrType:getType?.arrType});
-        }) as Promise<{parent:HTMLElement,container:HTMLElement,divCont:HTMLElement,target:HTMLElement,pre:HTMLPreElement,selectCode:codeType,arrType: regJavaType[] | undefined}>;
+        return Promise.resolve({parent,container,pre,divCont,target,selectCode:selectCode_,arrType:getType?.arrType}) as Promise<{parent:HTMLElement,container:HTMLElement,divCont:HTMLElement,target:HTMLElement,pre:HTMLPreElement,selectCode:codeType,arrType: regJavaType[] | undefined}>;
     }
     divContTarget(item:{parent:HTMLElement,selectCode:codeType}):Promise<{target:HTMLElement,divCont:HTMLElement,selectCode:codeType,pre:HTMLPreElement}>{
         const {parent,selectCode}=item;
@@ -382,7 +373,6 @@ class NewCode{
          parent.style.position="relative";
          //------target container----------//
          const target = document.createElement("code");
-         const rand=Math.round(Math.random()*1000);
          target.setAttribute("is-element","true");
          target.setAttribute("is-code","true");
          target.setAttribute("data-placement",`${selectCode.placement}-A`);
@@ -408,8 +398,7 @@ class NewCode{
     }
     titleContainer(item:{parent:HTMLElement,selectCode:codeType}){
         const {parent,selectCode}=item;
-        const less900=window.innerWidth < 900 ;
-        const less400=window.innerWidth < 400 ;
+       
         const title=document.createElement("h6");
         title.textContent=selectCode.name;
         title.className="text-center text-primary mb-2 mx-auto";
@@ -417,12 +406,10 @@ class NewCode{
         imgDive.id="imgDiv";
         imgDive.style.cssText="display:block;position:absolute;top:0%;right:-15%;z-index:20;";
         imgDive.style.transform="translate(0px,0px)";
-        imgDive.style.right=less400 ? "0px" : "0px";
+        imgDive.style.right="0px";
         const xDiv=document.createElement("div");
         xDiv.style.cssText="padding:1rem;max-width:175px;border-radius:25%;background-color:black;color:white;display:flex;justify-content:center;align-items:center;gap:1rem;position:relative;z-index:20;box-shadow:1px 1px 12px 1px black;";
         if(selectCode.name==="html"){
-            imgDive.style.transform="translate(0px,0px)";
-        }else{
             imgDive.style.transform="translate(0px,0px)";
         }
         const span=document.createElement("span");
@@ -441,7 +428,7 @@ class NewCode{
         
         imgDive.appendChild(xDiv);
         imgDive.appendChild(span);
-        // imgDive.appendChild(title);
+       
         parent.appendChild(imgDive);
     }
     refreshSave(item:{parent:HTMLElement,pre:HTMLPreElement,selectCode:codeType}){
@@ -468,9 +455,6 @@ class NewCode{
                 if(!selCode) return;// selectCodes  was not updated
                 //COLORING  CODE THAT WAS SAVED TO MODSELECTOR.CODES
                     this.showLinecode({pre:pre,selectCode:selCode,regArr:getType.arrType});//colors on what's in selectCode
-                        
-                        // this.preElement({pre:pre,regArr:getType.arrType,selectCode:this.selectCode});
-                    
                 }
             }
         };
@@ -538,24 +522,14 @@ class NewCode{
                 }
             }
         };
-    }
-    editCode(item:{parent:HTMLElement,selectCode:codeType}){
-        const {parent,selectCode}=item;
-        const regArr:{name:string,arrType:regJavaType[]}[]=[
-            {name:"java",arrType:NewCode.regJavaArr},
-            {name:"python",arrType:NewCode.regPythonArr},
-            {name:"html",arrType:NewCode.regHtmlArr},
-            {name:"JSON",arrType:NewCode.regJSONArr},
+    };
 
-        ]
-        
-    }
+
 
    async preElementStart(item:{pre:HTMLPreElement,regArr:regJavaType[],selectCode:codeType}){
         const {pre,regArr,selectCode}=item;
         this.selectCode=selectCode;
         pre.style.width="100%";
-        // Header.cleanUpByID(pre,"innerPre");
         const innerPre=document.createElement("div");
         innerPre.setAttribute("contenteditable","true");
         innerPre.id=selectCode.eleId + "innerPre" +"-0";
@@ -566,19 +540,17 @@ class NewCode{
         this.selectCode.linecode[0].text=text;
         if(selectCode.name!=="html"){
             const inner_html= await this.matchInsert({preChild:innerPre,regArr:regArr});
-            innerPre.innerHTML= inner_html ? inner_html : "";
+            innerPre.innerHTML= inner_html ||"";
         }else{
             this.matchHtmlInsert({pre,target:innerPre,text:text,regArr})
         }
         pre.appendChild(innerPre);
     }
    async innerPreAdd(item:{pre:HTMLPreElement,regArr:regJavaType[],selectCode:codeType}){
-        const {pre,regArr,selectCode}=item;
+        const {pre,selectCode}=item;
         //THIS IS EXECUTED ON KEYBOARD.ENTER
         this.selectCode=selectCode;
-        console.log("innerPreAdd:eleId RECIEVING",selectCode.eleId)
         pre.style.width="100%";
-        // Header.cleanUpByID(pre,"innerPre");
         const children_=([...pre.children as any] as HTMLElement[]) as HTMLElement[]
         // console.log("is children?",children_);//works
         // console.log("pre main ID",pre.id);//works
@@ -596,7 +568,7 @@ class NewCode{
     showLinecode(item:{pre:HTMLPreElement,selectCode:codeType,regArr:regJavaType[]}){
         const {pre,selectCode,regArr}=item;
         Header.cleanUp(pre);
-        (selectCode.linecode).sort((a,b)=>{if(a.id<b.id) return -1;return 1}).map(async(line,index)=>{
+        (selectCode.linecode).toSorted((a,b)=>{if(a.id<b.id) return -1;return 1}).map(async(line,index)=>{
                
             if(line ){
                 
@@ -610,7 +582,7 @@ class NewCode{
 
                     if(selectCode.name!=="html"){
                         const inner_html= await this.matchInsert({preChild:innerPre,regArr:regArr});
-                        innerPre.innerHTML= inner_html ? inner_html : " ";
+                        innerPre.innerHTML= inner_html || " ";
                     }else{
                         this.matchHtmlInsert({pre,target:innerPre,text:line.text,regArr:regArr});
                     }
@@ -624,15 +596,13 @@ class NewCode{
         //REGENERATES LINE CODE AND PROVIDES EDITING LINE
         const {pre,regArr,selectCode}=item;
         this.selectCode=selectCode;
-        // Header.cleanUpByID(pre,"preElementShow-container");
         const container=document.createElement("div");
         container.id="preElementShow-container";
         container.style.cssText="width:100%;background-color:transparent;padding-inline:3px;padding-block:1rem;color:white;"
-        const check=(this.selectCode.linecode as linecodeType[]).length>0 ? true:false;
-        // console.log("preElementShow:before");
+        const check=(this.selectCode.linecode as linecodeType[]).length>0 ;
         if(check){
             //children P exists
-            (this.selectCode.linecode).sort((a,b)=>{if(a.id<b.id) return -1;return 1}).map(async(line,index)=>{
+            (this.selectCode.linecode).toSorted((a,b)=>{if(a.id<b.id) return -1;return 1}).map(async(line,index)=>{
                
                 if(line ){
                     // console.log("preElementShow:after line:recording line")
@@ -645,7 +615,7 @@ class NewCode{
                     
                         if(selectCode.name!=="html"){
                             const inner_html= await this.matchInsert({preChild:innerPre,regArr:regArr});
-                            innerPre.innerHTML= inner_html ? inner_html : " ";
+                            innerPre.innerHTML= inner_html ||" ";
                         }else{
                             this.matchHtmlInsert({pre,target:innerPre,text:line.text,regArr:regArr});
                         }
@@ -655,11 +625,10 @@ class NewCode{
                         }
                         
                     });
-            }
-          
-              
-        return ;
-    }
+            };
+    };
+
+
 
     async lineCodeCapture(item:{child:HTMLElement,selectCode:codeType,index:number}):Promise<codeType | undefined>{
         const {child,selectCode,index}=item;
@@ -675,25 +644,24 @@ class NewCode{
                 }else{
                     selCode.linecode = selCode.linecode.map(line=>{
                         if(line.id===index){
-                            line.text=text ? text : "";
+                            line.text=text ||"";
                         }
                         return line;
                     });
                 }
                
             }
-            return selCode = {...selCode,linecode:selCode.linecode.sort((a,b)=>{if(a.id < b.id) return -1;return 1})};
+            return {...selCode,linecode:selCode.linecode.toSorted((a,b)=>{if(a.id < b.id) return -1;return 1})};
             });
             //ADDNG IN TO LOCALSTORAGE
             this.selectCodes=this._selectCodes;
             console.log("this.selectCodes",this.selectCodes)
             //ADDNG IN TO LOCALSTORAGE
-        const prom=new Promise(resolver=>{
-            resolver(this.selectCodes.find(selCode=>(selCode.eleId===selectCode.eleId)));
-        });
-        return prom as Promise<codeType | undefined>
+        return Promise.resolve(this.selectCodes.find(selCode=>(selCode.eleId===selectCode.eleId)));
 
-    }
+    };
+
+
 
     matchInsert(item:{preChild:HTMLElement,regArr:regJavaType[]}):Promise<string|null>{
         //THIS ADDS COLOR TO THE CODE for each line.
@@ -707,7 +675,7 @@ class NewCode{
             regArr.map(reg=>{
                 const matches=(replaceText as string).matchAll(reg.searchwd) as any;
                 for( const match of matches){
-                    if(match && match[0]){
+                    if(match[0]){
                         //FILLING ARRCATCH ARRAY WITH REPLACEMENTS
                         const end=match.index + match[0].length
                         const start=match.index;
@@ -725,11 +693,12 @@ class NewCode{
             });
             //REPLACEING LINECODE WITH COLOR
             // preChild.innerHTML=replaceText
-        }
-        return new Promise(resolver=>{
-            resolver(replaceText)
-        }) as Promise<string | null>;
-    }
+        };
+        return Promise.resolve(replaceText) as Promise<string | null>;
+    };
+
+
+
     matchHtmlInsert(item:{pre:HTMLPreElement,target:HTMLElement,text:string,regArr:regJavaType[]}):void{
         //THIS IS USERDINDIVIDUALLY @ DisplayBlog: THIS ADDS COLOR TO THE CODE
         const {pre,target,text,regArr}=item;
@@ -742,11 +711,12 @@ class NewCode{
                 target.classList.add("language-html");
                 pre.classList.add("language-html");
                 this.addClass({parent:pre,class_:"language-html"});
-            } if(reg.text==="xml"){
+            };
+             if(reg.text==="xml"){
                 target.classList.add("language-xml");
                 pre.classList.add("language-xml");
                 this.addClass({parent:pre,class_:"language-xml"});
-            }
+            };
             for( const match of matches){
                 if(match && match[0] !==""){
                     // console.log(match)
@@ -771,14 +741,15 @@ class NewCode{
                 }
             }
         });
+
         arrCatch.map(cat=>{
             replaceText=replaceText.replace(cat.word,cat.replace);
-        
         });
-        // console.log("replaceText",replaceText);
-        // console.log("text",text);
+
         target.innerHTML=replaceText
-    }
+    };
+
+
     addClass(item:{parent:HTMLElement,class_:string}){
             const {parent,class_}=item;
             ([...parent.children as any] as HTMLElement[]).map(ele=>{
@@ -786,7 +757,9 @@ class NewCode{
                     ele.classList.add(class_);
                 }
             });
-    }
+    };
+
+
     removeMainElement(item:{parent:HTMLElement,container:HTMLElement,target:HTMLElement}){
         const {parent,container,target}=item;
         Header.cleanUpByID(parent,"xIconDiv-" + container.id);
@@ -805,12 +778,11 @@ class NewCode{
             if(e){
                 this.promRemoveElement(target).then(async(res)=>{
                     if(res){
-                        this._modSelector._selectCodes.map((code,index)=>{
+                        this._modSelector.selectCodes.map((code,index)=>{
                             if(code.eleId===target.id){
-                                this._modSelector._selectCodes.splice(index,1);
+                                this._modSelector.selectCodes.splice(index,1);
                             }
                         });
-                        this._modSelector.selectCodes=this._modSelector._selectCodes;
                         this._modSelector.shiftPlace(res.placement);///REINDEX PLACEMENT!!!!
                     }
                 });
@@ -821,21 +793,23 @@ class NewCode{
             }
         });
         
-    }
+    };
+
+    
     promRemoveElement(target:HTMLElement){
-        return new Promise((resolve)=>{
-            resolve(this.removeElement(target));
-        }) as Promise<codeType|undefined>;
-    }
+        return Promise.resolve(this.removeElement(target)) as Promise<codeType|undefined>;
+    };
+
+    
     removeElement(target:HTMLElement):codeType|undefined{
         let code_:codeType|undefined;
-        this._modSelector._selectCodes.map((code,index)=>{
+        this._modSelector.selectCodes.map((code,index)=>{
                 if(code.eleId===target.id){
-                    this._modSelector._elements.splice(index,1);
+                    this._modSelector.elements.splice(index,1);
                     code_= code;
                 }
         });
-        this.selectCodes=this._modSelector._selectCodes;
+        this.selectCodes=this._modSelector.selectCodes;
         return code_
     }
 }

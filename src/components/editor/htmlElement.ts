@@ -1,27 +1,37 @@
 import { FaCrosshairs } from "react-icons/fa";
 import Service from "../common/services";
 import User from "../user/userMain";
-import { elementType, focusOptions, iconType } from "./Types";
+import { arrDivContType,  elementType, iconType } from "./Types";
 import ModSelector from "./modSelector";
 import { FaCreate } from "../common/ReactIcons";
 import Main from "./main";
 import { btnReturnDisableType, buttonRetDisable, buttonReturn } from "../common/tsFunctions";
 import Misc from "../common/misc";
-import Flexbox from "./flexBox";
 import Header from "@/components/editor/header";
 import ShapeOutside from "./shapeOutside";
 import Reference from "./reference";
-import { maxCount } from './modSelector';
+
 import EditText from "../common/editText";
+import Dataset from "../common/dataset";
+import { eleEnumType, idEnumType,  idValueType, selRowColType, typeEnumType } from "@/lib/attributeTypes";
+import Design from "../common/design";
+import { attrEnumArr, attrEnumArrTest,  typeEnumArr, typeEnumArrTest,IDKeyValuepairs} from "@/components/common/lists";
+import Ven from "../common/venDiagram";
+import Headerflag from "./headerflag";
+import PasteCode from "../common/pasteCode";
+
 
 
 
 class HtmlElement {
+    phone:string="./images/phone.png";
+    link:string="./images/link.png";
+    mail:string="./images/mail.png";
     logo:string="/images/gb_logo.png";
     _placement:number;
-    reference:Reference;
+    _arrDivCont:arrDivContType[];
     static imgDesc_css:string="align-self:start;margin-top:1rem;color:black;font-weight:bold;font-style:italic;margin-inline:0px;border-radius:10px;";
-    urlImg:string;
+    urlImg:string="./images/gb_logo.png";
     bgColor:string;
     btnColor:string;
     refresh:boolean;
@@ -29,23 +39,23 @@ class HtmlElement {
     divCont_class:string;
     _elements:elementType[];
     editText:EditText;
-    constructor(private _modSelector:ModSelector,private _service:Service,private _user:User,public shapeOutside:ShapeOutside){
+    constructor(private _modSelector:ModSelector,private _service:Service,private _user:User,public shapeOutside:ShapeOutside,public design:Design,public ven:Ven,public reference:Reference,public headerflag:Headerflag,public pasteCode:PasteCode){
         this.bgColor=this._modSelector._bgColor;
         this.btnColor=this._modSelector.btnColor;
-        this._elements=this._modSelector._elements;
-        this.reference=new Reference(this._modSelector);
+        this._elements=this._modSelector.elements;
+        this. phone="./images/phone.png";
+        this.link="./images/link.png";
+        this.mail="./images/mail.png";
+        
+        this._arrDivCont=[];
         this.divCont_css="margin:0px;padding:1rem;position:relative;display:flex;flex-direction:column;align-items:center;justify-content:center;padding-inline:1.25rem;margin-inline:auto;border-radius:8px;width:100%;";
         this.refresh=false;
         this.divCont_class="eleContainer";
-        this.urlImg="http://localhost:3000/images/gb_logo.png";
-        Flexbox.getPlacement().then(async(value)=>{
-            if(value){
-                this.placement=parseInt(value)
-            }
-        });
+        this.urlImg="./images/gb_logo.png";
+       
         //332
         this.editText= new EditText(this._modSelector);
-    }
+    };
     //////------GETTERS/SETTERS-----/////////
     get placement(){
         const getPlace=localStorage.getItem("placement");
@@ -54,303 +64,496 @@ class HtmlElement {
             return parseInt(getPlace)
         }else{
             return 1;
-        }
-    }
+        };
+    };
     set placement(placement:number){
         this._placement=placement;
         localStorage.setItem("placement",JSON.stringify(placement))
-    }
+    };
     get elements(){
         return this._modSelector.elements;
-    }
+    };
     set elements(elements:elementType[]){
         this._modSelector.elements=elements;
-    }
-    //////------GETTERS/SETTERS-----/////////
-    ///-------------INJECTION/SOW WORK------------------///
-    async showElement(parent:HTMLElement,element:elementType){
-        const less400=window.innerWidth < 400;
-        //THIS IS USED DURING REFRESH (PULLING LOCALSTORAGE.GETITEM(BLOG)) AND DISPLAYING I ON THE PAGE IN REFERENCE TO PLACEMENT NUMBERING BETWEEN ELEMENTS AND SELECTORS
-        await this.asyncElement({parent,element}).then(async(res)=>{
-            if(res){
-                const checkEle=["p","h1","h2","h3","h4","h5","h6","div","blockquote","ul","hr"].includes(element.name);
-                const checkULPlus=["blockquote","ul","ol"].includes(element.name);
-                // res.ele.removeAttribute("contenteditable");
-                // ADDING BACKGROUND WHITE TO ELEMENTS WITH BACKGROUND COLOR
-                Main.container=document.querySelector("section#main") as HTMLElement;
-                const checkBgShade=([...(Main.container as HTMLElement).classList as any] as string[]).includes("bgShade");
-                const {isJSON}=Header.checkJson(element.attr as string);
-                const attr=element.attr ? element.attr : undefined;
-                const isShapeAttr=["data-shapeoutside-circle","data-shapeoutside-square","data-shapeoutside-polygon"].find(sh=>(sh===attr));
-                const isFeature=["is-vendiagram","is-wave","data-circle-design","is-arch","data-circle-design"].find(at=>(at===attr));
-                const isArrLink=isJSON ? true:false;//LINK REFERENCES
-                const type=element.type;
-                const checkShapeoutside= type && type==="shapeoutside" ? true:false;
-                if(checkBgShade){
-                    res.ele.classList.add("background-bgShade");
-                    res.divCont.classList.add("background-bgShade");
-                }
-                
-                // ADDING BACKGROUND WHITE TO ELEMENTS WITH BACKGROUND COLOR
-                switch(true){
-                    case checkShapeoutside:
-                        //FOR SHAPEOUTSIDE: THIS HAS ITS OWN removeElement
-                            parent.removeChild(res.divCont);//removing element
-                            // console.log("element.attr",element.attr,"element.imgKey",element.imgKey)
-                            this.shapeOutside.showShapeOutside({parent:parent,flex:null,element});
-                            if(element.imgKey){
-                                res.ele.setAttribute("imgKey",element.imgKey);
-                            //    await this.shapeOutside.shapeOutsideInjectImage({para:res.ele,imgKey:element.imgKey});
-                            }
-                            ShapeOutside.cleanUpByID(res.ele,"popup");
-                        ShapeOutside.cleanUpByID(res.ele,"setAttributes");
-
-                    return;
-                    case checkEle && !checkShapeoutside:
-                        //FOR EVERYTHING ELSE IN CHECKELE
-                        if(isArrLink){
-                            if(element.attr as string){
-                                res.ele.setAttribute("contenteditable","false");
-                                const arrLink=JSON.parse(element.attr as string) as {name:string,link:string}[];
-                                if(arrLink && arrLink.length>0){
-                                    //REF: Reference Class for Reference Links
-                                    this.reference.showLinks({parent:res.divCont,ele:element});
-                                }
-                    
-                            }
-                        }else{
-        
-                            res.ele.innerHTML=element.inner_html;
-                            res.ele.setAttribute("contenteditable","true");
-                        }
-                        if(element.attr==="data-backgroundImage"){
-                            res.ele.setAttribute(element.attr,"true");
-                            if(element.imgKey){
-                                res.ele.setAttribute("imgKey",element.imgKey);
-                                // const cssStyle={backgroundPosition:"50% 50%",backgroundSize:"100% 100%"};
-                            //    await this._service.injectBgAwsImage({target:res.ele,imgKey:element.imgKey,cssStyle});
-                            }
-                        
-                        }else if(isFeature){
-                            res.ele.setAttribute(isFeature,"true");
-                            res.ele.removeAttribute("contenteditable");
-                            [...res.ele.children as any].map(el=>{
-                                if(el && el.nodeName==="P"){
-                                    res.ele.setAttribute("contenteditable","true");
-                                }
-                            });
-                        }else if(element.name==="p"){
-                            
-                                // console.log("element.name",element.name)//works
-                                this.editText.paragraphEditorbar({parent:res.divCont,target:res.ele});
-                            
-                        }
-                        
-                        res.divCont.addEventListener("click",(e:MouseEvent)=>{
-                            if(e){
-                                res.ele.classList.toggle("isActive");
-                                res.divCont.classList.toggle("isActive");
-                                const check=([...res.ele.classList as any] as string[]).includes("isActive")
-                                this.removeMainElement(parent,res.divCont,res.ele);
-                                if(check){
-                                }
-                            }
-                        });
-                        Misc.blurIn({anchor:res.divCont,blur:"20px",time:700});
-                        ShapeOutside.cleanUpByID(res.ele,"popup");
-                        ShapeOutside.cleanUpByID(res.ele,"setAttributes");
-                        this.editElement(res.ele);
-                        Misc.matchMedia({parent:res.divCont,maxWidth:400,cssStyle:{paddingInline:"0px",marginInline:"0px;"}});
-                    return;
-                    case element.name==="img":
-                        const imgKey=element.imgKey ? element.imgKey :"";
-                        const img=res.ele as HTMLImageElement;
-                        img.alt=element.inner_html;
-                        img.setAttribute("is-element","true");
-                        img.setAttribute("contenteditable","false");
-                        res.ele.setAttribute("imgKey",imgKey);
-                        img.className=element.class;
-                        img.id=element.eleId;
-                        img.src=element.img ? element.img as string : this.urlImg;
-                        const desc=document.createElement("SMALL");
-                        desc.setAttribute("contenteditable","true");
-                        desc.style.cssText=HtmlElement.imgDesc_css;
-                        if(element.attr){
-                            img.setAttribute("imgDesc",element.attr);
-                            desc.textContent=element.attr;
-                        }
-                        res.divCont.appendChild(desc);
-                        this.imgDescUpdate({target:img,imgDesc:desc});//updates desd editing
-                        if(imgKey){
-                            const res_= await this._service.getSimpleImg(imgKey);
-                            if(res_ && res_.img && res_.Key){
-                                (res.ele as HTMLImageElement).src=res_.img;
-                                (res.ele as HTMLImageElement).alt=res_.Key as string;
-                            }
-                        }
-                        (res.ele as HTMLImageElement).style.cssText=`${element.cssText};max-height:50vh;`;
-                        Misc.blurIn({anchor:res.divCont,blur:"20px",time:700});
-                        if(imgKey===""){
-                            this._user.refreshImageShow(res.divCont,res.ele as HTMLImageElement,null,null);
-                        }
-                        res.ele.addEventListener("click",(e:MouseEvent)=>{
-                            if(e){
-                                res.divCont.classList.toggle("isActive");
-                                
-                                ([...res.divCont.classList as any] as string[]).map(cl=>{
-                                    if(cl==="isActive"){
-                                       return res.ele.classList.add("isActive");
-        
-                                    }else{
-                                        return res.ele.classList.remove("isActive");
-                                    }
-                                });
-                                this.removeMainElement(parent,res.divCont,res.ele);
-                                
-                            }
-                        });
-                        res.divCont.addEventListener("click",(e:MouseEvent)=>{
-                            if(e){
-                                res.ele.classList.toggle("isActive");
-                                res.divCont.classList.toggle("isActive");
-                                const check=([...res.ele.classList as any] as string[]).includes("isActive")
-                                this.removeMainElement(parent,res.divCont,res.ele);
-                                if(check){
-                                }
-                            }
-                        });
-                        Misc.matchMedia({parent:res.divCont,maxWidth:400,cssStyle:{paddingInline:"0px",marginInline:"0px;"}});
-                    return;
-                    case element.name==="time":
-                        res.ele.innerHTML=element.inner_html;
-                        res.ele.setAttribute("datetime",`${element.inner_html}`)
-                        Misc.blurIn({anchor:res.divCont,blur:"20px",time:700});
-                        res.divCont.addEventListener("click",(e:MouseEvent)=>{
-                            if(e){
-                                res.ele.classList.toggle("isActive");
-                                res.divCont.classList.toggle("isActive");
-                                if(ModSelector.isActive(res.ele)){
-                                    this.removeMainElement(parent,res.divCont,res.ele);
-                                    }
-                            }
-                        });
-                    return;
-                    case element.name==="a":
-                        const link1=element.attr as string;
-                        res.ele.innerHTML=element.inner_html;
-                        (res.ele as HTMLAnchorElement).href="#";
-                        res.ele.onclick=()=>{return window.open(link1,"_blank")};
-                        Misc.blurIn({anchor:res.divCont,blur:"20px",time:700});
-                        res.divCont.addEventListener("click",(e:MouseEvent)=>{
-                            if(e){
-                                res.ele.classList.toggle("isActive");
-                                res.divCont.classList.toggle("isActive");
-                                if(ModSelector.isActive(res.ele)){
-                                    this.removeMainElement(parent,res.divCont,res.ele);
-                                    }
-                            }
-                        });
-                    return;
-                    case checkULPlus:
-                        const link=element.attr as string;
-                        res.ele.innerHTML=element.inner_html;
-                        (res.ele as HTMLAnchorElement).href="#";
-                        res.ele.onclick=()=>{return window.open(link,"_blank")};
-                        Misc.blurIn({anchor:res.divCont,blur:"20px",time:700});
-                        const par1=res.ele.parentElement as HTMLElement;
-                        res.divCont.addEventListener("click",(e:MouseEvent)=>{
-                            if(e){
-                                res.ele.classList.toggle("isActive");
-                                res.divCont.classList.toggle("isActive");
-                                this._modSelector.showRemoveItem(parent,res.divCont,par1);
-                            }
-                        });
-                    return;
-                    default:
-                        return;
-                }
-            }
-        });
-
-        
     };
-    async asyncElement(item:{parent:HTMLElement,element:elementType}):Promise<{divCont:HTMLElement,ele:HTMLElement}>{
-        const {parent,element}=item;
-        const less400=window.innerWidth < 400;
-        parent.style.position="relative";
-        const divCont=document.createElement("div");
-        divCont.className=this.divCont_class;
-        divCont.setAttribute("data-placement",`${element.placement}-A`);
-        divCont.style.cssText=this.divCont_css;
-        divCont.style.paddingInline=less400 ? "0.25rem":"1.5rem";
-        const ele=document.createElement(element.name);
-        ele.setAttribute("name",element.name);
-        ele.setAttribute("is-element","true");
-        ele.setAttribute("aria-selected","true");
-        ele.setAttribute("contenteditable","true");
-        ele.classList.remove("isActive");
-        ele.id=element.eleId;
-        ele.className=element.class.split(" ").filter(cl=>(cl !=="box-shadow")).join(" ");
-        // console.log("768:modSelector:element className",ele.className);
-        ele.classList.toggle("isActive");
-        ele.style.cssText=`${element.cssText}`;
-        divCont.appendChild(ele);
-        parent.appendChild(divCont);
-        return new Promise(resolve=>{
-            resolve({divCont,ele});
-        }) as Promise<{divCont:HTMLElement,ele:HTMLElement}>;
-    }
-    ///-------------INJECTION/SOW WORK------------------///
-    appElement(parent: HTMLElement,btn:HTMLElement, icon:iconType) {
-        //THIS ADDS ELEMENTS OTHER THAN UL,BLOCKQUOTE,TIME,A,IMG FROM MAIN CLASS
-        const divCont=document.createElement('div');
-        divCont.className=this.divCont_class;
-        divCont.style.cssText=this.divCont_css;
-        const target = document.createElement(icon.name); //ICON.NAME=ELE TYPE
-        btn.classList.add(icon.display);
-        target.id=`${icon.name}-${Math.round(Math.random()*1000)}`
-        target.classList.add(icon.name);
-        target.innerHTML = icon.name;
-        if(icon.name==="p"){
-            target.style.cssText = "border-radius:6px;text-wrap:wrap;line-height:1.85rem;font-size:1.25rem;";
-        }else{
-            target.style.cssText = "border-radius:6px;";
+    get arrDivCont(){
+        return this._arrDivCont;
+    };
+    set arrDivCont(arrDivCont:arrDivContType[]){
+        this._arrDivCont=arrDivCont
+    };
+    //////------GETTERS/SETTERS-----/////////
 
-        }
-        this.addAttribute({target,divCont,icon}).then(async(resAtt)=>{
-            if(resAtt){
-                if(resAtt.target.nodeName==="UL" || resAtt.target.nodeName==="OL"){
-                    resAtt.target.style.lineHeight="1.85rem";
+
+
+   async showCleanElement({parent,element,idValues}:{parent:HTMLElement,element:elementType,idValues:idValueType[]}):Promise<{div_cont:arrDivContType|undefined,idValues:idValueType[]}>{
+    const rand=Math.floor(Math.random()*1000);
+        const less400=window.innerWidth < 400;
+       const eleId=element.eleId;
+       
+        const node=element.name as eleEnumType;
+    
+        const attrTest= (element.attr && attrEnumArrTest(element)) ? attrEnumArrTest(element) : undefined;
+        const typeTest= (element.type && typeEnumArrTest(element)) ? typeEnumArrTest(element) : undefined;
+        const imgKey= element.imgKey ? element.imgKey : undefined;
+        if(attrTest) idValues.push({eleId,id:attrTest.id as idEnumType,attValue:attrTest.value});
+        if(typeTest) idValues.push({eleId,id:typeTest.id as idEnumType,attValue:typeTest.value});
+        if(imgKey) idValues.push({eleId,id:"imgKey",attValue:String(element.imgKey)});
+        const isImgDesc=attrTest && attrTest.id==="imgDesc" ? attrTest.value:undefined;
+        idValues.push({eleId,id:"name",attValue:node});
+        idValues.push({eleId,id:"isElement",attValue:"true"});
+        
+        if(typeTest){
+            
+            const id=typeTest.id as idEnumType
+            if(id==="shapeOutside" && node==="p"){
+              const arrDivCont= await this.shapeOutside.showCleanShapeOutside({parent,element,idValues,selRowCol:null});
+              if(arrDivCont) {
+                 const  div_cont=arrDivCont
+                 return Promise.resolve({div_cont,idValues}) as Promise<{div_cont:arrDivContType,idValues:idValueType[]}>;
+              };
+            }else if(id==="headerflag"){
+               const arrdivCont1= this.headerflag.showCleanHeaderflag({parent,element,idValues})
+              const  div_cont=arrdivCont1
+              return Promise.resolve({div_cont,idValues}) as Promise<{div_cont:arrDivContType,idValues:idValueType[]}>;
+            }else if(id==="ven"){
+               const arrdivCont2= this.ven.showVen({parent,element,idValues});
+               const div_cont=arrdivCont2
+               return Promise.resolve({div_cont,idValues}) as Promise<{div_cont:arrDivContType,idValues:idValueType[]}>;
+            }else if(id==="design"){
+                const arrdivCont3=this.design.showCleanDesign({parent,element,idValues});
+                const div_cont=arrdivCont3;
+                return Promise.resolve({div_cont,idValues}) as Promise<{div_cont:arrDivContType,idValues:idValueType[]}>;
+            }else if(id==="pasteCode"){
+                const target=document.createElement(element.name);
+                target.id=element.eleId;
+                const divCont=document.createElement("div");
+                divCont.id=`divCont-pasteCode-${rand}`;
+                const {idValues:retIdValues}=this._modSelector.dataset.coreDefaultIdValues({target,sel:null,row:null,col:null,ele:element,clean:true,level:"element",loc:"htmlElement",idValues});
+                idValues=retIdValues;
+              const div_cont= this.pasteCode.showClean({divCont,target,element,idValues});///FINISH THIS NEEDS RETURN ARRDIVCONT
+              return Promise.resolve({div_cont,idValues}) as Promise<{div_cont:arrDivContType,idValues:idValueType[]}>;
+               
+            }else if(id==="reference"){
+               const arrdivCont5= this.reference.showCleanLinks({parent,ele:element,idValues});///FINISH THIS NEEDS RETURN ARRDIVCONT
+               const div_cont=arrdivCont5
+               return Promise.resolve({div_cont,idValues}) as Promise<{div_cont:arrDivContType,idValues:idValueType[]}>;
+            }
+            //THEN TACKLE FLEXBOX, THEN COMBINED THEM TO DISPLAY
+        }else{
+            const target=document.createElement(element.name);
+            target.id=element.eleId;
+            const divCont=document.createElement("div");
+            divCont.id=`divCont-normal-${rand}`;
+            this._modSelector.dataset.insertcssClassIntoComponents({
+                target:divCont,
+                level:"element",
+                loc:"htmlElement",
+                id:"divContId",
+                headerType:undefined,
+                type:"htmlElement"
+    
+            })
+            target.classList.remove("isActive");
+            target.id=element.eleId;
+            target.className=element.class.split(" ").filter(cl=>(cl !=="box-shadow")).join(" ");
+            const {cleaned}=this._modSelector.removeClasses({target,classes:["isActive","box-shadow"]});
+            target.className=cleaned.join(" ");
+            target.classList.remove("isActive");
+            target.style.cssText=element.cssText;
+            target.innerHTML=element.inner_html;
+            target.style.paddingInline=less400 ? "0.25rem":"1rem";
+            const {idValues:retIdValues}=this._modSelector.dataset.coreDefaultIdValues({target,sel:null,row:null,col:null,ele:element,clean:true,level:"element",loc:"htmlElement",idValues});
+            idValues=retIdValues;
+            
+            if(node==="p"){
+                if(!(target.style.lineHeight !=="" ||target.style.lineHeight)){
+                    target.style.lineHeight="1.75rem";
                 }
-                this.promElementAdder(resAtt.target).then(async(res)=>{
-                    if(res){
-                        const ele=res.ele as elementType;
-                        if(icon.name==="p"){
-                            this.editText.paragraphEditorbar({parent:divCont,target:res.target});
-                        }
-                        divCont.setAttribute("data-placement",`${ele.placement}-A`)
-                        this._modSelector.count=this._modSelector.count + 1;
-                        this._modSelector.footerPlacement();//this shifts footer placement down
-                        res.target.addEventListener("click", (e: MouseEvent) => {
-                            if (e) {
-                                // console.log("click : 521:",target)
-                                btn.classList.toggle("active");
-                                res.target.classList.toggle("isActive");
-                                divCont.classList.toggle("isActive");
-                                const focusOptions: focusOptions = { focusVisible: false, preventScroll: false }
-                                res.target.focus(focusOptions);
-                                this._modSelector.updateElement(target);
-                                if(([...target.classList as any] as string[]).includes("isActive")){
-                                    this.removeMainElement(parent,divCont,res.target);
-                                }
-                                
-                            }
-                        });
-                        this._modSelector.editElement(res.target)//pulls flex if exist from target attrubutes
+                divCont.appendChild(target);
+                const div_cont:arrDivContType={divCont,target,placement:element.placement,ele:element,isNormal:true,chart:null,sel:null}
+                return Promise.resolve({div_cont,idValues}) as Promise<{div_cont:arrDivContType,idValues:idValueType[]}>;
+            }else if(node==="ul" || node==="ol"){
+                target.style.lineHeight="1.85rem";
+                const lis=(target as HTMLElement).querySelectorAll("li") as any as HTMLElement[];
+                lis.forEach(li=>{
+                    if(li && li.textContent===""){
+                        li.remove();
                     }
                 });
+                divCont.appendChild(target);
+                const div_cont:arrDivContType={divCont,target,placement:element.placement,ele:element,isNormal:true,chart:null,sel:null}
+                return Promise.resolve({div_cont,idValues}) as Promise<{div_cont:arrDivContType,idValues:idValueType[]}>;
+            }else if(node==="a"){
+                if(attrTest && attrTest.id==="link"){
+                    const anchor=target as HTMLAnchorElement;
+                    const link=attrTest.value;
+                    const name=anchor.textContent ? anchor.textContent:"link"
+                    this.addLinkEmailTelImg({target:anchor,image:this.link,href:link,name,type:"link"});
+                    divCont.appendChild(target);
+                    const div_cont:arrDivContType={divCont,target:anchor,placement:element.placement,ele:element,isNormal:true,chart:null,sel:null}
+                    return Promise.resolve({div_cont,idValues}) as Promise<{div_cont:arrDivContType,idValues:idValueType[]}>;
+                }
+            }else if(node==="time"){
+                const time=target as HTMLTimeElement;
+                divCont.appendChild(target);
+                const div_cont:arrDivContType={divCont,target:time,placement:element.placement,ele:element,isNormal:true,chart:null,sel:null}
+                return Promise.resolve({div_cont,idValues}) as Promise<{div_cont:arrDivContType,idValues:idValueType[]}>;
+            }else if(node==="img"){
+                if(element.imgKey){
+                    await this._service.getSimpleImg(element.imgKey).then(async(res)=>{
+                        if(res){
+                            (target as HTMLImageElement).src=res.img;
+                            (target as HTMLImageElement).alt=res.Key;
+                        };
+                    });
+                };
+                if(isImgDesc){
+                    const idValue={eleId,id:"imgDesc",attValue:isImgDesc} as idValueType;
+                    this._modSelector.dataset.upDateIdValue({target,idValues,idValue});
+                    idValues.push({eleId,id:"imgDesc",attValue:isImgDesc});
+                    const imgDesc=document.createElement("small");
+                    imgDesc.textContent=isImgDesc;
+                    imgDesc.style.cssText="margin-left:1rem;margin-block:auto;font-weight:bold;text-wrap:pretty;";
+                    divCont.appendChild(imgDesc);
+                };
+            }else{
+                divCont.appendChild(target);
+                const div_cont:arrDivContType={divCont,target,placement:element.placement,ele:element,isNormal:true,chart:null,sel:null}
+                return Promise.resolve({div_cont,idValues}) as Promise<{div_cont:arrDivContType,idValues:idValueType[]}>;
+            };
+            if(less400){
+                target.style.paddingInline="0.5rem";
+                target.classList.remove("columns-3");
+                target.classList.remove("columns-4");
+                target.classList.remove("columns-2");
+                target.classList.remove("columns");
+            };
+            
+            
+        }
+        return Promise.resolve({div_cont:undefined,idValues}) as Promise<{div_cont:arrDivContType|undefined,idValues:idValueType[]}>;
+    };
+
+    ///-------------INJECTION/SOW WORK------------------///
+    
+   async showElement({parent,element,idValues,selRowCol}:{
+        parent:HTMLElement,
+        element:elementType,
+        idValues:idValueType[],
+        selRowCol:selRowColType|null
+
+    }):Promise<arrDivContType|undefined>{
+      
+        const editableNodes=["p","ul","blockquote","ol","h1","h2","h3","h4","h5","h6"];
+        const node=element.name;
+        const eleId=element.eleId;
+        const attrTest=attrEnumArrTest(element);
+        const typeTest=typeEnumArrTest(element);
+        const less400=window.innerWidth < 400;
+        const less900=window.innerWidth < 900;
+        const divCont=document.createElement("div");
+        const target=document.createElement(node);
+        const rand=Math.floor(Math.random() *1000);
+        console.log(element);
+        
+        const isImgDesc= attrTest && attrTest.id==="imgDesc"? attrTest.value:undefined;
+        if(selRowCol){
+            const idValue:idValueType={eleId,id:"selRowCol",attValue:JSON.stringify(selRowCol)};
+            this._modSelector.dataset.upDateIdValue({target,idValues,idValue});
+        }
+
+
+        if(typeTest){
+            const id=typeTest.id
+    
+            if(id==="shapeOutside"){
+               const div_cont= this.shapeOutside.showShapeOutside({
+                    parent,
+                    element,
+                    idValues,
+                    selRowCol
+                });
+                return Promise.resolve(div_cont) as Promise<arrDivContType>;
+
+            }else if(id==="reference"){
+
+               const div_cont= this.reference.showLinks({parent,
+                 ele:element,
+                 idValues,
+                 isHtmlElement:true,
+                 sel:null,
+                 rowEle:null,
+                 colEle:null
+                });
+                return Promise.resolve(div_cont) as Promise<arrDivContType>;
+            }else if(id==="design"){
+                const div_cont=this.design.showDesign({parent,element,idValues});
+                return Promise.resolve(div_cont) as Promise<arrDivContType>
+            }else if(id==="ven"){
+                const div_cont=this.ven.showVen({parent,element,idValues});
+                return Promise.resolve(div_cont) as Promise<arrDivContType>
+            }else if(id==="headerflag"){
+                const div_cont=this.headerflag.showHeaderflag({parent,element,less900,less400,idValues});
+                return Promise.resolve(div_cont) as Promise<arrDivContType>
+            }else if(id==="pasteCode"){
+                const div_cont=this.pasteCode.main({parent,element,isNew:false,isClean:false,idValues});
+                if(!div_cont) return;
+                return Promise.resolve(div_cont) as Promise<arrDivContType>
+            };
+           
+            
+        }else{
+            divCont.id=`divCont-html-${rand}`;
+            divCont.setAttribute("data-placement",`${element.placement}-A`);
+            divCont.style.paddingInline=less400 ? "0.25rem":"1.5rem";
+            this._modSelector.dataset.insertcssClassIntoComponents({target:divCont,loc:"htmlElement",type:"htmlElement",headerType:undefined,id:"divContId",level:"element"});
+            target.classList.remove("isActive");
+            target.id=eleId;
+            target.className=element.class;
+            const {cleaned:cleanClasses}=this._modSelector.removeClasses({target,classes:["isActive"]});
+            target.className=cleanClasses.join(" ");
+            target.innerHTML=element.inner_html;
+            target.style.cssText=`${element.cssText}`;
+            idValues.push({eleId,id:"divContId",attValue:divCont.id});
+            idValues.push({eleId,id:"ele_id",attValue:String(element.id)});
+             idValues.push({eleId,id:"name",attValue:element.name});
+             //----------//---POPULATING ATTRIBUTES TO TARGET && ADDS ATTR/TYPE/IMGKEY ATTRIBUTES FROM IDVALUES------\\-----///
+             idValues=Dataset.removeIdValueDuplicates({arr:idValues,eleId});
+            
+             const {idValues:retIdValues2}=this._modSelector.dataset.coreDefaultIdValues({
+                 target,
+                 level:"element",
+                 sel:null,
+                 row:null,
+                 col:null,
+                 ele:element,
+                 loc:"htmlElement",
+                 idValues,
+                 clean:false
+     
+                });
+                idValues=retIdValues2;
+              
+            //----------//---POPULATING ATTRIBUTES TO TARGET && ADDS ATTR/TYPE/IMGKEY ATTRIBUTES FROM IDVALUES------\\-----///
+            
+
+            if(editableNodes){
+
+                divCont.appendChild(target);
+                divCont.setAttribute("data-placement",`${element.placement}-A`)
+                if(node==="p"){
+                    if(!(target.style.lineHeight !=="" ||target.style.lineHeight)){
+                        target.style.lineHeight="1.75rem";
+                    }
+                    this.editText.paragraphEditorbar({parent:divCont,target:target,idValues});
+                    target.onclick=(e:MouseEvent)=>{
+                        if(!e) return;
+                        divCont.classList.toggle("isActive");
+                        target.classList.toggle("isActive");
+                        this.removeMainElement({parent,divCont,target,idValues});
+                        Main.activatebuttons({target});
+                    };
+                }else{
+
+                    divCont.onclick=(e:MouseEvent)=>{
+                        if(!e) return;
+                        divCont.classList.toggle("isActive");
+                        target.classList.toggle("isActive");
+                        this.removeMainElement({parent,divCont,target,idValues});
+                        Main.activatebuttons({target});
+                    };
+                };
+                this.editElement({target,idValues});
+                   if(divCont){
+                    const div_cont={divCont,placement:element.placement,target,isNormal:true,ele:element,chart:null,sel:null}
+                     return Promise.resolve(div_cont) as Promise<arrDivContType>
+                    };
+            }else if(node==="a"){
+                const isLink=attrTest && attrTest.id==="link" ? attrTest:undefined;
+                const isEmail=attrTest && attrTest.id==="email" ? attrTest:undefined;
+                const isTel=attrTest && attrTest.id==="tel" ? attrTest:undefined;
+                const name=target.textContent || "link";
+                if(isLink){
+                    this.addLinkEmailTelImg({target:(target as HTMLAnchorElement),image:this.link,href:isLink.value,name,type:"link"});
+                }else if(isEmail){
+                    this.addLinkEmailTelImg({target:(target as HTMLAnchorElement),image:this.mail,href:isEmail.value,name,type:"email"});
+                }else if(isTel){
+                    this.addLinkEmailTelImg({target:(target as HTMLAnchorElement),image:this.link,href:isTel.value,name,type:"tel"});
+                };
+                if(divCont){ 
+                   const div_cont={divCont,placement:element.placement,target,isNormal:true,ele:element,chart:null,sel:null}
+                    return Promise.resolve(div_cont) as Promise<arrDivContType>;
+                };
+
+            }else if(node==="img"){
+                (target as HTMLImageElement).src=element.img ||this.logo;
+                (target as HTMLImageElement).alt=element.inner_html ||"www.ablogroom.com";
+                divCont.appendChild(target);
+                if(element.imgKey){
+                    await this._service.getSimpleImg(element.imgKey).then(async(res)=>{
+                        if(res){
+                            (target as HTMLImageElement).src=res.img;
+                            (target as HTMLImageElement).alt=res.Key;
+                        };
+                    });
+                };
+                if(isImgDesc){
+                    idValues.push({eleId,id:"imgDesc",attValue:isImgDesc});
+                    const imgDesc=document.createElement("small");
+                    imgDesc.textContent=isImgDesc;
+                    imgDesc.style.cssText="margin-left:1rem;margin-block:auto;font-weight:bold;text-wrap:pretty;";
+                    divCont.appendChild(imgDesc);
+                    this.imgDescUpdate({target:(target as HTMLImageElement),imgDesc});//updates desc editing for image
+                };
+                if(divCont) {
+                    const div_cont={divCont,placement:element.placement,target,isNormal:true,ele:element,chart:null,sel:null};
+                    return Promise.resolve(div_cont) as Promise<arrDivContType>;
+                };
+            }
+        };
+    };
+
+
+    ///-------------INJECTION/SOW WORK------------------///
+    fromMain({parent,btn,icon,idValues}:{parent:HTMLElement,btn: HTMLButtonElement, icon: iconType,idValues:idValueType[]}): void {
+
+        Main.textarea = document.querySelector("div#textarea");
+        if (Main.textarea) {
+            const rand=Math.floor(Math.random()*1000);
+            const divCont=document.createElement('div');
+            divCont.id=`divCont-normal-${rand}`;
+            divCont.className=this.divCont_class;
+            divCont.style.cssText=this.divCont_css;
+            const node=icon.name;
+            const target = document.createElement(icon.name); //ICON.NAME=ELE TYPE
+            target.id=`htmlele-${icon.name}-${rand}`;
+            const eleId=target.id;
+            idValues.push({eleId,id:"name",attValue:node});
+            idValues.push({eleId,id:"elementId",attValue:eleId});
+            idValues.push({eleId,id:"ID",attValue:eleId});
+            btn.classList.add(icon.display);
+            target.classList.add(icon.name);
+            if (icon.name === "img") {
+
+                btn.classList.add(icon.display)
+                this.addImage({
+                    parent,
+                    target,
+                    divCont,
+                    btnClicked:btn,
+                     icon,
+                    idValues
+
+                });
+
+            } else if (icon.name === "SH") {
+                let ele: elementType = {} as elementType;
+                ele = { ...ele,eleId:target.id, type: "shapeoutside", attr: "shapeOutsideCircle" };
+                idValues.push({eleId,id:"shapeOutside",attValue:"true"});
+                idValues.push({eleId,id:"type",attValue:"shapeOutside"});
+                idValues.push({eleId,id:"elementId",attValue:eleId});
+                idValues.push({eleId,id:"ID",attValue:eleId});
+                idValues.push({eleId,id:"shapeOutsideCircle",attValue:"true"});
+                this.shapeOutside.addShapeOutside({ parent, sel: null,rowEle:null,colEle:null, element: ele,idValues })
+            }else if(icon.name==="time"){
+                this.insertDateTime({
+                    parent,
+                    target,
+                    divCont,
+                     btnClicked:btn,
+                    idValues,
+                    icon
+                });
+            } else if(icon.name==="ul"){
+                this.selectUltype(parent,btn,icon);
+            }else if(icon.name==="a"){
+                this.createAnchor({
+                    parent,
+                    target,
+                    divCont,
+                     btn,
+                    idValues,
+                    icon
+                });
+            }else if(icon.name==="blockquote"){
+                this.createQuote({
+                    parent,
+                    target,
+                    divCont,
+                     btn,
+                     icon,
+                    idValues
+                })
+            }else {
+                this.appElement({
+                    parent,
+                    target,
+                    divCont,
+                     btn,
+                     icon,
+                    idValues
+                });
+
+            }
+
+        }
+    };
+
+    
+   async appElement({parent,target,divCont,btn,icon,idValues}:{
+    parent: HTMLElement;
+    btn:HTMLElement;
+    target:HTMLElement;
+    divCont:HTMLElement;
+     icon:iconType;
+    idValues:idValueType[]
+   }) {
+        //THIS ADDS ELEMENTS OTHER THAN UL,BLOCKQUOTE,TIME,A,IMG FROM MAIN CLASS
+        
+        target.innerHTML = `${icon.name}-insert text`;
+        idValues.push({eleId:target.id,id:"divContId",attValue:divCont.id});
+        
+        
+        await this.elementAdder({target,idValues}).then(async(res)=>{
+            if(res){
+                const ele=res.ele as elementType;
+                    divCont.setAttribute("data-placement",`${ele.placement}-A`)
+                  
+                if(icon.name==="p"){
+                    this.editText.paragraphEditorbar({parent:divCont,target:res.target,idValues});
+                };
+                this.editElement({target:res.target,idValues});
+                divCont.setAttribute("data-placement",`${ele.placement}-A`)
+                this._modSelector.count=this._modSelector.count + 1;
+                this._modSelector.footerPlacement();//this shifts footer placement down
+                
+                divCont.addEventListener("click", (e: MouseEvent) => {
+                    if (e) {
+                        divCont.classList.toggle("isActive");
+                        const check=([...divCont.classList as any] as string[]).includes("isActive");
+                        btn.classList.toggle("active");
+                        if(check){
+                            res.target.classList.add("isActive");
+                          
+                        }else{
+                            res.target.classList.remove("isActive");
+                           
+                        }
+                        
+                        this.removeMainElement({
+                            parent,
+                            divCont,
+                            target:res.target,
+                            idValues
+                           });
+                        
+                    }
+                });
+             
             }
         });
+            
         divCont.appendChild(target);
         parent.appendChild(divCont);
     
@@ -364,106 +567,38 @@ class HtmlElement {
         Misc.matchMedia({parent:divCont,maxWidth:400,cssStyle:{paddingInline:"0px",marginInline:"0px;"}});
         
         
-    }
-    addAttribute(item:{target:HTMLElement,divCont:HTMLElement,icon:iconType|null}):Promise<{target:HTMLElement,divCont:HTMLElement}>{
-        //ADDS ATTRIBUTES ONLY
-        const {target,divCont,icon}=item;
-        if(icon){
-            target.setAttribute("name",icon.name);
-            target.setAttribute("data-name-id",`${icon.name}-${target.id}`);
+    };
 
-        }
-        divCont.setAttribute("data-placement",`${this.placement}`);
-        target.classList.add("position-relative");
-        target.setAttribute("is-element","true");
-        target.setAttribute("contenteditable","true");
-        target.setAttribute("aria-selected","true");
-        target.style.cssText="margin-inline:8px;padding-inline:2rem;width:100% !important;position:relative;";
-        target.classList.add("box-shadow");
-        target.classList.add("element");
-        // ADDING BACKGROUND WHITE TO ELEMENTS WITH BACKGROUND COLOR
-        Main.container=document.querySelector("section#main") as HTMLElement;
-        const checkBgShade=([...(Main.container as HTMLElement).classList as any] as string[]).includes("bgShade");
-        if(checkBgShade){
-            target.classList.add("background-bgShade");
-            divCont.classList.add("background-bgShade");
-        }
-        // ADDING BACKGROUND WHITE TO ELEMENTS WITH BACKGROUND COLOR
-        return new Promise(resolver=>{
-            resolver({target,divCont})
-        }) as Promise<{target:HTMLElement,divCont:HTMLElement}>;
-    }
-    
-    //FROM DESIGN
-    designElement(parent: HTMLElement,eleName:string,text:string,class_:string){
-        //THIS ADDS ELEMENTS OTHER THAN UL,BLOCKQUOTE,TIME,A,IMG FROM MAIN CLASS
-        const less400=window.innerWidth < 400;
-        const divCont=document.createElement('div');
-        divCont.className=this.divCont_class;
-        divCont.style.cssText=this.divCont_css;
-        divCont.style.paddingInline=less400 ? "0rem":"1.5rem";
-        const target = document.createElement(eleName); //ICON.NAME=ELE TYPE
-        target.id=`${"design"}-${Math.round(Math.random()*1000)}`;
-        // this.docSelect(target,icon);
-        target.textContent=text;
-        target.setAttribute("name",eleName);
-        target.setAttribute("data-name-id",target.id);
-        target.classList.add("position-relative");
-        target.setAttribute("is-element","true");
-        target.setAttribute("contenteditable","true");
-        target.setAttribute("aria-selected","true");
-        target.style.cssText="margin-inline:8px;padding-inline:2rem;width:100% !important;position:relative;border-radius:6px;text-wrap:pretty;";
-        target.classList.add("box-shadow");
-        target.classList.add("element");
-        target.classList.add(class_);
-        // ADDING BACKGROUND WHITE TO ELEMENTS WITH BACKGROUND COLOR
-        Main.container=document.querySelector("section#main") as HTMLElement;
-        const checkBgShade=([...(Main.container as HTMLElement).classList as any] as string[]).includes("bgShade");
-        if(checkBgShade){
-            target.classList.add("background-bgShade");
-            divCont.classList.add("background-bgShade");
-        }
-        if(eleName==="p"){
-            target.style.lineHeight="1.75rem";
-        }
-        // ADDING BACKGROUND WHITE TO ELEMENTS WITH BACKGROUND COLOR
-        divCont.appendChild(target);
-        parent.appendChild(divCont);
-        Misc.matchMedia({parent:divCont,maxWidth:920,cssStyle:{marginInline:"1.5rem"}});
-        Misc.matchMedia({parent:divCont,maxWidth:420,cssStyle:{marginInline:"10px"}});
-        Misc.fadeIn({anchor:divCont,xpos:60,ypos:100,time:600});
-        this.promElementAdder(target).then(async(res)=>{
-            if(res){
-                const ele=res.ele as elementType;
-                this._modSelector.count=this._modSelector.count + 1;
-                divCont.setAttribute("data-placment",`${ele.placement}-A`);
-                this._modSelector.footerPlacement();//this shifts footer placement 
-                const maxcount=ModSelector.maxCount(this._modSelector.blog);
-                localStorage.setItem("placement",String(maxcount+1));
-                res.target.addEventListener("click", (e: MouseEvent) => {
-                    if (e) {
-                        // console.log("click : 521:",target)
-                        res.target.classList.toggle("isActive");
-                        divCont.classList.toggle("isActive");
-                        const focusOptions: focusOptions = { focusVisible: false, preventScroll: false }
-                        target.focus(focusOptions);
-                        this._modSelector.updateElement(res.target);
-                        if(([...target.classList as any] as string[]).includes("isActive")){
-                            this.removeMainElement(parent,divCont,res.target);
-                        }
-                        
-                    }
-                });
-            }
-        });
+   
+     addAttribute(item:{target:HTMLElement,divCont:HTMLElement,icon:iconType|null,attValue:string|undefined}):{target:HTMLElement,divCont:HTMLElement}{
+        //ADDS ATTRIBUTES ONLY
+        const {target,divCont}=item;
+
+        // THIS ADDS DEFAULT CSS AND DEFAULT CLASSES TO ELEMENT BELOW
        
-        this._modSelector.editElement(target)//pulls flex if exist from target attrubutes
-        Misc.matchMedia({parent:divCont,maxWidth:400,cssStyle:{paddingInline:"0px",marginInline:"0px;"}});
-        
-        
-    }
-    addImage(parent:HTMLElement,btnClicked:HTMLButtonElement,icon:iconType):void{
-        const width=window.innerWidth <900 ? 100 : 80;
+        divCont.setAttribute("data-placement",`${this.placement}`);
+        // ADDING BACKGROUND WHITE TO ELEMENTS WITH BACKGROUND COLOR
+        Main.container=document.querySelector("section#main") as HTMLElement;
+        const checkBgShade=([...(Main.container as HTMLElement).classList as any] as string[]).includes("bgShade");
+        if(checkBgShade){
+            target.classList.add("background-bgShade");
+            divCont.classList.add("background-bgShade");
+        }
+        // ADDING BACKGROUND WHITE TO ELEMENTS WITH BACKGROUND COLOR
+        return {target,divCont};
+    };
+    
+   
+    addImage({parent,btnClicked,icon,target,divCont,idValues}:{
+        parent:HTMLElement,
+        btnClicked:HTMLButtonElement,
+        icon:iconType,
+        idValues:idValueType[],
+        target:HTMLElement|HTMLImageElement,
+        divCont:HTMLElement,
+
+    }):void{
+        const img=target as HTMLImageElement;
         const rand=Math.round(Math.random()*1000);
         parent.style.position="relative";
         btnClicked.classList.add("active");
@@ -488,36 +623,28 @@ class HtmlElement {
         floatContainer.appendChild(form);
         parent.appendChild(floatContainer);
         Misc.fadeIn({anchor:floatContainer,xpos:50,ypos:100,time:500});
-        form.addEventListener("submit",(e:SubmitEvent)=>{
-            e.preventDefault();
-            if(e && e.currentTarget){
+        form.addEventListener("submit",async(e:SubmitEvent)=>{
+            if(e ){
+                e.preventDefault();
                 const formelement= new FormData(e.currentTarget as HTMLFormElement);
                 const file=formelement.get("file");
                 const image=URL.createObjectURL(file as File);
                 //creating container && img
-                const divCont=document.createElement("div");
-                divCont.classList.add("element");
-                divCont.id=this.divCont_class;
-                divCont.style.cssText=this.divCont_css + "margin-block:1rem;";
-                divCont.className=" eleContainer";
-                divCont.style.display="grid";
-                const img=document.createElement("img");
-                img.id=`img-${Math.round(Math.random()*1000)}`
-                img.setAttribute("is-element","true");
-                img.setAttribute("name","img");
-                img.src=image ? image : this.urlImg;
+                const eleId=img.id;
+                img.src=image ||this.urlImg;
                 img.alt="image";
-                img.setAttribute("contenteditable","false");
-                img.classList.add("image");
-                img.style.cssText=`position:relative !important;margin-inline:auto;border-radius:12px;border-radius:6px;max-height:50vh;`;
-                img.style.maxHeight="50vh !important";
-                img.setAttribute("imgKey","");
                 const desc=document.createElement("small");
                 desc.style.cssText=HtmlElement.imgDesc_css;
                 desc.setAttribute("contenteditable","true");
                 desc.textContent="add description";
-                img.setAttribute("imgDesc",desc.textContent); 
-                divCont.appendChild(img);
+                idValues.push({eleId,id:"name",attValue:"img"});
+                idValues.push({eleId,id:"ID",attValue:eleId});
+                idValues.push({eleId,id:"imgDesc",attValue:desc.textContent});
+               
+                //THIS ADDS ATTRIBUTES ANC CLASSES TO THE ELEMENTS FROM DATASET CLASS
+
+            //THIS ADDS ATTRIBUTES ANC CLASSES TO THE ELEMENTS FROM DATASET CLASS
+                divCont.appendChild(target as HTMLImageElement);
                 divCont.appendChild(desc);
                 parent.appendChild(divCont);
                 Misc.matchMedia({parent:divCont,maxWidth:920,cssStyle:{marginInline:"1.5rem"}});
@@ -527,149 +654,66 @@ class HtmlElement {
                 btnClicked.classList.remove("active");
                 const blog=this._modSelector.blog;
                 const {Key}=this._service.generateImgKey(formelement,blog) as {Key:string};
-                img.setAttribute("imgKey",Key);
-                this.promElementAdder(img).then(async(res)=>{
-                    if(res){
-                        const ele=res.ele as elementType;
+                idValues.push({eleId,id:"imgKey",attValue:Key});
+                this.elementAdder({target:img as HTMLImageElement,idValues}).then(async(_res)=>{
+                    if( _res?.idValues){
+                        const ele=_res.ele as elementType;
                         divCont.setAttribute("data-placement",`${ele.placement}-A`);
-                        // console.log("IMG_",res.target)
-                        // console.log("elements",this.elements)
-                        const img_= res.target as HTMLImageElement;
-                        this._user.askSendToServer({bg_parent:parent,formdata:formelement,image:img,blog,oldKey:null});
-                        this.imgDescUpdate({target:img,imgDesc:desc});//updates desc editing for image
+                        idValues=_res.idValues
+                        const img_= _res.target as HTMLImageElement;
+                        this._user.askSendToServer({bg_parent:parent,formdata:formelement,image:img_ as HTMLImageElement,blog,oldKey:null,idValues,selRowCol:null});
+                        this.imgDescUpdate({target:img_,imgDesc:desc});//updates desc editing for image
                         divCont.addEventListener("click",(e:MouseEvent)=>{
                             if(e){
                                 divCont.classList.toggle("isActive");
-                                img.classList.toggle("isActive");
+                                img_.classList.toggle("isActive");
                                 this._modSelector.footerPlacement();//this shifts footer placement down
-                                const isActive=([...img.classList as any] as string[]).includes("isActive");
-                                this.removeMainElement(parent,divCont,img);
-                                this._user.refreshImageShow(parent,img,null,null)
+                                const isActive=([...img_  as any] as string[]).includes("isActive");
+                                
+                                this.removeMainElement({
+                                    parent,
+                                    divCont,
+                                    target:img,
+                                    idValues
+                                   });
+                                this._user.refreshImageShow({parent,image:target as HTMLImageElement,formdata:null,selRowCol:null,idValues})
+                                const checkSVG=([...divCont.children as any] as HTMLElement[]).map(child=>(child.nodeName)).includes("SVG")
                                 if(isActive){
-                                    this.updateElement(img);//updates on both selector and Element
                                     divCont.style.zIndex="0";
                                     
-                                }else{
-                                    if(([...divCont.children as any] as HTMLElement[]).map(child=>(child.nodeName)).includes("SVG")){
-                                        const getIcon=divCont.querySelector("svg") as SVGElement;
+                                }else if(checkSVG){
+                                    const getIcon=divCont.querySelector("svg") as SVGElement;
                                         divCont.removeChild(getIcon as ChildNode)
-                                    }
                                 }
                             }
                         });
                     }
                 });
                 Misc.matchMedia({parent:divCont,maxWidth:400,cssStyle:{paddingInline:"0px",marginInline:"0px;"}});
-                
-            }
+        }
         });
+               
+                
+        
 
     }
-    bgShade(parent:HTMLElement,btnClicked:HTMLButtonElement){
-        const useParent= btnClicked as HTMLElement;
-        const direction=window.innerWidth < 600 ? "column":"row" ;
-        useParent.style.position="relative";
-        useParent.style.zIndex="100";
-        btnClicked.classList.add("active");
-        //show drop-down on shade selection
-        const popup=document.createElement("div");
-        popup.style.cssText=`position:absolute;border-radius:5px;box-shadow:1px 1px 10px 1px #bdc5c9;display:flex;flex-direction:${direction};width:175px;height:auto;z-index:200;`;
-        popup.setAttribute("is-popup","true");
-        popup.id="popup";
-        popup.style.transform="none";
-            if(direction==="column"){
-                popup.style.width="75px";
-                popup.style.inset="105% -50% -110% -150%";
-            }else{
-            popup.style.inset="105% -50% -110% -250%";
-            }
-        const selectBlue=document.createElement("select");
-        selectBlue.style.cssText="border-radius:15px;"
-        selectBlue.className="box-shadow";
-        Misc.blue_shades.forEach((shade,index)=>{
-            const option=document.createElement("option");
-            option.value=shade;
-            if(index===0) option.textContent=shade;
-            option.style.cssText=`font-size:9px;background-color:${shade};`;
-            option.textContent=shade;
-            selectBlue.appendChild(option);
-        });
-        popup.appendChild(selectBlue);
-       
-        selectBlue.addEventListener("change",(e:Event)=>{
-            if(e){
-                const getActives=document.querySelectorAll("[is-element=true].isActive");
-                const value=(e.currentTarget as HTMLSelectElement).value as string;
-                btnClicked.classList.remove("active");
-                
-                if(getActives){
-                    ([...getActives as any] as HTMLElement[]).forEach((element)=>{
-                        
-                            if(element){
-                                const style=`background-color:${value}`;
-                                element.style.backgroundColor=value;
-                                element.style.cssText=HtmlElement.addStyle(element,style)
-                                this._modSelector.updateElement(element);//updates on both selector and Element
-                            }
-                           
-                    });
-                }
-                ([...useParent.children as any] as HTMLElement[]).forEach(child=>{
-                    if(child && child.id==="popup"){
-                        useParent.removeChild(child);
-                    }
-                });
-                
-            }
-        });
-        const select1=document.createElement("select");
-        select1.style.cssText="border-radius:15px;"
-        select1.className="box-shadow";
-        Misc.shades.forEach((shade,index)=>{
-            const option=document.createElement("option");
-            option.value=shade;
-            if(index===0) option.textContent=shade;
-            option.style.cssText=`font-size:9px;background-color:${shade};`;
-            option.textContent=shade;
-            select1.appendChild(option);
-        });
-        popup.appendChild(select1);
-        useParent.appendChild(popup);
-        select1.addEventListener("change",(e:Event)=>{
-            if(e){
-                const getActives=document.querySelectorAll("[is-element=true].isActive");
-                const value=(e.currentTarget as HTMLSelectElement).value as string;
-                btnClicked.classList.remove("active");
-                const check=(getActives && getActives.length>0)? true:false;
-                
-                if(check){
-                    ([...getActives as any] as HTMLElement[]).forEach((element)=>{
-                        
-                            if(element){
-                                const style=`background-color:${value}`;
-                                element.style.backgroundColor=value;
-                                element.style.cssText=HtmlElement.addStyle(element,style)
-                                this._modSelector.updateElement(element);//updates on both selector and Element
-                            }
-                           
-                    });
-                }
-                ([...useParent.children as any] as HTMLElement[]).forEach(child=>{
-                    if(child && child.id==="popup"){
-                        useParent.removeChild(child);
-                    }
-                });
-                
-            }
-        });
-        
-        //then remove "active" on btn
-    }
-    selectColumns(parent:HTMLElement,btnClk:HTMLButtonElement){
+   
+    selectColumns({parent,btnClk,idValues}:{parent:HTMLElement,btnClk:HTMLButtonElement,idValues:idValueType[]}){
         btnClk.classList.add("active");
         parent.style.position="relative";
+        parent.style.zIndex="0";
+        const text=document.createElement("p");
+        text.style.cssText="margin:auto;font-size:10px;";
+        text.textContent="columns";
+        text.className="text-light text-decoration-underline;"
+        const popup=document.createElement("div");
+        popup.id="columns-popup";
+        popup.className="columns-popup";
+        popup.style.cssText="position:absolute;inset:-100% 0% auto auto;width:100px;height:70px;backdrop-filter:blur(20px);border-radius:12px;box-shadow:1px 1px 12px 1px;font-size:10px;z-index:10;display:flex;flex-direction:column;align-items:center;";
         const select=document.createElement("select") as HTMLSelectElement;
         select.style.cssText="width:100%;margin-inline:auto;display:flex;flex-direction:column;align-items:center;justify-content:flex-start;";
+        popup.appendChild(text);
+        popup.appendChild(select);
         const isActives=document.querySelectorAll("[is-element='true'].isActive");
         Main.colArr.forEach((op)=>{
             const option=document.createElement("option") as HTMLOptionElement;
@@ -677,7 +721,7 @@ class HtmlElement {
             option.textContent=op.name;
             select.appendChild(option);
         });
-        parent.appendChild(select);
+        parent.appendChild(popup);
         select.addEventListener("change",(e:Event)=>{
             if(e){
                 const value=(e.currentTarget as HTMLSelectElement).value;
@@ -688,19 +732,28 @@ class HtmlElement {
                         if(value!=="noColumns"){
                             ele.classList.toggle(value);
                         }
-                        this._modSelector.addAttribute(ele,"class",value);
+                        this._modSelector.addAttribute({target:ele,type:"class",attr:value,idValues,selRowCol:null});
                         
                     }
                 });
-                parent.removeChild(select);
+                parent.removeChild(popup);
                 btnClk.classList.remove("active");
             }
         });
-    }
-    createAnchor(parent:HTMLElement,btnClick:HTMLElement,icon:iconType){
+    };
+
+
+    createAnchor({parent,target,divCont,btn,icon,idValues}:{
+        parent: HTMLElement,
+        btn:HTMLElement,target:HTMLElement,
+        divCont:HTMLElement,
+         icon:iconType,
+        idValues:idValueType[]
+       }){
         //Form group
+        const anchor=target as HTMLAnchorElement;
         parent.classList.add("position-relative")
-        btnClick.classList.add("active");
+        btn.classList.add("active");
         const groupForm=document.createElement("div");
         groupForm.id="createAnchor-form";
         groupForm.className="form-group mx-auto flex flex-column align-items-center gap-1";
@@ -748,49 +801,53 @@ class HtmlElement {
                 }
             }
         });
-        submitBtn.addEventListener("click",(e:MouseEvent)=>{
+        submitBtn.addEventListener("click",async(e:MouseEvent)=>{
             if(e){
-                const divCont=document.createElement("div");
-                divCont.className="eleContainer";
-                divCont.style.cssText="margin:0px;padding:0.25rem;position:relative;"
-                divCont.id=`anchor-container`;
-                const anchor=document.createElement("a");
-                anchor.setAttribute("is-element","true");
-                anchor.id=`${icon.name}-${Math.round(Math.random()*1000)}`;
-                anchor.setAttribute("name",`${icon.name}`);
-                anchor.style.cssText="margin-inline:auto;padding:1rem;font-size:18px;";
-                anchor.className="text-primary"
+                const eleId=anchor.id;
                 anchor.textContent=inName.value;
-                // anchor.href="#";
                 anchor.onclick=()=>{window.open(inLink.value,"_blank")};
-                anchor.setAttribute("data-href",inLink.value);
                 anchor.setAttribute("contenteditable","true");
+                idValues.push({eleId,id:"name",attValue:"a"});
+                idValues.push({eleId,id:"divContId",attValue:divCont.id});
+                idValues.push({eleId,id:"link",attValue:String(inLink.value)});
+                idValues.push({eleId,id:"attr",attValue:String(inLink.value)});
+                
                 this._modSelector.footerPlacement();//this shifts footer placement down
-                this.promElementAdder(anchor).then(async(res)=>{
-                    if(res){
-                        const ele=res.ele as elementType;
+                this.elementAdder({target,idValues}).then(async(_res)=>{
+                    if(_res){
+                        const ele=_res.ele as elementType;
                         divCont.setAttribute("data-placement",`${ele.placement}-A`)
+                        
                     }
                 });
                 this._modSelector.count=this._modSelector.count + 1;
-                anchor.addEventListener("click",(e:MouseEvent)=>{
+                target.addEventListener("click",(e:MouseEvent)=>{
                     if(e){
                         divCont.classList.toggle("isActive");
-                        anchor.classList.toggle("isActive");
-                        this.updateElement(anchor)
+                        target.classList.toggle("isActive");
+                    
                     }
                 });
-                divCont.appendChild(anchor);
+                divCont.appendChild(target);
                 parent.appendChild(divCont);
-                this.removeMainElement(parent,divCont,anchor);
+                this.removeMainElement({
+                    parent,
+                    divCont,
+                    target,
+                    idValues
+                    });
                 parent.removeChild(groupForm);
-                btnClick.classList.remove("active");
+                btn.classList.remove("active");
+               
+                
             }
         });
 
         
         
-    }
+    };
+
+
     selectUltype(parent:HTMLElement,btnClick:HTMLElement,icon:iconType){
         const arr=[{name:"select",value:"select"},{name:"bullet",value:"none"},{name:"ordered",value:"decimal"}];
         // const useParent=selector && flex ? parent as HTMLElement :
@@ -822,7 +879,10 @@ class HtmlElement {
             }
         });
         
-    }
+    };
+
+
+
     
     static cleanUpWithID(parent:HTMLElement,ID:string){
         ([...parent.children as any] as HTMLElement[]).map(child=>{
@@ -832,119 +892,140 @@ class HtmlElement {
         });
     }
     //PARENT SELECTULTYPE()
-    createList(parent:HTMLElement,btnClick:HTMLElement,icon:iconType,type:string){
+   async createList(parent:HTMLElement,btnClick:HTMLElement,icon:iconType,type:string){
         Main.textarea=document.querySelector("div#textarea");
         const useParent=Main.textarea;
+        const idValues: idValueType[]=[];
         btnClick.classList.toggle(icon.name);
         if(useParent){
             const divCont=document.createElement("div");
             divCont.className="eleContainer";
             divCont.style.cssText="margin:0px;padding:0.25rem;position:relative;";
             const ul=document.createElement("ul");
-            ul.setAttribute("contenteditable","true");
-            ul.setAttribute("is-element","true");
-            ul.setAttribute("name","ul");
-            ul.className=" ul";
-            ul.style.cssText="padding-inline:1.25rem;width:80%;margin-inline:auto;";
-            ul.classList.add("element");
-            ul.classList.add("box-shadow");
-            ul.classList.add(icon.name);
             ul.id=`ul-${Math.round(Math.random()*1000)}`;
-            const li=document.createElement("li");
-            // li.setAttribute("contenteditable","true");
-            if(type==="decimal"){
-                li.classList.add("decimal");
-            }
-            ul.style.cssText="padding-inline:6px;width:90%;margin-inline:auto;";
-                this.promElementAdder(ul).then(async(res)=>{
-                    if(res){
-                        const ele=res.ele as elementType;
-                        divCont.setAttribute("data-placement",`${ele.placement}`);
+            const eleId=ul.id;
+             //THIS ADDS ATTRIBUTES ANC CLASSES TO THE ELEMENTS FROM DATASET CLASS
+        
+           const {target}=this.addAttribute({target:ul,divCont,icon:null,attValue:undefined})
+                    //ABOVE ADDS ATTRIBUTES AND CLASSES TO THE ELEMENTS FROM DATASET CLASS
+                    const li=document.createElement("li");
+                   
+                    if(type==="decimal"){
+                        li.classList.add("decimal");
                     }
-                });
-            divCont.appendChild(ul);
-            Misc.matchMedia({parent:divCont,maxWidth:920,cssStyle:{marginInline:"1.5rem"}});
-            Misc.matchMedia({parent:divCont,maxWidth:420,cssStyle:{marginInline:"10px"}});
-            useParent.appendChild(divCont);
-            ul.addEventListener("click", (e:MouseEvent)=>{
-                if(e){
-                    if(!(([...ul.children as any] as HTMLElement[]).map(li=>(li.nodeName)).includes("LI"))){
-                        ul.appendChild(li);
-                    }
-                    ul.classList.toggle("isActive");
-                    divCont.classList.toggle("isActive");
-                    if(([...ul.classList as any] as string[]).includes("isActive")){
-                    this.removeMainElement(useParent,divCont,ul);
-                    this.updateElement(ul);//does both selectors and elements
-                    }
-                    btnClick.classList.remove("active");
-                    this._modSelector.footerPlacement();//this shifts footer placement down
-                    
-                }
-            },true);
-           
-           
-                // useParent.classList.add(".position-relative")
-                this._modSelector.editElement(ul)//pulls flex if exist from target attrubutes
-            //ADDING element
+                    target.style.cssText="padding-inline:6px;width:90%;margin-inline:auto;";
+                    idValues.push({eleId,id:"ID",attValue:eleId});
+               
+                        this.elementAdder({target,idValues}).then(async(_res)=>{
+                            if(_res){
+                                const ele=_res.ele as elementType;
+                                divCont.setAttribute("data-placement",`${ele.placement}-A`);
+                                this.editElement({target:_res.target,idValues});
+                             
+                            }
+                        });
+                    divCont.appendChild(target);
+                    Misc.matchMedia({parent:divCont,maxWidth:920,cssStyle:{marginInline:"1.5rem"}});
+                    Misc.matchMedia({parent:divCont,maxWidth:420,cssStyle:{marginInline:"10px"}});
+                    useParent.appendChild(divCont);
+                    target.addEventListener("click", (e:MouseEvent)=>{
+                        if(e){
+                            if(!(([...target.children as any] as HTMLElement[]).map(li=>(li.nodeName)).includes("LI"))){
+                                ul.appendChild(li);
+                            }
+                            target.classList.toggle("isActive");
+                            divCont.classList.toggle("isActive");
+                            if(([...target.classList as any] as string[]).includes("isActive")){
+                            this.removeMainElement({
+                                parent:useParent,
+                                divCont,
+                                target:ul,
+                                idValues
+                               });
+                           
+                            }
+                            btnClick.classList.remove("active");
+                            this._modSelector.footerPlacement();//this shifts footer placement down
+                            
+                        }
+                    },true);
+                   
+                   
+                        // useParent.classList.add(".position-relative")
+                        this._modSelector.editElement({target,idValues})//pulls flex if exist from target attrubutes
+                    //ADDING element
+          
+            
             
            
            //NOTE CHANGE EVENT ONLY WORKS FOR INPUT,TEXTAREA TYPE
         }
-    }
-    createQuote(parent:HTMLElement | null,btnClick:HTMLButtonElement,icon:iconType){
-        Main.textarea=document.querySelector("div#textarea");
-        const divCont=document.createElement("div");
-        divCont.className="eleContainer";
-        divCont.style.cssText="margin:0px;padding:0.25rem;position:relative;";
+    };
+
+
+   async createQuote({parent,target,divCont,btn,icon,idValues}:{
+    parent: HTMLElement,
+    btn:HTMLElement,target:HTMLElement,
+    divCont:HTMLElement,
+     icon:iconType,
+    idValues:idValueType[]
+   }){
+       
         const useParent=parent ? parent as HTMLElement : Main.textarea as HTMLElement;
-        const quote=document.createElement("blockquote");
-        quote.setAttribute("name","blockquote");
-        quote.setAttribute("is-element","true");
-        quote.id=`blockquote-${Math.round(Math.random()*1000)}`;
-        quote.className="position-relative";
-        quote.style.cssText="margin-left:2rem;margin-top:0.5rem;line-height:3rem;border-left:1px solid black;padding-left:1rem;";
-        quote.classList.add(icon.display);
-        quote.classList.add("element");
-        quote.setAttribute("contenteditable","true");
+        const quote=target as HTMLQuoteElement;
         quote.innerHTML=`<span style="font-size:105%;font-weight:bold;">&#8220;</span>${icon.name}<span style="font-size:105%;font-weight:bold;">&#8221;</span>`;
         divCont.appendChild(quote);
         useParent.appendChild(divCont);
         Misc.matchMedia({parent:divCont,maxWidth:920,cssStyle:{marginInline:"1.5rem"}});
         Misc.matchMedia({parent:divCont,maxWidth:420,cssStyle:{marginInline:"10px"}});
-        //ADDING element
-        this._modSelector.count=this._modSelector.count + 1;
-        this.promElementAdder(quote).then(async(res)=>{
+               //ADDING element
+       
+        this.elementAdder({target:quote,idValues}).then(async(res)=>{
             if(res){
                 const ele=res.ele as elementType;
                 divCont.setAttribute("data-placement",`${ele.placement}-A`)
+                idValues=res.idValues;
+                this.editElement({target:res.target,idValues});
+                divCont.addEventListener("click",(e:MouseEvent)=>{
+                    if(!e) return
+                   
+                    divCont.classList.toggle("isActive");
+                    res.target.classList.toggle("isActive");
+                    if(([...quote.classList as any] as string[]).includes("isActive")){
+                    this.removeMainElement({
+                     parent:useParent,
+                     divCont,
+                     target:res.target,
+                     idValues
+                    });
+                   
+                    this._modSelector.footerPlacement();//this shifts footer placement down
+                    }
+                    
+                });
+                res.target.addEventListener("keydown",(e:KeyboardEvent)=>{
+                    if(e.key==="Enter"){
+                        this.createQuote({parent,target,divCont,btn,icon,idValues});
+                    }
+                });
+                
             }
-        });;
-        quote.addEventListener("click",(e:MouseEvent)=>{
-            if(!e) return
-            // btnClick.classList.toggle("active");
-            // container.classList.toggle("isActive");
-            divCont.classList.toggle("isActive");
-            quote.classList.toggle("isActive");
-            if(([...quote.classList as any] as string[]).includes("isActive")){
-            this.removeMainElement(useParent,divCont,quote);
-            this.updateElement(quote)//update bot element and selector elements
-            this._modSelector.footerPlacement();//this shifts footer placement down
-            }
+               
+        });
             
-        });
-        quote.addEventListener("keydown",(e:KeyboardEvent)=>{
-            if(e.key==="Enter"){
-                this.createQuote(parent,btnClick,icon);
-            }
-        });
-        this._modSelector.editElement(quote)//realtime edits on either flex or none items
-        
-       
-        
-    }
-    insertDateTime(parent:HTMLElement,btnClicked:HTMLButtonElement,icon:iconType){
+    };
+
+
+    insertDateTime({parent,target,divCont,btnClicked,idValues}:{
+        parent:HTMLElement,
+        target:HTMLElement|HTMLTimeElement,
+        divCont:HTMLElement,
+        btnClicked:HTMLButtonElement,
+        icon:iconType,
+        idValues:idValueType[]
+    }){
         btnClicked.classList.add("active");
+        const time=target as HTMLTimeElement;
         const container=document.createElement("div");
         container.className="position-relative flexCol justify-center align-center mx-auto my-auto px-1 py-2 ";
         container.style.cssText="width:200px;height:20vh;"
@@ -961,9 +1042,7 @@ class HtmlElement {
         input.id="datetime";
         input.min="2024-04-07T00:00";
         input.max="2026-04-24T00:00";
-        // const btn=document.createElement("button");
-        // btn.className="btnStyle2 box-shadow";
-        // btn.textContent="submit";
+
         formGroup.appendChild(label);
         formGroup.appendChild(input);
         formGroup.id="insertDate-formGrp"
@@ -976,7 +1055,7 @@ class HtmlElement {
             disable:true
         }
        const btn= buttonRetDisable(submit);
-        // formGroup.appendChild(btn);
+   
         container.appendChild(formGroup);
         parent.appendChild(container);
         input.addEventListener("change",(e:Event)=>{
@@ -984,51 +1063,64 @@ class HtmlElement {
                 btn.disabled=false;
             }
         });
-        formGroup.addEventListener("submit",(e:SubmitEvent)=>{
+        formGroup.addEventListener("submit",async(e:SubmitEvent)=>{
             if(e){
                 e.preventDefault();
-                const divCont=document.createElement("div");
-                divCont.className="eleContainer";
-                divCont.style.cssText="margin:0px;padding:0.25rem;position:relative;margin-left:0.5rem;"
                 const formdata=new FormData(e.currentTarget as HTMLFormElement);
                 const datetime=formdata.get("datetime") as string;
                 const newDate=new Date(datetime as string);
                 const mkDateTime=`about-${datetime.split("-")[2].split("T")[1]}`;
-                const time=document.createElement("time");
-                time.id=`${icon.name}-${Math.round(Math.random()*1000)}`;
-                time.setAttribute("datetime",`${mkDateTime}`);
+                const eleId=time.id;
+                time.setAttribute("data-time",`${mkDateTime}`);
                 time.innerHTML=newDate.toLocaleDateString();
-                time.style.cssText="margin:0.75rem; font-size:16px;margin-left:0.5rem;";
-                time.className="text-primary mx-auto my-3 show-time";
-                divCont.appendChild(time);
+                divCont.appendChild(target);
                 parent.appendChild(divCont);
                 parent.removeChild(container);
                 Misc.matchMedia({parent:divCont,maxWidth:920,cssStyle:{marginInline:"1.5rem"}});
                 Misc.matchMedia({parent:divCont,maxWidth:420,cssStyle:{marginInline:"10px"}});
-                time.addEventListener("click",(e:Event)=>{
-                    if(e){
-                        btnClicked.classList.toggle("active");
-                        time.classList.toggle("isActive");
-                        this.removeMainElement(parent,divCont,time);
+                idValues.push({eleId,id:"ele_id",attValue:eleId});
+                idValues.push({eleId,id:"elementId",attValue:eleId});
+                idValues.push({eleId,id:"time",attValue:String(mkDateTime)});
+                idValues.push({eleId,id:"attr",attValue:String(mkDateTime)});
+                idValues.push({eleId,id:"divContId",attValue:divCont.id});
+                
+                this.elementAdder({target,idValues}).then(async(_res)=>{
+                    if(_res?.ele){
+                        idValues=_res.idValues
+                        const ele=_res.ele as elementType;
+                        divCont.setAttribute("data-placement",`${ele.placement}-A`);
+
+                        time.addEventListener("click",(e:Event)=>{
+                            if(e){
+                                btnClicked.classList.toggle("active");
+                                time.classList.toggle("isActive");
+                               
+                            }
+                        });
+                        this.removeMainElement({
+                            parent,
+                            divCont,
+                            target,
+                            idValues
+                            });
+                     
+                        btn.classList.remove("active");
                     }
                 });
-                this.promElementAdder(time).then(async(res)=>{
-                    if(res){
-                        const ele=res.ele as elementType;
-                        divCont.setAttribute("data-placement",`${ele.placement}-A`)
-                    }
-                });;
                 this._modSelector.footerPlacement();//this shifts footer placement down
-                }
+                 
+                
+            }
         });
 
-    }
+    };
 
-    removeMainElement(parent:HTMLElement,divCont:HTMLElement,target:HTMLElement){
-        const check=([...target.classList as any] as string[]).includes("isActive");
+
+    removeMainElement({parent,divCont,target,idValues}:{parent:HTMLElement,divCont:HTMLElement,target:HTMLElement,idValues:idValueType[]}){
+        const check=([...divCont.classList as any] as string[]).includes("isActive");
         Header.cleanUpByID(parent,"xIconDiv");
-        
-        if(check){
+       
+        if(check ){
             const css="position:absolute;transform:translate(-2px,-3px);background:inherit;font-size:16px;background:lightgrey;font-weight:bold;border-radius:50%;color:black;top:0px;left:0px;";
             divCont.classList.add("position-relative");
             const xIconDiv=document.createElement("div");
@@ -1042,8 +1134,9 @@ class HtmlElement {
             divCont.appendChild(xIconDiv);
             xIconDiv.addEventListener("click",(e:MouseEvent)=>{
                 if(e){
-                    this.promRemoveElement(target).then(async(res)=>{
-                        if(res){
+                    this.removeElement({target,idValues}).then(async(res)=>{
+                        if(res?.ele){
+                            idValues=res.idValues
                             if(target.nodeName==="IMG"){
                                 const imgKey=target.getAttribute("imgKey");
                                 if(imgKey){
@@ -1054,7 +1147,7 @@ class HtmlElement {
                                     });
                                 }
                             }
-                            this._modSelector.shiftPlace(res.placement);///REINDEX PLACEMENT!!!!
+                            this._modSelector.shiftPlace(res.ele.placement);///REINDEX PLACEMENT!!!!
                         }
                     });
                     Misc.fadeOut({anchor:divCont,xpos:100,ypos:100,time:500});
@@ -1068,102 +1161,129 @@ class HtmlElement {
                     Main.initMainBtns();
                 }
             });
-         }else{
+         }else {
             Header.cleanUpByID(parent,"xIconDiv");
          }
-    }
+    };
+
+
     //INSERT element- delete
-    promElementAdder(target:HTMLElement |HTMLImageElement){
-        return new Promise((resolver)=>{
-            resolver(this.elementAdder(target))
-        }) as Promise<{ele:elementType | undefined,target:HTMLElement}>;
-    }
-    elementAdder(target:HTMLElement):{ele:elementType | undefined,target:HTMLElement}{
+   
+   async elementAdder({target,idValues}:{target:HTMLElement,idValues:idValueType[]}):Promise<{ele:elementType | undefined,target:HTMLElement,idValues:idValueType[]}>{
         // adds none selector elements to modSelector.blog
-        const ID=this._modSelector._elements.length;
-            const checkNodename=["a","blockquote","ul","img","ol"]
-            const imgDesc=target.getAttribute("imgDesc");
-            const nodename=target.nodeName.toLowerCase();
-            const specialNodename=checkNodename.includes(nodename);
-            const hasinnerimage=target.getAttribute("has-innerimage");
-            const imgKey:string | null=target.getAttribute("imgKey");
+       
+        
+        const ID=( this._modSelector.elements?.length)||1;
+        const blog=this._modSelector.blog;
+        const node=target.nodeName.toLowerCase()
+        const eleId=target.id;
+      
+        idValues=Dataset.removeIdValueDuplicates({arr:idValues,eleId});
+            const getEleIds=idValues.filter(kat=>(kat.eleId===eleId));
+            const imgDesc=target.getAttribute("data-img-desc");
+            const {cleaned:classes}=this._modSelector.removeClasses({target,classes:["isActive","box-shadow"]});
+            const imgKey:string | null= target.getAttribute("data-imgKey");
             const check=this.elements.map(ele_=>(ele_.eleId)).includes(target.id as string);
             let ele:elementType|undefined={} as elementType;
                 if( !check){
 
-                    // console.log("418 HELROWSSSSS",JSON.parse(target.id));
                     ele={
                         ...ele,
                         id:ID ,
+                        blog_id:blog.id,
                         selectorId:undefined,
                         placement:this.placement,
-                        name:nodename as string,
-                        class:target.className.split(" ").filter(cl=>(cl !=="isActive")).join(" "),
+                        name:node as string,
+                        class:classes.join(" "),
                         eleId:target.id,
+                        inner_html:target.innerHTML,
                         cssText:target.style.cssText,
-                        attr:target.getAttribute("attr") ? target.getAttribute("attr") as string :undefined,
-                        imgKey: imgKey ? imgKey : undefined
+                        attr:undefined,
+                        imgKey: imgKey ||undefined,
+                        type:undefined
                     };
-                    if(hasinnerimage){
-                        ele.attr="has-innerimage";
-                    }
-                    if(!specialNodename){
-                            // ele.inner_html=ModSelector.cleanInnerHTML(target).innerHTML as string;
-                            ele.inner_html=target.innerHTML;
-            
-                    }else if(nodename==="a"){
-                        const link=target.getAttribute("data-href") as string;
-                        const anchorContainer=target.getAttribute("anchorContainer");
-                        if(anchorContainer){
-                            ele.attr=JSON.stringify({link,anchorContainer});
-                        }else{
+                    idValues.push({eleId,id:"elementId",attValue:target.id});
+                    idValues.push({eleId,id:"elePlacement",attValue:String(this.placement)});
+                    idValues.push({eleId,id:"ele_id",attValue:String(ID)});
+                    idValues.push({eleId,id:"elePlacement",attValue:`${ele.placement}`});
+                    if(imgKey)idValues.push({eleId,id:"imgKey",attValue:imgKey});
 
-                            ele.attr=link;
+                    getEleIds.map(kat=>{
+                        const hasAttr=attrEnumArr.includes(kat.id);
+                        const hasType=typeEnumArr.includes(kat.id as typeEnumType);
+                        if(ele){
+                            if(kat.id==="imgKey"){
+                                ele.imgKey=kat.attValue;
+                            }else if(hasAttr){
+                                ele.attr=kat.attValue;
+                            }else if(hasType){
+                                ele.attr=kat.id;
+                            }else{
+                                ele.imgKey=undefined;
+                            }
                         }
-                        ele.inner_html=target.innerHTML;
-                        
-                    }else if(specialNodename && nodename !=="a"){
-                        ele.inner_html=target.innerHTML as string
-                        // console.log("modSelector.elementAdder()",ele.inner_html)
-                    }else if(nodename==="img"){
+                    });
+                   
+                    //----------//---POPULATING ATTRIBUTES TO TARGET && ADDS ATTR/TYPE/IMGKEY ATTRIBUTES FROM IDVALUES------\\-----///
+                   const {idValues:retIdValues}= this._modSelector.dataset.coreDefaultIdValues({
+                        target,
+                        sel:null,
+                        row:null,
+                        col:null,
+                        ele,
+                        level:"element",
+                        loc:"htmlElement",
+                        idValues,
+                        clean:false
+                    });
+                    idValues=retIdValues
+                    //----------//---POPULATING ATTRIBUTES TO TARGET && ADDS ATTR/TYPE/IMGKEY ATTRIBUTES FROM IDVALUES------\\-----///
+                    //POLULATING DEFAULT VALUES AND IDVALUES TO TARGET
+                    if(node==="img"){
                         const target_=target as HTMLImageElement;
                         ele.img=target_.src;
                         ele.inner_html=target_.alt;
                         if(imgDesc){
                             ele.attr=imgDesc;
                         }
-                    }
-                    this._elements=this.elements;
-                    this._elements.push(ele);
-                    this.elements=this._elements;
-                    const blog=this._modSelector.blog;
-                    if(!blog.show){
-                        this._modSelector.blog={...blog,show:false,elements:this._elements};
-                    }
-                    this.placement= this.placement + 1;
+                    };
+                
+                    this.elements=[...this.elements,ele];
+                   this.placement= this.placement + 1;
+                   this._modSelector.localStore({blog:this._modSelector.blog});
+                   
                 }
-                return {ele,target};
             
-    }
-    updateElement(target:HTMLElement){
-        const imgKey:string | null=target.getAttribute("imgKey");
-        this._elements=this._modSelector._elements.map(ele=>{
+                return Promise.resolve({ele,target,idValues}) as Promise<{ele:elementType|undefined,target:HTMLElement,idValues:idValueType[]}>;
+            
+    };
+
+
+
+     updateElement({target,idValues}:{target:HTMLElement,idValues:idValueType[]}):{ele:elementType,idValues:idValueType[],target:HTMLElement}{
+        const imgKey:string | null=target.getAttribute("data-img-key");
+        let retEle:elementType={} as elementType;
+        const {cleaned}=this._modSelector.removeClasses({target,classes:["isActive"]});
+        const class_=cleaned.join(" ");
+        this._elements=this.elements.map(ele=>{
             if(ele.eleId===target.id){
                 ele.cssText=target.style.cssText;
-                ele.class=target.className;
-                if(target.nodeName==="IMG"){
-                    const img=target as HTMLImageElement;
-                    ele.img=img.src;
-                    ele.inner_html=img.alt;
-                    ele.imgKey=imgKey ? imgKey as string : undefined;
-                }else{
-                    ele.inner_html=target.innerHTML;
-                }
+                retEle.cssText=target.style.cssText;
+                ele.class=class_;
+                ele.inner_html=target.innerHTML;
+                ele.imgKey=imgKey || undefined;
+                retEle=ele;
             }
-        return ele;
-    });
+            return ele;
+        });
+    
     this.elements=this._elements;
-    }
+    this._modSelector.localStore({blog:this._modSelector.blog});
+    retEle.class=target.className;
+    return {ele:retEle,idValues,target}
+    };
+
+
     shiftPlacement(item:{target:HTMLElement,newTarget:HTMLElement}){
         //THIS ORGANIZES PLACEMENT ORDERING
         const {target,newTarget}=item;
@@ -1178,6 +1298,7 @@ class HtmlElement {
         let elements=this._modSelector.elements;
         let codes=this._modSelector.selectCodes;
         let selectors=this._modSelector.selectors.map((sel,index)=>{if(index > 0) return sel}).filter(sel=>(typeof sel==="object"));
+       
         const maxcount=ModSelector.maxCount(this._modSelector.blog);
         if(maxcount>1){
             elements=elements.map((ele,index)=>{
@@ -1205,47 +1326,56 @@ class HtmlElement {
                 }
                 return sel;
             });
-            this._modSelector._elements=elements;
-            this._modSelector._selectors=selectors;
-            this._modSelector._selectCodes=codes;
+            this._modSelector.elements=elements;
+            this._modSelector.selectors=selectors;
+            this._modSelector.selectCodes=codes;
             this._modSelector.blog={...this._modSelector.blog,elements,selectors,codes};
         }
 
 
-    }
-    editElement(target:HTMLElement){
+    };
+
+
+    editElement({target,idValues}:{target:HTMLElement,idValues:idValueType[]}){
+        const eleId=target.id;
         target.addEventListener("input",(e:Event)=>{
             if(e){
 
-                this._elements=this._modSelector._elements.map(ele=>{
+                this.elements=this._modSelector.elements.map(ele=>{
                     if(ele.eleId===target.id){
-                        ele.cssText=target.style.cssText;
-                        ele.class=target.className;
-                        if(target.nodeName !=="IMG"){
                         ele.inner_html=target.innerHTML;
-                        }else{
-                            const img=target as HTMLImageElement;
-                            ele.img=img.src;
-                            ele.inner_html=img.alt;
-
-                        }
                     }
                 return ele;
             });
-        }     
-        this.elements=this._elements;
+            this._modSelector.localStore({blog:this._modSelector.blog});
+        };
     });
-    }
+
+    target.onchange=(e:Event)=>{
+        if(e){
+            const idValue={eleId,id:"update",attValue:`last:${eleId}`} as idValueType;
+            this._modSelector.dataset.upDateIdValue({target,idValues,idValue});
+        }
+    };
+    };
+
+
     imgDescUpdate(item:{target:HTMLImageElement,imgDesc:HTMLElement}){
+        //IMAGE DESCRIPTION IS SAVED IN ELEMENT.ATTR
         const { target,imgDesc}=item;
+        const node=imgDesc.nodeName.toLowerCase() as eleEnumType;
         imgDesc.oninput=(e:Event)=>{
             if(e){
                 const value=(e.currentTarget as HTMLElement).textContent;
                 if(value){
-                    target.setAttribute("imgDesc",value);
-                    this._elements=this._modSelector.elements;
-                    this._elements=this._elements.map(ele=>{
-                        if(ele && ele.eleId===target.id){
+                    IDKeyValuepairs.map(kv=>{
+                        const checkNode=kv.nodes.includes(node);
+                        if(checkNode && kv.id==="imgDesc"){
+                            target.setAttribute(kv.key,value);
+                        }
+                    });
+                    this.elements=this.elements.map(ele=>{
+                        if( ele.eleId===target.id){
                             ele.inner_html=target.alt;
                             ele.attr=value;
                         }
@@ -1255,46 +1385,79 @@ class HtmlElement {
                 }
             }
         };
-    }
-    promRemoveElement(target:HTMLElement){
-        return new Promise((resolve)=>{
-            resolve(this.removeElement(target));
-        }) as Promise<elementType|undefined>;
-    }
-    removeElement(target:HTMLElement):elementType|undefined{
+    };
+   
+
+    removeElement({target,idValues}:{target:HTMLElement,idValues:idValueType[]}):Promise<{ele:elementType | undefined,idValues:idValueType[]}>{
         let ele_:elementType|undefined;
-        this._modSelector._elements.map((ele,index)=>{
+
+        idValues=idValues.map((kat,index)=>{
+            if(kat.eleId===target.id){
+                idValues.splice(index,1)
+            }
+            return kat;
+            });
+        this._modSelector.elements.map((ele,index)=>{
                 if(ele.eleId===target.id){
-                    this._modSelector._elements.splice(index,1);
+                    this._modSelector.elements.splice(index,1);
                     ele_= ele;
                 }
         });
-        this.elements=this._modSelector._elements;
-        return ele_
-    }
-    //PARENT MAINBTN() FONT ONLY WITH ATTR=TRUE-KEEP HERE
-    fontAction(btn:HTMLButtonElement){
-        //ADDING FONT-querying element by class:icon.display && isActive
-        const isActives=(Main.container as HTMLElement).querySelectorAll("[is-element='true'].isActive");
-        
+        this.elements=this._modSelector.elements;
+        this._modSelector.dataset.idValues=idValues;
+        return Promise.resolve({ele:ele_,idValues}) as Promise<{ele:elementType | undefined,idValues:idValueType[]}>;
+    };
+
+
+    //!!!THIS IS FOR ALL FLEX AND NON FLEX ELEMENTS ON FONTACTIONS
+   async fontAction(btn:HTMLButtonElement,idValues:idValueType[]){
+        //THIS IS THE MAIN CONTROLLER FOR ALL NONFLEX AND FLEX ITEMS
+        const isActives=(Main.container as HTMLElement).querySelectorAll("[data-is-element='true']");
+        // console.log("isActives",[...isActives])
         if(isActives){
-            [...isActives as any as HTMLElement[]].forEach((activeEle)=>{
-                const {isJSON}=Header.checkJson(activeEle.getAttribute("flex"));
-                if(activeEle && !isJSON){
-                   
+           await Promise.all([...isActives as any as HTMLElement[]].map(async(activeEle)=>{
+               const getSelRowCol=activeEle.getAttribute("data-sel-row-col");
+               const {isJSON,parsed}=getSelRowCol ? Header.checkJson(getSelRowCol):{isJSON:false,parsed:null};
+                if(activeEle?.classList.contains("isActive")){
                     activeEle.classList.toggle(btn.id);
-                    this._modSelector.updateElement(activeEle);
-                    // this._modSelector.editElement(activeEle);//updates on both selector and Element
-                    
+                    if(isJSON){
+                        const selRowCol=parsed as selRowColType;
+                        await this._modSelector.updateElement({target:activeEle,idValues,selRowCol});
+                    }else{
+                        await this._modSelector.updateElement({target:activeEle,idValues,selRowCol:null});
+                    }
+                   
                 }
-            });
+            }));
         }
-    }
+    };
+
+
+
+
+    addLinkEmailTelImg({target,image,href,name,type}:{target:HTMLAnchorElement,image:string,href:string,name:string,type:"link"|"email"|"tel"}){
+        target.textContent="";
+        const text=new Text(name);
+        const span=document.createElement("span");
+        span.style.cssText="display:inline-flex;align-items:center;gap:4px;";
+        const img=document.createElement("img");
+        img.src=image;
+        img.alt="www.ablogroom.com";
+        this._modSelector.dataset.insertcssClassIntoComponents({target:img,level:"element",loc:"flexbox",type:"customHeader",id:"linkImgs",headerType:"custom"});
+        span.appendChild(img);
+        span.appendChild(text);
+        target.appendChild(span);
+        if(type==="link") window.open(href,"_blank");
+        if(type==="email") target.href=href;
+        if(type==="tel") target.href=href;
+    };
+
+
     static removeElement(inner_html:string,ID:string){
         let arr:{name:string,id:string,pattern:RegExp,str:string,start:number,end:number,match:boolean}[]=[
-            {name:"frDiv",id:ID,pattern:/\<div/g,str:"",start:0,end:0,match:false},
-            {name:"bkDiv",id:ID,pattern:/\<\/div\>/g,str:"",start:0,end:0,match:false},
-            {name:"id",id:ID,pattern:/(id=\")[a-zA-Z0-9\"]{2,}/g,str:"",start:0,end:0,match:false},
+            {name:"frDiv",id:ID,pattern:/<div/g,str:"",start:0,end:0,match:false},
+            {name:"bkDiv",id:ID,pattern:/<\/div>/g,str:"",start:0,end:0,match:false},
+            {name:"id",id:ID,pattern:/(id=")[a-zA-Z0-9"]{2,}/g,str:"",start:0,end:0,match:false},
             
         ];
         arr=arr.map(item=>{
@@ -1322,7 +1485,9 @@ class HtmlElement {
             return inner_html;
         }
 
-    }
+    };
+
+
     static addStyle(element:HTMLElement,style:string){
         //ADDS STYLE TO CSSTEXT AND MODS IMGS ON SHADOW
         const css=element.style.cssText;
@@ -1351,7 +1516,7 @@ class HtmlElement {
             arr.push(style);
         }
         return arr.join(";")
-    }
+    };;
 
    
 }

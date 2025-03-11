@@ -2,28 +2,28 @@ import { FaCrosshairs } from "react-icons/fa";
 import Misc from "../common/misc";
 import { FaCreate } from "../common/ReactIcons";
 import Service from "../common/services";
-import Header from "./header";
 import ModSelector from "./modSelector";
-import { blogType, cardBodyCssType, elementType, selectorType } from "./Types";
+import { arrDivContType, blogType, cardBodyCssType, elementType, } from "./Types";
 import Nav from "../nav/headerNav";
 import User from "../user/userMain";
+import {  idValueType } from "@/lib/attributeTypes";
 
 
 class Headerflag{
-    freepicurl:string="https://newablogroom-free-bucket.s3.us-east-1.amazonaws.com";
-targetChildrenIds:{id:string,keyValue:{key:string,value400:string,value900:string}[]}[];
-attributeList:{name:string,class:string|undefined}[];
-headerPic:string;
-_element:elementType;
-_initElement:elementType;
-_initCssText:string;
-_initClass:string;
-css_col:string;
-css_row:string;
-divCont:HTMLElement;
+   public readonly freepicurl:string="https://newablogroom-free-bucket.s3.us-east-1.amazonaws.com";
+public targetChildrenIds:{id:string,keyValue:{key:string,value400:string,value900:string}[]}[];
+private attributeList:{name:string,class:string|undefined}[];
+public readonly headerPic:string;
+private _element:elementType;
+private _initElement:elementType;
+private _initCssText:string;
+private _initClass:string;
+private css_col:string;
+private css_row:string;
+private divCont:HTMLElement;
 _placement:number;
 static headerFlagSample:string= "/images/headerFlagSample.png";
- static cardBodyCss:cardBodyCssType[]=[
+public static readonly cardBodyCss:cardBodyCssType[]=[
     {id:0,name:"small",small:"margin:auto;line-height:0rem;",middle:"font-size:20px;line-height:2.3rem;margin-bottom:0rem;",img:"/images/headerFlagSample.png"},
         {id:1,name:"medium",small:"margin:auto;line-height:0rem;",middle:"font-size:30px;line-height:2.8rem;margin-bottom:0rem;",img:"/images/headerFlagSample.png"},
         {id:2,name:"medium-large",small:"margin:auto;line-height:0rem;",middle:"font-size:35px;line-height:3.2rem;margin-bottom:0rem;",img:"/images/headerFlagSample.png"},
@@ -33,6 +33,7 @@ static headerFlagSample:string= "/images/headerFlagSample.png";
  
 
 constructor(private _modSelector:ModSelector,private _service:Service,private _user:User){
+    
     this.freepicurl="https://newablogroom-free-bucket.s3.us-east-1.amazonaws.com";
     this.headerPic="/images/headerFlag.png";
     this.css_col="display:flex;flex-direction:column;align-items:center;";
@@ -71,6 +72,8 @@ constructor(private _modSelector:ModSelector,private _service:Service,private _u
             {key:"width",value400:"100%",value900:""},
             {key:"order",value400:"1",value900:"-1"},
             {key:"maxHeight",value400:"170px",value900:"155px"},
+            {key:"minHeight",value400:"150px",value900:"135px"},
+            {key:"height",value400:"100%",value900:"100%"},
             {key:"paddingBlock",value400:"10px",value900:"5px"},
 
         ]},
@@ -82,21 +85,15 @@ constructor(private _modSelector:ModSelector,private _service:Service,private _u
         {name:"upload image",class:undefined},
         {name:"font-size",class:undefined},
     ];
-    Headerflag.cardBodyCss=[
-        {id:0,name:"small",small:"margin:auto;line-height:0rem;",middle:"font-size:20px;line-height:2.3rem;margin-bottom:0rem;",img:"/images/headerFlagSample.png"},
-        {id:1,name:"medium",small:"margin:auto;line-height:0rem;",middle:"font-size:30px;line-height:2.8rem;margin-bottom:0rem;",img:"/images/headerFlagSample.png"},
-        {id:2,name:"medium-large",small:"margin:auto;line-height:0rem;",middle:"font-size:35px;line-height:3.2rem;margin-bottom:0rem;",img:"/images/headerFlagSample.png"},
-        {id:3,name:"large",small:"margin:auto;line-height:0rem;",middle:"font-size:40px;line-height:3.6rem;margin-bottom:0rem;",img:"/images/headerFlagSample.png"},
-        {id:4,name:"largest",small:"margin:auto;line-height:0rem;",middle:"font-size:45px;line-height:3.6rem;margin-bottom:0rem;",img:"/images/headerFlagSample.png"},
-    ]
+   
 };
 
 //---------------------GETTER/SETTER----------------------------//
 get element(){
-    return this._element;
+    return {...this._element,type:"headerflag"};
 }
 set element(element:elementType){
-    this._element=element;
+    this._element={...element,type:"headerflag"};
 }
 get elements(){
     return this._modSelector.elements;
@@ -105,17 +102,11 @@ set elements(elements:elementType[]){
     this._modSelector.elements=elements;
 }
 get placement(){
-    const getPlace=localStorage.getItem("placement");
-    // console.log("164:",getPlace)
-    if(getPlace){
-        return parseInt(getPlace)
-    }else{
-        return 1;
-    }
+    return this._modSelector.placement;
 }
 set placement(placement:number){
     this._placement=placement;
-    localStorage.setItem("placement",JSON.stringify(placement))
+    this._modSelector.placement=placement
 }
 get blog(){
     return this._modSelector.blog
@@ -127,15 +118,19 @@ get user(){
 
 //-----------------------MAINS---------------------------------//
 
-showCleanHeaderflag(item:{parent:HTMLElement,element:elementType}){
+showCleanHeaderflag({parent,element,idValues}:{parent:HTMLElement,element:elementType,idValues:idValueType[]}){
     //TRIGGERED ON ELEMENT.TYPE==="headerflag"=> DisplayBlog()
-    const {parent,element}=item;
-    const type=element.type ? element.type : "headerflag";
-    const less900=window.innerWidth < 900;
-    const less400=window.innerWidth < 400;
+    const less400=window.innerWidth <400;
+    const less900=window.innerWidth <900;
+    const rand=Math.floor(Math.random()*1000);
+    const divCont=document.createElement("div");
+    divCont.id=`divcont-headerflag-${rand}`;
+    this._modSelector.dataset.insertcssClassIntoComponents({target:divCont,level:"element",loc:"htmlElement",type:"headerflag",headerType:undefined,id:"divContId"});
+    const eleId=element.eleId;
+    idValues.push({eleId,id:"parent_id",attValue:divCont.id});
     const target=document.createElement("div");
-    target.setAttribute("type",type);
     target.id=element.eleId;
+    idValues.push({eleId,id:"ID",attValue:eleId});
     target.style.cssText=element.cssText;
     target.className=element.class;
     if(less900){
@@ -146,89 +141,162 @@ showCleanHeaderflag(item:{parent:HTMLElement,element:elementType}){
         target.style.gap="1rem";
     }
     target.innerHTML=element.inner_html;
-    const attr= element.attr ? element.attr : "data-headerflag";
+    idValues.push({eleId,id:"eleType",attValue:element.type as string});
+    idValues.push({eleId,id:"isHeaderflag",attValue:String(element.attr)});
+    //LARGE TEXT-ADJUSMENTS:CARDBODY>cardBody-middlePara 
+    const middlePara=target.querySelector("p#cardBody-middlePara") as HTMLElement;
+    if(less400){
+        if(middlePara){
+            target.style.flexDirection="";
+            target.style.flexDirection="column";
+            target.style.height="";
+            target.style.maxHeight="";
+            middlePara.style.fontSize="";
+            middlePara.style.fontSize="auto";
+        }
+    }
+    //LARGE TEXT-ADJUSMENTS:CARDBODY>cardBody-middlePara 
+    const img=target.querySelector("img") as HTMLImageElement;
+    img.src=element.img || this.headerPic;
     if(element.imgKey){
         const src=`${this.freepicurl}/${element.imgKey}`;
-        const img=target.querySelector("img") as HTMLImageElement;
-        img.src=element.img as string;
+        img.src=src as string;
     }
-    target.setAttribute(attr,attr);
     target.setAttribute("name","div");
-    parent.appendChild(target);
+   this._modSelector.dataset.generateIdValues({
+        target,
+        idValues,
+        rowColEle:element,
+        level:"element",
+        loc:"htmlElement",
+        index:element.placement
+        
+      });
+    divCont.appendChild(target);
     this.screenSizeAdjust({target:target,less900,less400});
     this.removeEditable({target});//REMOVING contenteditable
+    const arrDivCont:arrDivContType={divCont,placement:element.placement,target,isNormal:false,ele:element,chart:null,sel:null};
+    return arrDivCont
     
-}
-showHeaderflag(item:{parent:HTMLElement,element:elementType,less900:boolean,less400:boolean}){
+};
+
+
+
+ showHeaderflag({parent,element,less900,less400,idValues}:{
+    parent:HTMLElement,
+    element:elementType,
+    less900:boolean,
+    less400:boolean,
+    idValues:idValueType[]
+
+}):arrDivContType{
     //TRIGGERED ON ELEMENT.TYPE==="headerflag"=> edit()
-    const {parent,element,less900,less400}=item;
+
+    const eleId=element.eleId;
     const type=element.type ? element.type : "headerflag";
+    idValues.push({eleId,id:"eleType",attValue:type});
+    idValues.push({eleId,id:"parent_id",attValue:parent.id});
+    idValues.push({eleId,id:"ele_id",attValue:String(element.id)});
     //-----------------divCont making--------------------//
     this.divCont=document.createElement("div");
     const rand=Math.round(Math.random()*1000);
     this.divCont.id=`divCont-headerflag-${rand}`;
+    idValues.push({eleId,id:"divContId",attValue:this.divCont.id});
     this.divCont.className="eleContainer";
     this.divCont.style.cssText=this.css_col + "padding:0.5rem;width:100%;";
     //-----------------divCont making--------------------//
     this.element=element;
     const attr=element.attr ? element.attr : "data-headerflag";
-    parent.appendChild(this.divCont);
+    idValues.push({eleId,id:"headerflag",attValue:attr});
+    idValues.push({eleId,id:"placement",attValue:String(element.placement)});
     const target=document.createElement("div");
     target.setAttribute("type",type);
     target.id=element.eleId;
+    idValues.push({eleId,id:"ID",attValue:target.id});
     target.style.cssText=element.cssText;
     target.style.flexDirection=less400? "column":"row";
     target.style.maxHeight=less900 ? (less400 ? "500px":"140px"):"155px";
     target.className=element.class;
     target.innerHTML=element.inner_html;
+    const img=target.querySelector("img") as HTMLImageElement;
+    img.src=element.img || this.headerPic;
+    img.alt="www.ablogroom.com";
     if(element.imgKey){
         const src=`${this.freepicurl}/${element.imgKey}`;
-        const img=target.querySelector("img") as HTMLImageElement;
-        img.src=element.img as string;
+        img.src=src;
         img.alt=element.imgKey
     }
-    
-    target.setAttribute(attr,attr);
+     //----------//---POPULATING ATTRIBUTES TO TARGET && ADDS ATTR/TYPE/IMGKEY ATTRIBUTES FROM IDVALUES------\\-----///
+     const {idValues:retIdValues2}=this._modSelector.dataset.coreDefaultIdValues({
+        target,
+        level:"element",
+        sel:null,
+        row:null,
+        col:null,
+        ele:element,
+        loc:"htmlElement",
+        idValues,
+        clean:false,
+
+    });
+    idValues=retIdValues2;
+   //----------//---POPULATING ATTRIBUTES TO TARGET && ADDS ATTR/TYPE/IMGKEY ATTRIBUTES FROM IDVALUES------\\-----///
     target.setAttribute("name","div");
-    target.setAttribute("data-placement",`${element.placement}-A`);
+    this.divCont.setAttribute("data-placement",`${element.placement}-A`);
     this.divCont.appendChild(target);
     this.screenSizeAdjust({target:target,less900,less400});
-    this.customAttributes({divCont:this.divCont,less400,less900,css_col:this.css_col,element:this.element});
-    this.removeMainElement({parent,divCont:this.divCont,target,show:false});
+    this.customAttributes({divCont:this.divCont,target,less400,less900,css_col:this.css_col,element:this.element,idValues});
+    this.removeMainElement({parent,divCont:this.divCont,target,show:false,idValues});
     this.divCont.onclick=(e:MouseEvent)=>{
         if(e){
             this.divCont.classList.toggle("isActive");
             target.classList.toggle("isActive");
-            this.removeMainElement({parent,divCont:this.divCont,target,show:true});
+            this.removeMainElement({parent,divCont:this.divCont,target,show:true,idValues});
         }
     };
-    this._modSelector.editElement(target);
-}
-initMain(item:{parent:HTMLElement,cardBodyCss:cardBodyCssType}){
-    const {parent,cardBodyCss}=item;
+    this._modSelector.editElement({target,idValues});
+    const arrDivCont:arrDivContType={divCont:this.divCont,placement:element.placement,target,isNormal:false,ele:element,chart:null,sel:null}
+    return arrDivCont
+};
+
+
+
+async initMain({parent,cardBodyCss,idValues}:{parent:HTMLElement,cardBodyCss:cardBodyCssType,idValues:idValueType[]}){
+   
     const blog=this._modSelector.blog;
     const less900=window.innerWidth < 900;
     const less400=window.innerWidth < 400;
     this.element=this._initElement;
-    this.addElement({parent,less900,less400,blog,element:this.element,cardBodyCss}).then(async(res)=>{
+    await this.addElement({parent,less900,less400,blog,element:this.element,cardBodyCss,idValues}).then(async(res)=>{
         // item has been registered and added
         if(res){
+            this.element=res.ele;
+            idValues=res.idValues
             this.screenSizeAdjust({target:res.target,less900,less400});
-            this._modSelector.editElement(res.target);
+            this._modSelector.editElement({target:res.target,idValues});
             //return ele and target:=> generate list styles
             const divCont=res.target.parentElement as HTMLElement;
-            this.customAttributes({divCont,less400,less900,css_col:this.css_col,element:this.element});
+            this.customAttributes({divCont,target:res.target,less400,less900,css_col:this.css_col,element:this.element,idValues});
         }
     });
     
 }
 
 //-----------------------MAINS---------------------------------//
-   async addElement(item:{parent:HTMLElement,blog:blogType,less900:boolean,less400:boolean,element:elementType,cardBodyCss:cardBodyCssType}):Promise<{ele: elementType,target: HTMLElement} | undefined>{
+   async addElement({parent,less900,less400,blog,element,cardBodyCss,idValues}:{
+    parent:HTMLElement,
+    blog:blogType,
+    less900:boolean,
+    less400:boolean,
+    element:elementType,
+    cardBodyCss:cardBodyCssType,
+    idValues:idValueType[]
+   }):Promise<{ele: elementType,target: HTMLElement,idValues:idValueType[]} | undefined>{
     //THERE ARE TWO MAIN COMPONENTS;NAMELY cardBody() and imgCont()
-        const {parent,less900,less400,blog,element,cardBodyCss}=item;
+       
         let ele: elementType={} as elementType;
         ele=element;
+       
         //-----------------divCont making--------------------//
         this.divCont=document.createElement("div");
         const rand=Math.round(Math.random()*1000);
@@ -241,12 +309,21 @@ initMain(item:{parent:HTMLElement,cardBodyCss:cardBodyCssType}){
         target.style.cssText=this._initCssText;
         target.style.maxHeight=less900 ? (less400 ? "500px":"140px"):"165px";
         target.className=this._initClass;
+        target.id=`headerFlag-${rand}`;
+        const eleId=target.id;
+        idValues.push({eleId,id:"divContId",attValue:this.divCont.id});
+        idValues.push({eleId,id:"parent_id",attValue:parent.id});
+        idValues.push({eleId,id:"ID",attValue:target.id});
+        idValues.push({eleId,id:"elementId",attValue:target.id});
+        idValues.push({eleId,id:"eleType",attValue:ele.type as string});
         ele={...ele,
             eleId:target.id,
             cssText:target.style.cssText,
             class:target.className,
+            placement:this.placement,
             blog_id:blog.id,
         };
+        
         //left side-Body-for-change
         await this.cardBody({parent:target,less900,less400,cardBodyCss}).then(async(res)=>{
             if(res){
@@ -262,22 +339,24 @@ initMain(item:{parent:HTMLElement,cardBodyCss:cardBodyCssType}){
                 ele={...res.ele}
                 //ADDING element to modSelector
                 // console.log("res",res.retTarget)//one
-                return await this.elementAdder({target:res.retTarget,element:ele,blog}).then(async(_res)=>{
+                return await this.elementAdder({target:res.retTarget,element:ele,blog,idValues}).then(async(_res)=>{
                     if(_res){
-                        const ele=_res as elementType;
+                      
+                        const idValues:idValueType[]=[]
+                        const ele=_res.ele as elementType;
                         this.element=ele;
                         this.divCont.setAttribute("data-placement",`${ele.placement}-A`);
-                        this.removeMainElement({parent,divCont:this.divCont,target,show:false});
+                        this.removeMainElement({parent,divCont:this.divCont,target,show:false,idValues});
                         parent.appendChild(this.divCont);
                         this.divCont.onclick=(e:MouseEvent)=>{
                             if(e){
-                                this.removeMainElement({parent,divCont:this.divCont,target,show:true});
+                                this.removeMainElement({parent,divCont:this.divCont,target,show:true,idValues});
                                 const divCont=e.currentTarget as HTMLElement;
                                 divCont.classList.toggle("isActive");
                                 target.classList.toggle("isActive");
                             }
                         };
-                        return {ele,target}
+                        return {ele,target,idValues}
                     }
                 });
             }
@@ -287,7 +366,7 @@ initMain(item:{parent:HTMLElement,cardBodyCss:cardBodyCssType}){
 
     cardBody(item:{parent:HTMLElement,less900:boolean,less400:boolean,cardBodyCss:cardBodyCssType}):Promise<{retParent:HTMLElement}>{
         //ADDS MAIN BODY TO HEADER FLAG
-        const {parent,less900,less400,cardBodyCss}=item;
+        const {parent,less400,cardBodyCss}=item;
         const round=Math.round(12*0.7);
         const container=document.createElement("div");
          //"DO NOT TOUCH ID!!!!!"
@@ -322,13 +401,11 @@ initMain(item:{parent:HTMLElement,cardBodyCss:cardBodyCssType}){
         //--------smallBottom-----------------//
         parent.appendChild(container);
         //----------------BODY---------------------------//
-        return new Promise(resolver=>{
-            resolver({retParent:parent})
-        }) as Promise<{retParent:HTMLElement}>;
+        return Promise.resolve({retParent:parent}) as Promise<{retParent:HTMLElement}>;
     };
     imgCont(item:{parent:HTMLElement,less900:boolean,less400:boolean}){
         //ADDS IMG AND CONTAINER
-        const {parent,less900,less400}=item;
+        const {parent,less400}=item;
         const max=parent.style.maxHeight;
         const max_height=max ? parseInt(max.split("px")[0]) :155;
         const initImg=this.headerPic;
@@ -343,32 +420,23 @@ initMain(item:{parent:HTMLElement,cardBodyCss:cardBodyCssType}){
         const img=document.createElement("img");
         img.id="imgCont-img";
         img.style.cssText=`max-height:${max_height-10}px;aspect-ratio: 1 / 1;border-radius:50%;filter:drop-shadow(0 0 0.75rem white);`;
-        // img.style.maxWidth=less900 ? (less400 ? "100px":"75px"):"100px";
+       
         img.src=initImg;
         img.alt="www.ablogroom.com";
         container.appendChild(img);
         parent.appendChild(container);
     };
-   async elementAddAttribute(item:{target:HTMLElement,element:elementType,less900:boolean,less400:boolean}):Promise<{retTarget:HTMLElement,ele:elementType}>{
+   async elementAddAttribute({target,element,less400}:{target:HTMLElement,element:elementType,less900:boolean,less400:boolean}):Promise<{retTarget:HTMLElement,ele:elementType}>{
         //ADDS ATTRIBUTES TO TARGET
-        const {target,element,less900,less400}=item;
-        let ele:elementType={} as elementType;
-        ele=element;
-        const type=ele.type ? ele.type : "headerflag";
-        const attr=element.attr ? element.attr : "data-headerflag";
-        const rand=Math.round(Math.random()*1000);
-        target.id=`headerflag-target-${rand}`;
+        const type=element.type ? element.type : "headerflag";
         target.setAttribute("type",type);
         target.setAttribute("is-element","true");
         target.setAttribute("name","div");
-        target.setAttribute(attr,attr);
         target.style.cssText=element.cssText;
         target.style.flexDirection=less400 ? "column":"row";
         target.className=element.class;
-        ele={...ele,eleId:target.id,placement:this.placement};
-        return new Promise(resolver=>{
-            resolver({retTarget:target,ele})
-        }) as Promise<{retTarget:HTMLElement,ele:elementType}>;
+        element={...element,placement:this.placement};
+        return Promise.resolve({retTarget:target,ele:element}) as Promise<{retTarget:HTMLElement,ele:elementType}>;
     }
 
     screenSizeAdjust(item:{target:HTMLElement,less900:boolean,less400:boolean}){
@@ -379,7 +447,7 @@ initMain(item:{parent:HTMLElement,cardBodyCss:cardBodyCssType}){
             if(child){
                 this.targetChildrenIds.map(item=>{
                     if(child.id===item.id){
-                        for(const [key,value] of Object.entries(child.style)){
+                        for(const key of Object.keys(child.style)){
                             item.keyValue.map(keyItem=>{
                                 if(keyItem.key===key && key !=="maxHeight"){
                                     if(less900){
@@ -418,8 +486,16 @@ initMain(item:{parent:HTMLElement,cardBodyCss:cardBodyCssType}){
 
     //------------------CUSTOM SELECTION ---------------------------------//
 
-    customAttributes(item:{divCont:HTMLElement,css_col:string,less400:boolean,less900:boolean,element:elementType}){
-        const {divCont,css_col,less400,less900,element}=item;
+    customAttributes({divCont,target,css_col,less400,less900,element,idValues}:{
+        divCont:HTMLElement,
+        target:HTMLElement,
+        css_col:string,
+        less400:boolean,
+        less900:boolean,
+        element:elementType,
+        idValues:idValueType[]
+    }){
+        
         divCont.style.position="relative";
         const popup=document.createElement("div");
         popup.id="customAttributes-popup";
@@ -442,46 +518,57 @@ initMain(item:{parent:HTMLElement,cardBodyCss:cardBodyCssType}){
             if(e){
                 const value=(e.currentTarget as HTMLSelectElement).value as string;
                 const item:{name:string,class:string}=JSON.parse(value as string) as {name:string,class:string}
-                switch(true){
-                    case item.name==="upload image":
-                        const target=divCont.querySelector("div.header-flag-target") as HTMLElement;
-                        const getImage=target.querySelector("img#imgCont-img") as HTMLImageElement;
-                        this.bgImage({divCont,target,img:getImage,css_col,less400,element});
-                    return
-                    case item.name==="font-size":
-                    
-                    return
-                }
-            }
+                if(item.name==="upload image"){
+                    const getImage=target.querySelector("img#imgCont-img") as HTMLImageElement;
+                    this.bgImage({divCont,target,img:getImage,css_col,less400,element,idValues});
+
+                }else if(item.name==="font-size"){
+                    this.fontSize({divCont,target,css_col,less400,element,idValues});
+                };
+            };
         };
     }
     
-    async bgImage(item:{divCont:HTMLElement,target:HTMLElement,img:HTMLImageElement,css_col:string,less400:boolean,element:elementType}){
-        const {divCont,target,img,css_col,less400,element}=item;
+    async bgImage({divCont,target,img,css_col,less400,element,idValues}:{
+        divCont:HTMLElement,
+        target:HTMLElement,
+        img:HTMLImageElement,
+        css_col:string,
+        less400:boolean,
+        element:elementType,
+        idValues:idValueType[]
+    }){
+        
         const blog=this.blog;
         let ele:elementType={} as elementType;
         ele=element;
 
         if(!blog.name){
-            const isEle=blog.elements.find(_ele=>(_ele.eleId===target.id));
-            ele=isEle ? isEle :element;
-            // console.log("ele.id: inside bgImage",ele.id,"element.id",element.id);
            await  this._user.signInBlogForm({
             parent:target,
             blog,
-            func:()=>{this.uploadImage({divCont,target,img,css_col,less400,element:ele});}
+            func:()=>{this.uploadImage({divCont,target,img,css_col,less400,element:ele,idValues});}
            });
 
         }else{
             //has SIGNED IN and CREATED a new blog
-            this.uploadImage({divCont,target,img,css_col,less400,element:ele});
+            this.uploadImage({divCont,target,img,css_col,less400,element:ele,idValues});
         }
 
     };
-    uploadImage(item:{divCont:HTMLElement,target:HTMLElement,img:HTMLImageElement,css_col:string,less400:boolean,element:elementType}){
-        const {divCont,target,img,css_col,less400,element}=item;
+    uploadImage({divCont,target,img,css_col,less400,element,idValues}:{
+        divCont:HTMLElement,
+        target:HTMLElement,
+        img:HTMLImageElement,
+        css_col:string,
+        less400:boolean,
+        element:elementType,
+        idValues:idValueType[]
+    }){
+       
         let ele:elementType={} as elementType;
         ele=element;
+        const eleId=target.id;
         const popup=document.createElement("div");
             popup.id="bgImage-popup";
             popup.style.cssText=css_col + "position:absolute;top:100%;width:fit-content;height:auto;background-color:white;border-radius:6px;box-shadow:1px 1px 12px 1px;";
@@ -514,7 +601,7 @@ initMain(item:{parent:HTMLElement,cardBodyCss:cardBodyCssType}){
                         const file=files[0];
                         button.disabled=false;
                         button.textContent="upload";
-                        this.showUpLoadImg({parent:imgload,file:file as File,css_col,less400});
+                        this.showUpLoadImg({parent:imgload,file:file as File,css_col});
                     }
                 }
             }
@@ -528,11 +615,12 @@ initMain(item:{parent:HTMLElement,cardBodyCss:cardBodyCssType}){
                     if(file){
                         const {Key}=this._service.generateFreeImgKey({formdata,user:this.user}) as {Key:string};
                         ele={...ele,imgKey:Key};
-                        this._service.uploadfreeimage({parent:divCont,formdata}).then(async(res)=>{
+                        idValues.push({eleId,id:"imgKey",attValue:Key});
+                        this._service.uploadfreeimage({formdata}).then(async(res)=>{
                             if(res){
                                 ele={...ele,img:res.img,imgKey:res.Key};
                                 this.element=ele;
-                                this.saveElement({target,element:ele});
+                                this.saveElement({target,element:ele,idValues});
                                 img.src=res.img;
                                 img.alt=res.Key;
                                 Misc.blurIn({anchor:img,blur:"20px",time:600});
@@ -545,9 +633,9 @@ initMain(item:{parent:HTMLElement,cardBodyCss:cardBodyCssType}){
                     }
                 }
             };
-    }
-    showUpLoadImg(item:{parent:HTMLElement,file:File,css_col:string,less400:boolean}){
-        const {parent,file,css_col,less400}=item;
+    };
+    showUpLoadImg(item:{parent:HTMLElement,file:File,css_col:string}){
+        const {parent,file,css_col}=item;
         this.cleanUpByQuery({target:parent,classOrID:"showUpLoadImg-cont"});
         const cont=document.createElement("div");
         cont.id="showUpLoadImg-cont";
@@ -561,12 +649,60 @@ initMain(item:{parent:HTMLElement,cardBodyCss:cardBodyCssType}){
         cont.appendChild(img);
         Misc.blurIn({anchor:img,blur:"12px",time:700});
         parent.appendChild(cont);
+    };
+    fontSize({divCont,target,css_col,less400,element,idValues}:{
+        divCont:HTMLElement,
+        target:HTMLElement,
+        css_col:string,
+        less400:boolean,
+        element:elementType,
+        idValues:idValueType[]
+    }):void{
+        const eleId=target.id;
+        divCont.style.position="relative";
+        const popup=document.createElement("div");
+        popup.style.cssText="position:absolute;z-index:10;inset:0%;width:clamp(150px,150px,200px);background-color:white; color:black;border-radius:12px;padding:10px;display:flex;flex-direction:column;align-items:center;box-shadow:1px 1px 12px 1px black;";
+        const {input,label}=Nav.inputComponent(popup);
+        input.type="number";
+        input.min="50";
+        input.max="200";
+        input.id="fontSize";
+        input.name="fontSize";
+        label.textContent="text-size adjust";
+        input.placeholder="";
+        label.setAttribute("for",input.id);
+        const {button}=Misc.simpleButton({anchor:popup,type:"button",bg:Nav.btnColor,color:"white",text:"okay?",time:400});
+        divCont.appendChild(popup);
+        input.oninput=(e:Event)=>{
+            if(!e) return;
+            const value=(e.currentTarget as HTMLInputElement).value;
+            const getCardBody=target.querySelector("div#cardBody-container") as HTMLElement;
+            if(!getCardBody) return;
+            const size=`${value}%`;
+            getCardBody.style.fontSize=size;
+        };
+        button.onclick=(e:MouseEvent)=>{
+           
+            element={...element,inner_html:target.innerHTML};
+            idValues.push({eleId,id:"text",attValue:"updated"});
+            this.saveElement({target,element,idValues});
+            Misc.message({parent:divCont,msg:"saved",type_:"success",time:400});
+            Misc.growOut({anchor:popup,scale:0,opacity:0,time:400});
+            setTimeout(()=>{
+                divCont.removeChild(popup);
+            },390);
+
+        };
+
+
+        //cardBody-container
     }
+
     //------------------CUSTOM SELECTION ---------------------------------//
 
     //---------------------------REMOVE SECTION----------------------------//
-    removeMainElement(item:{parent:HTMLElement,divCont:HTMLElement,target:HTMLElement,show:boolean}){
-        const {parent,divCont,target,show}=item;
+    removeMainElement({parent,divCont,target,show,idValues}:{parent:HTMLElement,divCont:HTMLElement,target:HTMLElement,show:boolean,idValues:idValueType[]}){
+      
         const check=([...target.classList as any] as string[]).includes("isActive");
         const getxDiv=divCont.querySelector("div#xIconDiv-headerflag") as HTMLElement|null;
         if(!show){
@@ -583,9 +719,17 @@ initMain(item:{parent:HTMLElement,cardBodyCss:cardBodyCssType}){
             divCont.appendChild(xIconDiv);
             xIconDiv.addEventListener("click",(e:MouseEvent)=>{
                 if(e){
-                    this.promRemoveElement(target).then(async(res)=>{
+                    this.removeElement(target).then(async(res)=>{
                         if(res){
-                            this._modSelector.shiftPlace(res.placement);///REINDEX PLACEMENT!!!!
+                            const ele=res.ele ? res.ele : null;
+                            if(ele){
+                                this._modSelector.shiftPlace(ele.placement);///REINDEX PLACEMENT!!!!
+                                idValues.map((kat,index)=>{
+                                    if(kat.eleId===ele.eleId){
+                                        idValues.splice(index,1);
+                                    }
+                                });
+                            }
                         }
                     });
                     Misc.fadeOut({anchor:divCont,xpos:100,ypos:100,time:500});
@@ -595,32 +739,27 @@ initMain(item:{parent:HTMLElement,cardBodyCss:cardBodyCssType}){
                     },480);
                 }
             });
-        }else{
-            if(getxDiv){
+        }else if(show && getxDiv){
+            if(check){
+                getxDiv.style.display="block";
+              }else{
+                 getxDiv.style.display="none";
+              }
+         }
+        
+    };
+    
 
-                if(check){
-                   getxDiv.style.display="block";
-                 }else{
-                    getxDiv.style.display="none";
-                 }
-            }
-        }
-    };
-    promRemoveElement(target:HTMLElement){
-        return new Promise((resolve)=>{
-            resolve(this.removeElement(target));
-        }) as Promise<elementType|undefined>;
-    };
-    removeElement(target:HTMLElement):elementType|undefined{
+    async removeElement(target:HTMLElement):Promise<{ele:elementType|undefined}>{
         let ele_:elementType|undefined;
-        this._modSelector._elements.map((ele,index)=>{
+        this._modSelector.elements.map((ele,index)=>{
                 if(ele.eleId===target.id){
-                    this._modSelector._elements.splice(index,1);
                     ele_= ele;
+                    this._modSelector.elements.splice(index,1);
                 }
         });
-        this.elements=this._modSelector._elements;
-        return ele_
+        this.elements=this._modSelector.elements;
+        return Promise.resolve({ele:ele_}) as Promise<{ele:elementType|undefined}>;
     };
     //---------------------------REMOVE SECTION----------------------------//
     //---------------------------ultils----------------------------//
@@ -637,46 +776,85 @@ initMain(item:{parent:HTMLElement,cardBodyCss:cardBodyCssType}){
             };
         });
     };
-    saveElement(item:{target:HTMLElement,element:elementType}){
-        const {target,element}=item;
-        const divCont=target.parentElement as HTMLElement;
-        // const cleanEle=this.removePopup({divCont,target,ID:"popup-blogNameDesc",element});
-       const elements= this._modSelector._elements.map((ele,index)=>{
+    saveElement({target,element,idValues}:{target:HTMLElement,element:elementType,idValues:idValueType[]}){
+       
+       const elements= this._modSelector.elements.map((ele,index)=>{
             if(ele.eleId===element.eleId){
-                ele=element;
+                 //----------//---POPULATING ATTRIBUTES TO TARGET && ADDS ATTR/TYPE/IMGKEY ATTRIBUTES FROM IDVALUES------\\-----///
+                 const {idValues:retIdValues2}=this._modSelector.dataset.coreDefaultIdValues({
+                    target,
+                    level:"element",
+                    sel:null,
+                    row:null,
+                    col:null,
+                    ele:element,
+                    loc:"htmlElement",
+                    idValues,
+                    clean:false
+
+                });
+                idValues=retIdValues2;
+                idValues=this._modSelector.datasetSincUpdate({target,ele:element,level:"element",loc:"htmlElement",idValues});
+               //----------//---POPULATING ATTRIBUTES TO TARGET && ADDS ATTR/TYPE/IMGKEY ATTRIBUTES FROM IDVALUES------\\-----///
+                ele=element
             }
             return ele;
     });
     this.elements=elements;
     };
-    elementAdder(item:{target:HTMLElement,blog:blogType,element:elementType}):Promise<elementType|undefined>{
-        const {target,element,blog}=item;
+
+    elementAdder({target,element,blog,idValues}:{
+        target:HTMLElement,
+        blog:blogType,
+        element:elementType,
+        idValues:idValueType[]
+
+    }):Promise<{ele:elementType|undefined,idValues:idValueType[],target:HTMLElement}>{
+      
         const len=this.elements.length;
-        let tempEle:elementType|undefined=undefined;
+        const eleId=target.id;
         const check=this.elements.map(ele_=>(ele_.eleId)).includes(target.id as string);
         if(!check){
-            tempEle={...element,
+            const placement=this._modSelector.placement
+            element={...element,
                 id:len,
                 blog_id:blog.id,
-                placement:this.placement,
+                eleId,
+                placement:placement,
                 inner_html:target.innerHTML,
                 cssText:target.style.cssText,
                 class:target.className,
                 attr:element.attr,
                 type:element.type ? element.type : "headerflag"
             };
-            this.elements=[...this.elements,{...tempEle}]
-            this.placement=this.placement + 1;
+             //----------//---POPULATING ATTRIBUTES TO TARGET && ADDS ATTR/TYPE/IMGKEY ATTRIBUTES FROM IDVALUES------\\-----///
+           
+             const {idValues:retIdValues2}=this._modSelector.dataset.coreDefaultIdValues({
+                target,
+                level:"element",
+                sel:null,
+                row:null,
+                col:null,
+                ele:element,
+                loc:"htmlElement",
+                idValues,
+                clean:false
+
+            });
+            idValues=retIdValues2;
+           //----------//---POPULATING ATTRIBUTES TO TARGET && ADDS ATTR/TYPE/IMGKEY ATTRIBUTES FROM IDVALUES------\\-----///
+          this._modSelector.datasetSincUpdate({target,ele:element,idValues,loc:"htmlElement",level:"element"})
+           this._modSelector.dataset.populateElement({target,loc:"htmlElement",level:"element",idValues,selRowColEle:element,clean:false})
+            this.elements=[...this.elements,element]
+            this._modSelector.placement=placement + 1;
+           
         }
-        return new Promise(resolver=>{
-            resolver(tempEle);
-        }) as Promise<elementType|undefined>;
+        return Promise.resolve({ele:element,idValues,target}) as Promise<{ele:elementType|undefined,idValues:idValueType[],target:HTMLElement}>;
     };
     removePopup(item:{divCont:HTMLElement,target:HTMLElement,ID:string,element:elementType}):elementType{
         const {divCont,target,ID,element}=item;
-        let ele:elementType={} as elementType;
         this.cleanUpByQuery({target:divCont,classOrID:ID});
-        ele={...element,inner_html:target.innerHTML};
+        const ele={...element,inner_html:target.innerHTML};
         return ele;
     }
     //---------------------------ultils----------------------------//

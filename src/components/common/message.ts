@@ -1,4 +1,4 @@
-import { barOptionType, blogType, chartType, messageType, postType, sendPostRequestType } from '@/components/editor/Types';
+import {  blogType, chartType, messageType, postType, sendPostRequestType } from '@/components/editor/Types';
 import {FaCrosshairs} from "react-icons/fa";
 import Misc from '../common/misc';
 import Nav from '../nav/headerNav';
@@ -9,6 +9,7 @@ import {FaCreate} from "@/components/common/ReactIcons";
 import { SiAnswer } from "react-icons/si";
 import { buttonReturn } from '@/components/common/tsFunctions';
 import Header from '../editor/header';
+import Main from '../editor/main';
 
 class MessageSetup{
     logo:string="/images/gb_logo.png";
@@ -19,7 +20,7 @@ class MessageSetup{
     contact(parent:HTMLElement): {form:HTMLFormElement,email:HTMLInputElement,textarea:HTMLTextAreaElement,rate:HTMLInputElement,btn:HTMLButtonElement,name:HTMLInputElement,msgEvent:HTMLElement,cont:HTMLElement}{
         Nav.navHeader=document.querySelector("header#navHeader") as HTMLElement;
         window.scroll(0,0);
-        const useParent= parent ? parent :Nav.navHeader;
+        const useParent= parent || Nav.navHeader;
         useParent.style.zIndex="";
         const cont=document.createElement("div");
         useParent.style.position="relative";
@@ -62,7 +63,7 @@ class MessageSetup{
         email.name="email";
         email.placeholder="form: mymail@mail.com";
         email.className="form-control";
-        email.pattern="[a-zA-Z0-9\.]{2,}@[a-zA-Z0-9]{2,}\.[a-z]{2,3}";
+        email.pattern="[a-zA-Z0-9.]{2,}@[a-zA-Z0-9]{2,}.[a-z]{2,3}";
         email.type="text";
         formGrp.appendChild(email);
         formGrp.className="form-group";
@@ -121,13 +122,13 @@ class MessageSetup{
         const less400=window.innerWidth < 400;
         Nav.navHeader=document.querySelector("header#navHeader") as HTMLElement;
         window.scroll(0,0);
-        const useParent= parent ? parent :Nav.navHeader;
+        const useParent= parent || Nav.navHeader;
         useParent.style.zIndex="";
         const popup=document.createElement("div");
         useParent.style.position="relative";
         popup.id="contact2-message";
         popup.style.cssText=`position:absolute;padding:1rem;background:white;color:black;height:fit-content;margin-inline:auto;display:flex;flex-direction:column;align-items:center;justify-content:center;border-radius:16px;box-shadow:1px 1px 6px 1px aquamarine;padding:1rem;z-index:200;background-color:black;padding-block:1rem;align-self:center`;
-        popup.style.top=less900 ? (less400 ? "5%" :"5%" ) : "5%";
+        popup.style.top="5%";
         popup.style.left=less900 ? (less400 ? "0%" :"15%" ) : "25%";
         popup.style.right=less900 ? (less400 ? "0%" :"15%" ) : "25%";
         popup.style.width="100%";
@@ -165,7 +166,7 @@ class MessageSetup{
         email.type="email";
         email.id="email";
         email.name="email";
-        email.pattern="[a-zA-Z0-9\.\_]{2,}@[a-zA-Z0-9]{2,}\.[a-z]{2,3}"
+        email.pattern="[a-zA-Z0-9._]{2,}@[a-zA-Z0-9]{2,}.[a-z]{2,3}"
         lemail.textContent="email";
         email.placeholder="format:myemail@email.com";
         lemail.classList.add("text-primary");
@@ -201,7 +202,7 @@ class MessageSetup{
         lsecret.textContent="secret";
         lsecret.classList.add("text-primary");
         lsecret.setAttribute("for",secret.id);
-        // const cssStyle={color:"white",paddingInline:"2rem",paddingBlock:"0.25rem",borderRadius:"30px"}
+       
         const {button:btn}=Misc.simpleButton({anchor:form,bg:Nav.btnColor,color:"white",type:"submit",time:400,text:"submit comment"});
         btn.disabled=true;
         popup.appendChild(form);
@@ -225,7 +226,7 @@ class MessageSetup{
         tArea.onchange=(e:Event)=>{
             if(e){
                 const tvalue=(e.currentTarget as HTMLInputElement).value;
-                const isLen=tvalue.length > 10 ? true:false;
+                const isLen=tvalue.length > 10;
                 if(isLen){
                     btn.disabled=false;
                     btn.textContent="submit comment";
@@ -240,7 +241,7 @@ class MessageSetup{
         };
         email.onchange=(e:Event)=>{
             if(e){
-                const eReg:RegExp=/[a-zA-Z0-9\.\_]{2,}@[a-zA-Z0-9]{2,}\.[a-z]{2,3}/;
+                const eReg:RegExp=/[a-zA-Z0-9._]{2,}@[a-zA-Z0-9]{2,}\.[a-z]{2,3}/;
                 const evalue=(e.currentTarget as HTMLInputElement).value;
                 if(eReg.test(evalue)){
                     btn.disabled=false;
@@ -257,7 +258,9 @@ class MessageSetup{
         Misc.fadeIn({anchor:popup,xpos:50,ypos:100,time:500});
         window.scroll(0,0);
         return {form,popup,useParent,btn}
-    }
+    };
+
+
     sendPostAnswerRequest(item:{parent:HTMLElement}):{form:HTMLFormElement,btn:HTMLButtonElement,popup:HTMLElement,retParent:HTMLElement}{
         const {parent}=item;
         const css_col="margin-inline:auto;display:flex;flex-direction:column;justify-content:center;align-items:center;gap:1rem;";
@@ -307,12 +310,11 @@ class MessageSetup{
         email.id="email";
         email.name="email";
         email.autocomplete="email";
-        email.pattern="[a-zA-Z0-9\.\_]{2,}@[a-zA-Z0-9]{2,}\.[a-z]{2,3}"
+        email.pattern="[a-zA-Z0-9._]{2,}@[a-zA-Z0-9]{2,}.[a-z]{2,3}"
         lemail.textContent="email";
         email.placeholder="format:myemail@email.com";
         lemail.classList.add("text-primary");
         lemail.setAttribute("for",email.id);
-        // const cssStyle={color:"white",paddingInline:"2rem",paddingBlock:"0.25rem",borderRadius:"30px"}
         const {button:btn}=Misc.simpleButton({anchor:form,bg:Nav.btnColor,color:"white",type:"submit",time:400,text:"get answer"});
         btn.disabled=true;
         popup.appendChild(form);
@@ -336,7 +338,7 @@ class MessageSetup{
        
         email.onchange=(e:Event)=>{
             if(e){
-                const eReg:RegExp=/[a-zA-Z0-9\.\_]{2,}@[a-zA-Z0-9]{2,}\.[a-z]{2,3}/;
+                const eReg:RegExp=/[a-zA-Z0-9._]{2,}@[a-zA-Z0-9]{2,}\.[a-z]{2,3}/;
                 const evalue=(e.currentTarget as HTMLInputElement).value;
                 if(eReg.test(evalue)){
                     btn.disabled=false;
@@ -352,7 +354,9 @@ class MessageSetup{
         };
         Misc.fadeIn({anchor:popup,xpos:50,ypos:100,time:500});
         return {retParent:parent,popup,form,btn};
-    }
+    };
+
+
     eleMsg(item:{parent:HTMLElement,msg:string,close:boolean,color:string}){
         const {parent,msg,close,color}=item;
         Header.cleanUpByID(parent,"element-msg");
@@ -377,7 +381,9 @@ class MessageSetup{
                 },290);
             },1200);
         } 
-    }
+    };
+
+
     removeEle(parent:HTMLElement,target:HTMLElement){
         const xDiv=document.createElement("div");
         parent.style.zIndex="2";
@@ -393,8 +399,12 @@ class MessageSetup{
                 },290);
             }
         };
-    }
-}
+    };
+
+
+};
+
+////-------MESSAGE CLASS----///
 
 class Message{
     freepicurl:string="https://newablogroom-free-bucket.s3.us-east-1.amazonaws.com";
@@ -410,11 +420,14 @@ class Message{
     _post:postType;
     _message:messageType;
     _messages:messageType[];
+    _placement:number;
     msgSetup:MessageSetup;
     static bgColor:string;
     static btnColor:string;
+    
     constructor(private _modSelector:ModSelector,private _service:Service,blog:blogType|null,post:postType|null){
         this.freepicurl="https://newablogroom-free-bucket.s3.us-east-1.amazonaws.com";
+        
         this._blog={} as blogType;
         this._message={} as messageType;
         this._messages=[] as messageType[];
@@ -424,6 +437,7 @@ class Message{
             this._messages=[] as messageType[];
             Message.bgColor=this._modSelector._bgColor;
             Message.btnColor=this._modSelector.btnColor;
+           
         }
         if(post){
             this._post=post;
@@ -432,11 +446,27 @@ class Message{
 
     }
     /////----------------SETTER/GETTERS------------------///////
+    get placement(){
+        const getPlace=localStorage.getItem("placement");
+        // console.log("164:",getPlace)
+        if(getPlace){
+            this._placement=Number(getPlace);
+            return parseInt(getPlace)
+        }else{
+            return 1;
+        }
+    };
+    set placement(placement:number){
+        this._placement=placement;
+        localStorage.setItem("placement",JSON.stringify(placement))
+    };
+
     get blog(){
         return this._blog;
     }
     set blog(blog:blogType){
         this._blog=blog;
+        // this._modSelector.blog=blog
     }
     get post(){
         return this._post;
@@ -460,7 +490,9 @@ class Message{
     /////----------------SETTER/GETTERS------------------///////
 
     contact(parent:HTMLElement,blog:blogType|null){
-        const  {form,popup,useParent} =this.msgSetup.contact2(parent)
+        const  {form,popup,useParent} =this.msgSetup.contact2(parent);
+        const less900=window.innerWidth < 900;
+        const less400=window.innerWidth < 400;
        form.addEventListener("submit",(e:SubmitEvent) =>{
         if(e){
             e.preventDefault();
@@ -473,16 +505,15 @@ class Message{
                 const secret:boolean | null=Boolean(formdata.get("secret") as string);
                 if(email && name && msg){
                     const blog_id=blog ? blog.id : undefined;
-                    const user_id=blog && blog.user_id ? blog.user_id : undefined;
+                    const user_id=blog?.user_id !=="" ? blog?.user_id : undefined;
                     const Msg:messageType={name,email,msg,user_id,rate,blog_id:blog_id,secret:secret,sent:false};
                     this.message=Msg;
                     this._service.sendClientMessage(Msg).then(async(res:messageType)=>{
                         if(res){
                             Misc.fadeOut({anchor:popup,xpos:75,ypos:100,time:400});
                             setTimeout(()=>{useParent.removeChild(popup);},380);
-                            const width=window.innerWidth < 900 ? "0%":"26%";
                             const cssStyle={boxShadow:"1px 1px 10px 1px #0CAFFF",display:"flex",flexDirection:"column",alignItems:"center",justifyContent:"center"}
-                            Message.thankMsg({parent,thanks:this.thanksMsg,cssStyle});
+                            Message.thankMsg({parent,thanks:this.thanksMsg,cssStyle,useParent:false,less400,less900});
                             //GETTING CONTAINER
                             if(getParent && blog){
                                 this.getBlogMsgs(getParent,blog.id).then(async(res1)=>{
@@ -506,17 +537,45 @@ class Message{
        });
     }
    
-    static thankMsg(msgThank:{parent:HTMLElement,thanks:string,cssStyle:{[key:string]:string}}){
-        const {parent,thanks,cssStyle}=msgThank;
-        window.scroll(0,0);
-        const less900=window.innerWidth < 900;
-        const less400=window.innerWidth < 400;
+    static thankMsg(msgThank:{parent:HTMLElement,thanks:string,cssStyle:{[key:string]:string},useParent:boolean,less400:boolean,less900:boolean}){
+        //IF useParent is false=>parent=== body
+        const {parent,thanks,cssStyle,useParent,less400,less900}=msgThank;
+        const css_col_abs=`position:absolute;inset:30%;width:fit-content;padding:1rem;margin-inline:auto;display:flex;flex-direction:column;align-items:center;justify-content:flex-start;border-radius:16px;z-index:2000;`;
+        const css_col=`width:fit-content;padding:1rem;margin-inline:auto;display:flex;flex-direction:column;align-items:center;justify-content:center;border-radius:16px;`;
+        const getBody=document.querySelector("body") as HTMLElement;
+        let newParent:HTMLElement|null;
+        if(!useParent && getBody){
+            Main.textarea=getBody;
+            newParent=getBody;
+        }else{
+            newParent=parent;
+        }
         const cont=document.createElement("div");
-        parent.style.position="relative";
         cont.id="thankyou";
+        cont.style.cssText=css_col_abs + "backdrop-fliter:blur(20px);background:rgba(0,0,0,0.4);";
+        cont.style.inset=less900 ?(less400 ? "25% 0% 55% 0%":"10% 0% 80% 0%"):"30% 0% 50% 0%";
+        if(less900){
+            if(less400){
+                window.scroll(0,400);
+            }else{
+                window.scroll(0,0);
+
+            }
+        }else{
+            window.scroll(0,300);
+        }
+        const innerCont=document.createElement("div");
+        innerCont.id="thankYou-cont-innerCont";
+        innerCont.style.cssText=css_col + `background:${Message.btnColor};box-shadow:1px 1px 6px 1px aquamarine;`;
+       
+        innerCont.style.width="100%";
+        cont.appendChild(innerCont);
+        const title=document.createElement("h5");
+        title.textContent="Thank You!!";
+        title.className="text-center text-primary my-1 mx-auto";
+        innerCont.appendChild(title);
         const text=document.createElement("p");
         text.style.cssText="margin-inline:auto;padding-inline:2rem;color:white;font-size:20px;";
-        cont.style.cssText=`position:absolute;width:fit-content;padding:1rem;background:${Message.btnColor};color:white;margin-inline:auto;display:flex;flex-direction:column;align-items:center;justify-content:center;border-radius:16px;box-shadow:1px 1px 6px 1px aquamarine;`;
         text.innerHTML=thanks;
         for(const key of Object.keys(cont.style)){
             for(const [key1,value] of Object.entries(cssStyle)){
@@ -525,11 +584,9 @@ class Message{
                 }
             }
         }
-        cont.style.width=less900 ? ( less400 ? "100%" : "75%"):"50%";
-        cont.style.inset="";
-        cont.style.marginInline="auto";
-        cont.appendChild(text);
-        parent.appendChild(cont);
+        innerCont.style.marginInline="auto";
+        innerCont.appendChild(text);
+        newParent.appendChild(cont);
         cont.animate([
             {transform:"translateY(-100%)",opacity:0},
             {transform:"translateY(0%)",opacity:1},
@@ -540,9 +597,9 @@ class Message{
                 {transform:"translateY(-100%)",opacity:0},
                ],{duration:800,iterations:1});
                setTimeout(()=>{
-                parent.removeChild(cont);
-               },800);
-        },7600);
+                newParent.removeChild(cont);
+               },790);
+        },6600);
     }
     async getBlogMsgs(parent:HTMLElement,blog_id:number):Promise<{container: HTMLDivElement,messages: messageType[]} | undefined>{
         Message.cleanUpID(parent,"msgs-main-container");
@@ -642,8 +699,10 @@ class Message{
         });
     }
     viewCard(item:{parent:HTMLElement,msg:messageType}){
+        const less900=window.innerWidth < 900;
+        const less400=window.innerWidth < 400;
         const {parent,msg}=item;
-        const isHome=parent.id==="home-index"? true:false;
+        const isHome=parent.id==="home-index";
         const container=document.createElement("div");
         container.id="message-viewCard-container";
         container.style.cssText ="max-width:800px;width:100%;padding-inline:1rem;display:grid;place-items:center;position:absolute;border-radius:14px;box-shadow:1px 1px 10px 1px #0CAFFF,-1px -1px 10px 1px #0CAFFF;z-index:100;background-color:white;";
@@ -653,11 +712,11 @@ class Message{
             container.style.right="20%";
             // window.scrollTo(0,5)
         }else{
-            container.style.top=window.innerWidth < 900 ? (window.innerWidth <400 ? "-100%" : "-100%") :"-100%";
-            container.style.left=window.innerWidth < 900 ? (window.innerWidth <400 ? "0%" : "10%") :"20%";
-            container.style.right=window.innerWidth < 900 ? (window.innerWidth <400 ? "0%" : "10%") :"20%";
+            container.style.top="-100%";
+            container.style.left=less900 ? (less400 ? "0%" : "10%") :"20%";
+            container.style.right=less900 ? (less400 ? "0%" : "10%") :"20%";
             
-        }
+        };
         
         parent.appendChild(container);
         const card=document.createElement("div");
@@ -713,7 +772,10 @@ class Message{
             }
         });
 
-    }
+    };
+
+
+
     chartmessage(parent:HTMLElement,charts:chartType[]){
         const popup=document.createElement("div");
         popup.id="chartmessage-popup";
@@ -730,8 +792,12 @@ class Message{
         const {button:save}=Misc.simpleButton({anchor:btnCont,text:"save",bg:"#05607e",color:"white",type:"button",time:400});
         save.onclick=(e:MouseEvent)=>{
             if(e){
-                //barOption is already stringify in chart && added to charts
-                this._modSelector.blog={...this._modSelector._blog,charts:charts};
+                //barOption is already stringify in chart && added to chartsconst
+                const placement=this.placement
+                this._modSelector.blog={...this._modSelector.blog,charts:charts};
+                localStorage.setItem("blog",JSON.stringify(this._modSelector.blog));
+
+                localStorage.setItem("placement",String(placement));
                 this._modSelector.placement+=1;
                 const url=new URL(window.location.href);
                 const newUrl=new URL("/editor",url.origin);
@@ -753,12 +819,13 @@ class Message{
         parent.appendChild(popup);
         Misc.growIn({anchor:popup,scale:0,opacity:0,time:500});
 
-    }
+    };
+
     sendPostmessage(item:{parent:HTMLElement,post:postType,func:()=>Promise<void>}):Promise<{sent:boolean,retParent:HTMLElement}>{
         //THIS SENDS THE ANSWER TO A POST EITHER BY URI OR AND MSG (post.sendMsg or And uri=freepicurl/post.sendRqKey)
         const {parent,post,func}=item;
         let sent:boolean=false;
-        const {form,btn,popup,retParent}=this.msgSetup.sendPostAnswerRequest({parent});
+        const {form,popup,retParent}=this.msgSetup.sendPostAnswerRequest({parent});
         form.onsubmit=async(e:SubmitEvent)=>{
             if(e){
                 e.preventDefault();
@@ -766,7 +833,7 @@ class Message{
                 const name=formdata.get("name") as string;
                 const email=formdata.get("email") as string;
                 if(email){
-                    const name_=name ? name :undefined;
+                    const name_=name || undefined;
                     const send:sendPostRequestType={post,clientName:name_,clientEmail:email};
                    await this._service.requestPost({sendRequest:send}).then(async(res)=>{
                         //api/postrequest

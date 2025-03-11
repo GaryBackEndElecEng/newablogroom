@@ -1,4 +1,4 @@
-import { PrismaClient } from "@prisma/client";
+
 import { NextApiRequest, NextApiResponse } from "next";
 import { userType } from "@/components/editor/Types";
 import { getErrorMessage } from "@/lib/errorBoundaries";

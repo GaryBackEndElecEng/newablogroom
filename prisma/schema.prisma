@@ -240,7 +240,9 @@ model Linecode {
 model Chart {
   id          Int    @id @default(autoincrement())
   type        String
-  chartOption String
+  cssText     String
+  class       String
+  chartOption Json
   eleId       String
   placement   Int
   blog        Blog   @relation(fields: [blog_id], references: [id], onDelete: Cascade)

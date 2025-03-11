@@ -8,6 +8,8 @@ import { Metadata, ResolvingMetadata } from 'next';
 import { genKeywords, retMetadata } from '@/app/post/[id]/page';
 import { awsImage } from '@/lib/awsFunctions';
 
+const baseUrl = process.env.NODE_ENV === "production" ? process.env.NEXTAUTH_URL : "http:///localhost:3000";
+
 type Props = {
     params: Promise<{ id: string }>,
     searchParams: Promise<{ [key: string]: string | string[] | undefined }>,
@@ -28,9 +30,9 @@ export default async function page(props: Props) {
     const blog = await getBlog({ id });
     if (blog) {
         const user = await getUser({ user_id: blog.user_id });
-        const isUser = user && user.showinfo ? user : null;
+        const isUser = user?.showinfo ? user : null;
         return (
-            <Index blog={blog} user={isUser} />
+            <Index blog={blog} owner={isUser} />
         )
     } else {
         redirect(`/blogs`);
@@ -41,10 +43,10 @@ export default async function page(props: Props) {
 async function getBlog(item: { id: number }): Promise<blogType | null> {
     const { id } = item;
     if (!id) return null;
-    let blog: blogType | null = null;
+
     try {
-        blog = await prisma.blog.findUnique({
-            where: { id: id },
+        const blog = await prisma.blog.findUnique({
+            where: { id: id, show: true },
             include: {
                 selectors: {
                     include: {
@@ -62,21 +64,22 @@ async function getBlog(item: { id: number }): Promise<blogType | null> {
                 charts: true
             }
         }) as unknown as blogType;
+        return blog;
     } catch (error) {
         const msg = getErrorMessage(error);
         console.log(msg)
-    } finally {
         await prisma.$disconnect();
-        return blog;
+        return null;
     }
-}
+};
+
+
 async function getUser(item: { user_id: string }) {
     const { user_id } = item;
     if (!user_id) return null;
-    let user: userType | null = null;
     try {
-        user = await prisma.user.findUnique({
-            where: { id: user_id },
+        const user = await prisma.user.findUnique({
+            where: { id: user_id, showinfo: true },
             select: {
                 id: true,
                 name: true,
@@ -88,26 +91,27 @@ async function getUser(item: { user_id: string }) {
                 username: true
             }
         }) as unknown as userType;
+        return user
     } catch (error) {
         const msg = getErrorMessage(error);
         console.log(msg);
-    } finally {
         await prisma.$disconnect();
-        return user;
-    }
-}
+        return null;
+    };
+};
+
+
 export async function genMetadata(item: { id: number, parent: ResolvingMetadata }): Promise<Metadata> {
     const { id, parent } = item;
     const par = (await parent);
-    const url = (par && par.metadataBase && par.metadataBase.origin) ? par.metadataBase.origin : "www.ablogroom.com";
+    const url = par?.metadataBase?.origin || baseUrl || "www.ablogroom.com";
     const blog = await getBlog({ id: id });
-    // const image = imageLoader({ src: img, width: 300, quality: 75 });
-    const image = blog && blog.imgKey ? await awsImage(blog.imgKey) : "/images/gb_logo.png";
-    const title = blog && blog.title ? blog.title as string : "Ablogroom blogs";
-    const keywds = blog && blog.desc ? await genKeywords({ content: blog.desc, title }) : [];
+    const image = blog?.imgKey ? await awsImage(blog.imgKey) : "/images/gb_logo.png";
+    const title = blog?.title ? blog.title as string : "Ablogroom blogs";
+    const keywds = blog?.desc ? await genKeywords({ content: blog.desc, title }) : [];
     const user = blog ? await getUser({ user_id: blog.user_id as string }) : null;
     const authors = user ? [{ name: user.name as string, url }] : undefined;
-    if (user && user.name) {
+    if (user?.name) {
         keywds.push(user.name)
     };
     return await retMetadata({ title, keywords: keywds, images: [{ url: image, width: 300, height: 300 }], url, authors });

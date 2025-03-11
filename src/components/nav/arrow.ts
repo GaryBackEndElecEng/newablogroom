@@ -1,7 +1,6 @@
 
-import { FaAccessibleIcon, FaBlog,FaInfo,FaEdit,FaHome,FaMedapps,FaSign,FaFilePowerpoint,FaFacebookF,FaInstagramSquare,FaGithub,FaLinkedin,FaSitemap,FaMailBulk } from "react-icons/fa";
-import { navLinkBtnType, userType, blogType, messageType, gets3ImgKey, infoType2, } from "../editor/Types";
-import { FaArrowRight } from 'react-icons/fa';
+import { FaAccessibleIcon, FaBlog,FaInfo,FaEdit,FaHome,FaMedapps,FaSign,FaFilePowerpoint,FaArrowRight} from "react-icons/fa";
+import { navLinkBtnType, userType, blogType, gets3ImgKey, } from "../editor/Types";
 import { FaBtn, FaCreate } from "../common/ReactIcons";
 import * as Icons from "react-icons/fa";
 import Header from '../editor/header';
@@ -15,20 +14,19 @@ import MainHeader from './mainHeader';
 import Profile from '../profile/profile';
 import Features from '../home/feature';
 import AuthService from "../common/auth";
-import { buttonReturn } from "../common/tsFunctions";
 import { FaRightLong } from "react-icons/fa6";
-import { signOut } from 'next-auth/react';
+import CommonInfo from "../common/commonInfo";
 
 class NavArrow{
-    logo:string;
-    centerBtnsParent:HTMLElement | null;
-    mainHeader:HTMLElement | null;
-    checkUser:boolean;
-    isAuthenticated:boolean;
-    nav:Nav;
-    _isAdmin:boolean=false;
-    btnArray:navLinkBtnType[];
-    constructor(private _user:User,private _regSignin:RegSignIn,private _service:Service,private _profile:Profile,private _modSelector:ModSelector,public feature:Features){
+    public logo:string;
+    public centerBtnsParent:HTMLElement | null;
+    public mainHeader:HTMLElement | null;
+    public checkUser:boolean;
+    public isAuthenticated:boolean;
+    public nav:Nav;
+    private _isAdmin:boolean=false;
+    public  btnArray:navLinkBtnType[];
+    constructor(private _user:User,private auth:AuthService,private _regSignin:RegSignIn,private _service:Service,private _profile:Profile,private _modSelector:ModSelector,public feature:Features,public commonInfo:CommonInfo){
         this.logo="/images/gb_logo.png";
         this._isAdmin=this._user.user.admin ? this._user.user.admin:false;
         this.checkUser=false;
@@ -36,7 +34,7 @@ class NavArrow{
         this.centerBtnsParent=document.querySelector("div#footer-centerBtns-container");
         this.mainHeader=document.querySelector("header#navHeader");
         this.nav=new Nav(this._modSelector,this._service,this._user);
-        if(this._user._user.id){
+        if(this._user.user.id!==""){
             this.isAuthenticated=true;
         }
     }
@@ -44,14 +42,20 @@ class NavArrow{
     //////------------------------GETTERS/SETTERS--------------------------///
 get user(){
     return this._user.user
-}
+};
 set user(user:userType){
     this._user.user=user;
-}
+};
     //////------------------------GETTERS/SETTERS--------------------------///
-   
-        rotateArrow(item:{button:HTMLButtonElement,time:number}){
-        const {button,time}=item;
+   getuser({user}:{user:userType|null}){
+    if(user){
+        this.user=user;
+    }else{
+        this.user=this._user.init
+    }
+   }
+    rotateArrow(item:{button:HTMLButtonElement,time:number,user:userType,isAuthenticated:boolean}){
+        const {button,time,user,isAuthenticated}=item;
         const heightWidth=36;
         let show:boolean=false;
         this.mainHeader=document.querySelector("header#navHeader") as HTMLElement;
@@ -79,7 +83,7 @@ set user(user:userType){
                     button.style.transform="rotate(0deg)";
                     button.style.color="black";
                     button.style.backgroundColor="white";
-                    this.slideMenu({navHeader:getNavHeader,show:true,time:600});
+                    this.slideMenu({navHeader:getNavHeader,show:true,time:600,user,isAuthenticated});
                     button.animate([
                         { transform: "rotate(180deg)",color:"white",backgroundColor:"transparent" },
                         { transform: "rotate(0deg)",color:"black",backgroundColor:"white" },
@@ -89,8 +93,7 @@ set user(user:userType){
                     button.style.transform="rotate(180deg)";
                     button.style.color="white";
                     button.style.backgroundColor="transparent";
-                    this.slideMenu({navHeader:getNavHeader,show:false,time:600});
-                    this.slideMenu({navHeader:getNavHeader,show:false,time:600});
+                    this.slideMenu({navHeader:getNavHeader,show:false,time:600,user,isAuthenticated});
                     button.animate([
                         { transform: "rotate(0deg)",color:"black",backgroundColor:"white" },
                         { transform: "rotate(180deg)",color:"white",backgroundColor:"transparent" },
@@ -100,12 +103,12 @@ set user(user:userType){
             }
         };
         
-    }
-    slideMenu(item:{navHeader:HTMLElement,show:boolean,time:number}){
-        const {navHeader,show,time}=item;
-        const less900=window.innerWidth <900;
+    };
+
+
+    slideMenu(item:{navHeader:HTMLElement,show:boolean,time:number,user:userType,isAuthenticated:boolean}){
+        const {navHeader,show,time,user,isAuthenticated}=item;
         const less400=window.innerWidth <400;
-        this.checkUser=(this._user.user && this._user.user.id && this._user.user.email) ? true :false;
         const header_height=window.innerWidth < 420 ? 195 :150;
         const headerHeight=this.checkUser ? header_height + 67 : header_height;
         Header.cleanUpByID(navHeader,"slide-menu");
@@ -116,8 +119,8 @@ set user(user:userType){
         popup.style.minHeight="800px";
         popup.style.height="auto";
         popup.style.transform="translateX(-100%)";
-        this.header({parent:popup,show,time,headerHeight,checkUser:this.checkUser});
-        this.listItems({parent:popup,headerHeight})
+        this.header({parent:popup,show,time,headerHeight,isAuthenticated});
+        this.listItems({parent:popup,headerHeight,user:user,isAuthenticated})
         navHeader.appendChild(popup);
         if(show){
             popup.style.display="flex";
@@ -138,7 +141,9 @@ set user(user:userType){
             setTimeout(()=>{popup.style.display="none";},time-20);
         }
         
-    }
+    };
+
+
     closeMenuWhenMouseOutside(item:{actionButton:HTMLButtonElement,show:boolean}){
         const {actionButton,show}=item;
         const less900=window.innerWidth < 900;
@@ -160,11 +165,12 @@ set user(user:userType){
                 };
             }
         }
-    }
-    header(item:{parent:HTMLElement,show:boolean,time:number,headerHeight:number,checkUser:boolean}){
-        const {parent,show,time,headerHeight,checkUser}=item;
-        // Header.cleanUpByID(parent,"header-logo");
-        const less900=window.innerWidth < 900;
+    };
+
+
+    header(item:{parent:HTMLElement,show:boolean,time:number,headerHeight:number,isAuthenticated:boolean}){
+        const {parent,show,time,headerHeight,isAuthenticated}=item;
+       
         const less400=window.innerWidth < 400;
         const width=less400 ? "375px":"400px";
         const container=document.createElement("div");
@@ -178,7 +184,7 @@ set user(user:userType){
         img.style.cssText="width:125px;height:125px;aspect-ratio:1 / 1;border-radius:50%;shape-outside:circle(50%);float:left;margin-right:7px;filter:drop-shadow(0 0 0.7rem blue);background-color:black;";
         para.appendChild(img);
         para.style.cssText="font-family:Poppins-Regular;font-size:16px;line-height:2.5rem;";
-        if(checkUser){
+        if(isAuthenticated){
             this.isAuthenticated=true;
             para.innerHTML+="<span style='color:blue;font-size:110%;'>signed in</span>. please check your <span style='color:blue;font-size:110%;'>profile</span>, below to manage your blogs,,,over <span style='color:blue;font-weight:bold'> 30 management features</span> for you to use.";
         }else{
@@ -202,11 +208,13 @@ set user(user:userType){
                 {transform:"translateX(0%)",opacity:"1",boxShadow:"1px 1px 6px 1px white"},
                 {transform:"translateX(-100%)",opacity:"0",boxShadow:""},
             ],{duration:time-50,iterations:1,easing:"ease-in-out"});
-            // setTimeout(()=>{parent.removeChild(container)},time-30);
+            
         }
         
 
-    }
+    };
+
+
     headerImageEffect(item:{img:HTMLImageElement,show:boolean,time:number}){
         const {img,show,time}=item;
         if(show){
@@ -224,7 +232,9 @@ set user(user:userType){
                 {transform:"scale(0.5)",opacity:"0.3"},
             ],{duration:time -200,iterations:1,easing:"ease-in-out"});
         }
-    }
+    };
+
+
     imageAfterEffect(item:{button:HTMLElement,heightWidth:number,time:number,show:boolean}){
         const {button,heightWidth,time,show}=item;
         button.style.position="relative";
@@ -255,17 +265,19 @@ set user(user:userType){
             ],{duration:time -100,iterations:1});
             setTimeout(()=>{button.removeChild(img)},time-120);
         }
-    }
-    listItems(item:{parent:HTMLElement,headerHeight:number}){
-        const {parent,headerHeight}=item;
+    };
+
+
+    listItems(item:{parent:HTMLElement,headerHeight:number,user:userType,isAuthenticated:boolean}){
+        const {parent,headerHeight,user,isAuthenticated}=item;
         this.centerBtnsParent=document.querySelector("div#footer-centerBtns-container") as HTMLElement;
         if( typeof window !=="undefined"){
-            this.checkUser=(this._user.user && this._user.user.id && this._user.user.email) ? true:false;
-            this._isAdmin=(this.checkUser && this._user.user.admin) ? true:false;
+            this.checkUser=(user.id!=="" && user.email!=="") ;
+            this._isAdmin=(isAuthenticated && user.admin);
             MainHeader.header=document.querySelector("header#navHeader") as HTMLElement;
             const getHeaderInjector=document.querySelector("div#headerInjector") as HTMLElement;
             if(!MainHeader.header || !getHeaderInjector) return;
-            // Header.cleanUpByID(MainHeader.header,"list-items-container");
+           
             this.btnArray=[
                 {id:0,name:"home",color:"pink",link:"/",func:()=>Nav.navHistory("/"),icon:FaHome,show:true,isEditor:false,save:async()=>null},
                 {id:1,name:"blogs",color:"#00BFFF",link:"/blogs",func:()=>Nav.navHistory("/blogs"),icon:FaBlog,show:true,isEditor:false,save:async()=>null},
@@ -274,37 +286,39 @@ set user(user:userType){
                 {id:3,name:"editor",color:"#00BFFF",link:"/editor",func:()=>Nav.navHistory("/editor"),icon:FaEdit,show:true,isEditor:true,save:()=>null},
                 {id:4,name:"posts",color:"#00BFFF",link:"/posts",func:()=>Nav.navHistory("/posts"),icon:Icons.FaDropbox,show:true,isEditor:false,save:()=>null},
                 {id:5,name:"chart",color:"#00BFFF",link:"/chart",func:()=>Nav.navHistory("/chart"),icon:Icons.FaChartBar,show:true,isEditor:false,save:()=>null},
-                {id:6,name:"signin",color:"#00FF00",link:null,func:()=> this._regSignin.signIn(),icon:FaSign,show:!this.checkUser,isEditor:false,save:()=>null},
-                {id:7,name:"logout",color:"#00FF00",link:null,func:()=>this.logout({func:()=>undefined,redirect:false}),icon:FaSign,show:this.checkUser,isEditor:false,save:()=>null},
-                {id:8,name:"contact",color:"#00FF00",link:null,func:()=> this.contact(MainHeader.header as HTMLElement),icon:FaMedapps,show:true,isEditor:false,save:()=>null},
-                {id:9,name:"profile on demand",color:"#800000",link:null,func:()=> this._profile.main(getHeaderInjector),icon:FaAccessibleIcon,show:this.checkUser,isEditor:false,save:()=>null},
-                {id:10,name:"profile page",color:"#00FF00",link:"/profile",func:()=> Nav.navHistory("/profile"),icon:FaAccessibleIcon,show:this.checkUser,isEditor:false,save:()=>null},
-                {id:10,name:"general-Info",color:"#00FF00",link:null,func:()=> this.generalInfo(MainHeader.header as HTMLElement),icon:FaInfo,show:true,isEditor:false,save:()=>null},
+                {id:6,name:"signin",color:"#00FF00",link:null,func:()=> this._regSignin.signIn(),icon:FaSign,show:!isAuthenticated,isEditor:false,save:()=>null},
+                {id:7,name:"logout",color:"#00FF00",link:null,func:()=>this.auth.logout({func:()=>undefined,redirect:true}),icon:FaSign,show:isAuthenticated,isEditor:false,save:()=>null},
+                {id:8,name:"contact",color:"#00FF00",link:null,func:()=> this.commonInfo.contact({user,isAuthenticated}),icon:FaMedapps,show:true,isEditor:false,save:()=>null},
+                {id:9,name:"profile on demand",color:"#800000",link:null,func:()=> this._profile.main(getHeaderInjector),icon:FaAccessibleIcon,show:isAuthenticated,isEditor:false,save:()=>null},
+                {id:10,name:"profile page",color:"#00FF00",link:"/profile",func:()=> Nav.navHistory("/profile"),icon:FaAccessibleIcon,show:isAuthenticated,isEditor:false,save:()=>null},
+                {id:10,name:"general-Info",color:"#00FF00",link:null,func:()=> this.commonInfo.generalInfo(MainHeader.header as HTMLElement),icon:FaInfo,show:true,isEditor:false,save:()=>null},
                 {id:11,name:"features",color:"#00FF00",link:null,func:()=> this.feature.feature(document.body as HTMLElement),icon:FaFilePowerpoint,show:true,isEditor:false,save:()=>null},
             ]
         }
         ////----------!!IS CLIENT LOGGED IN ? YES=> SHOW ELSE: HIDE -----//////
-        const user=this._user.user;
-        this.checkUser= (user && user.id) ? true : false;
+        
+        this.checkUser= (user && user.id!=="");
         ////----------!!IS CLIENT LOGGED IN ? YES=> SHOW ELSE: HIDE -----//////
         const container=document.createElement("div");
         container.id="list-items-container";
         container.style.cssText=`margin:auto;margin-top:${headerHeight + 16}px;display:flex;flex-direction:column;justify-content:center;align-items:center; gap:1rem;width:100%;padding-inline:2rem;`;
         parent.appendChild(container);
         this.btnArray.map(navItem=>{
-            if(navItem && navItem.show){
-                this.navItem({parent:container,navItem:navItem});
+            if(navItem.show){
+                this.navItem({parent:container,navItem:navItem,user:user,isAuthenticated});
                 const hr=document.createElement("hr");
                 hr.style.cssText="width:100%;margin-bottom:0.5rem;background:white;";
                 container.appendChild(hr);
             }
         });
-    }
-    navItem(item:{parent:HTMLElement,navItem:navLinkBtnType}){
-        const {parent,navItem}=item;
+    };
+
+
+    navItem(item:{parent:HTMLElement,navItem:navLinkBtnType,user:userType,isAuthenticated:boolean}){
+        const {parent,navItem,user,isAuthenticated}=item;
         const url=new URL(window.location.href);
         const pathname=url.pathname;
-        const name_css="color:white;";
+        
         const iDiv=document.createElement("div");
         iDiv.className="list-icon";
         iDiv.style.cssText="border-radius:50%;display:flex;justify-content:center;align-items:center;width:26px;height:26px;aspect-ratio:1 / 1;";
@@ -317,7 +331,7 @@ set user(user:userType){
         const itemCont=document.createElement("div");
         itemCont.id=`item-container-${navItem.name}`;
         itemCont.style.cssText="display:flex;justify-content:space-around;align-items:center;width:100%;flex-wrap:nowrap;cursor:pointer;";
-        // itemCont.className="nav-item-element";
+    
         itemCont.appendChild(iDiv);
         itemCont.appendChild(li);
         parent.appendChild(itemCont);
@@ -352,24 +366,24 @@ set user(user:userType){
                     const getArrowButton=document.querySelector("button#rotateArrow-btn") as HTMLButtonElement;
                     if(!getArrowButton) return;
                     getArrowButton.click();
-                    if(navItem.name==="logout"){
+                    if(navItem.name==="logout" && isAuthenticated){
                         if(pathname==="/editor"){
                             
-                                await this.navigateSaveBlog({parent:MainHeader.header as HTMLElement,link:"/"})
+                                await this.navigateSaveBlog({parent:MainHeader.header as HTMLElement,link:"/",user:user})
                             
                         }else if(url.pathname==="/posts"){
             
-                            await this.logout({
+                            await this.auth.logout({
                                 func:()=>{
 
-                                this.centerBtnsRow({container:this.centerBtnsParent,isAuthenticated:false});
+                                this.centerBtnsRow({container:this.centerBtnsParent,isAuthenticated:false,user});
                                 },
                                 redirect:true
                             })
 
                         }else{
                             this.centerBtnsParent=document.querySelector("div#footer-centerBtns-container");
-                           await this.logout({func:()=>this.centerBtnsRow({container:this.centerBtnsParent,isAuthenticated:false}),redirect:false})
+                           await this.auth.logout({func:()=>this.centerBtnsRow({container:this.centerBtnsParent,isAuthenticated:false,user}),redirect:true})
                         }
 
                     }else{
@@ -381,21 +395,22 @@ set user(user:userType){
         };
         Misc.growIn({anchor:li,scale:0,opacity:0,time:900});
 
-    }
-    async navigateSaveBlog(item:{parent:HTMLElement,link:string}){
-        const {parent}=item;
-        const user=this._user.user;
+    };
+
+
+    async navigateSaveBlog(item:{parent:HTMLElement,link:string,user:userType}){
+        const {parent,user}=item;
+       
         this.promGetBlog().then(async(res)=>{
             if(res){
-               const blog= res.blog()
+               let blog= res.blog()
                if(blog){
                    const shift=window.innerWidth <500 ? "15%":"25%";
                    parent.style.position="relative";
                    parent.style.zIndex="";
                    if(parent  && typeof window !=="undefined"){
-                       // console.log("action",action);
                       
-                        let blog_={...blog,user_id:user.id};
+                        blog={...blog,user_id:user.id};
                         const btnGrp=document.createElement("div");
                         btnGrp.id="navigateSaveBtnGrp";
                         btnGrp.style.cssText="position:absolute;width:300px;min-height:100px;background-color:#0a2351;border-radius:10px;box-shadow:1px 1px 10px 1px black;display:flex;flex-direction:row;justify-content:space-around;align-items:center;z-index:100;"
@@ -407,32 +422,32 @@ set user(user:userType){
                         Misc.fadeIn({anchor:btnGrp,xpos:100,ypos:50,time:400});
                         save.addEventListener("click",async(e:MouseEvent)=>{
                             if(e){
-                                if( user && user.id){
-                                    if(blog_.name){
+                                if( user.id!=="" && blog){
+                                    if(blog.name){
         
                                         //SAVE WORK HERE
-                                        this._service.saveBlog({blog:blog_,user}).then(async(blog)=>{
+                                        this._service.saveBlog({blog:blog,user}).then(async(blog)=>{
                                             if(blog){
-                                                this._modSelector._blog=blog;
+                                                this._modSelector.blog=blog;
                                                 Misc.message({parent,msg:"saved",type_:"success",time:400});
                                                 setTimeout(()=>{
                                                     const navigateSaveBtnGrp=parent.querySelector("div#navigateSaveBtnGrp") as HTMLElement;
                                                     Misc.fadeOut({anchor:navigateSaveBtnGrp,xpos:50,ypos:100,time:400});
                                                     setTimeout(async()=>{
                                                         this.centerBtnsParent=document.querySelector("div#footer-centerBtns-container");
-                                                       await this.logout({func:()=>this.centerBtnsRow({container:this.centerBtnsParent,isAuthenticated:false}),redirect:false})
+                                                       await this.auth.logout({func:()=>this.centerBtnsRow({container:this.centerBtnsParent,isAuthenticated:false,user}),redirect:true})
                                                        parent.removeChild(navigateSaveBtnGrp);
                                                     },380);
                                                 },380);
                                             }
                                         });
                                     }else{
-                                        blog_={...blog_,name:"newBlog",desc:"enter description",title:"Your Title"};
-                                        this._service.newBlog(blog_).then(async(newBlog)=>{
+                                        blog={...blog,name:"newBlog",desc:"enter description",title:"Your Title"};
+                                        this._service.newBlog(blog).then(async(newBlog)=>{
                                             if(newBlog && typeof(newBlog)!=="string"){
-                                                blog_={...blog_,id:newBlog.id};
+                                                blog={...newBlog,id:newBlog.id};
                                                 //SAVE WORK HERE
-                                                this._service.saveBlog({blog:blog_,user}).then(async(blog)=>{
+                                                this._service.saveBlog({blog:blog,user}).then(async(blog)=>{
                                                     if(blog){
         
                                                         Misc.message({parent,msg:"saved",type_:"success",time:400});
@@ -441,7 +456,7 @@ set user(user:userType){
                                                             Misc.fadeOut({anchor:navigateSaveBtnGrp,xpos:50,ypos:100,time:400});
                                                             setTimeout(async()=>{
                                                                 this.centerBtnsParent=document.querySelector("div#footer-centerBtns-container");
-                                                               await this.logout({func:()=>this.centerBtnsRow({container:this.centerBtnsParent,isAuthenticated:false}),redirect:false});
+                                                               await this.auth.logout({func:()=>this.centerBtnsRow({container:this.centerBtnsParent,isAuthenticated:false,user}),redirect:true});
                                                                 parent.removeChild(navigateSaveBtnGrp);
                                                             },380);
                                                         },380);
@@ -456,13 +471,14 @@ set user(user:userType){
                                 
                             }
                         });
+                        
                         cancel.addEventListener("click",(e:MouseEvent)=>{
                             if(e){
                                 Misc.fadeOut({anchor:btnGrp,xpos:50,ypos:100,time:400});
                                 setTimeout(async()=>{
                                     parent.removeChild(btnGrp);
                                     this.centerBtnsParent=document.querySelector("div#footer-centerBtns-container");
-                                   await this.logout({func:()=>this.centerBtnsRow({container:this.centerBtnsParent,isAuthenticated:false}),redirect:false})
+                                   await this.auth.logout({func:()=>this.centerBtnsRow({container:this.centerBtnsParent,isAuthenticated:false,user}),redirect:true})
                                 },380);
                             }
                         });
@@ -470,392 +486,21 @@ set user(user:userType){
            
                    }
                }else{
-                Misc.message({parent,msg:"could not find your blog to save",type_:"error",time:800});
+                this.centerBtnsParent=document.querySelector("div#footer-centerBtns-container");
+                await this.auth.logout({func:()=>this.centerBtnsRow({container:this.centerBtnsParent,isAuthenticated:false,user}),redirect:true});
                }
             }else{
                 this.centerBtnsParent=document.querySelector("div#footer-centerBtns-container");
-                await this.logout({func:()=>this.centerBtnsRow({container:this.centerBtnsParent,isAuthenticated:false}),redirect:false});
+                await this.auth.logout({func:()=>this.centerBtnsRow({container:this.centerBtnsParent,isAuthenticated:false,user}),redirect:true});
             }
         });
-    }
-    contact(parent:HTMLElement){
-        const headerInject=document.getElementById("headerInjector") as HTMLElement;
-        Nav.navHeader=headerInject.querySelector("header#navHeader") as HTMLElement;
-        const useParent=headerInject.querySelector("header#navHeader") as HTMLElement;
-        useParent.style.zIndex="";
-        const less900=window.innerWidth <900;
-        const less400=window.innerWidth <400;
-        const cont=document.createElement("div");
-        useParent.style.position="relative";
-        cont.id="navArrow-contact";
-        cont.style.cssText=`position:absolute;width:fit-content;padding:1rem;background:rgb(3 13 49);color:white;height:fit-content;margin-inline:auto;display:flex;flex-direction:column;align-items:center;justify-content:center;border-radius:16px;width:100%;box-shadow:1px 1px 6px 1px aquamarine;padding:1rem;z-index:1000;`;
-        cont.style.width=less900 ? (less400 ? "100%" :"75%") :"40%";
-        cont.style.inset=less900 ? (less400 ? "270% 0% 10% 0%" :"270% 0% 10% 0%") :"270% 0% 10% 0%";
-        const form=document.createElement("form");
-        form.style.cssText="display:flex;flex-direction:column;align-items:center;justify-content:center;gap:1.5rem;padding:1.5rem;border-radius:inherit;background:white;color:black;margin:1rem;color:white;box-shadow:1px 1px 12px 1px skyblue;";
-        const divGrp=document.createElement("div");
-        divGrp.id="navArrow-contact-welcome-message";
-        divGrp.style.cssText="margin-inline:auto;position:relative;display:flex;flex-direction:column;margin-bottom:2rem;padding-inline:2rem;";
-        if(less900){
-            if(less400){
-                window.scroll(0,0);
-            }else{
-                window.scroll(0,0);
-            }
-        }else{
-            window.scroll(0,0);
-        }
-        const img=document.createElement("img");
-        const imgWidth=170;
-        img.id="navArrow-image"
-        img.src=Misc.sourceImage({src:"gb_logo.png",width:imgWidth,quality:75});
-        img.alt="www.ablogroom.com";
-        img.style.cssText="border-radius:50%;filter:drop-shadow(0 0 0.5rem white);shape-outside:circle(50%);float:right;margin-right:1.5rem;margin-bottom:0px;box-shadow:1px 1px 12px 1px;";
-        img.style.width=`${imgWidth}px`;
-        const text=document.createElement("p");
-        text.id="navArrow-contact-text-title"
-        text.className="text-primary";
-        text.style.cssText="font-family:'Playwrite';font-size:130%;line-height:2.75rem;";
-        text.appendChild(img);
-        text.innerHTML+="send us a thought. We keep your information private secret. Alternatively, you can uncheck the box, below; title:<span style='color:white'>'secret'</span>";
-        divGrp.appendChild(text);
-        const formGrp=document.createElement("div");
-        const formGrp1=document.createElement("div");
-        const formGrp2=document.createElement("div");
-        const formGrp3=document.createElement("div");
-        formGrp.className="form-group";
-        formGrp.style.cssText="margin-inline:auto;text-align:center;position:relative;";
-        formGrp1.className="form-group";
-        formGrp1.style.cssText="margin-inline:auto;text-align:center;position:relative;";
-        formGrp2.className="form-group";
-        formGrp2.style.cssText="margin-inline:auto;text-align:center;position:relative;";
-        formGrp3.className="form-group";
-        formGrp3.style.cssText="margin-inline:auto;text-align:center;position:relative;";
-        const labelName=document.createElement("label");
-        labelName.className="text-primary text-center";
-        labelName.textContent="name";
-        formGrp2.appendChild(labelName);
-        const name=document.createElement("input");
-        name.name="name";
-        name.className="form-control";
-        name.type="text";
-        formGrp2.appendChild(name);
-        const label=document.createElement("label");
-        label.className="text-primary text-center";
-        label.textContent="email";
-        formGrp.appendChild(label);
-        const email=document.createElement("input");
-        email.name="email";
-        email.className="form-control";
-        email.pattern="[a-zA-Z0-9\.]{2,}@[a-zA-Z0-9]{2,}\.[a-z]{2,3}";
-        email.type="text";
-        formGrp.appendChild(email);
-        formGrp.className="form-group";
-        const labelMsg=document.createElement("label");
-        labelMsg.className="text-primary text-center";
-        labelMsg.textContent="Request";
-        formGrp1.appendChild(labelMsg);
-        const msg=document.createElement("textarea");
-        msg.name="msg";
-        msg.className="form-control";
-        msg.style.cssText="min-width:300px;";
-        msg.rows=4;
-        ///
-        const labelRate=document.createElement("label");
-        labelRate.className="text-primary text-center";
-        labelRate.textContent="rate us";
-        formGrp3.appendChild(labelRate);
-        const rate=document.createElement("input");
-        rate.name="rate";
-        rate.className="form-control";
-        rate.type="number";
-        rate.min="1";
-        rate.max="5";
-        formGrp3.appendChild(rate);
-        const btn=document.createElement("button");
-        btn.className="btn btn-sm btn-primary";
-        btn.style.cssText="padding-inline:2rem; padding-block:0.5rem;border-radius:20px;margin-block:2rem;";
-        btn.type="submit";
-        btn.disabled=true;
-        btn.textContent="send";
-        const rateSecret=document.createElement("div");
-        rateSecret.style.cssText="margin:auto;display:flex;justify-content:center;align-items:center;gap:1.5rem;";
-        rateSecret.appendChild(formGrp3);
-        rateSecret.appendChild(formGrp3);
+    };
 
-        ///
-        const {input:secret,label:seclabel,formGrp:fGrp}=Nav.inputComponent(rateSecret);
-        secret.type="checkbox";
-        secret.id="secret-checkbox";
-        secret.name="secret";
-        seclabel.setAttribute("for",secret.id);
-        fGrp.className="";
-        secret.className="";
-        seclabel.textContent="secret";
-        secret.checked=false;
-        secret.style.width="30px";
-        formGrp1.appendChild(msg);
-        form.appendChild(formGrp2);
-        form.appendChild(formGrp);
-        form.appendChild(formGrp1);
-        form.appendChild(rateSecret);
-        ///
-        form.appendChild(btn);
-        cont.appendChild(divGrp);
-        cont.appendChild(form);
-        Nav.cancel(useParent,cont);
-        useParent.appendChild(cont);
-        if(btn.disabled){
-            btn.style.color="white";
-            btn.style.backdropFilter="";
-            btn.animate([
-                {backdropFilter:"blur(20px)"},
-                {backdropFilter:"blur(0px)"},
-            ],{duration:1200,iterations:1});
-        }else{
-            btn.style.color="transparent";
-            btn.style.backdropFilter="blur(10px)";
-        }
-        
-       cont.animate([
-        {transform:"translateY(-100%)",opacity:0},
-        {transform:"translateY(0%)",opacity:1},
-       ],{duration:300,iterations:1});
-       const msg_e=document.createElement("p");
-       msg_e.style.cssText="position:absolute;font-weight:bold;font-size:12px;";
-       msg_e.className="text-primary"
-       msg_e.style.inset="100% 0% -40% 0%";
-       formGrp.appendChild(msg_e);
-       name.addEventListener("change",(e:Event)=>{
-        if(e){
-            const nm=(e.currentTarget as HTMLInputElement).value;
-            const msg_=(msg as HTMLTextAreaElement).value;
-            const email_=(email as HTMLInputElement).value;
-            const checks=[nm,msg_,email_].map(ch=>((ch.split("").length>0)));
-            if(checks.includes(true)){
-                btn.disabled=false;
-            }
-        }
-       });
-       msg.addEventListener("change",(e:Event)=>{
-        if(e){
-            const nm=(e.currentTarget as HTMLTextAreaElement).value;
-            const msg_=(name as HTMLInputElement).value;
-            const email_=(email as HTMLInputElement).value;
-            const checks=[nm,msg_,email_].map(ch=>((ch.split("").length>0)));
-            if(checks.includes(true)){
-                btn.disabled=false;
-            }
-        }
-       });
-       email.addEventListener("input",(e:Event)=>{
-        if(e){
-            const reg:RegExp=/[a-zA-Z0-9\.]{2,}@[a-zA-Z0-9]{2,}\.[a-z]{2,3}/g;
-            const mail=(e.currentTarget as HTMLInputElement).value;
-            
-            if(reg.test(mail)){
-                msg_e.textContent="Thanks"
-            }else{
-                msg_e.textContent=" in a form of myEmail@mail.com";
-            }
-        }
-       });
-       form.addEventListener("submit",async(e:SubmitEvent) =>{
-        if(e){
-            e.preventDefault();
-            const value=(email as HTMLInputElement).value;
-            const testEmail=Nav.regTest({item:"email",value});
-            if(testEmail.item==="pass"){
-                btn.disabled=false;
-                const formdata=new FormData(e.currentTarget as HTMLFormElement);
-                const email:string | null=formdata.get("email") as string;
-                const name:string | null=formdata.get("name") as string;
-                const msg:string | null=formdata.get("msg") as string;
-                const rate:string | null=formdata.get("rate") as string;
-                const secret:string | null=formdata.get("secret") as string;
-                if(email && name && msg){
-                    const user_id=this._user.user.id ? this._user.user.id : undefined;
-                    const Msg:messageType={name,email,msg,user_id,rate:parseInt(rate),secret:Boolean(secret),sent:false};
-                    await this._service.sendMsgToServer(useParent,Msg).then(async(res)=>{
-                        if(res){
-                            Misc.fadeOut({anchor:cont,xpos:75,ypos:100,time:400});
-                            setTimeout(()=>{useParent.removeChild(cont);},380);
-                            Nav.thankMsg(useParent,"signIn",Nav.thanksMsg);
-                        }
-                    });
-                  
-                }else{
-                    Misc.messageHeader({parent:useParent,msg:"email, name and message should be filled",type_:"error",time:700});
-                }
-            }
-        }
-       });
-    }
-    async logout(item:{func:()=>Promise<void>|void|undefined,redirect:boolean}): Promise<void>{
-        const {func,redirect}=item;
-        this.asyncLogout({func,redirect}).then(async(res)=>{
-            if(res){
-                    setTimeout(()=>{
-                    res.mainHeader=document.querySelector("header#navHeader") as HTMLElement;
-                    Misc.msgSourceImage({parent:res.mainHeader,msg:"Thanks for comming",src:this.logo,width:125,quality:75,time:2200,cssStyle:{boxShadow:"1px 1px 12px 1px white",backgroundColor:"black",color:"white",inset:"680% 0% 70% 0%"}});
-                    },1000);
-                    this.isAuthenticated=false;
-                    MainHeader.header=document.querySelector("header#navHeader") as HTMLElement;
-                    this.signInDisplay(MainHeader.header,null).then(async(res_)=>{
-                        //ONLY GENERATES IF USER EXIST ( user !==null)
-                        if(res_){
-                            this.isAuthenticated=true;
-                            this.centerBtnsRow({container:res.centerBtnCont,isAuthenticated:this.isAuthenticated});
 
-                        }
-                        });
-                        func();//executing the function
-                }
-            });
-    }
-    async asyncLogout(item:{func:()=>Promise<void>|void|undefined,redirect:boolean}):Promise<{mainHeader:HTMLElement | null,centerBtnCont:HTMLElement}>{
-        const {func,redirect}=item;
-        this.user={} as userType;
-        MainHeader.header=document.querySelector("header#navHeader") as HTMLElement;
-        const centerBtnCont=document.querySelector("div#footer-centerBtns-container") as HTMLElement;
-        localStorage.removeItem("user");
-        localStorage.removeItem("user_id");
-        localStorage.removeItem("email");
-        setTimeout(()=>{
-            localStorage.removeItem("user");
-            localStorage.removeItem("user_id");
-            localStorage.removeItem("email");
-        },1000);
-        this._service.isSignedOut=true;
-        this._user.user=this._user.init
-        this._user.user=this._user._user;
-        this.checkUser=false;
-        MainHeader.removeAllClass({parent:MainHeader.header,class_:"ablogroom"});
-        window.scroll(0,0);
-        func();//calling function void
-        this._service.signout({redirect})
-        return new Promise(resolver=>{
-            resolver({mainHeader:MainHeader.header,centerBtnCont})
-        }) as Promise<{mainHeader:HTMLElement|null,centerBtnCont:HTMLElement}>;
-
-    }
-    async signInDisplay(parent:HTMLElement,user:userType|null): Promise<{
-        user: userType | null;
-        parent: HTMLElement;
-        container:HTMLElement;
-        centerBtnCont:HTMLElement;
-    }>{
-        const centerBtnCont=document.querySelector("div#footer-centerBtns-container") as HTMLElement;
-        const url=new URL(window.location.href);
-        Nav.cleanUpByQuery(parent,"div#headerNav-signInDisplay-container");
-        const container=document.createElement("div");
-        const less900=window.innerWidth <900;
-        const less400=window.innerWidth <400;
-        container.id="headerNav-signInDisplay-container";
-        container.className="user-signature";
-        if(user && user.id){
-            container.style.cssText="display:flex;justify-content:space-around;align-items:center;margin-inline:1rem;box-shadow:1px 1px 12px 1px white;padding-inline:0.5rem;border-radius:10px;color:white;background-color:#0a2351;overflow:hidden;position:relative;right:20px;justify-self:end;margin-right:10px;order:3;cursor:pointer;";
-            container.style.marginRight=less900 ? (less400 ? "1px":"4px") :"10px";
-            container.style.right=less900 ? (less400 ? "-28px":"-10px") :"20px";
-            container.style.transform=less900 ? (less400 ? "scale(0.5)":"scale(0.6)") :"scale(0.7)";
-            container.style.maxWidth="300px;";
-            const img=document.createElement("img");
-            img.id="para-img";
-            img.style.cssText="width:55px;border-radius:50%;filter:drop-shadow(0 0 0.25 white);";
-            if(user.imgKey){
-                const res3key:gets3ImgKey | null= await this._service.getSimpleImg(user.imgKey)
-                if(res3key && res3key.img){
-                    img.src=res3key.img;
-                    img.alt=res3key.Key;
-                }
-            }else{
-                img.src=user.image ? user.image : Nav.logo;
-                img.alt="www.ablogroom.com";
-            }
-            const para=document.createElement("p");
-            para.id="container-para";
-            const name=user.name ? user.name : "blogger"
-            para.innerHTML=Nav.splitWord({parent:para,str:name,splitCount:4});
-            container.appendChild(img);
-            container.appendChild(para);
-            container.onclick=(e:MouseEvent)=>{
-                if(e){
-                    this.showDropDownLogout({container});
-                }
-            };
-            parent.appendChild(container);
-            Misc.matchMedia({parent:img,maxWidth:420,cssStyle:{width:"35px"}});
-            Misc.matchMedia({parent:para,maxWidth:420,cssStyle:{fontSize:"12px"}});
-            Misc.growIn({anchor:container,scale:0.2,opacity:0,time:500});
-        }else if(!user && url.pathname !=="/register"){
-            container.style.cssText="display:flex;justify-content:space-around;align-items:center;margin-inline:1rem;box-shadow:1px 1px 12px 1px #05f7d1;padding-inline:0.75rem;border-radius:50%;color:white;background-color:black;position:relative;right:20px;justify-self:end;margin-right:10px;order:3;padding-block:0rem;cursor:pointer;cursor:pointer;";
-            container.style.marginRight=less900 ? (less400 ? "1px":"4px") :"10px";
-            container.style.right=less900 ? (less400 ? "-28px":"-10px") :"20px";
-            container.style.transform=less900 ? (less400 ? "scale(0.6)":"scale(0.7)") :"scale(0.85)";
-            const xDiv=document.createElement("span");
-            xDiv.id="xDivCont-xDiv-login-icon";
-            xDiv.style.cssText="padding:0.3rem;margin:auto;border-radius:50%;padding:2px;font-size:28px;";
-            FaCreate({parent:xDiv,name:FaSign,cssStyle:{borderRadius:"50%",fontSize:"inherit",color:"white",zIndex:"2"}});
-            const xDivCont=document.createElement("div");
-            xDivCont.style.cssText="place-self:center;display:flex;place-items:center;gap:0.36rem;";
-            const spanText=document.createElement("span");
-            spanText.id="xDivCont-spanText";
-            spanText.style.cssText="place-self:center;"
-            spanText.textContent="login";
-            xDivCont.appendChild(spanText);
-            xDivCont.appendChild(xDiv);
-            container.appendChild(xDivCont);
-            parent.appendChild(container);
-            // this.hoverEffect({target:container,time:1300});
-            container.onclick=(e:MouseEvent)=>{
-                if(e){
-                    this._regSignin.signIn()
-                }
-            };
-        }
-        return new Promise((resolve)=>{
-            if(user && user.id){
-                resolve({user:user,parent:parent,container,centerBtnCont});
-            }else{
-                resolve({user:null,parent:parent,container,centerBtnCont});
-            }
-        })as Promise<{user:userType|null,parent:HTMLElement,container:HTMLElement,centerBtnCont:HTMLElement}> ;
-    }
-    showDropDownLogout(item:{container:HTMLElement}){
-        const {container}=item;
-        const less900=window.innerWidth < 900;
-        const less400=window.innerWidth < 400;
-        container.style.zIndex="2";
-        const popup=document.createElement("div");
-        popup.id="signInDisplay-showDropDownLogout-popup";
-        popup.style.cssText="position:absolute;inset:0%;background-color:black;z-index:100;border-radius:0px 0px 12px 12px;box-shadow:1px 1px 12px 1px white;display:flex;justify-content:center;align-items:center;color:white;";
-        const logoutCont=document.createElement("div");
-        logoutCont.style.cssText="display:flex;justify-content:center;align-items:center;gap:1rem;";
-        const xDiv=document.createElement("div");
-        xDiv.style.cssText="padding:2px;margin:auto";
-        FaCreate({parent:xDiv,name:Icons.FaSignOutAlt,cssStyle:{fontSize:"22px",color:"blue",backgroundColor:"white"}});
-        const logoutText=document.createElement("small");
-        logoutText.id="popup-logoutText";
-        logoutText.textContent="logout";
-        logoutText.style.cssText="color:white;font-family:'Poppins-Regular';margin:auto;text-transform:uppercase;";
-        logoutText.style.fontSize=less900 ? (less400 ? "18px":"20px"):"22px";
-        logoutCont.appendChild(logoutText);
-        logoutCont.appendChild(xDiv);
-        popup.appendChild(logoutCont);
-        container.appendChild(popup);
-        setTimeout(()=>{
-            Misc.growOut({anchor:popup,scale:0,opacity:0,time:1000});
-            setTimeout(()=>{container.removeChild(popup);},990);
-        },5000);
-        container.onclick=(e:MouseEvent)=>{
-            if(e){
-                this.logout({func:()=>undefined,redirect:true});
-            }
-        };
-    }
-    centerBtnsRow(item:{container:HTMLElement|null,isAuthenticated:boolean}){
+    
+    centerBtnsRow(item:{container:HTMLElement|null,isAuthenticated:boolean,user:userType}){
         //!!! NOTE:THIS GETS TOGGLED TO LOGOUT FROM auth.getUser()
-        const {container}=item;
+        const {container,isAuthenticated,user}=item;
         if(!container) return;
         Header.cleanUpByID(container,"footer-centerBtns-row")
         const row=document.createElement("div");
@@ -866,12 +511,11 @@ set user(user:userType){
             if(item==="contact"){
                 const cssStyle={backgroundColor:"#34282C",color:"white",borderRadius:"50%",padding:"3px"}
                 const btn=Misc.btnIcon({anchor:row,icon:Icons.FaInfoCircle,msgHover:"contact info",label:null,cssStyle,time:400});
-                const getHeader=document.querySelector("header#navHeader") as HTMLElement;
-                // if(!getHeader) return
+           
                 btn.addEventListener("click",(e:MouseEvent)=>{
                     if(e){
                            window.scroll(0,0);
-                           this.contact(getHeader)
+                           this.commonInfo.contact({user,isAuthenticated})
                         }
                 });
 
@@ -884,7 +528,7 @@ set user(user:userType){
                             btn.addEventListener("click",(e:MouseEvent)=>{
                                 if(e){
                                        window.scroll(0,0);
-                                       this.logout({func:()=>undefined,redirect:false})
+                                       this.auth.logout({func:()=>undefined,redirect:true})
                                     }
                             });
                 }else{
@@ -912,180 +556,11 @@ set user(user:userType){
             }
         });
         container.appendChild(row);
-    }
-    generalInfo(parent:HTMLElement){
-        const container=document.createElement("div");
-        container.style.cssText="margin-inline:auto;position:absolute;max-width:600px;width:100%;top:160%;left:35%;";
-        Misc.matchMedia({parent:container,maxWidth:600,cssStyle:{"top":"160%","left":"0%","right":"0%"}});
-        this._service.peronalInfo2().then(async(info:infoType2|undefined)=>{
-                if(info){
-                    const maxWidth=400;
-                    parent.style.position="relative";
-                    parent.style.zIndex="";
-                    const container=document.createElement("div");
-                    container.id="navArrow-bio-container";
-                    container.style.cssText=`width:100%; max-width:${maxWidth}px;box-shadow:1px 1px 10px black;border-radius:16px;position:absolute;box-shadow:1px 1px 10px 1px black;border-radius:16px;z-index:1000;display:grid;place-items:center;`;
-                    Misc.matchMedia({parent:container,maxWidth:900,cssStyle:{top:"160%",left:"23%",right:"23%"}});
-                    Misc.matchMedia({parent:container,maxWidth:400,cssStyle:{top:"160%",left:"1%",right:"1%"}});
-                    container.style.top=window.innerWidth <900 ? (window.innerWidth <400 ? "160%" :"160%") :"160%";
-                    container.style.left=window.innerWidth <900 ? (window.innerWidth <400 ? "0%" :"16%") :"34%";
-                    container.style.right=window.innerWidth <900 ? (window.innerWidth <400 ? "0%" :"16%") :"34%";
-                    Misc.matchMedia({parent:container,maxWidth:600,cssStyle:{"top":"160%","left":"0%","right":"0%"}});
-                    const card=document.createElement("div");
-                    card.className="card";
-                    card.style.cssText=`width:100%;border-radius:inherit;background-color:#0C090A;max-width:${maxWidth}px;margin-inline:auto;border-radius:inherit;position:relative;display:flex;justify-content:center;align-items:center;flex-direction:column;box-shadow:1px 1px 10px 1px black;`;
-                    const img=document.createElement("img");
-                    img.style.cssText=`border-radius:50%;box-shadow:1px 1px 10px 1px white;padding:0.5rem;margin-block:0.5rem;margin-inline:auto;width:100%;max-width:${maxWidth}px;`
-                    img.classList.add("card-img-top");
-                    img.src="/images/gb_logo.png";
-                    img.alt="Gary Wallace";
-                    card.appendChild(img);
-                    const cardBody=document.createElement("div");
-                    cardBody.style.cssText=`margin-inline:auto;padding-inline:1rem;display:flex;justify-content:center;flex-direction:column;align-items:center;background-color:white;border-radius:0% 0% 16px 16px;`;
-                    const H5=document.createElement("h6");
-                    H5.className=" text-primary";
-                    H5.style.cssText="font-size:1.5rem;"
-                    H5.textContent="Info";
-                    H5.classList.add("card-title");
-                    cardBody.appendChild(H5);
-                    const UL=document.createElement("ul");
-                    UL.style.cssText="width:100%;margin:auto;text-wrap:nowrap;";
-                    cardBody.appendChild(UL);
-                    const css_li="margin-inline:1rem;padding-inline:0.5rem;width:100%;text-wrap:pretty;";
-                    for(const [key,value] of Object.entries(info)){
-                        if(!key && !value && typeof key !=="string" && typeof value !=="string") return;
-                        if(key!=="id"){
-                            if(key !=="siteArray"){
-                                if(key==="name"){
-                                    const name=document.createElement("h6");
-                                    name.className="text-primary display-6";
-                                    name.textContent=value as string;
-                                    cardBody.appendChild(name);
-                                }else {
-                                    const li=document.createElement("li");
-                                    const span=document.createElement("span");
-                                    span.className="text-primary mr-1";
-                                    span.textContent=`${key}: `;
-                                    li.style.cssText=css_li;
-                                    const add= value as string;
-                                    li.appendChild(span);
-                                    li.innerHTML+=add;
-                                    UL.appendChild(li);
-                                }
-                                cardBody.appendChild(UL);
-                            }else if(key==="siteArray"){
-                                const siteArray=value as {name:string,url:string}[];
-                                this.siteArray(cardBody,siteArray);
-                            }
-                        }
-                    }
-                    //address
-                    const btnGrp=document.createElement("div");
-                    btnGrp.style.cssText="padding-inline:1rem;margin-inline:auto;display:flex;flex-direction:row;justify-content:center;aligns-item:center;margin-block:1rem;";
-                    const {button:close}=Misc.simpleButton({anchor:btnGrp,text:"close",bg:"black",color:"white",type:"button",time:400});
-                    cardBody.appendChild(btnGrp);
-                    card.appendChild(cardBody);
-                    container.appendChild(card);
-                    parent.appendChild(container);
-                    Misc.fadeIn({anchor:container,xpos:20,ypos:100,time:400});
-                    close.addEventListener("click",(e:MouseEvent)=>{
-                        if(e){
-                            Misc.fadeOut({anchor:container,xpos:20,ypos:100,time:600});
-                            setTimeout(()=>{
-                                parent.removeChild(container);
-                            },580);
-                        }
-                    });
-                }
-        });
-    }
+    };
 
-    siteArray(parent:HTMLElement,array:{name:string,url:string}[]){
-        const container=document.createElement("div");
-        container.id="sites";
-        const row=document.createElement("div");
-        row.style.cssText="display:flex;justify-content:center;align-items:center;flex-direction:row;flex-wrap:wrap;"
-        array.map((item,index)=>{
-            if(item){
-                if(item.name==="fb"){
-                    
-                    const iconDiv=document.createElement("div");
-                    iconDiv.id="fa";
-                    iconDiv.style.cssText="border-radius:50%;width:37px;height:37px;position:relative;"
-                    FaCreate({parent:iconDiv,name:FaFacebookF,cssStyle:{color:"blue"}});
-                    row.appendChild(iconDiv);
-                    iconDiv.addEventListener("click",(e:MouseEvent)=>{
-                        if(e){
-                            window.open(item.url,"_blank");
-                        }
-                    });
-                }else if(item.name==="linkedin"){
-                    
-                    const iconDiv1=document.createElement("div");
-                    iconDiv1.id="linkedln";
-                    iconDiv1.style.cssText="border-radius:50%;width:37px;height:37px;position:relative;"
-                    FaCreate({parent:iconDiv1,name:FaLinkedin,cssStyle:{color:"blue"}});
-                    row.appendChild(iconDiv1);
-                    iconDiv1.addEventListener("click",(e:MouseEvent)=>{
-                        if(e){
-                            window.open(item.url,"_blank");
-                        }
-                    });
-                }else if(item.name==="github"){
-                    
-                    const iconDiv2=document.createElement("div");
-                    iconDiv2.id="github";
-                    iconDiv2.style.cssText="border-radius:50%;width:37px;height:37px;position:relative;"
-                    FaCreate({parent:iconDiv2,name:FaGithub,cssStyle:{color:"blue"}});
-                    row.appendChild(iconDiv2);
-                    iconDiv2.addEventListener("click",(e:MouseEvent)=>{
-                        if(e){
-                            window.open(item.url,"_blank");
-                        }
-                    });
-                }else if(item.name==="instagram"){
-                    
-                    const iconDiv3=document.createElement("div");
-                    iconDiv3.id="instagram";
-                    iconDiv3.style.cssText="border-radius:50%;width:37px;height:37px;position:relative;"
-                    FaCreate({parent:iconDiv3,name:FaInstagramSquare,cssStyle:{color:"blue"}});
-                    row.appendChild(iconDiv3);
-                    iconDiv3.addEventListener("click",(e:MouseEvent)=>{
-                        if(e){
-                            window.open(item.url,"_blank");
-                        }
-                    });
-                }else if(item.name !=="email"){
-                    
-                    const iconDiv4=document.createElement("div");
-                    iconDiv4.id=`website-${index}`;
-                    iconDiv4.style.cssText="border-radius:50%;width:37px;height:37px;position:relative;"
-                    FaCreate({parent:iconDiv4,name:FaSitemap,cssStyle:{color:"blue"}});
-                    row.appendChild(iconDiv4);
-                    iconDiv4.addEventListener("click",(e:MouseEvent)=>{
-                        if(e){
-                            window.open(item.url,"_blank");
-                        }
-                    });
-                }else{
-                    const anchor=document.createElement("a");
-                    anchor.style.cssText="cursor:pointer;color:white;background-color:rgba(0,0,0,0.1);border-radius:6px;display:flex;justify-content:center;align-items:center;margin-block:1rem;"
-                    const iconDiv4=document.createElement("div");
-                    iconDiv4.id=`email-${index}`;
-                    iconDiv4.style.cssText="border-radius:50%;width:37px;height:37px;position:relative;"
-                    FaCreate({parent:iconDiv4,name:FaMailBulk,cssStyle:{color:"red",fontSize:"35px"}});
-                    anchor.appendChild(iconDiv4);
-                    container.appendChild(anchor);
-                }
-            }
-        });
-        container.appendChild(row);
-        parent.appendChild(container);
-    }
     promGetBlog(){
         
-            return new Promise(resolve=>{
-                resolve({
+            return Promise.resolve({
                     blog:()=>{
                         if(typeof window !=="undefined"){
                            const getBlogStr= localStorage.getItem("blog");
@@ -1096,8 +571,7 @@ set user(user:userType){
                         }
 
                     }
-                });
-            }) as Promise<{blog:()=>blogType|null}>;
+                }) as Promise<{blog:()=>blogType|null}>;
         
     }
     fadeOutIn(item:{target:HTMLElement,time:number,cssStyle:{[key:string]:string}}){

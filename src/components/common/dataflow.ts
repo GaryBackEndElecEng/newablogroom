@@ -125,7 +125,7 @@ class Dataflow {
         this.slides.map((slide,index)=>{
             const card=document.createElement("div");
             card.style.cssText="margin:auto;display:flex;flex-direction:column;align-items:center;width:100%;position:relative;";
-            // card.style.maxWidth=window.innerWidth <900 ? (window.innerWidth <400 ? "350px" : "600px"):"800px";
+           
             card.id=`info-card-${index}`;
             const text=document.createElement("h6");
             text.className="text-center text-primary mb-2 text-decoration-underline lean display-6";
@@ -182,16 +182,12 @@ class Dataflow {
         window.scroll(0,0);
     }
      promStoragMessage(parent:HTMLElement){
-        return new Promise(resolve=>{
-           
-                resolve({message:()=>{
+        return Promise.resolve({message:()=>{
                    
                     if(parent){
                     this.storageMessage(parent)
                     }
-                }});
-            
-        }) as Promise<{message:()=>void}>;
+                }}) as Promise<{message:()=>void}>;
     }
     
     storageMessage(parent:HTMLElement):void{

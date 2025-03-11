@@ -44,6 +44,8 @@ const nextConfig = {
               "newmasterconnect.herokuapp.com,www.masterconnect.ca,ww.master-connect.ca,compute-1.amazonaws.com,master-sale.herokuapp.com, www.masterconnect.ca,www.masterultils.com,masterultils-postimages.s3.us-east-1.amazonaws.com,localhost:3000,www.masterultils.com,main.d2qer3lk2obzqm.amplifyapp.com,newablogroom-free-bucket.s3.us-east-1.amazonaws.com,rcjl935e52.execute-api.ca-central-1.amazonaws.com",
           },
         ],
+      },
+      {
         source: "/:path*",
         headers: [
           {

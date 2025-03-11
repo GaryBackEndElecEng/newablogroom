@@ -1,4 +1,4 @@
-import {flexType,elementType,colType,rowType,selectorType,element_selType, choiceType, iconType, focusOptions, deletedImgType,flexSelectorType} from "./Types";
+import {flexType,elementType,colType,rowType,selectorType,element_selType, choiceType, iconType, focusOptions, deletedImgType,flexSelectorType, arrDivContType} from "./Types";
 import ModSelector from "./modSelector";
 import Service from "@/components/common/services";
 import Misc from "@/components/common/misc";
@@ -11,12 +11,21 @@ import { btnReturnDisableType, buttonRetDisable} from "../common/tsFunctions";
 import Header from "./header";
 import { getErrorMessage } from "@/lib/errorBoundaries";
 import ShapeOutside from "./shapeOutside";
+import Dataset from "../common/dataset";
+import {  idValueType, selRowColType, selRowType, typeEnumType } from "@/lib/attributeTypes";
+import { attrEnumArr, attrEnumArrTest, typeEnumArr, typeEnumArrTest } from "../common/lists";
+
+import Nav from "../nav/headerNav";
 
 
 
 const baseUrl="http://localhost:3000";
 
 class Flexbox {
+
+phone:string="./images/phone.png";
+link:string="./images/link.png";
+mail:string="./images/mail.png";
 bgColor:string;
 btnColor:string;
 logo:string=baseUrl + "/images/gb_logo.png";
@@ -27,6 +36,7 @@ _col:colType={} as colType;
 _row:rowType={} as rowType;
 _rows:rowType[]=[];
 flex:flexType;
+_element_sel:element_selType;
 divCont_css:string;
 divCont_class:string;
 static selectors_:flexSelectorType[]=[
@@ -151,41 +161,46 @@ static selectors_:flexSelectorType[]=[
     },
     ]
 static choice:choiceType[]=[
-    {name:"select",ele:"select",isEle:false,level:"element"},
+    {name:"select",isEle:false,level:"element"},
     {name:"image",ele:"img",isEle:true,level:"element"},
-    {name:"bg-image",ele:"bg-image",isEle:false,level:"col"},
-    {name:"bg-row-image",ele:"bg-row-image",isEle:false,level:"col"},
-    {name:"title",ele:"h1",isEle:true,level:"element"},
-    {name:"sub title",ele:"h2",isEle:true,level:"element"},
-    {name:"inner title",ele:"h3",isEle:true,level:"element"},
-    {name:"inner sub title",ele:"h4",isEle:true,level:"element"},
-    {name:"h5-small",ele:"h5",isEle:true,level:"element"},
-    {name:"h6-small",ele:"h6",isEle:true,level:"element"},
-    {name:"text",ele:"p",isEle:true,level:"element"},
-    {name:"list",ele:"list",isEle:true,level:"element"},
-    {name:"link",ele:"a",isEle:true,level:"element"},
-    {name:"time",ele:"time",isEle:true,level:"element"},
-    {name:"quote",ele:"blockquote",isEle:true,level:"element"},
-    {name:"pic-text-merge",ele:"shapeOutside",isEle:true,level:"element"},
-    {name:"flex-center",ele:"col-center",isEle:false,attr:"col-center",level:"col"},
-    {name:"shadow",ele:"box-shadow-md",isEle:false,attr:"box-shadow-md",level:"col"},
-    {name:"bg-shade",ele:"bg-shade",isEle:true,level:"col"},
-    {name:"flex-end",ele:"col-end",isEle:false,attr:"col-end",level:"col"},
-    {name:"flex-start",ele:"col-start",isEle:false,attr:"col-start",level:"col"},
-    {name:"img-round",ele:"round",isEle:false,attr:"round",level:"element"},
-    {name:"set-even-height",ele:"set-even-height",isEle:false,attr:"set-even-height",level:"col"},
-    {name:"remove-even-height",ele:"remove-even-height",isEle:false,attr:"remove-even-height",level:"col"},
-    {name:"cleanUp",ele:"cleanUp",isEle:true,level:"none"},
-    {name:"remove",ele:"remove",isEle:true,level:"none"},
+    {name:"bg-image",isEle:false,level:"col",class_:undefined},
+    {name:"bg-row-image",isEle:false,level:"col",class_:undefined},
+    {name:"title",ele:"h1",isEle:true,level:"element",class_:undefined},
+    {name:"sub title",ele:"h2",isEle:true,level:"element",class_:undefined},
+    {name:"inner title",ele:"h3",isEle:true,level:"element",class_:undefined},
+    {name:"inner sub title",ele:"h4",isEle:true,level:"element",class_:undefined},
+    {name:"h5-small",ele:"h5",isEle:true,level:"element",class_:undefined},
+    {name:"h6-small",ele:"h6",isEle:true,level:"element",class_:undefined},
+    {name:"text",ele:"p",isEle:true,level:"element",class_:undefined},
+    {name:"unorder-list",ele:"ul",isEle:true,level:"element",class_:undefined},
+    {name:"order-list",ele:"ol",isEle:true,level:"element",class_:undefined},
+    {name:"link",ele:"a",isEle:true,level:"element",class_:undefined},
+    {name:"time",ele:"time",isEle:true,level:"element",class_:undefined},
+    {name:"quote",ele:"blockquote",isEle:true,level:"element",class_:undefined},
+    {name:"shapeOutside",isEle:false,level:"element",class_:undefined},
+    {name:"flex-center",isEle:false,class_:"col-center",level:"col"},
+    {name:"shadow",isEle:false,class_:"box-shadow-md",level:"col"},
+    {name:"bg-shade",isEle:true,level:"col",class_:undefined},
+    {name:"flex-end",isEle:false,class_:"col-end",level:"col"},
+    {name:"flex-start",isEle:false,class_:"col-start",level:"col"},
+    {name:"img-round",isEle:false,class_:"round",level:"element"},
+    {name:"set-even-height",isEle:false,class_:"set-even-height",level:"col"},
+    {name:"remove-even-height",isEle:false,level:"col"},
+    {name:"cleanUp",isEle:true,level:"none"},
+    {name:"remove",isEle:true,level:"none"},
 
 ];
 eleAttrs=["round",];
 colAttrs=["col-start","col-end","col-center"];
 
     constructor(private _modSelector:ModSelector,private _service:Service, private _user:User,public _shapeOutside:ShapeOutside){
+        this._element_sel=this._modSelector.initElement_sel
+        this.phone="./images/phone.png";
+        this.link="./images/link.png";
+        this.mail="./images/mail.png";
         this.bgColor=this._modSelector._bgColor;
         this.btnColor=this._modSelector.btnColor;
-        this._selectors=this._modSelector._selectors;
+        this._selectors=this._modSelector.selectors;
         this.flex={} as flexType;
         Flexbox.getPlacement().then(async(value)=>{
             if(value){
@@ -208,24 +223,26 @@ colAttrs=["col-start","col-end","col-center"];
     }
     set placement(placement:number){
         localStorage.setItem("placement",String(placement));
-        this._modSelector._placement=placement;
+        this._modSelector.placement=placement;
     }
     get selectors(){
-        return this._modSelector._selectors;
+        return this._modSelector.selectors;
     }
     set selectors(selectors:selectorType[]){
         this._modSelector.selectors=selectors;
+        this._modSelector.localStore({blog:this._modSelector.blog});
 
     }
     //GETTER SETTERS---////////
     ///--------------INJECTION INTO EDIT-----WORK DONE DURING REFRESH AND EDIT-------///////////////
-   async showSelector(parent:HTMLElement,selector:selectorType){
+   async showSelector(parent:HTMLElement,selector:selectorType,idValues:idValueType[]){
         //THIS IS USED FOR REFRESH 
-        this.flex={} as flexType;
-        // console.log("Header selector",selector)//works
-        if(selector && selector.name){
-            const innerCont=document.createElement(selector.name);
+        const selNode=selector.name
+        const innerCont=document.createElement(selNode);
+        Header.cleanUpByID(parent,"section#main");
+        if(selector.name){
             innerCont.id=selector.eleId;
+            const eleId=selector.eleId;
             innerCont.className=selector.class;
             innerCont.setAttribute("data-placement",`${selector.placement}`);
             innerCont.setAttribute("name",selector.name);
@@ -233,269 +250,368 @@ colAttrs=["col-start","col-end","col-center"];
                 innerCont.setAttribute("data-container-id",`${innerCont.id}`);
             innerCont.setAttribute("data-selector-id",selector.eleId);
             innerCont.setAttribute("is-selector","true");
-            parent.appendChild(innerCont);
+            // ADDING BACKGROUND WHITE TO ELEMENTS WITH BACKGROUND COLOR
+            Main.container=document.querySelector("section#main") as HTMLElement;
+            const checkBgShade=([...(Main.container as HTMLElement).classList as any] as string[]).includes("bgShade");
+            if(checkBgShade){
+                innerCont.classList.add("background-bgShade");
+            }
+        // ADDING BACKGROUND WHITE TO ELEMENTS WITH BACKGROUND COLOR
+            idValues.push({eleId:selector.eleId,id:"selector_id",attValue:String(selector.id)});
+            idValues.push({eleId:selector.eleId,id:"selectorId",attValue:selector.eleId});
+            idValues.push({eleId:selector.eleId,id:"placement",attValue:String(selector.placement)});
+             //-------////// ----GETTING COMPONENT ATTRIBUTES-------\\\\\\---/////
+             const {idValues:retIdValues4}=this._modSelector.dataset.coreDefaultIdValues({
+                target:innerCont,
+                sel:selector,
+                row:null,
+                col:null,
+                ele:null,
+                idValues,
+                loc:"flexbox",
+                level:"selector",
+                clean:false
+            });
+            idValues=retIdValues4
+            this._modSelector.dataset.populateElement({target:innerCont,selRowColEle:selector,level:"selector",loc:"flexbox",idValues,clean:false});
+            idValues=Dataset.removeIdValueDuplicates({arr:idValues,eleId:selector.eleId});
+            const getEleIds=idValues.filter(kat=>(kat.eleId===eleId))
+           this._modSelector.dataset.idValues=this._modSelector.dataset.idValues.concat(getEleIds);
+            
+            //-------////// ----GETTING COMPONENT ATTRIBUTES-------\\\\\\---/////
+           
             Misc.blurIn({anchor:innerCont,blur:"20px",time:700});
             // ADDING BACKGROUND WHITE TO ELEMENTS WITH BACKGROUND COLOR
-        Main.container=document.querySelector("section#main") as HTMLElement;
-        const checkBgShade=([...(Main.container as HTMLElement).classList as any] as string[]).includes("bgShade");
-        if(checkBgShade){
-            innerCont.classList.add("background-bgShade");
-        }
+      
         // ADDING BACKGROUND WHITE TO ELEMENTS WITH BACKGROUND COLOR
             innerCont.style.cssText=selector.cssText;
-            this.removeFlexbox(parent,innerCont);
-            this.flex={...this.flex,selectorId:selector.eleId,placement:selector.placement}
-            // console.log(selector.rows)//works
-            const rows=JSON.parse(selector.rows) as rowType[];
+            
+          
+            const {rows}=this._modSelector.checkGetRows({select:selector});
             if(rows){
 
-                await  Promise.all(rows.sort((a,b)=>{if(a.order < b.order) return -1;return 1}).map(async(row_)=>{
-                      const row=document.createElement("div");
-                      row.className=row_.class.split(" ").filter(cl=>(cl !=="box-shadow")).join(" ");
-                      row.style.cssText=row_.cssText;
-                      row.setAttribute("name",row_.name);
-                      row.setAttribute("rowID",`${row_.id}`);
-                      row.setAttribute("is-row","true");
-                      row.id=row_.eleId;
-                      if(row_.imgKey){
-                          row.setAttribute("data-backgroundimage","true");
-                      //     const cssStyle={backgroundPosition:"50% 50%",backgroundSize:"100% 100%"};
-                      //    await this._service.injectBgAwsImage({target:row,imgKey:row_.imgKey,cssStyle});
-                      }
-                      Header.detectImageEffect(row);
-                      this.flex={...this.flex,rowId:row_.eleId,position:"row",imgKey:row_.imgKey}
-                      row.setAttribute("flex",JSON.stringify(this.flex));
-                      innerCont.appendChild(row);
-                     await Promise.all(row_.cols && row_.cols.sort((a,b)=>{if(a.order < b.order) return -1;return 1}).map(async(col_)=>{
-                          const col=document.createElement("div");
-                          col.id=col_.eleId;
-                          col.setAttribute("colID",`${col_.id}`);
-                          col.style.cssText=`${col_.cssText}`;
-                          col.className=col_.class;
-                          col.setAttribute("is-column","true");
-                          Header.detectImageEffect(col);
-                          this.flex={...this.flex,colId:col_.eleId,position:"col",imgKey:col_.imgKey};
-                          col.setAttribute("flex",JSON.stringify(this.flex));
-                          row.appendChild(col);
-                        //   console.log("col_,",col_)//works
-                         
-                          if(col_.imgKey){
-                              col.setAttribute("data-backgroundimage","true");
-                              // col.style.backgroundPosition="50% 50%";
-                              // col.style.backgroundSize="100% 100%";
-                              // const cssStyle={backgroundPosition:"50% 50%",backgroundSize:"100% 100%"};
-                              // this._service.injectBgAwsImage({target:col,imgKey:col_.imgKey,cssStyle});
-                          }
-                          this.genChoice(col,this.flex);
-                          col.addEventListener("click",(e:MouseEvent)=>{
-                              if(e){
-                                  this.flex={...this.flex,colId:col_.eleId,imgKey:col_.imgKey};
-                                  col.classList.toggle("coliIsActive");
-                                  innerCont.classList.toggle("isActive");
-                                  this.updateColumn(col,this.flex);
-                              }
-                          });
-                        //   console.log("col_,",col_)//works
-                       const div_conts=await Promise.all(col_.elements && col_.elements.sort((a,b)=>{if(a.order < b.order) return -1;return 1}).map(async (element)=>{
-                              const attr=element.attr ? element.attr : undefined;
-                              this.flex={...this.flex,elementId:element.eleId,position:"element",imgKey:element.imgKey,name:element.name,order:element.order};
-                              const _ele_:HTMLElement=document.createElement(element.name);
-                              _ele_.setAttribute("flex",JSON.stringify(this.flex));
-                              _ele_.id=element.eleId;
-                              _ele_.className=element.class;
-                              _ele_.style.cssText=element.cssText;
-                              _ele_.innerHTML=element.inner_html;
-                              const retFlex=this.attrPopulateTarget({target:_ele_,element:element,col:null,row:null,flex:this.flex});
-                              if(retFlex){
-                                  this.flex={...retFlex};
-                              }
-                            //   console.log("element",element)//works
-                              this.flex=Main.flexTracker({target:_ele_,flex:this.flex,isNew:false});
-                              const checkArr=["img","ul","ol","blockquote","a","span","logo","image","time"].includes(element.name);
-                              const checkUlType=["ol","ul","blockquote"].includes(element.name);
-                              const shapeoutside=element.type && element.type==="shapeoutside" ? element.type : undefined;
-                              if(!checkArr && !shapeoutside ){
-                                  const divCont=document.createElement("div");
-                                  divCont.setAttribute("data-placement",`${element.order}-A`);
-                                  divCont.className=this.divCont_class;
-                                  divCont.id=`flexbox-divCont-${element.name}`;
-                                  divCont.style.cssText=this.divCont_css;
-                                  if(element.attr==="data-backgroundImage" && element.imgKey){
-                                      ShapeOutside.cleanUpByID(parent,"popup");
-                                      _ele_.setAttribute("data-backgroundImage","true");
-                                      this.flex={...this.flex,backgroundImage:true,imgKey:element.imgKey};
-                                      _ele_.style.backgroundPosition="50% 50%";
-                                      _ele_.style.backgroundSize="100% 100%";
-                                      // const cssStyle={backgroundPosition:"50% 50%",backgroundSize:"100% 100%"};
-                                      // this._service.injectBgAwsImage({target:_ele_,imgKey:element.imgKey,cssStyle});
-                                  }
-                                  divCont.setAttribute("data-placement",`${element.order}-A`);
-                                  
-                                  divCont.appendChild(_ele_);
-                                  // col.appendChild(divCont);
-                                  this.editElement(_ele_);
-                                  Misc.matchMedia({parent:divCont,maxWidth:820,cssStyle:{paddingInline:"1.5rem"}});
-                                  Misc.matchMedia({parent:divCont,maxWidth:420,cssStyle:{paddingInline:"10px"}});
-                                  // Main.toggleActiveIcon(_ele_);
-                                  return {ele:_ele_,divCont};
-                                  
-                              }else if(!checkArr && shapeoutside){
-                                const divCont=document.createElement("div");
-                                divCont.setAttribute("data-placement",`${element.order}-A`);
-                                divCont.className=this.divCont_class;
-                                divCont.id=`flexbox-divCont-${element.name}`;
-                                divCont.style.cssText=this.divCont_css;
-                                  const isAttr=element.attr as string;
-                                  const attr=["data-shapeOutside-circle","data-shapeOutside-square"].find(sh=>(sh===isAttr));
-                                  if(attr){
-                                      divCont.style.marginBlock="2rem";
-                                      divCont.style.paddingBlock="1rem";
-                                      this.flex={...this.flex,shapeOutsideCircle:true};
-                                      if(element.imgKey){this.flex={...this.flex,imgKey:element.imgKey}}
-                                      _ele_.setAttribute("flex",JSON.stringify(this.flex));
-                                      _ele_.setAttribute(attr,attr);
-                                      //    await this._shapeOutside.shapeOutsideInjectImage({para:_ele_,imgKey:element.imgKey});
-                                  }
-                                  this._shapeOutside.setAttributes({column:parent,divCont,target:_ele_ as HTMLParagraphElement});//ID=shape-outside-${rand}
-                                  divCont.setAttribute("data-placement",`${element.order}-A`);
-                                  divCont.appendChild(_ele_);
-                                  
-                                  return {ele:_ele_,divCont}
-                              
-  
-                              }else if(checkUlType){
-                                const divCont=document.createElement("div");
-                                divCont.setAttribute("data-placement",`${element.order}-A`);
-                                divCont.className=this.divCont_class;
-                                divCont.id=`flexbox-divCont-${element.name}`;
-                                divCont.style.cssText=this.divCont_css;
-                                  const ul=document.createElement("ul");
-                                  ul.id=element.eleId;
-                                  ul.className=element.class;
-                                  ul.classList.remove("isActive");
-                                  ul.style.cssText=element.cssText;
-                                  ul.innerHTML=element.inner_html;
-                                  divCont.appendChild(ul);
-                                  // col.appendChild(divCont);
-                                  Misc.matchMedia({parent:divCont,maxWidth:820,cssStyle:{paddingInline:"1.5rem"}});
-                                  Misc.matchMedia({parent:divCont,maxWidth:420,cssStyle:{paddingInline:"10px"}});
-                                //   Main.toggleActiveIcon(ele_);
-                                //   ele_.id=element.eleId;
-                                //   ele_.setAttribute("name",element.name);
-                                  ul.setAttribute("flex",JSON.stringify(this.flex));
-                                  this.flex=Main.flexTracker({target:ul,flex:this.flex,isNew:false});
-                                  this._modSelector.editElement(ul);
-                                  return {ele:ul,divCont}
-                              }else if(checkArr && element.name==="a"){
-                                const divCont=document.createElement("div");
-                                divCont.setAttribute("data-placement",`${element.order}-A`);
-                                divCont.className=this.divCont_class;
-                                divCont.id=`flexbox-divCont-${element.name}`;
-                                divCont.style.cssText=this.divCont_css;
-                                  const ele=document.createElement("a");
-                                  const {link}=JSON.parse(element.attr as string) as {link:string};
-                                  ele.setAttribute("data-href",link);
-                                  ele.className=element.class;
-                                  ele.id=element.eleId;
-                                  ele.setAttribute("flex",JSON.stringify(this.flex));
-                                  this.flex=Main.flexTracker({target:ele,flex:this.flex,isNew:false});
-                                  ele.style.cssText=element.cssText;
-                                  ele.innerHTML=element.inner_html;
-                                  ele.href="";
-                                  divCont.appendChild(ele);
-                                  Misc.matchMedia({parent:divCont,maxWidth:820,cssStyle:{paddingInline:"1.5rem"}});
-                                  Misc.matchMedia({parent:divCont,maxWidth:420,cssStyle:{paddingInline:"10px"}});
-                                  // col.appendChild(divCont);
-                                  this.editElement(ele);
-                                  return {ele:ele,divCont};
-                              }else if(checkArr && element.name==="time"){
-                                const divCont=document.createElement("div");
-                                divCont.setAttribute("data-placement",`${element.order}-A`);
-                                divCont.className=this.divCont_class;
-                                divCont.id=`flexbox-divCont-${element.name}`;
-                                divCont.style.cssText=this.divCont_css;
-                                const datetime=element.attr as string;// data-time for popup on hover
-                                const time=document.createElement("time");
-                                time.setAttribute("datetime",String(datetime))
-                                time.id=element.eleId;
-                                time.className=element.class;
-                                time.classList.add("show-time");
-                                time.classList.remove("isActive");
-                                time.style.cssText=element.cssText;
-                                time.innerHTML=element.inner_html;
-                                divCont.appendChild(time);
-                                Misc.matchMedia({parent:divCont,maxWidth:820,cssStyle:{paddingInline:"1.5rem"}});
-                                Misc.matchMedia({parent:divCont,maxWidth:420,cssStyle:{paddingInline:"10px"}});
-                                time.setAttribute("flex",JSON.stringify(this.flex));
-                                this.flex=Main.flexTracker({target:time,flex:this.flex,isNew:false});
-                                return {ele:time,divCont}
-
-                              }else if(element.name==="img"){
-                                const divCont=document.createElement("div");
-                              divCont.setAttribute("data-placement",`${element.order}-A`);
-                              divCont.className=this.divCont_class;
-                              divCont.id=`flexbox-divCont-${element.name}`;
-                              divCont.style.cssText=this.divCont_css;
-                                  const ele=document.createElement("img");
-                                  ele.setAttribute("contenteditable","false");
-                                  ele.alt=element.inner_html;
-                                  ele.src=element.img ? element.img : this.logo;
-                                  if(element.imgKey){
-                                      this.flex={...this.flex,imgKey:element.imgKey};
-                                      const res=await this._service.getSimpleImg(element.imgKey);
-                                      if(res){
-                                          ele.src=res.img;
-                                          ele.alt=res.Key;
-                                        }
-                                        
-                                    }
-                                    ele.setAttribute("flex",JSON.stringify(this.flex));
-                                    this.flex=Main.flexTracker({target:ele,flex:this.flex,isNew:false});
-                                  ele.style.cssText=element.cssText;
-                                  ele.className=element.class;
-                                  divCont.appendChild(ele);
-                                  // col.appendChild(divCont);
-                                  Misc.matchMedia({parent:divCont,maxWidth:820,cssStyle:{paddingInline:"1.5rem"}});
-                                  Misc.matchMedia({parent:divCont,maxWidth:420,cssStyle:{paddingInline:"10px"}});
-                                  Header.detectImageEffect(ele);
-                                  this._user.refreshImageShow(divCont,ele,null,this.flex);
-                                  return {ele:ele,divCont}
-                              }
-  
-                          }));
-                          if(div_conts && div_conts.length>0){
-                              div_conts.map(res=>{
-                                  if(res){
-                                    // console.log("divCont",res.divCont)//works
-                                      col.appendChild(res.divCont);
-                                      res.divCont.addEventListener("click",(e:MouseEvent) =>{
-                                        if(e){
-                                            res.ele.classList.toggle("isActive");
-                                            res.divCont.classList.toggle("isActive");
-                                            this.updateElement(res.ele);
-                                            const getDivCont=res.ele.parentElement as HTMLElement;
-                                            this.removeMainElement(col,getDivCont,res.ele);
+                await  Promise.all(rows.toSorted((a,b)=>{if(a.order < b.order) return -1;return 1}).map(async(row_,index)=>{
+                    const eleId=row_.eleId
+                    idValues.push({eleId:row_.eleId,id:"rowId",attValue:row_.eleId});
+                    idValues.push({eleId:row_.eleId,id:"name",attValue:row_.name});
+                    idValues.push({eleId:row_.eleId,id:"row_id",attValue:String(row_.id)});
+                    idValues.push({eleId:row_.eleId,id:"rowOrder",attValue:String(row_.order)});
+                    idValues.push({eleId:row_.eleId,id:"placement",attValue:String(selector.placement)});
+                    if(row_.attr) idValues.push({eleId:row_.eleId,id:"backgroundImg",attValue:"true"});
+                    if(row_.imgKey) idValues.push({eleId:row_.eleId,id:"imgKey",attValue:row_.imgKey});
+                 
+                    const row=document.createElement("div");
+                    row.className=row_.class.split(" ").filter(cl=>(cl !=="box-shadow")).join(" ");
+                    row.style.cssText=row_.cssText;
+                    row.id=row_.eleId;
+                    //REMOVES BLOB URLS
+                    console.log(row_.cssText);
+                    await this._modSelector.removeBlob({target:row,rowColEle:row_,loc:"flexbox",level:"row",idValues});
+                    //REMOVES BLOB URLS
+                     
+                     //-------////// ----GETTING COMPONENT ATTRIBUTES-------\\\\\\---/////
+                    const {idValues:retIdValues4}=this._modSelector.dataset.coreDefaultIdValues({
+                        target:row,
+                        sel:selector,
+                        row:row_,
+                        col:null,
+                        ele:null,
+                        idValues,
+                        loc:"flexbox",
+                        level:"row",
+                        clean:false
+                    });
+                    idValues=retIdValues4
+                    this._modSelector.dataset.populateElement({target:row,selRowColEle:row_,level:"row",loc:"flexbox",idValues,clean:false});
+                    idValues=Dataset.removeIdValueDuplicates({arr:idValues,eleId:row_.eleId});
+                   
+                    const getEleIds=idValues.filter(kat=>(kat.eleId===eleId))
+                    this._modSelector.dataset.idValues=this._modSelector.dataset.idValues.concat(getEleIds);
+                    //-------////// ----GETTING COMPONENT ATTRIBUTES-------\\\\\\---/////
+                    Header.detectImageEffect(row);
+                   //APPENDING ROW
+                   innerCont.appendChild(row);
+                   //APPENDING ROW
+                    await Promise.all(row_?.cols.toSorted((a,b)=>{if(a.order < b.order) return -1;return 1}).map(async(col_,index1)=>{
+                     this.generateColumn({row,row_,sel:selector,idValues,col_}).then(async(cres)=>{
+                            if(cres){
+                               await Promise.all(cres.col_.elements.map(async(element)=>{
+                                    await this.generateElement({col:cres.col,element,sel:selector,row_,col_:cres.col_,idValues:cres.idValues}).then(async(eres)=>{
+                                        if(eres){
+                                            const selRowCol:selRowColType={selectorId:selector.eleId,rowId:row_.eleId,colId:col_.eleId}
+                                            eres.col.appendChild(eres.ele);
+                                            if(eres.isEdit){
+                                                this.editElement({target:eres.ele,idValues:eres.idValues})
+                                            };
+                                            eres.divCont.onclick=(e:MouseEvent)=>{
+                                                if(e){
+                                                    eres.divCont.classList.toggle("isActive");
+                                                    eres.ele.classList.toggle("isActive");
+                                                    Main.activatebuttons({target:eres.ele});
+                                                    this.removeMainElement({parent:eres.col,target:eres.ele,divCont:eres.divCont,idValues,selRowCol})
+                                                }
+                                            }
+                                            
                                         }
                                     });
-                                  }
-                              });
-                          }
-                          Misc.matchMedia({parent:col,maxWidth:600,cssStyle:{height:"auto"}});
-                      }));
-                      
-                      // console.log(innerCont)//works
-                  }));
-            }
-        }
+                                }));
+                            }
+                     });
+                    
+                    
+                       
+                    }));
+                    
+                
+                }));
+            };
+
+            this.removeFlexBox({parent,target:innerCont,idValues});
+        };
+        return innerCont
     };
+
+
+   async generateColumn({row,col_,idValues,row_,sel}:{
+    row:HTMLElement,
+    idValues:idValueType[],
+    col_:colType,
+    row_:rowType,
+    sel:selectorType
+
+   }):Promise<{row:HTMLElement,col_:colType,idValues:idValueType[],row_:rowType,sel:selectorType,col:HTMLElement}>{
+        
+        const eleId=col_.eleId;
+        idValues.push({eleId:col_.eleId,id:"colId",attValue:col_.eleId});
+        idValues.push({eleId:col_.eleId,id:"name",attValue:col_.name});
+        idValues.push({eleId:col_.eleId,id:"col_id",attValue:String(col_.id)});
+        idValues.push({eleId:col_.eleId,id:"colOrder",attValue:String(col_.order)});
+        if(col_.attr) idValues.push({eleId:col_.eleId,id:"backgroundImg",attValue:"true"});
+        
+        idValues.push({eleId:col_.eleId,id:"colOrder",attValue:String(col_.order)});
+            const col=document.createElement("div");
+            col.id=col_.eleId;
+            col.style.cssText=`${col_.cssText}`;
+            await this._modSelector.removeBlob({target:col,rowColEle:col_,loc:"flexbox",level:"col",idValues});
+                //-------////// ----GETTING COMPONENT ATTRIBUTES-------\\\\\\---/////
+            const {idValues:retIdValues4}=this._modSelector.dataset.coreDefaultIdValues({
+                target:col,
+                sel:sel,
+                row:row_,
+                col:col_,
+                ele:null,
+                idValues,
+                loc:"flexbox",
+                level:"col",
+                clean:false
+            });
+            idValues=retIdValues4
+            this._modSelector.dataset.populateElement({target:col,selRowColEle:col_,level:"col",loc:"flexbox",idValues,clean:false});
+            idValues=Dataset.removeIdValueDuplicates({arr:idValues,eleId:col_.eleId});
+            const getEleIds=idValues.filter(kat=>(kat.eleId===eleId))
+            this._modSelector.dataset.idValues=this._modSelector.dataset.idValues.concat(getEleIds);
+            //-------////// ----GETTING COMPONENT ATTRIBUTES-------\\\\\\---/////
+            col.className=col_.class;
+            col.style.cssText=col_.cssText;
+            
+            Header.detectImageEffect(col);
+            
+            //APPENDING COL
+            row.appendChild(col);
+            //APPENDING COL
+            
+            this.genChoice({
+                column:col,
+                idValues,
+                row:row_,
+                selector:sel,
+                col:col_
+            });
+            col.addEventListener("click",(e:MouseEvent)=>{
+                if(e){
+                    col.classList.toggle("coliIsActive");
+                }
+            });
+
+        return Promise.resolve({row,col,col_,idValues,row_,sel}) as Promise<{row:HTMLElement,col_:colType,idValues:idValueType[],row_:rowType,sel:selectorType,col:HTMLElement}>;
+    };
+
+
+    async generateElement({col,element,sel,row_,col_,idValues}:{
+        col:HTMLElement,
+        element:element_selType,
+        sel:selectorType,
+        row_:rowType,
+        col_:colType,
+        idValues:idValueType[]
+
+    }): Promise<{
+        ele: HTMLElement;
+        divCont: HTMLElement;
+        element: element_selType;
+        col:HTMLElement;
+        isEdit:boolean;
+        idValues:idValueType[];
+} | undefined>{
+        const selRowCol:selRowColType={selectorId:sel.eleId,rowId:row_.eleId,colId:col_.eleId};
+        const rand=Math.floor(Math.random() *1000);
+        const eleId=element.eleId;
+        const attrTest=attrEnumArrTest(element);
+        const typeTest=typeEnumArrTest(element);
+        const link = attrTest && attrTest.id==="link" ? attrTest.value:undefined;
+        const email = attrTest && attrTest.id==="email" ? attrTest.value:undefined;
+        const tel = attrTest && attrTest.id==="tel" ? attrTest.value:undefined;
+        const time = attrTest && attrTest.id==="time" ? attrTest.value:undefined;
+        const isCircle = attrTest && attrTest.id==="shapeOutsideCircle" ? attrTest.value:undefined;
+        const isSquare = attrTest && attrTest.id==="shapeOutsideSquare" ? attrTest.value:undefined;
+        const isPolygon = attrTest && attrTest.id==="shapeOutsidePolygon" ? attrTest.value:undefined;
+        const shapeOutside = typeTest && typeTest.id==="shapeOutside" ? typeTest.value:undefined;
+        if(isCircle) idValues.push({eleId,id:"shapeOutsideCircle",attValue:isCircle});
+        if(isSquare) idValues.push({eleId,id:"shapeOutsideSquare",attValue:isSquare});
+        if(isPolygon) idValues.push({eleId,id:"shapeOutsidePolygon",attValue:isPolygon});
+        const divCont=document.createElement("div");
+        divCont.setAttribute("data-placement",`${element.order}-A`);
+        divCont.className=this.divCont_class;
+        divCont.id=`flexbox-divCont-${element.name}-${rand}`;
+        divCont.style.cssText=this.divCont_css;
+        const target:HTMLElement=document.createElement(element.name);
+        target.id=element.eleId;
+        target.className=element.class;
+        target.style.cssText=element.cssText;
+        target.innerHTML=element.inner_html;
+        //REMOVES BLOB URLS
+        await this._modSelector.removeBlob({target,rowColEle:element,loc:"flexbox",level:"element",idValues});
+        //REMOVES BLOB URLS
+
+            //-------////// ----GETTING COMPONENT ATTRIBUTES-------\\\\\\---/////
+        const {idValues:retIdValues4}=this._modSelector.dataset.coreDefaultIdValues({
+            target,
+            sel,
+            row:row_,
+            col:col_,
+            ele:element,
+            idValues,
+            loc:"flexbox",
+            level:"element",
+            clean:false
+        });
+        idValues=retIdValues4
+        
+        this._modSelector.dataset.populateElement({target,selRowColEle:element,level:"element",loc:"flexbox",idValues,clean:false});
+        idValues=Dataset.removeIdValueDuplicates({arr:idValues,eleId:element.eleId});
+        
+        //-------////// ----GETTING COMPONENT ATTRIBUTES-------\\\\\\---/////
+        
+        const checkArr=["img","ul","ol","blockquote","a","span","logo","image","time"].includes(element.name);
+        const checkUlType=["ol","ul","blockquote"].includes(element.name);
+
+        if(!checkArr && !shapeOutside ){
+            
+            if(element.attr==="data-backgroundImg" && element.imgKey){
+                idValues.push({eleId,id:"backgroundImg",attValue:"backgroundImg"});
+                target.setAttribute("data-backgroundImg","true");
+                target.style.backgroundPosition="50% 50%";
+                target.style.backgroundSize="100% 100%";
+             
+            }
+            
+            divCont.setAttribute("data-placement",`${element.order}-A`);
+            
+            divCont.appendChild(target);
+            Misc.matchMedia({parent:divCont,maxWidth:820,cssStyle:{paddingInline:"1.5rem"}});
+            Misc.matchMedia({parent:divCont,maxWidth:420,cssStyle:{paddingInline:"10px"}});
+            return {ele:target,divCont,element,col,isEdit:true,idValues};
+            
+        }else if(!checkArr && shapeOutside){
+            divCont.style.marginBlock="2rem";
+            divCont.style.paddingBlock="1rem";
+            
+            const arrDivCont:arrDivContType= this._shapeOutside.showShapeOutside({parent:col,element,idValues,selRowCol});
+            const {divCont:SHDivCont,target:SHTarget}=arrDivCont
+            return {ele:SHTarget,divCont:SHDivCont,element,col,isEdit:false,idValues};
+
+        }else if(checkUlType){
+    
+            target.id=element.eleId;
+            target.className=element.class;
+            target.classList.remove("isActive");
+            target.style.cssText=element.cssText;
+            target.innerHTML=element.inner_html;
+            divCont.appendChild(target);
+            Misc.matchMedia({parent:divCont,maxWidth:820,cssStyle:{paddingInline:"1.5rem"}});
+            Misc.matchMedia({parent:divCont,maxWidth:420,cssStyle:{paddingInline:"10px"}});
+        
+
+            return {ele:target,divCont,element,col,isEdit:true,idValues}
+
+        }else if(checkArr && element.name==="a"){
+            target.className=element.class;
+            target.id=element.eleId;
+            target.style.cssText=element.cssText;
+            Misc.matchMedia({parent:divCont,maxWidth:820,cssStyle:{paddingInline:"1.5rem"}});
+            Misc.matchMedia({parent:divCont,maxWidth:420,cssStyle:{paddingInline:"10px"}});
+    
+            divCont.appendChild(target);
+
+            if(link) target.onclick=()=>{window.open(link,"_blank")};
+            if(email) (target as HTMLAnchorElement).href=email;
+            if(tel) (target as HTMLAnchorElement).href=tel;
+
+            return {ele:target,divCont,element,col,isEdit:true,idValues};
+
+        }else if(checkArr && element.name==="time"){
+    
+            target.id=element.eleId;
+            target.className=element.class;
+            target.style.cssText=element.cssText;
+            target.innerHTML=element.inner_html;
+            if(time) target.setAttribute("data-time",time);
+            divCont.appendChild(target);
+            Misc.matchMedia({parent:divCont,maxWidth:820,cssStyle:{paddingInline:"1.5rem"}});
+            Misc.matchMedia({parent:divCont,maxWidth:420,cssStyle:{paddingInline:"10px"}});
+        
+        
+            return {ele:target,divCont,element,col,isEdit:false,idValues}
+
+        }else if(element.name==="img"){
+       
+       
+            target.setAttribute("contenteditable","false");
+            (target as HTMLImageElement).alt=element.inner_html;
+            (target as HTMLImageElement).src=element.img ? element.img : this.logo;
+            if(element.imgKey){
+                idValues.push({eleId,id:"imgKey",attValue:element.imgKey});
+                const res=await this._service.getSimpleImg(element.imgKey);
+                if(res){
+                    (target as HTMLImageElement).src=res.img;
+                    (target as HTMLImageElement).alt=res.Key;
+                }
+                
+            }
+            target.style.cssText=element.cssText;
+            target.className=element.class;
+            divCont.appendChild(target);
+         
+            Misc.matchMedia({parent:divCont,maxWidth:820,cssStyle:{paddingInline:"1.5rem"}});
+            Misc.matchMedia({parent:divCont,maxWidth:420,cssStyle:{paddingInline:"10px"}});
+            Header.detectImageEffect(target);
+            this._user.refreshImageShow({parent:divCont,image:(target as HTMLImageElement),formdata:null,selRowCol,idValues});
+
+            return {ele:target,divCont,element,col,isEdit:false,idValues}
+        }
+
+    };
+
     ///--------------INJECTION INTO EDIT-----WORK DONE-------///////////////
-     //PARENT FLEXBOXLAYOUT()
-     rowColGenerator(parent:HTMLElement,selector:selectorType){
+     //SIDEBAR=>PARENT FLEXBOXLAYOUT()-FROM SIDEBAR
+    async rowColGenerator(parent:HTMLElement,selector:selectorType){
         //PARENT =>THIS.TEXTAREA
+        let idValues=this._modSelector.dataset.idValues;
+        const less900=window.innerWidth < 900;
         parent.classList.add("mx-2");
         const container=document.createElement("section");
         const rand=`${container.nodeName.toLowerCase()}-${Math.round(Math.random()*1000)}`
-        container.id=rand;
+        container.id=`flexbox-selector-${rand}`;
         container.className="mx-auto";
         container.style.cssText="padding-inline:10px;position:relative;width:100%;";
         container.setAttribute("name","section");
@@ -506,9 +622,12 @@ colAttrs=["col-start","col-end","col-center"];
         const arrColB=Array.from(Array(selector.colAttr[0].B).keys());
         const numTop=this.colGenerator(arrColT.length);
         const numBot=this.colGenerator(arrColB.length);
+      
+        //FOR COLUMNS CLASS (col-container),attribute: data-cols
+        const bottom_data_cols=(less900 && arrColB.length && arrColB.length >0) ? `1 0 100%`:`1 0 ${100/(arrColB.length as number)}%`;
+        const top_data_cols=(less900 && arrColT.length && arrColT.length >0) ? `1 0 100%`:`1 0 ${100/(arrColT.length as number)}%`;
         container.setAttribute("data-selector-id",`${selector.id}`);
         container.setAttribute("is-flexbox","true");
-        this.flex={...this.flex,selectorId:container.id};
         selector.eleId=container.id;
         // ADDING BACKGROUND WHITE TO ELEMENTS WITH BACKGROUND COLOR
         Main.container=document.querySelector("section#main") as HTMLElement;
@@ -517,117 +636,101 @@ colAttrs=["col-start","col-end","col-center"];
             container.classList.add("background-bgShade");
         }
         // ADDING BACKGROUND WHITE TO ELEMENTS WITH BACKGROUND COLOR
-        this.asyncSelectorAdder(container,selector).then((retSelect)=>{
-            if(retSelect){
-                this.flex={} as flexType;
-                this.flex={...this.flex,selectorId:retSelect.eleId};
-                //--------------DELETE ICON----------------//
-                const delDiv=document.createElement("div");
-                delDiv.style.cssText="position:absolute;top:0;left:0;transform:translate(-12px,0px);background:black;color:white;border-radius:50%;font-size:26px;";
-                delDiv.setAttribute("is-icon","true");
-                delDiv.className="fa-solid fa-circle-xmark";
-                const cssStyle={background:"inherit",color:"red"};
-                FaCreate({parent:delDiv,name:FaTrash,cssStyle});
-                container.appendChild(delDiv);
-                delDiv.addEventListener("click",(e:MouseEvent)=>{
-                    if(e){
-                        this._modSelector.selectors.map((sel,index)=>{
-                            if(sel && sel.eleId===container.id){
-                                this._modSelector.selectors.splice(index,1);
-                                this._modSelector.shiftPlace(retSelect.placement);
-                            }
-                        });
-                        Misc.fadeOut({anchor:container,xpos:100,ypos:100,time:400});
-                        setTimeout(()=>{
-                            parent.removeChild(container);
-                        },380);
-                       
-                    }
-                });
-                //--------------DELETE ICON--------------//
+       await this.selectorAdder({target:container,selector:selector,idValues}).then(async(sel)=>{
+            if(sel){
+                idValues=sel.idValues
                
-                arrRow.map(( orderRow)=>{
+               await Promise.all(arrRow.map(async( orderRow)=>{
+                    const rand=Math.round(Math.random()*1000);
                     const row=document.createElement("div");
-                    // row.id=numId;
+                    row.id=`flexbox-row-${orderRow}-${rand}`;
+                    const eleId=row.id;
                     row.className=" row mx-auto jusifiy-content-start flexbox-row";
                     row.style.cssText="margin-inline:auto;margin-block:2rem;width:100%;"
                     row.setAttribute("is-row","true");
                     row.style.cssText="width:100%;min-height:10vh;position:relative;min-width:50vw;justify-content:flex-start;";
-                    this.flex={...this.flex,order:orderRow,position:"row"};
-                    const flexRow=Main.flexRowTracker({target:row,flex:this.flex,isNew:true}) as flexType;
-                    this.flex={...flexRow}
-                    this.asyncRowAdder(row,retSelect.eleId as string).then((_row_:rowType)=>{
-                        this.flex={...flexRow,rowId:_row_.eleId,selectorId:retSelect.eleId};
-                        // console.log("ROW",_row_)
-                        if(orderRow===0){
-                            arrColT.map((orderCol)=>{
-                                let _flex:flexType={} as flexType;
-                                _flex=this.flex;
-                                const col=document.createElement("div");
-                                col.className=`col-lg-${numTop} flexbox-column`;
-                                col.classList.add("box-shadow");
-                                col.style.cssText="align-items:stretch;";
-                                _flex={..._flex,rowId:_row_.eleId,order:orderCol,position:"col"};
-                                const flexCol=Main.flexColTracker({target:col,flex:_flex,isNew:true}) as flexType;
-                                _flex={...flexCol};
-                                this.asyncColAdder(col,flexCol).then(async(res)=>{
-                                    if(res && res.col){
-                                        // console.log("_col_UPPER:",_col_)
-                                        _flex={..._flex,position:"col"};
-                                        res.column.setAttribute("data-column",`${res.column.id}-${orderRow+1}-${orderCol+1}`);
-                                        row.appendChild(col);
-                                        _flex={..._flex,rowId:_row_.eleId,colId:res.col.eleId}
-                                        this.genChoice(col,_flex);
-                                        col.addEventListener("click",(e:MouseEvent)=>{
+                    const selRow:selRowType={selectorId:sel.selector.eleId,rowId:eleId};
+                   idValues.push({eleId,id:"selRow",attValue:JSON.stringify(selRow)});
+                   idValues.push({eleId,id:"rowId",attValue:eleId});
+                   
+                  
+                   await this._modSelector.rowAdder({target:row,selector:sel.selector as selectorType,selectEle:sel.target,idValues}).then(async(resRow)=>{
+                        if(resRow){
+                            idValues=resRow.idValues;
+                           
+                            if(orderRow===0){
+                               await Promise.all(arrColT.map(async(orderCol)=>{
+                                    const rand=Math.round(Math.random()*1000);
+                                    const col=document.createElement("div");
+                                    col.id=`col-div-top-${orderCol}-${rand}`;
+                                    col.className=`col-lg-${numTop} flexbox-column`;
+                                    col.classList.add("box-shadow");
+                                    col.classList.add("col-container");//for attr(data-cols)
+                                    // col.setAttribute("data-cols",top_data_cols);//for class:col-container: attr(data-cols)
+                                    col.style.cssText="align-items:stretch;";
+                                    const eleId=col.id;
+                                    idValues.push({eleId,id:"numCols",attValue:`${top_data_cols}`});
+                                    idValues.push({eleId,id:"colOrder",attValue:`${orderCol}`});
+                                    idValues.push({eleId,id:"rowId",attValue:`${row.id}`});
+                                    row.appendChild(col);
+                                    // console.log("ROWGENERTOR:AFTER FLEXCOLTRACKER:","flex",flexCol,"COL::",newCol)
+                                
+                                   await this._modSelector.colAdder({parent:resRow.target,target:col,selector:resRow.sel,row:resRow.rowEle as rowType,idValues}).then(async(resCol)=>{
+                                        if(resCol){
+                                            idValues=resCol.idValues;
+                                           
+                                           
+                                            this.genChoice({
+                                                column:resCol.target,
+                                                idValues,
+                                                row:resCol.row,
+                                                selector:resCol.selector,
+                                                col:resCol.col
+                                            });
+                                            resCol.target.addEventListener("click",(e:MouseEvent)=>{
+                                                if(e){
+                                                    resCol.target.classList.toggle("coliIsActive");
+                                                }
+                                            });
+                                        }
+                                    });
+                                    
+                                }));
+                            }else{
+                              
+                                await Promise.all(arrColB.map(async(orderColB)=>{
+                                    
+                                    const col1=document.createElement("div");
+                                    col1.id=`col-div-bottom-${orderColB}-${rand}`;
+                                    const eleId=col1.id;
+                                    col1.className=`col-lg-${numBot} col-container flexbox-column`;
+                                    col1.classList.add("col-container");//for attr(data-cols)
+                                    col1.setAttribute("data-cols",bottom_data_cols);
+                                    idValues.push({eleId,id:"rowId",attValue:`${resRow.target.id}`});
+                                    idValues.push({eleId:col1.id,id:"numCols",attValue:`${bottom_data_cols}`});
+                                    resRow.target.appendChild(col1);
+                                   await this._modSelector.colAdder({parent:resRow.target,target:col1,selector:resRow.sel,row:resRow.rowEle as rowType,idValues}).then(async(resCol1)=>{
+                                    if(resCol1 ){
+                                        idValues=resCol1.idValues;
+                                     
+                                        this.genChoice({
+                                            column:resCol1.target,
+                                            row:resCol1.row,
+                                            idValues,
+                                            selector:resCol1.selector,
+                                            col:resCol1.col
+                                        });
+                                        resCol1.target.addEventListener("click",(e:MouseEvent)=>{
                                             if(e){
-                                                col.classList.toggle("coliIsActive");
-                                            //    const isTrue= col.classList.toggle("coliIsActive",true);
-                                                container.classList.toggle("isActive");
-                                                // if(isTrue){
-                                                   
-                                                    this.updateColumn(col,_flex);
-                                                // }
+                                                resCol1.target.classList.toggle("coliIsActive");
+                                         
                                             }
                                         });
                                     }
-                                });
-                                
-                            });
-                        }else{
-                            arrColB.map((orderCol)=>{
-                                let _flex:flexType={} as flexType;
-                                _flex=this.flex;
-                                const col=document.createElement("div");
-                                col.className=`col-lg-${numBot} col-container flexbox-column`;
-                                _flex={..._flex,rowId:_row_.eleId,order:orderCol};
-                                const flexCol1=Main.flexColTracker({target:col,flex:_flex,isNew:true}) as flexType;
-                                _flex={...flexCol1};
-                                this.asyncColAdder(col,flexCol1).then((res)=>{
-                                    if(res && res.col){
-                                        // console.log("_col_Lower",_col_)
-                                        _flex={...res.flex,order:orderCol,position:"col"};
-                                        res.column.classList.add("box-shadow");
-                                        res.column.style.cssText="align-items:stretch;";
-                                        if(Edit.isBackgroundImage(res.column)){
-                                            col.setAttribute("is-backgroundimage","true");
-                                        };
-                                        row.appendChild(col);
-                                        _flex={..._flex,rowId:_row_.eleId,order:orderCol,colId:res.col.eleId}
-                                        // this.genChoice(col,this.flex);
-                                        this.genChoice(col,_flex);
-                                        col.addEventListener("click",(e:MouseEvent)=>{
-                                            if(e){
-                                                col.classList.toggle("coliIsActive",true);
-                                                container.classList.toggle("isActive");
-                                                // if(isTrue){
-                                                    this.updateColumn(col,_flex)
-                                                // }
-                                            }
-                                        });
-                                    }
-                                }).catch((err)=>console.error(getErrorMessage(err)));
-                                
-                            });
+                                    }).catch((err)=>console.error(getErrorMessage(err)));
+                                    
+                                }));
+                            }
                         }
                     });
                     
@@ -636,39 +739,29 @@ colAttrs=["col-start","col-end","col-center"];
                     };
                     container.appendChild(row);
                     
-                });
+                }));
                 parent.appendChild(container);
                 Misc.fadeIn({anchor:container,xpos:50,ypos:100,time:700});
-            }
+            };
+            //--------------DELETE ICON----------------//
+            this.removeFlexBox({parent,target:sel.target,idValues});
+            this._modSelector.dataset.idValues=idValues;
+            //--------------DELETE ICON--------------//
         }).catch((err)=>{console.error(getErrorMessage(err));});
     }
     //PARENT ROWCOLGENERATOR()=> feeds to Main() appElement +++ others() on Main()
-    async asyncSelectorAdder(target:HTMLElement,selector:selectorType):Promise<selectorType>{
-        const prom=new Promise((resolve)=>{
-            resolve(this.selectorAdder(target,selector))
-        });
-        return prom as Promise<selectorType>
-    }
-    async asyncRowAdder(row:HTMLElement,selectorId:string):Promise<rowType>{
-        const prom=new Promise((resolver,reject)=>{
-            resolver(this._modSelector.rowAdder(row,selectorId));
-            reject("did not add row");
-
-        });
-        return prom as Promise<rowType>
-    }
-    async asyncColAdder(col:HTMLElement,flex:flexType):Promise<{col:colType|undefined,column:HTMLElement,flex:flexType}>{
-        const prom=new Promise((resolver,reject)=>{
-            resolver(this.colAdder(col,flex));
-            reject("did not add column");
-
-        });
-        return prom as Promise<{col:colType|undefined,column:HTMLElement,flex:flexType}>
-    }
-    genChoice(column:HTMLElement,flex:flexType){
+   
+   
+    
+    genChoice({column,idValues,selector,row,col}:{
+        column:HTMLElement,
+        idValues:idValueType[]
+        row:rowType,
+        selector:selectorType,
+        col:colType
+    }){
         Header.cleanUpByID(column,"popup");
-        const {parsed,isJSON}=Header.checkJson(column.getAttribute("flex"));
-        this.flex= isJSON ? parsed as flexType : flex;
+        const selRowCol:selRowColType={selectorId:selector.eleId,rowId:row.eleId,colId:col.eleId};
         const popup=document.createElement("div");
         popup.classList.add("popup");
         popup.setAttribute("is-popup","true");
@@ -685,7 +778,7 @@ colAttrs=["col-start","col-end","col-center"];
         Flexbox.choice.forEach((choice)=>{
             if(choice){
                 const option=document.createElement("option") as HTMLOptionElement;
-                const choice_:choiceType={ele:choice.ele,isEle:choice.isEle,name:choice.ele,attr:choice.attr,level:choice.level}
+                const choice_:choiceType={ele:choice.ele,isEle:choice.isEle,name:String(choice.name),class_:String(choice.class_),level:choice.level}
                 option.value=JSON.stringify(choice_);
                 option.textContent=choice.name;
                 option.setAttribute("name",choice.name);
@@ -701,157 +794,225 @@ colAttrs=["col-start","col-end","col-center"];
         popup.appendChild(small);
         popup.appendChild(select);
         column.appendChild(popup);
-        select.addEventListener("change",(e:Event)=>{
+        select.addEventListener("change",async(e:Event)=>{
             if(e){
-                // type valueType={[imgKey:string]:string}
+               
                 const value_=(e.currentTarget as HTMLSelectElement).value
                 const {parsed,isJSON}=Header.checkJson(value_)
                 const value:choiceType|null=isJSON ? parsed as choiceType : null;
                 if(!value) return
-                const {ele,isEle,level,attr}=value;
-                const checkColAttrs=attr ? this.colAttrs.includes(attr as string) : false;
-                const checkEleAttrs=attr ? this.eleAttrs.includes(attr as string) : false;
+                const {ele,isEle,level,class_,name}=value;
+                const checkColAttrs=class_ ? this.colAttrs.includes(class_ as string) : false;
                 let icon:iconType | undefined;
                 let btn:HTMLButtonElement | null;
-                const checkText=["p","h1","h2","h3","h4","h5","h6","span"].includes(ele)
-                    if(isEle){
+                
+              
+                
+                if(isEle && ele){
+                        const checkEle=["p","h1","h2","h3","h4","h5","h6","span","img","time","blockquote","a","ul","ol"].includes(ele);
+                        const checkText=["p","h1","h2","h3","h4","h5","h6","span"].includes(ele);
                         //GOES TO MAIN FOR ELEMENT CREATION
-                        switch(true){
-                            case ele==="img":
-                                icon=Main.icons.find(ico=>(ico.name==="img")) as iconType;
-                                btn=document.querySelector(`button#${icon.name}`) as HTMLButtonElement;
-                                //ADDING IMAGE
-                                this.addImage(column,btn,icon,this.flex)
-                                
-                            return;
-                            case ele==="shapeOutside":
-                                this.flex={...this.flex,shapeOutsideCircle:true};
-                                column.setAttribute("flex",JSON.stringify(this.flex));
-                                let shapeEle:element_selType={} as element_selType;
-                                shapeEle={...shapeEle,id:0,type:"shapeoutside",attr:"data-shapeoutside-circle"}
+                        if(checkEle){
+                            const rand=Math.floor(Math.random()*1000);
+                            const divCont=document.createElement("div");
+                            this._modSelector.dataset.insertcssClassIntoComponents({target:divCont,level:"element",loc:"flexbox",type:"flexbox",id:"divContId",headerType:undefined});
+                            divCont.id=`flexbox-divCont-${rand}`;
+                            const target=document.createElement(ele);
+                            target.id=`flexbox-${ele}-${rand}`;
+                            target.style.cssText="padding-inline:1rem;width:100% !important;position:relative;border-radius:6px;"
+                            const eleId=target.id;
+                            const selRowCol={selectorId:selector.eleId,rowId:row.eleId,colId:column.id};
+                            const strSelRowCol=JSON.stringify(selRowCol);
+                            idValues.push({eleId,id:"selRowCol",attValue:strSelRowCol});
+                            
+                            switch(true){
+                                case ele==="img":
+                                    icon=Main.icons.find(ico=>(ico.name==="img")) as iconType;
+                                    btn=document.querySelector(`button#${icon.name}`) as HTMLButtonElement;
+                                    //ADDING IMAGE
+                                    this.addImage({
+                                        parent:column,
+                                        target,
+                                        divCont,
+                                        btn,
+                                        icon,
+                                        idValues,
+                                        selector,
+                                        row,
+                                        col
 
-                                this._shapeOutside.addShapeOutside({parent:column,flex:this.flex,element:shapeEle})
-                                
-                            return;
-                            case checkText && ele !=="shapeOutside":
-                                 icon=Main.icons.filter(ico=>(ico.isElement===true)).find(ico=>(ico.name===ele)) as iconType;
-                                 btn=document.querySelector(`button#${icon.name}`) as HTMLButtonElement;
-                                 if(icon){
-                                    this.appElement(column,btn,icon,this.flex);
+                                    })
                                     
-                                 }
-                            return;
-                            case ele ==="blockquote":
-                                icon=Main.icons.find(ico=>(ico.name==="blockquote")) as iconType;
-                                 btn=document.querySelector(`button#${icon.name}`) as HTMLButtonElement;
-                                 this.createQuote(column,icon,this.flex);
-                                 
-                            return;
-                            case ele ==="a":
-                                icon=Main.icons.find(ico=>(ico.name==="a")) as iconType;
-                                 btn=document.querySelector(`button#${icon.name}`) as HTMLButtonElement;
-                                 this.createAnchor(column,btn,icon,this.flex);
-                                 
-                            return;
-                            case ele ==="list":
-                                icon=Main.icons.find(ico=>(ico.name==="list")) as iconType;
-                                btn=document.querySelector(`button#${icon.name}`) as HTMLButtonElement;
-                                this.selectUltype(column,btn,this.flex);
-                                
-                            return;
-                            case ele ==="time":
-                                icon=Main.icons.find(ico=>(ico.name==="time")) as iconType;
-                                btn=document.querySelector(`button#${icon.name}`) as HTMLButtonElement;
-                                this.insertDateTime(column,btn,icon,this.flex);
-                                
-                            return;
-                            case ele ==="bg-shade":
-                                icon=Main.icons.find(ico=>(ico.name==="bg-shade")) as iconType;
-                                btn=document.querySelector(`button#${icon.name}`) as HTMLButtonElement;
-                                this.bgShade(column,btn,icon,this.flex);
-                                
-                            return;
-                            case ele ==="remove":
-                                column.removeChild(popup);
-                            return;
-                            default:
                                 return;
+                                
+                                case checkText :
+                                     icon=Main.icons.filter(ico=>(ico.isElement===true)).find(ico=>(ico.name===ele)) as iconType;
+                                     btn=document.querySelector(`button#${icon.name}`) as HTMLButtonElement;
+                                    this._modSelector.dataset.insertcssClassIntoComponents({
+                                        target,level:"element",
+                                        headerType:undefined,
+                                        id:"para",
+                                        loc:"flexbox",
+                                        type:"flexbox"
+
+                                    });
+                                     if(icon){
+                                       await this.appElement({
+                                            parent:column,
+                                            target,
+                                            divCont,
+                                            btn,
+                                            icon,
+                                            idValues,
+                                            selector,
+                                            row,
+                                            col
+
+                                        });
+                                        
+                                     }
+                                return;
+                                case ele ==="blockquote":
+                                    icon=Main.icons.find(ico=>(ico.name==="blockquote")) as iconType;
+                                    
+                                     this.createQuote({
+                                        parent:column,
+                                        target,
+                                        divCont,
+                                        icon,
+                                        idValues,
+                                        selector,
+                                        row,
+                                        col
+
+                                     });
+                                     
+                                return;
+                                case ele ==="a":
+                                    icon=Main.icons.find(ico=>(ico.name==="a")) as iconType;
+                                    
+                                     this.createAnchor({
+                                        parent:column,
+                                        target,
+                                        divCont,
+                                        icon,
+                                        idValues,
+                                        selector,
+                                        row,
+                                        col
+
+                                     });
+                                     
+                                return;
+                                case ele ==="ul" || ele==="ol":
+                                    
+                                    btn=document.querySelector(`button#ul`) as HTMLButtonElement;
+                                    this.createList({
+                                        parent:column,
+                                        target,
+                                        divCont,
+                                        btn,
+                                        idValues,
+                                       selector,
+                                       row,
+                                       col
+
+                                    });
+                                    
+                                return;
+                                case ele ==="time":
+                                    icon=Main.icons.find(ico=>(ico.name==="time")) as iconType;
+                                   
+                                    this.insertDateTime({
+                                        parent:column,
+                                        target,
+                                        divCont,
+                                        icon,
+                                        idValues,
+                                       selector,
+                                       row,
+                                       col
+
+                                    });
+                                    
+                                return;
+                                default:
+                                    return;
+                            }
+
                         }
 
-                    }else{
-                        if(level==="col"){
-                            switch(true){
-                                
-                                case ele==="col-center":
-                                    column.classList.toggle(ele);
-                                    this.updateColumn(column,flex);
-                                return;
-                                case ele==="col-end":
-                                    column.classList.toggle(ele);
-                                    this.updateColumn(column,flex);
-                                return;
-                                case ele==="col-start":
-                                    column.classList.toggle(ele);
-                                    this.updateColumn(column,flex);
-                                return;
-                                case ele==="box-shadow-md":
-                                    column.classList.toggle(ele);
-                                    this.updateColumn(column,flex);
-                                return
-                                case ele==="bg-image":
-                                    column.classList.toggle(ele);
-                                    this.bgImage(column,flex);
-                                return
-                                case ele==="bg-row-image":
-                                    column.classList.toggle(ele);
-                                    this.RowBgImage(column,flex);
-                                return
-                                case checkColAttrs:
-                                    column.classList.toggle(ele);
-                                return
-                                case ele==="set-even-height":
-                                    this.setEvenHeight(column);
-                                return
-                                case ele==="remove-even-height":
-                                    this.removeEvenHeight(column);
-                                return
-                               
-                                default:
-                                    return;
-                            }
-                        }else if(level==="element"){
-                            switch(true){
-                                case checkEleAttrs:
-                                    // this.setAttributes(column,ele)
-                                return;
-                                default:
-                                    return;
-                            }
-                        }
-                    }
-            }
+                }else if(!ele){
+                    if(level==="col" && class_==="undefined"){
+                        const selRow:selRowType={selectorId:selector.eleId,rowId:row.eleId}
+                       switch(true){
+                           case name ==="bg-shade":
+                           icon=Main.icons.find(ico=>(ico.name==="bg-shade")) as iconType;
+                           btn=document.querySelector(`button#${icon.name}`) as HTMLButtonElement;
+                           this.bgShade({parent:column,btn,sel:selector,row,col,idValues});
+                       return;
+                       case name==="bg-image":
+                           this.bgImage({column,idValues,sel:selector,row,col});
+                       return
+                       case name==="bg-row-image":
+                           this.RowBgImage({column,idValues,selRow});
+                       return
+                       case checkColAttrs:
+                           column.classList.toggle(class_ as string);
+                       return
+                       case name==="set-even-height":
+                          
+                           this.setEvenHeight({target:column,idValues,selRowCol});
+                       return
+                       case name==="remove-even-height":
+                           
+                           this.removeEvenHeight({target:column,idValues,selRowCol});
+                       return
+                       
+                       default:
+                           return;
+                       }
+                   }else if(level==="element" && name==="shapeOutside"){
+                       const selRowCol={selectorId:selector.eleId,rowId:row.eleId,colId:column.id};
+                       const rand=Math.floor(Math.random()*1000);
+                       const eleId=`flexbox-shape-${rand}`;
+                       this._element_sel={...this._element_sel,eleId,id:0,attr:"shapeOutsideCircle",type:"shapeOutside"};;
+                       const strSelRowCol=JSON.stringify(selRowCol);
+                       idValues.push({eleId,id:"selRowCol",attValue:strSelRowCol});
+                       this._shapeOutside.addShapeOutside({parent:column,sel:selector,rowEle:row,colEle:col,element:this._element_sel,idValues})
+                   }else if(name==="remove"){
+                       column.removeChild(popup);
+                   }else if(class_ !=="undefined" && !isEle && class_){
+                       column.classList.toggle(class_);
+                       const selRowCol:selRowColType={selectorId:selector.eleId,rowId:row.eleId,colId:col.eleId};
+                      await this.updateColumn({target:column,idValues,selRowCol}).then(async(res)=>{
+                       if(res){
+                           const col=res.col
+                           Misc.message({parent:column,msg:`HERE updated ${col?.eleId}`,type_:"success",time:800});
+                       }
+                      });
+                   }
+               }
+                }
         });
         
     }
     //PARENT genChoice
-    setAttributes(column:HTMLElement,attr:string){
-        const eleConts=column.querySelectorAll(`div.${this.divCont_class}`) as any as HTMLElement[];
+   async addClass({column,class_,idValues}:{column:HTMLElement,class_:string,idValues:idValueType[]}){
+        const eles=column.querySelectorAll(`[is-element].isActive`) as any as HTMLElement[];
         
-            ([...eleConts] as HTMLElement[]).map(child=>{
-                if(child ){
-                    ([...child.children as any] as HTMLElement[]).map(ele=>{
-                        if(ele){
-
-                            const {isJSON}=Header.checkJson(ele.getAttribute("flex"));
-                            const isActive=([...ele.classList as any] as string[]).includes("isActive");
-                            if(isActive && isJSON){
-                                ele.classList.toggle(attr);
-                                this.updateElement(ele);
-                            }
-                        }
-                    });
+           await Promise.all(([...eles] as HTMLElement[]).map(async(ele)=>{
+                if(ele ){
+                    ele.classList.toggle(class_);
+                   await this.updateElement({target:ele,idValues}).then(async(res)=>{
+                    if(res){
+                        const ele=res.ele;
+                        console.log("retEle",ele);
+                        console.log("target",res.target);
+                    }
+                });
                 }
-            });
+            }));
         
     }
     fontAction(btn:HTMLButtonElement){
@@ -876,156 +1037,179 @@ colAttrs=["col-start","col-end","col-center"];
         return check
     }
     //PARENT ADDELEMENT()
-    appElement(parent: HTMLElement,btn:HTMLElement|null, icon:iconType|undefined,flex_:flexType) {
-        if(!icon)return
-        const {parsed,isJSON}=Header.checkJson(parent.getAttribute("flex"));
-        const flex=isJSON ? parsed as flexType : flex_;
-        const divCont=document.createElement('div');
-        divCont.className=this.divCont_class;
-        divCont.style.cssText=this.divCont_css;
-        const target = document.createElement(icon.name); //ICON.NAME=ELE TYPE
+    async appElement({parent,target,divCont,btn,icon,idValues,selector,row,col}:{
+        parent: HTMLElement,
+        target:HTMLElement,
+        divCont:HTMLElement,
+        btn:HTMLElement|null,
+         icon:iconType|undefined,
+        idValues:idValueType[],
+        selector:selectorType,
+        row:rowType,
+        col:colType
+    }) {
+        if(!icon)return;
+    
         target.classList.add(icon.display);
         target.classList.add("w-100");
-        // this.docSelect(target,icon);
-        target.innerHTML = icon.name;
-        target.style.cssText = "border-radius:6px;";
-        target.style.cssText="margin-inline:8px;padding-inline:2rem;width:100% !important;position:relative;";
+        target.innerHTML = `${icon.name}=>`;
         target.classList.add("box-shadow");
-        target.setAttribute("is-element","true");
-        target.setAttribute("contenteditable","true");
-        target.setAttribute("aria-selected","true");
+        const eleId=target.id;
+        idValues.push({eleId,id:"name",attValue:icon.name});
         divCont.appendChild(target);
         parent.appendChild(divCont);
         Misc.matchMedia({parent:divCont,maxWidth:820,cssStyle:{paddingInline:"1.5rem"}});
         Misc.matchMedia({parent:divCont,maxWidth:420,cssStyle:{paddingInline:"10px"}});
         Misc.fadeIn({anchor:divCont,xpos:50,ypos:100,time:600});
-        Main.flexTracker({target,flex:flex as flexType,isNew:true});//generate ID and flex attribute
-        this.elementAdder(target).then(async(res)=>{
-            if(res && res.target && res.ele){
+        await this.elementAdder({
+            target:target,
+            selector,
+            row,
+            col,
+            idValues
+        }).then(async(res)=>{
+            if(res){
+                const selRowCol={selectorId:res.selector.eleId,rowId:res.row.eleId,colId:res.col.eleId} as selRowColType;
                 const ele=res.ele as unknown as element_selType;
-                // console.log(res.ele,"ele",ele);
                 divCont.setAttribute("data-placement",`${ele.order}-A`);
-                // console.log("RETURNED TARGET,ELE",res.target,res.ele)
-                this.removeMainElement(parent,divCont,target);
-                res.target.onclick=(e: MouseEvent) => {
+                
+                divCont.onclick=(e: MouseEvent) => {
                     if (e) {
-                    
-                        target.classList.toggle("isActive");
+                        res.target.classList.toggle("isActive");
                         divCont.classList.toggle("isActive");
                         const focusOptions: focusOptions = { focusVisible: false, preventScroll: false }
                         res.target.focus(focusOptions);
-                        this.updateElement(res.target);
-                        this.editElement(res.target)//pulls flex if exist from target attrubutes
+                       idValues=this.removeMainElement({parent,divCont,target:res.target,idValues,selRowCol});
                     }
                 };
+                this.editElement({target:res.target,idValues})//pulls flex if exist from target attrubutes
             }
         });//CRITICAL: needs flexTracker!!,this adds elements to selector and/or elements
-        
-        
-        
+          
         
     }
     //PARENT ADDELEMENT()
-    async addImage(parent:HTMLElement,btnClicked:HTMLButtonElement,icon:iconType,flex_:flexType):Promise<void>{
-        const {parsed,isJSON}=Header.checkJson(parent.getAttribute("flex"));
-        const blog=this._modSelector._blog;
+    async addImage({parent,selector,target,divCont,row,col,icon,btn,idValues}:{
+        parent:HTMLElement,
+        btn:HTMLButtonElement,
+        target:HTMLElement,
+        divCont:HTMLElement,
+        icon:iconType,
+        idValues:idValueType[],
+        selector:selectorType,
+        row:rowType,
+        col:colType
+
+    }):Promise<void>{
+        const blog=this._modSelector.blog;
         const user=this._user.user;
         this._modSelector.loadBlog({blog,user});
-        let flex=isJSON ? parsed as flexType : flex_;
-        if(flex.imgKey){
-            const markDel:deletedImgType={id:undefined,imgKey:flex.imgKey,del:true,date:new Date()};
+        const idValue:idValueType|undefined=this._modSelector.dataset.getIdValue({target,idValues,id:"imgKey"})
+        if(idValue){
+            const markDel:deletedImgType={id:undefined,imgKey:idValue.attValue,del:true,date:new Date()};
             await this._service.markDelKey(markDel);
         }
-        btnClicked.classList.add("active");
-        btnClicked.classList.add(icon.display);
-        const floatContainer=document.createElement("div");
+        btn.classList.add("active");
+        btn.classList.add(icon.display);
+        const popup=document.createElement("div");
         parent.classList.add("position-relative");
         parent.classList.add("z-0");
-        floatContainer.classList.add("select-image-container");
-        floatContainer.classList.add("flexCol");
+        popup.id="addImage-popup";
+        popup.classList.add("flexCol");
+        popup.style.cssText="position:absolute;inset:0%;transform:translateY(-50%);width:clamp(150px,200px,250px);border-radius:12px;box-shadow:1px 1px 12px 1px black;";
         const form=document.createElement("form");
-        form.classList.add("group-form");
         form.classList.add("flexCol");
+        const {input,label}=Nav.inputComponent(form);
         const submit=document.createElement("button");
         submit.className="btn btn-primary btn-sm rounded d-flex align-items-center gap-1";
         submit.innerHTML=`submit <i class="far fa-file-image text-white bg-black"/>`;
-        const input=document.createElement("input") as HTMLInputElement;
         input.type="file";
         input.name="file";
-        form.appendChild(input);
+        input.id="image-file";
+        label.setAttribute("for",input.id);
+        label.textContent="select file";
+        input.placeholder="";
         form.appendChild(submit);
-        floatContainer.appendChild(form);
-        parent.appendChild(floatContainer);
-        form.addEventListener("submit",(e:SubmitEvent)=>{
-            e.preventDefault();
-            if(e && e.currentTarget){
-                const formelement= new FormData(e.currentTarget as HTMLFormElement);
-                const file=formelement.get("file");
+        popup.appendChild(form);
+        parent.appendChild(popup);
+        form.addEventListener("submit",async(e:SubmitEvent)=>{
+            if(e ){
+                e.preventDefault();
+                const formdata= new FormData(e.currentTarget as HTMLFormElement);
+                const file=formdata.get("file");
                 const image=URL.createObjectURL(file as File);
-                //creating container && img
-                const imgCont=document.createElement("div");
-                imgCont.className=this.divCont_class;
-                imgCont.classList.add("element");
-                imgCont.style.cssText=this.divCont_css;
-                imgCont.setAttribute("contenteditable","false");
-                const img=document.createElement("img");
+                const img=target as HTMLImageElement;
+                img.setAttribute("contenteditable","false");
+                const eleId=img.id;
                 img.src=image;
                 img.alt="image";
-                img.setAttribute("contenteditable","false");
                 img.classList.add("image");
                 img.style.cssText="position:relative !important;width:100% !important;padding-inline:2rem;margin-inline:auto;border-radius:12px;border-radius:6px;";
-                const {Key}=this._service.generateImgKey(formelement,blog) as {Key:string};
-                flex={...flex,imgKey:Key}
+                const {Key}=this._service.generateImgKey(formdata,blog) as {Key:string};
+                const idValue1:idValueType={eleId,id:"imgKey",attValue:Key};
+                divCont.appendChild(img);
+                parent.appendChild(divCont);
+                this._modSelector.dataset.upDateIdValue({target,idValues,idValue:idValue1});
                 Header.detectImageEffect(img);
-                flex=Main.flexTracker({target:img,flex,isNew:true});//generate ID and flex attribute
-                this.elementAdder(img).then(async(res)=>{
-                    if(res && res.target && res.ele){
+                this.elementAdder({
+                    target:img,
+                    selector,
+                    row,
+                    col,
+                    idValues
+
+                }).then(async(res)=>{
+                    if(res){
+                        const selRowCol={selectorId:selector.eleId,rowId:row.eleId,colId:col.eleId} as selRowColType
                         const ele=res.ele as unknown as element_selType;
-                        imgCont.setAttribute("data-placement",`${ele.order}-A`)
-                        imgCont.appendChild(img);
-                        parent.appendChild(imgCont);
-                        flex={...flex,imgKey:Key}
-                        img.setAttribute("flex",JSON.stringify(flex));
-                        this._user.askSendToServer({bg_parent:parent,formdata:formelement,image:img,blog,oldKey:null});
-                        Misc.fadeIn({anchor:imgCont,xpos:50,ypos:100,time:600});
-                        parent.removeChild(floatContainer);
-                        btnClicked.classList.remove("active");
-                        imgCont.addEventListener("click",(e:MouseEvent)=>{
+                        divCont.setAttribute("data-placement",`${ele.order}-A`)
+                        const blog=this._modSelector.blog;
+                        this._user.askSendToServer({bg_parent:parent,formdata,image:img,blog,oldKey:null,idValues,selRowCol});
+                        Misc.fadeIn({anchor:divCont,xpos:50,ypos:100,time:600});
+                        Misc.fadeOut({anchor:popup,xpos:50,ypos:100,time:600});
+                        setTimeout(()=>{parent.removeChild(popup);},580);
+                        btn.classList.remove("active");
+                        divCont.addEventListener("click",(e:MouseEvent)=>{
                             if(e){
-                                imgCont.classList.toggle("isActive");
-                                img.classList.toggle("isActive");
-                                const isActive=([...imgCont.classList as any] as string[]).includes("isActive");
-                                if(isActive){
-                                    this.removeMainElement(parent,imgCont,img);
-                                    imgCont.style.zIndex="";
-                                }
+                                divCont.classList.toggle("isActive");
+                                res.target.classList.toggle("isActive");
+                              idValues=this.removeMainElement({parent,divCont,target:img,idValues,selRowCol});
+                                
                             }
                         });
                     }
                 });//CRITICAL: needs flexTracker!!,this adds elements to selector and/or elements
-                Misc.matchMedia({parent:imgCont,maxWidth:820,cssStyle:{paddingInline:"1.5rem"}});
-                Misc.matchMedia({parent:imgCont,maxWidth:420,cssStyle:{paddingInline:"10px"}});
-                
+                Misc.matchMedia({parent:divCont,maxWidth:820,cssStyle:{paddingInline:"1.5rem"}});
+                Misc.matchMedia({parent:divCont,maxWidth:420,cssStyle:{paddingInline:"10px"}});
+                    
+              
                 
             }
         });
 
     }
 
-    async bgImage(column:HTMLElement,flex:flexType){
-        const blog=this._modSelector._blog;
-        const {form,reParent,btn}=Misc.imageForm(column,flex);
-        form.style.top="50%";
+    async bgImage({column,sel,row,col,idValues}:{
+        column:HTMLElement,
+        idValues:idValueType[]
+        sel:selectorType,
+        row:rowType,
+        col:colType
+    }){
+        const selRowCol={selectorId:sel.eleId,rowId:row.eleId,colId:col.eleId};
+        const blog=this._modSelector.blog;
+        const {form,reParent,btn}=Misc.imageForm(column);
         reParent.style.zIndex="2";
-        const {parsed}=Header.checkJson(column.getAttribute("flex"));
-        let _flex=(parsed as flexType) ? parsed as flexType : flex;
-        const oldKey=flex.imgKey ? flex.imgKey : null;
+        const idValue=this._modSelector.dataset.getIdValue({target:column,idValues,id:"imgKey"});
+        const oldKey=idValue  ? idValue.attValue : null;
         form.onsubmit=async(e:SubmitEvent)=>{
             if(e){
                 e.preventDefault();
+                const idValues:idValueType[]=this._modSelector.dataset.idValues;
+                const eleId=column.id;
                 const formdata= new FormData(e.currentTarget as HTMLFormElement);
                 const file=formdata.get("file") as File;
-                if(file){
+                if(file ){
                     btn.disabled=true;
                     const user=this._user.user
                     const {Key}=this._service.generateFreeImgKey({formdata,user}) as {Key:string};
@@ -1033,15 +1217,16 @@ colAttrs=["col-start","col-end","col-center"];
                     column.style.backgroundImage=`url(${imgUrl})`;
                     column.style.backgroundSize=`100% 100%`;
                     column.style.backgroundPosition=`50% 50%`;
-                    _flex={..._flex,position:"col",backgroundImage:true,imgKey:Key,colId:column.id};
-                    _flex={..._flex,imgKey:Key,position:"col"};
-                    column.setAttribute("flex",JSON.stringify(flex));
-                    column.setAttribute("data-backgroundimage","true");
-                    this._modSelector.promUpdateColumn(column,flex).then(async(col_)=>{
-                        if(col_){
-                           await this._user.askSendToServer({bg_parent:column,formdata,image:null,blog,oldKey});//THIS SAVES IT AS BACKGROUND IF IMAGE=NULL
-                        }
-                    });
+                    const idValue2:idValueType={eleId,id:"imgKey",attValue:Key};
+                    this._modSelector.dataset.upDateIdValue({target:column,idValues,idValue:idValue2});
+                    this._modSelector.dataset.upDateIdValue({target:column,idValues,idValue:idValue2});
+                    await this.updateColumn({target:column,idValues,selRowCol}).then(async(res)=>{
+                    if(res ){
+                        const col=res.col;
+                        Misc.message({parent:column,msg:`updated ${col?.eleId}`,type_:"success",time:500});
+                        await this._user.askSendToServer({bg_parent:column,formdata,image:null,blog,oldKey,idValues,selRowCol});//THIS SAVES IT AS BACKGROUND IF IMAGE=NULL
+                    }
+                   });
                     Misc.growOut({anchor:form,scale:0,opacity:0,time:400});
                     setTimeout(()=>{
                         reParent.removeChild(form);
@@ -1050,37 +1235,42 @@ colAttrs=["col-start","col-end","col-center"];
             }
         };
     }
-    async RowBgImage(column:HTMLElement,flex:flexType){
+    async RowBgImage({column,idValues,selRow}:{column:HTMLElement,idValues:idValueType[],selRow:selRowType}){
         const row=column.parentElement;
         if(!row) return;
-        const {parsed}=Header.checkJson(row.getAttribute("flex"));
-        let _flex=(parsed as flexType) ? parsed as flexType : flex;
-        const oldKey=flex.imgKey ? flex.imgKey : null;
-        const blog=this._modSelector._blog;
-        const user=this._user.user;
-        this._modSelector.loadBlog({blog,user});
-        const {form,reParent}=Misc.imageForm(row,flex);
-        form.style.top="50%";
+        
+        const countCols=([...row.children as any] as HTMLElement[]).length;
+        const idValue:idValueType|undefined=this._modSelector.dataset.getIdValue({target:row,idValues,id:"imgKey"});
+        const oldKey=idValue  ? idValue.attValue : null;
+        const {form,reParent}=Misc.imageForm(row);
+        
         reParent.style.zIndex="2";
         form.onsubmit=async(e:SubmitEvent)=>{
             if(e){
                 e.preventDefault();
+            
                 const user=this._user.user
                 const formdata= new FormData(e.currentTarget as HTMLFormElement);
                 const file=formdata.get("file") as File;
                 if(file){
+                    const eleId=row.id;
                     const {Key}=this._service.generateFreeImgKey({formdata,user}) as {Key:string};
-                    _flex={..._flex,imgKey:Key,backgroundImage:true};
+                    const idValue2:idValueType={eleId,id:"imgKey",attValue:Key};
+                    this._modSelector.dataset.upDateIdValue({target:row,idValues,idValue:idValue2});
                     const imgUrl=URL.createObjectURL(file);
                     row.style.backgroundImage=`url(${imgUrl})`;
                     row.style.backgroundSize=`100% 100%`;
                     row.style.backgroundPosition=`50% 50%`;
-                    flex={...flex,position:"row",backgroundImage:true};
-                    row.setAttribute("flex",JSON.stringify(flex));
-                    row.setAttribute("data-backgroundimage","true");
-                    this._modSelector.promUpdateRow(row).then(async(row_)=>{
-                        if(row_){
-                            this._user.askSendToServer({bg_parent:row,formdata,image:null,blog,oldKey});//THIS SAVES IT AS BACKGROUND IF IMAGE=NULL
+                    idValues.push({eleId,id:"backgroundImg",attValue:"true"});
+                    idValues.push({eleId,id:"numCols",attValue:String(countCols)});
+                    this.updateRow({target:row,idValues,selRow}).then(async(_res)=>{
+                        if(_res){
+                            const {selectorId,rowId}=selRow;
+                            const selRowCol={selectorId,rowId,colId:column.id} as selRowColType
+                            //rowType,rowAtt,isSaved
+                            const blog=this._modSelector.blog;
+                            //
+                            this._user.askSendToServer({bg_parent:row,formdata,image:null,blog,oldKey,idValues,selRowCol});//THIS SAVES IT AS BACKGROUND IF IMAGE=NULL
                         }
                     });
                     Misc.growOut({anchor:form,scale:0,opacity:0,time:400});
@@ -1090,110 +1280,113 @@ colAttrs=["col-start","col-end","col-center"];
                 }
             }
         };
-    }
-    createAnchor(parent:HTMLElement,btnClick:HTMLElement,icon:iconType,flex_:flexType){
-        const {parsed,isJSON}=Header.checkJson(parent.getAttribute("flex"));
-        let flex=isJSON ? parsed as flexType : flex_;
+    };
+
+
+    createAnchor({parent,target,divCont,selector,row,icon,col,idValues}:{
+        parent:HTMLElement,
+        icon:iconType,
+        target:HTMLElement,
+        divCont:HTMLElement,
+        selector:selectorType,
+        row:rowType,
+        col:colType,
+        idValues:idValueType[]
+    }){
+       
         //Form group
         const width=window.innerWidth < 900 ? 75 : 50;
-        btnClick.classList.add("active");
         const div=document.createElement("div");
         div.className="m-1 position-relative element-container";
         div.style.cssText="margin-inline:auto;padding-inline:2rem;margin-block:1rem;"
-        const groupForm=document.createElement("form");
-        groupForm.className="form-group mx-auto flex flex-column align-items-center gap-1";
-        groupForm.setAttribute("data-form-group","true");
-        groupForm.style.cssText=`width:${width}%;text-align:center; font-size:12px;display:flex;flex-direction:column;gap:10px;`;
-        const tName=document.createElement("h5");
-        tName.textContent="enter name";
-        const inName=document.createElement("input");
-        inName.className="form-control mx-auto";
+        const form=document.createElement("form");
+        form.id="link-form-input"
+        form.className="form-group mx-auto flex flex-column align-items-center gap-1";
+        form.setAttribute("data-form-group","true");
+        form.style.cssText=`width:${width}%;text-align:center; font-size:12px;display:flex;flex-direction:column;gap:10px;`;
+        const {input:inName,label:nlabel,}=Nav.inputComponent(form);
         inName.type="text";
         inName.name="name";
         inName.placeholder="link name";
         inName.style.cssText="width:200px;margin-block:0.5rem";
-        const tLink=document.createElement("h5");
-        tLink.textContent="enter link";
-        const inLink=document.createElement("input");
-        inLink.className="form-control mx-auto";
-        inLink.type="http";
+        inName.id="name";
+        nlabel.setAttribute("for",inName.id);
+        nlabel.textContent="link name";
+        const {input:inLink,label:lLabel,}=Nav.inputComponent(form);
+        inLink.type="url";
         inLink.name="link";
         inLink.placeholder="https://example.com";
         inLink.style.cssText="width:200px;margin-block:0.5rem";
-        inLink.pattern="(https:\/\/)[a-zA-Z0-9]{2,}\.[a-z]{2,3}";
-        const submitBtn=buttonRetDisable({parent:groupForm,text:"create",bg:this.btnColor,color:"white",type:"button",disable:true})
-        groupForm.appendChild(tName);
-        groupForm.appendChild(inName);
-        groupForm.appendChild(tLink);
-        groupForm.appendChild(inLink);
-        groupForm.appendChild(submitBtn);
-        parent.appendChild(groupForm);
-        Misc.fadeIn({anchor:groupForm,xpos:50,ypos:100,time:600});
-        const anchor=document.createElement("a");
-        anchor.setAttribute("is-element","true");
-        anchor.id=`${icon.name}-${Math.round(Math.random()*1000)}`;
-        anchor.setAttribute("name",`${icon.name}`);
-        anchor.style.cssText="margin-inline:auto;padding:1rem;font-size:18px;";
-        anchor.className="text-primary"
-
-        inName.addEventListener("change",(e:Event)=>{
-            if(e){
-                const nameValue=(e.currentTarget as HTMLInputElement).value;
-                inName.value=nameValue;
-            }
-        });
-        inLink.addEventListener("change",(e:Event)=>{
-            if(e){
-                const reg:RegExp=/(https:\/\/)[a-zA-Z0-9]{2,}\.[a-z]{2,3}/g;
+        inLink.pattern="https://*.";
+        inLink.id="inLink";
+        inLink.placeholder="https://example.com";
+        lLabel.setAttribute("for",inLink.id);
+        lLabel.textContent="url link"
+        const {button}=Misc.simpleButton({anchor:form,type:"submit",text:"submit",bg:Nav.btnColor,color:"white",time:400});
+        button.disabled=true;
+        inLink.onchange=(e:Event)=>{
+            if(!e) return;
+            button.disabled=false;
+            const reg:RegExp=/(https:\/\/)[a-zA-Z0-9]{2,}\.[a-z]{2,3}/g;
                 const linkValue=(e.currentTarget as HTMLInputElement).value;
                 if(reg.test(linkValue)){
                 inLink.value=linkValue;
-                submitBtn.disabled=false;
+                button.disabled=false;
                 }else{
-                    Misc.message({parent:groupForm,msg:"enter htpps://,,,.ca or .com or,,,",type_:"error",time:700})
+                    Misc.message({parent:parent,msg:"enter htpps://,,,.ca or .com or,,,",type_:"error",time:700})
                 }
-            }
-        });
-        submitBtn.onclick=(e:MouseEvent)=>{
+        };
+        parent.appendChild(form);
+        Misc.fadeIn({anchor:form,xpos:50,ypos:100,time:600});
+        form.onclick=async(e:MouseEvent)=>{
             if(e){
                 e.preventDefault();
-                // const formdata=new FormData(e.currentTarget as HTMLFormElement);
-                const name=(inName as HTMLInputElement).value as string;
-                const link=(inLink as HTMLInputElement).value as string;
+                const numEles=([...parent.children as any] as HTMLElement[]).length;
+                const eleId=target.id;
+                const formdata=new FormData(e.currentTarget as HTMLFormElement);
+                const name=formdata.get("name") as string;
+                const link=formdata.get("link") as string;
                 if( name && link){
-                    const divCont=document.createElement("div");
-                    divCont.style.cssText=this.divCont_css;
-                    divCont.className=this.divCont_class;
-                    divCont.id=`anchor-container-${Math.round(Math.random()*100)}`;
+                    const anchor=target as HTMLAnchorElement;
+                    anchor.style.cssText="margin-inline:auto;padding:1rem;font-size:18px;";
+                    anchor.className="text-primary"
                     anchor.textContent=inName.value;
                     anchor.href="#";
-                    anchor.onclick=()=>{window.open(link,"_blank")};
-                    anchor.setAttribute("data-href",link);
-                    flex={...flex,link:link};
-                    console.log(name,link)
-                    anchor.setAttribute("contenteditable","true");
-                    flex=Main.flexTracker({target:anchor,flex,isNew:true});
-                    anchor.setAttribute("data-name-id",`${icon.name}-${anchor.id}`);
-                    this.elementAdder(anchor).then(async(res)=>{
-                        if(res && res.target && res.ele){
+                    anchor.setAttribute("data-link",link);
+                    this.addLinkEmailTelImg({target:anchor,image:this.link,href:link,name,type:"link"});
+                    divCont.appendChild(anchor);
+                    parent.appendChild(divCont);
+                    idValues.push({eleId,id:"link",attValue:link});
+                    idValues.push({eleId,id:"IDCol",attValue:`${parent.id}-${numEles}`});
+                    idValues.push({eleId,id:"numEles",attValue:String(numEles)});
+                    
+                    this.elementAdder({
+                        target:anchor,
+                        selector,
+                        row,
+                        col,
+                        idValues
+                    }).then(async(res)=>{
+                        if(res ){
+                            idValues=res.idValues;
+                             const selRowCol={selectorId:res.selector.eleId,rowId:res.row.eleId,colId:res.col.eleId} as selRowColType;
                             const ele=res.ele as unknown as element_selType;
                             divCont.setAttribute("data-placement",`${ele.order}-A`);
-                           divCont.onclick=(e:MouseEvent)=>{
+                            divCont.onclick=(e:MouseEvent)=>{
                                 if(e){
-                                    anchor.classList.toggle("isActive");
+                                    res.target.classList.toggle("isActive");
                                     divCont.classList.toggle("isActive");
-                                    this.updateElement(anchor)
                                 }
                             };
-                            divCont.appendChild(anchor);
-                            parent.appendChild(divCont);
                             Misc.matchMedia({parent:divCont,maxWidth:820,cssStyle:{paddingInline:"1.5rem"}});
                             Misc.matchMedia({parent:divCont,maxWidth:420,cssStyle:{paddingInline:"10px"}});
-                            this.removeMainElement(parent,divCont,anchor);
-                            parent.removeChild(groupForm);
-                            btnClick.classList.remove("active");
+                           idValues=this.removeMainElement({parent,divCont,target:res.target,idValues,selRowCol});
+                            Misc.growOut({anchor:form,scale:0,opacity:0,time:400});
+                           setTimeout(()=>{parent.removeChild(form);},400); 
+                           
                         }
                     });//CRITICAL: needs flexTracker!!,this adds elements to selector and/or elements
+                    
                 }
             }
         };
@@ -1201,172 +1394,166 @@ colAttrs=["col-start","col-end","col-center"];
         
         
     }
-    selectUltype(parent:HTMLElement,btnClick:HTMLElement,flex_:flexType){
-        const {parsed,isJSON}=Header.checkJson(parent.getAttribute("flex"));
-        const flex=isJSON ? parsed as flexType : flex_;
-        const arr=[{name:"select",value:"select"},{name:"bullet",value:"none"},{name:"ordered",value:"decimal"}];
-        // const useParent=selector && flex ? parent as HTMLElement :
-        btnClick.classList.add("active");
-        parent.classList.add("position-relative");
-        const select=document.createElement("select");
-        select.className="position-absolute selectUl";
-        select.style.cssText="top:0; width:20%;";
-        select.setAttribute("isPopup","true");
-        arr.forEach((type_)=>{
-            const option=document.createElement("option");
-            option.value=type_.value;
-            option.textContent=type_.name;
-            select.appendChild(option);
-        });
-        parent.appendChild(select);
-        Misc.fadeIn({anchor:select,xpos:50,ypos:100,time:600});
-        select.addEventListener("change",(e:Event)=>{
-            if(e){
-                const check=([...btnClick.classList as any] as string[]).includes("active");
-                if(check){
-                const type__=(e.currentTarget as HTMLSelectElement).value
-                this.createList(parent,btnClick,type__,flex);
-                btnClick.classList.remove("active");
-                parent.removeChild(select);
-               
-                }
-                
-            }
-        });
-        
-    }
+ 
     //PARENT SELECTULTYPE()
-    createList(parent:HTMLElement,btnClick:HTMLElement,type:string,flex_:flexType){
-        const {parsed,isJSON}=Header.checkJson(parent.getAttribute("flex"));
-        const flex=isJSON ? parsed as flexType : flex_;
+    createList({parent,target,divCont,btn,selector,row,col,idValues}:{
+        parent:HTMLElement,
+        selector:selectorType,
+        row:rowType,
+        col:colType,
+        target:HTMLElement,
+        divCont:HTMLElement,
+        idValues:idValueType[],
+        btn:HTMLButtonElement
+
+    }){
+        btn.classList.add("active");
         Main.textarea=document.querySelector("div#textarea");
-        const useParent=parent as HTMLElement;
-        if(useParent){
-            const divCont=document.createElement("div");
-            divCont.className=this.divCont_class;
-            divCont.style.cssText=this.divCont_css;
-            const ul=document.createElement("ul");
-            ul.classList.add("w-100");
-            ul.setAttribute("contenteditable","true");
-            ul.setAttribute("is-element","true");
-            ul.setAttribute("name","ul");
-            ul.className=" box-shadow";
-            ul.classList.add("element");
-            ul.classList.add("box-shadow");
-            ul.style.cssText="padding-inline:6px;width:90%;margin-inline:auto;";
-            const li=document.createElement("li");
-            // li.setAttribute("contenteditable","true");
-            if(type==="decimal"){
-                li.classList.add("decimal");
-            }
-            divCont.appendChild(ul);
-            useParent.appendChild(divCont);
-            Misc.matchMedia({parent:divCont,maxWidth:820,cssStyle:{paddingInline:"1.5rem"}});
-            Misc.matchMedia({parent:divCont,maxWidth:420,cssStyle:{paddingInline:"10px"}});
-            Misc.fadeIn({anchor:divCont,xpos:50,ypos:100,time:600});
-            Main.flexTracker({target:ul,flex,isNew:true});
-            this.elementAdder(ul).then(async(res)=>{
-                if(res && res.target && res.ele){
-                    const ele=res.ele as unknown as element_selType;
-                    divCont.setAttribute("data-placement",`${ele.order}-A`);
-                    this.editElement(res.target)//pulls flex if exist from target attrubutes
-                    divCont.onclick=(e:MouseEvent)=>{
-                        if(e){
-                            if(!(([...res.target.children as any] as HTMLElement[]).map(li=>(li.nodeName)).includes("LI"))){
-                                ul.appendChild(li);
-                            }
-                            divCont.classList.toggle("isActive");
-                            res.target.classList.toggle("isActive");
-                            if(([...res.target.classList as any] as string[]).includes("isActive")){
-                            this.removeMainElement(useParent,divCont,res.target);
-                            this.updateElement(res.target);//does both selectors and elements
-                            }
-                            btnClick.classList.remove("active");
-                            
-                        }
-                    };
-                }
-            });//CRITICAL: needs flexTracker!!,this adds elements to selector and/or elements
-            
-            
-            //ADDING element
-            
-           
-           //NOTE CHANGE EVENT ONLY WORKS FOR INPUT,TEXTAREA TYPE
+        const node=target.nodeName.toLowerCase()
+        let list:HTMLOListElement|HTMLUListElement;
+        if(node=="ol"){
+            list=target as HTMLOListElement
+        }else{
+            list=target as HTMLUListElement
         }
-    }
-    createQuote(parent:HTMLElement,icon:iconType,flex_:flexType){
-        const {parsed,isJSON}=Header.checkJson(parent.getAttribute("flex"));
-        const flex=isJSON ? parsed as flexType : flex_;
+        
+        const eleId=list.id;
+        list.classList.add("w-100");
+        const countEles=([...parent.children as any] as HTMLElement[]).length;
+        list.setAttribute("name",node);
+        list.className=" box-shadow";
+        list.classList.add("box-shadow");
+        list.style.cssText="padding-inline:6px;width:90%;margin-inline:auto;";
+        const li=document.createElement("li");
+       
+        if(node==="ul"){
+            li.classList.add("decimal");
+        }
+        divCont.appendChild(list);
+        parent.appendChild(divCont);
+        Misc.matchMedia({parent:divCont,maxWidth:820,cssStyle:{paddingInline:"1.5rem"}});
+        Misc.matchMedia({parent:divCont,maxWidth:420,cssStyle:{paddingInline:"10px"}});
+        Misc.fadeIn({anchor:divCont,xpos:50,ypos:100,time:600});
+        idValues.push({eleId,id:"IDCol",attValue:`${parent.id}-col-${countEles}`});
+        idValues.push({eleId,id:"name",attValue:node});
+        this.elementAdder({
+            target:list,
+            selector,
+            row,
+            col,
+            idValues
+        }).then(async(res)=>{
+            if(res ){
+                const ele=res.ele as element_selType;
+                divCont.setAttribute("data-placement",`${ele.order}-A`);
+                
+                this.editElement({target:res.target,idValues})//pulls flex if exist from target attrubutes
+                divCont.onclick=(e:MouseEvent)=>{
+                    if(e){
+                         const selRowCol={selectorId:res.selector.eleId,rowId:res.row.eleId,colId:res.col.eleId} as selRowColType;
+                        if(!(([...res.target.children as any] as HTMLElement[]).map(li=>(li.nodeName)).includes("LI"))){
+                            list.appendChild(li);
+                        }
+                        divCont.classList.toggle("isActive");
+                        res.target.classList.toggle("isActive");
+                        btn.classList.remove("active");
+                      this.removeMainElement({parent,divCont,target:res.target,idValues:res.idValues,selRowCol});
+                    }
+                };
+            }
+        });//CRITICAL: needs flexTracker!!,this adds elements to selector and/or elements
+        
+      
+    };
+
+
+
+    createQuote({parent,target,divCont,selector,row,col,icon,idValues}:{
+        parent:HTMLElement,
+        icon:iconType,
+        row:rowType,
+        col:colType,
+        selector:selectorType
+        target:HTMLElement,
+        divCont:HTMLElement,
+        idValues:idValueType[]
+    }){
+        
         Main.textarea=document.querySelector("div#textarea");
-        const useParent= parent as HTMLElement ;
-        const divCont=document.createElement("div");
-        divCont.style.cssText=this.divCont_css;
-        divCont.className=this.divCont_class;
-        const quote=document.createElement("blockquote");
-        quote.setAttribute("name","blockquote");
-        quote.setAttribute("is-element","true");
-        quote.id=`blockquote-${Math.round(Math.random()*1000)}`;
+        const quote=target as HTMLQuoteElement;
+        const countEles=([...parent.children as any] as HTMLElement[]).length;
         quote.className="position-relative";
         quote.classList.add(icon.display);
         quote.classList.add("element");
         quote.classList.add("box-shadow");
-        quote.setAttribute("contenteditable","true");
         quote.textContent=icon.name;
         divCont.appendChild(quote);
-        useParent.appendChild(divCont);
+        parent.appendChild(divCont);
         Misc.matchMedia({parent:divCont,maxWidth:820,cssStyle:{paddingInline:"1.5rem"}});
         Misc.matchMedia({parent:divCont,maxWidth:420,cssStyle:{paddingInline:"10px"}});
         Misc.fadeIn({anchor:quote,xpos:50,ypos:100,time:600});
         //ADDING element
-        Main.flexTracker({target:quote,flex,isNew:true});//adds flex to attribute flex
-        this.elementAdder(quote).then(async(res)=>{
-            if(res && res.target){
+        const eleId=quote.id;
+        idValues.push({eleId,id:"name",attValue:`${quote.nodeName.toLowerCase()}`});
+        idValues.push({eleId,id:"IDCol",attValue:`${parent.id}-col-${countEles}`});
+        
+        this.elementAdder({
+            target:quote,
+            selector,
+            row,
+            col,
+            idValues
+        }).then(async(res)=>{
+            if(res ){
                 const ele=res.ele as unknown as element_selType;
+                idValues=res.idValues;
                 divCont.setAttribute("data-placement",`${ele.order}-A`);
-                divCont.onclick=(e:MouseEvent)=>{
+                divCont.onclick=async(e:MouseEvent)=>{
                     if(!e) return
+                     const selRowCol={selectorId:res.selector.eleId,rowId:res.row.eleId,colId:res.col.eleId} as selRowColType;
                     divCont.classList.toggle("isActive");
                     res.target.classList.toggle("isActive");
                     if(([...res.target.classList as any] as string[]).includes("isActive")){
-                    this.removeMainElement(useParent,divCont,res.target);
-                    this._modSelector.updateElement(res.target)//update bot element and selector elements
+                   idValues= this.removeMainElement({parent,divCont,target:res.target,idValues,selRowCol});
                     
                     };
                 };
             };
-            this.editElement(quote)//realtime edits on either flex or none items
+            this.editElement({target:res.target,idValues})//realtime edits on either flex or none items
         });//CRITICAL: needs flexTracker!!,this adds elements to selector and/or elements
+       
         
        
         
-    }
-    insertDateTime(parent:HTMLElement,btnClicked:HTMLButtonElement,icon:iconType,flex_:flexType){
-        const {parsed,isJSON}=Header.checkJson(parent.getAttribute("flex"));
-        const flex=isJSON ? parsed as flexType : flex_;
-        btnClicked.classList.add("active");
-        const divCont=document.createElement("div");
-        divCont.className=this.divCont_class;
-        divCont.style.cssText=this.divCont_css;
-        const container=document.createElement("div");
-        container.className="position-relative flexCol justify-center align-center mx-auto my-auto px-1 py-2 ";
-        container.style.cssText="width:200px;height:20vh;"
-        const formGroup=document.createElement("form");
-        formGroup.className="form-group flexCol justify-center align-center position-absolute gap-1";
-        formGroup.setAttribute("data-form-group","true");
-        formGroup.style.cssText="inset:-1rem;background:white;width:100%; max-height:100%;border-radius:15px;box-shadow:1px 1px 6px 1px black,-1px -1px 4px 1px black;";
-        const label=document.createElement("label");
-        label.textContent="select date and time";
-        const input=document.createElement("input");
+    };
+    insertDateTime({parent,target,divCont,selector,row,col,icon,idValues}:{
+        parent:HTMLElement,
+        icon:iconType,
+        row:rowType,
+        col:colType,
+        selector:selectorType
+        target:HTMLElement,
+        divCont:HTMLElement,
+        idValues:idValueType[]
+    }){
+        
+        const popup=document.createElement("div");
+        const css_col="display:flex;flex-direction:column;justify-content:center;align-items:center;gap:1rem;padding:1rem;"
+        popup.id="dateTime-popup";
+        popup.className="position-relative flexCol justify-center align-center mx-auto my-auto px-1 py-2 ";
+        popup.style.cssText="width:300px;height:300px;border-radius:12px;box-shadow:1px 1px 12px 1px black;backround-color:white;" + css_col;
+        const form=document.createElement("form");
+        form.style.cssText=css_col +"width:100%;";
+        const {input,label}=Nav.inputComponent(form)
         input.type="datetime-local";
         input.name="datetime";
         input.id="datetime";
         input.min="2024-04-07T00:00";
         input.max="2026-04-24T00:00";
-        formGroup.appendChild(label);
-        formGroup.appendChild(input);
+        input.placeholder="Date";
+        label.setAttribute("for",input.id);
         const submit:btnReturnDisableType={
-            parent:formGroup,
+            parent:form,
             text:"submit",
             bg:this.bgColor,
             color:"white",
@@ -1374,85 +1561,101 @@ colAttrs=["col-start","col-end","col-center"];
             disable:true
         }
        const btn= buttonRetDisable(submit);
-        // formGroup.appendChild(btn);
-        container.appendChild(formGroup);
-        parent.appendChild(container);
+       btn.disabled=true;
+        popup.appendChild(form);
+        parent.appendChild(popup);
         input.addEventListener("change",(e:Event)=>{
             if(e){
                 btn.disabled=false;
             }
         });
-        Misc.fadeIn({anchor:formGroup,xpos:50,ypos:100,time:600});
-        formGroup.addEventListener("submit",(e:SubmitEvent)=>{
+        Misc.fadeIn({anchor:popup,xpos:50,ypos:100,time:600});
+        form.addEventListener("submit",async(e:SubmitEvent)=>{
             if(e){
                 e.preventDefault();
-                let _flex={...flex};
                 const formdata=new FormData(e.currentTarget as HTMLFormElement);
                 const datetime=formdata.get("datetime") as string;
                 const newDate=new Date(datetime as string);
                 const mkDateTime=`about-${datetime.split("-")[2].split("T")[1]}`;
-                const time=document.createElement("time");
-                time.id=`${icon.name}-${Math.round(Math.random()*1000)}`;
-                time.setAttribute("datetime",`${mkDateTime}`);
+                const time=target as HTMLTimeElement;
+                const eleId=time.id;
+                time.setAttribute("date-time",`${mkDateTime}`);
                 time.innerHTML=newDate.toLocaleDateString();
-                time.style.cssText="margin:0.75rem; font-size:16px";
-                time.className="text-primary show-time mx-auto my-3 show-time";
+                const numEles=([...parent.children as any] as HTMLElement[]).length;
+                idValues.push({eleId,id:"IDCol",attValue:`${parent.id}-col-${numEles}`});
+                idValues.push({eleId,id:"numEles",attValue:String(numEles)});
+                idValues.push({eleId,id:"time",attValue:mkDateTime});
+              
                 divCont.appendChild(time);
                 parent.appendChild(divCont);
-                parent.removeChild(container);
+                parent.removeChild(popup);
                 Misc.matchMedia({parent:divCont,maxWidth:820,cssStyle:{paddingInline:"1.5rem"}});
                 Misc.matchMedia({parent:divCont,maxWidth:420,cssStyle:{paddingInline:"10px"}});
-                _flex={...flex,time:mkDateTime}
-                Main.flexTracker({target:time,flex:_flex,isNew:true});
-                this.elementAdder(time).then(async(res)=>{
-                    if(res && res.target && res.ele){
+                
+                this.elementAdder({
+                    target:time,
+                    row,
+                    selector,
+                    col,
+                    idValues
+                }).then(async(res)=>{
+                    if(res){
+                        const selRowCol={selectorId:res.selector.eleId,rowId:res.row.eleId,colId:res.col.eleId} as selRowColType;
                         const ele=res.ele as unknown as element_selType;
+                        idValues=res.idValues;
                         divCont.setAttribute("data-placement",`${ele.order}`);
-                       divCont.addEventListener("click",(e:Event)=>{
+                        divCont.addEventListener("click",async(e:Event)=>{
                             if(e){
-                                btnClicked.classList.toggle("active");
                                 divCont.classList.toggle("isActive");
-                                this.removeMainElement(parent,divCont,time);
+                                res.target.classList.toggle("isActive");
+                                idValues=this.removeMainElement({parent,divCont,target:time,idValues,selRowCol});
                             }
                         });
                     }
                 });
                 
+                
+                
             }
         });
 
-    }
-    setEvenHeight(column:HTMLElement){
-        for(const key of Object.keys(column.style)){
+    };
+
+    
+    setEvenHeight({target,idValues,selRowCol}:{target:HTMLElement,idValues:idValueType[],selRowCol:selRowColType}){
+        const eleId=target.id
+        for(const key of Object.keys(target.style)){
             if(key==="height"){
-                column.style.height="auto";
+                target.style.height="auto";
             }
         }
-        const getRow=column.parentElement;
-        const {isJSON,parsed}=Header.checkJson(column.getAttribute("flex"));
-        if(!getRow || !isJSON) return;
-        const flex=parsed as flexType;
+        
+        const getRow=target.parentElement;
+        if(!( getRow)) return;
         const rowHeight=window.getComputedStyle(getRow).getPropertyValue("height");
-        column.style.height=rowHeight;
-        this._modSelector.promUpdateColumn(column,flex).then(async(col)=>{
+        target.style.height=rowHeight;
+        const idValue:idValueType={eleId,id:"height",attValue:rowHeight};
+        this._modSelector.dataset.upDateIdValue({target,idValues,idValue});
+        this._modSelector.updateColumn({target:target,idValues,selRowCol}).then(async(col)=>{
             if(!col){
-                Misc.message({parent:column,msg:"set height failed",time:700,type_:"error"});
+                Misc.message({parent:target,msg:"set height failed",time:700,type_:"error"});
             }
         });
     };
-    removeEvenHeight(column:HTMLElement){
-        const getRow=column.parentElement;
-        const {isJSON,parsed}=Header.checkJson(column.getAttribute("flex"));
-        if(!getRow || !isJSON) return;
-        const flex=parsed as flexType;
-        column.style.height="auto";
-        this._modSelector.promUpdateColumn(column,flex).then(async(col)=>{
-            if(!col){
-                Misc.message({parent:column,msg:"remove height failed",time:700,type_:"error"});
+
+
+    removeEvenHeight({target,idValues,selRowCol}:{target:HTMLElement,idValues:idValueType[],selRowCol:selRowColType}){
+        target.style.height="auto";
+        this.updateColumn({target,idValues,selRowCol}).then(async(res)=>{
+            if(res ){
+                const col=res.col;
+                Misc.message({parent:target,msg:`${col?.eleId}:removed`,type_:"success",time:600});
             }
         });
     };
-    removeFlexBox(parent:HTMLElement,target:HTMLElement){
+
+
+    removeFlexBox({parent,target,idValues}:{parent:HTMLElement,target:HTMLElement,idValues:idValueType[]}){
         //--------------DELETE ICON----------------//
         const delDiv=document.createElement("div");
         delDiv.style.cssText="position:absolute;top:0;left:0;transform:translate(-12px,0px);background:black;color:white;border-radius:50%;font-size:26px;";
@@ -1464,8 +1667,27 @@ colAttrs=["col-start","col-end","col-center"];
         delDiv.addEventListener("click",(e:MouseEvent)=>{
             if(e){
                 this._modSelector.selectors.map((sel,index)=>{
-                    if(sel && sel.eleId===parent.id){
-                        const arr=Header.getImgKeys(sel);
+                    if(sel && sel.eleId===target.id){
+                        const {rows}=this._modSelector.checkGetRows({select:sel});
+                        rows.map(row=>{
+                            if(row){
+                                row.cols.map(col=>{
+                                    if(col){
+                                        col.elements.map(ele=>{
+                                            if(ele){
+                                                idValues.map((kat,index)=>{
+                                                    const check=[sel.eleId,row.eleId,col.eleId].includes(kat.eleId)
+                                                    if(check){
+                                                        idValues.splice(index,1);
+                                                    }
+                                                });
+                                            }
+                                        });
+                                    }
+                                });
+                            }
+                        });
+                        const arr=Header.getImgKeys({selector:sel});
                         if(arr && arr.length>0){
                             arr.map(item=>{
                                 if(item){
@@ -1488,14 +1710,13 @@ colAttrs=["col-start","col-end","col-center"];
                
             }
         });
-    }
+    };
+
     static getPlacement():Promise<string | null>{
         return new Promise((resolver,reject)=>{
             if(typeof window !=="undefined"){
                 resolver(localStorage.getItem("placement"));
-                reject("flexbox: could not get placement")
-
-            }
+            };
         }) as Promise<string | null>;
     }
    
@@ -1503,7 +1724,8 @@ colAttrs=["col-start","col-end","col-center"];
 
    //PARENT: ROWCOLGENERATOR()- GENERATES COLUMNS
    colGenerator(cols:number){
-     //Column GENERATOR
+     //Column GENERATOR PRODUCES FLEX NUMS MAX=COLUMNS:4 MIN=COLUMNS:1, the input is the #of columns
+     //OUTPUT:NUM:=> FOR 12/NUM
     const arrCol=[{col:1,num:12},{col:2,num:6},{col:3,num:4},{col:4,num:3},{col:6,num:2}]
     const result=arrCol.find(col_=>(col_.col===cols));
     if(!result)return
@@ -1511,34 +1733,35 @@ colAttrs=["col-start","col-end","col-center"];
     }
 
 
-    bgShade(parent:HTMLElement,btnClicked:HTMLButtonElement,icon:iconType,flex_:flexType| null){
-        const {parsed,isJSON}=Header.checkJson(parent.getAttribute("flex"));
-        const flex=isJSON ? parsed as flexType : flex_;
-        const useParent=flex ? parent : btnClicked as HTMLElement;
-        const direction=window.innerWidth < 600 ? "column":"row" ;
-        useParent.style.position="relative";
-        useParent.style.zIndex="100";
-        btnClicked.classList.add("active");
+    bgShade({parent,sel,row,col,btn,idValues}:{
+        parent:HTMLElement,
+        sel:selectorType,
+        row:rowType,
+        col:colType,
+        btn:HTMLButtonElement,
+        idValues:idValueType[]
+
+    }){
+        const less600=window.innerWidth < 600;
+        const eleId=parent.id;
+        const selRowCol:selRowColType={selectorId:sel.eleId,rowId:row.eleId,colId:col.eleId};
+        const idValue:idValueType={eleId,id:"selRowCol",attValue:JSON.stringify(selRowCol)};
+        this._modSelector.dataset.upDateIdValue({target:parent,idValues,idValue});
+        const direction=less600 ? "column":"row" ;
+        const height=less600 ? "auto":"36px"
+        parent.style.position="relative";
+       
+        btn.classList.add("active");
         //show drop-down on shade selection
         const popup=document.createElement("div");
-        popup.style.cssText=`position:absolute;border-radius:5px;box-shadow:1px 1px 10px 1px #bdc5c9;display:flex;flex-direction:${direction};width:175px;height:auto;z-index:200;`;
+        popup.style.cssText=`position:absolute;inset:0%;transform:translateY(-10%);border-radius:5px;box-shadow:1px 1px 10px 1px #bdc5c9;display:flex;flex-direction:${direction};width:175px;height:auto;z-index:200;height:${height}`;
         popup.setAttribute("is-popup","true");
         popup.id="popup";
-        if(flex){
-            popup.style.top="0px";
-            popup.style.left="0px";
-            popup.style.transform="translate(5px,-25px)";
-        }else{
-            popup.style.transform="none";
-            if(direction==="column"){
-                popup.style.width="75px";
-                popup.style.inset="105% -50% -110% -150%";
-            }else{
-            popup.style.inset="105% -50% -110% -250%";
-            };
-        };
+        popup.style.top="0px";
+        popup.style.left="0px";
+        popup.style.transform="translate(5px,-25px)";
         const selectBlue=document.createElement("select");
-        selectBlue.style.cssText="border-radius:15px;"
+        selectBlue.style.cssText="border-radius:15px;height:26px;";
         selectBlue.className="box-shadow";
        
         Misc.blueShades?.forEach((shade)=>{
@@ -1549,42 +1772,41 @@ colAttrs=["col-start","col-end","col-center"];
             selectBlue.appendChild(option);
         });
         popup.appendChild(selectBlue);
-        Misc.fadeIn({anchor:popup,xpos:50,ypos:100,time:600});
+        Misc.growIn({anchor:popup,scale:0,opacity:0,time:600});
         selectBlue.addEventListener("change",(e:Event)=>{
             if(e){
-                const getActives=document.querySelectorAll("[is-element=true].isActive");
+                const getActives=parent.querySelectorAll("[is-element=true].isActive");
                 const value=(e.currentTarget as HTMLSelectElement).value as string;
                 const {parsed,isJSON}=Header.checkJson(value);
                 const shade= isJSON ? parsed as {name:string,value:string}:null;
-                btnClicked.classList.remove("active");
-                // console.log(shade)
-                const check=(getActives && getActives.length>0)? true:false;
+                const check=(getActives && getActives.length>0);
                 
                 if(check){
-                    ([...getActives as any] as HTMLElement[]).forEach((element)=>{
+                    (([...getActives as any] as HTMLElement[]).forEach(async(activeEle)=>{
                         
-                            if(element && shade){
-                                element.style.backgroundColor=shade.value;
-                                this._modSelector.updateElement(element);//updates on both selector and Element
+                            if(activeEle && shade){
+                                const eleId=activeEle.id;
+                                const idValue:idValueType={eleId,id:"selRowCol",attValue:JSON.stringify(selRowCol)};
+                                this._modSelector.dataset.upDateIdValue({target:activeEle,idValues,idValue});
+                                activeEle.style.backgroundColor=shade.value;
+                               await this.updateElement({target:activeEle,idValues}).then(async(res)=>{
+                                if(res){
+                                    const ele=res.ele
+                                    console.log("ele",ele);
+                                    console.log("target",res.target)
+                                }
+                               });
                             }
                         
-                    });
-                }else{
-                    if(flex && shade){
-                        useParent.style.backgroundColor=shade.value;
-                        this._modSelector.updateColumn(useParent,flex);
-                    }
+                    }));
+                    btn.classList.remove("active");
+                    parent.removeChild(popup);
                 }
-                ([...useParent.children as any] as HTMLElement[]).forEach(child=>{
-                    if(child && child.id==="popup"){
-                        useParent.removeChild(child);
-                    }
-                });
                 
             }
         });
         const select1=document.createElement("select");
-        select1.style.cssText="border-radius:15px;"
+        select1.style.cssText="border-radius:15px;height:26px;";
         select1.className="box-shadow";
         Misc.shades.forEach((shade,index)=>{
             const option=document.createElement("option");
@@ -1595,35 +1817,35 @@ colAttrs=["col-start","col-end","col-center"];
             select1.appendChild(option);
         });
         popup.appendChild(select1);
-        useParent.appendChild(popup);
+        parent.appendChild(popup);
         select1.addEventListener("change",(e:Event)=>{
             if(e){
-                const getActives=document.querySelectorAll("[is-element=true].isActive");
+              
+                const getActives=parent.querySelectorAll("[is-element=true].isActive");
                 const value=(e.currentTarget as HTMLSelectElement).value as string;
-                
-                btnClicked.classList.remove("active");
-                const check=(getActives && getActives.length>0)? true:false;
+                const check=(getActives && getActives.length>0);
                 
                 if(check){
-                    ([...getActives as any] as HTMLElement[]).forEach((element)=>{
+                    ([...getActives as any] as HTMLElement[]).forEach(async(activeEle)=>{
                         
-                            if(element){
-                                element.style.backgroundColor=value;
-                                this._modSelector.updateElement(element);//updates on both selector and Element
+                            if(activeEle){
+                                const eleId=activeEle.id;
+                                const idValue:idValueType={eleId,id:"selRowCol",attValue:JSON.stringify(selRowCol)};
+                                this._modSelector.dataset.upDateIdValue({target:activeEle,idValues,idValue});
+                                activeEle.style.backgroundColor=value;
+                                await this.updateElement({target:activeEle,idValues}).then(async(res)=>{
+                                    if(res){
+                                        const ele=res.ele;
+                                        console.log("retEle",ele);
+                                        console.log("target",res.target);
+                                    }
+                                });
                             }
                         
                     });
-                }else{
-                    if(flex){
-                        useParent.style.backgroundColor=value;
-                        this._modSelector.updateColumn(useParent,flex);
-                    }
+                    btn.classList.remove("active");
+                    parent.removeChild(popup);
                 }
-                ([...useParent.children as any] as HTMLElement[]).forEach(child=>{
-                    if(child && child.id==="popup"){
-                        useParent.removeChild(child);
-                    }
-                });
                 
             }
         });
@@ -1631,260 +1853,211 @@ colAttrs=["col-start","col-end","col-center"];
         //then remove "active" on btn
     }
 
-    selectorAdder(target:HTMLElement,selector:selectorType):selectorType{
-        const maxcount=ModSelector.maxCount(this._modSelector.blog);
-            localStorage.setItem("placement",String(maxcount+1));
-            this.placement=maxcount+1;
-        const arr=this.selectors;
-      
-        const newSelect:selectorType={
-           ...selector as selectorType,
-           id:this.placement,
-           name:target.getAttribute("name")? target.getAttribute("name") : "",
-           eleId:target.id,
-           class:target.className,
-           cssText:target.style.cssText,
-           rows:"",
-           header:false,
-           placement:this.placement,
-           footer:false
-       } as selectorType;
-       
-    
+   async selectorAdder({target,selector,idValues}:{target:HTMLElement,selector:selectorType,idValues:idValueType[]}):
+   Promise<{
+    selector:selectorType,
+    target:HTMLElement,
+    idValues:idValueType[]
+   }>{
+    const eleId=target.id;
+        
+        const node=target.nodeName.toLowerCase();
+            selector={
+               ...selector as selectorType,
+               id:this.placement,
+               name:node,
+               eleId:eleId,
+               class:target.className,
+               cssText:target.style.cssText,
+               rows:"",
+               header:false,
+               placement:this.placement,
+               footer:false
+           } as selectorType;
+           
+        
+           
+           idValues.push({eleId,id:"selectorId",attValue:eleId});
+           idValues.push({eleId,id:"placement",attValue:String(selector.placement)});
+           const {idValues:retIdValues}=this._modSelector.dataset.coreDefaultIdValues({target,sel:selector,row:null,col:null,ele:null,idValues,loc:"flexbox",level:"selector",clean:false});
+           idValues=retIdValues;
            this.placement=this.placement + 1;
-           arr.push(newSelect);
-       //addAttributes
-       this.selectors=arr
+           this._modSelector.selectors.push(selector);
+        this._modSelector.dataset.populateElement({target,selRowColEle:selector,idValues,level:"selector",loc:'flexbox',clean:false});
        this._modSelector.footerPlacement();
-    //    console.log("selector",newSelect)
-       return newSelect
-       // console.log("191: selectorAdder: selectors",this._selectors)//works
+       this._modSelector.dataset.upDateIdValues({idValues});
+       return Promise.resolve({selector,target,idValues}) as Promise<{selector:selectorType,target:HTMLElement,idValues:idValueType[]}>; 
+       
    }
-   rowAdder(target:HTMLElement,selectorId:string):rowType | undefined{
-    let row_:rowType={} as rowType;
-    let rows:rowType[]=[] as rowType[]
-    const {parsed}=Header.checkJson(target.getAttribute("flex"));
-    const flex= parsed as flexType;
-    const {backgroundImage,imgKey}=flex;
-    this._selectors=this.selectors.map(select=>{
-        // console.log("197:modSelector:rowAdderr:outside",select.eleId,selectorId);
-        if(select.eleId===selectorId){
-            rows=this._modSelector.checkGetRows({select}).rows;
-            const ID=rows ? rows.length :0;
-            const check=rows.find(row=>(row.eleId===target.id)) ? true:false;
-            // console.log("201:modSelector:rowAdderr:inside",select.id,selectorId);
-            if(!check){
-                row_={
-                    id: ID,
-                    name:target.getAttribute("name") ? target.getAttribute("name") as string : '' ,
-                    class:target.className.split(" ").filter(cl=>(cl !=="box-shadow")).join(" "),
-                    eleId:target.id,
-                    inner_html:target.textContent ? target.textContent : "",
-                    cssText:target.style.cssText,
-                    cols:[] as colType[],
-                    selector_id:select.id,
-                    imgimgKey:imgKey ? imgKey : undefined,
-                    order:ID
-                } as rowType;
-                if(backgroundImage){
-                    target.setAttribute("data-backgroundImage","true");
-                }
-                rows.push(row_);
-                select.rows=JSON.stringify(rows);
-            }
-        }
-        return select;
-    });
-    this.selectors=this._selectors;
-    const _row_:rowType|undefined=row_
-    if(_row_) return _row_
-    return 
-    }
-    colAdder(target:HTMLElement,flex_:flexType):{col:colType | undefined,column:HTMLElement,flex:flexType}{
-        const {parsed,isJSON}=Header.checkJson(target.getAttribute("flex"));
-        let flex:flexType=isJSON ? parsed as flexType : flex_;
-        const {selectorId,rowId,imgKey,backgroundImage}=flex;
-        let col:colType={} as colType
-        this._selectors=this.selectors.map(select=>{
-            if(select.eleId===selectorId){
-                const rows=JSON.parse(select.rows) as rowType[];
-                rows.map(row=>{
-                    if(row.eleId ===rowId){
-                        const check=row.cols.map(col=>(col.eleId)).includes(target.id as string);
-                        // console.log("277:check:determines if COL extis",check,"target.id",target.id,)//works
-                        if(!check){
-                            const ID1=row.cols?.length ? row.cols.length : 0;
-                                col={
-                                    id:ID1,
-                                    name:target.getAttribute("name") ? target.getAttribute("name") as string : '' ,
-                                    class:target.className.split(" ").filter(cl=>(cl !=="box-shadow")).filter(cl=>(cl !=="coliIsActive")).join(" "),
-                                    eleId:target.id,
-                                    inner_html:target.textContent ? target.textContent : "",
-                                    cssText:target.style.cssText,
-                                    elements:[] as element_selType[],
-                                    row_id:row.id,
-                                    imgKey:imgKey ? imgKey : undefined,
-                                    order:ID1
-                            }as colType;
-                            if(backgroundImage){
-                                target.setAttribute("data-backgroundImage","true");
-                            }
-                            row.cols.push(col);
-                            flex={...flex,order:ID1}
-                            target.setAttribute("flex",JSON.stringify(flex));
-                        }
-                    }
-                    return row;
-                });
-                select.rows=JSON.stringify(rows);
-            }
-            return select;
-        });
-           this.selectors=this._selectors;
-           return {col,column:target,flex}
-        //    console.log("colAdder():selectors:col",col_)
-            
-    }
+  
    
-    elementAdder(target:HTMLElement | HTMLImageElement):Promise<{target:HTMLElement,ele:element_selType}>{
-
-        const {parsed,isJSON}=Header.checkJson(target.getAttribute("flex"));
-        const checkNodename=["a","blockquote","ul","img","ol"]
-        const nodename=target.nodeName.toLowerCase();
-        const specialNodename=checkNodename.includes(nodename);
-        const time=target.getAttribute("datetime");//works
-        // console.log("isJson",isJSON,"parsed",parsed,"nodeName",target.nodeName);
-        let flex=parsed as flexType;
-        flex=Main.flexTracker({target,flex,isNew:false});
-        const {selectorId,rowId,colId,shapeOutsideCircle,shapeOutsideSquare,shapeOutsidePolygon,imgKey,link:link1,time:time1}=flex;
-        const shapeArr=[
-            {name:"data-shapeOutside-circle",bool:shapeOutsideCircle},
-            {name:"data-shapeOutside-square",bool:shapeOutsideSquare},
-            {name:"data-shapeOutside-polygon",bool:shapeOutsidePolygon}
-            
-        ];
-        const isShapeoutside=shapeArr.find(sh=>(sh.bool));
-        let ele:element_selType={} as element_selType;
-        //ADDING ATTRIBUTES
-    
-        this._selectors = this._modSelector._selectors.map(selector_=>{
-            if(selector_.eleId===selectorId ){
-                // console.log("inside selector:",selector_.eleId===selectorId);//works
-                const rows=JSON.parse(selector_.rows) as rowType[];
-                rows.map(row=>{
-                    if(row.eleId===rowId){
-                        row.cols.map((col)=>{
-                            // console.log("compare col:",col.eleId,"flex.col",colId);//works
-                            // console.log("1350 inside col:",col.eleId===colId);
-                            if(col.eleId===colId){
-                                const ID=col.elements ? col.elements.length:0;
-                                // console.log("1352 HELROWSSSSS outside check: target.id",target.id);
-                                const check=col.elements && col.elements.map(ele_=>(ele_.eleId)).includes(target.id as string);
-                                // console.log("1357 HELROWSSSSS BEFORE CHECK: col.eleId",col.eleId);
-                                    if(nodename && !check){
-                                    
-                                        // console.log("1357 HELROWSSSSS INSIDE",target.id);
-                                        ele={
-                                            ...ele,
-                                            id:ID ,
-                                            selectorId:selector_.id,
-                                            name:nodename as string,
-                                            class:target.className.split(" ").filter(cl=>(cl !=="isActive")).join(" "),
-                                            eleId:target.id,
-                                            inner_html:target.innerHTML,
-                                            placement:ID ? ID as number : undefined,
-                                            cssText:target.style.cssText,
-                                            attr:target.getAttribute("attr") ? target.getAttribute("attr") as string :undefined,
-                                            col_id:col.id,
-                                            order:ID,
-                                            imgKey: imgKey ? imgKey : undefined
-                                        } as element_selType;
-                                        
-                                            if(isShapeoutside){
-                                            ele.attr=isShapeoutside.name;
-                                        }
-                                        if(!specialNodename){
-                                                ele.inner_html=target.innerHTML;
-                                
-                                        }else if(nodename==="a"){
-                                            const link=target.getAttribute("data-href") as string;
-                                            if(link){
-                                                ele.attr=link;
-                                            }else if(link1){
-                                                ele.attr=link;
-                                            }
-                                        }
-                                        if(time || time1){
-                                            ele.attr=time ? time as string :time1 as string;
-                                            target.setAttribute("datetime",String(ele.attr));
-                                        }
-                                        if(specialNodename && nodename !=="a"){
-                                            ele.inner_html=target.innerHTML as string
-                                            // console.log("modSelector.elementAdder()",ele.inner_html)
-                                        }
-                                        if(nodename==="img"){
-                                            const target_=target as HTMLImageElement;
-                                            ele.img=target_.src;
-                                            ele.inner_html=target_.alt;
-                                        }
-                                        col.elements.push(ele)
-                                        target.setAttribute("order",String(ID));
-                                        flex={...flex,order:ID};
-                                        target.setAttribute("flex",JSON.stringify(flex));
-                                        // console.log("ELEMENT ADDER:INSIDE",col.elements)
-                                    }
-                                    // console.log("OUTSIDE",col.elements)
-                            }
-                            
-                            return col;
-                        })
+   async elementAdder({target,selector,row,idValues,col}:{
+    //ADDS ELEMENT, ADD IDVALUES DEFAULTS AND POPULATES ATTRIBUTES
+    target:HTMLElement,
+    selector:selectorType,
+    row:rowType,
+    col:colType,
+    idValues:idValueType[]
+   }):Promise<{
+    target:HTMLElement,
+    ele:element_selType|undefined
+    selector:selectorType,
+    row:rowType,
+    col:colType,
+    idValues:idValueType[]
+   }>{
+       const eleId=target.id;
+        const node=target.nodeName.toLowerCase();
+        let ele:element_selType|undefined={} as element_selType;
+        const selRowCol:selRowColType={selectorId:selector.eleId,rowId:row.eleId,colId:col.eleId};
+        idValues.push({eleId,id:"selRowCol",attValue:JSON.stringify(selRowCol)});
+        const {cleaned}=this._modSelector.removeClasses({target,classes:["isActive"]});
+        //COL
+        const check= col?.elements.map(ele_=>(ele_.eleId)).includes(target.id as string);
+        if(node && !check){
+            const ID=col.elements.length
+            ele={
+                ...ele,
+                id:ID ,
+                selectorId:selector.id,
+                name:node,
+                class:cleaned.join(" "),
+                eleId,
+                inner_html:target.innerHTML,
+                placement:ID ? ID as number : undefined,
+                cssText:target.style.cssText,
+                attr:target.getAttribute("attr") ? target.getAttribute("attr") as string :undefined,
+                col_id:col.id,
+                order:ID,
+                // imgKey: imgKey ? imgKey : undefined
+            } as element_selType;
+            idValues.push({eleId,id:"eleOrder",attValue:String(ID)});
+            const {idValues:retIdValues}=this._modSelector.dataset.coreDefaultIdValues({
+                target,
+                sel:selector,
+                row,
+                col,
+                ele,
+                idValues,
+                loc:"flexbox",
+                level:"element",
+                clean:false
+            });
+            idValues=retIdValues
+            idValues=Dataset.removeIdValueDuplicates({arr:idValues,eleId});
+            const getEleIds=idValues.filter(kat=>(kat.eleId===eleId));
+            getEleIds.map(kat=>{
+                if(ele && kat.attValue){
+                    const attrTest=attrEnumArrTest(ele);
+                    const typeTest=typeEnumArrTest(ele);
+                    const hasAttr=attrEnumArr.includes(kat.id);
+                    const hasType=typeEnumArr.includes(kat.id as typeEnumType);
+                    if(kat.id==="imgKey" && ele){
+                        if(kat.attValue){
+                            ele.imgKey=kat.attValue;
+                        }
+                    }else if(!attrTest){
+                        if(hasAttr){
+                            ele.attr=kat.attValue
+                        };
+                    }else if(!typeTest){
+                        if(hasType && ele){
+                            ele.type=kat.attValue;
+                        };
                     }
-                    return row;
-                });
-                selector_.rows=JSON.stringify(rows);
+
+                }
+            });
+                        
+            if(node==="img"){
+                const target_=target as HTMLImageElement;
+                if(!ele.imgKey){
+                    ele.img=target_.src;
+                }
+                ele.inner_html=target_.alt;
+            }
+            col.elements.push(ele as element_selType);
+                      
+                    }
+        //COL
+        //APPENDING COL
+       row.cols= row.cols.map((col_)=>{
+            if(col_.eleId===col.eleId){
+                col_=col;
+            }
+            return col_;
+        });
+        //APPENDING COL
+        //APPENDING ROW
+        const {rows}=this._modSelector.checkGetRows({select:selector});
+        const newRows= rows.map((row_)=>{
+               if(row_.eleId===row.eleId){
+                   row_=row;
+               }
+               return row_;
+           });
+        //APPENDING ROW
+        //ADDING IT TO SELECTOR
+        selector={...selector,rows:JSON.stringify(newRows)}
+        //ADDING IT TO SELECTOR
+        //ADDING SELECTOR TO SELECTORS
+        this.selectors = this._modSelector.selectors.map((selector_)=>{
+           
+            if(selector_.eleId===selector.eleId ){
+                selector_=selector;
             }
             return selector_;
-        });
-        this.selectors=this._selectors; //saving it to blog
-        // const col_=this.selectors.find(sel=>(sel.eleId===selectorId))?.rows.find(row=>(row.eleId===rowId))?.cols.find(col=>(col.eleId===target.id));
-        return new Promise(resolver=>{
-            resolver({target:target,ele:ele})
-        }) as Promise<{target:HTMLElement,ele:element_selType}>;
+        }); //saving it to blog
         
+        //POPULATING ATTRIBUTE
+        this._modSelector.dataset.populateElement({
+            target,
+            loc:"flexbox",
+            level:"element",
+            selRowColEle:ele,
+            idValues,
+            clean:false
+        });
+        //POPULATING ATTRIBUTE
+        idValues=Dataset.removeIdValueDuplicates({arr:idValues,eleId});
+        this._modSelector.dataset.upDateIdValues({idValues});
+        //ADDING SELECTOR TO SELECTORS
+        return Promise.resolve({target:target,ele:ele as element_selType|undefined,selector,idValues,row,col}) as Promise<{ 
+            target:HTMLElement,
+            ele:element_selType|undefined
+            selector:selectorType,
+            row:rowType,
+            col:colType,
+            idValues:idValueType[]}>;
 
-    }
-    updateElement(target:HTMLElement){
-        const {parsed,isJSON}=Header.checkJson(target.getAttribute("flex"));
-        const nodename=target.nodeName.toLowerCase();
-        // console.log("parsed",parsed);
-        // console.log("target",target.innerHTML);
+    };
+
+
+    async updateElement({target,idValues}:{target:HTMLElement,idValues:idValueType[]}):Promise<{ele:element_selType|undefined,target:HTMLElement}>{
+        const eleId=target.id;
+        const getEleIds=idValues.filter(kat=>(kat.eleId===eleId));
+        const idValue=getEleIds.find(kat=>(kat.id==="selRowCol"));
+        const node=target.nodeName.toLowerCase();
+        const {cleaned}=this._modSelector.removeClasses({target,classes:["isActive","box-shadow"]});
+        let retEle:element_selType|undefined={} as element_selType;
+      const {isJSON,parsed}=(idValue) ? Header.checkJson(idValue.attValue) : {isJSON:false,parsed:null};
         if(isJSON){
-            const flex=parsed as flexType;
-            const {selectorId,rowId,colId,imgKey}=flex ;
-            this._selectors=this._selectors.map(select=>{
+            const {selectorId,rowId,colId}=parsed as selRowColType;
+            this._selectors=this._modSelector.selectors.map(select=>{
                 if(select.eleId===selectorId){
-                    const rows=JSON.parse(select.rows) as rowType[];
-                    rows.map(row=>{
+                    const {rows}=this._modSelector.checkGetRows({select});
+                   const newRows= rows.map(row=>{
                         if(row.eleId===rowId){
                             row.cols.map(col=>{
                                 if(col.eleId===colId){
                                     col.elements.map(ele=>{
                                         if(ele.eleId===target.id){
                                             ele.cssText=target.style.cssText;
-                                            ele.class=target.className.split(" ").filter(cl=>(cl !== "isActive")).join(" ");
+                                            ele.class=cleaned.join(" ");
                                             ele.inner_html=target.innerHTML;
-                                            ele.imgKey=imgKey ? imgKey:undefined;
-                                            if(nodename==="a"){
-                                                const link=target.getAttribute("data-href");
-                                                const anchorContainer=target.getAttribute("data-anchor-container");
-                                                ele.attr=JSON.stringify({link,anchorContainer});
-                                                ele.inner_html=target.innerHTML;
-                                            }else if(nodename==="img"){
-                                                const img=target as HTMLImageElement;
-                                                ele.img=img.src;
-                                                ele.inner_html=img.alt;
-                                            }
-                                            // console.log("ele",ele)
+                                            if(node==="img") ele.inner_html=(target as HTMLImageElement).alt;
+                                            this._modSelector.datasetSincUpdate({target,ele:ele,idValues,level:"element",loc:"flexbox"});
+                                          retEle=ele;
                                         }
                                         return ele;
                                     });
@@ -1894,268 +2067,238 @@ colAttrs=["col-start","col-end","col-center"];
                         }
                         return row;
                     });
-                    select.rows=JSON.stringify(rows);
+                    select.rows=JSON.stringify(newRows);
                 }
             return select;
             });
-            this.selectors=this._selectors;
+            this._modSelector.selectors=this._selectors;
+            this._modSelector.dataset.upDateIdValues({idValues});
         }
-    }
-    editElement(target:HTMLElement | HTMLImageElement){
-        const nodename=target.nodeName.toLowerCase();
-        const {parsed,isJSON}=Header.checkJson(target.getAttribute("flex"));
-        const flex=isJSON ? parsed as flexType :null;
-        const getTarget=document.getElementById(`${target.id}`);
-        // console.log("flex",flex)
-        if(flex){
-            const isUlType=["ul","ol","blockquote","img","a"].includes(nodename)
-            const editThis=getTarget ? getTarget : target;
-            target.setAttribute("contenteditable","true");
-                target.focus()
-                const {selectorId,rowId,colId}= flex as flexType;
-                this._selectors=this._modSelector._selectors.map(selector_=>{
-                    // console.log("lev:selector:",selector_.eleId===selectorId);
+        return Promise.resolve({ele:retEle,target}) as Promise<{ele:element_selType|undefined,target:HTMLElement}>;
+    };
+
+
+    editElement({target,idValues}:{target:HTMLElement | HTMLImageElement,idValues:idValueType[]}){
+       
+        const eleId=target.id;
+        const getEleIds=idValues.filter(kat=>(kat.eleId===eleId));
+        const selRowCol=getEleIds.find(kat=>(kat.id==="selRowCol"));
+        const {parsed,isJSON}= (selRowCol) ? Header.checkJson(selRowCol.attValue) :{isJSON:false,parsed:null};
+       
+        if(isJSON){
+            const {selectorId,rowId,colId} = parsed as selRowColType;
+            target.oninput=(e:Event)=>{
+                if(!e) return;
+                this.selectors=this._modSelector.selectors.map(selector_=>{
                     if(selector_.eleId===selectorId){
-                        const rows=JSON.parse(selector_.rows) as rowType[];
-                        rows.map(row=>{
+                        const {rows}=this._modSelector.checkGetRows({select:selector_});
+                       const newRows=rows.map(row=>{
                             if(row.eleId===rowId){
                                 row.cols.map(col=>{
                                     if(col.eleId===colId){
                                         col.elements.map(element=>{
+                                           
                                             if(element.eleId===target.id){
-                                                editThis.addEventListener("input",(e:Event)=>{
-                                                    if(e){
-
-                                                        if(!isUlType){
-                                                            element.inner_html=target.innerHTML;
-                                                        }else if(nodename==="img"){
-                                                            const img=target as HTMLImageElement;
-                                                            element.img=img.src;
-                                                            
-                                                        }else if(target.nodeName.toLowerCase()==="a"){
-                                                                const link=target.getAttribute("data-href");
-                                                                element.attr=link ? link:undefined
-                                                                element.inner_html=target.innerHTML;
-                                                        }else{
-                                                            
-                                                            element.inner_html=target.innerHTML;
-                                                            
-                                                        }
-                                                    }
-                                                },true);
-                                                element.class=target.className.split(" ").filter(cl=>(cl !=="isActive")).join(" ");
-                                                element.cssText=target.style.cssText;
-                                            
-                                                    // console.log("1422: EDIT",element.inner_html)
-                                                
-                                            }
+                                                element.inner_html=target.innerHTML;
+                                            };
                                             return element;
                                         });
-                                    }
+                                    };
+                                    
                                     return col;
                                 });
-                            }
+                            };
                             return row;
                         });
-                        selector_.rows=JSON.stringify(rows);
-                    }
+                        selector_.rows=JSON.stringify(newRows);
+                    };
                     return selector_;
                 });
-                this.selectors=this._modSelector._selectors;
-                // console.log("953:modSelector:editElement",this.selectors)//works
-                        
-                
-            
-        
-        }
-    }
-    editElementTwo(target:HTMLElement | HTMLImageElement){
-        const nodename=target.nodeName.toLowerCase();
-        const {parsed,isJSON}=Header.checkJson(target.getAttribute("flex"));
-        const flex=isJSON ? parsed as flexType :null;
-        if(flex){
-            target.setAttribute("contenteditable","true");
-            target.focus()
-                const {selectorId,rowId,colId}= flex as flexType;
-                this._selectors=this._selectors.map(selector_=>{
+              
+            };
+        };
+    };
 
-                    if(selector_.eleId===selectorId){
-                        const rows=JSON.parse(selector_.rows) as rowType[];
-                        rows.map(row=>{
-                            if(row.eleId===rowId){
-                                row.cols.map(col=>{
-                                    if(col.eleId===colId){
-                                        col.elements.map(element=>{
-                                            if(element.eleId===target.id){
-                                                const arrCheck=["ul","ol","blockquote","img","a"]
-                                                if(!(arrCheck.includes(nodename))){
-                                                    element.inner_html=target.innerHTML;
-                                                }else if(nodename==="img"){
-                                                    const img=target as HTMLImageElement;
-                                                    element.img=img.src;
-                                                    
-                                                }else if(target.nodeName.toLowerCase()==="a"){
-                                                    
-                                                        const link=target.getAttribute("data-href");
-                                                        element.attr=link ? link:undefined
-                                                        element.inner_html=target.innerHTML;
-                                                    
-                                                }else{
-                                                    
-                                                    element.inner_html=target.innerHTML;
-                                                    
-                                                }
-                                                element.class=target.className.split(" ").filter(cl=>(cl !=="isActive")).join(" ");
-                                                element.cssText=target.style.cssText;
-                                            
-                                                    // console.log("1422: EDIT",element.inner_html)
-                                                
-                                            }
-                                            return element;
-                                        });
-                                    }
-                                    return col;
-                                });
-                            }
-                            return row;
-                        });
-                        selector_.rows=JSON.stringify(rows);
-                    }
-                    return selector_;
-                });
-                this.selectors=this._selectors;
-        }
-    }
-    updateColumn(column:HTMLElement,flex:flexType){
-        if(flex && typeof(flex)==="object"){
-            const {selectorId,rowId,colId,imgKey}=flex;
-            this.selectors=this.selectors.map(select=>{
+
+
+   async updateColumn({target,idValues,selRowCol}:{target:HTMLElement,idValues:idValueType[],selRowCol:selRowColType}):Promise<{col:colType|undefined,target:HTMLElement}|undefined>{
+        const eleId=target.id;
+        let col_:colType|undefined={} as colType;
+        const {selectorId,colId,rowId}=selRowCol as selRowColType;
+        const isCol=eleId===colId;
+        const idValue:idValueType={eleId,id:"selRowCol",attValue:JSON.stringify(selRowCol)};
+        this._modSelector.dataset.upDateIdValue({target,idValues,idValue});
+        const {cleaned}=this._modSelector.removeClasses({target,classes:["isActive","box-shadow"]});
+      if(!isCol){
+        Misc.message({parent:target,msg:"!!TARGET IS NOT COLID,,- canceling upgrade",type_:"error",time:1200});
+        console.log("selRowCol",selRowCol);
+        return
+      }else{
+          this.selectors=this.selectors.map(select=>{
+              if(select.eleId===selectorId){
+                  const {rows}=this._modSelector.checkGetRows({select});
+                  const newRows= rows.map(row=>{
+                      if(row.eleId===rowId){
+                          row.cols.map(col=>{
+                              if(col.eleId===eleId){
+                                  col.class=cleaned.join(" ");
+                                  col.cssText=target.style.cssText;
+                                  this._modSelector.datasetSincUpdate({target,ele:col,idValues,level:"col",loc:"flexbox"});
+                                  col_=col;
+                              }
+                              return col;
+                          });
+                      }
+                      return row;
+                  });
+                  select.rows=JSON.stringify(newRows);
+              }
+              return select;
+          });
+          
+      }
+      this._modSelector.dataset.upDateIdValues({idValues});
+        return Promise.resolve({col:col_,target}) as Promise<{col:colType|undefined,target:HTMLElement}|undefined>;
+
+    };
+
+
+   async updateRow({target,idValues,selRow}:{target:HTMLElement,idValues:idValueType[],selRow:selRowType}):Promise<{target:HTMLElement,row:rowType|undefined}|undefined>{
+        const eleId=target.id;
+        const {cleaned}=this._modSelector.removeClasses({target,classes:["isActive","box-shadow"]});
+        const {selectorId,rowId}=selRow as selRowType;
+        const isRow=eleId===rowId;
+        let row_:rowType|undefined={} as rowType
+        if(!isRow){
+            Misc.message({parent:target,msg:"ERROR-TARGET ID NOT ROW!!- update canceled",type_:"error",time:1200});
+            return;
+        }else{
+            this._modSelector.selectors=this._modSelector.selectors.map(select=>{
                 if(select.eleId===selectorId){
-                    const rows=JSON.parse(select.rows) as rowType[];
-                    rows.map(row=>{
-                        if(row.eleId===rowId){
-                            row.cols.map(col=>{
-                                if(col.eleId===colId){
-                                    col.class=column.className.split(" ").filter(cl=>(cl !=="box-shadow")).filter(cl=>(cl !=="coliIsActive")).join(" ");
-                                    col.cssText=column.style.cssText;
-                                    col.imgKey=imgKey ? imgKey : undefined
-                                }
-                                return col;
-                            });
+                  
+                    const {rows}=this._modSelector.checkGetRows({select});
+                  const newRows=rows.map(row=>{
+                  
+                        if(row.eleId===target.id){
+                            row.class=cleaned.join(" ");
+                            row.cssText=target.style.cssText;
+                            this._modSelector.datasetSincUpdate({target,ele:row,idValues,level:"row",loc:"flexbox"});
                         }
+                        row_=row;
                         return row;
                     });
-                    select.rows=JSON.stringify(rows);
+                    select.rows=JSON.stringify(newRows);
                 }
                 return select;
             });
-        }
-    }
-    updateRow(target:HTMLElement,flex:flexType){
-        const {selectorId,imgKey}=flex;
-        this._selectors=this._selectors.map(select=>{
-            if(select.eleId===selectorId){
-                const rows=JSON.parse(select.rows) as rowType[];
-                rows.map(row=>{
-                    if(row.eleId===target.id){
-                        row.class=target.className.split(" ").filter(cl=>(cl !=="box-shadow")).join(" ");
-                        row.cssText=target.style.cssText;
-                        row.imgKey=imgKey ? imgKey : undefined
-                    }
-                    return row;
-                });
-                select.rows=JSON.stringify(rows);
-            }
-            return select;
-        });
-    }
+           
+            this._modSelector.dataset.populateElement({target,selRowColEle:row_,idValues,level:"row",loc:"flexbox",clean:false});
+            this._modSelector.dataset.upDateIdValues({idValues});
+        };
+        return Promise.resolve({target,row:row_}) as Promise<{target:HTMLElement,row:rowType|undefined}|undefined>;
+    };
 
 ///---------ULTILITIES///-----------///
 
-    removeMainElement(parent:HTMLElement,divCont:HTMLElement,target:HTMLElement){
-        const getDivCont=divCont.querySelectorAll(".xIconDiv");
-        if(getDivCont){
-            ([...getDivCont as any] as HTMLElement[]).map(child=>{
-                if(child){
-                    divCont.removeChild(child);
-                }
-            });
-        }
-        
+    removeMainElement({parent,divCont,target,idValues,selRowCol}:{
+        parent:HTMLElement,
+        divCont:HTMLElement,
+        target:HTMLElement,
+        idValues:idValueType[],
+        selRowCol:selRowColType
+
+    }){
+       const check=([...divCont.classList as any] as string[]).includes("isActive");
         const css="position:absolute;transform:translate(2px,5px);background:inherit;font-size:16px;background:lightgrey;font-weight:bold;border-radius:50%;color:black;top:-6px;left:0px;"
         divCont.style.position="relative";
-        const xIconDiv=document.createElement("div");
-        xIconDiv.setAttribute("contenteditable","false");
-        xIconDiv.setAttribute("is-icon","true");
-        xIconDiv.className="xIconDiv";
-        xIconDiv.style.cssText=`${css}`;
-        const cssStyle={background:"inherit",fontSize:"inherit"};
-        FaCreate({parent:xIconDiv,name:FaCrosshairs,cssStyle})
-        divCont.appendChild(xIconDiv);
-        xIconDiv.addEventListener("click",(e:MouseEvent)=>{
-            if(e){
-                this.promRemoveElement(target).then(async(res)=>{
-                    if(res){
-                        const {isJSON,parsed}=Header.checkJson(target.getAttribute("flex"));
-                        if(isJSON && target.nodeName==="IMG"){
-                            const flex=parsed as flexType;
-                            const {imgKey}=flex;
-                            if(imgKey){
-                            this._service.adminImagemark(imgKey).then(async(res)=>{
-                                if(res){
-                                    Misc.message({parent:parent,msg:`${imgKey} is deleted`,type_:"success",time:700});
-                                }
-                            });
-                            }
-                        }
-                    }
-                });
-                Misc.fadeOut({anchor:divCont,xpos:100,ypos:100,time:400});
-                setTimeout(()=>{parent.removeChild(divCont);},398);
-                //resetting buttons
-                Main.initMainBtns();
-            }
-        });
-
-    }
-    promRemoveElement(target:HTMLElement){
-        return new Promise((resolver)=>{
-            resolver(this.removeElement(target))
-        }) as Promise<boolean |undefined>;
-    }
-    //REMOVES ELEMENT FROM BLOG AND REINDEXES!!!!!!!!
-    removeElement(target:HTMLElement){
-        const {parsed,isJSON} = Header.checkJson(target.getAttribute("flex"));
-        const flex=isJSON ? parsed as flexType : null;
-        if(!flex) return;
-        const {colId,rowId,selectorId}=flex;
-        this._modSelector._selectors=this._modSelector._selectors.map(sel=>{
-                if(sel.eleId===selectorId){
-                    const rows=JSON.parse(sel.rows) as rowType[];
-                    rows.map(row=>{
-                        if(row.eleId===rowId){
-                            row.cols.map(col=>{
-                                if(col.eleId===colId){
-                                    col.elements.map((ele,index)=>{
-                                        if(ele.eleId ===target.id){
-                                            col.elements.splice(index,1)
+        if(check){
+            const xIconDiv=document.createElement("div");
+            xIconDiv.id="flexbox-delete-element";
+            xIconDiv.setAttribute("contenteditable","false");
+            xIconDiv.setAttribute("is-icon","true");
+            xIconDiv.className="xIconDiv";
+            xIconDiv.style.cssText=`${css}`;
+            const cssStyle={background:"inherit",fontSize:"inherit"};
+            FaCreate({parent:xIconDiv,name:FaCrosshairs,cssStyle})
+            divCont.appendChild(xIconDiv);
+            xIconDiv.addEventListener("click",async(e:MouseEvent)=>{
+                if(e){
+                    const idValue=this._modSelector.dataset.getIdValue({target,idValues,id:"imgKey"});
+                    await this.removeElement({target,idValues,selRowCol}).then(async(res)=>{
+                        if(res){
+                            idValues=res.idValues
+                            
+                            if(target.nodeName==="IMG" && idValue){
+                                if(idValue){
+                                    this._service.adminImagemark(idValue.attValue).then(async(res)=>{
+                                        if(res){
+                                            Misc.message({parent:parent,msg:`${idValue.attValue} is deleted`,type_:"success",time:700});
                                         }
                                     });
                                 }
-                                return col;
-                            });
+                            }
+                            Misc.message({parent,msg:"removed",type_:"success",time:800});
+                        }else{
+                            Misc.message({parent,msg:"ITEM WAS NOT DELETED",type_:"error",time:1200});
                         }
-                        return row;
+                       
                     });
-                    sel.rows=JSON.stringify(rows);
+                    Misc.fadeOut({anchor:divCont,xpos:100,ypos:100,time:400});
+                    setTimeout(()=>{parent.removeChild(divCont);},398);
+                    //resetting buttons
+                    Main.initMainBtns();
                 }
-            return sel;
-        });
-        //----------REINDEXING------///
-        
-        this._modSelector.selectors=this._modSelector._selectors
-        return true;
+            });
+
+        }else{
+            Header.cleanUpByID(divCont,"flexbox-delete-element");
+        }
+        return idValues
     }
+    
+    //REMOVES ELEMENT FROM BLOG AND REINDEXES!!!!!!!!
+    removeElement({target,idValues,selRowCol}:{
+        target:HTMLElement,
+        idValues:idValueType[],
+        selRowCol:selRowColType
+
+    }){
+        //DELETES TARGET FROM IDVALUES AND REMOVES TARGET FROM COLUMN
+        const eleId=target.id;
+            const {colId,rowId,selectorId}=selRowCol as selRowColType;
+            this.selectors=this.selectors.map(sel=>{
+                    if(sel.eleId===selectorId){
+                        const {rows}=this._modSelector.checkGetRows({select:sel});
+                       const newRows= rows.map(row=>{
+                            if(row.eleId===rowId){
+                                row.cols.map(col=>{
+                                    if(col.eleId===colId){
+                                        col.elements.map((ele,index)=>{
+                                            if(ele.eleId ===target.id){
+                                                col.elements.splice(index,1);
+                                            };
+                                        });
+                                    };
+                                    return col;
+                                });
+                            };
+                            return row;
+                        });
+                        sel.rows=JSON.stringify(newRows);
+                    };
+                return sel;
+            });//SAVING IT TO LOCAL
+            //----------REINDEXING------///
+            idValues.map((kat,index)=>{
+                if(kat && kat.eleId===eleId){
+                    idValues.splice(index,1);
+                }
+            });
+           idValues= this._modSelector.dataset.upDateIdValues({idValues});
+        return Promise.resolve({idValues,eleId,selRowCol}) as Promise<{idValues:idValueType[],eleId:string,selRowCol:selRowColType}>;
+    };
+
+
     removeFlexbox(parent:HTMLElement,select:HTMLElement){
         const selectorId=select.id;
         select.style.position="relative";
@@ -2177,110 +2320,36 @@ colAttrs=["col-start","col-end","col-center"];
             if(e){
                 parent.removeChild(select);
                 
-                    this._modSelector._selectors.map((sel,index)=>{
+                    this._modSelector.selectors.map((sel,index)=>{
                         if(sel.eleId===selectorId){
-                            this._modSelector._selectors.splice(index,1);
+                            this._modSelector.selectors.splice(index,1);
                             this._modSelector.shiftPlace(sel.placement);
                         }
                         return sel
                     });
-                    this._modSelector.selectors=this._modSelector._selectors;
             }
         });
 
-    }
-    attrPopulateTarget(item:{flex:flexType,target:HTMLElement,element:element_selType|null,col:colType|null,row:rowType|null}):flexType|null{
-        const {target,flex,element,col,row}=item;
-        let _flex={} as flexType;
-        _flex={...flex};
-        const moreThanOneNotNull=((element && col) || (element && row) || (col && row))  ? true:false;
-        if(moreThanOneNotNull) return null;
-        const attrArr:{eleType:string,name:string,ans:string|undefined,attr:string|undefined,type:string|undefined}[]=[
-            {eleType:"element",name:"backgroundImage",ans:"data-backgroundImage",attr:"data-backgroundImage",type:undefined},
-            {eleType:"element",name:"shapeoutside",ans:"shapeoutside",attr:"shapeoutside",type:"shapeoutside"},
-            {eleType:"element",name:"headerflag",ans:"data-headerflag",attr:"data-headerflag",type:"headerflag"},
-            {eleType:"element",name:"shapeOutsideCircle",ans:"data-shapeOutside-circle",attr:"data-shapeOutside-circle",type:"shapeoutside"},
-            {eleType:"element",name:"shapeOutsideSquare",ans:"data-shapeOutside-square",attr:"data-shapeOutside-square",type:"shapeoutside"},
-            {eleType:"element",name:"shapeOutsidePolygon",ans:"data-shapeOutside-polygon",attr:"data-shapeOutside-polygon",type:"shapeoutside"},
-            {eleType:"element",name:"anchorContainer",ans:"data-href",attr:"data-href",type:undefined},
-            {eleType:"element",name:"anchorContainer",ans:"data-href-email",attr:"data-href-email",type:undefined},
-            {eleType:"element",name:"imgKey",ans:undefined,attr:"imgKey",type:undefined},
-            {eleType:"element",name:"position",ans:"element",attr:undefined,type:undefined},
-            {eleType:"col",name:"position",ans:"col",attr:undefined,type:undefined},
-            {eleType:"col",name:"container",ans:"col-container",attr:"col-container",type:undefined},
-            {eleType:"col",name:"data-column",ans:undefined,attr:undefined,type:undefined},
-            {eleType:"row",name:"position",ans:"row",attr:undefined,type:undefined},
-            {eleType:"row",name:"data-row-num",ans:undefined,attr:undefined,type:undefined},
-        ];
-            if(element){
-                const attr=element.attr;
-                const imgKey=element.imgKey;
-                const eleAttrArrs=attrArr.filter(item=>(item.eleType==="element"));
-                eleAttrArrs.map(item=>{
-                        for(const [key,value] of Object.entries(_flex)){
-                            
-                            if(key){
+    };
 
-                                if(attr){
-                                    if(item.attr && item.ans && item.name===key && item.attr===attr && !value){
-                                        if(typeof(value)==="boolean"){
-                                            _flex[key]=true;
-                                        };
-                                        target.setAttribute(item.attr,item.ans);
-                                    };
-                                }else if(imgKey){
-                                    if(key===item.name && item.attr){
-                                        _flex[key]=imgKey;
-                                        target.setAttribute(item.attr,imgKey)
-                                    }
-                                }else{
-                                    if(key===item.name && value && item.attr){
-                                        target.setAttribute(String(item.attr),String(item.attr));
-                                    }
-                                };
-                            }
-                        };
-                    });
-                
-            }
-            if(col){
-                const colAttrArrs=attrArr.filter(item=>(item.eleType==="col"));
-                colAttrArrs.map(item=>{
-                    const order=target.getAttribute("order");
-                    for(const [key,value] of Object.entries(_flex)){
-                        if(key){
-                            if(key==="order" && item.name==="data-column" && !value){
-                                _flex[key]=Number(order);
-                                target.setAttribute("order",String(order));
-                            }else if(key===item.name && !value && item.attr && item.ans){
-                                target.setAttribute(String(item.attr),String(item.attr));
-                                _flex[key]=true
-                            };
-                        };
-                    };
-                });
-            };
-            if(row){
-                const rowAttrArrs=attrArr.filter(item=>(item.eleType==="row"));
-                rowAttrArrs.map(item=>{
-                    const order=target.getAttribute("order");
-                    for(const [key,value] of Object.entries(_flex)){
-                        if(key){
-                            if(key==="order" && item.name==="data-row-num" && !value){
-                                _flex[key]=Number(order);
-                                target.setAttribute("order",String(order));
-                            }else if(key===item.name && !value && item.attr && item.ans){
-                                target.setAttribute(String(item.attr),String(item.attr));
-                                _flex[key]=true
-                            };
-                        };
-                    };
-                });
-            };
-        
 
-        return _flex
-    }
+    addLinkEmailTelImg({target,image,href,name,type}:{target:HTMLAnchorElement,image:string,href:string,name:string,type:"link"|"email"|"tel"}){
+        target.textContent="";
+        const text=new Text(name);
+        const span=document.createElement("span");
+        span.style.cssText="display:inline-flex;align-items:center;gap:4px;";
+        const img=document.createElement("img");
+        img.src=image;
+        img.alt="www.ablogroom.com";
+        this._modSelector.dataset.insertcssClassIntoComponents({target:img,level:"element",loc:"flexbox",type:"customHeader",id:"linkImgs",headerType:"custom"});
+        span.appendChild(img);
+        span.appendChild(text);
+        target.appendChild(span);
+        if(type==="link") window.open(href,"_blank");
+        if(type==="email") target.href=href;
+        if(type==="tel") target.href=href;
+    };
+
    
 
 static cleanUpByClass(parent:HTMLElement,class_:string){

@@ -36,15 +36,18 @@ export async function getBlogs() {
                 rating: true,
                 pageCounts: true,
                 date: true,
-                update: true
+                update: true,
+                show: true,
             }
         }) as unknown as blogType[];
+        await prisma.$disconnect();
+        return blogs;
     } catch (error) {
         const msg = getErrorMessage(error);
         console.log(msg);
-    } finally {
-        return blogs;
-    }
+        await prisma.$disconnect();
+        return [] as blogType[]
+    };
 }
 
 

@@ -1,7 +1,7 @@
-import {flexType,element_selType,colType,rowType,selectorType,elementChoiceType} from "./Types";
+import {flexType,colType,rowType,selectorType,elementChoiceType, userType,} from "./Types";
 import ModSelector from "@/components/editor/modSelector";
 import { separator } from "../blog/displayBlog";
-import {FaCrosshairs, FaMailBulk, FaPhone, FaTrash,} from "react-icons/fa";
+import {FaCrosshairs,FaTrash,} from "react-icons/fa";
 import {FaCreate} from "@/components/common/ReactIcons";
 import { btnType, button, buttonReturn } from "../common/tsFunctions";
 import Main,{ shades,blueShades } from "./main";
@@ -10,50 +10,65 @@ import Misc from "../common/misc";
 import Service from "../common/services";
 import User from "../user/userMain";
 import Nav from "../nav/headerNav";
+import { idValueType, selRowColType, selRowType, typeEnumType } from "@/lib/attributeTypes";
+import { element_selType } from '@/components/editor/Types';
+import { attrEnumArr, attrEnumArrTest, typeEnumArr, typeEnumArrTest } from "../common/lists";
+import Reference from "./reference";
+import Dataset from "../common/dataset";
+
 
 
 class Footer{
-    count=0;
-    divCont_css:string;
-    divCont_class:string;
-    bgColor:string;
-    btnColor:string;
-    _selectors:selectorType[];
-    _selector:selectorType;
+    public mail:string;
+    public phone:string;
+    public link:string;
+    public count=0;
+    public divCont_css:string;
+    public divCont_class:string;
+    public bgColor:string;
+    public btnColor:string;
+    private _selectors:selectorType[];
+    private _selector:selectorType;
+    private _element_sel:element_selType;
 
-   static elementChoices:elementChoiceType[]=[
+   public static readonly elementChoices:elementChoiceType[]=[
         {id:0,name:"select",ele:null,isEle:false,attr:null},
-        {id:1,name:"set height",ele:null,isEle:false,attr:"minHeight"},
-        {id:1,name:"set row height",ele:null,isEle:false,attr:"minHeight"},
+        {id:1,name:"set-height",ele:null,isEle:false,attr:"minHeight"},
+        {id:1,name:"set-row-height",ele:null,isEle:false,attr:"minHeight"},
         {id:2,name:"copyright",ele:"div",isEle:true,attr:null},
-        {id:3,name:"image",ele:"img",isEle:true,attr:null},
-        {id:4,name:"bg-image",ele:"div",isEle:true,attr:null},
+        {id:3,name:"image",ele:"img",isEle:false,attr:"image"},
+        {id:3,name:"img-size-adjust",ele:null,isEle:false,attr:"img-size-adjus"},
+        {id:4,name:"bg-image",ele:null,isEle:false,attr:"bg-image"},
         {id:5,name:"set-image-height",ele:"null",isEle:false,attr:"set-image-height"},
-        {id:6,name:"bg-row-image",ele:"div",isEle:true,attr:null},
+        {id:6,name:"bg-row-image",ele:null,isEle:false,attr:"bg-row-image"},
         {id:7,name:"rm-bg-image",ele:null,isEle:false,attr:"rm-bg-image"},
         {id:8,name:"text",ele:"p",isEle:true,attr:null},
         {id:9,name:"small",ele:"small",isEle:true,attr:null},
-        {id:10,name:"insert-email",ele:"insert-email",isEle:true,attr:null},
-        {id:11,name:"insert-tel",ele:"insert-tel",isEle:true,attr:null},
-        {id:11,name:"insert-link",ele:"insert-link",isEle:true,attr:null},
-        {id:12,name:"quote",ele:"blockquote",isEle:true,attr:null},
-        {id:13,name:"image rounded",ele:null,isEle:false,attr:"imgRound"},
-        {id:14,name:"flex-col",ele:null,isEle:false,attr:"flexCol"},
-        {id:15,name:"flex-row",ele:null,isEle:false,attr:"flexRow"},
-        {id:16,name:"flex-between",ele:null,isEle:false,attr:"flex-between"},
-        {id:17,name:"flex-center",ele:null,isEle:false,attr:"flex-center"},
-        {id:18,name:"flex-remove",ele:null,isEle:false,attr:"flex-remove"},
-        {id:19,name:"bg-row-color",ele:null,isEle:false,attr:"bgColor"},
-        {id:19,name:"bg-ele-color",ele:null,isEle:false,attr:"bgEleColor"},
-        {id:20,name:"box-shadow",ele:null,isEle:false,attr:"box-shadow"},
-        {id:21,name:"font-color",ele:null,isEle:false,attr:"font-color"},
-        {id:22,name:"text-center",ele:null,isEle:false,attr:"text-center"},
+        {id:10,name:"insert-email",ele:"insert-email",isEle:false,attr:"insert-email"},
+        {id:11,name:"insert-tel",ele:"insert-tel",isEle:false,attr:"insert-tel"},
+        {id:12,name:"insert-link",ele:"insert-link",isEle:false,attr:"insert-link"},
+        {id:13,name:"reference-links",ele:null,isEle:false,attr:"reference-links"},
+        {id:14,name:"quote",ele:"blockquote",isEle:true,attr:null},
+        {id:15,name:"image rounded",ele:null,isEle:false,attr:"imgRound"},
+        {id:16,name:"flex-col",ele:null,isEle:false,attr:"flexCol"},
+        {id:17,name:"flex-row",ele:null,isEle:false,attr:"flexRow"},
+        {id:18,name:"flex-between",ele:null,isEle:false,attr:"flex-between"},
+        {id:19,name:"flex-center",ele:null,isEle:false,attr:"flex-center"},
+        {id:20,name:"flex-remove",ele:null,isEle:false,attr:"flex-remove"},
+        {id:21,name:"bg-row-color",ele:null,isEle:false,attr:"bgColor"},
+        {id:22,name:"bg-ele-color",ele:null,isEle:false,attr:"bgEleColor"},
+        {id:23,name:"box-shadow",ele:null,isEle:false,attr:"box-shadow"},
+        {id:24,name:"font-color",ele:null,isEle:false,attr:"font-color"},
+        {id:25,name:"font-size",ele:null,isEle:false,attr:"font-size"},
+        {id:26,name:"text-center",ele:null,isEle:false,attr:"text-center"},
 
     ]
-    constructor(private _modSelector:ModSelector,private _service:Service,private _user:User){
+    constructor(private _modSelector:ModSelector,private _service:Service,private _user:User,public reference: Reference){
+        this.mail="/images/mail.png";
+        this.phone="/images/phone.png";
+        this.link="/images/link.png";
         this.bgColor=this._modSelector._bgColor;
         this.btnColor=this._modSelector.btnColor;
-        this._selectors=this._modSelector._selectors;
         this.divCont_css="display:flex;flex-direction:column;justify-content:center;width100%;align-items:center;padding:0.25rem;";
         this.divCont_class="eleContainer";
         this._selector={
@@ -73,30 +88,41 @@ class Footer{
             header:false,
             footer:true
         };
+        this._element_sel=this._modSelector.initElement_sel
     };
     //SETTER GETTERS
+    get selector(){
+        return this._selector;
+    };
+
+    set selector(selector:selectorType){
+        this._selector=selector;
+    };
     get selectors(){
-        this._selectors=this._modSelector._selectors;
-        return this._selectors
-    }
+        return this._modSelector.selectors
+    };
+
     set selectors(selectors:selectorType[]){
-        this._modSelector._selectors=selectors;
-        this._selectors=selectors;
-    }
+        this._modSelector.selectors=selectors;
+    };
     get placement(){
         return this._modSelector.placement;
-    }
+    };
+
     set placement(placement:number){
         this._modSelector.placement=placement;
-    }
+    };
+
     //SETTER GETTERS
     //INJECTION FROM LOCALSTORAGE
-    async showSelector(parent_:HTMLElement,selector:selectorType){
-        const parent=parent_ ? parent_:Main._mainFooter as HTMLElement;
-        let flex:flexType={} as flexType;
+    async showSelector({parent_,selector,idValues,user}:{parent_:HTMLElement,selector:selectorType,idValues:idValueType[],user:userType|null}){
+        const getMainFooter=document.querySelector("footer#mainFooter") as HTMLElement;
+        const parent=getMainFooter || Main._mainFooter as HTMLElement;
+        const _user = user || this._user.user;
         // console.log("Header selector",selector)//works
-        if(selector && selector.name){
+        if(selector){
             const innerCont=document.createElement(selector.name);
+            const eleId=selector.eleId
             innerCont.id=selector.eleId;
             innerCont.className=selector.class;
             innerCont.setAttribute("name",selector.name);
@@ -105,56 +131,162 @@ class Footer{
             innerCont.setAttribute("data-selector-id",selector.eleId);
             innerCont.setAttribute("data-placement",`${selector.placement}`);
             innerCont.style.cssText=selector.cssText;
-            flex={...flex,selectorId:selector.eleId,placement:selector.placement}
-            const rows=JSON.parse(selector.rows);
-                await Promise.all(rows.sort((a,b)=>{if(a.order < b.order) return -1 ; return 1}).map(async(row_)=>{
+            const {idValues:retIdValues}=this._modSelector.dataset.coreDefaultIdValues({
+                target:innerCont,
+                sel:selector,
+                row:null,
+                col:null,
+                ele:null,
+                idValues,
+                loc:"flexbox",
+                level:"selector",
+                clean:false
+
+            });
+            idValues=retIdValues;
+            idValues=Dataset.removeIdValueDuplicates({arr:idValues,eleId});
+            const getEleIds=idValues.filter(kat=>(kat.eleId===eleId));
+            this._modSelector.dataset.idValues=this._modSelector.dataset.idValues.concat(getEleIds);
+            this._modSelector.dataset.populateElement({
+                target:innerCont,
+                selRowColEle:selector,
+                level:"selector",
+                loc:"flexbox",
+                idValues,
+                clean:false
+               });
+            const {rows}=this._modSelector.checkGetRows({select:selector});
+                await Promise.all(rows.toSorted((a,b)=>{if(a.order < b.order) return -1 ; return 1}).map(async(row_)=>{
                     const row=document.createElement("div");
-                    row.className=row_.class.split(" ").filter(cl=>(cl !=="box-shadow")).join(" ");
-                    row.style.cssText=row_.cssText;
-                    row.setAttribute("name",row_.name);
-                    row.setAttribute("rowID",`${row_.id}`);
-                    row.setAttribute("order",String(row_.order));
-                    row.setAttribute("is-row","true");
-                    row.setAttribute("aria-selected","true");
                     row.id=row_.eleId;
-                    flex={...flex,rowId:row_.eleId,order:row_.order};
-                    if(row_.imgKey){
-                        flex={...flex,imgKey:row_.imgKey,backgroundImage:true}
-                        row.setAttribute("data-backgroundimage","true");
-                        const cssStyle={backgroundPosition:"50% 50%",backgroundSize:"100% 100%"};
-                        await this._service.injectBgAwsImage({target:row,imgKey:row_.imgKey,cssStyle});
-                    }
-                    row.setAttribute("flex",JSON.stringify(flex));
-                    await Promise.all(row_.cols && row_.cols.sort((a,b)=>{if(a.order < b.order) return -1 ; return 1}).map(async(col_)=>{
-                        this.generateColumn({row,col_,flex}).then(async(res)=>{
-                            if(res){
-                                const {parsed}=Header.checkJson(res.col.getAttribute("flex"));
-                                flex={...parsed as flexType};
-                                row.appendChild(res.col);
-                                this.selectElements({column:res.col});//Selection ELEMENTS
-                                res.col.addEventListener("click",(e:MouseEvent)=>{
+                    const eleId=row.id;
+                    row.className=row_.class;
+                    const {cleaned}=this._modSelector.removeClasses({target:row,classes:["isActive"]});
+                    row.className=cleaned.join(" ");
+                    row.style.cssText=row_.cssText;
+                    // console.log("ROW STYLES INCOMMING",row_.cssText)//works
+                   idValues.push({eleId,id:"rowId",attValue:eleId});
+                   idValues.push({eleId,id:"ID",attValue:eleId});
+                   idValues.push({eleId,id:"row_id",attValue:String(row_.id)});
+                   idValues.push({eleId,id:"name",attValue:row_.name});
+                   idValues.push({eleId,id:"selectorId",attValue:innerCont.id});
+                  
+                   const _row_=await this._modSelector.removeBlob({target:row,rowColEle:row_,loc:"flexbox",level:"row",idValues});
+                   if(_row_.imgKey){
+                       idValues.push({eleId,id:"imgKey",attValue:_row_.imgKey});
+                       row.setAttribute("data-backgroundImg","true");
+                       row.setAttribute("data-backgroundImg","true");
+                       const url=this._service.getFreeBgImageUrl({imgKey:_row_.imgKey});
+                       row.style.backgroundImage=`url(${url})`;
+                       row.style.backgroundPosition="50% 50%";
+                       row.style.backgroundSize="100% 100%";
+                       
+                    };
+                    const {idValues:retIdValues}=this._modSelector.dataset.coreDefaultIdValues({
+                        target:innerCont,
+                        sel:selector,
+                        row:row_,
+                        col:null,
+                        ele:null,
+                        idValues,
+                        loc:"flexbox",
+                        level:"row",
+                        clean:false
+        
+                    });
+                    idValues=retIdValues;
+                    idValues=Dataset.removeIdValueDuplicates({arr:idValues,eleId});
+                    const getEleIds=idValues.filter(kat=>(kat.eleId===eleId));
+                    this._modSelector.dataset.idValues=this._modSelector.dataset.idValues.concat(getEleIds);
+                    this._modSelector.dataset.populateElement({
+                     target:row,
+                     selRowColEle:row_,
+                     level:"row",
+                     loc:"flexbox",
+                     idValues,
+                     clean:false
+                    });
+                   
+                    await Promise.all(row_?.cols.toSorted((a,b)=>{if(a.order < b.order) return -1 ; return 1}).map(async(col_)=>{
+
+                        const selRow:selRowType={selectorId:selector.eleId,rowId:row_.eleId}
+                        idValues.push({eleId:col_.eleId,id:"selRow",attValue:JSON.stringify(selRow)});
+
+                        this.generateColumn({sel:selector,rowEle:row_,row,col_,idValues}).then(async(cRes)=>{
+                            if(cRes){
+                                row.appendChild(cRes.col);
+
+                                this.selectElements({
+                                    column:cRes.col,
+                                    sel:cRes.sel,
+                                    rowEle:cRes.rowEle,
+                                    colEle:cRes.colEle,
+                                    idValues,
+                                    user:_user
+
+                                });//Selection ELEMENTS
+
+                                cRes.col.addEventListener("click",(e:MouseEvent)=>{
                                     if(e){
-                                        res.col.classList.add("coliIsActive");
-                                        this._modSelector.updateColumn(res.col,flex);
-                                        // if(selector.footer){
-                                            //new elements and attr(s)
+                                        cRes.col.classList.add("coliIsActive");
+                                      
                                         // }
                                     }
                                 });
-                                await Promise.all(col_.elements && col_.elements.sort((a,b)=>{if(a.order < b.order) return -1 ; return 1}).map(async(element)=>{
-                                   await this.generateElement({col:res.col,element,flex}).then(async(res)=>{
-                                        if(res){
-                                            res.ele.onclick=(e:MouseEvent)=>{
-                                                if(e){
-                                                    res.divCont.classList.toggle("isActive");
-                                                    res.ele.classList.toggle("isActive");
-                                                    Main.toggleActiveIcon(res.ele);
-                                                    this._modSelector.updateElement(res.ele);
-                                                   
-                                                }
-                                            };
+                                await Promise.all(cRes.colEle?.elements.toSorted((a,b)=>{if(a.order < b.order) return -1 ; return 1}).map(async(element)=>{
+                                    if(element){
+                                        if(element.type==="reference"){
+                                            this.reference.showLinks({
+                                                parent:cRes.col,
+                                                ele:element,
+                                                idValues:cRes.idValues,
+                                                isHtmlElement:false,
+                                                sel:cRes.sel,
+                                                rowEle:cRes.rowEle,
+                                                colEle:cRes.colEle
+                                            })
                                         }
-                                    });
+
+                                        await this.generateElement({sel:selector,col:cRes.col,element,rowEle:row_,colEle:col_,idValues}).then(async(eRes)=>{
+                                             if(eRes){
+                                                if(eRes.isEdit){
+
+                                                    this.editElement({
+                                                       target:eRes.target,
+                                                       sel:selector,
+                                                       rowEle:eRes.rowEle,
+                                                       colEle:eRes.colEle,
+                                                       idValues:eRes.idValues
+   
+                                                    });
+                                                }
+                                                 eRes.divCont.onclick=(e:MouseEvent)=>{
+                                                     if(e){
+                                                         eRes.divCont.classList.toggle("isActive");
+                                                         eRes.target.classList.toggle("isActive");
+                                                         this.updateElement({
+                                                             target:eRes.target,
+                                                             sel:selector,
+                                                             rowEle:eRes.rowEle,
+                                                             colEle:eRes.colEle,
+                                                             idValues:eRes.idValues
+                                                         });
+                                                         this.removeMainElement({
+                                                            parent:cRes.col,
+                                                            divCont:eRes.divCont,
+                                                            sel:cRes.sel,
+                                                            rowEle:eRes.rowEle,
+                                                            colEle:eRes.colEle,
+                                                            target:eRes.target,
+                                                            idValues:eRes.idValues
+                                            
+                                                        });
+                                                        
+                                                     }
+                                                 };
+                                             }
+                                         });
+                                    }
         
                                 }));
                             }
@@ -162,272 +294,290 @@ class Footer{
                     }));
                     innerCont.appendChild(row);
                     //remove selector
-                    this.removeFooter(parent_,innerCont);
+                    this.removeFooter(parent_,innerCont,idValues);
                     //remove selector
                 }));
-            // this._modSelector.removeHeader(parent,innerCont);
             parent.appendChild(innerCont);
             innerCont.onclick=(e:MouseEvent)=>{
                 if(e){
                     innerCont.classList.toggle("isActive");
-                    this.removeFooter(parent,innerCont);
+                    this.removeFooter(parent,innerCont,idValues);
                 }
             };
         }
     };
     //GENERATE COLUMN
-    async generateColumn(item:{row:HTMLElement,col_:colType,flex:flexType}): Promise<{col:HTMLDivElement}>{
-        const {row,col_,flex}=item;
-        let _flex=flex;
-        _flex={...flex,name:"div",colId:col_.eleId,order:col_.order,imgKey:col_.imgKey,position:"col"};
+    async generateColumn({sel,rowEle,row,col_,idValues}:{
+
+        sel:selectorType,
+        rowEle:rowType,
+        row:HTMLElement,
+        col_:colType,
+        idValues:idValueType[]
+
+    }): Promise<{sel:selectorType,rowEle:rowType,colEle:colType,col:HTMLElement,row:HTMLElement,idValues:idValueType[]}>{
+       
+        
         const col=document.createElement("div");
         col.id=col_.eleId;
-        col.setAttribute("colID",`${col_.id}`);
-        col.setAttribute("order",String(col_.order));
-        col.setAttribute("is-column","true");
-        col.setAttribute("aria-selected","true");
-        col.setAttribute("name",col.nodeName.toLowerCase());
+        const eleId=col.id;
+        
+        idValues.push({eleId,id:"colId",attValue:eleId});
+        idValues.push({eleId,id:"ID",attValue:eleId});
+        idValues.push({eleId,id:"colOrder",attValue:String(col_.order)});
+        idValues.push({eleId,id:"isColumn",attValue:"true"});
+        idValues.push({eleId,id:"column",attValue:"true"});
+        idValues.push({eleId,id:"col_id",attValue:String(col_.id)});
+        idValues.push({eleId,id:"rowId",attValue:row.id});
+        idValues.push({eleId,id:"name",attValue:"div"});
         col.style.cssText=col_.cssText;
         col.className=col_.class;
-        col.setAttribute("flex",JSON.stringify(_flex));
-        if(col_.imgKey){
-            row.setAttribute("data-backgroundimage","true");
-            const cssStyle={backgroundPosition:"50% 50%",backgroundSize:"100% 100%"};
-           await this._service.injectBgAwsImage({target:col,imgKey:col_.imgKey,cssStyle});
+        
+        const _col_=await this._modSelector.removeBlob({target:col,rowColEle:col_,loc:"flexbox",level:"col",idValues});
+        if(_col_.imgKey){
+            idValues.push({eleId,id:"imgKey",attValue:_col_.imgKey});
+            col.setAttribute("data-backgroundImg","true");
+            const url=this._service.getFreeBgImageUrl({imgKey:_col_.imgKey});
+            col.style.backgroundImage=`url(${url})`;
+            col.style.backgroundPosition="50% 50%";
+            col.style.backgroundSize="100% 100%";
         }
-        return {col};
-    }
+        const {idValues:retIdValues}=this._modSelector.dataset.coreDefaultIdValues({
+            target:col,
+            sel,
+            row:rowEle,
+            col:col_,
+            ele:null,
+            idValues,
+            loc:"flexbox",
+            level:"col",
+            clean:false
+
+        });
+        idValues=retIdValues;
+        idValues=Dataset.removeIdValueDuplicates({arr:idValues,eleId});
+        const getEleIds=idValues.filter(kat=>(kat.eleId===eleId));
+        this._modSelector.dataset.idValues=this._modSelector.dataset.idValues.concat(getEleIds);
+        this._modSelector.dataset.populateElement({
+            target:col,
+            selRowColEle:col_,
+            level:"col",
+            loc:"flexbox",
+            idValues,
+            clean:false
+           });
+        return Promise.resolve({sel,rowEle,colEle:col_,col,row,idValues}) as Promise<{sel:selectorType,rowEle:rowType,colEle:colType,col:HTMLElement,row:HTMLElement,idValues:idValueType[]}>;
+    };
+
     //GENERATE ELEMENT
    
-    async generateElement(item:{col:HTMLElement,element:element_selType,flex:flexType}): Promise<{
-        ele: HTMLElement;
+    async generateElement({sel,rowEle,colEle,col,element,idValues}:{
+        sel:selectorType,
+        rowEle:rowType,
+        colEle:colType,
+        col:HTMLElement,
+        element:element_selType,
+        idValues:idValueType[]
+
+    }): Promise<{
+        target: HTMLElement;
         divCont: HTMLDivElement;
+        idValues:idValueType[];
+        sel:selectorType;
+        rowEle:rowType;
+        colEle:colType;
+        isEdit:boolean;
     } | undefined>{
-        const {col,element,flex}=item;
-        const checkArr=["img","ul","blockquote","a","span","logo","image","ol"].includes(element.name);
+        const node=element.name;
+        const eleId=element.eleId;
+        const checkArr=["img","ul","blockquote","a","span","logo","image","ol","time"].includes(node);
         const divCont=document.createElement("div");
         divCont.className="eleContainer";
         divCont.style.cssText="margin:0;padding:10px;margin-left:0.5rem;";
-        divCont.setAttribute("data-placement",`${element.order}`);
-        const _flex={...flex,elementId:element.eleId,order:element.order,name:element.name,imgKey:element.imgKey,attr:element.attr,position:"element"};
-        // console.log("generateElements: => element:",element,"flex",_flex)
-        if(!checkArr){
-            const ele:HTMLElement=document.createElement(element.name);
-            ele.setAttribute("is-element","true");
-            ele.setAttribute("contenteditable","true");
-            ele.setAttribute("aria-selected","true");
-            ele.setAttribute("data-placement",`${element.order}`);
-            ele.setAttribute("order",String(element.order));
-            ele.setAttribute("name",element.name);
-            ele.className=element.class;
-            ele.setAttribute("name",element.name);
-            ele.id=element.eleId
-            ele.setAttribute("flex",JSON.stringify(_flex));
-            ele.style.cssText=element.cssText;
-            ele.innerHTML=element.inner_html;
-            divCont.appendChild(ele);
-            col.appendChild(divCont);
-            Main.toggleActiveIcon(ele);
-            this.removeMainElement(col,divCont,ele);
-            ele.addEventListener("click",(e:MouseEvent) =>{
-                if(e){
-                    this._modSelector.updateElement(ele);
-                }
-            });
-            this._modSelector.editElement(ele);
-            return {ele,divCont};
-            
-        }else if(element.name==="ul"){
-            const ele=document.createElement("ul");
-            ele.setAttribute("is-element","true");
-            ele.setAttribute("contenteditable","true");
-            ele.setAttribute("aria-selected","true");
-            ele.setAttribute("data-placement",`${element.order}`);
-            ele.setAttribute("order",String(element.order));
-            ele.setAttribute("name",element.name);
-            ele.className=element.class;
-            ele.classList.remove("isActive");
-            ele.style.cssText=element.cssText;
-            ele.innerHTML=element.inner_html;
-            ele.id=element.eleId
-            ele.setAttribute("name",element.name);
-            ele.setAttribute("flex",JSON.stringify(_flex));
-            divCont.appendChild(ele);
-            col.appendChild(divCont);
-            Main.toggleActiveIcon(ele);
-            this.removeMainElement(col,divCont,ele);
-            ele.addEventListener("click",(e:MouseEvent)=>{
-                if(e){
-                    this._modSelector.updateElement(ele);
-                }
-            });
-            this._modSelector.editElement(ele);
-            return {ele,divCont};
-        }else if(element.name==="blockquote"){
-            const ele=document.createElement("blockquote");
-            ele.setAttribute("is-element","true");
-            ele.setAttribute("contenteditable","true");
-            ele.setAttribute("aria-selected","true");
-            ele.setAttribute("data-placement",`${element.order}`);
-            ele.setAttribute("order",String(element.order));
-            ele.className=element.class;
-            ele.classList.remove("isActive");
-            ele.style.cssText=element.cssText;
-            ele.innerHTML=`"${element.inner_html}"`;
-            ele.setAttribute("name",element.name);
-            ele.id=element.eleId
-            ele.setAttribute("name",element.name);
-            divCont.appendChild(ele);
-            col.appendChild(divCont);
-            Main.toggleActiveIcon(ele);
-            ele.setAttribute("flex",JSON.stringify(_flex));
-            this.removeMainElement(col,divCont,ele);
-            ele.addEventListener("click",(e:MouseEvent)=>{
-                if(e){
-                    this._modSelector.updateElement(ele);
-                }
-            });
-            this._modSelector.editElement(ele);
-            return {ele,divCont};
-        }else if(element.name==="a"){
-            const link=element.attr as string;
-            const ele=document.createElement("a");
-            
-            if(link.startsWith("mail")){
-                ele.setAttribute("data-href-email",link);
-                ele.href=link;
-            }else if(link.startsWith("tel")){
-                ele.setAttribute("data-href-tel",link);
-                ele.href=link
-            }else{
-
-                ele.href="#";
-                ele.onclick=()=>{return window.open(link,"_blank")};
+        divCont.setAttribute("data-placement",`${element.order}-A`);
+        const target=document.createElement(node);
+        target.className=element.class;
+        target.innerHTML=element.inner_html;
+        target.style.cssText=element.cssText;
+        target.id=eleId
+        
+        const eleAttr=attrEnumArrTest(element)
+        const selRowCol={selectorId:sel.eleId,rowId:rowEle.eleId,colId:colEle.eleId};
+        const eleType=typeEnumArrTest(element);//finds if type exists on element
+        if(eleType && eleType.id==="reference"){
+            //INSERT CLASS REFERENCE
+        }else if(element.attr==="backgroundImg"){
+            const _ele_=await this._modSelector.removeBlob({target,rowColEle:element,loc:"flexbox",level:"element",idValues});
+            if(_ele_.imgKey){
+                target.setAttribute("data-backgroundImg","true");
+                idValues.push({eleId,id:"imgKey",attValue:_ele_.imgKey})
+               const url=this._service.getFreeBgImageUrl({imgKey:_ele_.imgKey});
+               target.style.backgroundImage=`url(${url})`;
+               target.style.backgroundPosition="50% 50%";
+               target.style.backgroundSize="100% 100%";
             }
+        }
+        if(eleAttr && eleAttr.id==="link")idValues.push({eleId,id:"link",attValue:eleAttr.value});
+        if(eleAttr && eleAttr.id==="email")idValues.push({eleId,id:"email",attValue:eleAttr.value});
+        if(eleAttr && eleAttr.id==="tel")idValues.push({eleId,id:"tel",attValue:eleAttr.value});
+        idValues.push({eleId,id:"selRowCol",attValue:JSON.stringify(selRowCol)});
+        idValues.push({eleId,id:"elementId",attValue:eleId});
+        idValues.push({eleId,id:"name",attValue:element.name});
+        idValues.push({eleId,id:"colId",attValue:col.id});
+        idValues.push({eleId,id:"eleOrder",attValue:String(element.order)});
+        idValues.push({eleId,id:"ele_id",attValue:String(element.id)});
+        const {idValues:retIdValues}=this._modSelector.dataset.coreDefaultIdValues({
+            target,
+            sel,
+            row:rowEle,
+            col:colEle,
+            ele:element,
+            level:"element",
+            loc:"flexbox",
+            idValues,
+            clean:false
+        });
+        idValues=retIdValues;
+        idValues=Dataset.removeIdValueDuplicates({arr:idValues,eleId});
+        const getEleIds=idValues.filter(kat=>(kat.eleId===eleId));
+        this._modSelector.dataset.idValues=this._modSelector.dataset.idValues.concat(getEleIds);
+        this._modSelector.dataset.populateElement({
+            target,
+            selRowColEle:element,
+            level:"element",
+            loc:"flexbox",
+            idValues,
+            clean:false
+        });
+        const link=(eleAttr && eleAttr.id==="link") ? eleAttr.value:undefined;
+        const email=(eleAttr && eleAttr.id==="email") ? eleAttr.value:undefined;
+        const tel=(eleAttr && eleAttr.id==="tel") ? eleAttr.value:undefined;
+        if(!checkArr){
+            divCont.appendChild(target);
+            col.appendChild(divCont);
+            Main.toggleActiveIcon(target);
+           
+            
+            return {target,divCont,idValues,rowEle,sel,colEle,isEdit:true};
+            
+        }else if(node==="ul"){
+            const ele=target as HTMLUListElement;
             ele.setAttribute("is-element","true");
-            ele.setAttribute("contenteditable","true");
-            ele.setAttribute("aria-selected","true");
-            ele.setAttribute("data-placement",`${element.order}`);
-            ele.setAttribute("order",String(element.order));
-            ele.className=element.class;
-            ele.setAttribute("name",element.name);
+            ele.classList.remove("isActive");
             ele.id=element.eleId
             ele.setAttribute("name",element.name);
-            ele.setAttribute("flex",JSON.stringify(_flex));
-            ele.style.cssText=element.cssText;
-            ele.innerHTML=element.inner_html;
-            Main.toggleActiveIcon(ele);
             divCont.appendChild(ele);
             col.appendChild(divCont);
-            this.removeMainElement(col,divCont,ele);
-            divCont.onclick=(e:MouseEvent)=>{
-                if(e){
-                    this._modSelector.updateElement(ele);
+            Main.toggleActiveIcon(ele);
+           
+            return {target:ele,divCont,rowEle,sel,colEle,idValues,isEdit:true};
+        }else if(node==="blockquote"){
+            const ele=target as HTMLQuoteElement;
+            ele.classList.remove("isActive");
+            divCont.appendChild(ele);
+            col.appendChild(divCont);
+            Main.toggleActiveIcon(ele);
+           
+            return {target:ele,divCont,rowEle,sel,colEle,idValues,isEdit:true};
+        }else if(node==="a"){
+            const anchor=target as HTMLAnchorElement;
+            const content= anchor.textContent ? anchor.textContent:"name";
+            Header.cleanUp(anchor);
+            const img=document.createElement("img");
+            img.alt="www.ablogroom.com";
+            img.style.cssText="aspect-ratio:1/1;width:25px;border:none;margin-right:1rem;";
+            const span=document.createElement("span");
+            span.appendChild(img);
+            const text=new Text(content);
+            span.appendChild(text);
+            if(link){
+                img.src=this.link;
+                anchor.appendChild(span);
+                 anchor.onclick=()=>window.open(link,"_blank");
+                 anchor.textContent=content;
+               
                 }
+            else if(email){
+                img.src=this.mail;
+                anchor.appendChild(span);
+                 anchor.href=email
+                 anchor.onclick=()=>window.open(link,"_blank");
+                 anchor.textContent=content;
+           
+                }
+           else if(tel) {
+            img.src=this.phone;
+            anchor.appendChild(span);
+            anchor.href=tel
+            anchor.onclick=()=>window.open(link,"_blank");
+        
             };
-            return {ele,divCont};
-        }else if(element.name==="logo"){
-            const ele=document.createElement("img");
-            ele.setAttribute("is-element","true");
-            ele.setAttribute("contenteditable","true");
-            ele.setAttribute("aria-selected","true");
-            ele.setAttribute("data-placement",`${element.order}`);
-            ele.setAttribute("order",String(element.order));
-            ele.setAttribute("name",element.name);
+           
+            Main.toggleActiveIcon(anchor);
+            divCont.appendChild(anchor);
+            col.appendChild(divCont);
+
+            return {target:anchor,divCont,rowEle,sel,colEle,idValues,isEdit:false};
+
+        }else if(node==="logo"){
+            const eleId=element.eleId
+            const ele=target as HTMLImageElement;
+            ele.setAttribute("contenteditable","false");
+
             ele.className=element.class;
             ele.src=element.img as string;
             ele.id=element.eleId as string;
-            ele.setAttribute("name",element.name);
-            ele.style.cssText=element.cssText;
             ele.alt=element.inner_html;
             if(element.imgKey){
+                idValues.push({eleId,id:"imgKey",attValue:element.imgKey});
                 this._service.getSimpleImg(element.imgKey).then(async(res)=>{
                     if(res){
-                        ele.src=res.img as string
-                    }
-                });
-            }
-            ele.setAttribute("flex",JSON.stringify(_flex));
-            divCont.appendChild(ele);
-            col.appendChild(divCont);
-            Main.toggleActiveIcon(ele);
-            this._user.refreshImageShow(divCont,ele,null,flex);
-            this.removeMainElement(col,divCont,ele);
-            ele.addEventListener("click",(e:MouseEvent)=>{
-                if(e){
-                    this._modSelector.updateElement(ele);
-                }
-            });
-            return {ele,divCont};
-        }else if(element.name==="image"){
-            // const link=element.attr as string;
-            const ele=document.createElement("img") as HTMLImageElement;
-            ele.setAttribute("is-element","true");
-            ele.setAttribute("contenteditable","true");
-            ele.setAttribute("aria-selected","true");
-            ele.setAttribute("order",String(element.order));
-            ele.setAttribute("data-placement",`${element.order}`);
-            ele.setAttribute("name",element.name);
-            ele.className=element.class;
-            ele.src=element.img ? element.img : "";
-            ele.id=element.eleId as string;
-            ele.setAttribute("name",element.name);
-            ele.style.cssText=element.cssText;
-            ele.alt=element.inner_html;
-            if(element.imgKey){
-               await this._service.getSimpleImg(element.imgKey).then(async(res)=>{
-                    if(res){
                         ele.src=res.img as string;
-                        ele.alt=`${res.Key.split("/")[1].split("-")[1]}`;
+                        ele.alt=res.Key as string;
                     }
                 });
+              
             }
-            ele.setAttribute("flex",JSON.stringify(_flex));
             divCont.appendChild(ele);
             col.appendChild(divCont);
-            this._user.refreshImageShow(divCont,ele,null,flex);
-            this.removeMainElement(col,divCont,ele);
-            ele.addEventListener("click",(e:MouseEvent)=>{
-                if(e){
-                    
-                    this._modSelector.updateElement(ele);
-                }
-            });
-            return {ele,divCont};
-        }else if(element.name==="img" ){
-            const ele:HTMLImageElement=document.createElement("img");
-            ele.setAttribute("is-element","true");
-            ele.setAttribute("contenteditable","true");
-            ele.setAttribute("aria-selected","true");
-            ele.setAttribute("order",String(element.order));
-            ele.setAttribute("name",element.name);
-            ele.className=element.class;
-            this._user.refreshImageShow(divCont,ele,null,flex);
-            ele.id=element.eleId as string;
-            ele.style.cssText=element.cssText;
+
+            return {target:ele,divCont,rowEle,sel,colEle,idValues,isEdit:false};
+
+        }else if(node==="img" ){
+            const eleId=element.eleId;
+            const ele:HTMLImageElement=target as HTMLImageElement;
             ele.src=element.img as string;
             ele.alt=element.inner_html as string;
             if(element.imgKey){
+                idValues.push({eleId,id:"imgKey",attValue:element.imgKey});
                await this._service.getSimpleImg(element.imgKey).then(async(res)=>{
                     if(res){
                         ele.src=res.img as string;
                         ele.alt=`${res.Key.split("/")[1].split("-")[1]}`;
                     }
                 });
-            }
-            ele.setAttribute("flex",JSON.stringify(_flex));
+                const {isJSON,parsed}=Header.checkJson(ele.getAttribute("flex"));
+                let flex=isJSON ? {...parsed} as flexType:undefined;
+                if(flex){
+                    flex={...flex,imgKey:element.imgKey}
+                    ele.setAttribute("flex",JSON.stringify(flex));
+                    this._user.refreshImageShow({parent:divCont,image:ele,formdata:null,selRowCol,idValues});
+                    ele.setAttribute("flex",JSON.stringify(flex));
+                }
+            };
             divCont.appendChild(ele);
             col.appendChild(divCont);
-            this.removeMainElement(col,divCont,ele);
            
-            return {ele,divCont};
+            return {target:ele,divCont,rowEle,sel,colEle,idValues,isEdit:false};
         }
-    }
+    };
+
     //INJECTION target=>sidebar
-    main(target:HTMLElement){
+    main(target:HTMLElement,idValues:idValueType[]){
+        
         this.selectors=this._modSelector.selectors;
         const popup=document.createElement("section");
-        popup.style.cssText="position:absolute;inset:65% 0%;backdrop-filter:blur(10px);display:flex;flex-direction:column;align-items:center; justify-content:center;gap:1rem;z-index:2000;width:100%;";
+        popup.style.cssText="position:absolute;inset:0%;backdrop-filter:blur(10px);display:flex;flex-direction:column;align-items:center; justify-content:center;gap:1rem;z-index:2000;width:100%;transform:translateY(-200%);";
         const form=document.createElement("form");
         form.style.cssText="margin-inline:auto;padding-inline:1rem;width:auto;display:flex;flex-direction:column;";
         const formGrp=document.createElement("div");
@@ -478,60 +628,86 @@ class Footer{
                 const formdata=new FormData(e.currentTarget as HTMLFormElement);
                 const columns=parseInt(formdata.get("columns") as string) as number;
                 const rows=parseInt(formdata.get("rows") as string) as number;//colAttr:[{id:4,selector_id:5,T:4,B:4}]
-                this._selector={...this._selector,footer:true,rowNum:rows,colNum:columns,colAttr:[{id:0,selector_id:0,T:rows-1,B:columns}]};
+                this.selector={...this.selector,
+                    footer:true,
+                    rowNum:rows,
+                    colNum:columns,
+                    colAttr:[{id:0,selector_id:0,T:rows-1,B:columns}]
+            };
                 
-                this.createFooter(target,this._selector);
+                this.createFooter(target,this.selector,idValues);//input from form
                 Misc.fadeOut({anchor:popup,xpos:50,ypos:100,time:400});
                 setTimeout(()=>{
                     target.removeChild(popup);
                 },380);
             }
         });
-    }
+    };
 
      //PARENT:main() : this is the created footer within main
-    createFooter(parent:HTMLElement,select:selectorType){
-        // const 
-        const check=this.selectors.find(select=>(select.footer===true))? true:false;
+    createFooter(parent:HTMLElement,select:selectorType,idValues:idValueType[]){
+        // FROM FORM ( footer.main()) 
+        this.selector=select;
+        const user=this._user.user;
+        const check=this.selectors.find(select=>(select.footer===true)) || false;
+        // console.log(check);//works
         if(!check){
-            let flex:flexType={} as flexType;
+        
             const selectID=`footer-${Math.round(Math.random()*1000)}`;
             const main=document.createElement("footer");
             main.setAttribute("name","footer");
-            main.style.cssText="position:relative;width:100%; margin-inline:0px;padding:0px;margin-top:2.5rem;margin-bottom:0;";
+            main.style.cssText="position:relative;width:100%; margin-inline:0px;padding:0px;margin-top:2.5rem;margin-bottom:0;border-top:1px solid grey;";
             main.id=selectID;
+            const eleId=main.id;
             main.className="footerContainer";
             main.setAttribute("data-placement",`${this.placement}`);
-            this.promSelectorAdder({target:main,selector:select}).then(async(res)=>{
-                if(res && res.select && res.reTarget){
-
-                    Array.from(Array(select.rowNum).keys()).map((num)=>{
+            this.selector={...this.selector,id:0,eleId:eleId,footer:true,header:false};
+            this.selectorAdder({target:main,selector:this.selector,idValues}).then(async(sel)=>{
+                if(sel ){
+                   
+                    Array.from(Array(sel.select?.rowNum).keys()).map((num)=>{
+                        const rowNums=sel.select?.rowNum
                         const row=document.createElement("div");
-                        row.className=`row my-0 mx-0`;
-                        row.style.cssText=`padding-inline:10px;width:100%;margin-inline:0px;border-radius:10px;background:#F0F8FF; `;
+                        const rand=Math.floor(Math.random()*1000);
+                        row.id=`footer-row-${rowNums}-${num}-${rand}`;
+                        const eleId=row.id;
+                        row.className=`row my-0 mx-0 footer-row box-shadow`;
+                        row.style.cssText=`padding-inline:10px;width:100%;margin-inline:0px;border-radius:10px; `;
                         row.style.minHeight="5vh";
-                        flex={... flex,selectorId:selectID,order:num};
-                        flex=Main.flexRowTracker(row,flex);
-                        this.promRowAdder({row,selectorId:main.id}).then(async(res)=>{
-                            if(res){
-
-                                Array.from(Array(select.colNum).keys()).map((num)=>{
+                      
+                       idValues.push({eleId,id:"rowId",attValue:eleId});
+                       idValues.push({eleId,id:"selectorId",attValue:main.id});
+                       idValues.push({eleId,id:"ID",attValue:eleId});
+                       idValues.push({eleId,id:"isRow",attValue:"true"});
+                       idValues.push({eleId,id:"rowNum",attValue:String(rowNums)});
+                       idValues.push({eleId,id:"numCols",attValue:String(sel.select?.colNum)});
+                       const selector=sel.select as selectorType;
+                        this._modSelector.rowAdder({target:row,selectEle:main,idValues,selector}).then(async(res)=>{
+                            if(res ){
+                                const numCols=res.sel.colNum
+                                Array.from(Array(numCols).keys()).map((numCol)=>{
+                                    const rand=Math.floor(Math.random()*1000);
                                     const col=document.createElement("div");
-                                    
-                                    const colMd=`col-md-${12/select.colNum}`;
-                                    col.className=`${colMd} mx-auto`;
+                                    col.id=`footer-row-${num}-col-${numCol}-${rand}`;
+                                    const eleId=col.id;
+                                    const colMd=`col-md-${12/numCols}`;
+                                    col.className=`${colMd} mx-auto footer-col box-shadow`;
                                     col.style.cssText="display:flex;justify-content:space-between;align-items:center;"
                                     col.setAttribute("name","div");
                                     col.setAttribute("is-col","true");
                                     col.style.cssText=`flex:0 0 auto;height:inherit;display:flex;justify-content:center;gap:0;flex-wrap:wrap;border-radius:inherit;`;
-                                    flex={...flex,order:num};
                                     col.setAttribute("is-column","true");
-                                    Main.flexColTracker(col,flex);
-                                    this.promColAdder({target:col}).then(async(res)=>{
-                                        if(res && res.column){
-                                            row.appendChild(res.column);
-                                            this.selectElements({column:col});
-                                            res.column.addEventListener("click",(e:MouseEvent)=>{
+                                    idValues.push({eleId,id:"colId",attValue:eleId});
+                                    idValues.push({eleId,id:"ID",attValue:eleId});
+                                    idValues.push({eleId,id:"numCols",attValue:String(numCol)});
+                                    idValues.push({eleId,id:"rowNum",attValue:String(num)});
+                                    
+                                    this._modSelector.colAdder({parent:row,target:col,idValues,selector:res.sel,row:res.rowEle as rowType}).then(async(_res)=>{
+                                        if(_res){
+                                            
+                                            _res.parent.appendChild(_res.target);
+                                            this.selectElements({column:_res.target,idValues,sel:res.sel,rowEle:_res.row as rowType,colEle:_res.col,user});
+                                            res.target.addEventListener("click",(e:MouseEvent)=>{
                                                 if(e){
                                                     col.classList.add("coliIsActive");
                                                     
@@ -551,20 +727,24 @@ class Footer{
             main.onclick=(e:MouseEvent)=>{
                 if(e){
                     main.classList.toggle("isActive");
-                    this.removeFooter(parent,main);
+                    this.removeFooter(parent,main,idValues);
                 }
             };
+        }else{
+            Misc.message({parent,type_:"error",time:2000,msg:"you must delete the original footer before creating another!!"})
         }
         
     }
     //----------DROP-DOWN ATTRIBUTES FOR ELEMENT && ATT(S) SELECTION------////
-    selectElements(item:{column: HTMLElement}){
-       const {column}=item;
-       // const check=([...column.classList as any] as string[]).includes("coliIsActive");
-       const {parsed}=Header.checkJson(column.getAttribute("flex"));
-      
+    selectElements({column,idValues,sel,rowEle,colEle,user}:{
+        column: HTMLElement,
+        idValues:idValueType[],
+        sel:selectorType,
+        rowEle:rowType,
+        colEle:colType,
+        user:userType
+    }){
            Footer.cleanUpByID(column,"footer-popup-select-elements");
-           const flex= parsed as flexType;
            column.style.position="relative";
            const popup=document.createElement("div");
            popup.setAttribute("isPopup","true");
@@ -588,7 +768,33 @@ class Footer{
                 const eleChoice:elementChoiceType|null= isJSON ? parsed as elementChoiceType : null;
                    if(!eleChoice) return;
                    const {name,ele,isEle,attr}=eleChoice;
-                   this.create_element(column,ele,name,isEle,attr,flex);
+                   if(isEle && !attr){
+                       this.create_element({column,eleName:ele,name,idValues,sel,rowEle,colEle}).then(async(eRes)=>{
+                        //AFTER ITS CREATED( Target is appened onto divCont)
+                        if(eRes ){
+                           
+                            this.removeMainElement({
+                                parent:column,
+                                divCont:eRes.divCont,
+                                sel,
+                                rowEle,
+                                colEle,
+                                target:eRes.target,
+                                idValues
+
+                            });
+                            eRes.divCont.onclick=(e:MouseEvent)=>{
+                                if(!e) return;
+                                eRes.divCont.classList.toggle("isActive");
+                                eRes.target.classList.toggle("isActive");
+                            };
+                            this.editElement({target:eRes.target,sel,rowEle:eRes.rowEle,colEle:eRes.colEle,idValues:eRes.idValues});
+                        }
+                       });
+                   }else if(!isEle && attr){
+                    //ADDING ATTRIBUTES
+                        this.addAttribute({column,attr,idValues,sel,name,rowEle,colEle,user});
+                   }
                    column.classList.remove("coliIsActive");
                    const getpopups=column.querySelectorAll("div#footer-popup");
                    ([...getpopups as any] as HTMLElement[]).map(ele=>{
@@ -601,180 +807,246 @@ class Footer{
       
    }
     //----------DROP-DOWN ATTRIBUTES FOR ELEMENT && ATT(S) SELECTION------////
-    promRowAdder(item:{row:HTMLElement,selectorId:string}){
-        const {row,selectorId}=item;
-        return new Promise(resolver=>{
-            resolver( this._modSelector.rowAdder(row,selectorId))
-        }) as Promise<rowType | undefined>;
-    }
-    
-    create_element(column:HTMLElement,eleName:string|null,name:string,isEle:boolean,attr:string | null,flex:flexType):void{
-        const divCont=document.createElement("div");
-        divCont.className="eleContainer";
-        divCont.style.cssText="margin:0;padding:0.25rem;";
-        const order:number= this.getElementCount(column) ? this.getElementCount(column) as number: 1;
-        flex={...flex,order:order};
-        const rand=Math.round(Math.random()*1000);
    
-        if(isEle){
+    
+   async create_element({column,eleName,name,sel,rowEle,colEle,idValues}:{
+    column:HTMLElement,
+    eleName:string|null,
+    name:string,
+    idValues:idValueType[]
+    sel:selectorType,
+    rowEle:rowType,
+    colEle:colType
+   }):Promise<{
+    column:HTMLElement,
+    rowEle:rowType,
+    idValues:idValueType[],
+    colEle:colType,
+    divCont:HTMLElement,
+    target:HTMLElement
+   }|undefined>{
+        const rand=Math.floor(Math.random() *1000);
+        if(eleName){
+
+            const divCont=document.createElement("div");
+            divCont.id=`footer-divCont-${rand}`;
+            divCont.className="eleContainer";
+            divCont.style.cssText="margin:0;padding:0.25rem;";
+            const target=document.createElement(eleName);
+            target.id=`footer-element-${eleName}-${rand}`;
+            const eleId=target.id;
+            const selRowCol={selectorId:sel.eleId,rowId:rowEle.eleId,colId:colEle.eleId};
+            idValues.push({eleId,id:"selRowCol",attValue:JSON.stringify(selRowCol)});
+            idValues.push({eleId,id:"elementId",attValue:eleId});
+            idValues.push({eleId,id:"ID",attValue:eleId});
+            idValues.push({eleId,id:"colId",attValue:colEle.eleId});
+            const date=new Date().getFullYear();
+           
             switch(true){
                 case name==="copyright":
-                    if(!eleName) return;
-                    const name_=`${name}-${rand}`;
-                    const date=new Date().getFullYear();
-                    const copyright=document.createElement(eleName);
-                    Main.flexTracker(copyright,flex); //appends flex attribute and ID
-                    copyright.className="footer-ele";
-                    copyright.style.cssText="position:absolute;inset:100% 0% 0% 0%;transform:translate(10px,-12px);font-family:'Roboto' sans serif;margin-top:1rem;font-size:9px;";
-                    copyright.innerHTML=`<small>&copy; ${date}</small>`;
-                    divCont.appendChild(copyright);
-                    column.appendChild(divCont);
-                    flex={...flex,name:name_};
-                    const {ele}=this.elementAdder(copyright) as {target:HTMLElement,ele:element_selType};
-                    copyright.setAttribute("data-placement",`${ele.order}`);
-                    copyright.addEventListener("click",(e:MouseEvent)=>{
-                        if(e){
-                            copyright.classList.toggle("isActive");
-                            this.removeMainElement(column,divCont,copyright);
-                        }
-                    });
-                    
-                return;
-                case name==="image" && isEle:
-                    this.insertImage(column,flex);
-                return;
-                case name==="bg-image" && isEle:
-                    flex={...flex,position:"col"};
-                    column.style.position="relative";
-                    this.insertBgImage(column,flex);
-                return;
-                case name==="rm-bg-image" && isEle:
-                    column.style.position="relative";
-                    flex={...flex,position:"col"}
-                    this._modSelector.updateColumn(column,flex);
-                return;
-                case name==="bg-row-image":
-                    const row=column.parentElement as HTMLElement
-                    const {parsed}=Header.checkJson(row.getAttribute("flex"));
-                    let flex_={...parsed as flexType};
-                    flex_={...flex_,position:"row"};
-                    row.setAttribute("flex",JSON.stringify(flex_));
-                    this.bgRowImage({row});
-                return;
-                case name==="insert-email" && isEle:
-                    this.getEmail(column);
-                return;
-                case name==="insert-tel" && isEle:
-                    this.insertTel(column);
-                return;
-                case name==="insert-link" :
-                   this.insertLink(column);
-                return;
-                case name==="small":
-                    if(!eleName) return;
-                    const small=document.createElement("small");
-                    small.className="footer-ele";
-                    Main.flexTracker(small,flex); //appends flex attribute and ID
-                    small.setAttribute("contenteditable","true");
-                    small.style.cssText="font-size:10px;margin-inline:5px;";
-                    small.textContent=`${name}-edit`;
-                    divCont.appendChild(small);
-                    column.appendChild(divCont);
-                    const {ele:ele1}=this.elementAdder(small) as {target:HTMLElement,ele:element_selType};
-                    divCont.setAttribute("data-placement",`${ele1.order}-A`);
-                    this.removeMainElement(column,divCont,small);
-                    small.addEventListener("click",(e:MouseEvent)=>{
-                        if(e){
-                            small.classList.toggle("isActive");
-                            divCont.classList.toggle("isActive");
-                        }
-                    });
-                    this.editElement(small);
-                    
+                    target.className="footer-ele";
+                    target.style.cssText="position:absolute;inset:100% 0% 0% 0%;transform:translate(10px,-12px);font-family:'Roboto' sans serif;margin-top:1rem;font-size:9px;";
+                    target.innerHTML=`<small>&copy; ${date}</small>`;
+                    divCont.appendChild(target);
+                   await this.elementAdder({
+                        target,
+                        sel:sel,
+                        rowEle,
+                        colEle,
+                        idValues
 
-                return;
+                    }).then(async(res)=>{
+                        if(res){
+                            const ele=res.ele;
+                            divCont.setAttribute("data-placement",`${ele.order}-A`);
+                        }
+                    });
+                    column.appendChild(divCont)
+                return {target,column,divCont,idValues,rowEle,colEle};
+                case name==="small":
+                    target.className="footer-ele";
+                    target.style.cssText="font-size:10px;margin-inline:5px;";
+                    target.textContent=`${name}-edit`;
+                    divCont.appendChild(target);
+                    await this.elementAdder({
+                        target,
+                        sel:sel,
+                        rowEle,
+                        colEle,
+                        idValues
+
+                    }).then(async(res)=>{
+                        if(res){
+                            const ele=res.ele;
+                            divCont.setAttribute("data-placement",`${ele.order}-A`);
+                        }
+                    });
+                    column.appendChild(divCont);
+                return {target,column,divCont,idValues,rowEle,colEle};
                 case name==="text":
-                    if(!eleName) return;
-                    const para=document.createElement(eleName);
-                    Main.flexTracker(para,flex); //appends flex attribute and ID
-                    para.className="footer-ele";
-                    para.setAttribute("contenteditable","true");
-                    para.style.cssText="margin-inline:16px;";
-                    para.textContent=`${name}-edit`;
-                    divCont.appendChild(para);
-                    column.appendChild(divCont);
-                    const {ele:ele2}=this.elementAdder(para) as {target:HTMLElement,ele:element_selType};
-                    divCont.setAttribute("data-placement",`${ele2.order}`);
-                    this.removeMainElement(column,divCont,para);
-                    para.addEventListener("click",(e:MouseEvent)=>{
-                        if(e){
-                            para.classList.toggle("isActive");
-                            divCont.classList.toggle("isActive");
+                    target.className="footer-ele";
+                    target.setAttribute("contenteditable","true");
+                    target.style.cssText="margin-inline:16px;";
+                    target.textContent=`${name}-edit`;
+                    divCont.appendChild(target);
+                    await this.elementAdder({
+                        target,
+                        sel:sel,
+                        rowEle,
+                        colEle,
+                        idValues
+
+                    }).then(async(res)=>{
+                        if(res){
+                            const ele=res.ele;
+                            divCont.setAttribute("data-placement",`${ele.order}-A`);
                         }
                     });
-                    this._modSelector.editElement(para);
-                    
-                return;
+                    column.appendChild(divCont);
+                return {target,column,divCont,idValues,rowEle,colEle};
+
                 case name==="quote":
-                    if(!eleName) return;
-                    const quote=document.createElement(eleName);
-                    quote.className="footer-ele";
-                    quote.style.cssText="font-family:'Roboto', sans serif; font-weight:bold;margin-left:1.5rem;margin-inline:0px;margin-left:8px;";
-                    quote.setAttribute("contenteditable","true");
-                   Main.flexTracker(quote,flex); //appends flex attribute and ID
-                    quote.innerHTML=`<span>&quot;<span>${name}-edit</span> "</span>`;
-                    divCont.appendChild(quote);
-                    column.appendChild(divCont);
-                    const {ele:ele3}=this.elementAdder(quote) as {target:HTMLElement,ele:element_selType};
-                    divCont.setAttribute("data-placement",`${ele3.order}`);
-                    this._modSelector.editElement(quote);
-                    quote.addEventListener("click",(e:MouseEvent)=>{
-                        if(e){
-                            quote.classList.toggle("isActive");
-                            divCont.classList.toggle("isActive");
-                            this.removeMainElement(column,divCont,quote);
+                    
+                    target.className="footer-ele";
+                    target.style.cssText="font-family:'Roboto', sans serif; font-weight:bold;margin-left:1.5rem;margin-inline:0px;margin-left:8px;";
+                    target.setAttribute("contenteditable","true");
+                    target.innerHTML=`<span>&quot;<span>${name}-edit</span> "</span>`;
+                    divCont.appendChild(target);
+                    await this.elementAdder({
+                        target,
+                        sel:sel,
+                        rowEle,
+                        colEle,
+                        idValues
+
+                    }).then(async(res)=>{
+                        if(res){
+                            const ele=res.ele;
+                            divCont.setAttribute("data-placement",`${ele.order}-A`);
                         }
                     });
-                    this._modSelector.editElement(quote);
-                    
-                return;
+                    column.appendChild(divCont);
+                return {target,column,divCont,idValues,rowEle,colEle};
                 default:
                     return;
             }
+            
         }
-        if(attr){
+        
 
-            switch(true){
-                case name==="font-color":
-                    this.setColor(column);
-                break;
-                case name==="text-center":
-                    column.classList.toggle("text-center");
-                    this._modSelector.updateColumn(column,flex);
-                break;
-                case name==="set height":
-                    this.setHeight(column);
-                break;
-                case name==="set row height":
-                    this.setRowHeight(column);
-                break;
-                case name==="rm-bg-image":
-                    this.removeBgImage(column);
-                break;
-                case name==="set-image-height":
-                    this.setImageHeight({column:column});
-                break;
-                default:
-                    return this.setColAttributes(column,name,attr,flex);
-            }
+    };
+
+
+   async addAttribute({column,attr,idValues,name,sel,rowEle,colEle,user}:{
+        column:HTMLElement,
+        idValues:idValueType[],
+        sel:selectorType,
+        rowEle:rowType,
+        colEle:colType,
+        attr:string,
+        name:string,
+        user:userType
+    }){
+        const divConts=column.querySelectorAll("div.eleContainer.isActive") as any as HTMLElement[];
+        switch(true){
+            case name==="rm-bg-image" :
+                column.style.position="relative";
+                for(const [key,value] of Object.entries(column.style)){
+                    if(key && value){
+                        if( key==="backgroundImage"){
+                            colEle={...colEle,imgKey:undefined};
+                            column.style.backgroundImage="";
+                        }else if(key==="backgroundPosition"){
+                            column.style.backgroundPosition=""
+                        }else if(key==="backgroundSize"){
+                            column.style.backgroundSize=""
+                        }
+
+                    }
+                }
+               await this.updateColumn({target:column,sel,colEle,rowEle,idValues}).then(async(res)=>{
+                if(res){
+                    Misc.message({parent:column,msg:"removed",type_:"success",time:800});
+                }
+               });
+            return;
+            case name==="image" :
+               await this.insertImage({column,sel,rowEle,colEle,idValues});
+            return 
+                
+            case name==="insert-email" :
+                 await this.getEmail({column,sel,rowEle,colEle,idValues});
+            return 
+            case name==="insert-tel":
+                  
+                await this.insertTel({column,sel,rowEle,colEle,idValues});
+            return 
+            case name==="insert-link" :
+                await this.insertLink({column,sel,rowEle,colEle,idValues});
+            return 
+            case name==="reference-links" :
+                this.reference.footerLinks({column,sel,rowEle,colEle,idValues})
+               
+            return 
+            case name==="bg-row-image":
+                this.bgRowImage({target:column.parentElement as HTMLElement,sel,rowEle,colEle,idValues,user});
+                
+            return;
+            case name==="bg-image":
+                column.style.position="relative";
+                this.insertBgImage({target:column,sel,rowEle,colEle,idValues});
+            return;
+            case name==="font-color":
+                    this.setColor({column,sel,rowEle,colEle,idValues});
+            return;
+            case name==="img-size-adjust":
+                    this.setImageSize({parent:column,sel,rowEle,colEle,idValues});
+            return;
+            case name==="text-center":
+                column.classList.toggle("text-center");
+                this.updateColumn({target:column,sel,rowEle,colEle,idValues});
+            return;
+            case name==="set-height":
+                this.setHeight({target:column,sel,rowEle,colEle,idValues,user});
+            return;
+            case name==="set-row-height":
+                this.setRowHeight({target:column,sel,rowEle,colEle,idValues});
+            return;
+            case name==="set-image-height":
+                this.setImageHeight({column:column,sel,rowEle,colEle,idValues});
+            return;
+            case name==="font-size":
+                
+                this.fontSize({column:column,divConts,sel,rowEle,colEle,idValues});
+            return;
+            default:
+            return this.setColAttributes({
+                parent:column,
+                sel,
+                rowEle,
+                colEle,
+                idValues,
+                user,
+                name,
+                attr
+
+            });
+          
         }
+    };
 
-    }
-    setHeight(column:HTMLElement){
-        column.style.position="relative";
-        const {isJSON,parsed}=Header.checkJson(column.getAttribute("flex"));
-        if(!isJSON) return;
-        Header.cleanUpByID(column,"popup-set-column-height");
+
+
+    setHeight({target,idValues,user,sel,rowEle,colEle}:{
+        target:HTMLElement,
+        idValues:idValueType[],
+        user:userType
+        sel:selectorType,
+        rowEle:rowType,
+        colEle:colType
+    }){
+        target.style.position="relative";
+        Header.cleanUpByID(target,"popup-set-column-height");
         //create popup
         const popup=document.createElement("div");
         popup.id="popup-set-column-height";
@@ -784,46 +1056,57 @@ class Footer{
         const {input,label}= Nav.inputComponent(popup);
         input.type="number";
         input.id="number";
-        input.min="100px";
-        input.max="600px";
+        input.min="100";
+        input.max="800";
         input.placeholder="100";
         input.value="100";
         label.setAttribute("For",input.id);
         label.textContent="set height";
         const btn=buttonReturn({parent:popup,bg:Nav.btnColor,color:"white",text:"okay",type:"button"});
         btn.disabled=true;
-        column.appendChild(popup);
+        target.appendChild(popup);
         Misc.matchMedia({parent:popup,maxWidth:420,cssStyle:{inset:"-120px 5% 20px 5%"}});
         input.oninput=(e:Event)=>{
             if(e){
                 const value=(e.currentTarget as HTMLInputElement).value;
                 btn.disabled=false;
-                const cssStyle={minHeight:`${value}px`};
-                Footer.modifyCss(column,cssStyle);
+                target.style.minHeight=`${value}px`;
             }
         };
         btn.onclick=(e:MouseEvent)=>{
             if(e){
-                const flex=parsed as flexType;
-                this._modSelector.updateColumn(column,flex);
+                colEle={...colEle,cssText:target.style.cssText}
+                this.updateColumn({target,sel,rowEle,colEle,idValues}).then(async(res)=>{
+                    if(res){
+                        Misc.message({parent:target,type_:"success",msg:"updated",time:600});
+                    }
+                });
                 Misc.growOut({anchor:popup,scale:0,opacity:0,time:400});
                 setTimeout(()=>{
-                    column.removeChild(popup);
+                    target.removeChild(popup);
                 },398);
             }
         };
-    }
-    setRowHeight(column:HTMLElement){
-        column.style.position="relative";
-        const row=column.parentElement as HTMLElement;
-        const {isJSON,parsed}=Header.checkJson(column.getAttribute("flex"));
-        if(!isJSON) return;
+    };
+
+    setRowHeight({target,idValues,sel,rowEle,colEle}:{
+        target:HTMLElement,
+        idValues:idValueType[],
+        sel:selectorType,
+        rowEle:rowType,
+        colEle:colType
+    }){
+        target.style.position="relative";
+        const row=target.parentElement as HTMLElement;
         //create popup
         const popup=document.createElement("div");
         popup.id="popup-set-height";
         popup.setAttribute("is-popup","true");
         popup.style.cssText="position:absolute;display:flex;flex-direction:column;justify-content:center;align-items:center;gap:0.75rem;background:white; border-radius:10px;box-shadow:1px 1px 10px 1px black,-2px -2px 12px 1px blue;";
-        popup.style.inset="-75px 20% 0px 20%";
+        popup.style.inset="0%";
+        popup.style.width="clamp(150px,200px,225px)";
+        popup.style.height="200px";
+        popup.style.transform="translateY(-150%)";
         const {input,label}= Nav.inputComponent(popup);
         input.type="number";
         input.id="number";
@@ -835,37 +1118,49 @@ class Footer{
         label.textContent="set height";
         const btn=buttonReturn({parent:popup,bg:Nav.btnColor,color:"white",text:"okay",type:"button"});
         btn.disabled=true;
-        column.appendChild(popup);
+        row.appendChild(popup);
         Misc.matchMedia({parent:popup,maxWidth:420,cssStyle:{inset:"-120px 5% 20px 5%"}});
         input.oninput=(e:Event)=>{
             if(e){
                 const value=(e.currentTarget as HTMLInputElement).value;
                 btn.disabled=false;
-                const cssStyle={minHeight:`${value}px`};
-                Footer.modifyCss(row,cssStyle);
+                row.style.minHeight=`${value}px`;
             }
         };
         btn.onclick=(e:MouseEvent)=>{
             if(e){
                 const value=(input as HTMLInputElement).value as string;
-                ([...row.children as any] as HTMLElement[]).map(col=>{
+                rowEle={...rowEle,cssText:target.style.cssText};
+                ([...row.children as any] as HTMLElement[]).forEach(col=>{
                     if(col){
-                        col.style.height=`${value}px`;
-                        const {parsed}=Header.checkJson(col.getAttribute("flex"));
-                        const flex_=parsed as flexType;
-                        this._modSelector.updateColumn(col,flex_);
+                        const colEle_=rowEle.cols.find(obj=>(obj.eleId===col.id));
+                        if(colEle_){
+                            col.style.minHeight=`${value}px`;
+                            colEle={...colEle,cssText:col.style.cssText}
+                            this.updateColumn({target:col,sel,rowEle,colEle:colEle_,idValues});
+                        }
                     }
                 });
-                const flex=parsed as flexType;
-                this._modSelector.updateRow(row,flex);
+               
+                this.updateRow({target:row,rowEle,colEle,sel,idValues}).then(async(res)=>{
+                    if(res){
+                        Misc.message({parent:target,type_:"success",msg:"updated",time:600});
+                    }
+                });
                 Misc.growOut({anchor:popup,scale:0,opacity:0,time:400});
                 setTimeout(()=>{
-                    column.removeChild(popup);
+                    row.removeChild(popup);
                 },398);
             }
         };
-    }
-    removeBgImage(column:HTMLElement){
+    };
+
+    removeBgImage({column,idValues,selRowCol}:{
+        column:HTMLElement,
+        idValues:idValueType[],
+        selRowCol:selRowColType
+
+    }){
         for(const key of Object.keys(column.style)){
             if(key==="backgroundImage"){
                 column.style.backgroundImage="";
@@ -882,16 +1177,23 @@ class Footer{
                 this._service.adminImagemark(imgKey as string).then(async(res)=>{
                     if(res){
                         Misc.message({parent:column,msg:`${imgKey} is removed`,type_:"success",time:700});
-                        const flex_={...flex,imgKey:undefined,backgroundImage:undefined};
-                        this._modSelector.updateColumn(column,flex_);
+                        this._modSelector.updateColumn({target:column,idValues,selRowCol});
                     }
                 });
             
         }
     };
-    bgRowImage(item:{row:HTMLElement}){
-        const {row}=item;
-        row.style.position="relative";
+    bgRowImage({target,idValues,user,sel,rowEle,colEle}:{
+        target:HTMLElement,
+        idValues:idValueType[],
+        user:userType
+        sel:selectorType,
+        rowEle:rowType,
+        colEle:colType
+    }){
+       const selRowCol={selectorId:sel.eleId,rowId:rowEle.eleId,colId:colEle.eleId} as selRowColType;
+        target.style.position="relative";
+        const eleId=target.id;
         const css="display:flex;flex-direction:column;align-items:center;justify-content:center;gap:1rem;"
         const popup=document.createElement("div");
         popup.id="popup-setImageHeight";
@@ -899,7 +1201,7 @@ class Footer{
         popup.style.top="-130%";
         popup.style.left="30%";
         popup.style.right="30%";
-        popup.style.width="300px";
+        popup.style.width="clamp(150px,200px,300px)";
         const form=document.createElement("form");
         form.style.cssText=css + "width:100%";
         const {input,label,formGrp}=Nav.inputComponent(form);
@@ -918,35 +1220,57 @@ class Footer{
             }
         };
         popup.appendChild(form);
-        row.appendChild(popup);
-        form.onsubmit=(e:SubmitEvent)=>{
+        target.appendChild(popup);
+        form.onsubmit=async (e:SubmitEvent)=>{
             if(e){
                 e.preventDefault();
                 const formdata=new FormData(e.currentTarget as HTMLFormElement);
                 const file=formdata.get("file");
                 if(file && file as File){
-                    const {isJSON,parsed}=Header.checkJson(row.getAttribute("flex"));
-                    const flex=isJSON ? parsed as flexType:null;
-                    const oldKey=flex && flex.imgKey ? flex.imgKey : null;
+                    const idValue=this._modSelector.dataset.getIdValue({target,idValues,id:"imgKey"});
+                    const oldKey=idValue ? idValue.attValue : null;
                     const imgUrl=URL.createObjectURL(file as File);
-                    row.style.backgroundImage=`url(${imgUrl})`;
-                    row.style.backgroundSize=`100% 200%`;
-                    row.style.backgroundPosition=`50% 50%`;
-                    Misc.blurIn({anchor:row,blur:"20px",time:600});
-                    const blog=this._modSelector.blog;
-                    this._user.askSendToServer({bg_parent:row,formdata,image:null,blog,oldKey});
+                    target.style.backgroundImage=`url(${imgUrl})`;
+                    target.style.backgroundSize=`100% 200%`;
+                    target.style.backgroundPosition=`50% 50%`;
+                    Misc.blurIn({anchor:target,blur:"20px",time:600});
+                    const {Key}=this._service.generateFreeImgKey({formdata,user}) as {Key:string};
+                    const replaceId:idValueType={eleId,id:"imgKey",attValue:Key};
+                    this._modSelector.dataset.upDateIdValue({target,idValues,idValue:replaceId});
+                    rowEle={...rowEle,imgKey:Key};
+                   await this.updateRow({target,sel,rowEle,colEle,idValues}).then(async(res)=>{
+                        if(res){
+
+                            const blog=this._modSelector.blog;
+                            this._user.askSendToServer({bg_parent:res.target,formdata,image:null,blog,oldKey,idValues,selRowCol});
+                        }
+                    });
                     Misc.growOut({anchor:popup,scale:0,opacity:0,time:400});
                     setTimeout(()=>{
-                        row.removeChild(popup);
+                        target.removeChild(popup);
                     },390);
                 }
             }
         };
-        this.deleteItem({parent:row,target:popup});
+        this.deleteItem({parent:target,target:popup});
 
 
-    }
-    insertImage(column:HTMLElement,flex:flexType):void{
+    };
+
+    insertImage({column,sel,rowEle,colEle,idValues}:{
+        column:HTMLElement,
+        idValues:idValueType[],
+        sel:selectorType,
+        rowEle:rowType,
+        colEle:colType
+
+    }):Promise<{
+        idValues:idValueType[],
+        sel:selectorType,
+        rowEle:rowType,
+        colEle:colType
+    
+        }>{
         column.style.position="relative";
         const popup=document.createElement("div");
         popup.style.cssText="position:absolute;inset:-175% 0% 100% 20%;width:150px;height:130px; background-color:white;box-shadow:1px 1px 7px 1px black;border-radius:8px;z-index:200;padding:5px;";
@@ -973,6 +1297,7 @@ class Footer{
         FaCreate({parent:cancel,name:FaTrash,cssStyle:{color:"red"}});
         form.appendChild(cancel);
         popup.appendChild(form);
+        this.removePopup({parent:column,target:popup});
         column.appendChild(popup);
         input.addEventListener("change",(e:Event)=>{
             if(e){
@@ -987,52 +1312,74 @@ class Footer{
                 },480);
             }
         });
-        form.addEventListener("submit",(e:SubmitEvent) =>{
+        form.addEventListener("submit",async(e:SubmitEvent) =>{
             if(e){
                 e.preventDefault();
+                const selRowCol={selectorId:sel.eleId,rowId:rowEle.eleId,colId:colEle.eleId} as selRowColType;
                 const formdata= new FormData(e.currentTarget as HTMLFormElement);
                 const file_=formdata.get("file") as File;
                 if(file_){
+                    const rand=Math.floor(Math.random()*1000);
+                    const divCont=document.createElement("div");
+                    divCont.id=`footer-divCont-${rand}`;
+                     this._modSelector.dataset.insertcssClassIntoComponents({
+                        target:divCont,
+                        level:"element",
+                        headerType:undefined,
+                        id:"divContId",
+                        loc:"flexbox",
+                        type:"footer"
+                    });
+                    const blog=this._modSelector.blog;
                     const urlImg=URL.createObjectURL(file_);
                     const image=document.createElement("img");
+                    image.id=`footer-img-${rand}`;
+                    const idValue=this._modSelector.dataset.getIdValue({target:image,idValues,id:"imgKey"});
+                    const oldKey=idValue ? idValue.attValue : null;
+                    let flex:flexType={} as flexType;
+                    const {isJSON,parsed}=Header.checkJson(image.getAttribute("flex"));
+                    flex=isJSON ? {...parsed} as flexType: {} as flexType;
+                    const eleId=image.id;
                     image.className="footer-ele";
                     image.src=urlImg;
                     image.style.cssText=`border-radius:16px;drop-shadow(0 0 0.75rem ${this.btnColor});width:85px;height:85px;position:relative;left:0px;transform:translateX(6px)`;
                     image.alt=`www.ablogroom.com`;
-                    const flexImg=Main.flexTracker(image,flex);
-                    const divCont=document.createElement("div");
-                    divCont.className="eleContainer";
-                    divCont.style.cssText="padding:1rem;margin:0;margin-left:0.25rem;";
                     divCont.appendChild(image);
-                    column.appendChild(divCont);
-                    this._modSelector.promElementAdder(image).then(async(res)=>{
+                    column.appendChild(image);
+                    const {Key}=this._service.generateImgKey(formdata,blog) as {Key:string};
+                    const replaceId:idValueType={eleId,id:"imgKey",attValue:Key};
+                    this._modSelector.dataset.upDateIdValue({target:image,idValues,idValue:replaceId});
+                    idValues.push({eleId,id:"elementId",attValue:eleId});
+                    idValues.push({eleId,id:"ID",attValue:eleId});
+                    flex={...flex,imgKey:Key};
+                    image.setAttribute("flex",JSON.stringify(flex));
+                    this.removeMainElement({parent:column,divCont,target:image,sel,rowEle,colEle,idValues});
+               
+                    this.elementAdder({target:image,sel,rowEle,colEle,idValues}).then(async(res)=>{
                         if(res){
-                            const ele=res.ele as element_selType;
-                            divCont.setAttribute("data-placement",`${ele.order}-A`)
+                            const ele=res.ele
 
-                            column.removeChild(popup);
-                            const blog={...this._modSelector.blog};
-                            const flex_={...flexImg,position:"ele",};
-                            image.setAttribute("flex",JSON.stringify(flex_));
-                                //SIGNED IN
-                            column.style.position="relative";
-                            this._user.askSendToServer({bg_parent:column,formdata,image,blog,oldKey:null});
+                            divCont.setAttribute("data-placement",`${ele.order}-A`);
+                            divCont.onclick=(e:MouseEvent)=>{
+                                if(!e) return;
+                                divCont.classList.toggle("isActive");
+                                image.classList.toggle("isActive");
+                            };
+                            this._user.askSendToServer({bg_parent:column,formdata,image,blog,oldKey,idValues,selRowCol});
                         }
                     });
-
-                    image.addEventListener("click",(e:MouseEvent)=>{
-                        if(e){
-                            image.classList.toggle("isActive");
-                            divCont.classList.toggle("isActive");
-                            this.removeMainElement(column,divCont,image);
-                        }
-                    });
+                    Misc.growOut({anchor:popup,scale:0,opacity:0,time:400});
+                    setTimeout(()=>{column.removeChild(popup)},390);
+                   
                 }
             }
         });
-    }
-    insertBgImage(column:HTMLElement,flex:flexType){
-        column.style.position="relative";
+        return Promise.resolve({idValues,sel,colEle,rowEle}) as Promise<{idValues:idValueType[],sel:selectorType,rowEle:rowType,colEle:colType}>;
+    };
+
+    insertBgImage({target,sel,rowEle,colEle,idValues}:{target:HTMLElement,sel:selectorType,colEle:colType,rowEle:rowType,idValues:idValueType[]}){
+        const selRowCol={selectorId:sel.eleId,rowId:rowEle.eleId,colId:colEle.eleId} as selRowColType;
+        target.style.position="relative";
         const popup=document.createElement("div");
         popup.id="insert-bg-image";
         popup.style.cssText="position:absolute;inset:-175% 0% 100% 20%;width:150px;height:130px; background-color:white;box-shadow:1px 1px 7px 1px black;border-radius:8px;z-index:200;padding:5px;";
@@ -1054,49 +1401,130 @@ class Footer{
         }
         button(submit);
         popup.appendChild(form);
-        column.appendChild(popup);
-        // this.removeItem(column,popup);
+        this.removePopup({parent:target,target:popup});
+        target.appendChild(popup);
+       
         form.addEventListener("submit",(e:SubmitEvent) =>{
             if(e){
                 e.preventDefault();
                 const blog=this._modSelector.blog;
+                const eleId=target.id;
                 const formdata= new FormData(e.currentTarget as HTMLFormElement);
                 const file=formdata.get("file") as File;
                 if(file){
-                    const {isJSON,parsed}=Header.checkJson(column.getAttribute("flex"));
-                    const flex=isJSON ? parsed as flexType : null;
-                    const oldKey=flex && flex.imgKey ? flex.imgKey :null;
-                    this._service.generateImgKey(formdata,blog) as {Key:string};
+                    const idValue_imgKey=this._modSelector.dataset.getIdValue({target,idValues,id:"imgKey"});
+                    const oldKey =idValue_imgKey ? idValue_imgKey.attValue : null;
+                    const {isJSON,parsed}=Header.checkJson(target.getAttribute("flex"));
+                    let flex=isJSON ? {...parsed} as flexType : {} as flexType;
+                
+                    const {Key}=this._service.generateImgKey(formdata,blog) as {Key:string};
                     const urlImg=URL.createObjectURL(file as File);
-                    column.setAttribute("data-backgroundimage","true");
-                    column.style.backgroundImage=`url(${urlImg})`;
-                    column.style.backgroundSize=`100% 100%`;
-                    column.style.backgroundPosition=`50% 50%`;
+                    const idValue:idValueType={eleId,id:"imgKey",attValue:Key};
+                    this._modSelector.dataset.upDateIdValue({target,idValues,idValue});
+                    const idValue1:idValueType={eleId,id:"colId",attValue:eleId};
+                    this._modSelector.dataset.upDateIdValue({target,idValues,idValue:idValue1});
+                    idValues.push({eleId,id:"backgroundImg",attValue:"true"});
+                    target.style.backgroundImage=`url(${urlImg})`;
+                    target.style.backgroundSize=`100% 100%`;
+                    target.style.backgroundPosition=`50% 50%`;
+                     flex={...flex,imgKey:Key,colId:target.id}
+                    target.setAttribute("flex",JSON.stringify(flex));
                     if(!flex) return;
-                    this._modSelector.promUpdateColumn(column,flex).then(async(col_)=>{
-                        if(!col_){
-                            Misc.message({parent:column,msg:"not updated",type_:"error",time:700});
+                    colEle={...colEle,imgKey:Key};
+                    this.updateColumn({target,sel,rowEle,colEle,idValues}).then(async(col_)=>{
+                        if(col_){
+                           
+                            Misc.message({parent:target,msg:"updated",type_:"success",time:700});
                         }
                     });
                     Misc.growOut({anchor:popup,scale:0,opacity:0,time:400});
                     setTimeout(()=>{
-                        column.removeChild(popup);
-                        Misc.blurIn({anchor:column,blur:"20px",time:600});
+                        target.removeChild(popup);
+                        Misc.blurIn({anchor:target,blur:"20px",time:600});
                     },398);
-                    this._user.askSendToServer({bg_parent:column,formdata,image:null,blog,oldKey});
+                    this._user.askSendToServer({bg_parent:target,formdata,image:null,blog,oldKey,idValues,selRowCol});
                 }
             }
         });
-    }
-    //HEADERS USE THEIR OWN ADDER SEPARATE FROM MODSELECTOR
-    async promSelectorAdder(item:{target:HTMLElement,selector:selectorType}){
-        const {target,selector}=item;
-        return new Promise(resolver=>{
-            resolver(this.selectorAdder(target,selector))
-        }) as Promise<{reTarget:HTMLElement,select:selectorType}>;
-    }
-    setImageHeight(item:{column:HTMLElement}){
-        const {column}=item;
+    };
+
+    fontSize({column,divConts,sel,rowEle,colEle,idValues}:{
+        column:HTMLElement,
+        idValues:idValueType[],
+        sel:selectorType,
+        rowEle:rowType,
+        colEle:colType,
+        divConts:HTMLElement[]
+
+    }){
+        //create popup
+        const popup=document.createElement("div");
+        popup.id="popup-set-height";
+        popup.setAttribute("is-popup","true");
+        popup.style.cssText="position:absolute;display:flex;flex-direction:column;justify-content:center;align-items:center;gap:0.75rem;background:white; border-radius:10px;box-shadow:1px 1px 10px 1px black,-2px -2px 12px 1px blue;";
+        popup.style.inset="0%";
+        popup.style.width="clamp(150px,200px,225px)";
+        popup.style.height="200px";
+        popup.style.transform="translateY(-150%)";
+        const {input,label}= Nav.inputComponent(popup);
+        input.type="number";
+        input.id="number";
+        input.min="12";
+        input.max="30";
+        input.placeholder="12";
+        input.value="12";
+        label.setAttribute("For",input.id);
+        label.textContent="Font-size";
+        const btn=buttonReturn({parent:popup,bg:Nav.btnColor,color:"white",text:"okay",type:"button"});
+        btn.disabled=true;
+        column.appendChild(popup);
+        Misc.matchMedia({parent:popup,maxWidth:420,cssStyle:{inset:"-120px 5% 20px 5%"}});
+        input.oninput=(e:Event)=>{
+            if(e){
+                const value=(e.currentTarget as HTMLInputElement).value;
+                btn.disabled=false;
+                ([...column.children as any] as HTMLElement[]).map(ele=>{
+                    const isActive=([...ele.classList as any] as string[]).includes("isActive");
+                    if(ele && isActive){
+                        ele.style.fontSize=`${value}px`;
+                    }
+                });
+            }
+        };
+        btn.onclick=(e:MouseEvent)=>{
+            if(e){
+                const value=(input as HTMLInputElement).value as string;
+                ([...divConts as any] as HTMLElement[]).map(divCont=>{
+                    if(divCont){
+
+                        ([...divCont.children as any] as HTMLElement[]).map(ele=>{
+                            const isActive=([...ele.classList as any] as string[]).includes("isActive");
+                            if(ele && isActive){
+                                    ele.style.fontSize=`${value}px`;
+                                    
+                                    colEle.elements = colEle.elements.map(ele_=>{
+                                            if(ele_.eleId===ele.id){
+                                                ele_.cssText=ele.style.cssText;
+                                            }
+                                        return ele_;
+                                    });
+                                    this.updateElement({target:ele,sel,rowEle,colEle,idValues});
+                                
+                            }
+                        });
+                    }
+                });
+                Misc.growOut({anchor:popup,scale:0,opacity:0,time:400});
+                setTimeout(()=>{
+                    column.removeChild(popup);
+                },398);
+            }
+        };
+
+    };
+    
+    setImageHeight({column,sel,rowEle,colEle,idValues}:{column:HTMLElement,sel:selectorType,rowEle:rowType,colEle:colType,idValues:idValueType[]}){
+        
         const {parsed}=Header.checkJson(column.getAttribute("flex"));
         let flex=parsed as flexType;
         column.style.position="relative";
@@ -1117,6 +1545,7 @@ class Footer{
         label.setAttribute("for",input.id);
         label.textContent="set img height"
         formGrp.style.cssText=css;
+        this.removePopup({parent:column,target:popup});
         column.appendChild(popup);
         this.deleteItem({parent:column,target:popup});
         Misc.growIn({anchor:popup,scale:0,opacity:0,time:400});
@@ -1141,9 +1570,13 @@ class Footer{
             button.onclick=(e:MouseEvent)=>{
                 if(e){
                     getImage.setAttribute("flex",JSON.stringify(flex));
-                    console.log([...getImage.style.cssText.split(";") as any] as string[])//has change height
-                    console.log("element",getImage)//DOES NOT HAVE COL.ELEiD in flex
-                    this._modSelector.updateElement(getImage);
+                  colEle.elements=colEle.elements.map(ele=>{
+                        if(ele.eleId===getImage.id){
+                            ele={...ele,cssText:getImage.style.cssText}
+                        };
+                        return ele;
+                    });
+                    this.updateColumn({target:column,sel,rowEle,colEle,idValues});
                     Misc.growOut({anchor:popup,scale:0,opacity:0,time:400});
                     setTimeout(()=>{
                         column.removeChild(popup);
@@ -1153,35 +1586,64 @@ class Footer{
         }
 
 
-    }
-    selectorAdder(target:HTMLElement,selector:selectorType):{reTarget:HTMLElement,select:selectorType}{
+    };
 
-        const newSelect:selectorType={
-            ...selector as selectorType,
-            id:this._modSelector.placement,
-            name:target.nodeName.toLowerCase(),
-            eleId:target.id,
-            class:target.className,
-            cssText:target.style.cssText,
-            rows:"",
-            header:false,
-            footer:true,
-            placement:this._modSelector.placement,
-        } as selectorType;
-        this._modSelector.count=this._modSelector.count+1;
-        this._modSelector._selectors.push(newSelect);
-        this._modSelector.selectors=this._modSelector._selectors;
-        this._modSelector.footerPlacement();
-        this._modSelector.placement=this._modSelector.placement + 1;
-            this._modSelector.footer=newSelect;
-       
-        //addAttributes
-        target.setAttribute("is-selector","true");
-        return {reTarget:target,select:newSelect}
-    }
-    removeFooter(parent:HTMLElement,target:HTMLElement){
+    selectorAdder({target,selector,idValues}:{target:HTMLElement,selector:selectorType,idValues:idValueType[]}):Promise<{target:HTMLElement,select:selectorType|undefined,idValues:idValueType[]}>{
+        this.selector=selector;
+        const node=target.nodeName.toLowerCase();
+        const check=this._modSelector.selectors.find(sel=>(sel.footer===true));
+     
+        if(!check){
+            const rowNum=selector.rowNum;
+            const colNum=selector.colNum;
+            const eleId=target.id;
+            this.selector={
+                ...selector as selectorType,
+                id:this._modSelector.placement,
+                name:node,
+                eleId:target.id,
+                class:target.className,
+                cssText:target.style.cssText,
+                rows:"",
+                header:false,
+                footer:true,
+                placement:this._modSelector.placement,
+            } as selectorType;
+          
+            idValues.push({eleId,id:"rowNum",attValue:String(rowNum)});
+            idValues.push({eleId,id:"numCols",attValue:String(colNum)});
+            idValues.push({eleId,id:"selectorId",attValue:eleId});
+            idValues.push({eleId,id:"ID",attValue:eleId});
+            idValues.push({eleId,id:"isFooter",attValue:"true"});
+            idValues=Dataset.removeIdValueDuplicates({arr:idValues,eleId});
+            this._modSelector.dataset.populateElement({
+                target,
+                selRowColEle:selector,
+                level:"selector",
+                loc:"flexbox",
+                idValues,
+                clean:false
+               });
+            
+            this._modSelector.selectors=[...this._modSelector.selectors,this.selector];
+         
+            
+            this._modSelector.footerPlacement();
+            this._modSelector.placement=this._modSelector.placement + 1;
+                this._modSelector.footer=this.selector;
+           
+            //addAttributes
+            target.setAttribute("is-selector","true");
+            this._modSelector.blog={...this._modSelector.blog,selectors:this._modSelector.selectors};
+            this._modSelector.localStore({blog:this._modSelector.blog});
+        }
+        return Promise.resolve({target,select:this.selector,idValues}) as Promise<{target:HTMLElement,select:selectorType|undefined,idValues:idValueType[]}>;
+    };
+
+    removeFooter(parent:HTMLElement,target:HTMLElement,idValues:idValueType[]){
         const check=([...target.classList as any] as string[]).includes("isActive");
         if(check){
+            const blog=this._modSelector.blog;
             Footer.cleanUpByID(parent,"delete-footer-selector-remove-footer");
             target.style.position="relative";
             const cssStyle={color:"white",fontSize:"12px"}
@@ -1189,31 +1651,29 @@ class Footer{
             xIconDiv.id="delete-footer-selector-remove-footer";
             xIconDiv.setAttribute("is-icon","true");
             xIconDiv.setAttribute("data-delete","selector");
-            // xIconDiv.classList.add("delete");
+         
             xIconDiv.style.cssText="position:absolute;top:0%;right:0%;transform:translate(-15px,-45px);border-radius:50%;padding:5px;background:black;z-index:200;"
             FaCreate({parent:xIconDiv,name:FaTrash,cssStyle:cssStyle});
             target.appendChild(xIconDiv);
             xIconDiv.addEventListener("click",(e:MouseEvent)=>{
                 if(e){
-                    // console.log("before: selectors",this.selectors);
-                    this._modSelector._selectors.map((sel,index)=>{
+                   
+                    this._modSelector.selectors.map((sel,index)=>{
                         if(sel.footer){
-                            const arr =Header.getImgKeys(sel) as {targetName: string,imgKey: string;}[];
-                            arr.map(key=>{
+                          const {idValues:retIdValues,keys}=this._modSelector.dataset.removeComponentIdValues({blog,eleId:sel.eleId,idValues,loc:"flexbox"});
+                          idValues=retIdValues;
+                          this._modSelector.dataset.idValues=idValues;
+                           
+                            keys.map(key=>{
                                 if(key){
-                                    this._service.adminImagemark(key.imgKey).then(async(res)=>{
-                                        if(res){
-                                            Misc.message({parent,msg:`${key.imgKey}`,type_:"success",time:400});
-                                        }
-                                    });
+                                    this._service.adminImagemark(key);
                                 }
                             });
-                            this._modSelector._selectors.splice(index,1);
-                            this._modSelector.footer={} as selectorType;
+                            this._modSelector.selectors.splice(index,1);
                             this.placement = this.placement -1;
                         }
                     });
-                    this._modSelector.selectors=this._modSelector._selectors;
+
                     Misc.fadeOut({anchor:target,xpos:50,ypos:100,time:600});
                     setTimeout(()=>{
                         parent.removeChild(target);
@@ -1224,71 +1684,58 @@ class Footer{
             Footer.cleanUpByID(parent,"delete-footer-selector-remove-footer");
         }
        
-    }
-    setColAttributes(parent:HTMLElement,name:string,attr:string,flex:flexType):void{
+    };
+
+    setColAttributes({parent,idValues,user,sel,rowEle,colEle,name,attr}:{
+        parent:HTMLElement,
+        idValues:idValueType[],
+        user:userType
+        sel:selectorType,
+        rowEle:rowType,
+        colEle:colType,
+        name:string,
+        attr:string
+    }):void{
         const checkFlex=["flex-col","flex-row","flex-center","flex-between","flex-remove"].includes(name)
+        const getImages=parent.querySelectorAll("img") as any as HTMLImageElement[];
+        const target=parent.parentElement as HTMLElement|null;
+        const bsArr=["box-shadow-md","box-shadow-md1","box-shadow-md2"]
+        const parent_=parent.parentElement as HTMLElement|null;
         switch(true){
             case name==="image rounded":
                 parent.classList.toggle(attr);
-                const getImages=parent.querySelectorAll("img");
                 if(getImages){
-                    getImages.forEach(img=>{
-                        if(img){
-                            img.style.borderRadius="50%";
-                            img.style.width="85px";
-                            img.style.height="85px";
-                            const flex=JSON.parse(img.getAttribute("flex") as string) as flexType;
-                            this._modSelector.updateColumn(parent,flex);
-                            this._modSelector.updateElement(img);
+                    colEle.elements.forEach(ele=>{
+                        if(ele){
+                            getImages.forEach(img=>{
+                                if(img && img.id===ele.eleId){
+                                    img.style.borderRadius="50%";
+                                    img.style.maxWidth="125px";
+                                    img.style.maxHeight="125px";
+                                    img.style.aspectRatio="1 / 1";
+                                    const idValue:idValueType={eleId:img.id,id:"img",attValue:"updated"};
+                                    this._modSelector.dataset.upDateIdValue({target:img,idValues,idValue});
+                                    ele={...ele,cssText:img.style.cssText};
+                                    this.updateElement({target:img,sel,rowEle,colEle,idValues});
+                                }
+                            });
                         }
                     });
                 }
                 
             break;
             case checkFlex:
-                let cssArr=parent.style.cssText.split(";");
-                cssArr=cssArr.filter(cl=>(!cl.startsWith("display:flex"))); //removing display:flex; 
-                cssArr=cssArr.filter(cl=>(!cl.startsWith("justify-content:"))); //removing justify-content: 
-                cssArr=cssArr.filter(cl=>(!cl.startsWith("align-items:"))); //removing align-items: 
-                cssArr=cssArr.filter(cl=>(!cl.startsWith("flex-wrap:"))); //removing flex-direction: 
-                parent.classList.toggle(attr);
-                if(name==="flex-col"){
-                    cssArr=cssArr.filter(cl=>(!cl.startsWith("flex-direction:"))); //removing flex-direction: 
-                    cssArr.push("display:flex");
-                    cssArr.push("flex-direction:column");
-                    parent.style.cssText=cssArr.join(";");
-                }else if(name==="flex-row"){
-                    cssArr=cssArr.filter(cl=>(!cl.startsWith("flex-direction:"))); //removing flex-direction: 
-                    cssArr.push("display:flex");
-                    cssArr.push("flex-direction:row");
-                    cssArr.push("flex-wrap:wrap");
-                    parent.style.cssText=cssArr.join(";");
-                }else if(name==="flex-center"){
-                    cssArr.push("display:flex");
-                    cssArr.push("justify-content:center");
-                    cssArr.push("align-items:center");
-                    parent.style.cssText=cssArr.join(";");
-                }else if(name==="flex-between"){
-                    //flex-between
-                    cssArr.push("display:flex");
-                    cssArr.push("justify-content:space-between");
-                    cssArr.push("align-items:center");
-                    parent.style.cssText=cssArr.join(";");
-                }else if(name==="flex-remove"){
-                    cssArr=cssArr.filter(cl=>(!cl.startsWith("flex-direction:"))); //removing 
-                    parent.style.cssText=cssArr.join(";");
-                }
-                this._modSelector.updateColumn(parent,flex);
+                this.flexStyleAdjustments({target:parent,sel,rowEle,colEle,idValues,name});
             break;
             case name==="bg-row-color":
-                this.backgroundColor(parent,flex);
+                if(!target) break;
+                this.backgroundRowColor({target,sel,rowEle,colEle,idValues,attr,name});
             break;
             case name==="bg-ele-color":
-                this.backgroundEleColor({column:parent,flex:flex});
+                this.backgroundEleColor({parent,sel,rowEle,colEle,idValues});
             break;
             case name==="box-shadow":
-                const bsArr=["box-shadow-md","box-shadow-md1","box-shadow-md2"]
-                const parent_=parent.parentElement;
+                
                 if(parent_){
                     //remove all box-shadows
                     ([...parent_.classList as any] as string[]).map(cl=>{
@@ -1302,19 +1749,33 @@ class Footer{
                         this.count++;
                     }else{
                         this.count=0;
-                    }
-                    this._modSelector.updateRow(parent_,flex);
+                    };
+                    rowEle={...rowEle,class:parent_.className}
+                    this.updateRow({target:parent_,rowEle,sel,colEle,idValues});
                 }
             break;
             
             default:
                 return; 
         }
-    }
+    };
+
     //GENERAL
-    getEmail(col:HTMLElement){
-        const {parsed}=Header.checkJson(col.getAttribute("flex"));
-        let flex=parsed as flexType;
+   async getEmail({column,sel,rowEle,colEle,idValues}:{
+    column:HTMLElement,
+    idValues:idValueType[],
+    sel:selectorType,
+    rowEle:rowType,
+    colEle:colType
+
+    }):Promise<{
+    idValues:idValueType[],
+    sel:selectorType,
+    rowEle:rowType,
+    colEle:colType
+
+    }>{
+       
         const form=document.createElement("form");
         form.style.cssText="position:absolute;width:clamp(200px,350px,400px);height:auto;display:flex;align-items:center;justify-content:center;top:-130%;left:0%;right:10%;z-index:200;;flex-direction:column;gap:1rem;background-color:white";
         const {input:LInput,label:Llabel}=Nav.inputComponent(form);
@@ -1342,56 +1803,96 @@ class Footer{
                 (button as HTMLButtonElement).disabled=false;
             }
         };
-        col.appendChild(form);
+        this.removePopup({parent:column,target:form});
+        column.appendChild(form);
         form.onsubmit=(e:SubmitEvent)=>{
             if(e){
                 e.preventDefault();
+                const rand=Math.floor(Math.random()*1000);
                 const divCont=document.createElement("div");
-                divCont.style.cssText=this.divCont_css;
-                divCont.className=this.divCont_class;
+                divCont.id=`footer-divCont-${rand}`;
+                 this._modSelector.dataset.insertcssClassIntoComponents({
+                    target:divCont,
+                    level:"element",
+                    headerType:undefined,
+                    id:"divContId",
+                    loc:"flexbox",
+                    type:"footer"
+                });
                 const formdata=new FormData(e.currentTarget as HTMLFormElement);
                 const email=formdata.get("email") as string;
                 const name=formdata.get("name") as string;
                 const anchor=document.createElement("a");
+                const eleId=`footer-link-${rand}`;
                 anchor.href=`mailto:${email}`;
                 anchor.style.cssText="display:flex;gap:1rem;padding-inline:1rem;"
-                const faDiv=document.createElement("div");
-                faDiv.style.cssText="padding-inline:0.75rem;";
-                FaCreate({parent:faDiv,name:FaMailBulk,cssStyle:{fontSize:"20px"}});
-                const para=document.createElement("p");
-                para.textContent=name;
-                anchor.appendChild(faDiv);
-                anchor.appendChild(para);
-                anchor.setAttribute("data-href-email",anchor.href);
-                flex={...flex,anchorContainer:anchor.href}
-                Main.flexTracker(anchor,flex);
+                anchor.setAttribute("data-email",anchor.href);
+                const img=document.createElement("img");
+                img.src=this.mail;
+                img.alt="www.ablogroom.com";
+                img.style.cssText="aspect-ratio:1/1;width:25px;border:none;margin-right:1rem;";
+                const span=document.createElement("span");
+                span.appendChild(img);
+                const text=new Text(name);
+                span.appendChild(text);
+                anchor.appendChild(span);
+                idValues.push({eleId,id:"email",attValue:anchor.href});
+                idValues.push({eleId,id:"colId",attValue:column.id});
+                idValues.push({eleId,id:"elementId",attValue:eleId});
+                idValues.push({eleId,id:"ID",attValue:eleId});
+               
                 divCont.appendChild(anchor);
-                col.appendChild(divCont);
-                // console.log("before",anchor);//works
-                this._modSelector.promElementAdder(anchor).then(async(res)=>{
+                column.appendChild(divCont);
+                this.removeMainElement({parent:column,divCont,target:anchor,sel,rowEle,colEle,idValues});
+                this.elementAdder({target:anchor,sel,rowEle,colEle,idValues}).then(async(res)=>{
                     if(res){
-                        // console.log("after",anchor);//works
-                        const ele=res.ele as element_selType;
-                        divCont.onclick=(e:MouseEvent)=>{
-                            if(e){
-                                divCont.setAttribute("data-placement",`${ele.order}-A`)
+                        Misc.message({parent:column,msg:"added",time:500,type_:"success"});
+                        this.removeMainElement({
+                            parent:column,
+                            divCont,
+                            target:res.target,
+                            colEle:res.col,
+                            rowEle,
+                            sel,
+                            idValues:res.idValues
+
+                        });
+                        if(res.col){
+                            const ele=res.ele as element_selType;
+                            divCont.setAttribute("data-placement",`${ele.order}-A`);
+                            divCont.onclick=(e:MouseEvent)=>{
+                                if(!e) return;
                                 divCont.classList.toggle("isActive");
-                                anchor.classList.toggle("isActive");
-                            }
-                        };
+                                res.target.classList.toggle("isActive");
+                            };
+                        }
                     }
                 });
                 Misc.fadeOut({anchor:form,xpos:100,ypos:100,time:400});
                 setTimeout(()=>{
-                    col.removeChild(form);
+                    column.removeChild(form);
                 },398);
-                this.removeMainElement(col,divCont,anchor);
+                
             }
         };
-     }
-     insertTel(col:HTMLElement){
-        const {parsed}=Header.checkJson(col.getAttribute("flex"));
-        let flex= parsed as flexType;
+        return Promise.resolve({idValues,sel,colEle,rowEle}) as Promise<{idValues:idValueType[],sel:selectorType,rowEle:rowType,colEle:colType}>;
+     };
+
+    async insertTel({column,sel,rowEle,colEle,idValues}:{
+        column:HTMLElement,
+        idValues:idValueType[],
+        sel:selectorType,
+        rowEle:rowType,
+        colEle:colType
+    
+        }):Promise<{
+        idValues:idValueType[],
+        sel:selectorType,
+        rowEle:rowType,
+        colEle:colType
+    
+        }>{
+      
         const form=document.createElement("form");
         form.style.cssText="position:absolute;width:clamp(200px,350px,400px);height:auto;display:flex;align-items:center;justify-content:center;top:-130%;left:0%;right:10%;z-index:200;;flex-direction:column;gap:1rem;background-color:white";
         const {input:LInput,label:Llabel}=Nav.inputComponent(form);
@@ -1419,63 +1920,106 @@ class Footer{
                 (button as HTMLButtonElement).disabled=false;
             }
         };
-        col.appendChild(form);
+        this.removePopup({parent:column,target:form});
+        column.appendChild(form);
         form.onsubmit=(e:SubmitEvent)=>{
             if(e){
                 e.preventDefault();
-                const divCont=document.createElement("div");
-                divCont.style.cssText=this.divCont_css;
-                divCont.className=this.divCont_class;
+                const rand=Math.floor(Math.random()*1000);
                 const formdata=new FormData(e.currentTarget as HTMLFormElement);
                 const tel=formdata.get("tel") as string;
                 const name=formdata.get("name") as string;
+                const divCont=document.createElement("div");
+                divCont.id=`footer-divCont-${rand}`;
+                 this._modSelector.dataset.insertcssClassIntoComponents({
+                    target:divCont,
+                    level:"element",
+                    headerType:undefined,
+                    id:"divContId",
+                    loc:"flexbox",
+                    type:"footer"
+                });
                 const anchor=document.createElement("a");
+                anchor.id=`footer-tel-${rand}`;
+                const eleId=anchor.id;
                 anchor.href=`tel:${tel}`;
-                anchor.setAttribute("data-href-tel",anchor.href);
-                anchor.style.cssText="display:flex;gap:1rem;padding-inline:1rem;"
-                const faDiv=document.createElement("div");
-                faDiv.style.cssText="padding-inline:0.75rem;";
-                FaCreate({parent:faDiv,name:FaPhone,cssStyle:{fontSize:"20px"}});
-                const para=document.createElement("p");
-                para.textContent=name;
-                anchor.appendChild(faDiv);
-                anchor.appendChild(para);
-                flex={...flex,anchorContainer:anchor.href};
-                Main.flexTracker(anchor,flex);
+                anchor.setAttribute("data-tel",anchor.href);
+                anchor.style.cssText="display:flex;gap:1rem;padding-inline:1rem;";
+                const img=document.createElement("img");
+                img.src=this.phone;
+                img.alt="www.ablogroom.com";
+                img.style.cssText="aspect-ratio:1/1;width:25px;border:none;margin-right:1rem;";
+                const span=document.createElement("span");
+                span.appendChild(img);
+                const text=new Text(name);
+                span.appendChild(text);
+                anchor.appendChild(span);
+                anchor.setAttribute("data-tel",tel);
+                idValues.push({eleId,id:"tel",attValue:anchor.href});
+                idValues.push({eleId,id:"elementId",attValue:eleId});
+                idValues.push({eleId,id:"ID",attValue:eleId});
+                idValues.push({eleId,id:"colId",attValue:column.id});
                 divCont.appendChild(anchor);
-                col.appendChild(divCont);
-                this._modSelector.promElementAdder(anchor).then(async(res)=>{
+                column.appendChild(divCont);
+                this.removeMainElement({parent:column,divCont,target:anchor,sel,rowEle,colEle,idValues});
+                this.elementAdder({target:anchor,sel,rowEle,colEle,idValues}).then(async(res)=>{
                     if(res){
-                        console.log("res.target",res.target)
-                        const ele=res.ele as element_selType;
-                        divCont.onclick=(e:MouseEvent)=>{
-                            if(e){
-                                divCont.setAttribute("data-placement",`${ele.order}-A`)
+                        console.log("OUT:ele",res.ele)
+                        Misc.message({parent:column,msg:"added",time:500,type_:"success"});
+                        if(res.col){
+                            const ele=res.ele as element_selType;
+                            divCont.setAttribute("data-placement",`${ele.order}-A`);
+                            divCont.onclick=(e:MouseEvent)=>{
+                                if(!e) return;
                                 divCont.classList.toggle("isActive");
-                                anchor.classList.toggle("isActive");
-                                console.log("res.target",res.target)
-                            }
-                        };
+                                res.target.classList.toggle("isActive");
+                                this.removeMainElement({
+                                    parent:column,
+                                    divCont,
+                                    target:res.target,
+                                    colEle:res.col,
+                                    rowEle,
+                                    sel,
+                                    idValues:res.idValues
+        
+                                });
+                            };
+                        }
                     }
                 });
                 Misc.fadeOut({anchor:form,xpos:100,ypos:100,time:400});
                 setTimeout(()=>{
-                    col.removeChild(form);
+                    column.removeChild(form);
                 },398);
-                this.removeMainElement(col,divCont,anchor);
+                
             }
         };
-     }
-     insertLink(col:HTMLElement){
-        const {parsed}=Header.checkJson(col.getAttribute("flex"));
-        let flex= parsed as flexType;
+        return Promise.resolve({idValues,sel,colEle,rowEle}) as Promise<{idValues:idValueType[],sel:selectorType,rowEle:rowType,colEle:colType}>;
+     };
+
+  
+
+    async insertLink({column,sel,rowEle,colEle,idValues}:{
+        column:HTMLElement,
+        idValues:idValueType[],
+        sel:selectorType,
+        rowEle:rowType,
+        colEle:colType
+    
+        }):Promise<{
+        idValues:idValueType[],
+        sel:selectorType,
+        rowEle:rowType,
+        colEle:colType
+    
+        }>{
         const form=document.createElement("form");
         form.style.cssText="position:absolute;width:clamp(200px,350px,400px);height:auto;display:flex;align-items:center;justify-content:center;top:-130%;left:0%;right:10%;z-index:200;;flex-direction:column;gap:1rem;background-color:white";
         const {input:LInput,label:Llabel}=Nav.inputComponent(form);
         LInput.type="url";
         LInput.name="link";
         LInput.id="link";
-        LInput.pattern="https://*";
+        LInput.pattern="https://.*";
         LInput.placeholder="link";
         Llabel.textContent="link";
         Llabel.setAttribute("for",LInput.id);
@@ -1497,372 +2041,304 @@ class Footer{
                 (button as HTMLButtonElement).disabled=false;
             }
         };
-        col.appendChild(form);
-        form.onsubmit=(e:SubmitEvent)=>{
+        this.removePopup({parent:column,target:form});
+        column.appendChild(form);
+        form.onsubmit=async(e:SubmitEvent)=>{
             if(e){
                 e.preventDefault();
-                const divCont=document.createElement("div");
-                divCont.style.cssText=this.divCont_css;
-                divCont.className=this.divCont_class;
+                const rand=Math.floor(Math.random()*1000);
                 const formdata=new FormData(e.currentTarget as HTMLFormElement);
                 const link=formdata.get("link") as string;
                 const name=formdata.get("name") as string;
+                const divCont=document.createElement("div");
+                divCont.id=`footer-divCont-${rand}`;
+                this._modSelector.dataset.insertcssClassIntoComponents({
+                    target:divCont,
+                    level:"element",
+                    headerType:undefined,
+                    id:"divContId",
+                    loc:"flexbox",
+                    type:"footer"
+                });
                 const anchor=document.createElement("a");
+                anchor.id=`footer-link-${rand}`;
+                const eleId=anchor.id;
+                idValues.push({eleId,id:"link",attValue:link});
+                idValues.push({eleId,id:"elementId",attValue:eleId});
+                idValues.push({eleId,id:"ID",attValue:eleId});
+                idValues.push({eleId,id:"colId",attValue:column.id});
+                
                 anchor.onclick=(e:MouseEvent)=>{
                     if(e){
                         window.open(link,"_blank");
                     }
                 }
-                anchor.setAttribute("data-href",link);
-                anchor.textContent=name;
-                flex={...flex,anchorContainer:link};
-                Main.flexTracker(anchor,flex);
+                anchor.setAttribute("data-link",link);
+                const img=document.createElement("img");
+                img.src=this.mail;
+                img.alt="www.ablogroom.com";
+                img.style.cssText="aspect-ratio:1/1;width:25px;border:none;margin-right:1rem;";
+                const span=document.createElement("span");
+                span.appendChild(img);
+                const text=new Text(name);
+                span.appendChild(text);
+                anchor.appendChild(span);
+      
                 divCont.appendChild(anchor);
-                col.appendChild(divCont);
-                this._modSelector.promElementAdder(anchor).then(async(res)=>{
+                column.appendChild(divCont);
+                this.removeMainElement({parent:column,divCont,target:anchor,sel,rowEle,colEle,idValues});
+                this.elementAdder({target:anchor,sel,rowEle,colEle,idValues}).then(async(res)=>{
                     if(res){
-                        const ele=res.ele as element_selType;
-                        divCont.onclick=(e:MouseEvent)=>{
-                            if(e){
-                                divCont.setAttribute("data-placement",`${ele.order}-A`)
+                        Misc.message({parent:column,msg:"added",time:500,type_:"success"});
+                        if(res.col){
+                            const ele=res.ele as element_selType;
+                            divCont.setAttribute("data-placement",`${ele.order}-A`);
+                            divCont.onclick=(e:MouseEvent)=>{
+                                if(!e) return;
                                 divCont.classList.toggle("isActive");
-                                anchor.classList.toggle("isActive");
-                            }
-                        };
+                                res.target.classList.toggle("isActive");
+                                this.removeMainElement({
+                                    parent:column,
+                                    divCont,
+                                    target:res.target,
+                                    colEle:res.col,
+                                    rowEle,
+                                    sel,
+                                    idValues:res.idValues
+        
+                                });
+                            };
+                        }
                     }
                 });
                 Misc.fadeOut({anchor:form,xpos:100,ypos:100,time:400});
                 setTimeout(()=>{
-                    col.removeChild(form);
+                    column.removeChild(form);
                 },398);
-                this.removeMainElement(col,divCont,anchor);
             }
         };
-     }
-    //PARENT MAIN:mainBtn()
-    footerAttributes(btn:HTMLButtonElement):void{
-            const getfooterEles=document.querySelectorAll("[is-element = 'true'");
+        return Promise.resolve({idValues,sel,colEle,rowEle}) as Promise<{idValues:idValueType[],sel:selectorType,rowEle:rowType,colEle:colType}>;
+     };
 
-                ([...getfooterEles as any] as HTMLElement[]).forEach(ele=>{
-                    if(ele){
-                        const {isJSON}=Header.checkJson(ele.getAttribute("flex"));
+
+    //PARENT MAIN:mainBtn()
+    footerAttributes({btn,idValues}:{btn:HTMLButtonElement,idValues:idValueType[]}):void{
+            const getfooterEles=document.querySelectorAll("[is-element = 'true'");
+            ([...getfooterEles as any] as HTMLElement[]).forEach(ele=>{
+                if(ele){
+                        const getSelRowCol=this._modSelector.dataset.getAttribute({target:ele,id:"selRowCol"});
+                        const idValue=this._modSelector.dataset.getIdValue({target:ele,id:"selRowCol",idValues});
+                        const selRowCol= idValue ? JSON.parse(idValue.attValue) as selRowColType:(getSelRowCol ? JSON.parse(getSelRowCol) as selRowColType:null);
+                        
                         const check=([...ele.classList as any] as string[]).includes("isActive");
-                        if(check && isJSON){
+                        if(check){
                             ele.classList.toggle(btn.id);
-                            this._modSelector.updateElement(ele);
+                            this._modSelector.updateElement({target:ele,idValues,selRowCol});
                         }
                     }
 
                 });
          
-    }
-    promColAdder(item:{target:HTMLElement}){
-        const {target}=item;
-        const {parsed}=Header.checkJson(target.getAttribute("flex"));
-        return new Promise(resolver=>{
-            resolver(this.colAdder(target,parsed as flexType));
-        }) as Promise<{column:HTMLElement,col:colType}>;
-    }
-    colAdder(target:HTMLElement,flex_:flexType):{column:HTMLElement,col:colType}{
-        const {parsed,isJSON}=Header.checkJson(target.getAttribute("flex"));
-        let flex:flexType=isJSON ? parsed as flexType : flex_;
+    };
 
-        const {selectorId,rowId,imgKey}=flex;
-        let col:colType={} as colType
-        this._modSelector._selectors=this.selectors.map(select=>{
-            if(select.eleId===selectorId){
-                const rows=JSON.parse(select.rows) as rowType[];
-                rows.map(row=>{
-                    if(row.eleId ===rowId){
-                        const check=row.cols.map(col=>(col.eleId)).includes(target.id as string);
-                        // console.log("1032:check:determines if COL extis",check,"target.id",target.id,)//works
-                        if(!check){
-                            const ID1=row.cols?.length ? row.cols.length : 0;
-                                col={
-                                    id:ID1,
-                                    name:target.getAttribute("name") ? target.getAttribute("name") as string : '' ,
-                                    class:target.className.split(" ").filter(cl=>(cl !=="box-shadow")).join(" "),
-                                    eleId:target.id,
-                                    inner_html:target.textContent ? target.textContent : "",
-                                    cssText:target.style.cssText,
-                                    elements:[] as element_selType[],
-                                    row_id:row.id,
-                                    imgKey:imgKey ? imgKey : undefined,
-                                    order:ID1
-                            }as colType;
-                            row.cols.push(col);
-                            flex={...flex,order:ID1}
-                            target.setAttribute("flex",JSON.stringify(flex));
-                            target.setAttribute("order",String(ID1))
-                        }
-                    }
-                    return row;
-                });
-                select.rows=JSON.stringify(rows);
+
+    removePopup({parent,target}:{parent:HTMLElement,target:HTMLElement}){
+        const popup=document.createElement("div");
+        popup.id="delete-popup-form";
+        popup.style.cssText="position:absolute;top:0%;right:0%;transform:translate(5px,5px);z-index:20;border-radius:50%;background-color:black;color:white;padding:1px;aspect-ratio:1 / 1;font-size:10px;";
+        FaCreate({parent:popup,name:FaCrosshairs,cssStyle:{fonstSize:"100%"}});
+        target.appendChild(popup);
+        popup.onclick=(e:MouseEvent)=>{
+            if(!e) return;
+            Misc.fadeOut({anchor:target,xpos:100,ypos:50,time:400});
+            setTimeout(()=>{parent.removeChild(target)},390);
+        };
+    };
+
+  
+   
+    removeMainElement({parent,divCont,target,sel,rowEle,colEle,idValues}:{
+        parent:HTMLElement,
+        divCont:HTMLElement,
+        target:HTMLElement,
+        idValues:idValueType[],
+        sel:selectorType,
+        rowEle:rowType,
+        colEle:colType;
+
+    }){
+       const check= ([...divCont.classList as any] as string[]).map(cl=>(cl)).includes("isActive");
+       if(check){
+            divCont.style.position="relative";
+           const popup=document.createElement("div");
+           parent.style.zIndex="0";
+           popup.id="footer-delete-popup";
+           popup.style.cssText="position:absolute;top:0%;right:0%;transform:translate(5px,5px);z-index:20;border-radius:50%;background-color:black;color:white;padding:1px;aspect-ratio:1 / 1;font-size:10px;";
+           FaCreate({parent:popup,name:FaCrosshairs,cssStyle:{fonstSize:"100%"}});
+           divCont.appendChild(popup);
+           popup.onclick=(e:MouseEvent)=>{
+               if(e){
+               
+                   if(target.nodeName==="IMG"){
+                       const getImgKey=this._modSelector.dataset.getIdValue({target,idValues,id:"imgKey"});
+                       if(getImgKey.attValue){
+                           this._service.adminImagemark(getImgKey.attValue).then(async(res)=>{
+                               if(res){
+                                   Misc.message({parent:parent,msg:`${getImgKey.attValue} was deleted`,type_:"success",time:700});
+                               }
+                           });
+                       }
+                   }
+               const {colEle:retCol} = this.removeElement({target,sel,rowEle,colEle,idValues});
+               if(retCol){
+                   Misc.message({parent,msg:"removed",type_:"success",time:600});
+               }
+                   Misc.growOut({anchor:divCont,scale:0,opacity:0,time:400});
+                   setTimeout(()=>{
+                       parent.removeChild(divCont);
+                   },380);
+               }
+           };
+       }else{
+        Header.cleanUpByID(divCont,"delete-popup");
+       }
+
+    };
+
+
+    removeElement({target,idValues,sel,colEle,rowEle}:{
+        target:HTMLElement,
+        idValues:idValueType[],
+        sel:selectorType,
+        rowEle:rowType,
+        colEle:colType;
+    }){
+        const eleId=target.id;
+        idValues.map((kat,index)=>{
+            if(kat.eleId===eleId){
+                idValues.splice(index,1);
             }
+        });
+        colEle.elements= colEle.elements.filter((ele,index)=>(ele.eleId !==eleId));
+        rowEle.cols=rowEle.cols.map(col=>{
+            if(col.eleId===colEle.eleId){
+                col=colEle;
+            }
+            return col;
+        });
+        const {rows}=this._modSelector.checkGetRows({select:sel});
+        const newRows= rows.map(row=>{
+            if(row.eleId===rowEle.eleId){
+                row=rowEle;
+            }
+            return row;
+        });
+        sel={...sel,rows:JSON.stringify(newRows)};
+
+        this._modSelector.selectors=this._modSelector.selectors.map(select=>{
+                if(select.eleId===sel.eleId){
+                    select=sel
+                }
             return select;
         });
-           this._modSelector.selectors=this._modSelector._selectors;
-           return {column:target,col}
-            
-    }
-    elementAdder(target:HTMLElement | HTMLImageElement):{ target: HTMLElement | HTMLImageElement,ele: element_selType}| undefined{
+        return {sel,rowEle,colEle};
+    };
 
-        const {parsed,isJSON}=Header.checkJson(target.getAttribute("flex"));
-        const checkNodename=["a","blockquote","ul","img","ol"]
-        const nodename=target.nodeName.toLowerCase();
-        const specialNodename=checkNodename.includes(nodename);
-       
-        if(isJSON){
-            let flex=parsed as flexType;
-            const {selectorId,rowId,colId,backgroundImage,imgKey}=flex;
-            // console.log("FLEX: ","rowId:",rowId,"eleId",flex.elementId);
-            //ADDING ATTRIBUTES
-            const name=target.nodeName.toLowerCase();
-            target.setAttribute("is-element","true");
-            target.setAttribute("name",name);
-            let ele:element_selType={} as element_selType;
-            //ADDING ATTRIBUTES
-       
-            this._modSelector._selectors = this._modSelector._selectors.map(selector_=>{
-               
-                if(selector_.eleId===selectorId ){
-                    // console.log("inside selector:",selector_.eleId===selectorId);//works
-                    const rows=JSON.parse(selector_.rows) as rowType[];
-                    rows.map(row=>{
-                        if(row.eleId===rowId){
-                            row.cols.map((col)=>{
-                                // console.log("compare col:",col.eleId,"flex.col",colId);//works
-                                // console.log("inside col:",col.eleId===colId);
-                                if(col.eleId===colId){
-                                    const ID=col.elements ? col.elements.length:0;
 
-                                    const check=col.elements && col.elements.map(ele_=>(ele_.eleId)).includes(target.id as string);
-
-                                        if(nodename && !check){
-                                        
-                                            // console.log("418 HELROWSSSSS",JSON.parse(target.id));
-                                            ele={
-                                                ...ele,
-                                                id:ID ,
-                                                selectorId:selector_.id,
-                                                name:nodename as string,
-                                                class:target.className.split(" ").filter(cl=>(cl !=="isActive")).join(" "),
-                                                eleId:target.id,
-                                                placement:ID ? ID as number : undefined,
-                                                cssText:target.style.cssText,
-                                                attr:target.getAttribute("attr") ? target.getAttribute("attr") as string :undefined,
-                                                col_id:col.id,
-                                                imgKey:imgKey ? imgKey : undefined,
-                                                order:ID
-                                            } as element_selType;
-                                            if(backgroundImage){
-                                                ele.attr="data-backgroundImage";
-                                                target.setAttribute("data-backgroundImage","true");
-                                            }
-                                            if(!specialNodename){
-                                                    ele.inner_html=target.innerHTML;
-                                    
-                                            }else if(nodename==="a"){
-                                                const link=target.getAttribute("data-href") as string;
-                                                ele.attr=link;
-                                                ele.inner_html=target.innerHTML;
-                                                
-                                            }else if(specialNodename && nodename !=="a"){
-                                                ele.inner_html=target.innerHTML as string
-                                                // console.log("modSelector.elementAdder()",ele.inner_html)
-                                            }else if(nodename==="img"){
-                                                const target_=target as HTMLImageElement;
-                                                ele.img=target_.src;
-                                                ele.inner_html=target_.alt;
-                                            }else{
-                                                ele.inner_html=target.innerHTML;
-                                                ele.cssText=target.style.cssText;
-                                                ele.class=target.className;
-                                            }
-                                            col.elements.push(ele)
-                                            target.setAttribute("order",String(ID));
-                                            flex={...flex,order:ID};
-                                            target.setAttribute("flex",JSON.stringify(flex));
-                                            // console.log("ELEMENT ADDER:INSIDE",col.elements)
-                                        }
-                                        // console.log("OUTSIDE",col.elements)
-                                }
-                                
-                                return col;
-                            })
-                        }
-                        return row;
-                    });
-                    selector_.rows=JSON.stringify(rows);
-                }
-                return selector_;
-            });
-            this._modSelector.selectors=this._modSelector._selectors; //saving it to blog
-            return {target:target,ele:ele};
-        }
-
-    }
-    removeMainElement(parent:HTMLElement,divCont:HTMLElement,target:HTMLElement){
-        const getDivCont=divCont.querySelectorAll(".xIconDiv");
-        if(getDivCont){
-            ([...getDivCont as any] as HTMLElement[]).map(child=>{
-                if(child){
-                    divCont.removeChild(child);
+    setImageSize({parent,idValues,sel,rowEle,colEle}:{parent:HTMLElement,sel:selectorType,rowEle:rowType,colEle:colType,idValues:idValueType[]}){
+        parent.style.position="relative";
+        const getImgs=parent.querySelectorAll("img.isActive") as any as HTMLImageElement[];
+        if(!getImgs) Misc.message({parent,msg:"no images are selected",type_:"error",time:600});
+        const ids:{id:string,img:HTMLImageElement}[]=[];
+        const popup=document.createElement("div");
+        popup.id="setImage-size-popup";
+        popup.style.cssText=`position:absolute;border-radius:5px;box-shadow:1px 1px 10px 1px #bdc5c9;display:flex;flex-direction:column;gap:0.6rem;height:auto;z-index:200;inset:0% 20% 0% 20%;justify-content:center;width:clamp(150px,175px,200px);`;
+        popup.setAttribute("is-popup","true");
+        popup.style.transform="translateY(-100%)";
+        const form=document.createElement("form");
+        form.style.cssText="display:flex;flex-direction:column;align-items:center;justify-content:center;gap:0.35rem;";
+        form.id="image-size-popup-form";
+        const {input,label,formGrp}=Nav.inputComponent(form);
+        input.id="number-size";
+        input.name="number";
+        input.type="number";
+        input.min="75";
+        input.max="175";
+        label.setAttribute("for",input.id);
+        label.textContent="image size";
+        input.placeholder="75";
+        input.value="75";
+        formGrp.className="d-flex flex-direction-column mx-auto";
+        const {button}=Misc.simpleButton({anchor:form,bg:Nav.btnColor,color:"white",text:"save?",time:400,type:"button"});
+        popup.appendChild(form);
+        parent.appendChild(popup);
+        button.disabled=true;
+        input.onchange=(e:Event)=>{
+            if(!e) return;
+            button.disabled=false;
+        
+            [...getImgs].map(img=>{
+                if(img){
+                    ids.push({id:img.id,img});
                 }
             });
-        }
-        
-        const css="position:absolute;transform:translate(2px,5px);background:inherit;font-size:16px;background:lightgrey;font-weight:bold;border-radius:50%;color:black;top:-6px;left:0px;"
-        divCont.style.position="relative";
-        const xIconDiv=document.createElement("div");
-        xIconDiv.setAttribute("contenteditable","false");
-        xIconDiv.setAttribute("is-icon","true");
-        xIconDiv.className="xIconDiv";
-        xIconDiv.id="xIconDiv";
-        xIconDiv.style.cssText=`${css}`;
-        const cssStyle={background:"inherit",fontSize:"inherit"};
-        FaCreate({parent:xIconDiv,name:FaCrosshairs,cssStyle})
-        divCont.appendChild(xIconDiv);
-        xIconDiv.addEventListener("click",(e:MouseEvent)=>{
-            if(e){
-                if(target.nodeName==="IMG"){
-                    const {parsed}=Header.checkJson(target.getAttribute("flex"));
-                    const flex=parsed as flexType;
-                    const {imgKey}=flex;
-                    if(imgKey){
-                        this._service.adminImagemark(imgKey).then(async(res)=>{
-                            if(res){
-                                Misc.message({parent:parent,msg:`${imgKey} was deleted`,type_:"success",time:700});
-                            }
-                        });
-                    }
+        };
+        input.oninput=(e:Event)=>{
+            if(!e) return;
+            const width=(e.currentTarget as HTMLInputElement).value;
+            const size=`${width}px`;
+            [...getImgs].map(img=>{
+                if(img){
+                    img.style.width=size;
+                    img.style.aspectRatio="1 / 1";
+                    img.style.height="auto";
                 }
-                this.removeElement(target);
-                Misc.growOut({anchor:divCont,scale:0,opacity:0,time:400});
-                setTimeout(()=>{
-                    parent.removeChild(divCont);
-                },390);
-                //resetting buttons
-                Main.initMainBtns();
-            }
-        });
+            });
 
-    }
-    removeElement(target:HTMLElement){
-        const {parsed,isJSON} = Header.checkJson(target.getAttribute("flex"));
-        const flex=isJSON ? parsed as flexType : null;
-        if(!flex) return;
-        const {colId,rowId,selectorId}=flex;
-        this._modSelector._selectors=this._modSelector._selectors.map(sel=>{
-                if(sel.eleId===selectorId){
-                    const rows=JSON.parse(sel.rows) as rowType[];
-                    rows.map(row=>{
-                        if(row.eleId===rowId){
-                            row.cols.map(col=>{
-                                if(col.eleId===colId){
-                                    col.elements.map((ele,index)=>{
-                                        if(ele.eleId ===target.id){
-                                            col.elements.splice(index,1)
-                                        }
-                                    });
-                                }
-                                return col;
-                            });
-                        }
-                        return row;
+        };
+        button.onclick=(e:MouseEvent)=>{
+            if(!e) return;
+            const idValue:idValueType={eleId:parent.id,id:"cssStyle",attValue:"image size update"};
+            this._modSelector.dataset.upDateIdValue({target:parent,idValues,idValue});
+           
+            ids.map(item=>{
+                if(item){
+                  colEle.elements=colEle.elements.map(ele=>{
+                            if(ele.eleId===item.id){
+                                ele.cssText=item.img.style.cssText;
+                            }
+                        return ele
                     });
-                    sel.rows=JSON.stringify(rows);
                 }
-            return sel;
-        });
-        this._modSelector.selectors=this._modSelector._selectors
-    }
-    editElement(target:HTMLElement | HTMLImageElement){
-        const nodename=target.nodeName.toLowerCase();
-        const {parsed,isJSON}=Header.checkJson(target.getAttribute("flex"));
-        const link=target.getAttribute("data-href");
-        const email=target.getAttribute("data-href-mail");
-        const tel=target.getAttribute("data-href-tel");
-        const flex=isJSON ? parsed as flexType :null;
-        const getTarget=document.getElementById(`${target.id}`);
-        // console.log("flex",flex)
-        if(flex){
-            const isUlType=["ul","ol","blockquote","img","a"].includes(nodename)
-            const editThis=getTarget ? getTarget : target;
-            target.setAttribute("contenteditable","true");
-                target.focus()
-                const {selectorId,rowId,colId}= flex as flexType;
-                this._selectors=this._modSelector._selectors.map(selector_=>{
-                    // console.log("lev:selector:",selector_.eleId===selectorId);
-                    if(selector_.eleId===selectorId){
-                        const rows=JSON.parse(selector_.rows) as rowType[];
-                        rows.map(row=>{
-                            if(row.eleId===rowId){
-                                row.cols.map(col=>{
-                                    if(col.eleId===colId){
-                                        col.elements.map(element=>{
-                                            if(element.eleId===target.id){
-                                                editThis.addEventListener("input",(e:Event)=>{
-                                                    if(e){
+            });
+            this.updateColumn({target:parent,sel,rowEle,colEle,idValues}).then(async(res)=>{
+                if(res){
+                    Misc.message({parent,msg:"updated",type_:"success",time:600});
+                }
+            });
+            Misc.growOut({anchor:popup,scale:0,opacity:0,time:400});
+            setTimeout(()=>{
+                parent.removeChild(popup);
+            },395);
 
-                                                        if(!isUlType){
-                                                            element.inner_html=target.innerHTML;
-                                                        }else if(nodename==="img"){
-                                                            const img=target as HTMLImageElement;
-                                                            element.img=img.src;
-                                                            
-                                                        }else if(target.nodeName.toLowerCase()==="a"){
-                                                            
-                                                                if(link){
-                                                                    element.attr=link
-                                                                }else if(email){
-                                                                    element.attr=email;
-                                                                }else if(tel){
-                                                                    element.attr=tel;
-                                                                }
-                                                               
-                                                                element.inner_html=target.innerHTML;
-                                                        }else{
-                                                            
-                                                            element.inner_html=target.innerHTML;
-                                                            
-                                                        }
-                                                    }
-                                                },true);
-                                                element.class=target.className.split(" ").filter(cl=>(cl !=="isActive")).join(" ");
-                                                element.cssText=target.style.cssText;
-                                            
-                                                    // console.log("1422: EDIT",element.inner_html)
-                                                
-                                            }
-                                            return element;
-                                        });
-                                    }
-                                    return col;
-                                });
-                            }
-                            return row;
-                        });
-                        selector_.rows=JSON.stringify(rows);
-                    }
-                    return selector_;
-                });
-                this.selectors=this._modSelector._selectors;
-                // console.log("953:modSelector:editElement",this.selectors)//works
-                        
-                
-            
-        
-        }
+
+        };
     }
    
-    backgroundColor(column:HTMLElement,flex:flexType):void{
-        const useParent=column.parentElement;
-        if(!useParent) return;
+    backgroundRowColor({target,idValues,attr,name,sel,rowEle,colEle}:{
+        target:HTMLElement,
+        idValues:idValueType[],
+        attr:string,
+        name:string,
+        sel:selectorType,
+        rowEle:rowType,
+        colEle:colType
+    }):void{
+        
         const direction=window.innerWidth < 600 ? "column":"row" ;
-        useParent.style.position="relative";
-        useParent.style.zIndex="100";
+        target.style.position="relative";
+        target.style.zIndex="0";
+        const eleId=target.id;
         //show drop-down on shade selection
         const popup=document.createElement("div");
         popup.style.cssText=`position:absolute;border-radius:5px;box-shadow:1px 1px 10px 1px #bdc5c9;display:flex;flex-direction:${direction};gap:0.6rem;width:175px;height:auto;z-index:200;inset:-50px 25% 115% 25%;justify-content:center;`;
@@ -1881,24 +2357,29 @@ class Footer{
             selectBlue.appendChild(option);
         });
         popup.appendChild(selectBlue);
+        //SHADE BLUE
         selectBlue.addEventListener("change",(e:Event)=>{
             if(e){
                 const value=(e.currentTarget as HTMLSelectElement).value;
-                    if(flex){
-                        useParent.style.backgroundColor=value;
-                        this._modSelector.updateRow(useParent,flex);
-                    }
-                ([...column.children as any] as HTMLElement[]).forEach(child=>{
-                    if(child && child.id==="bg-popup"){
-                        column.removeChild(child);
-                    }
-                });
+                 target.style.backgroundColor=value as string
+                 const idValue:idValueType={eleId,id:"bgColor",attValue:"updated"};
+                 rowEle={...rowEle,cssText:target.style.cssText};
+                 this._modSelector.dataset.upDateIdValue({target,idValues,idValue});
+                    this.updateRow({target,sel,rowEle,colEle,idValues}).then(async(res)=>{
+                        if(res){
+                            // console.log("ROWELE STYLES",res.rowEle.cssText);//works
+                            Misc.message({parent:target,msg:"updated",type_:"success",time:600});
+                        }
+                       });;
+                    target.removeChild(popup);
+                
                 
             }
         });
         const select1=document.createElement("select");
         select1.style.cssText="border-radius:7px;font-size:10px;";
         select1.className="box-shadow";
+        //GREY SHADES
         shades.forEach((shade)=>{
             const option=document.createElement("option");
             option.value=shade;
@@ -1910,29 +2391,39 @@ class Footer{
         popup.animate([
             {transform:"translateY(100%)",opacity:"0.2"},
             {transform:"translateY(0%)",opacity:"1"},
-        ],{duration:600,iterations:1})
-        column.appendChild(popup);
+        ],{duration:600,iterations:1});
+        this.removePopup({parent:target,target:popup});
+        target.appendChild(popup);
         select1.addEventListener("change",(e:Event)=>{
             if(e){
                 const value=(e.currentTarget as HTMLSelectElement).value as string;
-                if(flex){
-                useParent.style.backgroundColor=value;
-                this._modSelector.updateRow(useParent,flex);
-                ([...column.children as any] as HTMLElement[]).forEach(child=>{
-                    if(child && child.id==="bg-popup"){
-                        column.removeChild(child);
+                target.style.backgroundColor=value;
+                const idValue:idValueType={eleId,id:"bgColor",attValue:"updated"};
+                rowEle={...rowEle,cssText:target.style.cssText};
+                this._modSelector.dataset.upDateIdValue({target,idValues,idValue});
+                this.updateRow({target,sel,rowEle,colEle,idValues}).then(async(res)=>{
+                    if(res){
+                        // console.log("ROWELE STYLES",res.rowEle.cssText);//works
+                        Misc.message({parent:target,msg:"updated",type_:"success",time:600});
                     }
-                });
-                }
+                   });
+                   target.removeChild(popup);
                
                 
             }
         });
-    }
-    backgroundEleColor(item:{column:HTMLElement,flex:flexType}):void{
-        const {column}=item;
-        column.style.position="relative";
-        column.style.zIndex="0";
+    };
+
+
+    backgroundEleColor({parent,idValues,sel,rowEle,colEle}:{
+        parent:HTMLElement,
+        idValues:idValueType[],
+        sel:selectorType,
+        rowEle:rowType,
+        colEle:colType
+    }):void{
+        parent.style.position="relative";
+        parent.style.zIndex="0";
         //show drop-down on shade selection
         const popup=document.createElement("div");
         popup.style.cssText=`position:absolute;border-radius:5px;box-shadow:1px 1px 10px 1px #bdc5c9;display:flex;flex-direction:column;gap:0.6rem;width:250px;height:auto;z-index:200;inset:-70px 20% 115% 20%;justify-content:center;`;
@@ -1942,6 +2433,7 @@ class Footer{
         const selectBlue=document.createElement("select");
         selectBlue.style.cssText="border-radius:7px;font-size:10px;";
         selectBlue.className="box-shadow";
+        popup.appendChild(selectBlue);
         blueShades.forEach((shade,index)=>{
             const option=document.createElement("option");
             option.value=shade;
@@ -1950,22 +2442,31 @@ class Footer{
             option.textContent=shade;
             selectBlue.appendChild(option);
         });
-        const getActiveEles=column.querySelectorAll(".isActive") as any as HTMLElement[];
+        const getActiveEles=parent.querySelectorAll(".isActive") as any as HTMLElement[];
         if(getActiveEles){
             //FOUND ACTIVE ELEMENTS
-            popup.appendChild(selectBlue);
-            column.appendChild(popup);
             selectBlue.addEventListener("change",(e:Event)=>{
                 if(e){
                     const value=(e.currentTarget as HTMLSelectElement).value;
                     [...getActiveEles].map(ele=>{
-                       ele.style.backgroundColor=value;
-                       ele.style.borderRadius="12px";
-                        this._modSelector.updateElement(ele);
+                      colEle.elements=colEle.elements.map(element=>{
+                            if(ele.id===element.eleId){
+                                ele.style.backgroundColor=value;
+                                ele.style.borderRadius="12px";
+                                element={...element,cssText:ele.style.cssText}
+                                 this.updateElement({target:ele,colEle,rowEle,sel,idValues});
+                            }
+                            return element;
+                        });
 
                     });
+                    this.updateColumn({target:parent,sel,colEle,rowEle,idValues}).then(async(res)=>{
+                        if(res){
+                            Misc.message({parent,msg:"updated",type_:"success",time:600});
+                        }
+                    });
                    Misc.growOut({anchor:popup,scale:0,opacity:0,time:400});
-                   setTimeout(()=>{column.removeChild(popup)},390);
+                   setTimeout(()=>{parent.removeChild(popup)},390);
                     
                 }
             });
@@ -1983,28 +2484,48 @@ class Footer{
             popup.animate([
                 {transform:"translateY(100%)",opacity:"0.2"},
                 {transform:"translateY(0%)",opacity:"1"},
-            ],{duration:600,iterations:1})
-            column.appendChild(popup);
+            ],{duration:600,iterations:1});
+            this.removePopup({parent,target:popup});
+            parent.appendChild(popup);
             select1.addEventListener("change",(e:Event)=>{
                 if(e){
                     const value=(e.currentTarget as HTMLSelectElement).value as string;
                     [...getActiveEles].map(ele=>{
-                       ele.style.backgroundColor=value;
-                       ele.style.borderRadius="12px";
-                        this._modSelector.updateElement(ele);
+                        colEle.elements=colEle.elements.map(element=>{
+                            if(ele.id===element.eleId){
+                                ele.style.backgroundColor=value;
+                                ele.style.borderRadius="12px";
+                                element={...element,cssText:ele.style.cssText}
+                                 this.updateElement({target:ele,colEle,rowEle,sel,idValues});
+                            }
+                            return element;
+                        });
 
                     });
+                    this.updateColumn({target:parent,sel,colEle,rowEle,idValues}).then(async(res)=>{
+                        if(res){
+                            Misc.message({parent,msg:"updated",type_:"success",time:600});
+                        }
+                    });
                    Misc.growOut({anchor:popup,scale:0,opacity:0,time:400});
-                   setTimeout(()=>{column.removeChild(popup)},390);
+                   setTimeout(()=>{parent.removeChild(popup)},390);
                 
                     
                 }
             });
         }else{
-            Misc.message({parent:column,type_:"error",msg:"no elements active",time:800});
+            Misc.message({parent:parent,type_:"error",msg:"no elements active",time:800});
         }
-    }
-    setColor(column:HTMLElement):void{
+    };
+
+
+    setColor({column,sel,rowEle,colEle,idValues}:{
+        column:HTMLElement,
+        idValues:idValueType[],
+        sel:selectorType,
+        colEle:colType,
+        rowEle:rowType
+    }):void{
         const popup=document.createElement("div");
         popup.style.cssText=`position:absolute;border-radius:5px;box-shadow:1px 1px 10px 1px #bdc5c9;display:flex;flex-direction:column;gap:0.6rem;width:175px;height:auto;z-index:200;inset:-50px 40% 115% 40%;justify-content:center;`;
         popup.setAttribute("is-popup","true");
@@ -2017,6 +2538,8 @@ class Footer{
         input.className="form-control";
         input.style.cssText="margin-inline:auto;"
         popup.appendChild(input);
+        const {button}=Misc.simpleButton({anchor:popup,bg:Nav.btnColor,color:"white",text:"ok!",time:400,type:"button"});
+        this.removePopup({parent:column,target:popup});
         column.appendChild(popup);
         input.addEventListener("change",(e:Event)=>{
             if(e){
@@ -2024,14 +2547,29 @@ class Footer{
                 const getActives=column.querySelectorAll(".isActive");
                 ([...getActives as any] as HTMLElement[]).map(ele=>{
                     ele.style.color=value;
-                    this._modSelector.updateElement(ele);
+                    ele.style.paddingInline="0.5rem";
+                    ele.style.paddingBlock="0.25rem";
+                    ele.style.borderRadius="6px";
+                   colEle.elements=colEle.elements.map(element=>{
+                        if(element.eleId===ele.id){
+                            element={...element,cssText:ele.style.cssText}
+                        }
+                        return element;
+                    });
+                  
                 });
-                
-                column.removeChild(popup);
+                this.updateColumn({target:column,sel,rowEle,colEle,idValues});
             }
         });
+        button.onclick=(e:MouseEvent)=>{
+            if(!e) return;
+            Misc.growOut({anchor:popup,scale:0,opacity:0,time:400});
+            setTimeout(()=>{column.removeChild(popup);},390);
+        };
         
-    }
+    };
+
+
     deleteItem(item:{parent:HTMLElement,target:HTMLElement}){
         const {parent,target}=item;
         target.style.zIndex="20";
@@ -2051,7 +2589,7 @@ class Footer{
                 setTimeout(()=>{parent.removeChild(target)},390);
             }
         });
-    }
+    };
     
     getElementCount(column:HTMLElement):number|undefined{
         const {isJSON,parsed}=Header.checkJson(column.getAttribute("flex"));
@@ -2067,7 +2605,446 @@ class Footer{
         if(!col) return 1;
         const len=col.elements ? col.elements.length : 1;
         return len
-    }
+    };
+
+    async updateRow({target,sel,rowEle,colEle,idValues}:{target:HTMLElement,idValues:idValueType[],sel:selectorType,rowEle:rowType,colEle:colType}):Promise<{target:HTMLElement,rowEle:rowType,idValues:idValueType[],sel:selectorType,colEle:colType}>{
+            const eleId=target.id;
+            const {rows}=this._modSelector.checkGetRows({select:sel}) as {rows:rowType[]};
+            rowEle={...rowEle,
+                class:target.className,
+                cssText:target.style.cssText,
+                imgKey:rowEle.imgKey
+            }
+            
+           const newRows=rows.map((row)=>{
+                if(row.eleId===target.id){
+                    row=rowEle;
+
+                     //LOADING ATTRIBUTES INTO ELE: ATTR/TYPE/IMGKEY FROM TARGET
+
+                     //REPOPULATING TARGET
+                     const {idValues:retIdValues}=this._modSelector.dataset.coreDefaultIdValues({
+                        target,
+                        sel,
+                        row:rowEle,
+                        col:null,
+                        ele:null,
+                        level:"row",
+                        loc:"flexbox",
+                        idValues,
+                        clean:false
+
+                    });
+                    idValues=retIdValues
+                    //REPOPULATING TARGET
+                }
+                return row;
+            });
+            
+            sel={...sel,rows:JSON.stringify(newRows)};
+            this._modSelector.selectors=this._modSelector.selectors.map(select=>{
+                if(select.eleId===sel.eleId){
+                    select=sel;
+                };
+                return select;
+            });
+            this._modSelector.localStore({blog:this._modSelector.blog});
+            idValues=Dataset.removeIdValueDuplicates({arr:idValues,eleId});
+            return Promise.resolve({rowEle:rowEle as rowType,target,idValues,sel,colEle}) as Promise<{rowEle:rowType,target:HTMLElement,idValues:idValueType[],sel:selectorType,colEle:colType}>;
+    };
+
+    
+
+    async updateColumn({target,sel,colEle,rowEle,idValues}:{
+        target:HTMLElement,
+        sel:selectorType,
+        rowEle:rowType,
+        colEle:colType,
+        idValues:idValueType[]
+    }){
+        const eleId=target.id;
+    
+        rowEle.cols = rowEle.cols.map(col=>{
+            if(col.eleId===colEle.eleId){
+                col.inner_html=target.innerHTML;
+                col.imgKey=colEle.imgKey ? colEle.imgKey : undefined;
+                col.class=target.className;
+                col.cssText=target.style.cssText;
+                col.type=colEle.type ? colEle.type : undefined;
+                col.type=colEle.attr ? colEle.attr : undefined;
+                this._modSelector.datasetSincUpdate({target,ele:col,idValues,level:"col",loc:"flexbox"});
+
+            };
+            return col;
+        });
+        const {rows}=this._modSelector.checkGetRows({select:sel});
+        const newRows= rows.map(row=>{
+            if(row.eleId===rowEle.eleId){
+                row=rowEle;
+            }
+            return row;
+        });
+
+        sel={...sel,rows:JSON.stringify(newRows)};
+
+        this._modSelector.selectors=this._modSelector.selectors.map(select=>{
+            if(select.eleId===sel.eleId){
+                select=sel;
+            }
+            return select;
+        });
+        this._modSelector.localStore({blog:this._modSelector.blog});
+        idValues=Dataset.removeIdValueDuplicates({arr:idValues,eleId});
+        return Promise.resolve({target, colEle,rowEle,sel,idValues}) as Promise<{target:HTMLElement,colEle:colType,rowEle:rowType,sel:selectorType,idValues:idValueType[]}>;
+    };
+    async elementAdder({target,sel,rowEle,colEle,idValues}:{
+        target:HTMLElement | HTMLImageElement,
+        sel:selectorType,
+        rowEle:rowType,
+        colEle:colType,
+        idValues:idValueType[]
+
+    }): Promise<{
+        target: HTMLElement;
+        ele: element_selType;
+        idValues:idValueType[];
+        col:colType
+    }>{
+        const eleId=target.id;
+        const node=target.nodeName.toLowerCase();
+        const type=target.getAttribute("data-element-type") as string |null;
+        const parent= target.parentElement;
+        const parent_id=parent ? parent.id : null;
+        let ele:element_selType=this._element_sel;
+        if(parent_id) idValues.push({eleId,id:"parent_id",attValue:parent_id});
+        idValues.push({eleId,id:"elementId",attValue:eleId});
+        idValues.push({eleId,id:"colId",attValue:colEle.eleId});
+        const selRowCol={selectorId:sel.eleId,rowId:rowEle.eleId,colId:colEle.eleId};
+        idValues.push({eleId,id:"selRowCol",attValue:JSON.stringify(selRowCol)});
+        idValues.push({eleId,id:"name",attValue:node});
+        const getEleIds=idValues.filter(kat=>(kat.eleId===eleId));
+     
+       
+        const name=target.nodeName.toLowerCase();
+        target.setAttribute("is-element","true");
+        target.setAttribute("name",name);
+        ele=this._modSelector.initElement_sel
+        //ADDING ATTRIBUTES
+        //ROW
+      rowEle.cols=rowEle.cols.map((col)=>{
+           
+            if(col.eleId===colEle.eleId){
+                const ID=col.elements ? col.elements.length:0;
+                const check=col.elements.find(ele_=>(ele_.eleId===eleId));
+                    if(node && !check){
+                    
+                       
+                        ele={
+                            ...ele,
+                            id:ID ,
+                            selectorId:sel.id,
+                            name:node,
+                            class:target.className.split(" ").filter(cl=>(cl !=="isActive")).join(" "),
+                            eleId:target.id,
+                            cssText:target.style.cssText,
+                            inner_html:target.innerHTML,
+                            attr:undefined,
+                            col_id:col.id,
+                            imgKey:undefined,
+                            order:ID,
+                            type:type,
+                            
+                        } as element_selType;
+
+                        getEleIds.map(kat=>{
+                            const hasAttr=attrEnumArr.includes(kat.id);
+                            const hasType=typeEnumArr.includes(kat.id as typeEnumType);
+                            if(kat.id==="imgKey"){
+                                ele.imgKey=kat.attValue;
+                            }else if(hasAttr){
+                                ele.attr=kat.attValue;
+                            }else if(hasType){
+                                ele.attr=kat.id;
+                            }
+                        });
+                        
+                            if(node==="img"){
+                            const target_=target as HTMLImageElement;
+                            ele.img=target_.src;
+                            ele.inner_html=target_.alt;
+                        }
+                        //LOADING ATTRIBUTES INTO ELEMENT, BELOW
+                        idValues.push({eleId,id:"eleOrder",attValue:String(ID)});
+                        
+                        //----------//---POPULATING ATTRIBUTES TO TARGET && ADDS ATTR/TYPE/IMGKEY ATTRIBUTES FROM IDVALUES------\\-----///
+                        const {idValues:retIdValues}=this._modSelector.dataset.coreDefaultIdValues({
+                            target,
+                            sel,
+                            row:rowEle,
+                            col:colEle,
+                            ele,
+                            idValues,
+                            loc:"flexbox",
+                            level:"element",
+                            clean:false
+                        });
+                        idValues=retIdValues
+                        idValues=Dataset.removeIdValueDuplicates({arr:idValues,eleId:eleId});
+                      
+                       
+                        //----------//---POPULATING ATTRIBUTES TO TARGET && ADDS ATTR/TYPE/IMGKEY ATTRIBUTES FROM IDVALUES------\\-----///
+                        
+                     
+                        col.elements.push(ele)
+                        colEle=col;
+                        
+                    }
+                    
+            }
+            
+            return col;
+        });
+        //ROW
+        const {rows}=this._modSelector.checkGetRows({select:sel});
+       const newRows= rows.map((row)=>{
+            if(row.eleId===rowEle.eleId){
+                row=rowEle;
+            }
+            return row;
+        });
+        //adding it to selector
+       
+        sel={...sel,rows:JSON.stringify(newRows),footer:true,header:false};
+        //adding it to selector
+        this._modSelector.selectors=this._modSelector.selectors.map(select=>{
+            if(select.eleId===sel.eleId){
+                select=sel;
+            }
+            return select;
+        });//saving it to LOCAL
+        this._modSelector.localStore({blog:this._modSelector.blog});
+        
+        
+        // console.log("DATASET FULL",ids_)
+        return {target,ele:ele as element_selType,idValues,col:colEle};
+    };
+
+    async updateElement({target,sel,rowEle,colEle,idValues}:{
+        target:HTMLElement|HTMLImageElement,
+        idValues:idValueType[],
+        sel:selectorType,
+        rowEle:rowType,
+        colEle:colType
+
+    }):Promise<{
+        target:HTMLElement,
+        ele:element_selType,
+        idValues:idValueType[],
+        colEle:colType,
+        rowEle:rowType
+
+    }>{
+        
+        const node=target.nodeName.toLowerCase();
+        const parent=target.parentElement;
+        const parent_id= parent ? parent.id:null;
+        const eleId=target.id;
+        if(parent_id) idValues.push({eleId,id:"parent_id",attValue:parent_id});
+        const {cleaned:classList}=this._modSelector.removeClasses({target,classes:["isActive","box-shadow"]});
+        let retEle:element_selType={} as element_selType;
+
+        colEle.elements=colEle.elements.map((ele)=>{
+            if(ele.eleId===target.id){
+                ele.cssText=target.style.cssText;
+                ele.class=classList.join(" ");
+                ele.inner_html=target.innerHTML;
+                ele.imgKey=ele.imgKey ? ele.imgKey: undefined;
+                if(node==="img"){
+                    const img=target as HTMLImageElement;
+                    if(ele.imgKey){
+                        const idValue:idValueType={eleId,id:"imgKey",attValue:ele.imgKey}
+                        this._modSelector.dataset.upDateIdValue({target:img,idValues,idValue});
+                    }
+                    ele.img=img.src;
+                    ele.inner_html=img.alt;
+                }
+                if(ele.type){
+                    const idValue2:idValueType={eleId,id:"type",attValue:ele.type};
+                    this._modSelector.dataset.upDateIdValue({target:target,idValues,idValue:idValue2});
+                }else if(ele.attr){
+                    const idValue2:idValueType={eleId,id:"attr",attValue:ele.attr};
+                    this._modSelector.dataset.upDateIdValue({target:target,idValues,idValue:idValue2});
+                };
+                //LOADING ATTRIBUTES INTO ELE: ATTR/TYPE/IMGKEY
+                //REPOPULATING TARGET
+                this._modSelector.datasetSincUpdate({target,ele:ele,idValues,level:"element",loc:"flexbox"});
+                //RE-ASSIGNMENT
+               
+                retEle=ele
+            };
+            
+            return ele;
+        });
+
+        const {rows}=this._modSelector.checkGetRows({select:sel});
+        rowEle.cols= rowEle.cols.map((col)=>{
+            if(col.eleId===colEle.eleId){
+                col=colEle;
+            }
+            return col;
+        });
+        const newRows=rows.map((row)=>{
+            if(row.eleId===rowEle.eleId){
+               row=rowEle;
+            }
+            return row;
+        });
+        //aDDING NEWrOWS TO SEL
+        sel={...sel,rows:JSON.stringify(newRows)};
+        //aDDING NEWrOWS TO SEL
+        //UPDATING SELECTORS
+        this._modSelector.selectors=this._modSelector.selectors.map(select=>{
+            if(select.eleId===sel.eleId){
+                select=sel;
+            }
+            return select;
+        });
+        this._modSelector.localStore({blog:this._modSelector.blog});
+        //UPDATING SELECTORS
+        return Promise.resolve({target,ele:retEle,idValues,colEle,rowEle}) as Promise<{target:HTMLElement,ele:element_selType,idValues:idValueType[],colEle:colType,rowEle:rowType}>;
+       
+    };
+
+
+     editElement({target,sel,rowEle,colEle,idValues}:{
+        target:HTMLElement,
+        idValues:idValueType[],
+        sel:selectorType,
+        rowEle:rowType,
+        colEle:colType
+        
+    }):{target:HTMLElement,ele:element_selType,idValues:idValueType[],colEle:colType,rowEle:rowType}{
+      
+        let retEle:element_selType={} as element_selType;
+        target.oninput=(e:Event)=>{
+            if(!e) return;
+            
+            colEle.elements=colEle.elements.map((ele)=>{
+                if(ele.eleId===target.id){
+                   ele.inner_html=target.innerHTML;
+                    retEle=ele
+                };
+                
+                return ele;
+            });
+            const {rows}=this._modSelector.checkGetRows({select:sel});
+            rowEle.cols= rowEle.cols.map((col)=>{
+                if(col.eleId===colEle.eleId){
+                    col=colEle;
+                }
+                return col;
+            });
+            const newRows=rows.map((row)=>{
+                if(row.eleId===rowEle.eleId){
+                   row=rowEle;
+                }
+                return row;
+            });
+            //aDDING NEWrOWS TO SEL
+           
+            sel={...sel,rows:JSON.stringify(newRows)};
+           
+            //aDDING NEWrOWS TO SEL
+            //UPDATING SELECTORS
+            this._modSelector.selectors=this._modSelector.selectors.map(select=>{
+                if(select.eleId===sel.eleId){
+                    select=sel;
+                }
+                return select;
+            });
+            this._modSelector.localStore({blog:this._modSelector.blog});
+            //UPDATING SELECTORS
+            
+        };
+
+        return {target,ele:retEle,idValues,colEle,rowEle};
+       
+    };
+
+    flexStyleAdjustments({target,idValues,name,sel,rowEle,colEle}:{
+        target:HTMLElement,
+        idValues:idValueType[],
+        name:string,
+        sel:selectorType,
+        rowEle:rowType,
+        colEle:colType
+    }){
+        //initialize
+        for(const [key,value] of Object.entries(target.style)){
+            if(key && value){
+                if(key==="display"){
+                    target.style[key]="block";
+                }else if(key==="justifyContent"){
+                    target.style[key]="";
+                }else if(key==="alignItems"){
+                    target.style[key]="";
+                }else if(key==="flexWrap"){
+                    target.style[key]="";
+                }
+            }
+        }
+        //initialize above
+        switch(true){
+            case name==="flex-col":
+                target.style.display="flex";
+                target.style.flexDirection="column";
+                target.style.justifyContent="center";
+                target.style.alignItems="center";
+            break;
+            case name==="flex-row":
+                target.style.display="flex";
+                target.style.flexDirection="row";
+                target.style.justifyContent="flex-start";
+                target.style.alignItems="flex-start";
+            break;
+            case name==="flex-center":
+                target.style.display="flex";
+                target.style.flexDirection="row";
+                target.style.justifyContent="center";
+                target.style.alignItems="center";
+            return;
+            case name==="flex-between":
+                target.style.display="flex";
+                target.style.flexDirection="row";
+                target.style.justifyContent="space-between";
+                target.style.alignItems="center";
+            break;
+            case name==="flex-remove":
+                for(const [key,value] of Object.entries(target.style)){
+                    if(key && value){
+                        if(key==="display"){
+                            target.style[key]="block";
+                        }else if(key==="justifyContent"){
+                            target.style[key]="";
+                        }else if(key==="alignItems"){
+                            target.style[key]="";
+                        }
+                    }
+                }
+            break;
+            default:
+                break
+        };
+
+
+        this.updateColumn({target,sel,rowEle,colEle,idValues}).then(async(res)=>{
+            if(res){
+                Misc.message({parent:target,msg:"updated",time:600,type_:"success"});
+            }
+        });
+    };
+
+
     static divider(parent:HTMLElement):void{
         const div = document.createElement("div");
         div.style.cssText="display:flex;flex-direction:column;align-items:center;justify-content:center;";

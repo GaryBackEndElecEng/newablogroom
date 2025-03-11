@@ -1,5 +1,5 @@
 import Header from "../editor/header";
-import Misc from "./misc";
+
 
 
 class BrowserType {

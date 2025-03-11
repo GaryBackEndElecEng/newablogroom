@@ -1,132 +1,158 @@
 import { FaCrosshairs } from "react-icons/fa";
-import Header from "../editor/header";
 import ModSelector from "../editor/modSelector";
-import { blogType, deletedImgType, flexType, gets3ImgKey } from "../editor/Types";
+import { blogType, deletedImgType, gets3ImgKey, imgEleType, imgExtractType, userType } from "../editor/Types";
 import Nav from "../nav/headerNav";
 import Misc from "./misc";
 import { FaCreate } from "./ReactIcons";
 import Service from "./services";
-import { AWSImageLoader } from "./tsFunctions";
+import { AWSImageLoader, imageLoader } from "./tsFunctions";
+import Main from "../editor/main";
+import { idValueType, selRowColType, selRowType } from "@/lib/attributeTypes";
+import {  typeEnumArr } from "./lists";
 
 
 class AddImageUrl {
-    mainContainer:HTMLElement;
+    noimage:string="images/noimage.png";
+    mainContainer:HTMLElement|null;
+    hasBlobMsg:string;
+    logo:string;
     unsplash:string;
     freepicurl:string="https://newablogroom-free-bucket.s3.us-east-1.amazonaws.com";
-    imageUrls:{name:string,url:string}[];
-    imgEles:{level:"element"|"col"|"row",img:HTMLImageElement|HTMLElement}[];
+    imageUrls:{key:string|undefined,name:string,url:string}[];
+    imgEles:imgEleType[];
     constructor(private _modSelector:ModSelector,private _service:Service){
+        this.hasBlobMsg="the image was not uploaded because it has a blob file that was not saved in the server. As a result, an image was replaced temporarily as space. The system can not freely upload files from your personal system to show your image.It must be requested by you to download it from your personal computer...just download it to the server to remove this message.";
+        this.noimage="images/noimage.png";
+        this.mainContainer=Main.container as HTMLElement;
+        this.logo="./images/gb_logo_600.png"
         this.unsplash="https://images.unsplash.com";
         this.freepicurl="https://newablogroom-free-bucket.s3.us-east-1.amazonaws.com";
         this.imageUrls=[
-            {name:"all you need",url:this.freepicurl + "/allYouNeed.png"},
-            {name:"blackhole",url:this.freepicurl + "/blackhole.png"},
-            {name:"children",url:this.freepicurl + "/children.png"},
-            {name:"coffeeTime",url:this.freepicurl + "/coffeeTime.png"},
-            {name:"dynamicArt",url:this.freepicurl + "/dynamic_art.png"},
-            {name:"einstein",url:this.freepicurl + "/einstein.png"},
-            {name:"goldenRatio",url:this.freepicurl + "/goldenRatio.png"},
-            {name:"lion-eye",url:this.freepicurl + "/main.png"},
-            {name:"precious",url:this.freepicurl + "/precious.png"},
-            {name:"relax",url:this.freepicurl + "/relaxing.png"},
-            {name:"seasons",url:this.freepicurl + "/seasons.png"},
-            {name:"work",url:this.freepicurl + "/vacationWork.png"},
-            {name:"align",url:this.freepicurl + "/alignment.png"},
-            {name:"articles",url:this.freepicurl + "/article.png"},
-            {name:"bank",url:this.freepicurl + "/bank.png"},
-            {name:"beauty",url:this.freepicurl + "/beautyGirl.png"},
-            {name:"blackDesign",url:this.freepicurl + "/blackDesign.png"},
-            {name:"book",url:this.freepicurl + "/book.png"},
-            {name:"businessman",url:this.freepicurl + "/businessMan.png"},
-            {name:"beach stroll",url:this.freepicurl + "/checkout1b.png"},
-            {name:"cheetah",url:this.freepicurl + "/cheetaFramed.png"},
-            {name:"cheetah",url:this.freepicurl + "/cheetaFramed.png"},
-            {name:"graphic",url:this.freepicurl + "/consult1.png"},
-            {name:"graphic",url:this.freepicurl + "/consult1.png"},
-            {name:"graphic-reading",url:this.freepicurl +"/consult3.png"},
-            {name:"computer graphic",url:this.freepicurl +"/contactWallpaper.png"},
-            {name:"beach relaxing",url:this.freepicurl +"/coupleOnBeach.png"},
-            {name:"contact us",url:this.freepicurl +"/customPage.png"},
-            {name:"relaxing",url:this.freepicurl +"/design.png"},
-            {name:"art",url:this.freepicurl +"/designMain.png"},
-            {name:"earth moon",url:this.freepicurl +"/earthMoon.png"},
-            {name:"laugh",url:this.freepicurl +"/girlLaugh.png"},
-            // {name:"mountain",url:this.freepicurl +"/GreatMountain.png"},
-            // {name:"hand-shake",url:this.freepicurl +"/handShaking.png"},
-            {name:"jupitor",url:this.freepicurl +"/jupiter.png"},
-            // {name:"faqs",url:this.freepicurl +"/FAQS.png"},
-            {name:"landscape",url:this.freepicurl +"/landscape.png"},
-            {name:"lepard",url:this.freepicurl +"/lepard.png"},
-            {name:"lepard",url:this.freepicurl +"/lepard.png"},
-            {name:"lions",url:this.freepicurl +"/lion.png"},
-            {name:"lions2",url:this.freepicurl +"/lions.png"},
-            {name:"baby monkey",url:this.freepicurl +"/monkey2.png"},
-            {name:"architect",url:this.freepicurl +"/architect.png"},
-            {name:"article",url:this.freepicurl +"/article.png"},
-            {name:"bango",url:this.freepicurl +"/bango1.png"},
-            {name:"bango2",url:this.freepicurl +"/bango2.png"},
-            {name:"cheetah",url:this.freepicurl +"/cheetah.png"},
-            {name:"wolf",url:this.freepicurl +"/wolf.png"},
-            {name:"wolf 2",url:this.freepicurl +"/wolf2.png"},
-            {name:"wolf 3",url:this.freepicurl +"/wolf3.png"},
-            {name:"wolf 3",url:this.freepicurl +"/wolf3.png"},
-            {name:"coffee",url:this.freepicurl +"/coffee.png"},
-            {name:"coffee",url:this.freepicurl +"/coffee2.png"},
-            {name:"moon-earth-view",url:this.freepicurl +"/moonToEarth.png"},
-            {name:"moon-earth-view",url:this.freepicurl +"/moonToEarth2.png"},
-            {name:"logo",url:this.freepicurl +"/gb_logo_600.png"},
-            {name:"cartoon 1",url:this.freepicurl +"/img1.png"},
-            {name:"cartoon 2",url:this.freepicurl +"/img10.png"},
-            {name:"cartoon 3",url:this.freepicurl +"/img2.png"},
-            {name:"cartoon 4",url:this.freepicurl +"/img3.png"},
-            {name:"cartoon 5",url:this.freepicurl +"/img4.png"},
-            {name:"cartoon 6",url:this.freepicurl +"/img5.png"},
-            {name:"cartoon 7",url:this.freepicurl +"/img6.png"},
-            {name:"cartoon 8",url:this.freepicurl +"/img7.png"},
-            {name:"cartoon 9",url:this.freepicurl +"/img8.png"},
-            {name:"cartoon 10",url:this.freepicurl +"/img9.png"},
-            {name:"secure form",url:this.freepicurl +"/formSecure.png"},
-            {name:"hand shake",url:this.freepicurl +"/handshake.png"},
-            {name:"internet purchase flow",url:this.freepicurl +"/internet_purchase_process.png"},
-            {name:"Great Mountain",url:this.freepicurl +"/mountain.png"},
-            {name:"signin process",url:this.freepicurl +"/signInProcess.png"},
-            {name:"specials",url:this.freepicurl +"/specials.png"},
-            {name:"solar works",url:this.freepicurl +"/solarWorks.png"},
-            {name:"Explore",url:`${this.unsplash}/photo-1657736301709-b1365740ddbe?crop=entropy`,},
-            {name:"symetric",url:`${this.unsplash}/photo-1658288797137-7ca820c77a2b?crop=entropy`},
-            {name:"fast",url:`${this.unsplash}/photo-1657987273071-fbe77b5b4e90?crop=entropy&h=900`},
-            {name:"elagent",url:`${this.unsplash}/photo-1655760862449-52e5b2bd8620?crop=entropy`},
-            {name:"symetry",url:`${this.unsplash}/photo-1657963928657-9da48ea0c496?crop=entropy`},
-            {name:"time",url:`${this.unsplash}/photo-1656922612260-2ebb170dd637?crop=entropy`},
-            {name:"wonder",url:`${this.unsplash}/photo-1656342468017-a298b6c63cc9?crop=entropy`},
-            {name:"tranquil",url:`${this.unsplash}/photo-1658137135662-82ab663ee627?crop=entropy&cs=tinysrgb&fit=max&fm=jpg`},
-            {name:"majestic",url:`${this.unsplash}/photo-1657653463810-fa2f223fbb82?crop=entropy`},
-            {name:"earth",url:`${this.unsplash}/photo-1657832034979-e2f9c5b0a2fc?crop=fit&h=900`},
-            {name:"AIMapping",url:this.freepicurl +"/AIMapping.png"},
-            {name:"black hole type",url:this.freepicurl +"/blackHType.png"},
-            {name:"galaxyFormation",url:this.freepicurl +"/galaxyFormation.png"},
-            {name:"jamesWeb",url:this.freepicurl +"/jamesWeb.png"},
-            {name:"javaScript",url:this.freepicurl +"/javascript.png"},
-            {name:"sisters black hole",url:this.freepicurl +"/sistersBlackhole.png"},
-            {name:"time",url:this.freepicurl +"/time.png"},
-            {name:"our black hole",url:this.freepicurl +"/ourBlackH.png"},
-            {name:"sample Quote",url:this.freepicurl +"/sampleQuote.png"},
+            {key:"allYouNeed.png",name:"all you need",url:this.freepicurl + "/allYouNeed.png"},
+            {key:"blackhole.png",name:"blackhole",url:this.freepicurl + "/blackhole.png"},
+            {key:"children.png",name:"children",url:this.freepicurl + "/children.png"},
+            {key:"coffeeTime.png",name:"coffeeTime",url:this.freepicurl + "/coffeeTime.png"},
+            {key:"dynamic_art.png",name:"dynamicArt",url:this.freepicurl + "/dynamic_art.png"},
+            {key:"einstein.png",name:"einstein",url:this.freepicurl + "/einstein.png"},
+            {key:"goldenRatio.png",name:"goldenRatio",url:this.freepicurl + "/goldenRatio.png"},
+            {key:"main.png",name:"lion-eye",url:this.freepicurl + "/main.png"},
+            {key:"precious.png",name:"precious",url:this.freepicurl + "/precious.png"},
+            {key:"relaxing.png",name:"relax",url:this.freepicurl + "/relaxing.png"},
+            {key:"seasons.png",name:"seasons",url:this.freepicurl + "/seasons.png"},
+            {key:"vacationWork.png",name:"work",url:this.freepicurl + "/vacationWork.png"},
+            {key:"alignment.png",name:"align",url:this.freepicurl + "/alignment.png"},
+            {key:"article.png",name:"articles",url:this.freepicurl + "/article.png"},
+            {key:"bank.png",name:"bank",url:this.freepicurl + "/bank.png"},
+            {key:"beautyGirl.png",name:"beauty",url:this.freepicurl + "/beautyGirl.png"},
+            {key:"blackDesign.png",name:"blackDesign",url:this.freepicurl + "/blackDesign.png"},
+            {key:"book.png",name:"book",url:this.freepicurl + "/book.png"},
+            {key:"businessMan.png",name:"businessman",url:this.freepicurl + "/businessMan.png"},
+            {key:"checkout1b.png",name:"beach stroll",url:this.freepicurl + "/checkout1b.png"},
+            {key:"cheetaFramed.png",name:"cheetah",url:this.freepicurl + "/cheetaFramed.png"},
+            {key:"cheetaFramed.png",name:"cheetah",url:this.freepicurl + "/cheetaFramed.png"},
+            {key:"consult1.png",name:"graphic",url:this.freepicurl + "/consult1.png"},
+            {key:"consult1.png",name:"graphic",url:this.freepicurl + "/consult1.png"},
+            {key:"consult3.png",name:"graphic-reading",url:this.freepicurl +"/consult3.png"},
+            {key:"contactWallpaper.png",name:"computer graphic",url:this.freepicurl +"/contactWallpaper.png"},
+            {key:"coupleOnBeach.png",name:"beach relaxing",url:this.freepicurl +"/coupleOnBeach.png"},
+            {key:"customPage.png",name:"contact us",url:this.freepicurl +"/customPage.png"},
+            {key:"design.png",name:"relaxing",url:this.freepicurl +"/design.png"},
+            {key:"designMain.png",name:"art",url:this.freepicurl +"/designMain.png"},
+            {key:"earthMoon.png",name:"earth moon",url:this.freepicurl +"/earthMoon.png"},
+            {key:"girlLaugh.png",name:"laugh",url:this.freepicurl +"/girlLaugh.png"},
+            {key:"jupiter.png",name:"jupitor",url:this.freepicurl +"/jupiter.png"},
+            {key:"landscape.png",name:"landscape",url:this.freepicurl +"/landscape.png"},
+            {key:"lepard.png",name:"lepard",url:this.freepicurl +"/lepard.png"},
+            {key:"lepard.png",name:"lepard",url:this.freepicurl +"/lepard.png"},
+            {key:"lion.png",name:"lions",url:this.freepicurl +"/lion.png"},
+            {key:"lions.png",name:"lions2",url:this.freepicurl +"/lions.png"},
+            {key:"monkey2.png",name:"baby monkey",url:this.freepicurl +"/monkey2.png"},
+            {key:"architect.png",name:"architect",url:this.freepicurl +"/architect.png"},
+            {key:"article.png",name:"article",url:this.freepicurl +"/article.png"},
+            {key:"bango1.png",name:"bango",url:this.freepicurl +"/bango1.png"},
+            {key:"bango2.png",name:"bango2",url:this.freepicurl +"/bango2.png"},
+            {key:"cheetah.png",name:"cheetah",url:this.freepicurl +"/cheetah.png"},
+            {key:"wolf.png",name:"wolf",url:this.freepicurl +"/wolf.png"},
+            {key:"wolf2.png",name:"wolf 2",url:this.freepicurl +"/wolf2.png"},
+            {key:"wolf3.png",name:"wolf 3",url:this.freepicurl +"/wolf3.png"},
+            {key:"wolf3.png",name:"wolf 3",url:this.freepicurl +"/wolf3.png"},
+            {key:"coffee.png",name:"coffee",url:this.freepicurl +"/coffee.png"},
+            {key:"coffee2.png",name:"coffee",url:this.freepicurl +"/coffee2.png"},
+            {key:"moonToEarth.png",name:"moon-earth-view",url:this.freepicurl +"/moonToEarth.png"},
+            {key:"moonToEarth2.png",name:"moon-earth-view",url:this.freepicurl +"/moonToEarth2.png"},
+            {key:"gb_logo_600.png",name:"logo",url:this.freepicurl +"/gb_logo_600.png"},
+            {key:"img1.png",name:"cartoon 1",url:this.freepicurl +"/img1.png"},
+            {key:"img10.png",name:"cartoon 2",url:this.freepicurl +"/img10.png"},
+            {key:"img2.png",name:"cartoon 3",url:this.freepicurl +"/img2.png"},
+            {key:"img3.png",name:"cartoon 4",url:this.freepicurl +"/img3.png"},
+            {key:"img4.png",name:"cartoon 5",url:this.freepicurl +"/img4.png"},
+            {key:"img5.png",name:"cartoon 6",url:this.freepicurl +"/img5.png"},
+            {key:"img6.png",name:"cartoon 7",url:this.freepicurl +"/img6.png"},
+            {key:"img7.png",name:"cartoon 8",url:this.freepicurl +"/img7.png"},
+            {key:"img8.png",name:"cartoon 9",url:this.freepicurl +"/img8.png"},
+            {key:"img9.png",name:"cartoon 10",url:this.freepicurl +"/img9.png"},
+            {key:"formSecure.png",name:"secure form",url:this.freepicurl +"/formSecure.png"},
+            {key:"handshake.png",name:"hand shake",url:this.freepicurl +"/handshake.png"},
+            {key:"internet_purchase_process.png",name:"internet purchase flow",url:this.freepicurl +"/internet_purchase_process.png"},
+            {key:"mountain.png",name:"Great Mountain",url:this.freepicurl +"/mountain.png"},
+            {key:"signInProcess.png",name:"signin process",url:this.freepicurl +"/signInProcess.png"},
+            {key:"specials.png",name:"specials",url:this.freepicurl +"/specials.png"},
+            {key:"solarWorks.png",name:"solar works",url:this.freepicurl +"/solarWorks.png"},
+            {key:undefined,name:"Explore",url:`${this.unsplash}/photo-1657736301709-b1365740ddbe?crop=entropy`,},
+            {key:undefined,name:"symetric",url:`${this.unsplash}/photo-1658288797137-7ca820c77a2b?crop=entropy`},
+            {key:undefined,name:"fast",url:`${this.unsplash}/photo-1657987273071-fbe77b5b4e90?crop=entropy&h=900`},
+            {key:undefined,name:"elagent",url:`${this.unsplash}/photo-1655760862449-52e5b2bd8620?crop=entropy`},
+            {key:undefined,name:"symetry",url:`${this.unsplash}/photo-1657963928657-9da48ea0c496?crop=entropy`},
+            {key:undefined,name:"time",url:`${this.unsplash}/photo-1656922612260-2ebb170dd637?crop=entropy`},
+            {key:undefined,name:"wonder",url:`${this.unsplash}/photo-1656342468017-a298b6c63cc9?crop=entropy`},
+            {key:undefined,name:"tranquil",url:`${this.unsplash}/photo-1658137135662-82ab663ee627?crop=entropy&cs=tinysrgb&fit=max&fm=jpg`},
+            {key:undefined,name:"majestic",url:`${this.unsplash}/photo-1657653463810-fa2f223fbb82?crop=entropy`},
+            {key:undefined,name:"earth",url:`${this.unsplash}/photo-1657832034979-e2f9c5b0a2fc?crop=fit&h=900`},
+            {key:"AIMapping.png",name:"AIMapping",url:this.freepicurl +"/AIMapping.png"},
+            {key:"blackHType.png",name:"black hole type",url:this.freepicurl +"/blackHType.png"},
+            {key:"galaxyFormation.png",name:"galaxyFormation",url:this.freepicurl +"/galaxyFormation.png"},
+            {key:"jamesWeb.png",name:"jamesWeb",url:this.freepicurl +"/jamesWeb.png"},
+            {key:"javascript.png",name:"javaScript",url:this.freepicurl +"/javascript.png"},
+            {key:"sistersBlackhole.png",name:"sisters black hole",url:this.freepicurl +"/sistersBlackhole.png"},
+            {key:"time.png",name:"time",url:this.freepicurl +"/time.png"},
+            {key:"/ourBlackH.png",name:"our black hole",url:this.freepicurl +"/ourBlackH.png"},
+            {key:"sampleQuote.png",name:"sample Quote",url:this.freepicurl +"/sampleQuote.png"},
 
         ]
         this.mainContainer=document.querySelector("section#main") as HTMLElement;
         this.imgEles=[];
-    }
+    };
 
-    async main(item:{parent:HTMLElement,blog:blogType}){
-        const {parent,blog}=item;
+    async main({parent,blog,useParent,idValues,user}:{
+        parent:HTMLElement,
+        blog:blogType,
+        useParent:boolean,
+        idValues:idValueType[],
+        user:userType|null
+
+    }){
+        //INSERTS AN IMAGE INTO ALREADY INSTALLED IMAGES ( BG AND FORGROUND IMGS)
+        //IF(useParent)=> uses parent;else uses Main.Container of EDITOR
+       
+        let newParent:HTMLElement|null;
+        if(useParent){
+            newParent=parent as HTMLElement;
+        }else if(this.mainContainer){
+                newParent=this.mainContainer as HTMLElement;
+            }else{
+                this.mainContainer=document.querySelector("section#main") as HTMLElement;
+                newParent=this.mainContainer;
+            }
+        
         this._modSelector.blog=blog;
         this.mainContainer=document.querySelector("section#main") as HTMLElement;
         parent.style.position="relative";
         const popup=document.createElement("div");
         popup.className="popup-main";
-        popup.style.cssText="position:absolute;max-width:800px;width:fit-content;min-height:5vh;height:auto;border-radius:12px;box-shadow:1px 1px 12px 1px black;display:flex;flex-direction:column;padding:1rem;gap:1.5rem;z-index:200;left:35%;right:35%;background-color:black;color:white;";
-        parent.appendChild(popup);
-        this.removePopup({parent,target:popup});
+        popup.style.cssText="position:absolute;max-width:800px;width:fit-content;min-height:5vh;height:fit-content;border-radius:12px;box-shadow:1px 1px 12px 1px black;display:flex;flex-direction:column;padding:1rem;gap:1.5rem;z-index:200;left:35%;right:35%;background-color:black;color:white;";
+        popup.style.inset="30% 0% 30% 0%";
+        newParent.appendChild(popup);
+        this.removePopup({parent:newParent,target:popup});
         const title=document.createElement("h6");
         title.className="text-center text-primary my-2";
         title.textContent="select an image to insert";
@@ -137,75 +163,103 @@ class AddImageUrl {
         row.style.cssText="padding-inline:1rem;";
         popup.appendChild(row);
         Misc.growIn({anchor:popup,scale:0,opacity:0,time:400});
+        const reg:RegExp=/(background-image)/
         //get images;
-        const getImages=this.mainContainer.querySelectorAll("img") as any as HTMLImageElement[];
-        const getColImgs=this.mainContainer.querySelectorAll("[is-column]") as any as HTMLElement[];
-        const getRowImgs=this.mainContainer.querySelectorAll("[is-row]") as any as HTMLElement[];
-        [...getColImgs].map(col=>{
+        this.imgEles=[];
+        
+        const getColImgs=this.mainContainer.querySelectorAll("[data-is-column]") as any as HTMLElement[];
+        const getRowImgs=this.mainContainer.querySelectorAll("[data-is-row]") as any as HTMLElement[];
+        const getElements=this.mainContainer.querySelectorAll("[data-is-element]") as any as HTMLElement[];
+        await Promise.all([...getColImgs].map(async(col)=>{
             if(col){
-                console.log(col)
-                const check=(col.style.cssText.includes("background-image")) ? true:false;
-                const str=check ? col.style.backgroundImage:null;
-                if(!str)return;
-                this.imgEles.push({level:"col",img:col as HTMLElement});
+                const check=(reg.test(col.style.cssText));
+                if(!check)return;
+                const retSelImg=await this.extractImg({target:col,idValues,level:"col"}) as imgExtractType;
+                const {imgUrl,selRowCol,imgKey,level,hasBlob,hasFreeImg}=retSelImg
+                this.imgEles.push({level,target:col as HTMLElement,selRowCol,imgUrl,imgKey,hasBlob,hasFreeImg});
             }
-        });
-        [...getRowImgs].map(row=>{
+        }));
+
+        await Promise.all([...getElements].map(async(target)=>{
+            if(target){
+                const node=target.nodeName.toLowerCase();
+                const isImgKey=this._modSelector.dataset.getIdValue({target,idValues,id:"imgKey"});
+                const isbgImage=reg.test(target.style.cssText) || isImgKey !==null;
+                const check2=([...target.children as any] as HTMLElement[]).map(child=>child.nodeName.toLowerCase()).includes("img");
+                
+               
+                if( node==="img"){
+                    const imgItem=await this.extractImg({target,idValues,level:"element"}) as imgExtractType;
+                    const {imgUrl,selRowCol,imgKey,level,hasBlob,hasFreeImg}=imgItem
+                    this.imgEles.push({level,target,selRowCol,imgUrl,imgKey,hasBlob,hasFreeImg});
+                }else if(check2 && isbgImage){
+
+                    const retSelImg=this.extractSpecial({target,idValues,level:"special"}) as imgExtractType;
+                    const {imgUrl,selRowCol,imgKey,level,hasBlob,hasFreeImg}=retSelImg
+                    this.imgEles.push({level,target,selRowCol,imgUrl,imgKey,hasBlob,hasFreeImg});
+                };
+            }//THIS CAN NOT UPLOAD A BLOB:HTTP-CHECK ID=F BLOG=> THEN INSERT NOIMAGE IN ITS PLACE
+        }));
+
+        await Promise.all([...getRowImgs].map(async(row)=>{
             if(row){
-                const check=(row.style.cssText.includes("background-image")) ? true:false;
-                const str=check ? row.style.backgroundImage:null;
-                if(!str)return;
-                this.imgEles.push({level:"row",img:row as HTMLElement});
+                 const reg:RegExp=/(background-image)/
+                const check=(reg.test(row.style.cssText)) ;
+                if(!check)return;
+                const retSelImg=await this.extractImg({target:row,idValues,level:"row"}) as imgExtractType;
+                const {imgUrl,selRowCol,imgKey,level,hasBlob,hasFreeImg}=retSelImg
+                this.imgEles.push({level,target:row as HTMLElement,imgUrl,selRowCol,imgKey,hasBlob,hasFreeImg});
             }
-        });
-        [...getImages].map(img=>{
-            if(img){
-                this.imgEles.push({level:"element",img:img as HTMLImageElement});
-            }
-        });
+        }));
+
+
+
+
         if(this.imgEles && this.imgEles.length>0){
-            await Promise.all(this.imgEles.map(async(img_,index)=>{
-                if(img_){
-                    const src=img_.img as HTMLImageElement;
-                    console.log("addImageUrl:imgEles:",src.src,img_.level)
+            await Promise.all(this.imgEles.map(async(item,index)=>{
+                if(item){
+                    
+                    const url=new URL(window.location.origin)
+                    const noimage=`${url}${this.noimage}`;
+                    // console.log("addImageUrl:imgEles:",src.src,img_.level)
                     const divCont=document.createElement("div");
                     divCont.id=`divCont-${index}`;
                     divCont.style.cssText="padding:1rem;position:relative;flex:0 0 25%;display:flex;flex-direction:column;align-items:center;gap:1rem;";
-                    const span=document.createElement("span");
-                    span.id="after-divCont";
-                    span.style.cssText="position:absolute;top:-10%;right:0%;transform:translate(-30px,-20px);padding:5px;background-color:black;color:white;"
-                    span.textContent=`A-${index}`;
-                    divCont.after(span);
+                  
                     const img=document.createElement("img");
                     img.style.cssText="border-radius:50%;width:100px;height:100px;filter:drop-shadow(0 0 0.75rem white);";
-                    if(img_.level==="element"){
-                        const image=img_.img as HTMLImageElement;
-                        // if(img_)
+                    const checkRowCol=item.level==="col" || item.level==="row";
+                    const image=item.target as HTMLImageElement;
+                    if(item.level==="element" ){
+                        // FreeFile from server
                         img.src=image.src;
                         img.alt=image.alt;
-                    }else if(img_.level==="col"){
-                        const imgUrl=await this.extractImg({ele:img_.img}) as string;
-                        console.log("col:",imgUrl)
-                        img.src=imgUrl;
-                        img.alt=imgUrl;
-                    }else if(img_.level==="row"){
-                        const imgUrl=await this.extractImg({ele:img_.img}) as string;
-                        img.src=imgUrl;
-                        img.alt=imgUrl;
-                    }
+                    }else if(checkRowCol && item.imgUrl){
+                        //free file from server
+                        img.src=item.imgUrl as string;
+                        img.alt=item.imgKey ? item.imgKey : "www.ablogroom.com";
+                    }else if(item.level==="special" && item.imgUrl){
+                        // free file from server
+                        img.src=item.imgUrl as string ;
+                        img.alt=item.imgKey ? item.imgKey :"www.ablogroom";
+                    }else{
+                        //no file from server
+                        img.src=noimage;
+                        img.alt="www.ablogroom.com";
+                    };
                     divCont.appendChild(img);
+                    if(item.hasBlob) divCont.classList.add("hasBlob");
+                    if(item.hasBlob) divCont.setAttribute("data-has-blob",this.hasBlobMsg);
                     const {button:imgBtn}=Misc.simpleButton({anchor:divCont,bg:Nav.btnColor,color:"white",text:"select",time:400,type:"button"});
                     imgBtn.id=`imgBtn-${index}`;
                     row.appendChild(divCont);
-                    Misc.matchMedia({parent:divCont,maxWidth:900,cssStyle:{flex:"0 0 50%"}});
-                    Misc.matchMedia({parent:divCont,maxWidth:400,cssStyle:{flex:"0 0 100%"}});
-                    imgBtn.onclick=(e:MouseEvent)=>{
+                    imgBtn.onclick=async(e:MouseEvent)=>{
                         if(e){
-                            this.requestOption({parent,targetImg:img_});
+                            this.requestOption({parent:newParent,item:item,idValues,user});
 
                             Misc.growOut({anchor:popup,scale:0,opacity:0,time:400});
                             setTimeout(()=>{
-                                parent.removeChild(popup);
+                                newParent.removeChild(popup);
                             },390);
                         }
                     };
@@ -219,33 +273,22 @@ class AddImageUrl {
             para.style.cssText="padding:1rem;padding-inline:2rem;text-wrap:pretty;font-size:120%;font-family:Poppins-Thin;font-weight:800;";
             para.textContent="There are no images found. suggestion add an image, then select an image, then, once done, the system will find the image and allow you to select an alternate replacement for it.";
             popup.appendChild(para);
-            Misc.matchMedia({parent:popup,maxWidth:900,cssStyle:{to:"10%",left:"25%",right:"25%"}});
-            Misc.matchMedia({parent:popup,maxWidth:400,cssStyle:{to:"20%",left:"0%",right:"0%"}});
+          
             const {button}=Misc.simpleButton({anchor:popup,type:"button",text:"close",bg:Nav.btnColor,color:"white",time:400});
             button.onclick=(e:MouseEvent)=>{
                 if(e){
                     Misc.growOut({anchor:popup,scale:0,opacity:0,time:400});
                     setTimeout(()=>{
-                        parent.removeChild(popup);
+                        newParent.removeChild(popup);
                     },390);
                 }
             };
         }
     };
-    async getImages(item:{parent:HTMLElement}){
-        const {parent}=item;
-        const option={
-            headers:{"Content-Type":"application/json"},
-            method:"GET"
-        }
-        return fetch(this.freepicurl,option).then(async(res)=>{
-            if(res){
-                console.log(res)
-            }
-        });
-    }
-    requestOption(item:{parent:HTMLElement,targetImg:{img:HTMLImageElement | HTMLElement,level:"element"|"col"|"row"}}){
-        const {parent,targetImg}=item;
+
+
+    requestOption({parent,item,idValues,user}:{parent:HTMLElement,item:imgEleType,idValues:idValueType[],user:userType|null}){
+       //SELECTED IMG TO BE INSERTED : NOW INSERTING
         const popup=document.createElement("div");
         popup.id="addImageUrl-requestOption-popup";
         popup.className="requestoption-popup-main";
@@ -265,7 +308,7 @@ class AddImageUrl {
                 insertUrl.disabled=true;
                 Misc.growOut({anchor:popup,scale:0,opacity:0,time:400});
                 setTimeout(()=>{
-                    this.insertImageUrl({parent,targetImg});
+                    this.insertImageUrl({parent,item,idValues,user});
                     parent.removeChild(popup);
                 },390);
             }
@@ -276,14 +319,16 @@ class AddImageUrl {
                 insertImage.disabled=true;
                 Misc.growOut({anchor:popup,scale:0,opacity:0,time:400});
                 setTimeout(()=>{
-                    this.insertImage({parent,targetImg});
+                    this.insertImage({parent,item,idValues,user});
                     parent.removeChild(popup);
                 },390);
             }
         };
     };
-    insertImageUrl(item:{parent:HTMLElement,targetImg:{img:HTMLImageElement | HTMLElement,level:"element"|"col"|"row"}}){
-        const {parent,targetImg}=item;
+
+
+    insertImageUrl({parent,item,idValues,user}:{parent:HTMLElement,item:imgEleType,idValues:idValueType[],user:userType|null}){
+       
         const less900= window.innerWidth <900;
         const less400= window.innerWidth <400;
         const popup=document.createElement("div");
@@ -300,7 +345,7 @@ class AddImageUrl {
         popup.appendChild(title);
         const form=document.createElement("form");
         form.style.cssText="width:100%;display:flex;flex-direction:column;padding:1rem;gap:1.5rem;";
-        const {input,label,formGrp}=Nav.inputComponent(form);
+        const {input,label}=Nav.inputComponent(form);
         label.textContent="paste url below";
         input.type="url";
         input.name="url";
@@ -320,49 +365,53 @@ class AddImageUrl {
         form.onsubmit=async(e:SubmitEvent)=>{
             if(e){
                 e.preventDefault();
+                
+                // INSERTING SELECTED IMAGE
+                const {selRowCol,target,imgKey,level}=item
+                const eleId=target.id;
+                const {selectorId,rowId}=selRowCol ||{selectorId:null,rowId:null,colId:null};
+                const selRow={selectorId,rowId};
                 button.disabled=true;
                 const formdata=new FormData(e.currentTarget as HTMLFormElement);
                 const url=formdata.get("url") as string;
                 if(url ){
-                    if(targetImg.level==="element"){
-                        (targetImg.img as HTMLImageElement).src=url;
-                    }else if(targetImg.level==="col"){
-                        targetImg.img.style.backgroundImage=`url(${url})`;
-                    }else if(targetImg.level==="row"){
-                        targetImg.img.style.backgroundImage=`url(${url})`;
-                    }
-                    const {parsed,isJSON}=Header.checkJson(targetImg.img.getAttribute("flex"));
-                        if(isJSON){
-                            let flex=parsed as flexType;
-                            if(flex.imgKey){
-                                const markDel:deletedImgType={imgKey:flex.imgKey,del:true,date:new Date()};
-                               await  this._service.markDelKey(markDel)
+                    //SELECTING IMAGE TO BE INSERTED
+                    if(imgKey){
+                      idValues=this._modSelector.dataset.removeSubValue({target,idValues,eleId,id:"imgKey"});
+                    };
+                    const idValue:idValueType={eleId,id:"addUrlImg",attValue:"addUrlImg"};
+                    this._modSelector.dataset.upDateIdValue({target,idValues,idValue});
+                    if(level==="element"){
+                        (target as HTMLImageElement).src=url;
+                    }else if(level==="col"){
+                        target.style.backgroundImage=`url(${url})`;
+                    }else if(level==="row"){
+                        target.style.backgroundImage=`url(${url})`;
+                    };
+                           
+                    target.removeAttribute("data-img-key");
 
-                            }
-                            flex={...flex,imgKey:undefined};
-                            targetImg.img.setAttribute("flex",JSON.stringify(flex));
-                            if(targetImg.level==="element"){
-                                targetImg.img.removeAttribute("imgKey");
-                                this._modSelector.updateElement(targetImg.img);
-                            }else if(targetImg.level==="col"){
-                                this._modSelector.updateColumn(targetImg.img,flex)
-                            }else if(targetImg.level==="row"){
-                                this._modSelector.updateRow(targetImg.img,flex)
-                            }
-                        }else{
-                            const imgKey=targetImg.img.getAttribute("imgKey");
-                            if(imgKey){
-                                const markDel:deletedImgType={imgKey:imgKey,del:true,date:new Date()};
-                                await this._service.markDelKey(markDel);
-                            }
-                            targetImg.img.removeAttribute("imgKey");
-                            this._modSelector.updateElement(targetImg.img);
+                    if(level==="element"){
+                        this._modSelector.updateElement({target:target,idValues,selRowCol});
+                        if(imgKey){
+                            const markDel:deletedImgType={imgKey:imgKey,del:true,date:new Date()};
+                            await this._service.markDelKey(markDel);
                         }
-                        this.updateParaShapeOutside({parent,image:targetImg.img as HTMLImageElement});
-                        Misc.growOut({anchor:popup,scale:0,opacity:0,time:400});
-                        setTimeout(()=>{
-                            parent.removeChild(popup);
-                        },390);
+                    }else if(level==="col" && selRowCol){
+                        this._modSelector.updateColumn({target:target,idValues,selRowCol})
+                    }else if(level==="row" && selRow){
+                        this._modSelector.updateRow({target:target,idValues,selRow:selRow as selRowType})
+                    }
+                    if(imgKey){
+                        idValues=this._modSelector.dataset.removeSubValue({target:target,idValues,id:"imgKey",eleId});
+                    }
+
+                    this._modSelector.updateElement({target:target,idValues,selRowCol});
+                    
+                    Misc.growOut({anchor:popup,scale:0,opacity:0,time:400});
+                    setTimeout(()=>{
+                        parent.removeChild(popup);
+                    },390);
                 }else{
                     Misc.message({parent,msg:"not a url",type_:"error",time:1200});
                 }
@@ -370,21 +419,22 @@ class AddImageUrl {
         };
 
 
-    }
-    updateParaShapeOutside(item:{parent:HTMLElement,image:HTMLImageElement}){
-        const {parent,image}=item;
+    };
+
+
+    updateParaShapeOutside({parent,image,idValues,key,selRowCol}:{parent:HTMLElement,image:HTMLImageElement,idValues:idValueType[],selRowCol:selRowColType,key:string}){
+       
         const para=image.parentElement;
         if(!(para && para.nodeName==="P")) return;
-        const {isJSON,parsed:flex}=Header.checkJson(para.getAttribute("flex"));
-        if(isJSON){
-            const flex_={...flex,isShapeOutside:true};
-            para.setAttribute("flex",JSON.stringify(flex_));
-        }
-        this._modSelector.updateElement(para);
+        const idValue:idValueType={eleId:para.id,id:"imgKey",attValue:key};
+        this._modSelector.dataset.upDateIdValue({target:para,idValues,idValue});
+        this._modSelector.updateElement({target:para,idValues,selRowCol});
 
-    }
-    insertImage(item:{parent:HTMLElement,targetImg:{img:HTMLImageElement | HTMLElement,level:"element"|"col"|"row"}}){
-        const {parent,targetImg}=item;
+    };
+
+
+
+    insertImage({parent,item,idValues,user}:{parent:HTMLElement,item:imgEleType,idValues:idValueType[],user:userType|null}){
         const popup=document.createElement("div");
         popup.className="insert-popup";
         popup.style.cssText="position:absolute;max-width:800px;width:100%;min-height:5vh;height:auto;border-radius:12px;box-shadow:1px 1px 12px 1px black;display:flex;flex-direction:column;padding:1rem;gap:1.5rem;background-color:black;color:white;left:20%;right:20%";
@@ -401,7 +451,7 @@ class AddImageUrl {
         this.removePopup({parent,target:popup});
         this.imageUrls.map((insertImg,index)=>{
             if(insertImg){
-
+                const key=insertImg.key;
                 const divCont=document.createElement("div");
                 const title=document.createElement("h6");
                 title.className="text-primary text-center my-2";
@@ -421,52 +471,87 @@ class AddImageUrl {
                 Misc.matchMedia({parent:divCont,maxWidth:400,cssStyle:{flex:"0 0 100%"}});
                 imgBtn.onclick=(e:MouseEvent)=>{
                     if(e){
-                        const selImage=this.imageUrls[index];
-                        if(targetImg.level==="element"){
-                            (targetImg.img as HTMLImageElement).src=selImage.url;
-                            (targetImg.img as HTMLImageElement).alt=selImage.name;
-                        }else if(targetImg.level==="col"){
-                            targetImg.img.style.backgroundImage=`url(${selImage.url})`;
-                        }else if(targetImg.level==="row"){
-                            targetImg.img.style.backgroundImage=`url(${selImage.url})`;
-                        }
-                        const {parsed,isJSON}=Header.checkJson(targetImg.img.getAttribute("flex"));
-                            if(isJSON){
-                                let flex=parsed as flexType;
-                                if(flex.imgKey){
-                                    const markDel:deletedImgType={imgKey:flex.imgKey,del:true,date:new Date()};
-                                    this._service.markDelKey(markDel)
-
+                       
+                        //SELECTING IMAGE TO BE INSERTED
+                        const {selRowCol,target,imgKey,level}=item
+                        const eleId=target.id;
+                        const node=target.nodeName.toLowerCase();
+                        if(imgKey && key){
+                            const idValue:idValueType={eleId:target.id,id:"imgKey",attValue:key}
+                            this._modSelector.dataset.upDateIdValue({target,idValues,idValue});
+                        }else if(!key){
+                            this._modSelector.dataset.removeSubValue({target:target,id:"imgKey",idValues,eleId:target.id});
+                       
+                        };
+                        const {selectorId,rowId}=selRowCol || {selectorId:null,rowId:null,colId:null}
+                        const selRow={selectorId,rowId} as selRowType;
+                        if(level==="element"){
+                            (target as HTMLImageElement).src=insertImg.url;
+                            (target as HTMLImageElement).alt=insertImg.name;
+                        }else if(level==="col"){
+                            target.style.backgroundImage=`url(${insertImg.url})`;
+                        }else if(level==="row"){
+                            target.style.backgroundImage=`url(${insertImg.url})`;
+                        } else if(level==="special"){
+                            const childs=([...target.children as any] as HTMLElement[]);
+                            [...childs as HTMLElement[]].map(child=>{
+                                if(child && child.nodeName==="IMG"){
+                                    const img=child as HTMLImageElement;
+                                    const getWidth=getComputedStyle(img).getPropertyValue("width");
+                                    const width=Number(getWidth.split("px")[0]);
+                                    img.src=imageLoader({src:insertImg.url,width,quality:95});
                                 }
-                                flex={...flex,imgKey:undefined};
-                                targetImg.img.setAttribute("flex",JSON.stringify(flex));
-                                if(targetImg.level==="element"){
-                                    this._modSelector.updateElement(targetImg.img);
-                                }else if(targetImg.level==="col"){
-                                    this._modSelector.updateColumn(targetImg.img,flex)
-                                }else if(targetImg.level==="row"){
-                                    this._modSelector.updateRow(targetImg.img,flex)
-                                }
-                            }else{
-                                const imgKey=targetImg.img.getAttribute("imgKey");
-                                if(imgKey){
-                                    const markDel:deletedImgType={imgKey:imgKey,del:true,date:new Date()};
-                                    this._service.markDelKey(markDel)
-                                }
-                                targetImg.img.removeAttribute("imgKey");
-                                this._modSelector.updateElement(targetImg.img);
+                            });
+                        };
+                        if(imgKey){
+                            const eleId=target.id;
+                            const markDel:deletedImgType={imgKey:imgKey,del:true,date:new Date()};
+                            this._service.markDelKey(markDel);
+                            if(key){
+                                const idValue:idValueType={eleId,id:"imgKey",attValue:key}
+                                this._modSelector.dataset.upDateIdValue({target,idValues,idValue})
                             }
-                            this.updateParaShapeOutside({parent,image:targetImg.img as HTMLImageElement});
-                            Misc.growOut({anchor:popup,scale:0,opacity:0,time:400});
-                            setTimeout(()=>{
-                                parent.removeChild(popup);
-                            },390);
+                        
+                        
+                        if(level==="element" || level==="special"){
+                            this._modSelector.updateElement({target:target,idValues,selRowCol});
+                        }else if(level==="col" && selRowCol){
+                            this._modSelector.updateColumn({target:target,idValues,selRowCol})
+                        }else if(level==="row" && selRowCol){
+                            this._modSelector.updateRow({target:target,idValues,selRow})
+                        }
+                    }else{
+                      
+                        const imgKey=target.getAttribute("data-img-key");
+                        if(imgKey){
+                            const markDel:deletedImgType={imgKey:imgKey,del:true,date:new Date()};
+                            this._service.markDelKey(markDel);
+                            if(key){
+                                const idValue:idValueType={eleId,id:"imgKey",attValue:key}
+                                this._modSelector.dataset.upDateIdValue({target,idValues,idValue})
+                            }
+                        }
+                        
+
+                        this._modSelector.updateElement({target:target,idValues,selRowCol});
+                    };
+                    if(selRowCol && key && node){
+                        
+                        this.updateParaShapeOutside({parent,image:(target as HTMLImageElement),key,idValues,selRowCol});
                     }
-                };
-            }
+                    Misc.growOut({anchor:popup,scale:0,opacity:0,time:400});
+                    setTimeout(()=>{
+                        parent.removeChild(popup);
+                    },390);
+                    }
+            };
+            };
+            
         });
     
-    }
+    };
+
+
     asyncPicImage(item:{parent:HTMLElement}):Promise<{arr:{btn:HTMLButtonElement,imageUrl:string}[],popup:HTMLElement,reParent:HTMLElement}>{
         const {parent}=item;
         const less900=window.innerWidth < 900;
@@ -476,8 +561,8 @@ class AddImageUrl {
         popup.id="addImageUrl-asyncPicImag-popup";
         popup.style.cssText="position:absolute;max-width:800px;width:100%;min-height:5vh;border-radius:12px;box-shadow:1px 1px 12px 1px black;display:flex;flex-direction:column;padding:1rem;gap:1.5rem;background-color:black;color:white;";
         popup.style.top="0%";
-        popup.style.left=less900 ? (less400 ? "0%":"0%"):"0%";
-        popup.style.right=less900 ? (less400 ? "0%":"0%"):"0%";
+        popup.style.left="0%";
+        popup.style.right="0%";
         popup.style.height=less900 ? (less400 ? "110vh":"100vh"):"80vh";
         popup.style.overflowY="scroll";
         const title=document.createElement("h6");
@@ -517,49 +602,146 @@ class AddImageUrl {
                 
             }
         });
-        return new Promise(resolve=>{
-            resolve({arr,popup,reParent:parent});
-        }) as Promise<{arr:{btn:HTMLButtonElement,imageUrl:string}[],popup:HTMLElement,reParent:HTMLElement}>;
+        return Promise.resolve({arr,popup,reParent:parent}) as Promise<{arr:{btn:HTMLButtonElement,imageUrl:string}[],popup:HTMLElement,reParent:HTMLElement}>;
     
-    }
-    async extractImg(item:{ele:HTMLElement}):Promise<string|undefined>{
-        const {ele}=item;
-        const urlStr=ele.style.backgroundImage;
-        const {parsed,isJSON}=Header.checkJson(ele.getAttribute("flex"));
-        let retImg:string|undefined;
-        if(isJSON){
-            const flex=parsed as flexType;
-            const imgKey=flex.imgKey;
-            if(imgKey){
-              const {img}= await this._service.getSimpleImg(imgKey) as gets3ImgKey;
-                retImg=img
-            }else{
-                const startReg:RegExp=/(url\(\")/g;
-                const endReg:RegExp=/\"\)/g;
-                const starts=urlStr.matchAll(startReg) as any;
-                const ends=urlStr.matchAll(endReg) as any;
-                for(const start of starts){
-                    for (const end of ends ){
-                        const beg=start.index + start[0].length;
-                        const end_=end.index;
-                        retImg=urlStr.slice(beg,end_);
-                        // console.log("extractImg:img",retImg)//works
+    };
+
+
+    async extractImg(item:{target:HTMLElement,idValues:idValueType[],level:"element"|"col"|"row"}):Promise<imgExtractType>{
+        const {target,idValues,level}=item;
+        const url=new URL(window.location.origin)
+        const noimage=`${url}${this.noimage}`;
+        let hasBlob=false;
+        const node=target.nodeName.toLowerCase();
+        const urlStr=target.style.backgroundImage;
+        const idValue:idValueType|null=this._modSelector.dataset.getIdValue({target,idValues,id:"imgKey"});
+        const imgKey=idValue?.attValue
+        const getSelRowCol:idValueType|null=this._modSelector.dataset.getIdValue({target,idValues,id:"selRowCol"});
+        const selRowCol:selRowColType|null=getSelRowCol?.attValue ? JSON.parse(getSelRowCol.attValue) as selRowColType:null
+        let imgUrl:string|undefined;
+        let hasFreeImg:boolean=false;
+        //no_userid-unknownUser-sequenceSolution.png
+        const blob:RegExp=/(blob:http)/;
+        const regFreeTest:RegExp=/(newablogroom-free-bucket)/;
+        const null_:RegExp=/(null)/;
+        let hasGenericImgKey:boolean=false;
+        const genericImgKey:RegExp=/(no_userid)/;
+        hasGenericImgKey=imgKey ? genericImgKey.test(imgKey) || null_.test(imgKey):false;
+
+        if(level==="col" || level==="row"){
+            imgUrl= this.extractBgImage({str:urlStr});
+            hasFreeImg=imgUrl ? regFreeTest.test(imgUrl):false;
+            hasBlob=imgUrl ?  blob.test(imgUrl as string):false;
+            switch(true){
+                case !hasBlob && hasFreeImg && !hasGenericImgKey && imgKey !==undefined:
+                    imgUrl=this._service.getFreeBgImageUrl({imgKey}) as string;// same as `${this.freepicurl}/${imgKey}`
+                break;
+                case hasBlob:
+                    imgUrl=noimage;
+                break;
+               
+                default:
+                    break;
+            }
+            
+        }else if( level==="element" && node==="img"){
+            const img_=target as HTMLImageElement;
+            hasBlob=blob.test(img_.src);
+            hasFreeImg=regFreeTest.test(img_.src);
+            switch(true){
+                case imgKey && !hasBlob && !hasFreeImg :
+                    await this._service.getSimpleImg(imgKey).then(async(res)=>{
+                        if(res){
+                            imgUrl=res.img;
+                        }
+                    }) as gets3ImgKey;
+                break;
+                case hasFreeImg && !hasBlob:
+                    imgUrl=(target as HTMLImageElement).src;
+                break;
+                case hasBlob:
+                    imgUrl=noimage;
+                break;
+                default:
+                    imgUrl=(target as HTMLImageElement).src;
+                break;
+            }
+            
+        };
+        
+        return {imgUrl,selRowCol,imgKey,level,hasBlob,hasFreeImg};
+    };
+
+
+    //@ level [data-is-element]
+    extractSpecial({target,idValues,level}:{target:HTMLElement,idValues:idValueType[],level:"row"|"col"|"element"|"special"}):imgExtractType{
+        
+        const url=new URL(window.location.origin)
+        const noimage=`${url}${this.noimage}`;
+        let hasBlob:boolean=false;
+        let hasFreeImg:boolean=false;
+        const blob:RegExp=/(blob:http)/;
+      
+        const regFreeTest:RegExp=/(newablogroom-free-bucket)/;
+        let imgExtract:imgExtractType={} as imgExtractType;
+        const childs=([...target.children as any] as HTMLElement[]);
+        typeEnumArr.map(type=>{
+            const check=this._modSelector.dataset.getIdValue({target,idValues,id:type});
+            if(type && check){
+                [...childs as HTMLElement[]].map(child=>{
+                    if(child && child.nodeName==="IMG"){
+                        let imgUrl:string="";
+                        const img=child as HTMLImageElement;
+                        hasBlob=blob.test(img.src);
+                        hasFreeImg=regFreeTest.test(img.src);
+                        const idValue=this._modSelector.dataset.getIdValue({target,idValues,id:"imgKey"});
+                        const imgKey= idValue ? idValue.attValue:undefined;
+                        
+                        let hasGenericImgKey:boolean=false;
+                        const genericImgKey:RegExp=/(no_userid)/;
+                        hasGenericImgKey=imgKey ? genericImgKey.test(imgKey):false;
+                        switch(true){
+                            case hasBlob:
+                                imgUrl=noimage;
+                            break;
+                            case hasFreeImg:
+                                imgUrl=img.src;
+                            break;
+                            case hasFreeImg && !hasGenericImgKey && typeof imgKey==="string":
+                                imgUrl=this._service.getFreeBgImageUrl({imgKey});
+                            break;
+                            default:
+                                imgUrl=img.src;
+                                break;
+                        }
+                        const getSelRowCol=this._modSelector.dataset.getIdValue({target,idValues,id:"selRowCol"});
+                        const selRowCol=getSelRowCol?.attValue ? JSON.parse(getSelRowCol.attValue) as selRowColType:null;
+                        imgExtract={imgUrl,selRowCol,imgKey,level,hasBlob,hasFreeImg}
                     }
+                });
+            }
+        });
+        return imgExtract
+    };
+
+    extractBgImage({str}:{str:string}):string|undefined{
+        let retImg:string|undefined;
+        const startReg:RegExp=/(url\(")/g;
+            const endReg:RegExp=/"\)/g;
+            const starts=str.matchAll(startReg) as any;
+            const ends=str.matchAll(endReg) as any;
+            for(const start of starts){
+                for (const end of ends ){
+                    const beg=start.index + start[0].length;
+                    const end_=end.index;
+                    retImg=str.slice(beg,end_);
+                    // console.log("extractImg:img",retImg)//works
                 }
             }
-        }else{
-            const imgKey=ele.getAttribute("imgKey");
-            if(imgKey){
-                const {img}= await this._service.getSimpleImg(imgKey) as gets3ImgKey;
-                  retImg=img
-              }
-        }
-        if(!retImg && ele.nodeName==="IMG"){
-            retImg=(ele as HTMLImageElement).src
-        }
-        
-        return retImg;
-    }
+            return retImg
+    };
+
+
     removePopup(item:{parent:HTMLElement,target:HTMLElement}){
         const {parent,target}=item;
         const xDiv=document.createElement("div");

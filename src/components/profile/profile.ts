@@ -1,6 +1,6 @@
-import AuthService from "../common/auth";
+
 import Service from "../common/services";
-import {blogType, gets3ImgKey, userType, messageType,sendEmailMsgType, postType} from "../editor/Types";
+import {blogType, gets3ImgKey, userType, messageType,sendEmailMsgType, postType, arrDivPlaceType} from "../editor/Types";
 import ModSelector from "../editor/modSelector";
 import {FaCreate} from "@/components/common/ReactIcons";
 import { FaCrosshairs,FaSignal } from "react-icons/fa";
@@ -18,8 +18,7 @@ import NewCode from "../editor/newCode";
 import ChartJS from "../chart/chartJS";
 import Post from "../posts/post";
 import Blogs from "../blogs/blogsInjection";
-import CodeElement from "../common/codeElement";
-import Headerflag from "../editor/headerflag";
+import HtmlElement from "../editor/htmlElement";
 
 
 
@@ -39,7 +38,7 @@ class Profile{
     static main:HTMLElement | null;
 
 
-    constructor(private _modSelector:ModSelector,private _service:Service,private _user:User,private _metaBlog:MetaBlog,public chart:ChartJS,private _post:Post,private headerFlag:Headerflag){
+    constructor(private _modSelector:ModSelector,private _service:Service,private _user:User,private _metaBlog:MetaBlog,public chart:ChartJS,private _post:Post,private htmlElement:HtmlElement){
         this.bgColor=this._modSelector._bgColor;
         this.btnColor=this._modSelector.btnColor;
         this.userUrlUpdate="/api/user_update";
@@ -48,9 +47,8 @@ class Profile{
         this._blogs=[] as blogType[];
         this.newCode=new NewCode(this._modSelector,this._service,this._user);
         this.shapeOutside=new ShapeOutside(this._modSelector,this._service,this._user);
-        const codeElement=new CodeElement(this._modSelector,this._service);
         this.classMsg= new Message(this._modSelector,this._service,this._modSelector.blog,null);
-        this._displayBlog=new DisplayBlog(this._modSelector,this._service,this._user,this.shapeOutside,this.newCode,this.chart,this.classMsg,codeElement,this.headerFlag);
+        this._displayBlog=new DisplayBlog(this._modSelector,this._service,this._user,this.newCode,this.chart,this.classMsg,this.htmlElement);
 
     }
     //----------SETTER/GETTERS---------/////
@@ -61,18 +59,18 @@ class Profile{
         this._messages=messages;
     }
     set blogs(blogs:blogType[]){
-        this._modSelector._blogs=blogs
+        this._modSelector.blogs=blogs
         this._user.blogs=blogs;
         this._blogs=blogs;
     }
     get blogs(){
-        return this._modSelector._blogs;
+        return this._modSelector.blogs;
     }
     set blog(blog:blogType){
-        this._modSelector._blog=blog;
+        this._modSelector.blog=blog;
     }
     get blog(){
-        return this._modSelector._blog;
+        return this._modSelector.blog;
     }
     get posts(){
         return this._posts;
@@ -87,7 +85,6 @@ class Profile{
         const less400=window.innerWidth <400;
         Profile.cleanUpByID(parent,"div#headerAnchor")
         parent.style.position="relative";
-        // parent.style.justifyContent="space-between";
         parent.style.zIndex="";
         const headerAnchor=document.createElement("div");
         headerAnchor.id="headerAnchor";
@@ -212,7 +209,7 @@ class Profile{
                 const emailOld_=newForm.get("emailOld") as string;
                 if(emailOld_ && emailNew_){
                     const user=this._user.user;
-                    if(user && user.id){
+                    if(user.id){
                         const emails={emailNew:emailNew_,emailOld:emailOld_};
                         this._user.changeEmail(row,user,emails).then(async(user)=>{
                             if(user){
@@ -307,10 +304,9 @@ class Profile{
                 const newForm=new FormData(e.currentTarget as HTMLFormElement);
                 const passNew_=newForm.get("passNew") as string;
                 const passOld_=newForm.get("passOld") as string;
-                console.log(passNew_,passOld_)
                 if(passNew_ && passOld_){
                     const user=this._user.user;
-                    if(user && user.id){
+                    if(user?.id){
                         const passwords={passNew:passNew_,passOld:passOld_}
                         this._user.changePassword(row,user,passwords).then(async(user)=>{
                             if(user){
@@ -427,7 +423,6 @@ class Profile{
         showinfo.name="showWork";
         showinfo.style.width="50px";
         showinfo.checked=user.showinfo as boolean;
-        // showinfo.checked;
         const showLabel=document.createElement("label");
         showLabel.textContent="put your name to your work";
         grpShow.appendChild(showLabel);
@@ -480,9 +475,6 @@ class Profile{
                         if(user_){
                             localStorage.setItem("user",JSON.stringify(user_));
                             this._user.user=user_;
-                            
-                            // const parent=document.getElementById("row-profile") as HTMLElement;
-                            // const row=document.getElementById("updateImageBio-row") as HTMLElement;
                             this.bio(row,user_);
                         }
                     });
@@ -554,7 +546,7 @@ class Profile{
                 }
                 if(file && user.id){
                     let blog=this._modSelector.blog;
-                    const name=blog && blog.name ? blog.name : "userBio";
+                    const name=blog?.name || "userBio";
                     blog={...blog,name:name}
                     blog.user_id=user.id;
                     this._service.generateImgKey(formdata,blog);
@@ -573,7 +565,7 @@ class Profile{
                                     localStorage.setItem("user",JSON.stringify(user));
                                 }
                             });
-                            // form.style.opacity="0";
+                          
                             Misc.message({parent,msg:"uploaded",type_:"success",time:400});
                         }
                     }).catch((err)=>{const msg=getErrorMessage(err);Misc.message({parent,msg:msg,type_:"error",time:700})});
@@ -724,7 +716,7 @@ class Profile{
         const left=document.createElement("div");
         left.style.cssText="display:flex;margin:auto;flex-direction:column;justify-content:center;align-items:stretch;gap:1rem;border-right:1px solid:blue;";
         const nameDiv=document.createElement("div");
-        // nameDiv.setAttribute("data-email",JSON.stringify({name:msg.name,email:msg.email}));
+      
         nameDiv.style.cssText="margin:auto;display:flex;flex-direction;column;align-items:center;justify-content:center;flex:1 1 40%";
         const name=document.createElement("p");
         name.id="name_id";
@@ -762,7 +754,7 @@ class Profile{
             }
         };
         nameDiv.onmouseout=()=>{
-            // message.style.top="-210%";
+
             message.animate([
                 {transform:"translateY(-340%) scale(1)",opacity:"1"},
                 {transform:"translateY(-210%) scale(0.5)",opacity:"0"},
@@ -844,19 +836,22 @@ class Profile{
         del.onclick=(e:MouseEvent)=>{
             if(e){
                 this._service.deleteMessage(msg.id as number).then(async(res)=>{
-                    if(res && res.id){
-                        this.msgs.map((msg,index)=>{
-                            if(msg.id===msg.id){
-                                this._messages.splice(index,1);
-                            }
-                        });
-                       
-                        if(this.msgs){
-                            this.msgs.map(_msg=>{
-                                if(_msg){
-                                    this.msgRightCard(colRight,user,_msg);
+                    if(res){
+                        if(res.id){
+
+                            this.msgs.map((msg,index)=>{
+                                if(msg.id===res.id){
+                                    this._messages.splice(index,1);
                                 }
                             });
+                           
+                            if(this.msgs){
+                                this.msgs.map(_msg=>{
+                                    if(_msg){
+                                        this.msgRightCard(colRight,user,_msg);
+                                    }
+                                });
+                            }
                         }
                         Misc.message({parent:colRight,type_:"success",msg:"REMOVED",time:700});
                     }else{
@@ -875,9 +870,9 @@ class Profile{
     }
     sendEmail(item:{colRight:HTMLElement,user:userType,message_:messageType,sendEmail:sendEmailMsgType}){
         const {colRight,user,sendEmail,message_}=item;
-        //msgCard(colRight,user,msg)
-        //sendEmailMsgType=>{user_id,userEmail,message}
+   
         const form=document.createElement("form");
+        form.id="sendEmail-form"
         form.style.cssText="position;absolute;inset:0%;background-color:white;border-radius:12px;padding:1rem;display:flex;flex-direction:column;align-items:center;justify-content:center;z-index:200;gap:1.5rem;margin-block:1.25rem;";
         const {label,textarea}=Nav.textareaComponent(form);
         textarea.name="message";
@@ -915,21 +910,25 @@ class Profile{
                 if(message){
                     sendEmail.msg=message as string;
                     this._service.respondEmail(sendEmail).then(async(res)=>{
-                        console.log("res",res)
+                       
                         if(res && res.msg==="sent"){
                             Misc.message({parent:colRight,type_:"success",msg:res.msg,time:700});
                             Misc.growOut({anchor:form,scale:0,opacity:0,time:400});
                             setTimeout(()=>{
-                                colRight.removeChild(form);
+                               
+                                Header.cleanUpByID(colRight,"sendEmail-form")
                             },398);
                             this.msgs.map((mess,index)=>{
                                 if(mess && mess.id===message_.id){
                                     this._messages.splice(index,1);
                                 }
                             });
-                            let _message=message_;
-                            _message={..._message,sent:true};
-                            this._messages=[...this._messages,_message];
+                            const remain=this.msgs.filter(msg=>(msg.id!==message_.id));
+                            let msg_=this.msgs.find(msg=>(msg.id===message_.id));
+                            if(msg_){
+                                msg_={...msg_,sent:true};
+                                this.msgs=[...remain,msg_];
+                            }
                             Header.cleanUp(colRight);
                             this._messages.map(_msg=>{
                                 if(_msg){
@@ -1040,12 +1039,13 @@ class Profile{
         container.style.cssText=blog.cssText ? blog.cssText :"margin-inline:auto;display:flex;flex-direction:column;align-items:center;width:100%;margin-block:2rem;";
         container.id="blog-work"
         //META
-        
+        const arrDivPlaces:arrDivPlaceType[]=[];
+        const idValues=this._modSelector.dataset.idValues
         //APPENDING container to popup
         popup.appendChild(container);
         //APPENDING POPUPU TO GRANDROW
         grandRow.appendChild(popup);
-        await this._displayBlog.saveFinalWork({innerContainer:container,blog});
+        await this._displayBlog.saveFinalWork({innerContainer:container,blog,arrDivPlaces,idValues});
         Misc.fadeIn({anchor:popup,xpos:50,ypos:100,time:400});
         const btnGrp=document.createElement("div");
         btnGrp.classList.add("profile-showFinalWork-btnGrp");
@@ -1057,7 +1057,7 @@ class Profile{
         popup.appendChild(btnGrp);
         close.addEventListener("click",(e:MouseEvent)=>{
             if(e){
-                // Profile.cleanUpByID(parent,"div#final-work");
+               
                 Misc.fadeOut({anchor:popup,xpos:50,ypos:100,time:400});
                 setTimeout(()=>{
                     grandRow.removeChild(popup);
@@ -1067,16 +1067,16 @@ class Profile{
         });
         edit.addEventListener("click",(e:MouseEvent)=>{
             if(e){
-                // Profile.cleanUpByID(parent,"div#final-work");
-                this._modSelector._blog={} as blogType;
-                this._modSelector._blog={...blog,eleId:"main"};
+               
+                this._modSelector.blog={} as blogType;
+                this._modSelector.blog={...blog,eleId:"main"};
                 this._modSelector.selectors=blog.selectors;
                 this._modSelector.elements=blog.elements;
                 this._modSelector.selectCodes=blog.codes;
                 this._modSelector.blog=blog;
                 const maxCount=ModSelector.maxCount(blog);
                 localStorage.setItem("placement",String(maxCount));
-                localStorage.setItem("blog",JSON.stringify(this._modSelector._blog));
+                localStorage.setItem("blog",JSON.stringify(this._modSelector.blog));
                 const user=this._user.user;
                 localStorage.setItem("user_id",user.id);
                 localStorage.setItem("email",user.email);
@@ -1196,10 +1196,10 @@ class Profile{
             if(blog_){
                 const show=blog_.show;
                 blog={...blog,show:show};
-                this._modSelector._blog=blog;
-                const reduce=this._modSelector._blogs.filter(bl=>(bl.id !==blog.id));
-                this._modSelector._blogs=[...reduce,blog];
-                this._user.blogs=this._modSelector._blogs;
+                this._modSelector.blog=blog;
+                const reduce=this._modSelector.blogs.filter(bl=>(bl.id !==blog.id));
+                this._modSelector.blogs=[...reduce,blog];
+                this._user.blogs=this._modSelector.blogs;
                 return {blogs:this._user.blogs,show:blog_.show}
             }
         }).catch((err)=>{const msg=getErrorMessage(err);console.error(msg);Misc.message({parent:card,msg:msg,type_:"error",time:700})});
@@ -1233,7 +1233,7 @@ class Profile{
             if(e){
                 await this._service.deleteBlog(blog).then(async(res)=>{
                     if(res){
-                        this._modSelector._blogs=this._modSelector._blogs.filter(bl=>(bl.id !==blog.id));
+                        this._modSelector.blogs=this._modSelector.blogs.filter(bl=>(bl.id !==blog.id));
                         this._user.blogs=this._modSelector.blogs;
                         const remainderBlogs=this._modSelector.blogs;
                         Misc.message({parent:grandRow,msg:`deleted id=${blog.id}`,type_:"success",time:600});
@@ -1288,7 +1288,7 @@ class Profile{
             if(e){
                 await this._service.deleteBlog(blog).then(async(res)=>{
                     if(res){
-                        this._modSelector._blogs=this._modSelector._blogs.filter(bl=>(bl.id !==blog.id));
+                        this._modSelector.blogs=this._modSelector.blogs.filter(bl=>(bl.id !==blog.id));
                         this._user.blogs=this._modSelector.blogs;
                         const remainderBlogs=this._modSelector.blogs;
                         Misc.message({parent:grandRow,msg:`deleted id=${blog.id}`,type_:"success",time:600});
@@ -1328,11 +1328,11 @@ class Profile{
     async editMeta(item:{grandRow:HTMLElement,blog:blogType}){
         const {grandRow,blog}=item;
         const user=this._user.user;
-        const isSelects=(blog && blog.selectors && blog.selectors.length>0)? true:false;
-        const isElements=(blog && blog.elements && blog.elements.length>0)? true:false;
+        const isSelects=(blog?.selectors.length>0);
+        const isElements=(blog?.elements.length>0);
         if(!(isSelects && isElements)){
             this._service.getUserBlog({user_id:user.id,blog_id:blog.id}).then(async(resBlog)=>{
-                if(resBlog && !(typeof(resBlog)==="string") ){
+                if(resBlog && typeof(resBlog) !== "string" ){
                     this._modSelector.blog=resBlog;
                 
                     grandRow.style.zIndex="2";
@@ -1412,7 +1412,6 @@ class Profile{
         displayCol2.id="displayCol2";
         section.appendChild(displayCol2);
         Misc.growIn({anchor:scrollCol1,scale:1,opacity:0,time:500});
-        // Misc.matchMedia({parent:section,maxWidth:900,cssStyle:{flexDirection:"column",flexWrap:"noWrap"}});
         Misc.matchMedia({parent:scrollCol1,maxWidth:900,cssStyle:{flex:"0 0 100%",order:"-1"}});
         Misc.matchMedia({parent:displayCol2,maxWidth:900,cssStyle:{flex:"0 0 100%",order:"2"}});
         this._service.getUserposts({user:user}).then(async(_posts)=>{
@@ -1422,11 +1421,10 @@ class Profile{
                 this._post.posts.map(async(post,index)=>{
                     if(post){
                         const col1=document.createElement("div");
-                        // col1.className=`col-md-${12/cols}`;
+                      
                         col1.id=`posts-col1-${index}`;
                         col1.style.cssText="margin-inline:auto;display:flex;flex-direction:column;align-items:center;gap:0.75rem;flex:0 0 50%;background-color:#098ca091;color:white;border-radius:12px;";
                         scrollCol1.appendChild(col1);
-                        const getCol1=scrollCol1.querySelector(`div#posts-col1-${index}`) as HTMLElement;
                         
                         this.postCard({scrollCol1,col:col1,post,user:user,index}).then(async(res_)=>{
                             if(res_){
@@ -1587,7 +1585,7 @@ class Profile{
         lpub.textContent="publish";
         lpub.style.cssText="font-size:140%;text-decoration:underline;text-underline-offset:0.5rem;margin-bottom:1rem;";
         lpub.setAttribute("for",pub.id);
-        const {input:link,label:lLink,formGrp:grplink}=Nav.inputComponent(form);
+        const {input:link,label:lLink}=Nav.inputComponent(form);
         link.id="link";
         link.name="link";
         link.value=post.link? post.link : "";
@@ -1609,7 +1607,7 @@ class Profile{
                 if(title && content){
                     this._post.post={...post,title:title as string,content:content as string,published:Boolean(pub),link:link};
                    await this._service.saveUpdatepost({post:this._post.post}).then(async(res)=>{
-                    //    if(res){
+                
                             
                             const getContainer=displayCol2.querySelector(`div#editPost-container-${post.id}`) as HTMLElement;
                             if(getContainer){
@@ -1622,7 +1620,7 @@ class Profile{
                                 const getCol1=parent.querySelector(`div#${col1.id}`) as HTMLElement;
                                 this.postCard({scrollCol1:parent,col:getCol1,post:this._post.post,user,index:index});
                             }
-                        // }
+                        
                     });
 
                 }
@@ -1631,7 +1629,7 @@ class Profile{
     }
     createPost(item:{displayCol2:HTMLElement,scrollCol1:HTMLElement,user:userType}){
         const {displayCol2,scrollCol1,user}=item;
-        // const parent=displayCol2.parentElement as HTMLElement;
+        
         displayCol2.style.position="relative";
         const css_col="margin-inline:auto;display:flex;flex-direction:column;justify-content:center;align-items:center;gap:0.7rem;";
         Header.cleanUpByID(displayCol2,`createPost-popup`);
@@ -1669,7 +1667,7 @@ class Profile{
         lpub.textContent="publish";
         lpub.style.cssText="font-size:140%;text-decoration:underline;text-underline-offset:0.5rem;margin-bottom:1rem;";
         lpub.setAttribute("for",pub.id);
-        const {input:link,label:lLink,formGrp:grplink}=Nav.inputComponent(form);
+        const {input:link,label:lLink}=Nav.inputComponent(form);
         link.id="link";
         link.name="link";
         link.placeholder="https://example.com";
@@ -1684,7 +1682,7 @@ class Profile{
                 submit.disabled=false;
             }
         };
-        if(user && user.id && user.email){
+        if(user?.id && user?.email){
             popup.appendChild(form);
             displayCol2.appendChild(popup);
         }
@@ -1717,7 +1715,7 @@ class Profile{
                     this._post.post={...this._post.post,title:title as string,content:content as string,published:Boolean(pub),link}
                     this.uploadPic({displayCol2,popup:popup,scrollCol1,post:this._post.post,user});
                     const labelDisplay2=displayCol2.querySelector("div#labelDisplay2") as HTMLElement;
-                    // const scrollCol1=document.querySelector("div#labelDisplay2") as HTMLElement;
+                   
                     if(labelDisplay2){
                         labelDisplay2.hidden=false;
                         labelDisplay2.style.height="auto";
@@ -1751,7 +1749,7 @@ class Profile{
                 const formdata=new FormData(e.currentTarget as HTMLFormElement);
                 const file=formdata.get("file") as File;
                 if(file ){
-                    const urlImg=URL.createObjectURL(file as File);
+                   
                     this._service.generatePostImgKey(formdata,post) as {Key:string};
                    await this._service.simpleImgUpload(displayCol2,formdata).then(async(res)=>{
                         if(res){
@@ -1805,9 +1803,7 @@ class Profile{
             xDiv.style.cssText=css_row + "position:absolute;padding:0.37rem;background:black;color:white;top:0%;right:0%;transform:translate(-18px,32px);z-index:200;border-radius:50%;";
             FaCreate({parent:xDiv,name:FaCrosshairs,cssStyle:{color:"white",fontSize:"22px"}});
             target.appendChild(xDiv);
-            return new Promise(resolve=>{
-                resolve({xDiv,parent,target,post})
-            }) as Promise<{xDiv:HTMLElement,parent:HTMLElement,target:HTMLElement,post:postType}>;
+            return Promise.resolve({xDiv,parent,target,post}) as Promise<{xDiv:HTMLElement,parent:HTMLElement,target:HTMLElement,post:postType}>;
         
     }
     removeChild(parent:HTMLElement,target:HTMLElement){
@@ -1826,7 +1822,7 @@ class Profile{
         };
     }
     askToDelete(item:{scrollCol1:HTMLElement,target:HTMLElement,post:postType,user:userType}){
-        const {scrollCol1,target,post,user}=item;
+        const {target,post,user}=item;
         target.style.position="relative";
         const css_row="margin-inline:auto;display:flex;flex-direction:row;flex-wrap:wrap;justify-content:center;align-items:center;gap:0.7rem;";
         const container=document.createElement("div");
@@ -1865,7 +1861,7 @@ class Profile{
                                 await Promise.all(this._post.posts.map(async(post,index)=>{
                                     if(post){
                                         const col1=document.createElement("div");
-                                        // col1.className=`col-md-${12/cols}`;
+                                       
                                         col1.id=`posts-col1-${index}`;
                                         col1.style.cssText="margin-inline:auto;display:flex;flex-direction:column;align-items:center;gap:0.75rem;flex:0 0 50%;background-color:#098ca091;color:white;border-radius:12px;";
                                         scrollCol1.appendChild(col1);

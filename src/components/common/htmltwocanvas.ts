@@ -36,13 +36,13 @@ class Htmltwocanvas{
         if(!element) return;
         const height=parseInt(window.getComputedStyle(element).getPropertyValue("height").split("px")[0]) as number;
         const width=parseInt(window.getComputedStyle(element).getPropertyValue("width").split("px")[0]) as number;
-        const area=target.getBoundingClientRect();
+        // REMEMBER THIS:target.getBoundingClientRect();
         console.log("USER",user)
         this.option={...this.option,
             width,
             height:height + 100,
         }
-        if(user && user.email){
+        if(user?.email){
             html2canvas(target,this.option).then(canvas=>{
                 //converting to base64 url string
                 button.style.display="block";
@@ -58,12 +58,12 @@ class Htmltwocanvas{
                         formdata.append("Key",Key);
                         // console.log(formdata.get("Key"))//works
                         // console.log(formdata.get("file"))//works
-                        if(blob && Key){
+                        if(Key){
                            await this._service.putQuoteimg({formdata}).then(async(res)=>{
                                 if(res){
-                                    if(user && user.id){
+                                    if(user?.id){
                                         //if register user
-                                        const quoteKey=res.Key;
+                                        
                                         const quoteimgParams:quoteimgType={user_id:user.id,email:user.email,name:user.name ? user.name : "no user name",quoteKey:Key}
                                         this._service.postQuoteimg({quoteimgParams}).then(async(res)=>{
                                             if(res){
@@ -89,11 +89,7 @@ class Htmltwocanvas{
                                 }
                             }).catch((err)=>{const msg=getErrorMessage(err);Misc.message({parent:target,msg,time:5000,type_:"error"});});
                         }else{
-                            if(!blob){
-                                Misc.message({parent:target,type_:"error",time:1200,msg:"There is no BLOB"});
-                            }else{
-                                Misc.message({parent:target,type_:"error",time:1200,msg:"There is no KEY"});
-                            }
+                            Misc.message({parent:target,type_:"error",time:1200,msg:"There is no KEY"});
                         }
                     }
                 },"image/png",0.95,);

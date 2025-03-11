@@ -1,4 +1,4 @@
-import { transporter, mailOptions } from "@/components/emails/nodemailer";
+import { transporter, mailOptions, sendOptions } from "@/components/emails/nodemailer";
 import { NextApiRequest, NextApiResponse } from "next";
 import { PrismaClient } from "@prisma/client";
 import { userType, adminReplyMsgType } from "@/components/editor/Types";
@@ -13,24 +13,34 @@ const EMAIL2 = process.env.EMAIL2 as string;
 const handler = async (req: NextApiRequest, res: NextApiResponse) => {
 
     if (req.method === "POST") {
-        const { msg, user_id, reply } = req.body as adminReplyMsgType;
+        const { msg, user_id, reply, admin_id } = req.body as adminReplyMsgType;
+
+
+
         if (!(user_id && msg && reply)) {
             res.status(302).json({ message: "I think you forgot something,,no body!!" });
             return await prisma.$disconnect();
-        }
+        };
+
+
         try {
+
+            const admin = await prisma.user.findUnique({
+                where: { id: admin_id },
+            });
+            if (admin && !(admin.email === EMAIL || admin.email === EMAIL2)) { res.status(400).json({ msg: "unauthorized", success: false }) };
+
             const user = await prisma.user.findUnique({
                 where: {
                     id: user_id as string
                 }
             });
-            if (user && !(user.email === EMAIL || user.email === EMAIL2)) { res.status(400).json({ msg: "unauthorized", success: false }) }
             //SECURE AREA
-            if (user) {
+            if (user && admin) {
                 const name = user.name ? user.name : null;
 
                 await transporter.sendMail({
-                    ...mailOptions(user.email),
+                    ...sendOptions({ toEmail: admin.email, viewerEmail: user.email }),
                     subject: `Thank you ${name} for the REQUEST!`,
                     text: adminMsgText({ message: msg, user: user as userType, reply }),
                     html: adminMsgHTML({ message: msg, user: user as userType, reply })

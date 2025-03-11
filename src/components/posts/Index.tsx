@@ -7,6 +7,7 @@ import Post from './post';
 import User from '../user/userMain';
 import styles from "./post.module.css"
 import { postType, userType } from '../editor/Types';
+import Dataset from '../common/dataset';
 
 
 export default function Index({ posts, usersinfo }: { posts: postType[], usersinfo: userType[] }) {
@@ -14,15 +15,22 @@ export default function Index({ posts, usersinfo }: { posts: postType[], usersin
     const countRef = React.useRef(0);
 
     React.useEffect(() => {
-        if (typeof window !== 'undefined' && refPosts.current && countRef.current === 0) {
+        if (typeof window !== 'undefined' && refPosts.current && countRef.current === 0 && posts) {
             const htmlPosts = document.querySelector("section#posts") as HTMLElement;
-            const modSelector = new ModSelector();
+            const dataset = new Dataset();
+            const modSelector = new ModSelector(dataset);
             const service = new Service(modSelector);
-            const user = new User(modSelector, service);
-            const _posts = new Post(modSelector, service, user);
-            _posts.main({ injector: htmlPosts, posts: posts, usersinfo: usersinfo }).then(async () => {
-                countRef.current++;
+            const auth = new AuthService(modSelector, service);
+            const user = new User(modSelector, service, auth);
+            const _posts = new Post(modSelector, service, auth, user);
+            _posts.loadPosts({ posts }).then(async (retPosts) => {
+                if (retPosts) {
+                    _posts.main({ injector: htmlPosts, posts: retPosts, usersinfo: usersinfo }).then(async () => {
+                        countRef.current++;
 
+                    });
+
+                }
             });
         }
     }, [posts, usersinfo, refPosts, countRef]);

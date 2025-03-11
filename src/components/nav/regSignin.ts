@@ -4,7 +4,7 @@ import { FaCreate } from "../common/ReactIcons";
 import Service from "../common/services";
 import Header from "../editor/header";
 import ModSelector from "../editor/modSelector";
-import { blogType, providerType, userType } from "../editor/Types";
+import { providerType, userType } from "../editor/Types";
 import User from "../user/userMain";
 import Nav from "./headerNav";
 import { getCsrfToken,getProviders,LiteralUnion,signIn } from "next-auth/react";
@@ -17,11 +17,11 @@ import { getErrorMessage } from "@/lib/errorBoundaries";
 class RegSignIn {
     logo:string;
     count:number;
-    pReg:RegExp=/[0-9a-zA-Z\.\?\#\!]{5,}/;
-    eReg:RegExp=/[0-9a-zA-Z\.]{2,}\@[a-z]{2,}\.[a-z]{1,3}/;
+    pReg:RegExp=/[0-9a-zA-Z.?#!]{5,}/;
+    eReg:RegExp=/[0-9a-zA-Z.]{2,}@[a-z]{2,}\.[a-z]{1,3}/;
     constructor(private _modSelector:ModSelector,private _service:Service,private _user:User,){
-        this.pReg=/[0-9a-zA-Z\.\?\#\!]{5,}/;
-        this.eReg=/[0-9a-zA-Z\.]{2,}\@[a-z]{2,}\.[a-z]{1,3}/;
+        this.pReg=/[0-9a-zA-Z.?#!]{5,}/;
+        this.eReg=/[0-9a-zA-Z.]{2,}@[a-z]{2,}\.[a-z]{1,3}/;
         this.count=0;
         this.logo="gb_logo.png";
     }
@@ -42,13 +42,12 @@ class RegSignIn {
         section.style.top=less900 ? (less400 ? "100%" :"150%") :"150%";
         section.style.left=less900 ? (less400 ? "0%" :"1%") :"0%";
         section.style.right=less900 ? (less400 ? "0%" :"1%") :"0%";
-        // section.style.inset=less900 ? (less400 ? (less380 ? "none" :"none"):"none") :"150% 15% -905% 15%";
         section.style.maxWidth=less900 ? (less400 ? (less380 ? "370px" :"390px"):"500px") :"600px";
         section.style.width="100%";
         section.style.position="absolute";
         getmainHeader.appendChild(section);
         Misc.growIn({anchor:section,scale:0,opacity:0,time:400});
-        const url=window.location.pathname;
+        
         const hasBlog=await this.hasStorage();
         if(hasBlog){
             const user=this._user.user;
@@ -83,7 +82,10 @@ class RegSignIn {
         }) as Promise<boolean>;
         
 
-    }
+    };
+
+
+
     register(mainHeader:HTMLElement,section:HTMLElement){
         //ADD LOG AND ENSURE SECRETLEY
         //REMOVING SIGNIN AND BUILDING REGISTER
@@ -102,8 +104,6 @@ class RegSignIn {
         section.style.backgroundColor="transparent";
         container.style.cssText = "position:absolute;margin-inline:auto;margin-block:1rem;display:flex;justify-content:flex-start;flex-direction:column;align-items:center;gap:1rem;padding-inline:2rem;padding-block:1rem;padding-inline:3rem;backround-color:white;border-radius:16px;background-color:white;padding:1rem;font-size:18px;max-width:650px;width:100%;";
         container.style.zIndex="0";
-        // container.style.inset=section.style.inset;
-        //LOGO
         const paraLogo=document.createElement("p");
         paraLogo.id="paraLogo";
         paraLogo.style.cssText="margin-inline;auto;font-family:LobsterTwo-Regular;color:white;font-size:18px;padding-inline:1rem;line-height:2.75rem;border-radius:15px;background-color:#0C090A";
@@ -130,7 +130,7 @@ class RegSignIn {
         name.placeholder="full name";
         const {input:email,label:lemail,formGrp:femail}=Nav.inputComponent(form);
         email.name="email";
-        email.pattern="[0-9a-zA-Z]{2,}\@[a-z]{2,}\.[a-z]{2,3}";
+        email.pattern="[0-9a-zA-Z]{2,}@[a-z]{2,}.[a-z]{2,3}";
         email.id="register-form-email";
         email.type="email";
         email.autocomplete="on";
@@ -142,7 +142,7 @@ class RegSignIn {
         divPass.style.cssText="margin-inline:auto;display:flex;justify-content:center;align-items:center;padding:1rem;background-color:rgb(4 10 63 / 97%);border-radius:12px;"
         const {input:pass,label:lpass,formGrp:fpass}=Nav.inputComponent(divPass);
         pass.name="password";
-        pass.pattern="[0-9a-zA-Z\?\!]{5,}";
+        pass.pattern="[0-9a-zA-Z?!]{5,}";
         pass.id="register-form-password";
         pass.type="password";
         pass.value="";
@@ -152,7 +152,7 @@ class RegSignIn {
         pass.placeholder="at least five characters please";
         const {input:vpass,label:lvpass,formGrp:fvpass}=Nav.inputComponent(divPass);
         vpass.name="verify-password";
-        vpass.pattern="[0-9a-zA-Z\?\!]{5,}";
+        vpass.pattern="[0-9a-zA-Z?!]{5,}";
         vpass.id="register-form-verify-password";
         vpass.type="password";
         vpass.autocomplete="on";
@@ -238,7 +238,10 @@ class RegSignIn {
                 });
             }
         };
-    }
+    };
+
+
+
     wantProfileImage(mainHeader:HTMLElement,section:HTMLElement,container:HTMLElement,image:HTMLImageElement,user:userType){
         //THIS GIVES THE USER TWO CHOICES CLOSE UPLOADING IMAGE AND OPEN SIGNIN POPUP OR UPLOAD IMAGE THEN GO TO SIGNIN
         const popup=document.createElement("div");
@@ -292,9 +295,12 @@ class RegSignIn {
                 setTimeout(()=>{section.removeChild(popup)},390);
             }
         };
-    }
+    };
+
+
+
     userImageForm(mainHeader:HTMLElement,section:HTMLElement,subSection:HTMLElement,image:HTMLImageElement,user:userType){
-        const{form,reParent:reSubSection,label}=Misc.imageForm(subSection,null);
+        const{form,reParent:reSubSection,label}=Misc.imageForm(subSection);
         form.id="register-image-form";
         form.style.minWidth="250px";
         form.style.cssText="margin-inline:auto;display:flex;flex-direction:column;min-width:250px;box-shadow:1px 1px 12px 1px black;border-radius:12px;padding:1rem;align-items:center;";
@@ -354,37 +360,35 @@ class RegSignIn {
                 });
             }
         };
-     }
+     };
+
      
     signiMain(section:HTMLElement,providers:providerType[],csrfToken:string|undefined){
         Header.cleanUpByID(section,"signIn-main");
-        // const cssGrp="margin:auto;display:flex;flex-direction:column;align-items:center;gap:1rem;";
         window.scroll(0,0);
         section.style.zIndex="20";
         section.style.position="absolute";
-        // const width=window.innerWidth <500 ? "0%":"30%";
         const container=document.createElement("section");
         container.id="signIn-main";
         container.style.cssText="margin:auto;position:relative;background-color:white;filter:drop-shadow(0 0 0.75rem crimson);border-radius:7px;padding:1rem;;z-index:1000;display:flex;flex-direction:column;align-items:center;gap:2rem;padding:1.5rem;width:100%;";
         Object.values(providers).map((provider)=>{
-            //provider={callbackUrl:string=>https://,,,api/auth/callback/credentials or google,id:string=>"credentials/google",name:string,signinUrl:string=>http://local,,,api/auth/credentials}
             const signInCallBack=provider.callbackUrl as unknown as string;
             if((provider.id as unknown as string)==="credentials"){
                 this.signInForm(container,signInCallBack,csrfToken);// USING
-                // this.authSignInForm({parent:section,csrfToken});//NOT USING=> USES A DIFFERENT ENCRYPTION=> TO MUCH WORK!!
             }else{
                 this.signInProvider(container,signInCallBack,provider);
 
             }
         });
         section.appendChild(container);
-    }
+    };
+
+
 
     signInForm(parent:HTMLElement,signinUrl:string|undefined,csrfToken:string|undefined):{btn:HTMLButtonElement,container:HTMLElement,form:HTMLFormElement,email:HTMLInputElement,password:HTMLInputElement}{
         const user=this._user.user;
         window.scroll(0,0);
         const cssGrp="margin:auto;display:flex;flex-direction:column;align-items:center;gap:1rem;";
-        // const width=window.innerWidth <500 ? "0%":"30%";
         const container=document.createElement("section");
         container.id="container-signIn";
         container.style.cssText="margin:auto;background-color:white;filter:drop-shadow(0 0 0.75rem crimson);border-radius:7px;padding:1rem;;z-index:1000;display:flex;align-items:center;gap:1rem;flex-direction:column;";
@@ -412,8 +416,8 @@ class RegSignIn {
         email.placeholder="your email";
         email.type="email";
         email.autocomplete="email";
-        email.value=user && user.email ? user.email :"";
-        email.pattern="[a-zA-Z0-9\.]{2,}@[a-zA-Z0-9]{2,}\.[a-z]{2,3}";
+        email.value=user?.email || "";
+        email.pattern="[a-zA-Z0-9.]{2,}@[a-zA-Z0-9]{2,}.[a-z]{2,3}";
         email.id="signInForm-credentials-emails";
         labelEmail.textContent="email";
         labelEmail.classList.add("display-6");
@@ -424,9 +428,10 @@ class RegSignIn {
         const {input:password,label:labelPass,formGrp:grpPassword}=Nav.inputComponent(form);
         grpPassword.style.cssText=cssGrp;
         password.type="password";
-        password.id="signInForm-credentials-password"
-        password.pattern="[a-zA-Z0-9\.\?\-]{5,}";
-        password.value=user && user.password ? user.password : "";
+        password.id="signInForm-credentials-password";
+        password.minLength=5;
+        password.pattern="[a-zA-Z0-9.?!]+";
+        password.value=user?.password || "";
         password.autocomplete="on";
         labelPass.textContent="password";
         labelPass.classList.add("display-6");
@@ -468,14 +473,15 @@ class RegSignIn {
         Misc.growIn({anchor:container,scale:0,opacity:0,time:400});
         
         return {btn,container,form,email,password}
-    }
+    };
+
+
     //THE AUTH FORM, BELOW USES A DIFFERENT ENCRYPTION FORM BYCRYPT- REASON WHY NOT USING!!
     authSignInForm(item:{parent:HTMLElement,csrfToken:string|undefined}){
         const {parent,csrfToken}=item;
         const user=this._user.user;
         window.scroll(0,0);
         const cssGrp="margin:auto;display:flex;flex-direction:column;align-items:center;gap:1rem;";
-        // const width=window.innerWidth <500 ? "0%":"30%";
         const container=document.createElement("section");
         container.id="container-signIn";
         container.style.cssText="margin:auto;background-color:white;filter:drop-shadow(0 0 0.75rem crimson);border-radius:7px;padding:1rem;;z-index:1000;display:flex;align-items:center;gap:1rem;flex-direction:column;";
@@ -499,8 +505,7 @@ class RegSignIn {
         email.placeholder="your email";
         email.type="email";
         email.autocomplete="email";
-        email.value=user && user.email ? user.email :"";
-        // email.pattern="[a-zA-Z0-9\.]{2,}@[a-zA-Z]{2,}\.[a-z]{2,3}";
+        email.value=user.email ||"";
         email.id="signInForm-credentials-emails";
         labelEmail.textContent="email";
         labelEmail.classList.add("display-6");
@@ -512,8 +517,8 @@ class RegSignIn {
         grpPassword.style.cssText=cssGrp;
         password.type="password";
         password.id="signInForm-credentials-password"
-        password.pattern="[a-zA-Z0-9\.\?\-]{5,}";
-        password.value=user && user.password ? user.password : "";
+        password.pattern="[a-zA-Z0-9.?-]{5,}";
+        password.value=user.password || "";
         password.autocomplete="on";
         labelPass.textContent="password";
         labelPass.classList.add("display-6");
@@ -578,7 +583,8 @@ class RegSignIn {
                 }
             }
         };
-    }
+    };
+
 
      signInProvider(parent:HTMLElement,signinUrl:string|undefined,provider:providerType,):{container:HTMLElement}{
         //Misc.providersImgs
@@ -605,7 +611,7 @@ class RegSignIn {
                     button.onclick=() => {
                         const providerID= provider.id as unknown as LiteralUnion<BuiltInProviderType> | undefined
                         signIn(providerID)
-                        // Misc.message({parent,msg:"sent",type_:"success",time:600});
+                       
                     };
 
                 }else if(item.name==="facebook" && (provider.id as unknown as string) ==="facebook"){
@@ -633,19 +639,21 @@ class RegSignIn {
         parent.appendChild(container);
         return {container}
 
-    }
+    };
+
      
      showPasswordMatch(item:{formPass:HTMLElement,pass:string,vpass:string|null,change:boolean,btn:HTMLButtonElement}){
         const {formPass,pass,vpass,btn}=item;
         Header.cleanUpByID(formPass,"showPasswordmatch");
-        const checkOne=this.pReg.test(pass) ? true:false;
-        const checkTwo=(vpass && this.pReg.test(pass) && this.pReg.test(vpass) && pass===vpass) ? true:false;
+        const checkOne=this.pReg.test(pass);
+        const checkOnea=vpass ? this.pReg.test(vpass):false;
+        const checkTwo=(checkOnea && pass===vpass);
         const container=document.createElement("div");
         container.id="showPasswordmatch"
         formPass.style.position="relative";
         container.style.cssText="position:absolute;z-index:200;width:100%;top:-290%;left:0%;right:0%;color:red;padding:1rem;border-radius:12px;box-shadow:1px 1px 12px 1px black;background-color:white;box-shadow:1px 1px 12px 1px black;margin-block:1.5rem;";
         const text=document.createElement("p");
-        if(!checkTwo && (pass && vpass)){
+        if(!checkTwo){
             btn.disabled=true;
             btn.textContent="disabled";
             text.textContent="passwords are not equal. please verify,,,";
@@ -674,7 +682,9 @@ class RegSignIn {
                 formPass.removeChild(container);
             },390);
         },1200);
-     }
+     };
+
+
      async checkEmailSignin(item:{femail:HTMLElement,email:string,btn:HTMLButtonElement}){
         const {femail,email,btn}=item;
         femail.style.position="relative";
@@ -693,7 +703,7 @@ class RegSignIn {
             femail.appendChild(container);
             btn.textContent="disabled";
             Misc.growIn({anchor:container,scale:0,opacity:0,time:400});
-        }if(check){
+        }else if(check){
             const user={...this._user.user,email:email}
             await this._service.check_email(user).then(async(res)=>{
                 if(res){
@@ -713,8 +723,7 @@ class RegSignIn {
                                 femail.removeChild(container)
                             },398);
                         },800);
-                    }else{
-                        if(this.count < 1){
+                    }else if(this.count < 1){
                             this.count +=1;
                             btn.disabled=true;
                             btn.textContent="disabled";
@@ -728,11 +737,13 @@ class RegSignIn {
                             const newUrl=new URL("/register",base.origin)
                             window.location.href=newUrl.href
                         }
-                    }
+                    
                 }
             });
         }
-     }
+     };
+
+
      checkPassSignin(item:{fpass:HTMLElement,pass:string|null,btn:HTMLButtonElement}){
         const {fpass,pass,btn}=item;
         fpass.style.zIndex="3";
@@ -758,7 +769,9 @@ class RegSignIn {
         fpass.appendChild(container);
         Misc.growIn({anchor:container,scale:0,opacity:0,time:400});
 
-     }
+     };
+
+
      async checkEmailReg(item:{femail:HTMLElement,email:string,btn:HTMLButtonElement}){
         //CHECKS EMAIL FORMAT && VERIFIES IF EMAIL EXIST ON DB
         const {femail,email,btn}=item;
@@ -776,7 +789,7 @@ class RegSignIn {
             container.appendChild(text);
             femail.appendChild(container);
             Misc.growIn({anchor:container,scale:0,opacity:0,time:400});
-        }if(check){
+        }else{
             const user={...this._user.user,email:email}
             //tries fiv times before transfering to error page
             await this._service.check_email(user).then(async(res:{email:string|null,name:string|null}|void)=>{
@@ -784,10 +797,10 @@ class RegSignIn {
                 if(res){
 
                     if(this.count < 4){
-                        const isEmail=( res.email) ? true:false
+                        const isEmail=res.email || "";
                         if(isEmail){
                             btn.disabled=true;
-                            text.textContent=`email:${user && user.email} already exist,,try again`;
+                            text.textContent=`email:${ user?.email} already exist,,try again`;
                             container.appendChild(text);
                             femail.appendChild(container);
                             Misc.growIn({anchor:container,scale:0,opacity:0,time:400});
@@ -814,10 +827,12 @@ class RegSignIn {
                     }
                 }
                 });
-            }
+        }
            
         
-     }
+     };
+
+     
      removeItem(item:{parent:HTMLElement,target:HTMLElement}){
         const {parent,target}=item;
         const xDivIcon=document.createElement("div");
@@ -844,6 +859,8 @@ class RegSignIn {
                 }
             }
         };
-     }
+     };
+
+     
 }
 export default RegSignIn

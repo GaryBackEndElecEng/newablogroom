@@ -49,7 +49,7 @@ export async function PUT(req: NextRequest) {
     } catch (error) {
         const msg = getErrorMessage(error);
         return NextResponse.json({ msg }, { status: 500 })
-        // console.log(msg);
+
     }
 
 }

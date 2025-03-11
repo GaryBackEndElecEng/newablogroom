@@ -35,9 +35,8 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
             return await prisma.$disconnect();
         } catch (error) {
             const msg = getErrorMessage(error);
-            console.log("error: ", msg)
-            res.status(400).json({ message: msg })
-        } finally {
+            console.log("error: ", msg);
+            res.status(400).json({ message: msg });
             return await prisma.$disconnect()
         }
 
@@ -65,8 +64,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
             const msg = getErrorMessage(error);
             console.log("error: ", msg)
             res.status(400).json({ message: msg })
-        } finally {
-            return await prisma.$disconnect()
+            return await prisma.$disconnect();
         }
 
     } else if (req.method === "GET") {
@@ -94,23 +92,25 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
                             return img_key as img_keyType
 
                         }) as unknown as img_keyType[];
-                        if (!(EMAIL === email)) {
+                        if (EMAIL !== email) {
                             const userImgs = img_keys.filter(imgkey => (isUserImg(getUser.id, imgkey.imgKey)));
                             res.status(200).json(userImgs);
+                            return await prisma.$disconnect();
                         } else {
                             res.status(200).json(img_keys);
+                            return await prisma.$disconnect();
                         }
                     }
                 } else {
                     res.status(404).json({ msg: "not authorized,,no user" });
+                    return await prisma.$disconnect();
                 }
             } catch (error) {
                 const msg = getErrorMessage(error);
                 console.log("error: ", msg)
-                res.status(400).json({ message: msg })
-            } finally {
+                res.status(400).json({ message: msg });
                 return await prisma.$disconnect();
-            }
+            };
         } else {
             res.status(404).json({ "msg": "no user and email" });
             return await prisma.$disconnect();

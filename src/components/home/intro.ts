@@ -4,7 +4,6 @@ import Header from "../editor/header";
 import Nav from "../nav/headerNav";
 
 type imgItemType={id:number,name:string,desc:string,img:string}
-// const baseUrl="http://localhost:3000";
 class HomeIntro {
     img1:string=`/images/instruction/small/showone.png`;
     img2:string=`/images/instruction/small/showtwo.png`;
@@ -123,9 +122,7 @@ class HomeIntro {
         Misc.matchMedia({parent:para,maxWidth:420,cssStyle:{fontSize:"70%"}});
 
 
-        return new Promise((resolve)=>{
-            resolve({card:card})
-        }) as Promise<{card:HTMLElement}>;
+        return Promise.resolve({card:card}) as Promise<{card:HTMLElement}>;
 
     }
     observe(arr:HTMLElement[],root:HTMLElement|null){

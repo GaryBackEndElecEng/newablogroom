@@ -1,5 +1,5 @@
 
-import { userType } from "@/components/editor/Types";
+
 import { NextApiRequest, NextApiResponse } from "next";
 import { blogType } from "@/components/editor/Types";
 import { getErrorMessage } from "@/lib/errorBoundaries";
@@ -44,8 +44,8 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
                         attr: true
                     }
                 });
+
                 res.status(200).json(blogs_);
-                // console.log("blogMsgs", blogMsgs, "blog_id", blog_id, "type", typeof (blog_id))
                 return await prisma.$disconnect();
             } catch (error) {
                 const msg = getErrorMessage(error);
@@ -54,13 +54,15 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
                 return await prisma.$disconnect();
             }
         }
-    }
+    };
+
+
     if (req.method === "PUT") {
         const blog = req.body as blogType;
-        if (!(blog && blog.id)) { res.status(400).json({ msg: "no blog recieved" }); return await prisma.$disconnect(); };
+        if (!(blog?.id)) { res.status(400).json({ error: `no blog recieved:${req.body}` }); return await prisma.$disconnect(); };
         try {
             const metaBlog = await prisma.blog.update({
-                where: { id: blog.id },
+                where: { id: blog.id, user_id: blog.user_id },
                 data: {
                     name: blog.name,
                     title: blog.title ? blog.title : null,
@@ -80,14 +82,13 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
             });
             if (!metaBlog) { res.status(400).json({ msg: "blog not found" }) };
             res.status(200).json(metaBlog);
-            return await prisma.$disconnect();
+            await prisma.$disconnect();
         } catch (error) {
             const msg = getErrorMessage(error);
             console.log(msg);
             res.status(500).json({ msg: msg });
-            return await prisma.$disconnect();
-        } finally {
-            return await prisma.$disconnect();
+            await prisma.$disconnect();
+
         }
     }
 

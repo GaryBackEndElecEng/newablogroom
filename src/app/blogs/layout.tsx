@@ -23,9 +23,9 @@ export const metadata: Metadata = {
         siteName: "ablogroom",
         images: [
             {
-                url: "https://www.ablogroom.com/images/gb_logo.png",
-                width: 600,
-                height: 600
+                url: "/images/favicon-192x192.png",
+                width: 192,
+                height: 192
             },
             {
                 url: "https://www.ablogroom.com/images/thankYou.png",
@@ -33,10 +33,11 @@ export const metadata: Metadata = {
                 height: 900
             },
             {
-                url: "https://new-master.s3.ca-central-1.amazonaws.com/ablogroom/thankYou.png",
-                width: 600,
-                height: 900
+                url: "/images/favicon-512x512.png",
+                width: 512,
+                height: 512
             },
+
         ],
     },
 

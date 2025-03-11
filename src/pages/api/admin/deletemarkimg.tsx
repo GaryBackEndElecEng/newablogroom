@@ -56,13 +56,19 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
     } if (req.method === "GET") {
         const imgKey = req.query.imgKey as string;
+        if (!imgKey) return res.status(400).json({ msg: "no imgKey" });
         try {
             const create = await prisma.deletedImg.findUnique({
                 where: {
                     imgKey: imgKey
                 }
             });
-            res.status(200).json(create);
+            if (create) {
+                res.status(200).json(create);
+            } else {
+                const retResult: deletedImgType = { imgKey, del: false, date: new Date() }
+                res.status(200).json(retResult)
+            }
         } catch (error) {
             const msg = getErrorMessage(error);
             res.status(400).json({ msg });

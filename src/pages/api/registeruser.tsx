@@ -1,11 +1,11 @@
-import { PrismaClient } from "@prisma/client";
+
 import { NextApiRequest, NextApiResponse } from "next";
 import { userType } from "@/components/editor/Types";
 import { getErrorMessage } from "@/lib/errorBoundaries";
 import { genHash } from "@/lib/ultils/bcrypt";
 import prisma from "@/prisma/prismaclient";
 
-// const PASSWORD = process.env.PASSWORD as string;
+
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
     const user = req.body as userType;
     const { user_id } = req.query as { user_id: string };
@@ -48,22 +48,21 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         } catch (error) {
             const msg = getErrorMessage(error);
             console.log(msg);
-        } finally {
             return await prisma.$disconnect();
-        }
-    }
-    if (req.method === "PUT") {
+        };
+
+    } else if (req.method === "PUT") {
         if (!(id)) { res.status(400).json({ msg: " no user id" }); return await prisma.$disconnect() };
         try {
             const user = await prisma.user.update({
                 where: { id: id },
                 data: {
-                    name: name ? name : null,
-                    image: image ? image : null,
-                    imgKey: imgKey ? imgKey : null,
-                    bio: bio ? bio : null,
+                    name: name || null,
+                    image: image || null,
+                    imgKey: imgKey || null,
+                    bio: bio || null,
                     showinfo: showinfo,
-                    username: username ? username : null
+                    username: username || null,
                 },
                 select: {
                     name: true,
@@ -84,23 +83,29 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
             const msg = getErrorMessage(error);
             console.log(msg);
             return await prisma.$disconnect()
-        } finally {
-            return await prisma.$disconnect();
-        }
-    }
-    if (req.method === "GET" && user_id) {
+        };
+
+    } else if (req.method === "GET" && user_id) {
         try {
             const user = await prisma.user.findUnique({
                 where: { id: user_id }
             });
-            res.status(302).json(user);
+            if (user) {
+                res.status(302).json(user);
+                return await prisma.$disconnect();
+            } else {
+                res.status(308).json({ msg: "no user found" });
+                return await prisma.$disconnect();
+            };
         } catch (error) {
             const msg = getErrorMessage(error);
             console.log(msg);
             res.status(500).json({ msg: msg });
-        } finally {
             return await prisma.$disconnect();
         }
+    } else {
+        res.status(404).json({ msg: "Bad request" });
+        return await prisma.$disconnect();
     }
 
 

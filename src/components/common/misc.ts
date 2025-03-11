@@ -1,16 +1,16 @@
-import {flexType, buttonCheckType,navLinkType, providerType} from "@/components/editor/Types";
-import Main from '../editor/main';
+import { buttonCheckType,navLinkType, providerType} from "@/components/editor/Types";
+
 import {FaCreate,FaBtn} from "@/components/common/ReactIcons";
 import { FaStar,FaStarHalf,FaRegStar, FaCrosshairs } from "react-icons/fa";
 import { IconType } from "react-icons";
-import { btnType, button, buttonReturn,imageLoader,AWSImageLoader,httpImageLoader } from "./tsFunctions";
+import { buttonReturn,imageLoader,AWSImageLoader,httpImageLoader } from "./tsFunctions";
 import { BsHandThumbsUpFill } from "react-icons/bs";
 import Nav from "../nav/headerNav";
 import Header from "../editor/header";
-import { iconType } from '../editor/Types';
+import { locationEnumType } from "@/lib/attributeTypes";
 
 
-const baseUrl="http://localhost:3000"
+
 
 export type btnMsgType={
     btn_type:"button" | "submit" |"reset" | undefined,
@@ -85,29 +85,29 @@ export type mediaQueryType={
     maxWidth:number
 }
 class Misc{
-    static providersImgs:{id:string,name:string,img:string}[]=[
+    public static providersImgs:{id:string,name:string,img:string}[]=[
         {id:"",name:"google",img:"/images/providers/gmail.png"},
         {id:"",name:"facebook",img:"/images/providers/facebook.png"},
         {id:"",name:"instragramProvider",img:"/images/providers/instagram.png"}
     ]
-    static words:string[]=["The sky", "above", "the port","was", "the color of television", "tuned", "to", "a dead channel", ".", "All", "this happened", "more or less","." ,"I", "had", "the story", "bit by bit", "from various people", "and", "as generally", "happens", "in such cases", "each time", "it", "was", "a different story","." ,"It", "was", "a pleasure", "to", "burn"]
-    static bgColor:string="#34282C";
-    static btnColor:string="#00008B";
-    static baseUrl:string;
-    static stars:{name:string,icon:IconType}[]=[{name:"full",icon:FaStar},{name:"half",icon:FaStarHalf},{name:"empty",icon:FaRegStar},];
-    static blueShades=[{name:"astros",value:"rgb(0, 45, 98)"},{name:"azure",value:"rgb(0, 127, 255)"},{name:"bayern",value:"rgb(0, 102, 178)"},{name:"boeing",value:"rgb(0, 57, 166)"},{name:"brave navy",value:"rgb(19, 39, 79)"},{name:"brewers",value:"rgb(10, 35, 81)"},{name:"capri",value:"rgb(0, 191, 255)"},{name:"chlorine blue",value:"rgb(12, 175, 255)"},{name:"college navy",value:"rgb(0, 34, 68)"},{name:"cubs blue",value:"rgb(14, 51, 134)"},{name:"dark blue",value:"rgb(14, 51, 134)"},{name:"delf blue",value:"rgb(31, 48, 94)"},{name:"primary blue",value:"rgb(8, 4, 249)"},{name:"royal blue",value:"rgb(6, 3, 174)"},];
+    public static words:string[]=["The sky", "above", "the port","was", "the color of television", "tuned", "to", "a dead channel", ".", "All", "this happened", "more or less","." ,"I", "had", "the story", "bit by bit", "from various people", "and", "as generally", "happens", "in such cases", "each time", "it", "was", "a different story","." ,"It", "was", "a pleasure", "to", "burn"]
+    public static bgColor:string="#34282C";
+    public static btnColor:string="#00008B";
+    public static baseUrl:string;
+    public static stars:{name:string,icon:IconType}[]=[{name:"full",icon:FaStar},{name:"half",icon:FaStarHalf},{name:"empty",icon:FaRegStar},];
+    public static blueShades=[{name:"astros",value:"rgb(0, 45, 98)"},{name:"azure",value:"rgb(0, 127, 255)"},{name:"bayern",value:"rgb(0, 102, 178)"},{name:"boeing",value:"rgb(0, 57, 166)"},{name:"brave navy",value:"rgb(19, 39, 79)"},{name:"brewers",value:"rgb(10, 35, 81)"},{name:"capri",value:"rgb(0, 191, 255)"},{name:"chlorine blue",value:"rgb(12, 175, 255)"},{name:"college navy",value:"rgb(0, 34, 68)"},{name:"cubs blue",value:"rgb(14, 51, 134)"},{name:"dark blue",value:"rgb(14, 51, 134)"},{name:"delf blue",value:"rgb(31, 48, 94)"},{name:"primary blue",value:"rgb(8, 4, 249)"},{name:"royal blue",value:"rgb(6, 3, 174)"},];
 
-    static blueShades2=[{name:"astros",value:"rgba(0, 45, 98,1)"},{name:"azure",value:"rgba(0, 127, 255,1)"},{name:"bayern",value:"rgba(0, 102, 178,1)"},{name:"boeing",value:"rgba(0, 57, 166,0.5)"},{name:"brave navy",value:"rgba(19, 39, 79,0.5)"},{name:"brewers",value:"rgba(10, 35, 81,0.5)"},{name:"capri",value:"rgba(0, 191, 255,0.5)"},{name:"chlorine blue",value:"rgba(12, 175, 255,0.5)"},{name:"college navy",value:"rgba(0, 34, 68,0.5)"},{name:"cubs blue",value:"rgba(14, 51, 134,0.5)"},{name:"dark blue",value:"rgba(14, 51, 134,0.5)"},{name:"delf blue",value:"rgba(31, 48, 94,0.5)"},{name:"primary blue",value:"rgba(8, 4, 249,0.5)"},{name:"royal blue",value:"rgba(6, 3, 174,0.5)"},];
+    public static blueShades2=[{name:"astros",value:"rgba(0, 45, 98,1)"},{name:"azure",value:"rgba(0, 127, 255,1)"},{name:"bayern",value:"rgba(0, 102, 178,1)"},{name:"boeing",value:"rgba(0, 57, 166,0.5)"},{name:"brave navy",value:"rgba(19, 39, 79,0.5)"},{name:"brewers",value:"rgba(10, 35, 81,0.5)"},{name:"capri",value:"rgba(0, 191, 255,0.5)"},{name:"chlorine blue",value:"rgba(12, 175, 255,0.5)"},{name:"college navy",value:"rgba(0, 34, 68,0.5)"},{name:"cubs blue",value:"rgba(14, 51, 134,0.5)"},{name:"dark blue",value:"rgba(14, 51, 134,0.5)"},{name:"delf blue",value:"rgba(31, 48, 94,0.5)"},{name:"primary blue",value:"rgba(8, 4, 249,0.5)"},{name:"royal blue",value:"rgba(6, 3, 174,0.5)"},];
 
-    static background=[{name:"select",value:"select"},{name:"white",value:"white"},{name:"whitesmoke",value:"whitesmoke"},{name:"astros",value:"#002D62"},{name:"azure",value:"#007FFF"},{name:"bayern",value:"#0066b2"},{name:"boeing",value:"#0039a6"},{name:"brave navy",value:"#13274F"},{name:"brewers",value:"#0a2351"},{name:"capri",value:"#00BFFF"},{name:"chlorine blue",value:"#0CAFFF"},{name:"college navy",value:"#002244"},{name:"cubs blue",value:"#0E3386"},{name:"dark blue",value:"#00008B"},{name:"delf blue",value:"#1F305E"},{name:"silver",value:'#C0C0C0'},{name:"charcoal",value:"#34282C"},{name:"charcoal",value:"#34282C"},{name:"night",value:"#0C090A"},{name:"oil",value:"#3B3131"},{name:"iridium",value:"#3D3C3A"},{name:"rat grey",value:"#6D7B8D"},];
+    public static background=[{name:"select",value:"select"},{name:"white",value:"white"},{name:"whitesmoke",value:"whitesmoke"},{name:"astros",value:"#002D62"},{name:"azure",value:"#007FFF"},{name:"bayern",value:"#0066b2"},{name:"boeing",value:"#0039a6"},{name:"brave navy",value:"#13274F"},{name:"brewers",value:"#0a2351"},{name:"capri",value:"#00BFFF"},{name:"chlorine blue",value:"#0CAFFF"},{name:"college navy",value:"#002244"},{name:"cubs blue",value:"#0E3386"},{name:"dark blue",value:"#00008B"},{name:"delf blue",value:"#1F305E"},{name:"silver",value:'#C0C0C0'},{name:"charcoal",value:"#34282C"},{name:"charcoal",value:"#34282C"},{name:"night",value:"#0C090A"},{name:"oil",value:"#3B3131"},{name:"iridium",value:"#3D3C3A"},{name:"rat grey",value:"#6D7B8D"},];
 
-    static fontFamilys=[{name:"poppins-black",value:"Poppins-Black"},{name:"poppins-regular",value:"Poppins-Regular"},{name:"poppins-thin",value:"Poppins-Thin"},{name:"lobsterTwo-regular",value:"LobsterTwo-Regular"},{name:"lobsterTwo-bold",value:"LobsterTwo-Regular"},];
+    public static fontFamilys=[{name:"poppins-black",value:"Poppins-Black"},{name:"poppins-regular",value:"Poppins-Regular"},{name:"poppins-thin",value:"Poppins-Thin"},{name:"lobsterTwo-regular",value:"LobsterTwo-Regular"},{name:"lobsterTwo-bold",value:"LobsterTwo-Regular"},];
 
-    static colors=[{name:"select",value:"black"},{name:"remove",value:"remove"},{name:"red",value:"red"},{name:"black",value:"black"},{name:"purple",value:"purple"},{name:"green",value:"green"},{name:"whitesmoke",value:"whitesmoke"},{name:"cyan",value:'#00FFFF'},{name:"lime",value:'#00FF00'},{name:"magenta",value:'#FF00FF'},{name:"silver",value:'#C0C0C0'},{name:"orange",value:'#FFA500'},{name:"maroon",value:"#800000"},{name:"charcoal",value:"#34282C"},{name:"charcoal",value:"#34282C"},{name:"night",value:"#0C090A"},{name:"oil",value:"#3B3131"},{name:"iridium",value:"#3D3C3A"},{name:"rat grey",value:"#6D7B8D"},];
+    public static colors=[{name:"select",value:"black"},{name:"remove",value:"remove"},{name:"red",value:"red"},{name:"black",value:"black"},{name:"purple",value:"purple"},{name:"green",value:"green"},{name:"whitesmoke",value:"whitesmoke"},{name:"cyan",value:'#00FFFF'},{name:"lime",value:'#00FF00'},{name:"magenta",value:'#FF00FF'},{name:"silver",value:'#C0C0C0'},{name:"orange",value:'#FFA500'},{name:"maroon",value:"#800000"},{name:"charcoal",value:"#34282C"},{name:"charcoal",value:"#34282C"},{name:"night",value:"#0C090A"},{name:"oil",value:"#3B3131"},{name:"iridium",value:"#3D3C3A"},{name:"rat grey",value:"#6D7B8D"},];
 
-    static shades=["transparent","grey","none","#ffffff","#f3f5f5","#eaedee","#eaedee","#dde1e3","#dde1e3","#c6cdd1","#b4bdc2","#b4bdc2","#bdc5c9","#bdc5c9","#0e0e0e"];
-    static blue_shades=["transparent","blue","none","#E1EBEE","#72A0C1","#F0F8FF","#00FFFF","#7FFFD4","#6CB4EE","#0066b2","#B9D9EB","#00FFFF","#00CED1","#6082B6","#5D76A9","#AFEEEE"];
-     static font_family=[
+    public static shades=["greys","grey","none","#ffffff","#f3f5f5","#eaedee","#eaedee","#dde1e3","#dde1e3","#c6cdd1","#b4bdc2","#b4bdc2","#bdc5c9","#bdc5c9","#0e0e0e"];
+   public static blue_shades=["blues","blue","none","#E1EBEE","#72A0C1","#F0F8FF","#00FFFF","#7FFFD4","#6CB4EE","#0066b2","#B9D9EB","#00FFFF","#00CED1","#6082B6","#5D76A9","#AFEEEE"];
+    public  static font_family=[
      {name:"select",value:"select"},
      {name:"Roboto",value:"'Roboto', sans serif"},
      {name:"Helvetica",value:"'Helvetica', sans serif"},
@@ -127,7 +127,8 @@ class Misc{
  ]
 
     constructor(){
-        Misc.baseUrl=baseUrl;
+        
+        Misc.baseUrl=window.location.origin;
         Misc.stars=[{name:"full",icon:FaStar},{name:"half",icon:FaStarHalf},{name:"empty",icon:FaRegStar},]
     }
     static wordGen(count:number):string[]{
@@ -185,7 +186,7 @@ class Misc{
     //DELAY 3000
     static message(message:msgType){
         const {parent,msg,type_,time}=message;
-        // parent.style.position="relative";
+      
         const container=document.createElement("div");
         container.id="message-id";
         container.style.cssText="position:absolute;top:20%;width:80%;max-width:300px;backdrop-filter:blur(10px);margin-inline:auto;display:flex;place-items:center;flex-direction:column;border-radius:30px;box-shadow:1px 1px 6px 1px #0a2351,-1px -1px 6px -1px #0a2351;padding-inline:1rem;padding-block:0.5rem;background-color:#002244;";
@@ -296,7 +297,7 @@ class Misc{
         para.className="text-primary lean";
         const btn=document.createElement("button");
         btn.style.cssText=`padding-inline:1rem;padding-block:0.25rem;border-radius:20px;box-shadow:1px 1px 6px 1px ${btnBgColor},-1px -1px 6px 1px ${btnBgColor};color:${btnColor}:background-color:${btnBgColor};font-size:12px;`;
-        btn.type=btn_type ? btn_type : "button";
+        btn.type=btn_type || "button";
         if(parent){
             parent.style.position="relative";
             
@@ -380,19 +381,24 @@ class Misc{
                 {transform:"scale(0)",opacity:0}
     
             ],{duration:800,iterations:1});
-            setTimeout(()=>{
-            parent.removeChild(popup);
-            },750);
+       
         },1800);
         
      };
-    static btnOptionMessagePopup(topParent:HTMLElement,options:btnOptionMsgType):{btn1: HTMLButtonElement,btn2: HTMLButtonElement,container:HTMLElement,grandParent:HTMLElement}{
+    static btnOptionMessagePopup(topParent:HTMLElement,options:btnOptionMsgType,loc:locationEnumType):{btn1: HTMLButtonElement,btn2: HTMLButtonElement,container:HTMLElement,grandParent:HTMLElement}{
         let grandParent:HTMLElement|null;
         const {btn_type,msg,btnColor,btnBgColor,btnLabel}=options.button1;
         const {btn_type2,msg2,btnColor2,btnBgColor2,btnLabel2}=options.button2;
         const check=topParent.getAttribute("is-column");
         const container=document.createElement("div");
         container.style.cssText="position:absolute;width:350px;height:auto;background-color:#002D62;border-radius:15px;box-shadow:1px 1px 10px 1px #00BFFF; padding:1rem;display:flex;flex-wrap:wrap;justify-content:space-around;gap:1rem;margin-block:1rem;margin-inline:auto;color:white;font-size:12px;top:30%;left:0%;z-index:2000;";
+        if(loc==="footer"){
+            container.style.transform="translateY(-50%)";
+        }else if(loc==="main"){
+            container.style.transform="translateY(0%)";
+        }else if(loc==="flexbox"){
+            container.style.transform="translateY(-20%)"
+        }
         if(check==="true"){
             grandParent=topParent.parentElement as HTMLElement;
         }else{
@@ -405,7 +411,7 @@ class Misc{
         text1.textContent=msg;
         const btn1=document.createElement("button");
         btn1.style.cssText=`padding-inline:1.5rem;padding-block:0.25rem;background-color:${btnBgColor};color:${btnColor};border-radius:20px;box-shadow:1px 1px 7px 1px white,-1px -1px 7px 1px white;`;
-        btn1.type=btn_type ? btn_type :"button";
+        btn1.type=btn_type || "button";
         btn1.textContent=btnLabel;
         btnCont1.appendChild(text1);
         btnCont1.appendChild(btn1);
@@ -415,7 +421,7 @@ class Misc{
         text2.textContent=msg2;
         const btn2=document.createElement("button");
         btn2.style.cssText=`padding-inline:1.5rem;padding-block:0.25rem;background-color:${btnBgColor2};color:${btnColor2};border-radius:20px;box-shadow:1px 1px 7px 1px white,-1px -1px 7px 1px white;`;
-        btn2.type=btn_type2 ? btn_type2 :"button";
+        btn2.type=btn_type2 || "button";
         btn2.textContent=btnLabel2;
         btnCont2.appendChild(text2);
         btnCont2.appendChild(btn2);
@@ -590,8 +596,14 @@ class Misc{
     }
    static fillBlogNameDesc({parent,cssPopup}:{parent:HTMLElement,cssPopup:{[key:string]:string}}):{btn:HTMLButtonElement,popup:HTMLElement,form:HTMLFormElement,input:HTMLInputElement,tinput:HTMLInputElement,textarea:HTMLTextAreaElement,retParent:HTMLElement}{
     const disabled:{input:boolean,textarea:boolean}={input:false,textarea:false}
-        // const parentTextarea=Main.textarea ? Main.textarea : parent;
-        
+      
+        let useParent:HTMLElement|null=null
+        const grandParent=parent.parentElement ? parent.parentElement:null;
+        if (grandParent){
+            useParent=grandParent
+        }else{
+            useParent=parent
+        }
         const popup=document.createElement("section");
         popup.id="popup-blogNameDesc";
         popup.style.cssText="margin:auto;position:absolute;inset:120% 0% 0%;background-color:white;filter:drop-shadow(0 0 0.75rem crimson);border-radius:7px;z-index:200;padding:1rem;";
@@ -648,7 +660,7 @@ class Misc{
         };
         popup.appendChild(form);
         //APPENDING POPUP TO PARENT
-        parent.appendChild(popup);
+        useParent.appendChild(popup);
         //creating cancel
         const xDivIcon=document.createElement("div");
         xDivIcon.id="delete-fliiBlogForm";
@@ -666,7 +678,7 @@ class Misc{
         };
         Misc.matchMedia({parent:popup,maxWidth:900,cssStyle:{left:"10%",right:"10%"}});
         Misc.matchMedia({parent:popup,maxWidth:420,cssStyle:{left:"5%",right:"5%"}});
-        return {btn,popup,form,input,tinput,textarea,retParent:parent};
+        return {btn,popup,form,input,tinput,textarea,retParent:useParent};
 
 
 
@@ -730,7 +742,7 @@ class Misc{
         email.type="email";
         email.autocomplete="on";
         email.value="";
-        email.pattern="[a-zA-Z0-9\.]{2,}@[a-zA-Z0-9]{2,}\.[a-z]{2,3}";
+        email.pattern="[a-zA-Z0-9.]{2,}@[a-zA-Z0-9]{2,}.[a-z]{2,3}";
         email.id="signInForm-credentials-emails";
         labelEmail.textContent="email";
         labelEmail.classList.add("display-6");
@@ -742,7 +754,7 @@ class Misc{
         grpPassword.style.cssText=cssGrp;
         password.type="password";
         password.id="signInForm-credentials-password"
-        password.pattern="[a-zA-Z0-9\.\?\-]{5,}";
+        password.pattern="[a-zA-Z0-9.?-]{5,}";
         password.value="";
         password.autocomplete="on";
         labelPass.textContent="password";
@@ -860,7 +872,7 @@ class Misc{
                 if(item.name==="google" && (provider.id as unknown as string) ==="google"){
                     const form=document.createElement("form");
                     form.style.cssText="margin:auto;display:flex;align-items:center;gap:1rem;flex-direction:column;position:relative;"
-                    form.id=`signInProvider-${provider.id}`;
+                    form.id=`signInProvider-${Number(provider.id)}`;
                     form.method="POST";
                     if(signinUrl){
                         form.action=signinUrl;
@@ -890,7 +902,7 @@ class Misc{
                 }else if(item.name==="facebook" && (provider.id as unknown as string) ==="facebook"){
                     const form=document.createElement("form");
                     form.style.cssText="margin:auto;display:flex;align-items:center;gap:1rem;flex-direction:column;position:relative;"
-                    form.id=`signInprovider-${provider.id}`;
+                    form.id=`signInprovider-${Number(provider.id)}`;
                     form.method="POST";
                     if(signinUrl){
                         form.action=signinUrl;
@@ -923,35 +935,26 @@ class Misc{
         return {container}
 
     }
-    static imageForm(mainTextarea:HTMLElement,flex:flexType |null): {form:HTMLFormElement,reParent:HTMLElement,label:HTMLElement,flex:flexType|null,btn:HTMLButtonElement}{
-        const checkMain=mainTextarea ? mainTextarea : Main.textarea as HTMLElement;
-        const less400=window.innerWidth < 400;
-        checkMain.style.position="relative";
-        checkMain.style.zIndex="";
-        const css="border-radius:20px; box-shadow:1px 1px 4px 1px black;margin:auto;background:white;position:absolute;z-index:20";
+    static imageForm(parent:HTMLElement): {form:HTMLFormElement,reParent:HTMLElement,label:HTMLElement,btn:HTMLButtonElement}{
+        
+       
+        parent.style.position="relative";
+        parent.style.zIndex="0";
+        const css="border-radius:12px; box-shadow:1px 1px 4px 1px black;margin:auto;background:white;position:absolute;z-index:20;padding:2px;inset:0%;";
         const form=document.createElement("form");
         form.id="Misc-image-form"
-        form.className="form-group d-flex flex-column align-items-center gap-2";
+        form.className="form-group d-flex flex-column align-items-center justify-content-center";
         form.setAttribute("data-form-group","true");
         form.style.cssText=css;
-        form.style.width="clamp(250px,400px,500px)";
-        form.style.height="400px";
-        form.style.top="5%";
-        form.style.left="30%";
-        form.style.right="30%";
-        form.style.height="400px";
-        form.style.width="clamp(250px,400px,500px)";
-        if(flex){
-            form.style.top=less400 ? "-10%" : "-3%";
-            form.style.left="10%";
-            form.style.right="10%";
-        }
-       
+        form.style.height="auto";
+        form.style.inset="0% 0% 10% 0%";
+        form.style.width="clamp(200px,250px,300px)";
+        
         const formGrp=document.createElement("div");
-        formGrp.style.cssText="margin-inline:auto;display:flex;justify-content:center;align-items:center;gap:1rem;"
+        formGrp.style.cssText="margin-inline:auto;display:flex;justify-content:center;align-items:center;flex-direction:column"
         formGrp.className="form-group";
         const label=document.createElement("label");
-        label.textContent="add your logo";
+        label.textContent="pic a file";
         label.className="text-primary text-center text-decoration-underline text-underline-offset-4 mb-3";
         const input=document.createElement("input");
         input.id="file-id";
@@ -964,24 +967,29 @@ class Misc{
         formGrp.appendChild(input);
         form.appendChild(formGrp);
         const {button}=Misc.simpleButton({anchor:form,bg:Nav.btnColor,color:"white",type:"submit",time:400,text:"submit"});
+        button.id="imgForm-btn";
+        button.disabled=true;
+        input.onchange=(e:Event)=>{
+            if(e){
+                button.disabled=false;
+            }
+        };
         form.animate([
             {transform:"scale(0)",opacity:"0"},
             {transform:"scale(1)",opacity:"1"}
         ],{duration:750,iterations:1});
-        checkMain.appendChild(form);
-        Misc.matchMedia({parent:form,maxWidth:900,cssStyle:{left:"20%",right:"20%",top:"10%"}});
-        Misc.matchMedia({parent:form,maxWidth:400,cssStyle:{left:"5%",right:"5%",top:"10%"}});
-        // Header.removeEffect(grandParent,form);
-        return {form,reParent:checkMain,label:label,flex,btn:button};
+        parent.appendChild(form);
+       
+        return {form,reParent:parent,label:label,btn:button};
     }
     static addLink(parent:HTMLElement):{form:HTMLFormElement,popup:HTMLElement,l_input:HTMLInputElement,n_input:HTMLInputElement}{
         parent.style.position="relative";
-        parent.style.zIndex="100";
-        const width=window.innerWidth <500 ? "0%":"20%";
+        parent.style.zIndex="0";
+     
         const popup=document.createElement("section");
         popup.id="popup-link";
-        popup.style.cssText="margin:auto;position:absolute;background-color:white;filter:drop-shadow(0 0 0.75rem crimson);border-radius:7px;padding:1rem;";
-        popup.style.top=`20% ${width} 60% ${width}`;
+        popup.style.cssText="margin:auto;position:absolute;background-color:white;filter:drop-shadow(0 0 0.75rem crimson);border-radius:7px;padding:1rem;z-index:2000;";
+        popup.style.top=`40% `;
         const form=document.createElement("form");
         form.style.cssText="display:flexflex-direction:column;align-items:center;justify-content:center;gap:1rem;";
         const {input:n_input,label:labelName}=Nav.inputComponent(form);
@@ -991,7 +999,7 @@ class Misc{
         n_input.placeholder=" link name"
         const {input:l_input,label:labelLink}=Nav.inputComponent(form);
         labelLink.textContent="Link";
-        l_input.pattern="(https:\/\/)[a-zA-Z0-9\.]{2,}\.[a-zA-Z]{1,3}";
+        l_input.pattern="(https://)[a-zA-Z0-9.]{2,}.[a-zA-Z]{1,3}";
         l_input.placeholder="form of https://......com";
         l_input.name="link";
         const btn=buttonReturn({parent:form,color:"white",bg:Misc.btnColor,text:"submit",type:"submit"});
@@ -1002,7 +1010,7 @@ class Misc{
         parent.appendChild(popup);
         l_input.addEventListener("input",(e:Event)=>{
             if(e){
-                const reg_:RegExp=/(https:\/\/)[a-zA-Z0-9\.]{2,}\.[a-zA-Z]{1,3}/g;
+                const reg_:RegExp=/(https:\/\/)[a-zA-Z0-9.]{2,}\.[a-zA-Z]{1,3}/g;
                 const input=(e.currentTarget as HTMLInputElement).value;
                 if(reg_.test(input)){
                     btn.disabled=false;
@@ -1144,6 +1152,7 @@ class Misc{
     }
     static navLink(navLink:navLinkType):{btnGrp:HTMLElement,btnArr:buttonCheckType[]}{
         const {parent,flexDirection,btnArray}=navLink;
+        const baseUrl=window.location.origin
         const btnGrp=document.createElement("div");
         btnGrp.className="btn-group";
         btnGrp.style.cssText="display:flex;justify-content:space-between;align-items:center;margin-block:2rem;margin-inline:auto;";
@@ -1181,7 +1190,8 @@ class Misc{
                     if(e){
                         e.preventDefault();
                         if(typeof window !=="undefined"){
-                            const isEditor=window.location.href===baseUrl + "/editor" ? true:false;
+                            const url=new URL(window.location.href)
+                            const isEditor=url.pathname=== "/editor" ;
                             if(action.link && !isEditor){
                                 const newUrl=new URL(action.link,baseUrl);
                                 window.location.href=newUrl.href;
@@ -1191,7 +1201,6 @@ class Misc{
                             }else if(isEditor && action.link){
                                 btnAction={...btnAction,isEditor:isEditor,link:action.link};
                                 action.save();
-                                // console.log("Misc:Ininitialize");
                                 
                             }else{
                                 action.func()
@@ -1256,10 +1265,9 @@ class Misc{
     }
     static observe(entryParams:{arr:HTMLElement[],root:HTMLElement|null,cssStyleOn:{[key:string]:string},cssStyleOff:{[key:string]:string},time:number}){
         const {arr,root,cssStyleOn,cssStyleOff,time}=entryParams;
-        const arrCssOn:{key:string,value:string}[]=[];
-        const arrCssOff:{key:string,value:string}[]=[];
+        
         const addCssOnOff=(target:HTMLElement,cssStyleOn:{[key:string]:string})=>{
-            // let index=0;
+           
             for(const key of Object.keys(target.style)){
                 // index++;☺
                 for(const [key1,value1] of Object.entries(cssStyleOn)){
@@ -1270,12 +1278,6 @@ class Misc{
             }
         }
         
-        for(const [key,value] of Object.entries(cssStyleOn)){
-            arrCssOn.push({key,value});
-        }
-        for(const [key,value] of Object.entries(cssStyleOff)){
-            arrCssOff.push({key,value});
-        }
         const observer=new IntersectionObserver(entries=>{
             const entry=entries[0];
           
@@ -1458,8 +1460,8 @@ class Misc{
 
     static regTest({item,value_}:{item:string,value_:string}):boolean{
         const check=["password","email"].includes(value_)
-        const password=/[a-zA-z0-9\.\?\-\!]{6,}/g;
-        const email=/[a-zA-Z0-9\.]{2,}@[a-zA-Z0-9]{2,}\.[a-z]{2,3}/g;
+        const password=/[a-zA-Z0-9.?!-]{6,}/g;
+        const email=/[a-zA-Z0-9.]{2,}@[a-zA-Z0-9]{2,}\.[a-z]{2,3}/g;
         const arr=[{name:"email",value:email},{name:"password",value:password},];
         if(check){
             arr.map(item_=>{
@@ -1471,7 +1473,6 @@ class Misc{
         return false;
     }
     static starRating(starRate:{parent:HTMLElement,rating:number,cssStyle:{[key:string]:string},rowCssStyle:{[key:string]:string}}){
-        const width=window.innerWidth <420 ? 22 :30;
         const less900=window.innerWidth <900;
         const less400=window.innerWidth <400;
         const cssGen=(anchor:HTMLElement,cssStyle:{[key:string]:string})=>{
@@ -1531,7 +1532,9 @@ class Misc{
         });
         container.appendChild(row);
         parent.appendChild(container);
-    }
+    };
+
+    
     static selectComponent(item:{parent:HTMLElement,name:string,selects:{name:string,value:string}[],cssStyle:{[key:string]:string}}):{select:HTMLSelectElement,label:HTMLLabelElement,formGrp:HTMLElement}{
         //SELECTS=> MUST BE {NAME,VALUE}[] ARRAY,NOTE:!!! IF COLOR=>ADD:bgColor:true/false to cssStyles
         const {parent,name,cssStyle,selects}=item
@@ -1650,21 +1653,24 @@ class Misc{
             }
         };
         return {button};
-    }
+    };
+
     static sourceImage(item:{src:string,width:number,quality:number}):string{
-        // const {src,width,quality}=item;
+      
         return imageLoader(item)
-    }
+    };
+
     static AWSSourceImage(item:{url:string,width:number,quality:number}):string{
-        // const {url,width,quality}=item;
+      
         return AWSImageLoader(item)
-    }
+    };
+
     static msgSourceImage(item:{parent:HTMLElement,msg:string,src:string,width:number,quality:number,time:number,cssStyle:{[key:string]:string}}){
         const {parent,msg,src,width,quality,time,cssStyle}=item;
         const img=document.createElement("img");
         img.style.cssText=`border-radius:50%;width:${width}px;aspect-ratio: 1/ 1;box-shadow:1px 1px 12px 1px rgb(8, 4, 249);margin-right:1rem;filter:drop-shadow(0 0 0.5rem rgb(8, 4, 249));`;
-        const urlLocalPattern:RegExp=/(http\:\/\/localhost\:3000)\/[0-9a-zA-Z\/\.]{2,}/g;
-        const urlExternalPattern:RegExp=/(https\:\/\/[0-9a-z\-\.\?\/]{2,})/g;
+        const urlLocalPattern:RegExp=/(http:\/\/localhost:3000)\/[0-9a-zA-Z/.]{2,}/g;
+        const urlExternalPattern:RegExp=/(https:\/\/[0-9a-z\-.?/]{2,})/g;
         if(urlExternalPattern.test(src)){
             img.src=httpImageLoader({src,width,quality})
         }else if(urlLocalPattern.test(src)){
@@ -1676,7 +1682,7 @@ class Misc{
         const div=document.createElement("div");
         div.id="msgSourceImage";
         div.style.cssText=`display:flex;justify-content:center;align-items:center;gap:1rem;position:absolute;width:clamp(350px,375px,375px);height:${width}px;background:white;z-index:200;padding-inline:1rem;padding-block:2.5rem;`;
-        // div.style.top="460%";
+       
         div.style.inset="0%"
         div.style.left="0%";
         div.style.right="0%";

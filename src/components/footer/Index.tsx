@@ -4,52 +4,52 @@ import MainFooter from "@/components/footer/mainFooter";
 import ModSelector from '../editor/modSelector';
 import Service from '../common/services';
 import AuthService from '../common/auth';
-import Nav from '../nav/headerNav';
 import User from '../user/userMain';
-import Profile from '../profile/profile';
 import Dataflow from '../common/dataflow';
-import NavArrow from '../nav/arrow';
-import RegSignIn from '../nav/regSignin';
 import Features from '../home/feature';
-import MetaBlog from '../editor/metaBlog';
-import ChartJS from '../chart/chartJS';
-import Post from '../posts/post';
 import AllMsgs from '../home/allMsgs';
 import Message from '../common/message';
-import MainHeader from '../nav/mainHeader';
-import Quote from '@/app/quote/quote';
-import { Session } from 'next-auth';
-import Headerflag from '../editor/headerflag';
+import Dataset from '../common/dataset';
+import { blogType, userType } from '../editor/Types';
+import CommonInfo from '../common/commonInfo';
 
 
 
-export default function Index({ session }: { session: Session | null }) {
+export default function Index({ _user }: { _user: userType | null }) {
+    const countRef = React.useRef(0);
     const injectorStyle: { [key: string]: string } = { width: "100%" }
 
     React.useEffect(() => {
         if (typeof window !== "undefined") {
-            const isAuthenticated: boolean = session ? true : false;
-            const modSelector = new ModSelector();
+
+            const dataset = new Dataset();
+            const modSelector = new ModSelector(dataset);
             const service = new Service(modSelector);
-            const message = new Message(modSelector, service, modSelector.blog, null);
-            const dataflow = new Dataflow(service);
-            const allMsgs = new AllMsgs(modSelector, service, message)
-            const user = new User(modSelector, service);
-            const headerFlag = new Headerflag(modSelector, service, user);
-            const post = new Post(modSelector, service, user);
-            const chart = new ChartJS(modSelector, service, user);
-            const feature = new Features();
-            const metaBlog = new MetaBlog(modSelector, service, user);
-            const profile = new Profile(modSelector, service, user, metaBlog, chart, post, headerFlag);
-            const regSignin = new RegSignIn(modSelector, service, user);
-            const navArrow = new NavArrow(user, regSignin, service, profile, modSelector, feature);
-            const nav = new Nav(modSelector, service, user)
-            const injector = document.querySelector("section#footerInjector") as HTMLElement;
-            const mainFooter = new MainFooter(modSelector, service, user, nav, navArrow, dataflow, feature, allMsgs);
-            mainFooter.main({ injector, isAuthenticated });
+            const auth = new AuthService(modSelector, service);
+            modSelector.loadFromLocal().then(async (res_) => {
+                if (res_) {
+                    const { blog } = res_.getBlog() as { blog: blogType, user: userType | null };
+                    auth.confirmUser({ user: _user, count: countRef.current }).then(async (res) => {
+                        if (res) {
+                            countRef.current = res.count;
+                            const isAuthenticated = res.isAuthenicated;
+                            const commonInfo = new CommonInfo(modSelector, service, auth);
+                            const message = new Message(modSelector, service, blog, null);
+                            const dataflow = new Dataflow(service);
+                            const allMsgs = new AllMsgs(modSelector, service, message)
+                            const user = new User(modSelector, service, auth);
+                            const feature = new Features();
+                            const injector = document.querySelector("section#footerInjector") as HTMLElement;
+                            const mainFooter = new MainFooter(modSelector, service, injector, auth, user, dataflow, feature, allMsgs, commonInfo);
+                            mainFooter.main({ injector, isAuthenticated, user: res.user });
+
+                        }
+                    });
+                }
+            });
 
         }
-    }, [session]);
+    }, [_user]);
     return (
         <footer className="w-100 mx-0 mb-0" >
 

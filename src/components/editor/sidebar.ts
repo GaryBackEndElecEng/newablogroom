@@ -1,4 +1,4 @@
-import {flexType,elementType,themeType,swapHeaderType, blogType, userType, element_selType, deletedImgType, selectorType, flexSelectorType, rowType} from "./Types";
+import {elementType,themeType,swapHeaderType, blogType, userType, flexSelectorType, rowType,} from "./Types";
 
 
 import Main from "./main";
@@ -8,7 +8,7 @@ import Footer from "@/components/editor/footer";
 import {FaCreate} from "@/components/common/ReactIcons";
 import {FaTrash,FaCrosshairs,FaArrowAltCircleLeft} from "react-icons/fa";
 import DisplayBlog from "../blog/displayBlog";
-import Misc, {divider, divider_1,fadeOutType} from "@/components/common/misc";
+import Misc, { divider_1,fadeOutType} from "@/components/common/misc";
 import {button, buttonReturn,btnReturnType, btnType} from "@/components/common/tsFunctions";
 import Edit from "./edit";
 import Design from "../common/design";
@@ -17,7 +17,6 @@ import Service from "@/components/common/services";
 import CustomHeader from "./customHeader";
 import Flexbox from "./flexBox";
 import HtmlElement from "./htmlElement";
-import { getErrorMessage } from "@/lib/errorBoundaries";
 import Nav from "../nav/headerNav";
 import ShapeOutside from "./shapeOutside";
 import Ven from "../common/venDiagram";
@@ -32,6 +31,10 @@ import AddImageUrl from "../common/addImageUrl";
 import CodeElement from "../common/codeElement";
 import PasteCode from "../common/pasteCode";
 import Headerflag from "./headerflag";
+import { idValueType, selRowColType } from "@/lib/attributeTypes";
+import AuthService from "../common/auth";
+
+
 
 
 export type extendType={
@@ -48,8 +51,11 @@ export type themeType2={
 }
 
 class SideSetup{
+public mainContainer:HTMLElement|null=Main.container
 static bgColor:string;
 static btnColor:string;
+public logo="/images/gb_logo.png";
+public _colors:{id:number,color:string}[];
 _theme:themeType;
 _themes:themeType[];
 listThemeTypes:{name:string}[]=[{name:"background"},{name:"fonts"},{name:"colors"},{name:"buttons"},{name:"bgImage"},{name:"bgShade"}];
@@ -59,6 +65,9 @@ listThemeTypes:{name:string}[]=[{name:"background"},{name:"fonts"},{name:"colors
         SideSetup.btnColor=this._modSelector.btnColor;
         this._theme={} as themeType;
         this._themes=[] as themeType[];
+        this.logo="/images/gb_logo.png";
+        this._colors=[];
+        this.mainContainer=Main.container;
     }
     // //////GETTERS SETTERS/////
     get theme(){
@@ -73,78 +82,109 @@ listThemeTypes:{name:string}[]=[{name:"background"},{name:"fonts"},{name:"colors
     set themes(themes:themeType[]){
         this._themes=themes
     }
+    get colors(){
+        return this._colors
+    };
+    set colors(colors:{id:number,color:string}[]){
+        this._colors=colors;
+    }
+
     // //////GETTERS SETTERS/////
     //INJECTION Main.container
-    themeSetup(parent:HTMLElement|null,init:boolean){
+    themeSetup({mainCont,init,idValues,textarea,mainHeader,footer}:{
+        mainCont:HTMLElement|null,
+        init:boolean,
+        idValues:idValueType[],
+        textarea:HTMLElement,
+        mainHeader:HTMLElement,
+        footer:HTMLElement
+    }){
         //INJECTED INTO CONTAINER Main.container
-        if(parent){
-            Sidebar.cleanUpID(parent,"themes")
-        parent.style.position="relative";
-        const container = document.createElement("section");
-        container.id="themes";
-        container.className = "";
-        container.style.cssText=`margin:auto;display:flex;flex-direction:column;justify-content:center;align-items:center;position:absolute;background-color:#0804f9;padding:1rem;z-index:100;border-radius:18px;box-shadow:1px 1px 3px 1px green,-1px -1px 3px 2px yellow;z-index:200;height:auto;`;
-        container.style.top="20%";
-        container.style.left="30%";
-        container.style.right="30%";
-        container.style.width="clamp(320px,550px,600px)";
-       
-        const innerContainer=document.createElement('div');
-        innerContainer.style.cssText=`border-radius:inherit;background:white;margin-inline:auto;box-shadow:inherit;position:relative;margin-inline:${8}px;padding:0.5rem;width:100%;`;
+        this.mainContainer=mainCont
+        if(mainCont){
+            Sidebar.cleanUpID(mainCont,"themes")
+            mainCont.style.position="relative";
+            const container = document.createElement("section");
+            container.id="themes";
+            container.className = "";
+            container.style.cssText=`margin:auto;display:flex;flex-direction:column;justify-content:center;align-items:center;position:absolute;background-color:rgb(4, 43, 66);padding:1rem;z-index:100;border-radius:18px;box-shadow:1px 1px 3px 1px green,-1px -1px 3px 2px yellow;z-index:200;height:auto;`;
+            container.style.top="20%";
+            container.style.left="30%";
+            container.style.right="30%";
+            container.style.width="clamp(320px,550px,600px)";
         
-        Misc.matchMedia({parent:container,maxWidth:400,cssStyle:{top:"40%",left:"0%",right:"0%"}});
-        Misc.matchMedia({parent:container,maxWidth:900,cssStyle:{top:"30%",left:"10%",right:"10%"}});
+            const innerContainer=document.createElement('div');
+            innerContainer.id="themeSetup-innerContainer";
+            innerContainer.style.cssText=`border-radius:inherit;background:white;margin-inline:auto;box-shadow:inherit;position:relative;margin-inline:${8}px;padding:0.5rem;width:100%;`;
+            
+            Misc.matchMedia({parent:container,maxWidth:400,cssStyle:{top:"40%",left:"0%",right:"0%"}});
+            Misc.matchMedia({parent:container,maxWidth:900,cssStyle:{top:"30%",left:"10%",right:"10%"}});
 
-        this.rowTemplate(parent,container,innerContainer);
+            this.rowTemplate({parent:mainCont,container,innerContainer,idValues,textarea,mainHeader,footer});
 
-        container.appendChild(innerContainer);
-        const {close,reset}=this.themeBtn(container);
-        parent.appendChild(container);
-        const containerEffect:fadeOutType={
-            anchor:container,
-            xpos:50,
-            ypos:100,
-            time:600
-        }
-        if(init){
-            Misc.fadeIn(containerEffect);
-        }
-        close.addEventListener("click",(e:MouseEvent)=>{
-            //CLOSE
-            if(e){
-                const fade:fadeOutType={
-                    anchor:container,
-                    xpos:50,
-                    ypos:100,
-                    time:600
-                }
-                Misc.fadeOut(fade);
-                setTimeout(()=>{
-                    parent.removeChild(container);
-                },580);
+            container.appendChild(innerContainer);
+            const {close,reset,save}=this.themeBtn(container);
+            mainCont.appendChild(container);
+            const containerEffect:fadeOutType={
+                anchor:container,
+                xpos:50,
+                ypos:100,
+                time:600
             }
-        });
-     
-        reset.addEventListener("click",(e:MouseEvent)=>{
-            //CLOSE
-            if(e){
-
-                this.resetTheme(parent);
-                const fade:fadeOutType={
-                    anchor:container,
-                    xpos:50,
-                    ypos:100,
-                    time:1000
-                }
-                Misc.fadeOut(fade);
-                setTimeout(()=>{
-                    parent.removeChild(container);
-                },980);
+            if(init){
+                Misc.fadeIn(containerEffect);
             }
-        });
+            close.addEventListener("click",(e:MouseEvent)=>{
+                //CLOSE
+                if(e){
+                    const fade:fadeOutType={
+                        anchor:container,
+                        xpos:50,
+                        ypos:100,
+                        time:600
+                    }
+                    Misc.fadeOut(fade);
+                    setTimeout(()=>{
+                        mainCont.removeChild(container);
+                    },580);
+                }
+            });
+
+            save.onclick=(e:MouseEvent)=>{
+                if(e){
+                    this._modSelector.blog={...this._modSelector.blog,
+                        cssText:mainCont.style.cssText,
+                        class:mainCont.className,
+                        eleId:mainCont.id,
+
+                    };
+                    this._modSelector.localStore({blog:this._modSelector.blog});
+                }
+            };
+        
+            reset.addEventListener("click",async(e:MouseEvent)=>{
+                //CLOSE
+                if(e){
+
+                   await this.resetTheme({mainCont,textarea,mainHeader,footer});
+                    const fade:fadeOutType={
+                        anchor:container,
+                        xpos:50,
+                        ypos:100,
+                        time:1000
+                    }
+                    Misc.fadeOut(fade);
+                    setTimeout(()=>{
+                        mainCont.removeChild(container);
+                    },980);
+                }
+            });
         }
-    }
-    themeBtn(innerTheme:HTMLElement):{close:HTMLButtonElement,select:HTMLButtonElement,reset:HTMLButtonElement}{
+    };
+
+
+
+    themeBtn(innerTheme:HTMLElement):{close:HTMLButtonElement,save:HTMLButtonElement,reset:HTMLButtonElement}{
         const btnContainer=document.createElement("div");
         btnContainer.id="theme-btns"
         btnContainer.style.cssText="display:inline-flex;justify-content:center;gap:1rem;flex-wrap:wrap;"
@@ -157,15 +197,15 @@ listThemeTypes:{name:string}[]=[{name:"background"},{name:"fonts"},{name:"colors
         }
         innerTheme.appendChild(btnContainer)
         const closeBtn=buttonReturn(close)
-        const select:btnType={
+        const save:btnType={
             parent:btnContainer,
-            text:"select",
+            text:"save",
             bg:"#0CAFFF",
             color:"white",
             type:"button"
         }
         innerTheme.appendChild(btnContainer)
-        const selectBtn=buttonReturn(select)
+        const saveBtn=buttonReturn(save)
         const reset:btnType={
             parent:btnContainer,
             text:"reset",
@@ -175,17 +215,28 @@ listThemeTypes:{name:string}[]=[{name:"background"},{name:"fonts"},{name:"colors
         }
         innerTheme.appendChild(btnContainer)
         const resetBtn=buttonReturn(reset)
-        return {close:closeBtn,select:selectBtn,reset:resetBtn}
-    }
-    rowTemplate(parent:HTMLElement,container:HTMLElement,innerContainer:HTMLElement){
+        return {close:closeBtn,save:saveBtn,reset:resetBtn}
+    };
+
+
+
+    rowTemplate({parent,container,innerContainer,idValues,mainHeader,textarea,footer}:{
+        parent:HTMLElement,
+        container:HTMLElement,
+        innerContainer:HTMLElement,
+        idValues:idValueType[]
+        textarea:HTMLElement,
+        mainHeader:HTMLElement,
+        footer:HTMLElement
+    }){
         //parent=Main.container (#main)
-        const blog=this._modSelector._blog;
-        parent.style.position="relative";
+        const blog=this._modSelector.blog;
+        innerContainer.style.position="relative";
         const row=document.createElement('div');
         row.style.cssText="display:flex;flex-direction:row;flex-wrap:wrap;gap:0.62rem;margin:auto;justify-content:space-around;align-items:center;width:100%;position:relative;";
         innerContainer.appendChild(row);
         const selStyle="display:flex;flex-direction:column;place-items:center;border-radius:10px;cursor:pointer;font-size:9px;";
-        //listThemeTypes:{name:string}[]=[{name:"background"},{name:"fonts"},{name:"colors"},{name:"buttons"},{name:"bgImage"},{name:"bgShade"}];
+       
         this.listThemeTypes.map(listItem=>{
             const column=document.createElement("div");
             column.className="form-group";
@@ -215,10 +266,9 @@ listThemeTypes:{name:string}[]=[{name:"background"},{name:"fonts"},{name:"colors
                         const value=(e.currentTarget as HTMLSelectElement).value;
                         parent.style.backgroundColor=value;
                         this._modSelector.blog={...blog,cssText:parent.style.cssText};
-                        // Header.cleanUp(parent);
-                        // this._edit.main(parent,this._modSelector._blog);
+                        this._modSelector.localStore({blog:this._modSelector.blog});
                         Header.cleanUpByID(parent,"themes");
-                        this.themeSetup(parent,false);
+                        this.themeSetup({mainCont:parent,init:false,idValues,mainHeader,textarea,footer});
                         Misc.message({parent:container,msg:"added",type_:"success",time:500});
                     }
                 };
@@ -237,43 +287,10 @@ listThemeTypes:{name:string}[]=[{name:"background"},{name:"fonts"},{name:"colors
                         const value=(e.currentTarget as HTMLSelectElement).value;
                         parent.style.color=value;
                         this._modSelector.blog={...blog,cssText:parent.style.cssText};
-                        // Header.cleanUp(parent);
-                        // this._edit.main(parent,this._modSelector._blog);
+                        this._modSelector.localStore({blog:this._modSelector.blog});
+             
                         Header.cleanUpByID(parent,"themes");
-                        this.themeSetup(parent,false);
-                        Misc.message({parent:container,msg:"added",type_:"success",time:500});
-                    }
-                };
-                column.appendChild(label);
-                column.appendChild(select);
-                row.appendChild(column);
-    
-            }else if(listItem.name==="buttons"){
-                Misc.colors?.forEach(cl=>{
-                    const option=document.createElement("option");
-                    option.style.cssText=``;
-                    option.style.cssText=`font-size:10px;color:white;background-color:${cl.value};`;
-                    option.textContent=cl.name
-                    option.value=cl.value;
-                    select.style.fontFamily="";
-                    select.appendChild(option);
-                });
-                select.onchange=(e:Event)=>{
-                    if(e){
-                        const value=(e.currentTarget as HTMLSelectElement).value;
-                        const textarea=document.querySelector("div#textarea") as HTMLElement;
-                        const getBtns=textarea.querySelectorAll("[is-btn = 'true']") as unknown as HTMLButtonElement[];
-                        if(getBtns){
-                            ([...getBtns]).map((btn)=>{
-                                if(btn){
-                                    btn.style.backgroundColor=value
-                                }
-                            });
-                        }
-                        // Header.cleanUp(parent);
-                        // this._edit.main(parent,this._modSelector._blog);
-                        Header.cleanUpByID(parent,"themes");
-                        this.themeSetup(parent,false);
+                        this.themeSetup({mainCont:parent,init:false,idValues,textarea,mainHeader,footer});
                         Misc.message({parent:container,msg:"added",type_:"success",time:500});
                     }
                 };
@@ -297,10 +314,9 @@ listThemeTypes:{name:string}[]=[{name:"background"},{name:"fonts"},{name:"colors
                         const value=(e.currentTarget as HTMLSelectElement).value;
                         parent.style.fontFamily=value;
                         this._modSelector.blog={...blog,cssText:parent.style.cssText};
-                        // Header.cleanUp(parent);
-                        // this._edit.main(parent,this._modSelector._blog);
+                        this._modSelector.localStore({blog:this._modSelector.blog});
                         Header.cleanUpByID(parent,"themes");
-                        this.themeSetup(parent,false);
+                        this.themeSetup({mainCont:parent,init:false,idValues,textarea,mainHeader,footer});
                         Misc.message({parent:container,msg:"added",type_:"success",time:500});
                     }
                 };
@@ -309,8 +325,8 @@ listThemeTypes:{name:string}[]=[{name:"background"},{name:"fonts"},{name:"colors
                 btnBg.onclick=(e:MouseEvent)=>{
                     if(e){
                         // console.log("CLICK",btnBg)//work
-                        this.backgroundImg(parent);
-                        parent.removeChild(container)
+                        this.backgroundImg({parent,innerContainer,idValues});
+                       
                     }
                 };
                 innerContainer.appendChild(row);
@@ -319,7 +335,7 @@ listThemeTypes:{name:string}[]=[{name:"background"},{name:"fonts"},{name:"colors
                 btnBg_.onclick=(e:MouseEvent)=>{
                     if(e){
                        
-                        this.bgShade(parent);
+                        this.bgShade({parent,idValues});
                         parent.removeChild(container)
                     }
                 };
@@ -328,153 +344,109 @@ listThemeTypes:{name:string}[]=[{name:"background"},{name:"fonts"},{name:"colors
             }
         });
 
-    }
-    generateSelect(parent:HTMLElement,container:HTMLElement,select:HTMLSelectElement,type:string){
-        //parent=Main.container
-        select.onchange=(e:Event)=>{
-            if(e){
-                const listItem:{name:string,value:string}=JSON.parse((e.currentTarget as HTMLSelectElement).value as string) as {name:string,value:string};
-                if(listItem && listItem.name){
-                    const blog=this._modSelector.blog;
-                    // console.log("outside",listItem)
-                    if(type==="fonts"){
-                        parent.style.fontFamily=listItem.value;
-                        this._modSelector.blog={...blog,cssText:parent.style.cssText};
-                        this._edit.main(parent,this._modSelector._blog);
-                        Misc.message({parent:container,msg:"added",type_:"success",time:500});
-                    }else if(type==="background"){
-                        parent.style.backgroundColor=listItem.value;
-                        this._modSelector.blog={...blog,cssText:parent.style.cssText};
-                        this._edit.main(parent,this._modSelector._blog);
-                        Misc.message({parent:container,msg:"added",type_:"success",time:500});
-                    }else if(type==="colors"){
-                        (Main.textarea as HTMLElement).style.color=listItem.value;
-                        this._modSelector.blog={...blog,cssText:parent.style.cssText};
-                        this._edit.main(parent,this._modSelector._blog);
-                        Misc.message({parent:container,msg:"added",type_:"success",time:500});
-                    }else if(type==="buttons"){
-                        this._modSelector.btnColor=listItem.value;
-                        const textarea=document.querySelector("div#textarea") as HTMLElement;
-                        const getBtns=textarea.querySelectorAll("button") as unknown as HTMLButtonElement[];
-                        Misc.message({parent:container,msg:"added",type_:"success",time:500});
-                        ([...getBtns]).map((btn)=>{
-                            if(btn){
-                                btn.style.backgroundColor=listItem.value
-                            }
-                        });
-                        this._edit.main(parent,this._modSelector._blog);
-                    }
-                   
-                }
+    };
+    
 
-            }
-        };
-    }
    
-    resetTheme(parent:HTMLElement){
-        if(!Main.textarea || !Main.topMain) return;
+    async resetTheme({mainCont,textarea,mainHeader,footer}:{
+        mainCont:HTMLElement,
+        textarea:HTMLElement,
+        mainHeader:HTMLElement,
+        footer:HTMLElement
+
+    }){
+        
         Sidebar.btnEles=Sidebar.getBtns();
         const btnsSave:{id:number,bgColor:string}[]|undefined=Sidebar.btnEles?.map((btn,index)=>({id:index,bgColor:btn.style.backgroundColor}));
-        parent.style.fontFamily="Times";
-        parent.style.backgroundColor="white";
-        parent.style.color="black";
-        parent.style.backgroundImage="";
-        parent.style.backgroundPosition="";
-        parent.style.backgroundSize="";
-        // this._modSelector.saveTheme(Main.textarea,null); //updating blog cssText
+        mainCont.style.fontFamily="Times";
+        mainCont.style.backgroundColor="white";
+        mainCont.style.color="black";
+        mainCont.style.backgroundImage="";
+        mainCont.style.backgroundPosition="";
+        mainCont.style.backgroundSize="";
+        mainCont.style.background="";
         this._modSelector.btnColor="#0C090A";
-        const blog=this._modSelector._blog;
+        this._modSelector.blog={...this._modSelector.blog,attr:""};
+        const blog=this._modSelector.blog;
         if(blog.imgBgKey){
-            this._service.adminImagemark(blog.imgBgKey).then(async(res)=>{
-                if(res){
-                    Misc.message({parent,msg:`${blog.imgBgKey}`,type_:"success",time:700});
-                }
-            });
+         await  this._service.adminImagemark(blog.imgBgKey).then(async(res)=>{
+            if(res){
+                Misc.message({parent:mainCont,msg:`${blog.imgBgKey}`,type_:"success",time:700});
+                this._modSelector.blog={...blog,imgBgKey:undefined};
+                
+            }
+         });
         }
-        this._modSelector._blog={...blog,cssText:parent.style.cssText};
-        this._modSelector.blog=this._modSelector._blog;
-        this._edit.main(parent,this._modSelector._blog);
-        Sidebar.btnEles?.map((btn,index)=>{
-            btnsSave?.map(item=>{
-                if(btn && item.id===index){
-                    btn.style.backgroundColor=item.bgColor;
+        this._modSelector.blog={...this._modSelector.blog,cssText:mainCont.style.cssText};
+        this._modSelector.localStore({blog:this._modSelector.blog});
+
+        await this._modSelector.loadFromLocal().then(async(res)=>{
+            const {blog,user}=res.getBlog() as {blog:blogType|null,user:userType|null};
+            if(blog){
+                await this._service.promsaveItems({blog,user}).then(async(_res)=>{
+                if(_res){
+                    await this._edit.main({parent:mainCont,blog:_res,user,textarea,mainHeader,footer});
+                        Sidebar.btnEles?.map((btn,index)=>{
+                            btnsSave?.map(item=>{
+                                if(btn && item.id===index){
+                                    btn.style.backgroundColor=item.bgColor;
+                                }
+                            });
+                        });
                 }
-            });
+                });
+
+            }
         });
         
-    }
-    backgroundImg(parent:HTMLElement){
-        // const mainInjection = document.getElementById("mainInjection");
-        // if(!mainInjection)return;
-       
-        if(!parent) return;
-       
-        parent.style.position="relative";
-        const innerContainer=document.createElement("section");
-        innerContainer.style.cssText="margin:auto;background:white;display:flex;flex-direction:column;position:absolute;inset:0%;width:clamp(250px,300px,300px);border-radius:inherit;background-color:whitesmoke;box-shadow:inherit;max-height:220px;z-index:200;";
-        innerContainer.className="d-flex flex-column align-items-center";
-        const title=document.createElement("h6");
-        title.className="text-center text-primary lean display-6";
-        title.style.cssText="width:fit-content;font-size:130%;"
-        title.textContent="Upload a bg-image";
-        innerContainer.appendChild(title);
+    };
+
+
+    backgroundImg({parent,innerContainer,idValues}:{parent:HTMLElement,innerContainer:HTMLElement,idValues:idValueType[]}){
+      
+        const css_col="display:flex;flex-direction:column;align-items:center;justify-content:center;";
+        innerContainer.style.position="relative";
+        const popup=document.createElement("div");
+        popup.id="theme-bg-popup";
+        popup.style.cssText="margin:auto;background:white;display:flex;flex-direction:column;position:absolute;inset:0%;width:clamp(250px,300px,300px);border-radius:inherit;background-color:whitesmoke;box-shadow:1px 1px 12px 1px black;height:220px;z-index:200;z-index:200;";
+        popup.className="d-flex flex-column align-items-center";
         const form=document.createElement("form");
-        form.style.cssText=`display:flex;flex-direction:column;align-items:center;gap-:2rem;align-items:center;justify-content:flex-start;width:inherit;padding:1rem;position:relative;width:100%;`;
-        const grpForm=document.createElement("div");
-        grpForm.className="form-group w-100";
-        grpForm.style.cssText="width:100%;display:flex;flex-direction:column;align-items:center;justify-content:center; gap-1;margin-inline:auto;";
-        const label=document.createElement("label");
-        label.setAttribute("for","img");
-        label.textContent="image upload";
-        label.classList.add("form-control");
-        const input=document.createElement("input");
+        form.style.cssText=css_col + "width:100%;height:100%;padding:1rem;"
+        const {input,label}=Nav.inputComponent(form);
         input.style.cssText="width:95%;"
         input.name="file";
         input.id="file";
+        label.textContent="bg-image";
         label.setAttribute("for",`${input.id}`);
         input.className="form-control";
         input.type="file";
         input.accept="image/png image/jpg";
-        grpForm.appendChild(label);
-        grpForm.appendChild(input);
-        form.appendChild(grpForm);
-        const btn_:btnReturnType={
-            parent:form,
-            text:"submit",
-            bg:"#13274F",
-            color:"white",
-            type:"submit"
-        }
-        const btn=buttonReturn(btn_);
-        btn.disabled=true;
-        //DELETION
-        const xDivIcon=document.createElement("div");
-        xDivIcon.id="xDivIcon";
-        xDivIcon.style.cssText="position:absolute;padding:5px;background-color:black;top:0%;left:100%;transform:translate(-30px,5px);border-radius:50%;";
-        FaCreate({parent:xDivIcon,name:FaCrosshairs,cssStyle:{fontSize:"16px",color:"white"}});
-        //APPENDING
-        innerContainer.appendChild(xDivIcon);
-        
-        //DELETION
-        //APPENDING ELEMENTS
-        innerContainer.appendChild(form);
-        parent.appendChild(innerContainer);
-        Misc.growIn({anchor:innerContainer,scale:0,opacity:0,time:400});
-        //TO DELETE
-        xDivIcon.onclick=(e:MouseEvent)=>{
+        label.setAttribute("for",input.id);
+        const {button}=Misc.simpleButton({anchor:form,bg:"black",color:"white",type:"submit",time:400,text:"submit"});
+        button.disabled=true;
+        input.onchange=(e:Event)=>{
             if(e){
-                Misc.growOut({anchor:innerContainer,scale:0,opacity:0,time:400});
-                setTimeout(()=>{parent.removeChild(innerContainer)},398);
+                button.disabled=false;
             }
         };
-        //TO DELETE
-         //APPENDING ELEMENTS
-        
-        input.addEventListener("click",(e:MouseEvent) => {
+        popup.appendChild(form);
+        innerContainer.appendChild(popup);
+        Misc.growIn({anchor:popup,scale:0,opacity:0,time:400});
+        //DELETION
+
+        const xDivIcon=document.createElement("div");
+        xDivIcon.id="xDivIcon";
+        xDivIcon.style.cssText="position:absolute;padding:5px;background-color:black;top:0%;left:100%;transform:translate(-34px,4px);border-radius:50%;";
+        FaCreate({parent:xDivIcon,name:FaCrosshairs,cssStyle:{fontSize:"16px",color:"white",borderRadius:"inherit"}});
+        //APPENDING
+        popup.appendChild(xDivIcon);
+        xDivIcon.onclick=(e:MouseEvent)=>{
             if(e){
-                btn.disabled=false
+                innerContainer.removeChild(popup);
             }
-        });
+        };
+
+        //DELETION
         
         form.addEventListener("submit",(e:SubmitEvent) => {
             if(e){
@@ -482,7 +454,9 @@ listThemeTypes:{name:string}[]=[{name:"background"},{name:"fonts"},{name:"colors
                 const filedata=new FormData(e.currentTarget as HTMLFormElement);
                 const file=filedata.get("file");
                 // console.log("bg-image:file",file)
-                if(file && Main.textarea){
+                if(file){
+                    const eleId=parent.id;
+                    let blog=this._modSelector.blog;
                     const imgUrl=URL.createObjectURL(file as File);
                     /// loading into top container////
                     //Main.container.style.cssText = Main.main_css
@@ -490,56 +464,49 @@ listThemeTypes:{name:string}[]=[{name:"background"},{name:"fonts"},{name:"colors
                     parent.style.backgroundSize=`100% 100%`;
                     parent.style.backgroundPosition=`50% 50%`;
                     parent.classList.add("bgShade");
-                    Main.main_css +=`background-image:url(${imgUrl});background-size:100% 100%;background-position:50% 50%;`;
-                   const theme:themeType[]=[
-                    {name:"background",type:"backgroundImage",value:`url(${imgUrl})`},
-                    {name:"background",type:"backgroundSize",value:`100% 100%`},
-                    {name:"background",type:"backgroundPosition",value:`50% 50%`},
-                   ];
-
-                    this._modSelector._blog={...this._modSelector._blog,eleId:parent.id};
-                    let _blog=this._modSelector._blog;
+                    parent.style.cssText =Main.main_css +`background-image:url(${imgUrl});background-size:100% 100%;background-position:50% 50%;`;
+                    //GENERATING NEW KEY
                     const user=this._user.user;
-                
-                    if(_blog && user && user.id && _blog.name){
-                        // if(_blog.imgBgKey){
-                        //     const deletedImg:deletedImgType={imgKey:_blog.imgBgKey,del:true,date:new Date()}
-                        //     this._service.markDelKey(deletedImg);//marking delete on exiting image
-                        // }
-                        //GENERATING NEW KEY
-                        const {Key}=this._service.generateFreeImgKey({formdata:filedata,user}) as {Key:string};
-                        _blog={..._blog,user_id:user.id,imgBgKey:Key};
-                        this._modSelector._blog=_blog;
-                        this._modSelector.blog=this._modSelector._blog;
+                    const {Key}=this._service.generateFreeImgKey({formdata:filedata,user}) as {Key:string};
+                    blog={...blog,user_id:user.id,imgBgKey:Key,eleId:parent.id,cssText:parent.style.cssText};
+                    this._modSelector.blog={...blog};
+                    this._modSelector.localStore({blog});
+                    idValues.push({eleId,id:"backgroundImg",attValue:"backgroundImg"});
+                    idValues.push({eleId,id:"blogId",attValue:eleId});
+                    idValues.push({eleId,id:"imgBgKey",attValue:Key});
+                    const getEleIds=idValues.filter(kat=>(kat.eleId===eleId));
+                    this._modSelector.dataset.simplePopulateAttributes({target:parent,idValues,popIdValues:getEleIds});
+                    this._service.uploadfreeimage({formdata:filedata}).then(async(res)=>{
+                        if(res){
+                            blog={...blog,imgBgKey:res.Key};
+                            parent.style.backgroundImage=`url(${res.img})`;
+                            parent.style.backgroundSize="100% 100%";
+                            parent.style.backgroundPosition="50% 50%";
+                            
+                            this._service.promsaveItems({blog,user}).then(async(blog_)=>{
+                                if(blog_){
+                                    this._modSelector.blog={...blog_};
+                                    Misc.growOut({anchor:popup,scale:0,opacity:0,time:400});
+                                    setTimeout(()=>{
+                                        innerContainer.removeChild(popup);
+                                    },390);
+                                }
+                            });
+                        }
+                    });
 
-                        this._service.uploadfreeimage({parent,formdata:filedata}).then(async(res)=>{
-                            if(res){
-                                parent.style.backgroundImage=`url(${res.img})`;
-                                parent.style.backgroundSize="100% 100%";
-                                parent.style.backgroundPosition="50% 50%";
-                                this._service.promsaveItems({blog:_blog,user}).then(async(blog_)=>{
-                                    if(blog_){
-                                        this._modSelector.saveTheme(parent,theme);
-                                        //SENDING IT TO SIMPLE UPLOAD PROCESS:BgImage has no element
-            
-                                        // this._user.askSendToServer({bg_parent:parent,formdata:filedata,image:null,blog:this._modSelector._blog,oldKey:null});
-                                    }
-                                });
-                            }
-                        });
-                    }
-                    parent.removeChild(innerContainer);
                    
                 }
             }
         });
-    }
-    bgShade(parent:HTMLElement){
+    };
+
+
+    bgShade({parent,idValues}:{parent:HTMLElement,idValues:idValueType[]}){
         //parent=Main.container
         // row.parentElement=#main=>(#main children=>#sectionHeader,#textarea,#mainFooter)
         //CREATING ARRAY FOR SELECTION
         parent.style.position="relative";
-        (Main.textarea as HTMLElement).style.background="";
         const arrShades:{name:string,value:string}[]=[];
         for(let i=0; i<50;i++){
             const insert=i/100;
@@ -562,32 +529,33 @@ listThemeTypes:{name:string}[]=[{name:"background"},{name:"fonts"},{name:"colors
         const cssStyle2={backgroundColor:"",fontSize:"10px"}
         const cssStyleEffect={backgroundColor:"",fontSize:"10px"}
         const selects=arrShades;
+         //EFFECT
+         const effects=[{name:"select",value:""},{name:"angle 45",value:"45deg"},{name:"to left",value:"to left"},{name:"to right",value:"from left"},{name:"polar blend extend",value:"in hsl longer hue"},{name:"polar color",value:"in hsl"},{name:"angle bottom=>top",value:"to left top"},];
+         const {select:selectEffect,label:labelEffect}=Misc.selectComponent({parent:form,name:"effects",cssStyle:cssStyleEffect,selects:effects});
+         selectEffect.style.borderRadius="6px";
+         selectEffect.name="select";
+         selectEffect.id="selectEffect";
+         selectEffect.style.cssText="margin-inline:auto;min-width:75px;"
+         labelEffect.setAttribute("for",`${selectEffect.id}`);
+         //EFFECT
         //SHADE
-        const {select:selectShade,label:labelShade}=Misc.selectComponent({parent:form,name:"shade",cssStyle,selects});
+        const {select:selectShade,label:labelShade1}=Misc.selectComponent({parent:form,name:"shade",cssStyle,selects});
        
         selectShade.style.borderRadius="6px";
         selectShade.name="select";
         selectShade.id="select";
         selectShade.style.cssText="margin-inline:auto;min-width:75px;"
-        labelShade.setAttribute("for",`${selectShade.id}`);
+        labelShade1.setAttribute("for",`${selectShade.id}`);
         //SHADE
-        //EFFECT
-        const effects=[{name:"select",value:""},{name:"angle 45",value:"45deg"},{name:"to left",value:"to left"},{name:"to right",value:"from left"},{name:"polar blend extend",value:"in hsl longer hue"},{name:"polar color",value:"in hsl"},{name:"angle bottom=>top",value:"to left top"},];
-        const {select:selectEffect}=Misc.selectComponent({parent:form,name:"effects",cssStyle:cssStyleEffect,selects:effects});
-        selectEffect.style.borderRadius="6px";
-        selectEffect.name="select";
-        selectEffect.id="selectEffect";
-        selectEffect.style.cssText="margin-inline:auto;min-width:75px;"
-        labelShade.setAttribute("for",`${selectEffect.id}`);
-        //EFFECT
+       
         //BLUES
         const selectBlueShades=Misc.blueShades
-        const {select:selectBlue}=Misc.selectComponent({parent:form,name:"blue shade",cssStyle:cssStyle2,selects:selectBlueShades});
+        const {select:selectBlue,label:labelShade2}=Misc.selectComponent({parent:form,name:"blue shade",cssStyle:cssStyle2,selects:selectBlueShades});
         selectBlue.style.borderRadius="6px";
         selectBlue.name="select";
         selectBlue.id="selectBlue";
         selectBlue.style.cssText="margin-inline:auto;min-width:75px;"
-        labelShade.setAttribute("for",`${selectBlue.id}`);
+        labelShade2.setAttribute("for",`${selectBlue.id}`);
         //BLUES
         //APPENDING
         const divBtn=document.createElement("div");
@@ -599,174 +567,184 @@ listThemeTypes:{name:string}[]=[{name:"background"},{name:"fonts"},{name:"colors
         innerContainer.appendChild(form)
         parent.appendChild(innerContainer);
         //APPENDING
+        selectEffect.onchange=(e:Event) =>{
+            if(e){
+                const effect=((e.currentTarget as HTMLSelectElement).value) as string;
+                selectEffect.value=effect ||"to left";
+            }
+        };
+
         selectShade.onchange=(e:Event)=>{
             if(e){
-                const shade=((e.currentTarget as HTMLSelectElement).value) as string;
-                // parent.style.cssText +=`background:linear-gradient(${shade});`;
-                const cssText_={background:shade};
                 const effect=(selectEffect as HTMLSelectElement).value;
-                this.insertBgShade({target:parent,insert:cssText_,effect:effect});
-                const blog=this._modSelector.blog;
+                const shade=((e.currentTarget as HTMLSelectElement).value) as string;
+                const shade1=Design.HexCode(shade);
+                const len=this.colors.length;
+                this.colors=[...this.colors,{id:len,color:shade1}];
+                const {url}=this.extractBgImage({target:parent})
+                this.insertBgShade({target:parent,colors:this.colors,effect:effect,url});
                 parent.classList.add("bgShade");
-                const cssText=parent.style.cssText;
-                this._modSelector._blog={...blog,cssText:cssText};
-                this._modSelector.blog=this._modSelector._blog;
+               
                 
                
             }
         };
         selectBlue.onchange=(e:Event)=>{
             if(e){
-                const shade=((e.currentTarget as HTMLSelectElement).value) as string;
-                // parent.style.cssText +=`background:linear-gradient(${shade});`;
-                const cssText_={background:shade}
+                const shadeTwo=((e.currentTarget as HTMLSelectElement).value) as string;
+                const shade2=Design.HexCode(shadeTwo);
+                const len=this.colors.length;
+                this.colors=[...this.colors,{id:len,color:shade2}];
                 const effect=(selectEffect as HTMLSelectElement).value;
-                this.insertBgShade({target:parent,insert:cssText_,effect:effect});
-                const blog=this._modSelector.blog;
-                const cssText=parent.style.cssText;
-                this._modSelector._blog={...blog,cssText:cssText};
-                this._modSelector.blog=this._modSelector._blog;
-                // const hasAdded=this.insertBgImageShade(parent,)
-                // console.log("parent.style.cssText",parent.style.cssText)
+                const {url}=this.extractBgImage({target:parent})
+                this.insertBgShade({target:parent,colors:this.colors,effect:effect,url});
             }
         };
-        selectEffect.onchange=(e:Event) =>{
-            if(e){
-                const effect=((e.currentTarget as HTMLSelectElement).value) as string;
-                selectEffect.value=effect ? effect : "";
-            }
-        }
+        
         okay.onclick=(e:MouseEvent)=>{
             if(e){
-
+                const eleId=parent.id;
                 parent.removeChild(innerContainer);
                 parent.classList.add("bgShade");
-                this._modSelector.blog={...this._modSelector._blog,class:parent.className}
+                idValues.push({eleId,id:"blogId",attValue:eleId});
+                idValues.push({eleId,id:"linearGrad",attValue:"linearGrad"});
+                const getEleIds=idValues.filter(kat=>(kat.eleId===eleId));
+                this._modSelector.dataset.simplePopulateAttributes({target:parent,idValues,popIdValues:getEleIds});
+                this._modSelector.blog={...this._modSelector.blog,
+                    class:parent.className,
+                    attr:"linearGrad",
+                    cssText:parent.style.cssText
+
+                };
+                this._modSelector.localStore({blog:this._modSelector.blog});
             }
         };
         reset.onclick=(e:MouseEvent)=>{
             if(e){
+                this.colors=[] as {id:number,color:string}[];
+                const eleId=parent.id;
+                idValues=idValues.filter(kat=>(kat.eleId !==eleId));
+                this._modSelector.dataset.upDateIdValues({idValues});
+                const getEleIds=idValues.filter(kat=>(kat.eleId===eleId));
+                this._modSelector.dataset.simplePopulateAttributes({target:parent,idValues,popIdValues:getEleIds});
                 parent.style.background="";
                 parent.style.backgroundColor="";
+                parent.style.color="black";
                 document.body.style.backgroundColor="white";
                 (Main.textarea as HTMLElement).style.background="";
                 const cssText=parent.style.cssText;
-                const blog=this._modSelector._blog;
-                this._modSelector._blog={...blog,cssText:cssText};
-                this._modSelector.blog=this._modSelector._blog;
+                const blog=this._modSelector.blog;
+                this._modSelector.blog={...blog,cssText:cssText,attr:""};
                 parent.classList.remove("bgShade");
+                this._modSelector.localStore({blog:this._modSelector.blog});
             }
         };
         Misc.matchMedia({parent:innerContainer,maxWidth:900,cssStyle:{top:"30%",left:"20%",right:"20%"}});
         Misc.matchMedia({parent:innerContainer,maxWidth:400,cssStyle:{top:"35%",left:"0%",right:"0%"}});
 
-    }
-    insertBgShade(item:{target:HTMLElement,insert:{[key:string]:string},effect:string}):string{
+    };
+
+
+    extractBgImage({target}:{target:HTMLElement}):{url:string|null}{
+        const testUrl:RegExp=/(url\()/;
+        const testEnd:RegExp=/\)/;
+        for(const [key,value] of Object.entries(target.style)){
+            if(key==="background" && value){
+                if(testUrl.test(value)){
+                    const start=RegExp(testUrl).exec(value);
+                    if(start){
+                        const arrValue=value.split("");
+                        const endPart=arrValue.slice(start.index+start[0].length,arrValue.length-1).join("");
+                        const end=RegExp(testEnd).exec(endPart);
+                        if(end){
+                            const url=endPart.slice(0,end.index);
+                            return {url};
+                        };
+                    };
+                };
+            }else if(key==="backgroundImage" && value){
+                if(testUrl.test(value)){
+                    const start=RegExp(testUrl).exec(value);
+                    const end=RegExp(testEnd).exec(value);
+                    if(start && end){
+                        const url=value.slice(start.index+start[0].length,end.index);
+                        return {url};
+                    };
+                };
+            };
+        };
+        return {url:null};
+    };
+
+
+    insertBgShade(item:{
+        target:HTMLElement,
+        colors:{id:number,color:string}[],
+        effect:string,
+        url:string|null,
+    }):void{
         //MODIFY THE TARGET ELEMENT CSS AND RETURNS cssText string
-        const {target,insert,effect}=item;
-        for(const [key,valueOld] of Object.entries(target.style)){
-            for(const [key1,valueNew] of Object.entries(insert)){
-                if(key===key1){
-                    const isUrl=valueOld.includes("url(");
-                    const openBrack:RegExp=/\(/g;
-                    const closeBrack:RegExp=/\)/g;
-                    const openUrl:RegExp=/(url\()/g;
-                    const linear:RegExp=/(linear\-gradient)/g;
-                    const isLinear=this.checkRegExp({str:valueOld,reg:linear});
-                    
-                    const parseValue=valueOld.split(",");//separates Url and linear
-                    const insertEffect= effect ? effect : "to left";
-                   
-                    
-                    switch(true){
-                        case key==="backgroundImage":
-                            target.style[key]=`${valueNew}`;
-                        break;
-                        case isUrl && isLinear && key==="background":
-                            if(!(parseValue && parseValue.length)) break;
-                            const getUrlObj=this.getRegExpStartEnd({str:valueOld,startReg:openUrl,endReg:closeBrack,effect});
-                            const getLinearOriginal=this.getRegExpStartEnd({str:valueOld,startReg:openBrack,endReg:closeBrack,effect});
-                            const getLinearAdded=this.getRegExpStartEnd({str:valueNew,startReg:openBrack,endReg:closeBrack,effect});
-                            const css =`linear-gradient(${insertEffect},${getLinearOriginal.exp},${getLinearAdded.exp}),url(${getUrlObj.exp})`;
-                            target.style[key]=css.trim();
-                            // console.log("target.key=",target.style[key])
-                        break;
-                        case !isUrl && isLinear && key==="background":
-                            const getLinearOriginal2=this.getRegExpStartEnd({str:valueOld,startReg:openBrack,endReg:closeBrack,effect});
-                            if(!effect){
-                            const css_ =`linear-gradient(${getLinearOriginal2.exp},${valueNew})`;
-                            target.style[key]=css_.trim()
-                            }else{
-                                // console.log("611:CHANGE" ,"valueNew",valueNew,"valueOLd",valueOld,"effect",effect);
-                                const css_ =`linear-gradient(${effect},${getLinearOriginal2.exp},${valueNew})`;
-                                target.style[key]=css_.trim()
-                            }
-                        break;
-                        case !isLinear && !isUrl && key==="background":
-                            if(valueNew && valueOld ){
-                                //have => background:color
-                                if(effect){
-                                    target.style[key]=`linear-gradient(${effect},${valueOld},${valueNew})`;
-                                }else{
-                                    target.style[key]=`linear-gradient(${valueOld},${valueNew})`;
-                                }
-                                //converted linear-gradient() to add color
-                            }else if(valueNew){
-                                //new=> background:color
-                                // console.log("value1",valueNew)
-                                target.style[key]=valueNew;
-                            }
-                        break;
-                        default:
-                            break;
-                    }
-            }
-                
-            }
-        }
-        return target.style.cssText
-    }
-   async saveWorkSetup(parent:HTMLElement,blog:blogType): Promise<{retBtn:HTMLButtonElement,retCanc:HTMLButtonElement,retParent:HTMLElement,container:HTMLElement}>{
-        const divCont=document.createElement("div");
-        divCont.className="eleContainer";
-        divCont.style.cssText="margin:0px;margin-left:0.35rem;"
-        parent.style.position="relative";
-        const container = document.createElement("section");
-        container.id="main";
-        container.className = "";
-        container.style.cssText="margin:auto;display:flex;flex-direction:column;justify-content:flex-start;align-items:stretch;width:100%;position:absolute;inset:-5% 0%;height:auto;background-color:white;padding:1rem;padding-block:2rem;z-index:100;"
-           await  this._displayBlog.saveFinalWork({innerContainer:container,blog});
-            //BUTTON SELECTION
-            const btnDiv=document.createElement("div");
-            btnDiv.style.cssText="display:flex;flex-direction:column;margin:auto;align-items:center;justify-content:center;";
-            const btnGroup=document.createElement("div");
-             btnGroup.style.cssText="display:flex;gap:0.5rem;alignitems:center;justify-content:center;";
-            const message:btnReturnType={
-                parent:btnGroup,
-                text:"save",
-                bg:"#00008b",
-                color:"white",
-                type:"button"
-            }
-            const cancel:btnReturnType={
-                parent:btnGroup,
-                text:"cancel",
-                bg:"#da1afb",
-                color:"white",
-                type:"button"
-            }
-            const retBtn=buttonReturn(message);
-            const retCanc=buttonReturn(cancel);
-            container.appendChild(btnGroup);
-           const {divcont} = divider({parent:container,numLines:3,divCont,color:SideSetup.btnColor});
-            container.animate([
-                {transform:"translateX(-100%) scale(0.4)",opacity:"0"},
-                {transform:"translateX(0%) scale(1)",opacity:"1"},
-            ],{duration:600,iterations:1});
-            container.appendChild(divcont);
-            parent.appendChild(container);
-            return {retBtn,retCanc,retParent:parent,container}
-    }
+        const {target,effect,url,colors}=item;
+        const HexReg:RegExp=/(#[a-z0-9]+)|(rbg\()|(rgba\()/;
+        const linearReg:RegExp=/(linear-gradient\()/;
+        const backgroundValue=target.style.background;
+        const isHex=HexReg.test(backgroundValue);
+        const isLinear=linearReg.test(backgroundValue);
+        const len=colors.length;
+        const colorStr= colors.map((col)=>(col.color)).join(",");
+        this._modSelector.blog={...this._modSelector.blog,attr:"linearGrad"};
+
+            if(isHex && colorStr && !isLinear){
+              
+                target.style.background="";
+                const color_=target.style.background;
+                if(len===1){
+                    target.style.background=`linear-gradient(${effect},${color_},${colorStr})`;
+                    if(url){
+                        target.style.background=`linear-gradient(${effect},${color_},${colorStr}),url(${url})`;
+                    };
+                }else{
+                    target.style.background=`linear-gradient(${effect},${colorStr})`;
+                    if(url){
+                        target.style.background=`linear-gradient(${effect},${colorStr}),url(${url})`;
+                    };
+                };
+
+            }else if(isLinear){
+                if(len===1){
+                    target.style.background=`linear-gradient(${effect},${colorStr},rgb(0 0 20 / 40%)`;
+                    if(url){
+                        target.style.background=`linear-gradient(${effect},${colorStr},rgb(0 0 20 / 40%),url(${url})`;
+                    };
+
+                }else{
+                    target.style.background=`linear-gradient(${effect},${colorStr})`;
+                    if(url){
+                        target.style.background=`linear-gradient(${effect},${colorStr}),url(${url})`;
+                    };
+                }
+            }else if(colorStr){
+              
+                target.style.background="";
+                if(len===1){
+                    target.style.background=`linear-gradient(${effect},${colorStr},rgb(0 0 20 / 40%)`;
+                    if(url){
+                        target.style.background=`linear-gradient(${effect},${colorStr},rgb(0 0 20 / 40%),url(${url})`;
+                    };
+
+                }else{
+                    target.style.background=`linear-gradient(${effect},${colorStr})`;
+                    if(url){
+                        target.style.background=`linear-gradient(${effect},${colorStr}),url(${url})`;
+                    };
+                }
+
+            };
+
+    };
+
+   
+   
     getRegExpStartEnd(item:{str:string,startReg:RegExp,endReg:RegExp,effect:string}):{start:number,end:number,exp:string}{
         const {str,startReg,endReg,effect}=item;
         const matchstarts=str.matchAll(startReg) as any ;
@@ -776,11 +754,11 @@ listThemeTypes:{name:string}[]=[{name:"background"},{name:"fonts"},{name:"colors
         let retRes:{start:number,end:number,exp:string}|undefined;
 
         for (const match of matchstarts) {
-            if(!(match && match.index)) return {start:0,end:0,exp:""}
+            if(!(match.index)) return {start:0,end:0,exp:""}
             startArr.push({start:match.index,end:match.index + match.length,exp:match[0]});
           }
         for (const match of matchends) {
-            if(!(match && match.index)) return {start:0,end:0,exp:""}
+            if(!(match.index)) return {start:0,end:0,exp:""}
             endArr.push({start:match.index,end:match.index + match.length,exp:match[0]});
           }
           const start=startArr[0].start;
@@ -788,16 +766,138 @@ listThemeTypes:{name:string}[]=[{name:"background"},{name:"fonts"},{name:"colors
           if(effect){
           const exp=str.slice(start+1,end-1).split(`${effect},`)[1];
           retRes={start:start,end:end,exp:exp}
-          console.log("701:EXTRACTED",retRes)
           return retRes
           }else{
             const exp=str.slice(start+1,end-1);
           retRes={start:start,end:end,exp:exp}
-          console.log("701:EXTRACTED",retRes)
           return retRes
           }
 
-    }
+    };
+
+
+    extractLinearGradiantColor(item:{
+        target:HTMLElement,
+    }):{colorOne:string|null,colorTwo:string|null}{
+        const {target}=item;
+        //linear-gradient(45deg, #ffff, whitesmoke), url("https://newablogroom-free-bucket.s3.us-east-1.amazonaws.com/no_userid-unknownUser-fastestGRowing.png") 
+        const background=target.style.background;
+        const LinReg:RegExp=/(linear-gradient\()/;
+       
+        
+        const endTagReg:RegExp=/\),/;
+        const isLinear=LinReg.test(background);
+        const colors:string[]=[]
+        if(isLinear){
+            const startMatch=RegExp(LinReg).exec(background);
+            if(startMatch){
+                const startLen=startMatch.index + startMatch[0].length;
+                //DOES NOT HAVE URL()
+                const endPart=background.slice(startLen,background.length-1);
+                const getEnd=RegExp(endTagReg).exec(endPart);
+                console.log("COLORS!!:endPart",endPart);
+                console.log("COLORS!!:getEnd",getEnd);
+                if(getEnd){
+                    const endPart2=endPart.slice(0,getEnd.index);
+                    console.log("COLORS!!:inside",endPart2);
+                    const arr=[...endPart2.split(",")]
+                    return {colorOne:arr[1]|| null,colorTwo:arr[2] ||null}
+                }
+                
+            };
+        };
+        return {colorOne:null,colorTwo:null};
+    };
+
+
+
+    oldNewEffect({oldEffect,effect,colorOne,newValue,url,defaultValue}:{
+        oldEffect:string|null,
+        effect:string|null,
+        colorOne:string|null,
+        newValue:string|null,
+        url:string|null,
+        defaultValue:string
+    }):{newValue:string}{
+        if(oldEffect){
+
+            if( colorOne && newValue){
+                const middleRes=`${oldEffect},${colorOne},${newValue}`;
+                if(url){
+                    const linearRes=`linear-gradient(${middleRes}),url(${url})`;
+                    return{newValue:linearRes}
+                }else{
+                    const linearRes=`linear-gradient(${middleRes})`;
+                    return{newValue:linearRes}
+                }
+            }else if( !colorOne && newValue){
+                const middleRes=`${oldEffect},${newValue},${newValue}`;
+                if(url){
+                    const linearRes=`linear-gradient(${middleRes}),url(${url})`;
+                    return{newValue:linearRes}
+                }else{
+                    const linearRes=`linear-gradient(${middleRes})`;
+                    return{newValue:linearRes}
+                }
+            }else if( !colorOne && !newValue){
+                return {newValue:""}
+            }else{
+                return {newValue:""}
+            }
+        }else if(effect){
+            if( colorOne && newValue){
+                const middleRes=`${effect},${colorOne},${newValue}`;
+                if(url){
+                    const linearRes=`linear-gradient(${middleRes}),url(${url})`;
+                    return{newValue:linearRes}
+                }else{
+                    const linearRes=`linear-gradient(${middleRes})`;
+                    return{newValue:linearRes}
+                }
+            }else if( !colorOne && newValue){
+                const middleRes=`${effect},${newValue},${newValue}`;
+                if(url){
+                    const linearRes=`linear-gradient(${middleRes}),url(${url})`;
+                    return{newValue:linearRes}
+                }else{
+                    const linearRes=`linear-gradient(${middleRes})`;
+                    return{newValue:linearRes}
+                }
+            }else if( !colorOne && !newValue){
+                return {newValue:""}
+            }else{
+                return {newValue:""}
+            }
+        }else if(!effect && !oldEffect){
+            if( colorOne && newValue){
+                const middleRes=`${defaultValue},${colorOne},${newValue}`;
+                if(url){
+                    const linearRes=`linear-gradient(${middleRes}),url(${url})`;
+                    return{newValue:linearRes}
+                }else{
+                    const linearRes=`linear-gradient(${middleRes})`;
+                    return{newValue:linearRes}
+                }
+            }else if( !colorOne && newValue){
+                const middleRes=`${defaultValue},${newValue},${newValue}`;
+                if(url){
+                    const linearRes=`linear-gradient(${middleRes}),url(${url})`;
+                    return{newValue:linearRes}
+                }else{
+                    const linearRes=`linear-gradient(${middleRes})`;
+                    return{newValue:linearRes}
+                }
+            }else if( !colorOne && !newValue){
+                return {newValue:""}
+            }else{
+                return {newValue:""}
+            }
+        }else{
+            return {newValue:""}
+        }
+    };
+
+
     checkRegExp(item:{str:string,reg:RegExp}):string|undefined{
         const {str,reg}=item;
         let exp:string|undefined;
@@ -806,9 +906,12 @@ listThemeTypes:{name:string}[]=[{name:"background"},{name:"fonts"},{name:"colors
             exp=match[0]
         }
         return exp
-    }
+    };
+
+
     RGBAToHexA(rgba:string, forceRemoveAlpha = false) {
-        return "#" + rgba.replace(/^rgba?\(|\s+|\)$/g, '') // Get's rgba / rgb string values
+        const reg:RegExp=/^rgba?\(|\s+|\)$/g;
+        return "#" + rgba.replace(reg, '') // Get's rgba / rgb string values
           .split(',') // splits them at ","
           .filter((string, index) => !forceRemoveAlpha || index !== 3)
           .map(string => parseFloat(string)) // Converts them to numbers
@@ -816,7 +919,9 @@ listThemeTypes:{name:string}[]=[{name:"background"},{name:"fonts"},{name:"colors
           .map(number => number.toString(16)) // Converts numbers to hex
           .map(string => string.length === 1 ? "0" + string : string) // Adds 0 when length of one number is 1
           .join("") // Puts the array to togehter to a string
-      }
+      };
+
+
    static saveNoBlogSetup(parent:HTMLElement): {retParent:HTMLElement,retBtn:HTMLButtonElement,container:HTMLElement}{
         const container = document.createElement("section");
             container.id="main";
@@ -864,7 +969,9 @@ listThemeTypes:{name:string}[]=[{name:"background"},{name:"fonts"},{name:"colors
             container.appendChild(retBtn);
             parent.removeChild(container);
         return {retParent:parent,retBtn,container}
-    }
+    };
+
+
    static fillBlogNameDesc(parent:HTMLElement):{btn:HTMLButtonElement,popup:HTMLElement,form:HTMLFormElement,input:HTMLInputElement,textarea:HTMLTextAreaElement}{
         parent.style.position="relative";
         parent.style.zIndex="0";
@@ -893,7 +1000,9 @@ listThemeTypes:{name:string}[]=[{name:"background"},{name:"fonts"},{name:"colors
 
 
 
-    }
+    };
+
+
    static signInForm(parent:HTMLElement):{btn:HTMLButtonElement,popup:HTMLElement,form:HTMLFormElement,email:HTMLInputElement,password:HTMLInputElement}{
         parent.style.position="relative";
         parent.style.zIndex="0";
@@ -904,7 +1013,7 @@ listThemeTypes:{name:string}[]=[{name:"background"},{name:"fonts"},{name:"colors
         popup.style.inset=`20% ${width} 40% ${width}`;
         const form=document.createElement("form");
         form.style.cssText="display:flexflex-direction:column;align-items:center;justify-content:center;gap:1rem;";
-        const {email:email,label:labelEmail}=Nav.emailComponent(form);
+        const {email,label:labelEmail}=Nav.emailComponent(form);
         email.placeholder="your email";
         labelEmail.textContent="email";
         labelEmail.classList.add("display-6");
@@ -922,39 +1031,43 @@ listThemeTypes:{name:string}[]=[{name:"background"},{name:"fonts"},{name:"colors
         parent.appendChild(popup);
         
         return {btn,popup,form,email,password}
-    }
+    };
+
+
 }
 
 
 
 class Sidebar{
-    pic="/images/gb_logo.png";
-    url="/api/uploadImage"
-    bgColor="#042b42";
-    btnColor:string;
-    textColor:string="#7ad6e8";
-    textFontSize:string="14px";
-    flex:flexType;
-    _main:Main;
+   public readonly logo:string="/images/gb_logo.png";
+   public readonly pic="/images/gb_logo.png";
+   public readonly url="/api/uploadImage";
+   public readonly emojiSmile:string="/images/emojiSmile.png";
+   public readonly bgColor="#042b42";
+   public btnColor:string;
+   public readonly textColor:string="#7ad6e8";
+   public textFontSize:string="14px";
+   public _main:Main;
    static headerType:swapHeaderType;
    static btnEles:HTMLButtonElement[] |null;
-    _header:Header;
-    _footer:Footer;
-    _edit:Edit;
-    htmlelement:HtmlElement;
-    _displayBlog:DisplayBlog;
-    sideSetup:SideSetup;
-    loadMisc:LoadMisc;
-    _selectors_:flexSelectorType[]
-    ven:Ven;
-    intro:Intro;
-    reference:Reference;
+   private _header:Header;
+   private _footer:Footer;
+   private _edit:Edit;
+   private htmlelement:HtmlElement;
+   private _displayBlog:DisplayBlog;
+   private sideSetup:SideSetup;
+   private loadMisc:LoadMisc;
+   private _selectors_:flexSelectorType[]
+   private ven:Ven;
+   private intro:Intro;
+   private reference:Reference;
     // DROP-DOWN SELECTOR FOR EACH BOX
-   design:Design;
+  private design:Design;
+  
    addImage:AddImageUrl;
-    _elements:elementType[]=[];
-    codeElement:CodeElement;
-    _pasteCode:PasteCode;
+  private  _elements:elementType[]=[];
+  private  codeElement:CodeElement;
+  private  _pasteCode:PasteCode;
     //Column GENERATOR
     arrCol=[{col:1,num:12},{col:2,num:6},{col:3,num:4},{col:4,num:3},{col:6,num:2}]
     //-------------------INITIALIZE---------------------///
@@ -964,8 +1077,9 @@ class Sidebar{
     
     //---------------------INITIALIZE------------------------///
 
-    constructor(private _modSelector:ModSelector,private _service:Service,main:Main, private _flexbox:Flexbox,private _code:NewCode,header:Header,public customHeader:CustomHeader,footer:Footer,edit:Edit,private _user:User,private _regSignin:RegSignIn,displayBlog:DisplayBlog,public chart:ChartJS,public shapeOutside:ShapeOutside,private _metablog:MetaBlog,private _headerFlag:Headerflag){
-        this.flex={} as flexType;
+    constructor(private _modSelector:ModSelector,private _service:Service,private auth:AuthService,main:Main, private _flexbox:Flexbox,private _code:NewCode,header:Header,public customHeader:CustomHeader,footer:Footer,edit:Edit,private _user:User,private _regSignin:RegSignIn,displayBlog:DisplayBlog,public chart:ChartJS,public shapeOutside:ShapeOutside,private _metablog:MetaBlog,private _headerFlag:Headerflag){
+        this.emojiSmile="./images/emojiSmile.png";
+        this.logo="/images/logo.png";
         this._selectors_=Flexbox.selectors_;
         this.btnColor=this._modSelector.btnColor;
         this._main=main;
@@ -973,21 +1087,16 @@ class Sidebar{
         this._footer=footer;
         this._edit=edit;
         this.reference= new Reference(this._modSelector);
-        this.htmlelement=new HtmlElement(this._modSelector,this._service,this._user,this.shapeOutside)
+        this.design= new Design(this._modSelector);
+        this.ven= new Ven(this._modSelector);
+        this._pasteCode= new PasteCode(this._modSelector,this._service)
+        this.htmlelement=new HtmlElement(this._modSelector,this._service,this._user,this.shapeOutside,this.design,this.ven,this.reference,this._headerFlag,this._pasteCode)
         this._displayBlog=displayBlog;
         Sidebar.headerType={normal:true,custom:false}
         this.sideSetup= new SideSetup(this._modSelector,this._service,this._user,this._displayBlog,this._edit);
-        this.design= new Design(this._modSelector,this.htmlelement);
-        this.ven= new Ven(this._modSelector);
         this.intro=new Intro(this._modSelector,this._service);
         this.loadMisc= new LoadMisc(this._modSelector,this._service);
-        this.loadBlog().then(async(res)=>{
-            if(res){
-                //uploading it from Storage
-                const blog=JSON.parse(res);
-                this._modSelector._blog={...blog};
-            }
-        });
+       
         this.addImage=new AddImageUrl(this._modSelector,this._service);
         
     }
@@ -1000,42 +1109,56 @@ class Sidebar{
         this._modSelector.elements=elements;
     }
     get placement(){
-        return this._modSelector._placement;
+        return this._modSelector.placement;
     }
     set placement(placement:number){
-        this._modSelector._placement=placement;
+        this._modSelector.placement=placement;
     }
 
    
    
     //------GETTER SETTERS-----/////
     // MAIN INJECTION FOR SIDEBAR
-    onclickHideShowSideBar(injector:HTMLElement){
-        const lessThan1000=window.innerWidth <988 ? true:false;
+    onclickHideShowSideBar({injector,mainContainer,textarea,footer,mainHeader}:{
+        injector:HTMLElement,
+        mainContainer:HTMLElement,
+        textarea:HTMLElement,
+        footer:HTMLElement,
+        mainHeader:HTMLElement
+
+    }){
+        mainContainer.id="main";
+        Main.container=mainContainer;
+        Main.textarea=textarea;
+        const less1000=window.innerWidth <988 ;
         injector.style.position="relative";
         const arrDiv=document.createElement("div");
         arrDiv.style.cssText=`border-radius:50%;background:${this.bgColor};filter:drop-shadow(0 0 0.75rem ${this.bgColor});font-size:18px;display:grid;place-items:center;width:40px;height:40;position:absolute;`;
         arrDiv.style.top="0%";
         arrDiv.style.right="0%";
-        arrDiv.style.transform=lessThan1000 ? "rotate(90deg)":"rotate(0deg)";
+        arrDiv.style.transform=less1000 ? "rotate(90deg)":"rotate(0deg)";
         arrDiv.style.transform="translate(-10px,0px)";
         FaCreate({parent:arrDiv,name:FaArrowAltCircleLeft,cssStyle:{color:"white",width:"35px",height:"35px",margin:"auto",backgroundColor:"transparent"}});
-        if(lessThan1000){
-            this.onclickHideShowSidebarLt1000(injector,arrDiv);
+        if(less1000){
+            this.onclickHideShowSidebarLt1000({injector,arrDiv,mainCont:mainContainer,less1000,textarea,footer,mainHeader});
         }else{
-            this.onclickHideShowSideBarGt100(injector,arrDiv);
-        }
-    }
+            this.onclickHideShowSideBarGt100({injector,arrDiv,mainCont:mainContainer,less1000,textarea,footer,mainHeader});
+        };
+        
+    };
+
+
+
    //PARENT onClickHideShowSidebar()
-    onclickHideShowSideBarGt100(injector:HTMLElement,arrDiv:HTMLElement){
-        const maxHeight=120
-        this.sidebarMain(injector,maxHeight);
+    onclickHideShowSideBarGt100({injector,arrDiv,mainCont,less1000,textarea,footer,mainHeader}:{injector:HTMLElement,arrDiv:HTMLElement,mainCont:HTMLElement,less1000:boolean,textarea:HTMLElement,footer:HTMLElement,mainHeader:HTMLElement}){
+        const maxHeight=130
+        this.sidebarMain({parent:injector,maxHeight,mainCont,less1000,textarea,footer,mainHeader});
         injector.appendChild(arrDiv);
         arrDiv.addEventListener("click",(e:MouseEvent)=>{
             if(e){
-                if(!Main.mainInjection) return;
+                if(!Main.mainEntry) return;
                 const time=700;
-                const mainInjector=Main.mainInjection as HTMLElement;
+                const mainInjector=Main.mainEntry as HTMLElement;
                 arrDiv.classList.toggle("show-aside");
                 const check=([...arrDiv.classList as any] as string[]).includes("show-aside");
                 if(check){
@@ -1087,11 +1210,14 @@ class Sidebar{
         });
 
         //add: sidebarMain() here
-    }
+    };
+
+
+
     //PARENT onClickHideShowSidebar()
-    onclickHideShowSidebarLt1000(injector:HTMLElement,arrDiv:HTMLElement){
-        const maxHeight=100;
-        this.sidebarMain(injector,maxHeight);
+    onclickHideShowSidebarLt1000({injector,arrDiv,mainCont,less1000,textarea,footer,mainHeader}:{injector:HTMLElement,arrDiv:HTMLElement,mainCont:HTMLElement,less1000:boolean,textarea:HTMLElement,footer:HTMLElement,mainHeader:HTMLElement}){
+        const maxHeight=60;
+        this.sidebarMain({parent:injector,maxHeight,mainCont,less1000,textarea,footer,mainHeader});
         injector.appendChild(arrDiv);
         arrDiv.addEventListener("click",(e:MouseEvent)=>{
             if(e){
@@ -1132,21 +1258,25 @@ class Sidebar{
                 }
             }
         });
-    }
+    };
+
     
     // PARENT onclickHideShowSideBarGt100 && onClickHideShowSidebar
-    sidebarMain(parent:HTMLElement,maxHeight:number){
-        const injection=document.querySelector("section#mainInjection") as HTMLElement;
+    sidebarMain({parent,maxHeight,mainCont,less1000,textarea,footer,mainHeader}:{
+        parent:HTMLElement,
+        maxHeight:number,
+        mainCont:HTMLElement,
+        less1000:boolean,
+        textarea:HTMLElement,
+        footer:HTMLElement,
+        mainHeader:HTMLElement
+
+    }){
+        const height=less1000 ? "60vh":"130vh";
+        const user=this._user.user;
+        const blog=this._modSelector.blog;
+        const idValues=this._modSelector.dataset.idValues
         Main.textarea=document.querySelector("div#textarea");
-        const less900=window.innerWidth < 900;
-        let setHeight:string="100vh";
-        let setOverflowY:string="scroll";
-        if(injection  ){
-            setHeight=window.getComputedStyle(injection).getPropertyValue("height");
-            setHeight=less900 ? window.getComputedStyle(injection).getPropertyValue("height"):"auto";
-            setOverflowY="scroll";
-        }
-        
         parent.style.paddingBottom="2rem";
         parent.style.paddingInline="0.5rem";
         parent.style.justifySelf="flex-start";
@@ -1154,35 +1284,35 @@ class Sidebar{
         Main.cleanUp(parent);
         const sidebarMain=document.createElement("section");
         sidebarMain.id="sidebarMain";
-        sidebarMain.style.cssText=`justify-content:flex-start;align-items:center;overflow-y:${setOverflowY};gap:1rem;padding-inline:1rem;border:1px solid white;font-size:${this.textFontSize};height:${setHeight};padding-block:2rem;`;
-        sidebarMain.style.maxHeight=`${maxHeight}vh`;
+        sidebarMain.style.cssText=`justify-content:flex-start;align-items:center;overflow-y:scroll;gap:1rem;padding-inline:1rem;border:1px solid white;font-size:${this.textFontSize};padding-block:2rem;`;
+        sidebarMain.style.maxHeight=height;
+        sidebarMain.style.height="100%";
         sidebarMain.className="flexCol";
-        this.introduction(sidebarMain);
-        this.initializeTheme(sidebarMain);
-        this.initiatesAddNewBlog(sidebarMain);
-        this.addAGraph(sidebarMain);
-        this.initiateEdit(sidebarMain);
-        this.refreshEditor(sidebarMain);
-        this.editMeta(sidebarMain);//edit Meta
+        this.introduction(sidebarMain,mainCont);
+        this.initializeTheme({parent:sidebarMain,mainCont,idValues,textarea,mainHeader,footer});
+        this.initiatesAddNewBlog(sidebarMain,mainCont);
+        this.addAGraph(sidebarMain,textarea,idValues);
+        this.initiateEdit({parent:sidebarMain,mainCont,textarea,mainHeader,footer,idValues});
+        this.refreshEditor({parent:sidebarMain,mainCont,textarea,mainHeader,footer,blog,user});
+        this.editMeta({parent:sidebarMain,mainCont});//edit Meta
         // this.initiateEdit(sidebarMain);
-        this.saveBlog(sidebarMain);
-        this.reOrder(sidebarMain);
-        this.initiateHeaderTemplate(sidebarMain);
-        this.initiateHeaderFlag(sidebarMain);
-        this.ultility(sidebarMain);
-        this.initiateCustomHeaderBtn(sidebarMain);
-        this.addimageClass(sidebarMain);
-        // this.loadImages(sidebarMain);
-        this.initiateShapOutsideBtn(sidebarMain);
-        // this.initiateGenerateCode(sidebarMain);
-        this.initiateCodElement(sidebarMain);
-        this.initiatePasteCode(sidebarMain);
-        this.initiateReference(sidebarMain);
-        this.initiateGenerateFooter(sidebarMain);
-        this.flexBoxLayout(sidebarMain);
+        this.saveBlog(sidebarMain,mainCont);
+        this.reOrder({parent:sidebarMain,idValues,user,textarea,mainCont,mainHeader,footer});
+        this.initiateHeaderTemplate(sidebarMain,idValues,mainHeader);
+        this.initiateHeaderFlag(sidebarMain,idValues,textarea);
+        this.ultility(sidebarMain,idValues,null,textarea);
+        this.initiateCustomHeaderBtn(sidebarMain,mainHeader);
+        this.addimageClass(sidebarMain,idValues,textarea);
+        this.initiateShapOutsideBtn(sidebarMain,idValues,textarea);
+        this.initiatePasteCode(sidebarMain,idValues,textarea);
+        this.initiateReference(sidebarMain,idValues);
+        this.initiateGenerateFooter({parent:sidebarMain,idValues,footer});
+        this.flexBoxLayout({parent:sidebarMain,textarea});
         parent.appendChild(sidebarMain);
-    }
-    introduction(parent:HTMLElement){
+    };
+
+
+    introduction(parent:HTMLElement,mainCont:HTMLElement){
         //BTN THAT DESCRIBES ITS PURPOSE ON SIDEBAR
         const btnContainer=document.createElement("div");
         btnContainer.className="flexCol text-center";
@@ -1222,12 +1352,22 @@ class Sidebar{
                 setTimeout(()=>{
                     btn.disabled=false;
                 },1000);
-                this.intro.viewInstruction(Main.container);
+                this.intro.viewInstruction(mainCont);
             }
         });
      };
+
+
     //THEME
-    initializeTheme(parent: HTMLElement){
+    initializeTheme({parent,idValues,mainCont,textarea,mainHeader,footer}:{
+        parent: HTMLElement,
+        idValues:idValueType[],
+        mainCont:HTMLElement,
+        textarea:HTMLElement,
+        mainHeader:HTMLElement,
+        footer:HTMLElement
+
+    }){
         const btnContainer=document.createElement("div");
         btnContainer.className="flexCol text-center";
         btnContainer.style.cssText="box-shadow:1px 1px 12px 1px white;border-radius:10px;padding-inline:0.5rem;padding-block:1rem;width:100%;";
@@ -1268,15 +1408,14 @@ class Sidebar{
                 setTimeout(()=>{
                     btn.disabled=false;
                 },1000);
-                this.sideSetup.themeSetup(Main.container,true)
+                this.sideSetup.themeSetup({mainCont:mainCont,init:true,idValues,textarea,mainHeader,footer})
             }
         });
-     }
+     };
    
     //BTN INITIATE EDIT
-    saveBlog(parent:HTMLElement){
+    saveBlog(parent:HTMLElement,mainCont:HTMLElement){
         //BTN THAT DESCRIBES OPTION TO SAVE BLOG AND OPENS this.saveWork()
-        const navHeader=document.querySelector("header#navHeader") as HTMLElement;
         const outerContainer=document.createElement("div");
         outerContainer.className="flexCol my-2 py-2";
         outerContainer.style.cssText="box-shadow:1px 1px 12px 1px white;border-radius:10px;padding-inline:0.5rem;padding-block:1rem;width:100%;";
@@ -1309,10 +1448,10 @@ class Sidebar{
                 },1000);
                 const blog=this._modSelector.blog;
                 const user=this._user.user;
-                Main.container=document.querySelector("section#main") as HTMLElement;
-                if(!Main.container) return;
+              
                 if(blog && user.id && user.email){
-                    this._user.saveWork({parent:navHeader,blog,func:()=>undefined})
+                    
+                    this._user.saveWork({parent:mainCont,blog,func:()=>undefined})
 
                 }else{
                     this._regSignin.signIn();
@@ -1322,9 +1461,20 @@ class Sidebar{
        
         outerContainer.appendChild(container);
         parent.appendChild(outerContainer);
-    }
+    };
+
+
     //PARENT MAIN()-onTop
-    reOrder(parent:HTMLElement){
+    reOrder({parent,textarea,user,idValues,mainCont,mainHeader,footer}:{
+        parent:HTMLElement,
+        idValues:idValueType[],
+        user:userType,
+        textarea:HTMLElement,
+        mainCont:HTMLElement,
+        mainHeader:HTMLElement,
+        footer:HTMLElement
+
+    }){
         Main.textarea=document.querySelector("div#textarea") as HTMLElement;
         const btnContainer=document.createElement("div");
         btnContainer.className="flexCol text-center";
@@ -1360,7 +1510,9 @@ class Sidebar{
         ],{duration:1000,iterations:1})
         btn.addEventListener("click",(e:MouseEvent)=>{
             if(e && Main.textarea){
-                const check= this._modSelector.blog ? true : false;
+                const blog=this._modSelector.blog;
+                const maxCount=ModSelector.maxCount(blog);
+                const check= maxCount>1;
                 window.scroll(0,400);
                 btn.disabled=true;
                 setTimeout(()=>{
@@ -1368,13 +1520,14 @@ class Sidebar{
                 },1000);
                 if( check ){
                     const blog=this._modSelector.blog;
-                    this._edit.reOrder(Main.textarea,blog);
+                    this._edit.reOrder({parent,textarea,blog,idValues,user,mainCont,mainHeader,footer});
                 }
             }
         });
-     }
+     };
+
      //PARENT MAIN()-onTop
-     initiatesAddNewBlog(parent:HTMLElement){
+     initiatesAddNewBlog(parent:HTMLElement,mainCont:HTMLElement){
         //BTN THAT DESCRIBES ITS PURPOSE ON SIDEBAR
         const btnContainer=document.createElement("div");
         btnContainer.className="flexCol text-center";
@@ -1397,41 +1550,38 @@ class Sidebar{
             {transform:"translateY(0%) skew(0deg,0deg)",opacity:"1"}
         ],{duration:1000,iterations:1})
         btn.addEventListener("click",async(e:MouseEvent)=>{
-            if(e && Main.container){
+            if(e ){
                 window.scroll(0,0);
                 btn.disabled=true;
                 setTimeout(()=>{
                     btn.disabled=false;
                 },1000);
                 const blog=this._modSelector.blog;
+                const maxCount=ModSelector.maxCount(blog);
                 const user=this._user.user;
-                const checkUser=(user && user.id && user.email) ? true:false;
-                const checkBlog=(blog && blog.name) ;
-                const modBlog=this._modSelector.blog;
-                Main.container=document.querySelector("section#main") as HTMLElement;
-                const mainContainer=Main.container as HTMLElement
-                if(user && user.id){
+                const checkUser=(user?.id && user.id!=="" && user?.email!=="");
+                const checkBlog=( blog.name !=="undefined" && maxCount>0) ;
+                if(checkUser){
                     //ask to save
                    
-                    if(modBlog.name && modBlog.elements && modBlog.elements.length>0){
+                    if(checkBlog){
 
                         Misc.wantToSaveBeforeFunc({
-                            parent:mainContainer,
+                            parent:mainCont,
                             funcSave:async()=>{await this._user.saveWork({parent,blog,func:async()=>{
                                 await this._main.newBlog({
-                                    parent:mainContainer,
+                                    parent:mainCont,
                                     func:()=>undefined,
                                     })
                             }})},
                             functCancel:async()=>{
                                 await this._main.newBlog({
-                                    parent:mainContainer,
+                                    parent:mainCont,
                                     func:()=>undefined,
                                     })
                              }})
                     }else{
-                        console.log("NEW BLOG")
-                        await this._main.newBlog({parent:mainContainer,func:()=>undefined})
+                        await this._main.newBlog({parent:mainCont,func:()=>undefined})
                     }
 
                 }else{
@@ -1440,7 +1590,9 @@ class Sidebar{
             }
         });
      };
-     addAGraph(parent:HTMLElement){
+
+
+     addAGraph(parent:HTMLElement,textarea:HTMLElement,idValues:idValueType[]){
         //BTN THAT DESCRIBES ITS PURPOSE ON SIDEBAR
         const btnContainer=document.createElement("div");
         btnContainer.className="flexCol text-center";
@@ -1470,18 +1622,30 @@ class Sidebar{
             {transform:"translateY(0%) skew(0deg,0deg)",opacity:"1"}
         ],{duration:1000,iterations:1})
         btn.addEventListener("click",(e:MouseEvent)=>{
-            if(e && Main.textarea){
+            if(e ){
                 btn.disabled=true;
                 setTimeout(()=>{
                     btn.disabled=false;
                 },1000);
                 const blog=this._modSelector.blog;
-                this.chart.editorChart(Main.textarea,blog);
+                this.chart.editorChart(textarea,blog,idValues);
             }
         });
      };
+
+
+
      //PARENT MAIN()-onTop
-     refreshEditor(parent:HTMLElement){
+     refreshEditor({parent,mainCont,textarea,mainHeader,footer,blog,user}:{
+        parent:HTMLElement,
+        mainCont:HTMLElement,
+        mainHeader:HTMLElement,
+        textarea:HTMLElement,
+        footer:HTMLElement,
+        blog:blogType,
+        user:userType
+
+     }){
         //BTN THAT DESCRIBES ITS PURPOSE ON SIDEBAR
         const btnContainer=document.createElement("div");
         btnContainer.className="flexCol text-center";
@@ -1507,29 +1671,37 @@ class Sidebar{
             type:"button"
         }
         const btn=buttonReturn(btn_);
+        btn.id="refreshButton";
         btnContainer.appendChild(divCont);
         parent.appendChild(btnContainer);
         btn.animate([
             {transform:"translateY(-100%) skew(45deg,0deg)",opacity:"0.3"},
             {transform:"translateY(0%) skew(0deg,0deg)",opacity:"1"}
         ],{duration:1000,iterations:1})
-        btn.addEventListener("click",(e:MouseEvent)=>{
+        btn.addEventListener("click",async(e:MouseEvent)=>{
             if(e && Main.container){
                 btn.disabled=true;
                 setTimeout(()=>{
                     btn.disabled=false;
                 },1000);
-                const blog=this._modSelector.blog;
-                this._edit.main(Main.container as HTMLElement,blog)
+                
+                
+                await this._edit.main({parent:mainCont,textarea,mainHeader,footer,blog,user});
                 // this._edit.selEleGenerator(Main.textarea as HTMLElement,blog)
             }
         });
      };
  
-    
       //!! NOT USED-BTN INITIATE EDIT
     
-      initiateEdit(parent:HTMLElement){
+      initiateEdit({parent,mainCont,idValues,textarea,mainHeader,footer}:{
+        parent:HTMLElement,
+        mainCont:HTMLElement,
+        idValues:idValueType[],
+        textarea:HTMLElement,
+        mainHeader:HTMLElement,
+        footer:HTMLElement
+      }){
         const container=document.createElement("div");
         container.className="flexCol my-2 py-2";
         container.style.cssText="box-shadow:1px 1px 12px 1px white;border-radius:10px;padding-inline:0.5rem;padding-block:1rem;text-align:center;align-items:center;width:100%;";
@@ -1559,14 +1731,15 @@ class Sidebar{
                 setTimeout(()=>{
                     retBtn.disabled=false;
                 },1000);
-                this._edit.editViewUserBlogs(Main.container as HTMLElement)
+                this._edit.editViewUserBlogs({parent:mainCont,mainCont,mainHeader,textarea,footer,idValues})
             }
         });
        
         parent.appendChild(container);
-    }
+    };
+
      //PARENT MAIN()-onTop!!FIX!!!!!!!!!!!!!!!
-     async editMeta(parent:HTMLElement){
+     async editMeta({parent,mainCont}:{parent:HTMLElement,mainCont:HTMLElement}){
          const btnContainer=document.createElement("div");
          btnContainer.className="flexCol text-center";
          btnContainer.style.cssText="box-shadow:1px 1px 12px 1px white;border-radius:10px;padding-inline:0.5rem;padding-block:1rem;text-align:center;align-items:center;width:100%;";
@@ -1605,26 +1778,25 @@ class Sidebar{
                 setTimeout(()=>{
                     btn.disabled=false;
                 },1000);
-                const user=this._user._user;
+                const user=this._user.user;
                 const blog=this._modSelector.blog;
-                const check= ( user && user.id && user.email) ? true : false;
-                const check1= (check && blog && blog.user_id) ? true : false;
-                const check2=check1 && blog.name ? true : false;
-                // console.log("user",user,"blog",blog);
+                const check= ( user?.id && user.id!=="" && user.email!=="") ;
+                const check1= (check && blog && blog.user_id!=="");
+                const check2=check1 && blog.name;
                 if(check2){
                     this._metablog.metablog({grandParent:null,parent:Main.textarea as HTMLElement,blog,type:"editor"})
                 }
                 else if(check){
-                    this._main.newBlog({parent:Main.container as HTMLElement,func:()=>{this._metablog.metablog({grandParent:null,parent:Main.textarea as HTMLElement,blog,type:"editor"})}});
+                    this._main.newBlog({parent:mainCont,func:()=>{this._metablog.metablog({grandParent:null,parent:Main.textarea as HTMLElement,blog,type:"editor"})}});
                 }else{
                     this._regSignin.signIn()
                 }
             }
         });
-     }
+     };
    
      //PARENT MAIN()-onTop
-     initiateHeaderTemplate(parent:HTMLElement){
+     initiateHeaderTemplate(parent:HTMLElement,idValues:idValueType[],mainHeader:HTMLElement){
         Sidebar.headerType={normal:true,custom:false};
         const outerContainer=document.createElement("div");
         outerContainer.style.cssText="box-shadow:1px 1px 12px 1px white;border-radius:10px;padding-inline:0.5rem;padding-block:1rem;text-align:center;align-items:center;width:100%;";
@@ -1662,15 +1834,18 @@ class Sidebar{
             };
             headerCol.appendChild(img);
             containerFlex.appendChild(headerCol);
-            // console.log("ISON BEFORE BTN",header.isOn);
+           
             img.addEventListener("click",(e:MouseEvent)=>{
                 if(e){
+                    const blog=this._modSelector.blog;
                     header.isOn=true;
                     this._header._HeaderDataMain=header;
                     this._header.getHeader=header;
-                    //headerSidebar is injected in main from header
-                    if(!header.isOn && Sidebar.headerType.normal===true) return;
-                    this._header.headerSidebar(Main._mainHeader as HTMLElement,this._header.getHeader)
+                   
+                    this.checkHeaderThenCreate({mainHeader,blog,
+                        func:()=>this._header.headerSidebar({mainHeader,style:header.headerStyle,id:header.id,idValues})
+                    });
+                    
                 }
             });
         });
@@ -1678,10 +1853,11 @@ class Sidebar{
         parent.appendChild(outerContainer);
         
      };
-     initiateHeaderFlag(parent:HTMLElement){
+
+
+     initiateHeaderFlag(parent:HTMLElement,idValues:idValueType[],textarea:HTMLElement){
         const less900=window.innerWidth < 900;
         const less400=window.innerWidth < 400;
-        const headerflagsample=Headerflag.headerFlagSample;
         Sidebar.headerType={normal:true,custom:false};
         const outerContainer=document.createElement("div");
         outerContainer.style.cssText="box-shadow:1px 1px 12px 1px white;border-radius:10px;padding-inline:0.5rem;padding-block:1rem;text-align:center;align-items:center;width:100%;";
@@ -1722,11 +1898,15 @@ class Sidebar{
                 };
                 headerCol.appendChild(img);
                 containerFlex.appendChild(headerCol);
-                // console.log("ISON BEFORE BTN",header.isOn);
+                
                 img.addEventListener("click",(e:MouseEvent)=>{
                     if(e){
     
-                        this._headerFlag.initMain({parent:Main.textarea as HTMLElement,cardBodyCss:item_});
+                        this._headerFlag.initMain({
+                            parent:textarea,
+                            cardBodyCss:item_,
+                            idValues
+                        });
                     }
                 });
 
@@ -1736,8 +1916,10 @@ class Sidebar{
         parent.appendChild(outerContainer);
         
      };
+
+
      //PARENT MAIN CUSTOM HEADER
-     ultility(parent:HTMLElement){
+     ultility(parent:HTMLElement,idValues:idValueType[],selRowCol:selRowColType|null,textarea:HTMLElement){
         //create btn-group
         const base=document.createElement("div");
         const title=document.createElement("h6");
@@ -1766,34 +1948,34 @@ class Sidebar{
                 if(e && Main.textarea){
                     window.scroll(0,0);
                     if(word.name==="divider"){
-                    this.btnDivider(Main.textarea as HTMLElement);
+                    this.btnDivider({parent:Main.textarea as HTMLElement,idValues,selRowCol});
                     }
                     else if(word.name==="separator"){
-                        this.btn1Separator(Main.textarea as HTMLElement);
+                        this.btn1Separator({parent:Main.textarea as HTMLElement,idValues,selRowCol});
                     }
                     else if(word.name==="circles-design"){
-                        this.design.circlesDesign(Main.textarea as HTMLElement);
+                        this.design.circlesDesign(Main.textarea as HTMLElement,idValues);
                     }
                     else if(word.name==="arrow-design"){
-                        this.design.arrowDesign(Main.textarea as HTMLElement);
+                        this.design.arrowDesign(Main.textarea as HTMLElement,idValues);
                     }
                     else if(word.name==="clean-text"){
-                        this.cleanText(Main.textarea as HTMLElement);
+                        this.cleanText(Main.textarea as HTMLElement,idValues);
                     }
                     else if(word.name==="Ven-Diagram"){
-                        this.ven.venDiagram(Main.textarea as HTMLElement);
+                        this.ven.venDiagram({parent:Main.textarea as HTMLElement,idValues});
                     }
                     else if(word.name==="wave-art"){
-                        this.design.signalWave(Main.textarea as HTMLElement);
+                        this.design.signalWave(Main.textarea as HTMLElement,idValues);
                     }
                     else if(word.name==="arch-art"){
-                        this.design.arch(Main.textarea as HTMLElement);
+                        this.design.arch(Main.textarea as HTMLElement,idValues);
                     }
                     else if(word.name==="title-art"){
-                        this.design.titleArt(Main.textarea as HTMLElement);
+                        this.design.titleArt(Main.textarea as HTMLElement,idValues);
                     }
                     else if(word.name==="add-fill"){
-                        this.design.addFill(Main.textarea as HTMLElement);
+                        this.design.addFill({parent:textarea,idValues});
                     }
                 }
             });
@@ -1803,9 +1985,11 @@ class Sidebar{
         base.appendChild(para);
         base.appendChild(btnGrp);
         parent.appendChild(base);
-     }
+     };
+
+
      //PARENT MAIN CUSTOM HEADER
-     initiateCustomHeaderBtn(parent:HTMLElement){
+     initiateCustomHeaderBtn(parent:HTMLElement,mainHeader:HTMLElement){
         Sidebar.headerType={normal:false,custom:true};
         this.customHeader.isRefreshed=false;
         const btnContainer=document.createElement("div");
@@ -1845,14 +2029,17 @@ class Sidebar{
                 setTimeout(()=>{
                     btn.disabled=false;
                 },1000);
-
-                    this.customHeader.customHeader(Main._mainHeader as HTMLElement,false);
-                    // console.log(Sidebar.headerType,"hello")
-                // }
+               
+                    const blog=this._modSelector.blog;
+                    this.checkHeaderThenCreate({mainHeader:Main._mainHeader,blog,
+                        func:()=>this.customHeader.customHeader(mainHeader,false)
+                    });
             }
         });
      };
-     addimageClass(parent:HTMLElement){
+
+
+     addimageClass(parent:HTMLElement,idValues:idValueType[],textarea:HTMLElement){
         Sidebar.headerType={normal:false,custom:true};
         this.customHeader.isRefreshed=false;
         const btnContainer=document.createElement("div");
@@ -1897,11 +2084,14 @@ class Sidebar{
                 //MAIN INSERTION POINT FOR TEXTAREA
                 if(!Main.textarea) return;
                 const blog=this._modSelector.blog;
-                   await this.addImage.main({parent:Main.textarea,blog});
+                const user=this._user?.user?.id!=="" ? this._user.user:null;
+                   await this.addImage.main({parent:textarea,blog,useParent:true,idValues,user});
             }
         });
      };
-     loadImages(parent:HTMLElement){
+
+
+     loadImages(parent:HTMLElement,idValues:idValueType[]){
         Sidebar.headerType={normal:false,custom:true};
         this.customHeader.isRefreshed=false;
         const btnContainer=document.createElement("div");
@@ -1945,11 +2135,13 @@ class Sidebar{
                 },1000);
                 //MAIN INSERTION POINT FOR TEXTAREA
                 if(!Main.textarea) return;
-                    this.loadMisc.main(Main.textarea);
+                    this.loadMisc.main({parent:Main.textarea,idValues});
             }
         });
      };
-     initiateReference(parent:HTMLElement){
+
+
+     initiateReference(parent:HTMLElement,idValues:idValueType[]){
         Sidebar.headerType={normal:false,custom:true};
         this.customHeader.isRefreshed=false;
         const btnContainer=document.createElement("div");
@@ -1992,12 +2184,13 @@ class Sidebar{
                     btn.disabled=false;
                 },1000);
                 if(!Main.textarea) return;
-                    this.reference.main({parent:Main.textarea});
+                    this.reference.main({parent:Main.textarea,idValues});
             }
         });
      };
+
      //PARENT MAIN SHAPE-OUTSIDE
-     initiateShapOutsideBtn(parent:HTMLElement){
+     initiateShapOutsideBtn(parent:HTMLElement,idValues:idValueType[],textarea:HTMLElement){
         Sidebar.headerType={normal:false,custom:true};
         this.customHeader.isRefreshed=false;
         const btnContainer=document.createElement("div");
@@ -2038,12 +2231,13 @@ class Sidebar{
                 setTimeout(()=>{
                     btn.disabled=false;
                 },1000);
-                    this.shapeOutside.sidebarMain(Main.textarea as HTMLElement);
+                    this.shapeOutside.sidebarMain({parent:textarea,idValues});
             }
         });
      };
+
     //PARENT MAIN(): GENERATES CODE TEMPLATE
-    initiateGenerateCode(parent:HTMLElement){
+    initiateGenerateCode(parent:HTMLElement,textarea:HTMLElement){
     
         const btnContainer=document.createElement("div");
         btnContainer.className="flexCol text-center";
@@ -2083,50 +2277,14 @@ class Sidebar{
                 setTimeout(()=>{
                     btn.disabled=false;
                 },1000);
-                this._code.codeTemplate(Main.textarea as HTMLElement);
+                this._code.codeTemplate(textarea);
             }
         });
     
     };
-    initiateCodElement(parent:HTMLElement){
-    
-        const btnContainer=document.createElement("div");
-        btnContainer.className="flexCol text-center";
-        btnContainer.style.cssText="box-shadow:1px 1px 12px 1px white;border-radius:10px;padding-inline:0.5rem;padding-block:1rem;text-align:center;align-items:center;width:100%;";
-        const H5=document.createElement("h6");
-        H5.textContent="type your code";
-        H5.style.cssText="margin:auto;text-decoration:underline;text-underline-offset:1rem;";
-        H5.className="text-info lean";
-        btnContainer.appendChild(H5);
-        const para=document.createElement("p");
-        para.className="mc-auto px-1 text-balance text-center";
-        para.style.cssText="text-wrap:wrap;margin-block:1rem;";
-        para.style.color=this.textColor;
-        para.textContent="This allows you to type && display code using VS color palette.";
-        btnContainer.appendChild(para);
-        const {button:btn}=Misc.simpleButton({anchor:btnContainer,type:"button",bg:"green",color:"white",time:400,text:"create code"});
-        parent.appendChild(btnContainer);
-        btn.animate([
-            {transform:"translateY(-100%) skew(45deg,0deg)",opacity:"0.3"},
-            {transform:"translateY(0%) skew(0deg,0deg)",opacity:"1"}
-        ],{duration:1000,iterations:1})
-        btn.addEventListener("click",(e:MouseEvent)=>{
-            if(e){
-                window.scroll(0,400);
-                btn.disabled=true;
-                setTimeout(()=>{
-                    btn.disabled=false;
-                },1000);
-                this.codeElement= new CodeElement(this._modSelector,this._service) ;
-                this.codeElement.codeTemplate({
-                    injector:Main.textarea as HTMLElement,
-                })
-            }
+   
 
-        });
-    
-    };
-    initiatePasteCode(parent:HTMLElement){
+    initiatePasteCode(parent:HTMLElement,idValues:idValueType[],textarea:HTMLElement){
     
         const btnContainer=document.createElement("div");
         btnContainer.className="flexCol text-center";
@@ -2156,14 +2314,16 @@ class Sidebar{
                     btn.disabled=false;
                 },1000);
                 this._pasteCode=new PasteCode(this._modSelector,this._service);
-                this._pasteCode.initPasteCode({injector:Main.textarea as HTMLElement})
+                this._pasteCode.initPasteCode({injector:textarea,idValues})
             }
 
         });
     
     };
+
     //PARENT MAIN() INJECTOR-!!!!BUTTON
-    initiateGenerateFooter(parent:HTMLElement){
+    initiateGenerateFooter({parent,idValues,footer}:{parent:HTMLElement,idValues:idValueType[],footer:HTMLElement}){
+       
         const btnContainer=document.createElement("div");
         btnContainer.className="flexCol text-center";
         btnContainer.style.cssText="box-shadow:1px 1px 12px 1px white;border-radius:10px;padding-inline:0.5rem;padding-block:1rem;text-align:center;align-items:center;width:100%;";
@@ -2202,14 +2362,13 @@ class Sidebar{
                 setTimeout(()=>{
                     btn.disabled=false;
                 },1000);
-                this._footer.main(Main._mainFooter as HTMLElement);
+                this._footer.main(footer,idValues);
             }
         });
-    }
+    };
      
     //PARENT MAIN()-selector are appended to textarea
-    flexBoxLayout(parent:HTMLElement){
-        this.flex={} as flexType;
+    flexBoxLayout({parent,textarea}:{parent:HTMLElement,textarea:HTMLElement}){
         const outerContainer=document.createElement("div");
         outerContainer.id="flexbox-outerContainer";
         outerContainer.className="flexCol my-2 py-2";
@@ -2231,14 +2390,14 @@ class Sidebar{
         outerContainer.appendChild(para);
         const selectors=this._selectors_;
         selectors.map(selector=>{
-            this.selectorTemplate({container,selector})
+            this.selectorTemplate({container,selector,textarea})
         });
         outerContainer.appendChild(container);
         parent.appendChild(outerContainer);
-    }
+    };
 
-    selectorTemplate(item:{container:HTMLElement,selector:flexSelectorType}){
-        const {container,selector}=item;
+    selectorTemplate(item:{container:HTMLElement,selector:flexSelectorType,textarea:HTMLElement}){
+        const {container,selector,textarea}=item;
         const div=document.createElement("div");
             div.style.cssText="margin:auto;display:flex;flex-direction:column;align-items:center;";
             const small=document.createElement("small");
@@ -2251,45 +2410,94 @@ class Sidebar{
             div.appendChild(small);
             div.appendChild(select_img);
             container.appendChild(div);
-            select_img.addEventListener("click",(e:MouseEvent)=>{
+            select_img.addEventListener("click",async (e:MouseEvent)=>{
                 if(e){
                     window.scroll(0,800);
                     // console.log("sidebar:Header.selectors",this._modSelector.selectors)
-                    this._flexbox.rowColGenerator(Main.textarea as HTMLElement,selector);
+                   await this._flexbox.rowColGenerator(textarea,selector);
                     
                 }
             });
-    }
+    };
 
-    deleteElement(parent:HTMLElement,target:HTMLElement){
-        if(parent && target){
-                const iconDiv=document.createElement("div");
-                target.classList.add("position-relative");
-                iconDiv.className="fa-solid fa-trash text-danger deleteIcon";
-                iconDiv.setAttribute("contenteditable","false");
-                iconDiv.style.cssText="font-size:14px;position:absolute;right:0px;top:-1.5rem;padding:0px;border:none; text-decoration:none;z-index:1000;transform:translate(10px,-7px);";
-                const cssStyle={}
-                FaCreate({parent:iconDiv,name:FaCrosshairs,cssStyle})
-                    target.appendChild(iconDiv);
-                    iconDiv.addEventListener("click",(e:MouseEvent)=>{
-                        if(e){
-                            parent.removeChild(target);
-                            this._modSelector.promRemoveElement(target).then(async(res)=>{
-                                if(res){
-                                    const res_=(res as elementType)
-                                    const placement=res_.placement ? res_.placement : undefined;
-                                    if(!placement) return;
-                                    this._modSelector.shiftPlace(placement);
-                                }
-                            });
-                        }
-                    });
-           
+
+    checkHeaderThenCreate({mainHeader,blog,func}:{
+        mainHeader:HTMLElement|null,
+        blog:blogType,
+        func:()=>Promise<void>|void
+}){
+    const _mainHeader_=document.querySelector("section#sectionHeader") as HTMLElement;
+    mainHeader=mainHeader ||_mainHeader_;
+    const foundHeader=blog.selectors.find(select=>(select.header));
+    
+        if(foundHeader){
+            //message
+            this.foundHeaderMsg({parent:mainHeader,blog,func});
+        }else{
+            func();
         }
-    }
-   
+    };
+
+    foundHeaderMsg({parent,blog,func}:{
+        parent:HTMLElement,
+        blog:blogType,
+        func:()=>Promise<void>|void
+    }){
+       
+        parent.style.position="relative";
+        const css_col="display:flex;justify-content:center;align-items:center;flex-direction:column;";
+        const css_row="display:flex;justify-content:space-around;align-items:center;flex-wrap:nowrap;";
+        const css_inline="display:inline-flex;justify-content:space-around;align-items:center;flex-wrap:nowrap;";
+        const popup=document.createElement("div");
+        popup.id="foundCustom header-popup";
+        popup.className="popup";
+        popup.style.cssText= css_col + "position:absolute;inset:0% 0% -20%;width:clamp(350px,500px,575px);background-color:white;color:blue;border-radius:12px;box-shadow:1px 1px 12px 1px black; padding-inline:1rem; padding-block:0.5rem;gap:1rem;z-index:100;transform:translateY(20%);";
+        popup.style.transform="translateY(20%);";
+        const emoji=document.createElement("img");
+        emoji.src=this.emojiSmile;
+        emoji.alt="www.ablogroom.com";
+        emoji.style.cssText="width:50px;margin:auto;filter:drop-shadow(0 0 0.5rem black);border-radius:50%;border:none;";
+        const msg=document.createElement("p");
+        msg.style.cssText="text-wrap:pretty;margin:auto;";
+        msg.textContent="You have an already existing header. If you click change, then all your styles and information will be deleted. Do you want to change the header?";
+        const msgCont=document.createElement("div");
+        msgCont.style.cssText=css_row;
+        popup.appendChild(msg);
+        const btnDiv=document.createElement("div");
+        btnDiv.style.cssText=css_inline
+        const {button:cancel}=Misc.simpleButton({anchor:btnDiv,text:"cancel",type:"button",bg:Nav.btnColor,color:"white",time:400});
+        const {button:remove}=Misc.simpleButton({anchor:btnDiv,text:"change",type:"button",bg:Nav.btnColor,color:"white",time:400});
+        msgCont.appendChild(emoji);
+        msgCont.appendChild(msg);
+        popup.appendChild(msgCont);
+        popup.appendChild(btnDiv);
+        parent.appendChild(popup);
+        cancel.onclick=(e:MouseEvent)=>{
+            if(!e) return;
+            Misc.growOut({anchor:popup,scale:0,opacity:0,time:400});
+            setTimeout(()=>{
+                parent.removeChild(popup);
+            },390);
+        };
+        remove.onclick=(e:MouseEvent)=>{
+            if(!e) return;
+            Header.cleanUp(parent);
+            console.log(blog.selectors)
+            blog.selectors = blog.selectors.filter(select=>(!select.header));
+            this._modSelector.selectors=blog.selectors;
+            console.log("after selectors",blog.selectors)
+            //execute the function
+            func();
+        };
+    };
+    
     //BTN ULTILITIES
-    btn1Separator(parent:HTMLElement){
+    btn1Separator({parent,idValues,selRowCol}:{
+        parent:HTMLElement,
+        idValues:idValueType[],
+        selRowCol:selRowColType|null
+
+    }){
         parent.style.position="relative";
         const width=window.innerWidth <900 ? 80 :30;
         const popup=document.createElement("div");
@@ -2324,7 +2532,7 @@ class Sidebar{
                 },480);
             }
         });
-        form.addEventListener("submit",(e:SubmitEvent)=>{
+        form.addEventListener("submit",async(e:SubmitEvent)=>{
             if(e){
                 e.preventDefault();
                 const formdata=new FormData(e.currentTarget as HTMLFormElement);
@@ -2335,8 +2543,12 @@ class Sidebar{
                 const hr=divider_1(divCont,color) as HTMLElement;
                 hr.style.width="100%";
                 parent.appendChild(divCont);
-                this._modSelector.elementAdder(hr);
-                this._modSelector.removeMainElement(parent,divCont,hr)
+               await this._modSelector.elementAdder({target:hr,sel:null,rowEle:null,colEle:null,idValues}).then(async(res)=>{
+                if(res){
+                    idValues=res.idValues
+                    this._modSelector.removeMainElement({parent,divCont,target:res.target,idValues,selRowCol})
+                }
+               });
                 Misc.fadeOut({anchor:popup,xpos:50,ypos:100,time:500});
                 setTimeout(()=>{
                     parent.removeChild(popup);
@@ -2344,8 +2556,15 @@ class Sidebar{
             }
         });
         
-    }
-    btnDivider(parent:HTMLElement){
+    };
+
+
+    btnDivider({parent,idValues,selRowCol}:{
+        parent:HTMLElement,
+        idValues:idValueType[],
+        selRowCol:selRowColType|null
+
+    }){
         parent.style.position="relative";
         const width=window.innerWidth <900 ? 80 :30;
         const popup=document.createElement("div");
@@ -2421,26 +2640,14 @@ class Sidebar{
                 setTimeout(()=>{
                     parent.removeChild(popup);
                 },480);
-                this._modSelector.elementAdder(target);
-                this._modSelector.removeMainElement(parent,divcont,target)
+                this._modSelector.elementAdder({target,sel:null,rowEle:null,colEle:null,idValues});
+                this._modSelector.removeMainElement({parent,divCont,target,idValues,selRowCol})
             }
         });
         
-    }
+    };
 
     
-    
-   async promElementAdder(target:HTMLElement){
-        return new Promise((resolver)=>{
-            resolver(this._modSelector.elementAdder(target))
-        }) as Promise< {
-            target: HTMLElement | HTMLImageElement;
-            ele: element_selType;
-        } | {
-            target: HTMLElement | HTMLImageElement;
-            ele: elementType;
-        } | undefined>;
-    }
     arrowColor(target:HTMLElement){
         target.style.position="relative";
         const select=document.createElement("select");
@@ -2478,8 +2685,10 @@ class Sidebar{
               
             }
         });
-    }
-    cleanText(parent:HTMLElement){
+    };
+
+
+    cleanText(parent:HTMLElement,idValues:idValueType[]){
         const blog=this._modSelector.blog;
         const popup=document.createElement("div");
         popup.id="clean-text";
@@ -2493,7 +2702,7 @@ class Sidebar{
         parent.appendChild(popup);
         Misc.matchMedia({parent:popup,maxWidth:900,cssStyle:{top:"30%"}});
 
-        Sidebar.genParagraph(blog).map(item=>{
+        this.genParagraph({blog,idValues}).map(item=>{
             const container=document.createElement("div");
             container.style.cssText="display:flex; justify-content:space-around;align-items:center;";
             const btn=buttonReturn({parent:container,text:"clean",bg:"#00FFFF",color:"white",type:"button"});
@@ -2507,12 +2716,21 @@ class Sidebar{
             Misc.matchMedia({parent:container,maxWidth:600,cssStyle:{flexDirection:"column"}});
             Misc.matchMedia({parent:para,maxWidth:600,cssStyle:{order:"-1"}});
             Misc.matchMedia({parent:btn,maxWidth:600,cssStyle:{order:"2"}});
-            btn.onclick=(e:MouseEvent)=>{
+            btn.onclick=async(e:MouseEvent)=>{
                 if(e){
                     const para2=Sidebar.cleanPara(para as HTMLParagraphElement);
                     if(!para2)return;
                     item.para.textContent=para2.textContent;
-                    this._modSelector.updateElement(item.para);
+                    await this._modSelector.updateElement({target:item.para,idValues,selRowCol:item.selRowCol}).then(async(res)=>{
+                        if(res ){
+                            if(res.ele){
+                                const ele=res.ele
+                                Misc.message({parent,msg:`updated:${ele.eleId}`,type_:"success",time:700});
+                            }
+                        }else{
+                            Misc.message({parent,msg:`value was not saved`,type_:"success",time:700});
+                        }
+                    });
                     
                 }
             };
@@ -2526,111 +2744,78 @@ class Sidebar{
                 },398);
             }
         };
-    }
+    };
     //BTN ULTILITIES
     //PARENT EDIT BLOG PAGE-edit meta button
     blogEditDisplay(parent:HTMLElement,file:File,formdata:FormData){
         //upload image to blog.img then display blog.name, blog.desc;
+        const blog=this._modSelector.blog;
+        const user=this.auth.user;
+        const hasBlog=blog.user_id !=="" && blog.name !=="undefined";
+        const blogHasKey=hasBlog && blog.imgKey!=="undefined";
         const editSubContainer=document.createElement("div");
         editSubContainer.className="mx-auto my-2 w-100";
         editSubContainer.style.cssText="background-color:black;colr:white;border-radius:12px;padding:1rem;box-shadow:1px 1px 10px 1px black;";
         const picDescCont=document.createElement("p");
-        picDescCont.style.cssText="display:flex;margin-inline:auto;flex-direction:row;flex-wrap:wrap;justify-content:center;align-items:center;gap:1rem;width:100%;";
+        picDescCont.style.cssText="display:flex;margin-inline:auto;flex-direction:row;flex-wrap:wrap;justify-content:center;align-items:center;gap:1rem;width:100%;gap:1.5rem;";
+        //IMG
+        const img=document.createElement("img");
+        const cssText="border-radius:50%;filter:drop-shadow(0 0 0.75rem crimson);shape-outside:circle():margin-right:1rem;margin-bottom:1.25rem;float:left;";
+        img.style.cssText=cssText;
+        //IMG
+        
         const filename=document.createElement("h6");
         filename.className="lean display-6 ";
-        filename.textContent=this._modSelector.blog && this._modSelector.blog.name ? this._modSelector.blog.name :'';
+        filename.textContent=hasBlog ? this._modSelector.blog.name as string :'no name';
         editSubContainer.appendChild(filename);
         // insert
-        const cssText="border-radius:50%;filter:drop-shadow(0 0 0.75rem crimson);shape-outside:circle():margin-right:1rem;margin-bottom:1.25rem;float:left;";
         let urlImg:string;
-        if(this._modSelector.blog.imgKey && this._modSelector.blog.img){
-            urlImg=this._modSelector.blog.img;
-        }
-        if(file as File){
+        if(blogHasKey){
+            const key=blog.imgKey as string
+            this._service.getSimpleImg(key).then(async(res)=>{
+                if(res){
+                    this._modSelector.blog.img=res.img;
+                    img.src=res.img;
+                }
+            });
+        }else if(file as File){
             urlImg=URL.createObjectURL(file);
-            this.uploadBlogImg(parent,formdata);
+            img.src=urlImg;
+            if(!user){
+                Misc.message({parent,msg:"this pic has not been uploaded and therefore used for just display purpuses",type_:"error",time:1500});
+            }else{
+
+                this.uploadBlogImg({parent,formdata}).then(async(res)=>{
+                    if(res){
+                        img.src=res.img;
+                        img.alt="www.ablogroom.com";
+                    }
+                });
+            }
+
         }else{
-            urlImg=this.pic;
+            this._modSelector.blog.img=this.logo;
+            img.src=this.logo;
         }
-        
-        picDescCont.innerHTML=`<img src="${urlImg} alt="${"www.ablogroom.com"}" style="${cssText}"/> ${this._modSelector.blog.desc}`;
+        const text=new Text(blog.desc || "enter your content");
+        picDescCont.appendChild(img);
+        picDescCont.appendChild(text);
         editSubContainer.appendChild(picDescCont);
         parent.appendChild(editSubContainer);
 
-    }
-    uploadBlogImg(parent:HTMLElement,formdata:FormData){
-        console.log("formdata recieved",formdata)
-        const option={
-            method:"PUT",
-            body:formdata
-        }
-        fetch(this.url,option).then(async(res)=>{
-            if(res){
-                const imgKey=formdata.get("Key") as string;
-                if(imgKey){
-                this._modSelector.blog={...this._modSelector.blog,imgKey};
-               
-                Misc.message({parent,msg:"success",type_:"success",time:400});
-                }
-            }else{
-                Misc.message({parent,msg:"something went wrong",type_:"error",time:700});
+    };
 
-            }
-        }).catch((err)=>console.log(err.message));
-    }
-    blogNameDescFill(item:{parent:HTMLElement,blog:blogType,user:userType}){
-        const {parent,blog,user}=item;
-        let _blog={...blog};
-        const cssPopup={inset:"160% 0% 0% 0%"};
-        //SIGNEDIN  BLOG SAVED PROCESS::THIS OPENS A POPUP FOR BLOG NAME AND DESCRIPTION COMPLETION, THEN SAVES THE BLOG AND IS THEN REMOVED
-        const {popup,form,input,textarea}=Misc.fillBlogNameDesc({parent,cssPopup});
-        form.addEventListener("submit",(e:SubmitEvent)=>{
-            if(e){
-                e.preventDefault();
-                const name_=input.name;
-                const desc_=textarea.name;
-                const formdata=new FormData(e.currentTarget as HTMLFormElement);
-                const name=formdata.get(name_);
-                const desc=formdata.get(desc_);
-                if(blog && user && user.id && name && desc){
-                    _blog={...blog,name:name as string,desc:desc as string}
-                    const newBlog=this._modSelector.loadBlog({blog:_blog,user});
-                    //CREATING A NEW BLOG
-                    this._service.newBlog(newBlog).then(async(blog_)=>{
-                        if(blog_ && typeof(blog_)==="object"){
-                            blog_={...blog_,selectors:blog.selectors,elements:blog.elements,codes:blog.codes};
-                            //SAVING WHOLE BLOG
-                            this._service.saveBlog({blog:blog_,user}).then(async(_Blog_)=>{
-                                if(_Blog_){
-                                    //STORING IT IN STORAGE
-                                    localStorage.setItem("blog",JSON.stringify(_Blog_));
-                                    //SAVING IT IN MODSELECTOR
-                                    this._modSelector.blog= await this._service.promsaveItems({blog:_Blog_,user});
-                                    Misc.message({parent,msg:"saved",type_:"success",time:400});
-                                    setTimeout(()=>{
-                                        Misc.fadeOut({anchor:popup,xpos:100,ypos:50,time:400});
-                                        setTimeout(()=>{textarea.removeChild(popup)},380);
-                                    },380);
-                                }else{
-                                    Misc.message({parent,msg:"blog was not saved",type_:"error",time:700});
-                                    setTimeout(()=>{
-                                        Misc.fadeOut({anchor:popup,xpos:100,ypos:50,time:400});
-                                        setTimeout(()=>{textarea.removeChild(popup)},380);
-                                    },680);
-                                }
-                            }).catch((err)=>{
-                                const msg=getErrorMessage(err);
-                                console.error(msg);
-                                Misc.message({parent,msg:msg,type_:"error",time:700});
-                                setTimeout(()=>{parent.removeChild(popup)},680);
-                            });
-                        }
-                    });
-                }
+    
+   async uploadBlogImg({parent,formdata}:{parent:HTMLElement,formdata:FormData}){
+       const imgAndKey=await  this._service.simpleImgUpload(parent,formdata);
+       if(imgAndKey){
+        const {img}=imgAndKey;
+        return {img}
+       }
+       
+    };
 
-            }
-        });
-    }
+    
     async loadBlog(){
         return new Promise(resolve=>{
             if(typeof window !=="undefined"){
@@ -2639,7 +2824,7 @@ class Sidebar{
             }
 
         }) as Promise<string | null> ;
-    }
+    };
 
     
    
@@ -2653,14 +2838,16 @@ class Sidebar{
         divCont.appendChild(line2);
         parent.appendChild(divCont);
         return {divCont:divCont,line1:line,line2:line2}
-    }
+    };
+
     static cleanUpWithID(parent:HTMLElement,target:HTMLElement){
         const label=target.nodeName.toLowerCase();
         const getTarget=parent.querySelector(`${label}#${target.id}`);
         if(getTarget){
             parent.removeChild(target);
         }
-    }
+    };
+
     static cleanUpID(parent:HTMLElement,id:string){
         const getAll=parent.querySelectorAll(`#${id}`);
         if(getAll){
@@ -2670,15 +2857,17 @@ class Sidebar{
                 }
             })
         }
-    }
+    };
+
     static getBtns():HTMLButtonElement[]|null{
         if(!Main.textarea) return null
         const allBtns=Main.textarea?.querySelectorAll("button");
         if(!allBtns) return null
         return ([...allBtns as any] as HTMLButtonElement[])
-    }
-    static genParagraph(blog:blogType):{para:HTMLElement}[]{
-        const arr:{para:HTMLElement}[]=[];
+    };
+
+     genParagraph({blog,idValues}:{blog:blogType,idValues:idValueType[]}):{para:HTMLElement,selRowCol:selRowColType|null}[]{
+        const arr:{para:HTMLElement,selRowCol:selRowColType|null}[]=[];
         if(!blog)return [];
          blog.elements.map(ele=>{
             if(ele && ele.name==="p"){
@@ -2686,7 +2875,7 @@ class Sidebar{
                 if(getEle){
                     const check=([...getEle.classList as any] as string[]).includes("isActive");
                     if(check){
-                        arr.push({para:getEle});
+                        arr.push({para:getEle,selRowCol:null});
                     }
 
                 }
@@ -2702,7 +2891,13 @@ class Sidebar{
                             if(getEle){
                                 const check=([...getEle.classList as any] as string[]).includes("isActive");
                                 if(check){
-                                    arr.push({para:getEle});
+                                    const getSelRowCol=this._modSelector.dataset.getIdValue({target:getEle,idValues,id:"selRowCol"})
+                                    if(getSelRowCol){
+                                        const selRowCol=JSON.parse(getSelRowCol.attValue);
+                                        arr.push({para:getEle,selRowCol});
+                                    }else{
+                                        arr.push({para:getEle,selRowCol:null});
+                                    }
                                 }
             
                             }
@@ -2712,22 +2907,18 @@ class Sidebar{
             });
         });
         return arr;
-    }
+    };
+
     static cleanPara(para:HTMLParagraphElement):HTMLParagraphElement|undefined{
         
         if(!para)return;
         let text:string="";
-        text=para.textContent ? para.textContent : "";
-        ([...para.children as any] as HTMLElement[]).map(child=>{
-            if(child){
-                // text+=child.textContent ? child.textContent : "";
-            }
-        });
+        text=para.textContent || "";
         if(text !==""){
            para.textContent=text;
         }
         return para;
-    }
+    };
     
     
 }

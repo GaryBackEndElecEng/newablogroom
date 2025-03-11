@@ -1,42 +1,41 @@
 import { linkType, userType } from "@/components/editor/Types";
-import Nav from "@/components/nav/headerNav";
 import ModSelector from "../editor/modSelector";
 import AuthService from "../common/auth";
 import Service from "../common/services";
-import User from "../user/userMain";
-import Profile from "../profile/profile";
 import Misc from "../common/misc";
 import Header from "../editor/header";
-import Dataflow from "../common/dataflow";
 import Meta from "../meta/meta";
 import NavArrow from "./arrow";
-import RegSignIn from "./regSignin";
-import { Session } from "next-auth";
-import MainFooter from "../footer/mainFooter";
+import SignInAndUp from "./signinAndUp";
 
 class MainHeader{
-    meta:Meta
-    logo:string;
-    static navUrl=[{id:0,name:"home",url:"/"},{id:1,name:"terms-of-service",url:"/termsOfServce"},{id:2,name:"blogs",url:"/blogs"},{id:3,name:"privacy",url:"/privacy"},]
-static injector:HTMLElement;
-static header:HTMLElement|null;
-bgColor:string;
-btnColor:string;
-static mainHeader_css:string;
-// dataflow:Dataflow;
-static links:linkType[]=[{name:"home",link:"/"},{name:"editor",link:"/editor"},{name:"blogs",link:"/blogs"},{name:"posts",link:"/posts"},{name:"charts",link:"/chart"}]
-pic="/images/gb_logo.png";
-count:number;
-pageCount:number;
-textFlow:string;
-_status:"authenticated" | "loading" | "unauthenticated";
-    constructor(private _modSelector:ModSelector,private _service:Service,private _navArrow:NavArrow){
+   public meta:Meta
+   public readonly logo:string="gb_logo.png";
+   public readonly logoLarge:string="./images/gb_logo_600.png";
+   public static navUrl=[{id:0,name:"home",url:"/"},{id:1,name:"terms-of-service",url:"/termsOfServce"},{id:2,name:"blogs",url:"/blogs"},{id:3,name:"privacy",url:"/privacy"},]
+   public static injector:HTMLElement;
+   public static header:HTMLElement|null;
+   public bgColor:string;
+   public btnColor:string;
+   public static mainHeader_css:string;
+    // dataflow:Dataflow;
+   public static readonly links:linkType[]=[{name:"home",link:"/"},{name:"editor",link:"/editor"},{name:"blogs",link:"/blogs"},{name:"posts",link:"/posts"},{name:"charts",link:"/chart"}]
+   public pic="/images/gb_logo.png";
+    public count:number;
+    public pageCount:number;
+    public textFlow:string;
+    public _status:"authenticated" | "loading" | "unauthenticated";
+    private _isSignedIn:boolean;
+
+
+    constructor(private _modSelector:ModSelector,private _service:Service,public navArrow:NavArrow,private auth:AuthService,public signinAndUp:SignInAndUp){
         this.bgColor="#0C090A";
         this.btnColor=this._modSelector.btnColor;
         MainHeader.mainHeader_css=`width:100%;height:5vh;box-shadow:1px 1px 5px 1px black,-1px -1px 5px -1px black;margin-block:0px;position:relative;background:${this.bgColor};display:flex;justify-content:space-between;`;
         
-        // this.dataflow= new Dataflow(this._service);
-        this.logo="gb_logo.png"
+      
+        this.logo="gb_logo.png";
+        this.logoLarge="./images/gb_logo_600.png"
         this.meta=new Meta();
        this.count=0;
        this.pageCount=0;
@@ -45,99 +44,128 @@ _status:"authenticated" | "loading" | "unauthenticated";
     }
     //---------------------GETTER SETTERS-----------------------//
     get status(){
-        return this._status;
+        return this.auth.status;
     }
     set status(status:"authenticated" | "loading" | "unauthenticated"){
         this._status=status;
     }
+    get isSignedIn(){
+        return this.auth._isAuthenticated
+    }
     //---------------------GETTER SETTERS-----------------------//
     //INJECTOR:headerInjector)
-      main(item:{parent:HTMLElement}){
-        const {parent}=item;
+      main(item:{parent:HTMLElement,user:userType,isAuthenticated:boolean}){
+        const {parent,user,isAuthenticated}=item;
+        const less900=window.innerWidth < 900;
+        const less400=window.innerWidth < 400;
         this.meta.checkPathname();// redirecting to error page if error
         MainHeader.injector=parent;
+        Header.cleanUpByID(parent,"navHeader");
         //SETTING WIDTH
         let width_:number;
         if(typeof window !=="undefined"){
             width_=window.innerWidth <983 ? 99 : 100;
             MainHeader.injector.style.width=`${width_}%`;
         }
-        Header.cleanUpByID(parent,"navHeader");
         MainHeader.header=document.createElement("header");
         MainHeader.header.id="navHeader"
         parent.style.zIndex="0;"
         MainHeader.header.style.cssText=MainHeader.mainHeader_css;
+        const headerMain=document.createElement("div");
+        headerMain.id="headerMain";
+        headerMain.style.cssText="display:flex;"
+        headerMain.style.flex=less900 ? (less400 ? "1 0 80%":"1 0 85%"):"1 0 90%";
+        const headerEnd=document.createElement("div");
+        headerEnd.id="header-end";
+        headerEnd.style.cssText="display:flex;justify-content:center;align-items:center;position:relative;"
+        headerEnd.style.flex=less900 ? (less400 ? "1 0 20%":"1 0 15%"):"1 0 10%";
+        MainHeader.header.appendChild(headerMain);
+        MainHeader.header.appendChild(headerEnd);
+        //signIn-out
+        if( user.id ===""){
+            // NOT SIGNEDIN=> SHOW SIGNIN && SIGNUP
+           this.signinAndUp.main({parent:headerEnd}).then(async(_res)=>{
+                if(_res ){
+                    _res.parent.appendChild(_res.container);
+                }
+           });
+        }
+        //signIn-out
+        //NAV BUTTON
         const button=document.createElement("button");
-        this._navArrow.rotateArrow({button,time:800});//arrow navigator
-        MainHeader.header.appendChild(button);
+        this.navArrow.rotateArrow({button,time:800,user,isAuthenticated});//arrow navigator
+        headerMain.appendChild(button);
         parent.appendChild(MainHeader.header);
+        //NAV BUTTON
+        this.showRectDropDown({parent:MainHeader.injector,headerMain,headerEnd,user,count:0,isSignedIn:isAuthenticated});
           //AUTH INJECTION UNDER MainHeader.header=document.querySelector(header#navHeader)
   
-    }
+    };
+
+
     //AUTH:EXECUTOR: INJECTION:MainHeader.header=document.querySelector("header#navHeader") as HTMLElement
-    showRectDropDown(item:{parent:HTMLElement,user:userType|null,count:number}){
-        const {parent,user,count}=item;
+    async showRectDropDown(item:{parent:HTMLElement,headerMain:HTMLElement,headerEnd:HTMLElement,user:userType|null,count:number,isSignedIn:boolean}){
+        const {parent,headerMain,user,count,headerEnd,isSignedIn}=item;
         const url=new URL(window.location.href);
         const pathname="/";
-        const time=url.pathname === "/" && user ? 5000 : 1000; //if home=> after drop-down (5000) else 1000
-        setTimeout(()=>{
-            MainHeader.header=parent.querySelector("header#navHeader") as HTMLElement;
-            if(!MainHeader.header && count >0) return
-            this.asyncShowRectDrpDown({parent:MainHeader.header as HTMLElement,user,count,pathname,time}).then(async(res)=>{
+        const time=url.pathname === "/" && user !==null ? 5000 : 3000; //if home=> after drop-down (5000) else 1000
+      
+        const innerTime=time-200
+        await this.sleep({time:time,
+            func:async()=>{await this.asyncShowRectDrpDown({parent,headerMain,user,count,pathname,time,isSignedIn}).then(async(res)=>{
                 if(res && res.count===1){
-                    //IF PATHNAME DOES NOT MATCH THEN RES.RECT DOES NOT EXIST
-                    setTimeout(async()=>{
-                        //RES.RECT EXIST IF PATHNAME MATCH
-                        
-                        if(res.rect){
-                            const check=res.parent.querySelector(`div#${res.rect.id}`) as HTMLElement;
+                    //GENERATES DROP-DOWN 'WELCOME"
+                    await this.sleep({time:innerTime,
+                        func:async()=>{
+                            //RES.RECT EXIST IF PATHNAME MATCH
+                    
+                            const check=res.parent.querySelector(`div#${res?.rect?.id}`) as HTMLElement;
                             if(check){
+                                //REMOVES DROP-DOWN WELCOME
                                 res.parent.removeChild(check);
                             }
-                            // Header.cleanUpByID(parent,"ablogroom");
+                        
                             MainHeader.removeAllClass({parent:res.parent,class_:"ablogroom"});
-                        }else{
-                            //NOT SIGNED IN 
-                            await this.ablogroom({parent:res.parent,user:null});//SHOWS IF USER===NULL
-                        }
-                        //signedin/not signed in BELOW
-                        this.genPageCount({parent:res.parent,count});//PAGE COUNT ON HEADER
-                        await this._navArrow.signInDisplay(res.parent,res.user).then(async(res_)=>{
-                            //SHOWS LOGIN/USERNAME ON HEADER
-                            //if user:shows user else shows LOGIN PAGE
+                            if(!res.isSignedIn) await this.ablogroom({parent:res.parent,user:null});//SHOWS IF USER===NULL
+                            //GENERATES DISPLAY PAGE COUNT(TOP-LEFT)
+                            await this.genPageCount({parent:res.headerMain,count});//PAGE COUNT ON HEADER
+                            //GENERATES (IF USER IS SIGNED IN HIS SIGNED IN)
+                            await this.signinAndUp.main({parent:headerEnd}).then(async(res_)=>{
                             if(res_ ){
-                                    if(res_.user && res_.parent){
-                                        this._navArrow.cleanUpByQueryKeep(res_.parent,"div#headerNav-signInDisplay-container"); //this cleans up but one
-                                        const admin=res_.user.admin;
+                                    if(res_.isSignedIn){
+                                        this.navArrow.cleanUpByQueryKeep(res_.parent,"div#headerNav-signInDisplay-container"); //this cleans up but one
+                                        const admin=res_.user?.admin;
                                         if(admin){
+                                            //ADMIN PRIVILEDGES
                                             Misc.msgSourceImage({parent:res_.parent,msg:"You have admin Rights",src:this.logo,width:125,quality:75,time:2200,cssStyle:{boxShadow:"1px 1px 12px 1px white",backgroundColor:"black",color:"white",inset:"680% 0% 70% 0%"}});
                                         }
-                                        // this.footer.centerBtnsRow({container:res_.centerBtnCont,status:"authenticated"});//footer shows logout
-                                    }else{
-                                        // this.footer.centerBtnsRow({container:res_.centerBtnCont,status:"unauthenticated"});//footer shows signin
                                     }
+                                    
                             }
                             });
-                    },time-500);
-    
-                }
-            });
-        },time);
-    }
-    asyncShowRectDrpDown(item:{parent:HTMLElement,user:userType|null,count:number,pathname:string,time:number}): Promise<{
-        parent: HTMLElement;
-        rect: HTMLElement|undefined;
-        user: userType | null;
-        count:number
-    }> {
+                        }
+                    })
+                };
+                });
+            }
+        });
+        
+        
+        
+        
+    };
+
+
+   async asyncShowRectDrpDown(item:{parent:HTMLElement,headerMain:HTMLElement,user:userType|null,count:number,pathname:string,time:number,isSignedIn:boolean}) {
         //DISPLAY A BLOGROOM BLOCK ON LOAD
         //BLOGROOM BLOCK SHOWS ONLY @ HOME
-        const {parent,user,count,pathname,time}=item;
+        const {parent,headerMain,user,count,pathname,time,isSignedIn}=item;
         let rectangle:HTMLElement|undefined;
         const less900=window.innerWidth < 900;
         const less700=window.innerWidth < 700;
         const less400=window.innerWidth < 400;
         if(window.location.pathname===pathname && count===0 && user){
+
             this.count=count + 1;
             Header.cleanUpByID(parent,"rectangle");
             parent.style.zIndex="";
@@ -146,32 +174,86 @@ _status:"authenticated" | "loading" | "unauthenticated";
             rectangle.id="rectangle";
             rectangle.style.cssText=`margin-inline:auto;position:absolute; background:black;height:150px;display:flex;place-items:center;padding:2rem;padding-inline:6rem;color:white;top:0%;left:0%;right:0%;border-radius:0px 0px 12px 12px;z-index:200;text-wrap:pretty`;
             rectangle.style.width=less900 ? (less700 ? (less400 ? "100%":"85%") :"80%") : "75%";
-    
-            const text=document.createElement("p");
-            const fontSize=less900 ? (less400 ? "100%" : "225%") :"250%";
-               const word=user.name ? ` welcome ${user.name.split(" ")[0]}` : `welcome ${user.email.split("@")[0]}`;
-                text.textContent=word.toUpperCase();
-                text.style.cssText=`font-size:${fontSize};text-wrap:pretty;margin-inline:auto;`
-            rectangle.appendChild(text);
+            if(isSignedIn){
+                const text=document.createElement("p");
+                const fontSize=less900 ? (less400 ? "100%" : "225%") :"250%";
+                text.style.cssText=`font-size:${fontSize};text-wrap:pretty;margin-inline:auto;`;
+                const word=user.name ? ` welcome ${user.name.split(" ")[0]}` : `welcome ${user.email.split("@")[0]}`;
+                 text.textContent=word.toUpperCase();
+                rectangle.appendChild(text);
+            }else{
+                this.nonSignedInWelcome({rectangle,less900,less400});
+            };
             const cssStyle={width:"100%",background:"#0C090A",color:"blue","border-radius":"0px 0px 40px 40px","paddingInline":"1rem"}
             parent.appendChild(rectangle);
             this.matches(rectangle,900,cssStyle);
             rectangle.animate([
                 {transform:"translateY(-120%)"},
+                {transform:"translateY(0%)",color:"blue"},
+                {transform:"translateY(30%)",color:"blue"},
+                {transform:"translateY(50%)",color:"white"},
                 {transform:"translateY(50%)",color:"blue"},
                 {transform:"translateY(50%)",color:"white"},
-                {transform:"translateY(50%)",color:"white"},
+                {transform:"translateY(30%)",color:"blue"},
+                {transform:"translateY(10%)",color:"white"},
+                {transform:"translateY(0%)",color:"blue"},
                 {transform:"translateY(-120%)"},
             ],{duration:time,iterations:1,"easing":"ease-in-out"});
            
-        }
-        return new Promise((resolve)=>{
-           
-                resolve({parent,rect:rectangle,user,count:count+1})
-            
-        }) as Promise<{parent:HTMLElement,rect:HTMLElement|undefined,user:userType|null,count:number}>;
+        };
         
-    }
+
+        return Promise.resolve({parent,headerMain,rect:rectangle,user,count:count+1,isSignedIn}) as Promise<{parent:HTMLElement,headerMain:HTMLElement,rect:HTMLElement|undefined,user:userType|null,count:number,isSignedIn:boolean}>;
+        
+    };
+
+
+
+
+    async sleep({time,func}:{time:number,func:()=>Promise<void>}){
+        
+        return Promise.resolve(setTimeout(func,time)); 
+    };
+
+
+    nonSignedInWelcome({rectangle,less900,less400}:{rectangle:HTMLElement,less900:boolean,less400:boolean}){
+        rectangle.style.height=less400 ? "220px":"150px";
+        const text=document.createElement("p");
+        const fontSize=less900 ? (less400 ? "120%" : "225%") :"250%";
+        text.style.cssText=`font-size:${fontSize};text-wrap:none;margin-inline:auto;line-height:1.75rem;width:100%;margin-inline:auto;text-wrap:nowrap;`;
+        text.style.lineHeight=less400 ? "1rem":"1.85rem";
+        text.style.marginInline=less400 ? "0px":"auto";
+        const innerCont=document.createElement("div");
+        innerCont.id="nonSignedInWelcome-innerCont";
+        innerCont.style.cssText="display:flex;width:inherit;align-items:center;justify-content:space-around;height:inherit;";
+        innerCont.style.flexDirection=less400 ? "column":"row";
+        innerCont.style.justifyContent=less400 ? "center":"space-around";
+        innerCont.style.alignItems="center";
+        const word= "THE BEST IN CANADA";
+        text.textContent=word.toUpperCase();
+        const textCont=document.createElement("div");
+        textCont.className="text-center";
+        textCont.style.cssText="display:flex;flex-direction:column;justify-content:center;align-items:center;margin-inline:auto;";
+        textCont.style.height=less400 ? "50%":"100%";
+        // textCont.style.width=less400 ? "100%":"auto";
+        const logoText=document.createElement("p");
+        logoText.textContent="www.ablogroom.com";
+        logoText.className="text-primary text-align-center text-center";
+        const img=document.createElement("img");
+        img.src=this.logoLarge;
+        img.alt="www.ablogroom.com";
+        img.style.cssText="aspect-ratio: 1/1;filter:drop-shadow(0 0 0.5rem white);border-radius:26%;border:none;";
+        img.style.height=less400 ? "50%":"100%";
+        innerCont.appendChild(img);
+        textCont.appendChild(text);
+        textCont.appendChild(logoText);
+        innerCont.appendChild(textCont);
+        rectangle.appendChild(innerCont);
+    };
+
+
+
+
     matches(target:HTMLElement,width:number,cssStyle:{[key:string]:string}){
         const arrKey:{key:string,value:string}[]=[];
         for(const [key,value] of Object.entries(cssStyle)){
@@ -188,7 +270,8 @@ _status:"authenticated" | "loading" | "unauthenticated";
                });
             }
         }
-    }
+    };
+
    
     ablogroom(item:{parent:HTMLElement,user:userType|null}):Promise<{parent:HTMLElement}>{
         const {parent,user}=item;
@@ -216,35 +299,34 @@ _status:"authenticated" | "loading" | "unauthenticated";
             Misc.matchMedia({parent:container,maxWidth:400,cssStyle:{inset:"20% 34%"}});
             Misc.matchMedia({parent:text,maxWidth:400,cssStyle:{fontSize:"100%"}});
         }
-        return new Promise((resolve)=>{
-            resolve({parent})
-        }) as Promise<{parent:HTMLElement}>;
+        return Promise.resolve({parent}) as Promise<{parent:HTMLElement}>;
         
-    }
-    genPageCount(item:{parent:HTMLElement,count:number}):void{
+    };
+
+   async genPageCount(item:{parent:HTMLElement,count:number}):Promise<void>{
         const {parent,count}=item;
         if(typeof window ==="undefined") return;
         const less900=window.innerWidth <900;
         const less400=window.innerWidth <400;
         const less375=window.innerWidth <375;
 
-        const regBlog_id:RegExp=/(\/blog\/)[0-9]+/;
+        
         const pg=window.location.pathname;
         if(!pg || count >0) return;
         //ensuring to count page based on landed pages from match RegExp
         const blog_id=MainHeader.getBlogPostID({pathname:pg}).name==="blog" ? MainHeader.getBlogPostID({pathname:pg}).num : undefined;
         const post_id=MainHeader.getBlogPostID({pathname:pg}).name==="post" ? MainHeader.getBlogPostID({pathname:pg}).num : undefined;
-        this.meta.pages.map(page=>{
+        await Promise.all(this.meta.pages.map(async(page)=>{
             if((page.match.test(pg)) && this.pageCount===0){
                 this.pageCount++;
-                this._service.getPageCount({page:pg,blog_id,post_id}).then(async(res)=>{
+                await this._service.getPageCount({page:pg,blog_id,post_id}).then(async(res)=>{
                     if(res){
                             Header.cleanUpByID(parent,"genPageCount-main");
-                            let name=(res && res && res.name) ? res.name : "";
+                            let name=( res.name!=="") ||"";
                             if(res.name==="/"){
                                 name="/home"
                             }
-                            const count_=(res && res && res.count) ? res.count : 0;
+                            const count_=( res.count) ||0;
                             const container=document.createElement("div");
                             container.id="genPageCount-main";
                             container.style.cssText="position:relative;width:auto;height:auto;display:flex;justify-content:center;flex-direction:column;align-items:center;border-left:1px solid white;border-right:1px solid white;margin-left:5px;justify-self:start;";
@@ -272,11 +354,12 @@ _status:"authenticated" | "loading" | "unauthenticated";
                         }
                     });
             }
-        });
+        }));
 
                 
        
-    }
+    };
+
    
     static closeNav(logoCont:HTMLElement){
         //THIS CLOSES THE NAV IF OPEN AND MOUSECLICK IS DETECTED ON BODY
@@ -363,16 +446,16 @@ _status:"authenticated" | "loading" | "unauthenticated";
         //THIS RETURNS A THE ID TO THE PAGE (BLOG/ID) OR POST/ID IF EXIST: NUMBER ELSE UNDEFINED
         const {pathname}=item;
         let num:{name:string,num:number|undefined}={} as {name:string,num:undefined};
-        const regBlog_id:RegExp=/\/(blog)\/[0-9]+/;
-        const regPost_id:RegExp=/\/(post)\/[0-9]+/;
-        const match_num:RegExp=/[0-9]+/;
+        const regBlog_id:RegExp=/\/(blog)\/\d+/;
+        const regPost_id:RegExp=/\/(post)\/\d+/;
+        const match_num:RegExp=/\d+/;
         const arr:{name:string,reg:RegExp,match:RegExp,id:number|undefined}[]=[
             {name:"blog",reg:regBlog_id,match:match_num,id:undefined},
             {name:"post",reg:regPost_id,match:match_num,id:undefined}
         ];
         arr.map(item_=>{
             if(item_.reg.test(pathname)){
-                const match_s=pathname.match(item_.reg) as any;
+                const match_s=RegExp(item_.reg).exec(pathname) as any;
                 const match_number=match_s[0].match(item_.match) as any;
                 const int_=parseInt(match_number[0])
                     if(!isNaN(int_)){
