@@ -15,6 +15,7 @@ import CommonInfo from '../common/commonInfo';
 
 
 
+
 export default function Index({ _user }: { _user: userType | null }) {
     const countRef = React.useRef(0);
     const injectorStyle: { [key: string]: string } = { width: "100%" }

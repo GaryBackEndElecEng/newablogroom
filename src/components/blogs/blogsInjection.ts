@@ -12,6 +12,7 @@ import Message from "../common/message";
 import Searchbar from "../common/searchbar";
 
 
+
 class Blogs{
     public bendImg:string="/images/bend.png";
     public bendImg1:string="/images/bend1.png";
@@ -36,6 +37,7 @@ class Blogs{
     private allMsgs:AllMsgs;
     private message:Message;
     private searchbar:Searchbar;
+   
     constructor( private _modSelector:ModSelector,private _service:Service){
         this.baseUrl=window.location.origin;
        this.gbLogo=`/images/gb_logo.png`;
@@ -45,6 +47,7 @@ class Blogs{
        this.bgColor=this._modSelector._bgColor;
        this.message=new Message(this._modSelector,this._service,this._modSelector.blog,null);
         this.allMsgs=new AllMsgs(this._modSelector,this._service,this.message);
+        
     }
 
     //GETTERS SETTERS
@@ -131,7 +134,7 @@ class Blogs{
 
 
    async blogsLoading({parent,loaded,blogs}:{parent:HTMLElement,loaded:boolean,blogs:blogType[]}):Promise<boolean|undefined>{
-        const time=loaded ? 0 : 300;
+        
         if( blogs.length>0){
             Header.cleanUpByID(parent,"blogsLoading-container");
             const container=document.createElement("div");

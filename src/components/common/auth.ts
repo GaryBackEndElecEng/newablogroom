@@ -1,23 +1,24 @@
-import {blogType, userType, jwtPayload, accountType, sessionType, postType} from "@/components/editor/Types";
+import {blogType, userType, jwtPayload, accountType, sessionType, postType, stateType} from "@/components/editor/Types";
 import ModSelector from "@/components/editor/modSelector";
 import Service from "./services";
 import MainHeader from "../nav/mainHeader";
 import { userDevelopType, userQuoteType } from '../editor/Types';
+import BrowserType from "./browserType";
 
 
 class AuthService {
     static headerInjector:HTMLElement|null;
-    _jwtPayload:jwtPayload={} as jwtPayload;
-    _isAuthenticated: boolean;
+   private _jwtPayload:jwtPayload={} as jwtPayload;
+   public _isAuthenticated: boolean;
     logo:string;
     blog:blogType;
     bgColor:string;
     btnColor:string;
-    adminEmail:string;
-    usersignin:string;
-    _admin:string[];
-    isSignedOut:boolean;
-    _user:userType;
+   private adminEmail:string;
+   private _admin:string[];
+   private isSignedOut:boolean;
+   private _user:userType;
+    private _states:stateType[];
     userInit:userType={
         id:"",
         email:"",
@@ -47,8 +48,8 @@ class AuthService {
         this.logo=`gb_logo.png`;
         this._admin=[];
         this.adminEmail= "" as string;
-        this.usersignin="/api/usersignin";
         this.isSignedOut=false;
+        this._states=[]
         // console.log("AUTH:Constructor")
     }
     ///-------------------GETTER SETTERS-------------------------//
@@ -94,10 +95,18 @@ class AuthService {
             this._user={...this._user,admin:true}
         }
         this._admin=admin;
-    }
+    };
     get admin(){
         return this._admin;
+    };
+    set states(states:stateType[]){
+        this._states=states
+    };
+    get states(){
+        return this._states
     }
+
+    //-----GETTER SETTERS-----////
 
     async generateUser(): Promise<{user:userType}>{
         return Promise.resolve({user:this.user?.id ? this.user : null}) as Promise<{user:userType}>;
@@ -111,14 +120,15 @@ class AuthService {
         const url=new URL(window.location.href);
         const check=["/editor","/chart"].includes(url.pathname);
         if(!check){
-            console.log("INIT BLOG HERE")
             this._modSelector.blogInitializer(user);
             const blog=this._modSelector.blog;
             this.storeLocal(user,blog).then(async(res)=>{
                 res(); //stores user_id && email to localStorage
             });
         };
-        console.log("AUTH",this._modSelector.blog)
+        const browser=new BrowserType(this.user.id);
+        this.states=browser.getHistory()|| [] as stateType[];
+
         if(user?.id && user?.id!=="" && user?.email !=="" && count===0){
              //---!!!!!!!initinilizes blog and user && stores it in local!!!!!!!
             this.user=user;
@@ -131,7 +141,7 @@ class AuthService {
             
             return Promise.resolve({isSignedIn:this._isAuthenticated,count:count+1,user:this.user}) as Promise<{isSignedIn:boolean,user:userType,count:number}>;
         }else{
-            console.log("AUTH","NO USER",url.pathname);
+            
             //THIS INITIALIZE ALL PARAMS TO ALL PAGES( WITHOUT USER)
             this.user=this.userInit;
             this._isAuthenticated=false;
@@ -153,7 +163,24 @@ class AuthService {
 
     };
 
-    
+    async getSessionUser({user}:{user:userType|null}){
+        
+        if(user){
+            this._user=user;
+            this._isAuthenticated=true;
+            this.status="authenticated";
+            this._modSelector.status="authenticated";
+            this._service.isSignedOut=false;
+            return Promise.resolve({isAuthenticated:this._isAuthenticated,user:this.user,states:this.states}) as Promise<{isAuthenticated:boolean,user:userType,states:stateType[]}>;
+        }else{
+            this._isAuthenticated=false;
+            this.status="unauthenticated";
+            this._modSelector.status="unauthenticated";
+            this._service.isSignedOut=true;
+            return Promise.resolve({isAuthenticated:this._isAuthenticated,user:null,states:this.states}) as Promise<{isAuthenticated:boolean,user:null,states:stateType[]}>;
+        }
+        
+    };
 
     confirmUser({user,count}:{user:userType|null,count:number}): Promise<{user:userType,isAuthenicated:boolean,count:number}>{
         if(user){
@@ -162,7 +189,7 @@ class AuthService {
                 this.user=user;
             };
         }
-        return Promise.resolve({user:this.user,isAuthenicated:this._isAuthenticated,count:count+1}) as Promise<{user:userType,isAuthenicated:boolean,count:number}>;
+        return Promise.resolve({user:this.user,isAuthenicated:this._isAuthenticated,count:count+1,states:this.states}) as Promise<{user:userType,isAuthenicated:boolean,count:number,states:stateType[]}>;
     }
 
     loadUser(){

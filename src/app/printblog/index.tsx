@@ -41,11 +41,10 @@ export default function Index({ blog, owner }: { blog: blogType, owner: userType
                         const pasteCode = new PasteCode(_modSelector, _service);
                         const headerFlag = new Headerflag(_modSelector, _service, _user);
                         const shapeOutside = new ShapeOutside(_modSelector, _service, _user);
-                        const code = new NewCode(_modSelector, _service, _user);
-                        const chart = new ChartJS(_modSelector, _service, _user);
                         const message = new Message(_modSelector, _service, _blog, null);
+                        const chart = new ChartJS(_modSelector, _service, _user, message);
                         const htmlElement = new HtmlElement(_modSelector, _service, _user, shapeOutside, design, ven, reference, headerFlag, pasteCode);
-                        const displayBlog = new DisplayBlog(_modSelector, _service, _user, code, chart, message, htmlElement);
+                        const displayBlog = new DisplayBlog(_modSelector, _service, _user, blog, chart, message, htmlElement);
                         const printpdf = new PrintPdf(_modSelector, _service, displayBlog, _blog, owner);
                         printpdf.main({ parent: target });
                     }

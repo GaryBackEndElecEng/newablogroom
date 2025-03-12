@@ -1,38 +1,42 @@
-import Misc from "../common/misc";
 import Service from "../common/services";
 import ModSelector from "../editor/modSelector";
 import { postType, userType } from "../editor/Types";
 import User from "../user/userMain";
 import Nav from "../nav/headerNav";
+import Misc from "../common/misc";
 import Header from "../editor/header";
 import { FaCrosshairs,FaThumbsUp } from "react-icons/fa";
 import { FaCreate } from "../common/ReactIcons";
-import Blogs from "../blogs/blogsInjection";
 import { FaHandBackFist } from "react-icons/fa6";
 import { imageLoader } from "../common/tsFunctions";
 import AddImageUrl from "../common/addImageUrl";
 import PostDetail from "../postDetail/postdetail";
 import Searchbar from "../common/searchbar";
 import AuthService from "../common/auth";
+import BrowserType from "../common/browserType";
 
 
 class Post{
-    handPic:string="/images/hand.png";
-    smile:string="/images/emojiSmile.png";
-    count:number;
-    no_posts:string;
-    addImageClass:AddImageUrl
-    logo:string;
-    postLogo:string;
-    _post:postType;
-    initPost:postType;
-    _posts:postType[];
-    injector:HTMLElement;
-    _like:boolean;
-    postDetail:PostDetail;
-    _usersinfo:userType[];
-    searchbar:Searchbar;
-    constructor(private _modSelector:ModSelector,private _service:Service,private auth:AuthService,private _user:User){
+   public readonly handPic:string="/images/hand.png";
+   public readonly smile:string="/images/emojiSmile.png";
+   public count:number;
+   public no_posts:string;
+   public addImageClass:AddImageUrl
+   public logo:string;
+   public postLogo:string;
+    private _post:postType;
+   private initPost:postType;
+   private _posts:postType[];
+   public injector:HTMLElement;
+   private _like:boolean;
+   private postDetail:PostDetail;
+   private _usersinfo:userType[];
+    private _signinUser:userType|null;
+   public searchbar:Searchbar;
+    public browser:BrowserType;
+
+    constructor(private _modSelector:ModSelector,private _service:Service,private auth:AuthService,private _user:User,signinUser:userType|null){
+        this._signinUser=signinUser;
         this.smile="/images/emojiSmile.png";
         this.logo="/images/gb_logo.png";
         this.postLogo="/images/posts.png";
@@ -47,47 +51,58 @@ class Post{
         this.postDetail=new PostDetail(this._modSelector,this._service,this.auth,this._user,thisuser);
         this.count=0;
         this.handPic="/images/hand.png";
-    }
+        this.browser=new BrowserType(this.auth.user?.id || "");
+       
+        
+    };
+
+    
     //----GETTERS SETTERS----////
     get post(){
         return this._post;
-    }
+    };
     set post(post:postType){
         this._post=post;
-    }
+    };
     get posts(){
         return this._posts;
-    }
+    };
     set posts(posts:postType[]){
         this._posts=posts;
-    }
+    };
     get like(){
         return this._like;
-    }
+    };
     set like(like:boolean){
         this._like=like;
-    }
+    };
     get usersinfo(){
         return this._usersinfo;
-    }
+    };
     set usersinfo(usersinfo:userType[]){
         this._usersinfo=usersinfo;
-    }
+    };
     get user(){
         return this._user.user;
+    };
+    get signinUser(){
+        return this._signinUser;
     };
 
     loadPosts({posts}:{posts:postType[]}):Promise<postType[]>{
 
         this.posts=posts;
         return Promise.resolve(this.posts) as Promise<postType[]>
-    }
+    };
     
     //----GETTERS SETTERS----////
 
     async main(item:{injector:HTMLElement,posts:postType[],usersinfo:userType[]}){
         const {injector,posts,usersinfo}=item;
         //recieved posts:posts from index
+        const url=new URL(window.location.href);
+        const pathname=url.pathname;
+        const repeatcount=1;
         this.posts=posts;
         this.searchbar= new Searchbar({blogs:null,posts:this.posts});//INPUT INTO POST DISPLAYS
         const less900=window.innerWidth < 900;
@@ -102,19 +117,21 @@ class Post{
         container.style.cssText=css_col + " width:100%;min-height:110vh;";
         container.style.gap=less900 ? (less400 ? "3rem":"2.5rem"):"2rem";
         injector.appendChild(container);
-        if(this.user.id!=="" && this.user.email!==""){
+        if(this.signinUser){
             const {button:create_post}=Misc.simpleButton({anchor:container,type:"button",bg:Nav.btnColor,color:"white",time:400,text:"create a post"});
             create_post.style.marginBottom="1rem;"
             create_post.onclick=(e:MouseEvent) =>{
                 if(e){
-                    this.createPost({injector:injector,user:this.user});
+                    this.createPost({injector:injector,user:this.auth.user,pathname});
                 }
             };
         }
         Misc.matchMedia({parent:injector,maxWidth:1200,cssStyle:{width:"85%"}});
         Misc.matchMedia({parent:injector,maxWidth:1000,cssStyle:{width:"90%"}});
         Misc.matchMedia({parent:injector,maxWidth:900,cssStyle:{width:"100%"}});
-        this.titlePage({container,time:4000,less400,less900}).then(async(res)=>{
+
+
+        this.titlePage({container,time:4000,less400,less900,repeatcount}).then(async(res)=>{
             if(res){
                 res.para.style.fontSize=less900 ? (less400 ? "130%":"150%"):"135%";
                 //SEARCH BAR CONTROLS THE POST LISTS funcPosts is the DISPLAYER
@@ -131,7 +148,7 @@ class Post{
                                     this.posts.map(async(post,index)=>{
                                         if(post){
                                             const userinfo=usersinfo.find(user_=>(user_.id===post.userId));
-                                            this.postCard({row:res_.row,post,user:this.user,userinfo,index});
+                                            this.postCard({row:res_.row,post,user:this.user,userinfo,index,pathname});
                                         }
                                     });
                                     Misc.matchMedia({parent:res_.container,maxWidth:400,cssStyle:{paddingInline:"0px"}})
@@ -152,9 +169,27 @@ class Post{
             {opacity:"1"}
         ],{duration:1000,iterations:1,"easing":"ease-in-out"});
     };
-    async titlePage(item:{container:HTMLElement,time:number,less900:boolean,less400:boolean}):Promise<{textContainer:HTMLElement,container:HTMLElement,para:HTMLElement,time:number}>{
+
+
+
+    async titlePage(item:{
+        container:HTMLElement,
+        time:number,
+        less900:boolean,
+        less400:boolean,
+        repeatcount:number
+    }):Promise<{
+        textContainer:HTMLElement,
+        container:HTMLElement,
+        para:HTMLElement,
+        time:number
+       
+    }>{
         const phrase="updates, comments && Miscelanous";
-        const {container,time,less400,less900}=item;
+        const {container,time,less400,less900,repeatcount}=item;
+        //CONTROLLING THE ANIMATION ITERATIONS
+        const isAnimate=this.browser.repeatShowControl({repeatCount:repeatcount});
+        //CONTROLLING THE ANIMATION ITERATIONS
         const css_col="margin-inline:auto;display:flex;flex-direction:column;justify-content:center;align-items:center;";
         const textContainer=document.createElement("div");
         textContainer.id="post-titlepage-textContainer";
@@ -200,7 +235,39 @@ class Post{
         introContainer.style.opacity="0";
         introContainer.style.minHeight=less900 ? (less400 ? "170px":"100px"):"75px";
         //-----------------SPACE FOR INTRODUCTION TO BE DISPLAYED---------------------//
-        this.handSmileWave({introContainer:introContainer,innerParent:text,less400,less900,time:4000});
+        if(isAnimate){
+            this.handSmileWave({introContainer:introContainer,innerParent:text,less400,less900,time:4000});
+        }else{
+            this.showIntroduction({introContainer,less900,less400}).then(async(res)=>{
+                if(res){
+                    //hide vertical effects
+                    
+                    //hide vertical effects
+                    const containerKeyEffect=new KeyframeEffect(res.introContainer,[
+                        {transform:"translateY(150%)",opacity:"0"},
+                        {transform:"translateY(0%)",opacity:"1"},
+                    ],{iterations:1,duration:time*0.5,"easing":"ease-in-out"});
+                    const paraKeyEffect=new KeyframeEffect(res.para,[
+                        {transform:"translateY(-150%)",opacity:"0"},
+                        {transform:"translateY(0%)",opacity:"1"},
+                    ],{iterations:1,duration:time*0.25,"easing":"ease-in-out"});
+                    const smallKeyEffect=new KeyframeEffect(res.para,[
+                        {transform:"translateX(150%)",opacity:"0"},
+                        {transform:"translateX(0%)",opacity:"1"},
+                    ],{iterations:1,duration:time*0.5,"easing":"ease-in-out"});
+                    res.introContainer.style.opacity="1";
+                    const containerAnimate= new Animation(containerKeyEffect,document.timeline);
+                    const paraAnimate= new Animation(paraKeyEffect,document.timeline);
+                    const smallAnimate= new Animation(smallKeyEffect,document.timeline);
+                    res.para.style.opacity="1";
+                    containerAnimate.play();
+                    paraAnimate.play();
+                    res.small.style.opacity="1";
+                    smallAnimate.play();
+
+                }
+            });
+        }
         textContainer.style.opacity="0";
         para.style.opacity="0";
         textContainer.style.transform="scale(0.8)";
@@ -215,41 +282,53 @@ class Post{
         ],{duration:time,iterations:1,"easing":"ease-in-out"});
         para.style.opacity="1";
             para.style.borderRadius="12px";
-          await this.phraseArt({target:para,less400,less900,phrase,time}).then(async(res)=>{
-            if(res){
-                res.target.style.opacity="1";
-                ([...res.target.children as any] as HTMLElement[]).map(span=>{
-                    span.style.opacity="1";
-                    span.style.letterSpacing=less900 ? (less400 ? "0.1rem":"0.13rem"):"0.2rem";
-                    const letterSpacing=less900 ? (less400 ? "0.3rem":"0.5rem"):"1rem";
-                    const fallingLetter=new KeyframeEffect(
-                        span,
-                        [
-                            {opacity:"0"},
-                            {opacity:"1",letterSpacing:"normal",lineHeight:"normal",fontSize:"100%"},
-                            {opacity:"1",letterSpacing:letterSpacing,lineHeight:"1.75rem",fontSize:"100%"},
-                            {opacity:"1",letterSpacing:".2rem",lineHeight:"normal",fontSize:"100%"},
-                        ],
-                        {
-                            duration:time,
-                            direction:"normal", //reverse,alternate
-                            easing:"linear",
-                            iterations:1,
-                            // delay:time*10,
-                            // composite:"replace"
-                        }
-                        
-                    );
-                    const runfallingletter= new Animation(fallingLetter,document.timeline);
-                    runfallingletter.play();
-                });
-            }
-          });
+
+            //LIMITING THE EFFECT COUNT ON PAGE VISITS
+            
+               
+                if(isAnimate){
+                    await this.phraseArt({target:para,less400,less900,phrase,time}).then(async(res)=>{
+                      if(res){
+                          res.target.style.opacity="1";
+                          ([...res.target.children as any] as HTMLElement[]).map(span=>{
+                              span.style.opacity="1";
+                              span.style.letterSpacing=less900 ? (less400 ? "0.1rem":"0.13rem"):"0.2rem";
+                              const letterSpacing=less900 ? (less400 ? "0.3rem":"0.5rem"):"1rem";
+                              const fallingLetter=new KeyframeEffect(
+                                  span,
+                                  [
+                                      {opacity:"0"},
+                                      {opacity:"1",letterSpacing:"normal",lineHeight:"normal",fontSize:"100%"},
+                                      {opacity:"1",letterSpacing:letterSpacing,lineHeight:"1.75rem",fontSize:"100%"},
+                                      {opacity:"1",letterSpacing:".2rem",lineHeight:"normal",fontSize:"100%"},
+                                  ],
+                                  {
+                                      duration:time,
+                                      direction:"normal", //reverse,alternate
+                                      easing:"linear",
+                                      iterations:1,
+                                      // delay:time*10,
+                                      // composite:"replace"
+                                  }
+                                  
+                              );
+                              const runfallingletter= new Animation(fallingLetter,document.timeline);
+                              runfallingletter.play();
+                          });
+                      }
+                    });
+                }else{
+                    para.textContent=phrase;
+                }
+           
         ///--------------------------title display ----------------------///
         
         container.appendChild(textContainer);
         return Promise.resolve({textContainer,container,para,time}) as Promise<{textContainer:HTMLElement,container:HTMLElement,para:HTMLElement,time:number}>;
     };
+
+
+
     phraseArt({target,phrase,less400,less900,time}:{target:HTMLElement,phrase:string,less400:boolean,less900:boolean,time:number}):Promise<{target:HTMLElement}>{
         const wordArr=phrase.split("");
         target.style.opacity="0";
@@ -263,7 +342,10 @@ class Post{
         });
         return Promise.resolve({target}) as Promise<{target:HTMLElement}>;
        
-    }
+    };
+
+
+
     handSmileWave({introContainer,innerParent,less400,less900,time}:{introContainer:HTMLElement,innerParent:HTMLElement,less400:boolean,less900:boolean,time:number}){
 
         const hand=document.createElement("img");
@@ -345,7 +427,9 @@ class Post{
         },time*2);
 
 
-    }
+    };
+
+
     async showIntroduction({introContainer,less900,less400}:{introContainer:HTMLElement,less400:boolean,less900:boolean}):Promise<{introContainer:HTMLElement,para:HTMLElement,small:HTMLElement}>{
        
         const para=document.createElement("p");
@@ -360,7 +444,9 @@ class Post{
         introContainer.style.paddingInline=less900 ? (less400 ? "10px":"1rem"):"2rem";
         introContainer.style.minHeight=less900 ? (less400 ? "170px":"100px"):"75px";
         return Promise.resolve({introContainer,para,small}) as Promise<{introContainer:HTMLElement,para:HTMLElement,small:HTMLElement}>;
-    }
+    };
+
+
     async Posts(item:{container:HTMLElement,posts:postType[],user:userType}):Promise<{container:HTMLElement,subDiv:HTMLElement,row:HTMLElement,posts:postType[],user:userType}>{
         const {container,posts,user}=item;
         const less900=window.innerWidth < 900 ;
@@ -388,8 +474,11 @@ class Post{
         container.appendChild(subDiv);
         return Promise.resolve({container,subDiv,row,posts,user}) as Promise<{container:HTMLElement,subDiv:HTMLElement,row:HTMLElement,posts:postType[],user:userType}>;
     };
-    createPost(item:{injector:HTMLElement,user:userType}){
-        const {injector,user}=item;
+
+
+
+    createPost(item:{injector:HTMLElement,user:userType,pathname:string|null}){
+        const {injector,user,pathname}=item;
         const less900= window.innerWidth < 900;
         const less400= window.innerWidth < 400;
         injector.style.position="relative";
@@ -413,6 +502,15 @@ class Post{
         lTitle.textContent="Title";
         lTitle.style.cssText="font-size:140%;text-decoration:underline;text-underline-offset:0.5rem;margin-bottom:1rem;";
         lTitle.setAttribute("for",inTitle.id);
+        inTitle.onchange=(e:Event)=>{
+            if(e){
+                const content=(incontent as HTMLTextAreaElement).value;
+                const title=(e.currentTarget as HTMLInputElement).value;
+                const {disabled,msg,type,time}=this.enableSubmit({title,content})
+                submit.disabled=disabled;
+               if(msg) Misc.message({parent:form,msg,type_:type,time})
+            }
+        };
         const {textarea:incontent,label:lcontent,formGrp:grpContent}=Nav.textareaComponent(form);
         grpContent.style.cssText=css_col + "width:100%;";
         grpContent.style.width="100%";
@@ -424,6 +522,15 @@ class Post{
         lcontent.textContent="content";
         lcontent.style.cssText="font-size:140%;text-decoration:underline;text-underline-offset:0.5rem;margin-bottom:1rem;";
         lcontent.setAttribute("for",incontent.id);
+        incontent.onchange=(e:Event)=>{
+            if(e){
+                const title=(inTitle as HTMLInputElement).value;
+                const content=(e.currentTarget as HTMLTextAreaElement).value;
+                const {disabled,msg,type,time}=this.enableSubmit({title,content})
+                submit.disabled=disabled;
+               if(msg) Misc.message({parent:form,msg,type_:type,time})
+            }
+        };
         //MSG INPUT FOR EMAILING
         const {textarea:textareaSendMsg,label:lSendMsg,formGrp:grpSendMsg}=Nav.textareaComponent(form);
         grpSendMsg.id="form-group-sendMsg";
@@ -455,6 +562,7 @@ class Post{
         link.name="link";
         link.placeholder="https://example.com";
         link.type="url";
+        link.pattern="https://*.";
         lLink.textContent="add a link ";
         lLink.style.cssText="font-size:140%;text-decoration:underline;text-underline-offset:0.5rem;margin-bottom:1rem;";
         lLink.setAttribute("for",link.id);
@@ -462,17 +570,15 @@ class Post{
         btnContainer.id="createPoste-btnContainer";
         btnContainer.style.cssText=css_row + "";
         const {button:submit}=Misc.simpleButton({anchor:form,type:"submit",bg:Nav.btnColor,color:"white",text:"submit",time:400});
-       
+        submit.disabled=true;
         form.appendChild(btnContainer);
-        inTitle.onchange=(e:Event)=>{
-            if(e){
-                submit.disabled=false;
-            }
-        };
-        if(user.id!=="" && user.email!==""){
+        
+        if(this.signinUser){
             popup.appendChild(form);
             injector.appendChild(popup);
             Misc.fadeIn({anchor:popup,xpos:100,ypos:100,time:500});
+        }else{
+            Header.cleanUpByID(injector,`createPost-popup`);
         }
         //-------DELETE----------//
         const xDiv=document.createElement("div");
@@ -497,13 +603,13 @@ class Post{
                 const formdata=new FormData(e.currentTarget as HTMLFormElement);
                 const content=formdata.get("content") as string;
                 const title=formdata.get("title") as string;
-                const sendMsg=formdata.get("sendMsg") as string;
+                const sendMsg=formdata.get("sendMsg") as string|undefined;
                 const pub=formdata.get("pub") as string;
-                const link=formdata.get("link") as string;
+                const link=formdata.get("link") as string|undefined;
                 if(content && title){
-                    const send_msg=sendMsg || "Message";
+                    const send_msg=sendMsg;
                     const post:postType={...this.initPost,userId:user.id,sendMsg:send_msg,title:title as string,content:content as string,published:Boolean(pub),link}
-                    this.uploadFreeNone({injector,popup:popup,post:post,user,css_col,css_row});
+                    this.uploadFreeNone({injector,popup:popup,post:post,user,css_col,css_row,pathname});
                     const labelDisplay2=injector.querySelector("div#labelDisplay2") as HTMLElement;
                     if(labelDisplay2){
                         labelDisplay2.hidden=false;
@@ -511,9 +617,28 @@ class Post{
                 }
             }
         };
-    }
-    uploadFreeNone(item:{injector:HTMLElement,popup:HTMLElement,post:postType,user:userType,css_col:string,css_row:string}){
-        const {injector,popup,post,user,css_col,css_row}=item;
+    };
+
+    enableSubmit({title,content}:{title:string,content:string|null}):{disabled:boolean,msg:string|null,type:"success"|"error",time:number}{
+        const regTitle:RegExp=/\w+/;
+        const regContent:RegExp=/\w{5,}/;
+        const testTitle=regTitle.test(title);
+        const testContent=content ? regContent.test(content):false;
+       
+        if(testTitle && testContent){
+            return {disabled:false,msg:"thanks",type:"success",time:600};
+        }else if(testContent && !testTitle){
+            return {disabled:true,msg:"you forgot the title",type:"error",time:1200};
+        }else if(!(testTitle && testContent)){
+            return {disabled:true,msg:"you have to fill out both the title and content please",type:"error",time:2000};
+        }else{
+            return {disabled:true,msg:null,type:"error",time:0};
+        }
+    };
+
+
+    uploadFreeNone(item:{injector:HTMLElement,popup:HTMLElement,post:postType,user:userType,css_col:string,css_row:string,pathname:string|null}){
+        const {injector,popup,post,user,css_col,css_row,pathname}=item;
         this.post=post;
         const less900= window.innerWidth < 900;
         const less400= window.innerWidth < 400;
@@ -529,7 +654,7 @@ class Post{
         popup.appendChild(btnContainer);
         uploadBtn.onclick=(e:MouseEvent)=>{
             if(e){
-                this.uploadPic({injector,popup,post,user});
+                this.uploadPic({injector,popup,post,user,pathname});
                 uploadBtn.disabled=true;
                 popup.removeChild(btnContainer);
                 popup.style.zIndex="1";
@@ -538,7 +663,7 @@ class Post{
         freePicBtn.onclick=(e:MouseEvent)=>{
             if(e){
                 //import  class for image selection
-                this.freePic({injector,popup,post,user});
+                this.freePic({injector,popup,post,user,pathname});
                 uploadBtn.disabled=true;
                 popup.removeChild(btnContainer);
                 popup.style.zIndex="1";
@@ -570,7 +695,7 @@ class Post{
                                     this.posts.map(async(post,index)=>{
                                         if(post){
                                             const userinfo=this.usersinfo.find(user_=>(user_.id===post.userId));
-                                            this.postCard({row:res_.row,post,user:this.user,userinfo,index});
+                                            this.postCard({row:res_.row,post,user:this.user,userinfo,index,pathname});
                                         }
                                     });
                                     Misc.matchMedia({parent:res_.container,maxWidth:400,cssStyle:{paddingInline:"0px"}})
@@ -585,7 +710,7 @@ class Post{
                                     this.posts.map(async(post,index)=>{
                                         if(post){
                                             const userinfo=this.usersinfo.find(user_=>(user_.id===post.userId));
-                                            this.postCard({row:res_.row,post,user:this.user,userinfo,index});
+                                            this.postCard({row:res_.row,post,user:this.user,userinfo,index,pathname});
                                         }
                                     });
                                     Misc.matchMedia({parent:res_.container,maxWidth:400,cssStyle:{paddingInline:"0px"}})
@@ -604,9 +729,12 @@ class Post{
                 });
             }
         };
-    }
-    freePic(item:{injector:HTMLElement,popup:HTMLElement,post:postType,user:userType}){
-        const {injector,popup,post,user}=item;
+    };
+
+
+
+    freePic(item:{injector:HTMLElement,popup:HTMLElement,post:postType,user:userType,pathname:string|null}){
+        const {injector,popup,post,user,pathname}=item;
         //get class
         injector.removeChild(popup);
         this.addImageClass.asyncPicImage({parent:injector}).then(async(res)=>{
@@ -623,7 +751,7 @@ class Post{
                                 await this._service.saveUpdatepost({post:this.post}).then(async(post_)=>{
                                     if(post_){
                                         this.posts=[...this._posts,post_];
-                                        console.log("inside:",this.posts);
+                                       
                                         const getScrollCol1=document.querySelector("div#scrollCol1") as HTMLElement;
                                         if(getScrollCol1){
                                             //USED BY Profile: client account
@@ -634,7 +762,7 @@ class Post{
                                                     this.posts.map(async(post,index)=>{
                                                         if(post){
                                                             const userinfo=this.usersinfo.find(user_=>(user_.id===post.userId));
-                                                            this.postCard({row:res_.row,post,user:this.user,userinfo,index});
+                                                            this.postCard({row:res_.row,post,user:this.user,userinfo,index,pathname});
                                                         }
                                                     });
                                                     Misc.matchMedia({parent:res_.container,maxWidth:400,cssStyle:{paddingInline:"0px"}})
@@ -650,7 +778,7 @@ class Post{
                                                     this.posts.map(async(post,index)=>{
                                                         if(post){
                                                             const userinfo=this.usersinfo.find(user_=>(user_.id===post.userId));
-                                                            this.postCard({row:res_.row,post,user:this.user,userinfo,index});
+                                                            this.postCard({row:res_.row,post,user:this.user,userinfo,index,pathname});
                                                         }
                                                     });
                                                     Misc.matchMedia({parent:res_.container,maxWidth:400,cssStyle:{paddingInline:"0px"}})
@@ -676,9 +804,12 @@ class Post{
                 });
             }
         });
-    }
-    uploadPic(item:{injector:HTMLElement,popup:HTMLElement,post:postType,user:userType}){
-        const {user,post,injector,popup}=item;
+    };
+
+
+
+    uploadPic(item:{injector:HTMLElement,popup:HTMLElement,post:postType,user:userType,pathname:string|null}){
+        const {user,post,injector,popup,pathname}=item;
         this.post={...post,userId:user.id};
         const css_col="margin-inline:auto;display:flex;flex-direction:column;justify-content:center;align-items:center;gap:0.7rem;";
         const form=document.createElement("form");
@@ -722,7 +853,7 @@ class Post{
                                                 this.posts.toSorted((a,b)=>{if(a.likes > b.likes)return -1;return 1}).map(async(post,index)=>{
                                                     if(post){
                                                         const userinfo=this.usersinfo.find(user_=>(user_.id===post.userId));
-                                                        this.postCard({row:res_.row,post,user:this.user,userinfo,index});
+                                                        this.postCard({row:res_.row,post,user:this.user,userinfo,index,pathname});
                                                     }
                                                 });
                                                 Misc.matchMedia({parent:res_.container,maxWidth:400,cssStyle:{paddingInline:"0px"}})
@@ -737,7 +868,7 @@ class Post{
                                                 this.posts.toSorted((a,b)=>{if(a.likes > b.likes)return -1;return 1}).map(async(post,index)=>{
                                                     if(post){
                                                         const userinfo=this.usersinfo.find(user_=>(user_.id===post.userId));
-                                                        this.postCard({row:res_.row,post,user:this.user,userinfo,index});
+                                                        this.postCard({row:res_.row,post,user:this.user,userinfo,index,pathname});
                                                     }
                                                 });
                                                 Misc.matchMedia({parent:res_.container,maxWidth:400,cssStyle:{paddingInline:"0px"}})
@@ -763,7 +894,10 @@ class Post{
         };
         popup.appendChild(form);
         injector.appendChild(popup)
-    }
+    };
+
+
+
     uploadSendMsgPic(item:{editPopup:HTMLElement,post:postType,user:userType,css_col:string}){
         const {editPopup,post,css_col}=item;
         this.post=post;
@@ -834,8 +968,10 @@ class Post{
         };
 
     };
-    async postCard(item:{row:HTMLElement,post:postType,user:userType,userinfo:userType |undefined,index:number}){
-        const {row,post,user,userinfo,index}=item;
+
+
+    async postCard(item:{row:HTMLElement,post:postType,user:userType,userinfo:userType |undefined,index:number,pathname:string|null}){
+        const {row,post,user,userinfo,index,pathname}=item;
         const less900=window.innerWidth < 900;
         const less400=window.innerWidth < 400;
         Header.cleanUpByID(row,`posts-postcard-col-${index}`);
@@ -910,7 +1046,7 @@ class Post{
         const poster=document.createElement("small");
         poster.id=`userinfo-poster-name-${index}`;
         poster.textContent=(userinfo?.name) ||"blogger";
-        date.textContent= post.date ? Blogs.tolocalstring(post.date):"no date";
+        date.textContent= post.date ? Misc.tolocalstring(post.date):"no date";
         datePosterCont.appendChild(date);
         datePosterCont.appendChild(poster);
         this.likepost({parent:datePosterCont,post});
@@ -923,7 +1059,7 @@ class Post{
             anchor.textContent=post.link;
             cardBody.appendChild(anchor);
         }
-        this.removePost({parent:row,target:col,post,user});
+        this.removePost({parent:row,target:col,post,user,pathname});
         const btnContainer=document.createElement("div");
         btnContainer.id="card-btnContainer";
         btnContainer.style.cssText=css_row + "gap:2rem;margin-block:1rem;";
@@ -932,7 +1068,7 @@ class Post{
             edit.disabled=false;
             edit.onclick=(e:MouseEvent)=>{
                 if(e){
-                    this.editPost({parent:row,col,post,user,index});
+                    this.editPost({parent:row,col,post,user,index,pathname});
                     edit.disabled=true;
                 }
             };
@@ -943,7 +1079,7 @@ class Post{
                 detail.disabled=true;
                 const _userinfo:userType|null=userinfo ? userinfo as userType : null;
                 const postMod={...post,content:Post.brInserter({targetStr:post.content})}
-                this.postDetail.main({injector:col,post:postMod,count:0,poster:_userinfo,isPage:false,isUser:false,user});
+                this.postDetail.main({injector:col,post:postMod,count:0,poster:_userinfo,isPage:false,isUser:false,user,pathname});
             }
         };
         const {button:pageDetail}=Misc.simpleButton({anchor:btnContainer,bg:Nav.btnColor,color:"white",type:"button",time:400,text:"page detail"});
@@ -967,7 +1103,9 @@ class Post{
         Misc.matchMedia({parent:getShapeOutside,maxWidth:400,cssStyle:{display:"flex",flexDirection:"column",alignItems:"center"}});
         Misc.matchMedia({parent:getImg,maxWidth:400,cssStyle:{shapeOutside:"none"}});
        
-    }
+    };
+
+
     likepost(item:{parent:HTMLElement,post:postType}){
         const {parent,post}=item;
         const less400=window.innerWidth <400 ;
@@ -1016,7 +1154,9 @@ class Post{
         this.showLikes({parent,post});
         //-----------------------show likes-----------------//
 
-    }
+    };
+
+
     showLikes(item:{parent:HTMLElement,post:postType}){
         const {parent,post}=item;
         if(post.likes && post.likes>0){
@@ -1036,7 +1176,10 @@ class Post{
             likes.appendChild(subLike);
             parent.appendChild(likes);
         }
-    }
+    };
+
+
+
     noPosts(item:{parent:HTMLElement,posts:postType[]}){
         const {parent,posts}=item;
         if(posts && posts.length===0){
@@ -1055,9 +1198,12 @@ class Post{
             Header.cleanUpByID(parent,"noposts");
         }
 
-    }
-    editPost(item:{parent:HTMLElement,col:HTMLElement,post:postType,user:userType,index:number}){
-        const {parent,col,post,user,index}=item;
+    };
+
+
+
+    editPost(item:{parent:HTMLElement,col:HTMLElement,post:postType,user:userType,index:number,pathname:string|null}){
+        const {parent,col,post,user,index,pathname}=item;
         this.post=post;
         Header.cleanUpByID(col,`editPost-popup-${post.id}`);
         const css_col="margin-inline:auto;display:flex;flex-direction:column;justify-content:center;align-items:center;gap:0.7rem;";
@@ -1149,7 +1295,7 @@ class Post{
     
                             }
                             const userinfo=this.usersinfo.find(user_=>(user_.id===post.userId));
-                            this.postCard({row:parent,post:this.post,user,userinfo,index:index});
+                            this.postCard({row:parent,post:this.post,user,userinfo,index:index,pathname});
                         }
                             
                         
@@ -1158,10 +1304,11 @@ class Post{
                 }
             }
         };
-    }
+    };
 
-    removePost(item:{parent:HTMLElement,target:HTMLElement,post:postType,user:userType}){
-        const {parent,target,post,user}=item;
+
+    removePost(item:{parent:HTMLElement,target:HTMLElement,post:postType,user:userType,pathname:string|null}){
+        const {parent,target,post,user,pathname}=item;
         Header.cleanUpByID(target,`delete-${post.id}`);
         target.style.position="relative";
        
@@ -1174,15 +1321,16 @@ class Post{
             target.appendChild(xDiv);
             xDiv.onclick=(e:MouseEvent) =>{
                 if(e){
-                    this.askToDelete({parent,target,post,user});
+                    this.askToDelete({parent,target,post,user,pathname});
                 }
             };
 
         }
-    }
+    };
 
-    askToDelete(item:{parent:HTMLElement,target:HTMLElement,post:postType,user:userType}){
-        const {parent,target,post,user}=item;
+
+    askToDelete(item:{parent:HTMLElement,target:HTMLElement,post:postType,user:userType,pathname:string|null}){
+        const {parent,target,post,user,pathname}=item;
         target.style.position="relative";
         const css_row="margin-inline:auto;display:flex;flex-direction:row;flex-wrap:wrap;justify-content:center;align-items:center;gap:0.7rem;";
         const container=document.createElement("div");
@@ -1215,7 +1363,7 @@ class Post{
                                         this.posts.map(async(post,index)=>{
                                             if(post){
                                                 const userinfo=this.usersinfo.find(user_=>(user_.id===post.userId));
-                                                this.postCard({row:res_.row,post,user:this.user,userinfo,index});
+                                                this.postCard({row:res_.row,post,user:this.user,userinfo,index,pathname});
                                             }
                                         });
                                         Misc.matchMedia({parent:res_.container,maxWidth:400,cssStyle:{paddingInline:"0px"}})
@@ -1234,7 +1382,9 @@ class Post{
         };
 
 
-    }
+    };
+
+
     static brInserter(item:{targetStr:string|undefined}):string{
         const {targetStr}=item;
         const text=targetStr;
@@ -1281,7 +1431,9 @@ class Post{
         }
         return text2;
 
-    }
+    };
+
+
    
     
 };

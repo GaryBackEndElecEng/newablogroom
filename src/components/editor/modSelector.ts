@@ -10,6 +10,7 @@ import { Color } from "chart.js";
 import Dataset from '../common/dataset';
 import { idEnumType, idValueType, locationEnumType, selRowColType, selRowType, typeEnumType } from "@/lib/attributeTypes";
 import { attrEnumArr, attrEnumArrTest, IDKeys, typeEnumArr, typeEnumArrTest } from '../common/lists';
+import BrowserType from '../common/browserType';
 
 
 

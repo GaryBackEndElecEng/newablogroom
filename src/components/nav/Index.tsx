@@ -37,7 +37,6 @@ function Index({ _user_ }: { _user_: userType | null }) {
         if (countRef && countRef.current > 0 && !(navRef.current)) return
         if (typeof window !== "undefined") {
             const inject = document.getElementById("headerInjector") as HTMLElement;
-            const browserType = new BrowserType();
             const dataset = new Dataset();
             const modSelector = new ModSelector(dataset);
             const service = new Service(modSelector);
@@ -45,10 +44,12 @@ function Index({ _user_ }: { _user_: userType | null }) {
             //getting USER AFTER SIGNIN
             auth.getUser({ count: countRef.current, user: _user_ }).then(async (res) => {
                 if (res) {
+                    const browserType = new BrowserType(res.user.id);
                     countRef.current++;
                     const user = new User(modSelector, service, auth);
                     modSelector.loadFromLocal().then(async (_res) => {
                         const blogUser = _res.getBlog();
+                        browserType.pushHistory({ user_id: res.user.id });
                         const { blog: _blog, user: _user } = blogUser;
                         modSelector.blog = _blog;
                         modSelector.loadBlog({ blog: _blog, user: _user })
@@ -66,7 +67,7 @@ function Index({ _user_ }: { _user_: userType | null }) {
                         const signInAndUp = new SignInAndUp(modSelector, service, regSignin, auth, res.isSignedIn);
                         const metaBlog = new MetaBlog(modSelector, service, user);
                         const htmlElement = new HtmlElement(modSelector, service, user, shapeOutside, design, ven, reference, headerFlag, pasteCode);
-                        const post = new Post(modSelector, service, auth, user);
+                        const post = new Post(modSelector, service, auth, user, res.user);
                         const profile = new Profile(modSelector, service, user, metaBlog, chart, post, htmlElement);
                         const navArrow = new NavArrow(user, auth, regSignin, service, profile, modSelector, feature, commonUser);
                         const mainHeader = new MainHeader(modSelector, service, navArrow, auth, signInAndUp);
@@ -78,9 +79,10 @@ function Index({ _user_ }: { _user_: userType | null }) {
 
                         });
                         navArrow.getuser({ user: res.user })
-                        const keyword = window.navigator.userAgent
-                        //browserType sends message of browser incompatibility if issues
-                        browserType.main({ parent: inject, navigator: keyword })
+                        const userAgentData = window.navigator["userAgentData"];
+                        const userAgent = window.navigator.userAgent
+                        // browserType sends message of browser incompatibility if issues
+                        browserType.userAgentData({ parent: inject, userAgentData: userAgentData, userAgent });
 
                     });
                 }

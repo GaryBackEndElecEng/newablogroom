@@ -15,6 +15,8 @@ import { FaCrosshairs } from "react-icons/fa";
 import { FaCreate } from "../common/ReactIcons";
 import { IoArrowRedoSharp } from "react-icons/io5";
 import { SiAnswer } from "react-icons/si";
+import BrowserType from "../common/browserType";
+import AuthService from "../common/auth";
 
 export type imageType2={
     id:number,
@@ -33,23 +35,24 @@ export type arrItemType={
 
 
 class Home{
-    logo:string;
-    colors:string;
-    bend1:string;
-    count:number=0;
-    bgColor:string;
-    btnColor:string;
-    intro:HomeIntro;
-    postLogo:string;
-    introImage:string="/images/introImage.png";
-    linkImg:string="https://images.unsplash.com/photo-1657963928657-9da48ea0c496?crop=entropy";
-    imagineResponse:string="Imagine....an editor that empowers you to create a flexible webpage to suit your needs.";
-    createYourBlogMsg:string="create your blog,,,we layed it out for you for all size screens,,its the best in Canada";
-    static injector:HTMLElement|null
-    _images:imageType[];
-    getImages:imageType2[];
+  public readonly logo:string="/images/gb_logo.png";
+  public readonly colors:string="/images/colors.png";
+  public bend1:string;
+  public count:number=0;
+  public bgColor:string;
+  public btnColor:string;
+  public intro:HomeIntro;
+  public postLogo:string;
+  public readonly introImage:string="/images/introImage.png";
+  public readonly linkImg:string="https://images.unsplash.com/photo-1657963928657-9da48ea0c496?crop=entropy";
+  public readonly imagineResponse:string="Imagine....an editor that empowers you to create a flexible webpage to suit your needs.";
+  public readonly createYourBlogMsg:string="create your blog,,,we layed it out for you for all size screens,,its the best in Canada";
+  public static injector:HTMLElement|null
+  public _images:imageType[];
+  public getImages:imageType2[];
+    public browser:BrowserType;
    
-    constructor(private _modSelector:ModSelector,private _service:Service,private _nav:Nav,public allmsgs:AllMsgs,public feature:Features,public _blogs:Blogs) {
+    constructor(private _modSelector:ModSelector,private _service:Service,private auth:AuthService,public allmsgs:AllMsgs,public feature:Features,public _blogs:Blogs) {
         Home.injector=document.querySelector("section#home-index");
         this.bgColor=this._modSelector._bgColor;
         this.btnColor=this._modSelector.btnColor;
@@ -75,7 +78,8 @@ class Home{
         ]
         this.logo="/images/gb_logo.png";
         this.colors="/images/colors.png";
-    }
+        this.browser=new BrowserType(this.auth.user.id)
+    };
 
     ////-----------------GETTERS//SETTERS------------------//
     get images(){
@@ -87,13 +91,19 @@ class Home{
     ////-----------------GETTERS//SETTERS------------------//
     //INJECTION !! STYLE FOR PARENT IS DONE VIA home.module.css
     async main(parent:HTMLElement){
-        
+        //----------REPEAT PROCESS CONTROL----------//
+        const repeat=1;
+        const pathname=window.location.pathname;
+        const states=this.browser.getHistory();
+        const checks=states?.filter(kv=>kv.page.includes(pathname))?.length || 0;
+        const isRepeat=checks <=repeat
+        //----------REPEAT PROCESS CONTROL----------//
         Header.cleanUp(parent);
         const show=true;
         await this.introTitleDisplay({parent,show,time:500}).then(async(container)=>{
             //SHOWS ABLOGROOM DISPLAY
             if(container){
-                const {button:openFeatures}=Misc.simpleButton({anchor:container,bg:Nav.btnColor,color:"white",text:"open features",type:"button",time:400});
+                const {button:openFeatures}=Misc.simpleButton({anchor:container,bg:this.btnColor,color:"white",text:"open features",type:"button",time:400});
                 openFeatures.style.marginInline="auto";
                 openFeatures.style.marginBlock="1rem";
                 openFeatures.onclick=(e:MouseEvent)=>{
@@ -143,8 +153,10 @@ class Home{
                 // show attributes
                 
                 const show=true;
-                
-                        this.normalCreateYourBlog(res.sectionOne);//SCROLL DISPLAY
+                        if(isRepeat){
+
+                            this.normalCreateYourBlog(res.sectionOne);//SCROLL DISPLAY
+                        }
                         
                         //Main editor/Blogs links
                         this.mainLinks(res.sectionOne);//EDITOR/BLOGS LINK
@@ -1061,7 +1073,7 @@ class Home{
             ],{duration:timeDiff,iterations:1,"easing":"ease-in-out"});
         }
         parent.appendChild(titleThree);
-    }
+    };
     
     underline(item:{parent:HTMLElement,show:boolean,time:number,lineHeight:number}){
         const {parent,time,show,lineHeight}=item;
@@ -1101,7 +1113,7 @@ class Home{
             ],{duration:timeDiff,iterations:1,"easing":"ease-in-out"});
         }
         parent.appendChild(subTitle);
-    }
+    };
    
 
 

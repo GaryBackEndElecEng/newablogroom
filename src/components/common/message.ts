@@ -261,13 +261,17 @@ class MessageSetup{
     };
 
 
-    sendPostAnswerRequest(item:{parent:HTMLElement}):{form:HTMLFormElement,btn:HTMLButtonElement,popup:HTMLElement,retParent:HTMLElement}{
-        const {parent}=item;
+    sendPostAnswerRequest(item:{parent:HTMLElement,pathname:string|null}):{form:HTMLFormElement,btn:HTMLButtonElement,popup:HTMLElement,retParent:HTMLElement}{
+        const {parent,pathname}=item;
         const css_col="margin-inline:auto;display:flex;flex-direction:column;justify-content:center;align-items:center;gap:1rem;";
         const less900=window.innerWidth < 900;
         const less400=window.innerWidth < 400;
         const popup=document.createElement("div");
-        parent.style.position="relative";
+        if(pathname==="/posts"){
+            parent.style.position="absolute";
+        }else{
+            parent.style.position="relative";
+        }
         popup.id="messageSetup-sendPostAnswerRequest-message";
         popup.style.cssText=css_col + `position:absolute;padding:1rem;background-color:white;color:black;height:fit-content;margin-inline:auto;display:flex;flex-direction:column;align-items:center;justify-content:center;border-radius:16px;box-shadow:1px 1px 6px 1px black;padding:1rem;z-index:200;`;
         popup.style.inset="20% 0% 0% 0%";
@@ -387,7 +391,7 @@ class MessageSetup{
     removeEle(parent:HTMLElement,target:HTMLElement){
         const xDiv=document.createElement("div");
         parent.style.zIndex="2";
-        parent.style.position="relative";
+       
         xDiv.style.cssText="position:absolute;top:0%;right:0%;transform:translate(-4px,-4px);width:25px;height:25px;border-radius:50%;background-color:black;display:flex;place-items:center;";
         FaCreate({parent:xDiv,name:FaCrosshairs,cssStyle:{fontSize:"23px",color:"white"}});
         target.appendChild(xDiv);
@@ -821,11 +825,16 @@ class Message{
 
     };
 
-    sendPostmessage(item:{parent:HTMLElement,post:postType,func:()=>Promise<void>}):Promise<{sent:boolean,retParent:HTMLElement}>{
+    sendPostmessage(item:{parent:HTMLElement,post:postType,pathname:string|null,func:()=>Promise<void>}):Promise<{sent:boolean,retParent:HTMLElement}>{
         //THIS SENDS THE ANSWER TO A POST EITHER BY URI OR AND MSG (post.sendMsg or And uri=freepicurl/post.sendRqKey)
-        const {parent,post,func}=item;
+        const {parent,post,func,pathname}=item;
+        console.log("pathname:",pathname);
         let sent:boolean=false;
-        const {form,popup,retParent}=this.msgSetup.sendPostAnswerRequest({parent});
+        if(pathname==="/posts"){
+            parent.style.position="absolute";
+        };
+        const {form,popup,retParent}=this.msgSetup.sendPostAnswerRequest({parent,pathname});
+        retParent.style.position=parent.style.position;
         form.onsubmit=async(e:SubmitEvent)=>{
             if(e){
                 e.preventDefault();

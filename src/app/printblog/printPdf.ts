@@ -39,6 +39,7 @@ class PrintPdf{
         Header.cleanUpByID(parent,"printpdf-main-container");
         parent.style.background="white";
         parent.style.marginInline="auto";
+        parent.style.minHeight="100vh";
         parent.style.maxWidth=less900 ? (less400 ? "100%":"85%"):"70%";
         const css_col="margin-inlin:auto;display:flex;flex-direction:column;justify-content:flex-start;align-items:center;"
         const container=document.createElement("section");

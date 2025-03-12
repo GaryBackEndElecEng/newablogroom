@@ -8,8 +8,8 @@
   position: relative;
   padding-inline: 1rem;
   margin-inline: 1rem;
-  position: relative;
   overflow-x: hidden;
+  min-height: 100vh;
 }
 .layoutposts {
   display: flex;

@@ -77,8 +77,11 @@ class PostDetail{
     }
     
 
-   async main(item:{injector:HTMLElement,post:postType,count:number,poster:userType |null,isPage:boolean,isUser:boolean,user:userType|null}):Promise<number>{
-        const {injector,post,poster,count,isPage,isUser,user}=item;
+   async main(item:{injector:HTMLElement,post:postType,count:number,poster:userType |null,isPage:boolean,isUser:boolean,user:userType|null,pathname:string|null}):Promise<number>{
+        const {injector,post,poster,count,isPage,isUser,user,pathname}=item;
+        console.log(window.location.ancestorOrigins);
+        window.history.pushState({page_id:1,user_id:5},"",window.location.href)
+        console.log(window.history)
         const idValues=this._modSelector.dataset.idValues;
         const less1550=window.innerWidth < 1550;
         const less900=window.innerWidth < 900;
@@ -99,7 +102,7 @@ class PostDetail{
         container.style.cssText=css_col + "background-color:white;color:black;font-family:'Poppins-Regular';position:relative;border-radius:12px;box-shadow:1px 1px 3px 1px lightblue;overflow-x:hidden;min-height:100vh;";
        
         container.style.width="100%";
-        if(!isPage){
+        if(!isPage && pathname==="/posts"){
             //FLOATING
             injector.style.position="relative;";
             container.style.position="absolute";
@@ -195,8 +198,10 @@ class PostDetail{
         if(poster){
         this.showPoster({parent:card,poster});
         this.showLikes({parent:card,post});
-        }
-        if(post.sendReqKey || post.sendMsg){
+        };
+       
+       const check=(post.sendReqKey || (post?.sendMsg && post.sendMsg!=="" && post.sendMsg!=="Message"))
+        if(check){
             //THIS SENDS AN EMAIL WITH THE ANSWER TO THE CLIENT AND THEN SHOWS THE ANSWER IN A POPUP
             const {button:btnGetAns}=Misc.simpleButton({anchor:btnContainer,text:"get answer",type:"button",bg:"black",color:"white",time:400});
             btnGetAns.onclick=async(e:MouseEvent)=>{
@@ -206,6 +211,7 @@ class PostDetail{
                   await this._message.sendPostmessage({
                     parent:container,
                     post,
+                    pathname,
                     func:async()=>{this.showAnswer({parent:card,post,css_col,less400,less900});}
 
                   });
@@ -237,7 +243,7 @@ class PostDetail{
                 btnEdit.onclick=(e:MouseEvent)=>{
                     if(e){
                        
-                        this.editPost({card,targetImg:img,post,user:user,imgWidth:widthConv,idValues});
+                        this.editPost({card,targetImg:img,post,user:user,imgWidth:widthConv,idValues,pathname});
                     }
                 };
                 this.removePost({target:container,post,user:user})
@@ -356,8 +362,8 @@ class PostDetail{
         parent.appendChild(container);
     }
   
-    editPost(item:{card:HTMLElement,targetImg:HTMLImageElement,post:postType,user:userType,imgWidth:number,idValues:idValueType[]}){
-        const {card,targetImg,post,user,imgWidth,idValues}=item;
+    editPost(item:{card:HTMLElement,targetImg:HTMLImageElement,post:postType,user:userType,imgWidth:number,idValues:idValueType[],pathname:string|null}){
+        const {card,targetImg,post,user,imgWidth,idValues,pathname}=item;
         this.post=post;
         const editTool=new EditText(this._modSelector);
         const less900= window.innerWidth < 900 ;
@@ -461,7 +467,7 @@ class PostDetail{
         const {button:submit}=Misc.simpleButton({anchor:form,bg:Nav.btnColor,color:"white",text:"submit",time:400,type:"submit"});
         submit.id="submit";
         submit.disabled=false;
-        this.edituploadFreeNone({card,editPopup:popup,targetImg,post,user,imgWidth});
+        this.edituploadFreeNone({card,editPopup:popup,targetImg,post,user,imgWidth,pathname});
         form.onsubmit=async(e:SubmitEvent) =>{
             if(e){
                 e.preventDefault();
@@ -488,7 +494,7 @@ class PostDetail{
                             this.injector=document.querySelector("section#postdetail") as HTMLElement;
                             if(!this.injector) return;
                             Header.cleanUpByID(this.injector,`postdetail-main-container`);
-                            this.main({injector:this.injector,post:this.post,count:0,poster:this.poster,isPage:true,isUser:true,user});
+                            this.main({injector:this.injector,post:this.post,count:0,poster:this.poster,isPage:true,isUser:true,user,pathname});
                         }
                     });
 
@@ -499,8 +505,8 @@ class PostDetail{
 
 
    
-   async editPostContentEditable(item:{card:HTMLElement,targetImg:HTMLImageElement,post:postType,user:userType,imgWidth:number,isPage:boolean,shapoutside:string}){
-        const {card,targetImg,post,user,imgWidth,isPage,shapoutside}=item;
+   async editPostContentEditable(item:{card:HTMLElement,targetImg:HTMLImageElement,post:postType,user:userType,imgWidth:number,isPage:boolean,shapoutside:string,pathname:string|null}){
+        const {card,targetImg,post,user,imgWidth,isPage,shapoutside,pathname}=item;
         this.post=post;
         const less900= window.innerWidth < 900 ;
         const less400= window.innerWidth < 400 ;
@@ -635,7 +641,7 @@ class PostDetail{
         lLink.setAttribute("for",link.id);
         const {button:submit}=Misc.simpleButton({anchor:form,bg:Nav.btnColor,color:"white",text:"submit",time:400,type:"submit"});
         submit.disabled=false;
-        this.edituploadFreeNone({card,editPopup:popup,targetImg,post,user,imgWidth});
+        this.edituploadFreeNone({card,editPopup:popup,targetImg,post,user,imgWidth,pathname});
         form.onsubmit=async(e:SubmitEvent) =>{
             if(e){
                 e.preventDefault();
@@ -669,7 +675,7 @@ class PostDetail{
                             this.injector=document.querySelector("section#postdetail") as HTMLElement;
                             if(!this.injector) return;
                             Header.cleanUpByID(this.injector,`postdetail-main-container`);
-                            this.main({injector:this.injector,post:this.post,count:0,poster:this.poster,isPage:true,isUser:true,user});
+                            this.main({injector:this.injector,post:this.post,count:0,poster:this.poster,isPage:true,isUser:true,user,pathname});
                         }
                     });
 
@@ -771,8 +777,10 @@ class PostDetail{
 
 
     };
-    edituploadFreeNone(item:{card:HTMLElement,editPopup:HTMLElement,targetImg:HTMLImageElement,post:postType,user:userType,imgWidth:number}){
-        const {card,targetImg,editPopup,post,user,imgWidth}=item;
+
+
+    edituploadFreeNone(item:{card:HTMLElement,editPopup:HTMLElement,targetImg:HTMLImageElement,post:postType,user:userType,imgWidth:number,pathname:string|null}){
+        const {card,targetImg,editPopup,post,user,imgWidth,pathname}=item;
         this.post=post;
         const less900= window.innerWidth < 900;
         const less400= window.innerWidth < 400;
@@ -828,7 +836,7 @@ class PostDetail{
                         setTimeout(()=>{
                             card.removeChild(editPopup);
                         },390);
-                        this.main({injector:this.injector,post:this.post,count:0,poster:this.poster,isPage:true,isUser:true,user});
+                        this.main({injector:this.injector,post:this.post,count:0,poster:this.poster,isPage:true,isUser:true,user,pathname});
                        
                     }
                 });

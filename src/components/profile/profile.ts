@@ -48,7 +48,8 @@ class Profile{
         this.newCode=new NewCode(this._modSelector,this._service,this._user);
         this.shapeOutside=new ShapeOutside(this._modSelector,this._service,this._user);
         this.classMsg= new Message(this._modSelector,this._service,this._modSelector.blog,null);
-        this._displayBlog=new DisplayBlog(this._modSelector,this._service,this._user,this.newCode,this.chart,this.classMsg,this.htmlElement);
+        const blog=this._modSelector.blog;
+        this._displayBlog=new DisplayBlog(this._modSelector,this._service,this._user,blog,this.chart,this.classMsg,this.htmlElement);
 
     }
     //----------SETTER/GETTERS---------/////
@@ -1847,7 +1848,6 @@ class Profile{
                         this._post.posts.map((_post,ind)=>{
                             if(_post && _post.id===post.id){
                                 this._post.posts.splice(ind,1);
-                                this._post.posts=this._post._posts;
                                
                             }
                         });

@@ -709,6 +709,11 @@ export type sendPostRequestType={
     clientName?:string,
     clientEmail:string
 }
+export type idEmailType={
+    id?:number
+    email:string,
+    user_id:string,
+};
 //------REQUEST POST ANSWER  -------//
 ///---ADIMAGEURL----////
 export type imgExtractType={
@@ -769,4 +774,21 @@ export type httpType={
     http:string
 }
 //------HTTP TYPE  -------//
+export type useAgentDataType={
+    brands:[
+        {brand:string,version:string}
+    ],
+    mobile:boolean,
+    platform:string
 
+}
+//----BROWSER---///
+export type stateType={
+    num:number,
+    page:string,
+    id:number,
+    name:string,
+    user_id?:string
+
+}
+//----BROWSER---///

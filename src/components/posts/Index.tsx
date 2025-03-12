@@ -10,7 +10,8 @@ import { postType, userType } from '../editor/Types';
 import Dataset from '../common/dataset';
 
 
-export default function Index({ posts, usersinfo }: { posts: postType[], usersinfo: userType[] }) {
+
+export default function Index({ posts, usersinfo, user }: { posts: postType[], usersinfo: userType[], user: userType | null }) {
     const refPosts = React.useRef(null);
     const countRef = React.useRef(0);
 
@@ -21,19 +22,24 @@ export default function Index({ posts, usersinfo }: { posts: postType[], usersin
             const modSelector = new ModSelector(dataset);
             const service = new Service(modSelector);
             const auth = new AuthService(modSelector, service);
-            const user = new User(modSelector, service, auth);
-            const _posts = new Post(modSelector, service, auth, user);
-            _posts.loadPosts({ posts }).then(async (retPosts) => {
-                if (retPosts) {
-                    _posts.main({ injector: htmlPosts, posts: retPosts, usersinfo: usersinfo }).then(async () => {
-                        countRef.current++;
+            auth.getSessionUser({ user }).then(async (res) => {
+                if (res) {
 
+                    const _user = new User(modSelector, service, auth);
+                    const _posts = new Post(modSelector, service, auth, _user, res.user);
+                    _posts.loadPosts({ posts }).then(async (retPosts) => {
+                        if (retPosts) {
+                            _posts.main({ injector: htmlPosts, posts: retPosts, usersinfo: usersinfo }).then(async () => {
+                                countRef.current++;
+
+                            });
+
+                        }
                     });
-
                 }
             });
         }
-    }, [posts, usersinfo, refPosts, countRef]);
+    }, [posts, usersinfo, user, refPosts, countRef]);
     return (
         <section ref={refPosts} id="posts" className={styles.mainPost}>
 

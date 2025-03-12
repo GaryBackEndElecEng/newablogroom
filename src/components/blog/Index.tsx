@@ -7,7 +7,6 @@ import Service from '../common/services';
 import User from '../user/userMain';
 import ShapeOutside from '../editor/shapeOutside';
 import Misc from '../common/misc';
-import NewCode from '../editor/newCode';
 import ChartJS from '../chart/chartJS';
 import Message from '../common/message';
 import Headerflag from '../editor/headerflag';
@@ -44,6 +43,7 @@ function Index({ blog, user }: { blog: blogType | null, user: userType | null })
                     _modSelector.awaitLoadBlog(blog).then(async (res) => {
                         const _blog = res.blog();
                         if (_blog) {
+
                             const design = new Design(_modSelector);
                             const ven = new Ven(_modSelector);
                             const reference = new Reference(_modSelector);

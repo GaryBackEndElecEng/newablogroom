@@ -26,6 +26,7 @@ import Reference from './reference';
 import PasteCode from '../common/pasteCode';
 import AuthService from '../common/auth';
 import CommonInfo from '../common/commonInfo';
+import BrowserType from '../common/browserType';
 
 
 function Index() {
@@ -39,6 +40,7 @@ function Index() {
             const side_bar = document.querySelector("aside#sidebar") as HTMLElement;
             if (mainInjection && side_bar) {
                 const dataset = new Dataset();
+
                 const modSelector = new ModSelector(dataset);
                 const service = new Service(modSelector);
 

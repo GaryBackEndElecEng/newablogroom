@@ -1,10 +1,9 @@
-import { buttonCheckType,navLinkType, providerType} from "@/components/editor/Types";
+import { providerType} from "@/components/editor/Types";
 
-import {FaCreate,FaBtn} from "@/components/common/ReactIcons";
+import {FaCreate} from "@/components/common/ReactIcons";
 import { FaStar,FaStarHalf,FaRegStar, FaCrosshairs } from "react-icons/fa";
 import { IconType } from "react-icons";
-import { buttonReturn,imageLoader,AWSImageLoader,httpImageLoader } from "./tsFunctions";
-import { BsHandThumbsUpFill } from "react-icons/bs";
+import { buttonReturn,imageLoader,httpImageLoader } from "./tsFunctions";
 import Nav from "../nav/headerNav";
 import Header from "../editor/header";
 import { locationEnumType } from "@/lib/attributeTypes";
@@ -130,10 +129,10 @@ class Misc{
         
         Misc.baseUrl=window.location.origin;
         Misc.stars=[{name:"full",icon:FaStar},{name:"half",icon:FaStarHalf},{name:"empty",icon:FaRegStar},]
-    }
+    };
     static wordGen(count:number):string[]{
         return Array.from(Array(count).keys()).map(num=>(Misc.words[Math.floor(Math.random()*(Misc.words.length + num))]));
-    }
+    };
     static divider_1(parent:HTMLElement,color:string):HTMLElement{
         const div=document.createElement("div");
         div.style.cssText="padding:1rem;";
@@ -193,14 +192,17 @@ class Misc{
         const inner=document.createElement("div");
         inner.style.cssText="margin:auto;text-align:center;padding:inherit;box-shadow:1px 1px 6px 1px black;border-radius:30px;width:100%;";
         if(type_==="warning"){
-            inner.style.backgroundColor="pink";
+            container.style.backgroundColor="#edd309";
+            inner.style.backgroundColor="white";
             inner.classList.add("text-warning");
         }else if(type_==="success"){
-            inner.style.backgroundColor="whitesmoke";
+            container.style.backgroundColor="#0919ed";
+            inner.style.backgroundColor="white";
             inner.classList.add("text-info");
         }else if(type_==="error"){
+            container.style.backgroundColor="#f30a0a";
             inner.style.backgroundColor="blue";
-            inner.classList.add("text-danger");
+            inner.classList.add("text-light");
         }
         const text=document.createElement("p");
         text.textContent=msg;
@@ -363,6 +365,7 @@ class Misc{
         return null;
 
     };
+
     static saveMessage(parent:HTMLElement,str:string){
         const popup=document.createElement("div");
         popup.style.cssText="position:absolute;inset:%0;width:25%;height:50%;background:backfrop-filter:blur(10px);display:flex;flex-direction:column;align-items:center; justify-content:center;gap:1rem;";
@@ -385,6 +388,7 @@ class Misc{
         },1800);
         
      };
+
     static btnOptionMessagePopup(topParent:HTMLElement,options:btnOptionMsgType,loc:locationEnumType):{btn1: HTMLButtonElement,btn2: HTMLButtonElement,container:HTMLElement,grandParent:HTMLElement}{
         let grandParent:HTMLElement|null;
         const {btn_type,msg,btnColor,btnBgColor,btnLabel}=options.button1;
@@ -436,7 +440,8 @@ class Misc{
         const retCont={btn1,btn2,container,grandParent};
         return retCont;
         
-    }
+    };
+
     static insertSpan(spanInsert:insertSpanType):HTMLSpanElement{
         const {parent,text,css,class_}=spanInsert;
         const span=document.createElement("span");
@@ -448,7 +453,8 @@ class Misc{
         parent.appendChild(span);
        
         return span;
-    }
+    };
+
     static insert_anchor(anchor_:anchorType):HTMLSpanElement{
         const shade=Misc.blueShades.find(sh=>(sh.name==="chlorine blue"))?.value;
         const {parent,text,css,class_,href}=anchor_;
@@ -469,35 +475,40 @@ class Misc{
             ],{duration:1000,iterations:1});
         };
         return anchor;
-    }
+    };
+
     static fadeOut(fadeout:fadeOutType){
         const {anchor,xpos,ypos,time}=fadeout;
         anchor.animate([
             {transform:`translate(0%,0%) scale(1)`,opacity:"1"},
             {transform:`translate(-${xpos}%,-${ypos}%) scale(0)`,opacity:"0"},
         ],{duration:time,iterations:1});
-    }
+    };
+
     static fadeIn(fadeout:fadeOutType){
         const {anchor,xpos,ypos,time}=fadeout;
         anchor.animate([
             {transform:`translate(-${xpos}%,-${ypos}%)`,opacity:"0"},
             {transform:`translate(0%,0%) scale(1)`,opacity:"1",offset:1},
         ],{duration:time,iterations:1,easing:"ease-in"});
-    }
+    };
+
     static growOut(fadeout:growType){
         const {anchor,opacity,scale,time}=fadeout;
         anchor.animate([
             {transform:`scale(1)`,opacity:"1"},
             {transform:`scale(${scale})`,opacity:`${opacity}`},
         ],{duration:time,iterations:1});
-    }
+    };
+
     static growIn(fadeout:growType){
         const {anchor,opacity,scale,time}=fadeout;
         anchor.animate([
             {transform:`scale(${scale})`,opacity:`${opacity}`},
             {transform:`scale(1)`,opacity:"1"},
         ],{duration:time,iterations:1});
-    }
+    };
+
     static blurIn(object:{anchor:HTMLElement,blur:string,time:number}){
         const {anchor,blur,time}=object;
         anchor.style.filter=`blur(${0}px)`;
@@ -508,28 +519,32 @@ class Misc{
         setTimeout(()=>{
             anchor.style.filter="";
         },time +20);
-    }
+    };
+
     static slideIn(fadeout:fadeOutType){
         const {anchor,xpos,ypos,time}=fadeout;
         anchor.animate([
             {transform:`translate(-${xpos}%,-${ypos}%)`,opacity:`0.2`},
             {transform:`translate(0%,0%)`,opacity:`1`},
         ],{duration:time,iterations:1});
-    }
+    };
+
     static slideInGrow(fadeout:slideInGrowType){
         const {anchor,xpos,ypos,scale,time}=fadeout;
         anchor.animate([
             {transform:`translate(-${xpos}%,-${ypos}%) scale(${scale})`,opacity:`0.2`},
             {transform:`translate(0%,0%)`,opacity:`1`},
         ],{duration:time,iterations:1});
-    }
+    };
+
     static slideOut(fadeout:fadeOutType){
         const {anchor,xpos,ypos,time}=fadeout;
         anchor.animate([
             {transform:`translate(0%,0%)`,opacity:`1`},
             {transform:`translate(-${xpos}%,-${ypos}%)`,opacity:`0.2`},
         ],{duration:time,iterations:1});
-    }
+    };
+
     static growDown(grow_down:fadeOutType){
         const {anchor,xpos,ypos,time}=grow_down;
         //INCORPOATING IPHONE FORMATS ON xpos%
@@ -540,7 +555,8 @@ class Misc{
             {height:"0vh",width:`0%`,opacity:"0"},
             {height:`${ypos}vh`,width:`${width}%`,opacity:"1"}
         ],{duration:time,iterations:1});
-    }
+    };
+
     static growUp(grow_up:fadeOutType){
         const {anchor,xpos,ypos,time}=grow_up;
          //INCORPOATING IPHONE FORMATS ON xpos%
@@ -551,7 +567,8 @@ class Misc{
             {height:`${ypos}vh`,width:`${width}%`,opacity:"1"},
             {height:"0vh",width:`0%`,opacity:"0"},
         ],{duration:time,iterations:1});
-    }
+    };
+
     static saveNoBlogSetup(parent:HTMLElement): {retParent:HTMLElement,retBtn:HTMLButtonElement,container:HTMLElement}{
         const container = document.createElement("section");
             container.id="main";
@@ -593,7 +610,8 @@ class Misc{
             container.appendChild(retBtn);
             parent.removeChild(container);
         return {retParent:parent,retBtn,container}
-    }
+    };
+
    static fillBlogNameDesc({parent,cssPopup}:{parent:HTMLElement,cssPopup:{[key:string]:string}}):{btn:HTMLButtonElement,popup:HTMLElement,form:HTMLFormElement,input:HTMLInputElement,tinput:HTMLInputElement,textarea:HTMLTextAreaElement,retParent:HTMLElement}{
     const disabled:{input:boolean,textarea:boolean}={input:false,textarea:false}
       
@@ -682,7 +700,7 @@ class Misc{
 
 
 
-    }
+    };
 
     static signiMain(parent:HTMLElement,providers:providerType[],csrfToken:string|undefined){
         Header.cleanUpByID(parent,"signIn-main");
@@ -711,7 +729,8 @@ class Misc{
         parent.appendChild(outerContainer);
         window.scroll(0,0);
         Misc.matchMedia({parent:outerContainer,maxWidth:400,cssStyle:{inset:"0% 5% 20% 5%"}});
-    }
+    };
+
    static signInForm(parent:HTMLElement,signinUrl:string|undefined,csrfToken:string|undefined):{btn:HTMLButtonElement,container:HTMLElement,form:HTMLFormElement,email:HTMLInputElement,password:HTMLInputElement}{
         const cssGrp="margin:auto;display:flex;flex-direction:column;align-items:center;gap:1rem;";
         const container=document.createElement("section");
@@ -861,7 +880,7 @@ class Misc{
         Misc.growIn({anchor:container,scale:0,opacity:0,time:400});
         
         return {btn,container,form,email,password}
-    }
+    };
 
     static signInProvider(parent:HTMLElement,signinUrl:string|undefined,provider:providerType):{container:HTMLElement}{
         //Misc.providersImgs
@@ -934,7 +953,8 @@ class Misc{
         parent.appendChild(container);
         return {container}
 
-    }
+    };
+
     static imageForm(parent:HTMLElement): {form:HTMLFormElement,reParent:HTMLElement,label:HTMLElement,btn:HTMLButtonElement}{
         
        
@@ -981,7 +1001,8 @@ class Misc{
         parent.appendChild(form);
        
         return {form,reParent:parent,label:label,btn:button};
-    }
+    };
+
     static addLink(parent:HTMLElement):{form:HTMLFormElement,popup:HTMLElement,l_input:HTMLInputElement,n_input:HTMLInputElement}{
         parent.style.position="relative";
         parent.style.zIndex="0";
@@ -1019,41 +1040,8 @@ class Misc{
         });
 
         return{form,popup,l_input,n_input}
-    }
+    };
 
-    static showOnOff(getParams:{anchor:HTMLElement,target:HTMLElement,cssStyle:{[key:string]:string},xpos:number,ypos:number,time:number}){
-        const {anchor,target,cssStyle,xpos,ypos,time}=getParams;
-        const options={root:anchor,rootMargin:"0px",threshold:1};
-        const observer=new IntersectionObserver((entries)=>{
-            const entry=entries[0];
-            if(entry.isIntersecting){
-                const modTarget=entry.target as HTMLElement;
-                modTarget.style.transform="translate(0%,0%)";
-                modTarget.style.opacity="0";
-                const value1=cssConvert(cssStyle).value;
-                modTarget.animate([
-                    {transform:`translate(-${xpos}%,-${ypos}%) scale(0.4)`,opacity:"0.2",key1:""},
-                    {transform:`translate(-${0}%,-${0}%)`,opacity:"1",key1:value1},
-                    {opacity:"1",key1:value1,transform:"scale(1)"},
-                    {opacity:"1",key1:value1,transform:"scale(1)"},
-                    {opacity:"1",key1:value1,transform:"scale(1)"},
-                    {transform:`scale(0)`,opacity:"0",key1:value1},
-                ],{duration:time,iterations:1,easing:"ease-in-out"});
-               
-            }
-
-        },options);
-        observer.observe(target)
-
-        const cssConvert=(cssStyle:{[key:string]:string}):{key:string,value:string}=>{
-            const arr:{key:string,value:string}[]=[];
-            for(const [key,value] of Object.entries(cssStyle)){
-                arr.push({key,value});
-            }
-            return arr[0]
-        }
-    }
-   
 
     static animateScroll(parent:HTMLElement,target:HTMLElement){
         parent.style.width="90%";
@@ -1063,7 +1051,8 @@ class Misc{
             {transform:"translateX(120%)"}
         ],{duration:4000,iterations:20});
 
-    }
+    };
+
     static buttonHoverEffect(btn:HTMLButtonElement){
         btn.style.animation="";
         btn.onmouseover=()=>{
@@ -1074,7 +1063,8 @@ class Misc{
             ],{duration:600,iterations:1});
         };
        
-    }
+    };
+
     static mediaQuery(mediaPara:mediaQueryType){
         
         const {target,css_min_attribute,css_max_attribute,minWidth,maxWidth}=mediaPara;
@@ -1103,7 +1093,8 @@ class Misc{
                
             }
         }
-    }
+    };
+
     static wantToSaveBeforeFunc(item:{parent:HTMLElement,functCancel:()=>Promise<void>,funcSave:()=>Promise<void>}):void{
         const {parent,functCancel,funcSave}=item;
         if(parent.style.position !=="absolute"){
@@ -1149,91 +1140,8 @@ class Misc{
         Misc.matchMedia({parent:getPopup,maxWidth:900,cssStyle:{inset:"25% 5% 50% 5%"}});
         Misc.matchMedia({parent:getPopup,maxWidth:400,cssStyle:{inset:"20% 0% 30% 0%"}});
         Misc.matchMedia({parent:para,maxWidth:400,cssStyle:{fontWeight:"120%"}});
-    }
-    static navLink(navLink:navLinkType):{btnGrp:HTMLElement,btnArr:buttonCheckType[]}{
-        const {parent,flexDirection,btnArray}=navLink;
-        const baseUrl=window.location.origin
-        const btnGrp=document.createElement("div");
-        btnGrp.className="btn-group";
-        btnGrp.style.cssText="display:flex;justify-content:space-between;align-items:center;margin-block:2rem;margin-inline:auto;";
-        btnGrp.style.flexDirection=flexDirection;
-             //----------------- Iphone adjustments---------------//
-             const mediaTopMain390:mediaQueryType={
-                target:btnGrp,
-                css_max_attribute:{"max-width":"350px","font-size":"14px","margin-block":"1rem"},
-                css_min_attribute:{"max-width":`auto`,"height":"auto","width":"100%","font-size":"auto","margin-block":"2rem"},
-                minWidth:400,
-                maxWidth:400
-            }
-            Misc.mediaQuery(mediaTopMain390)
-            //----------------- Iphone adjustments---------------//
-            //----------------- BTN ARRAY---------------//
-            const btnArr:buttonCheckType[]=[];
+    };
 
-        btnArray.filter(item=>(item.show)).forEach((action)=>{
-            
-            const btn=document.createElement("button");
-            btn.className="btn btn-sm text-primary";
-            btn.style.cssText="display:flex;justify-content:space-between;align-items:center;border-radius:6px;padding-inline:1.25rem;padding-block:0.75rem;gap:0.5rem;";
-            btn.style.color=action.color;
-            const span=document.createElement("span");
-            const text=document.createElement("small");
-            let btnAction:buttonCheckType={} as buttonCheckType;
-            btnAction={...btnAction,id:action.id,name:action.name,link:action.link};
-                text.textContent=action.name;//display NAME
-                btnAction.name=action.name;
-                FaBtn({parent:span,icon:action.icon,cssStyle:{background:"inherit",color:"black"}});
-                btn.appendChild(span);
-                btn.appendChild(text);
-                btnGrp.appendChild(btn);
-                btn.onclick=(e:MouseEvent)=>{
-                    if(e){
-                        e.preventDefault();
-                        if(typeof window !=="undefined"){
-                            const url=new URL(window.location.href)
-                            const isEditor=url.pathname=== "/editor" ;
-                            if(action.link && !isEditor){
-                                const newUrl=new URL(action.link,baseUrl);
-                                window.location.href=newUrl.href;
-                                action.func();
-                                btnAction={...btnAction,isEditor:isEditor};
-                                action.isEditor=isEditor;
-                            }else if(isEditor && action.link){
-                                btnAction={...btnAction,isEditor:isEditor,link:action.link};
-                                action.save();
-                                
-                            }else{
-                                action.func()
-                                btnAction={...btnAction,isEditor:isEditor,link:null};
-                            }
-                        }
-                    }
-                };
-                btn.onmouseover=(e:MouseEvent)=>{
-                    if(e){
-                        btn.style.backgroundColor="black";
-                        btn.style.color="white";
-                        span.style.backgroundColor="white";
-                        span.style.color="blue";
-                        btn.style.transition="all 1s ease-in-out";
-                    }
-                };
-                btn.onmouseout=(e:MouseEvent)=>{
-                    if(e){
-                        btn.style.backgroundColor="inherit";
-                        btn.style.color="inherit";
-                        span.style.backgroundColor="inherit";
-                        span.style.color="inherit";
-                        btn.style.transition="all 0.5s ease-in-out";
-                    }
-                };
-                btnArr.push(btnAction)
-            
-           
-        });
-        parent.appendChild(btnGrp);
-        return {btnGrp,btnArr}
-    }
     static matchMedia(media:{parent:HTMLElement,maxWidth:number,cssStyle:{[key:string]:string}}){
         const {parent,maxWidth,cssStyle}=media;
         const matches=window.matchMedia(`(max-width:${maxWidth}px)`).matches;
@@ -1249,7 +1157,8 @@ class Misc{
                 }
             }
         }
-    }
+    };
+
     static matchMinMedia(media:{parent:HTMLElement,minWidth:number,cssStyle:{[key:string]:string}}){
         const {parent,minWidth,cssStyle}=media;
         const matches=window.matchMedia(`(min-width:${minWidth}px)`).matches;
@@ -1262,7 +1171,8 @@ class Misc{
                 }
             }
         }
-    }
+    };
+
     static observe(entryParams:{arr:HTMLElement[],root:HTMLElement|null,cssStyleOn:{[key:string]:string},cssStyleOff:{[key:string]:string},time:number}){
         const {arr,root,cssStyleOn,cssStyleOff,time}=entryParams;
         
@@ -1307,7 +1217,7 @@ class Misc{
                 observer.disconnect()
             }
         });
-    }
+    };
 
     static btnHover(btn_hover:{parent:HTMLElement,bg:string,color:string,bRadius1:string|null,bRadius2:string|null,time:number}){
         const {parent,bg,color,bRadius1,bRadius2,time}=btn_hover;
@@ -1351,127 +1261,9 @@ class Misc{
                 }
             }
         }
-    }
-    static buttonMouseoverMsg(item:{btn:HTMLButtonElement,cssStyle:{[key:string]:string},msg:string,time:number}){
-        const {btn,cssStyle,msg,time}=item;
-        const message=document.createElement("p");
-        message.id="text-message";
-        message.style.cssText="box-shadow:1px 1px 10px 1px black;border-radius:12px;padding-inline:1.25rem;padding-block:0.25rem;text-align:center;width:fit-content;position:absolute;top:-100%;left:0%;right:0%;z-index:300;min-width:120px;font-size:10px;text-wrap:pretty;";
-        if( cssStyle && Object.entries(cssStyle)){
-            for(const [key,value] of Object.entries(cssStyle)){
-                if(key &&value){
-                message.style[key]=value;
-                }
-            }
-        }
-        message.innerHTML=`<span style="color:red;"> => </span>${msg}`;
-        message.style.opacity="0";
-        btn.appendChild(message);
-        btn.onmouseover=(e:Event)=>{
-            if(e){
-                btn.style.position="relative";
-                message.style.opacity="1";
-                if(cssStyle){
-                    for(const [key,value] of Object.entries(cssStyle)){
-                        if(key==="height" && value){
-                            message.style.transform=`translateY(-${value})`;
-                            message.animate([
-                                {transform:"translateY(0%)",opacity:"0"},
-                                {transform:`translateY(-${value})`,opacity:"1"},
-                            ],{duration:time,iterations:1});
-                        }else{
-                            message.style.transform=`translateY(-100%)`;
-                            message.animate([
-                                {transform:"translateY(0%)",opacity:"0"},
-                                {transform:`translateY(-100%)`,opacity:"1"},
-                            ],{duration:time,iterations:1});
-                        }
-                        
-                    }
-                }
+    };
 
-            }
-        };
-        btn.onmouseout=(e:Event)=>{
-            if(e){
-                btn.style.position="relative";
-                message.style.opacity="0";
-                message.style.transform="translateY(0%)";
-                btn.appendChild(message);
-                if(cssStyle){
-                    for(const [key,value] of Object.entries(cssStyle)){
-                        if(key==="height" && value){
-                            message.style.transform=`translateY(-0%)`;
-                            message.animate([
-                                {transform:`translateY(-${value})`,opacity:"1"},
-                                {transform:"translateY(0%)",opacity:"0"},
-                            ],{duration:time,iterations:1});
-                        }else{
-                            message.style.transform=`translateY(-0%)`;
-                            message.animate([
-                                {transform:`translateY(-100%)`,opacity:"1"},
-                                {transform:"translateY(0%)",opacity:"0"},
-                            ],{duration:time,iterations:1});
-                        }
-                        
-                    }
-                }
-                
 
-            }
-        };
-    }
-    static buttonCss(item:{anchor:HTMLElement,cssStyle:{[key:string]:string},bgEffect:string,type:"button"|"submit"|"reset",time:number}):{button:HTMLButtonElement}{
-        const {anchor,type,cssStyle,time,bgEffect}=item;
-        const button=document.createElement("button");
-        button.type=type;
-        for(const key of Object.keys(button.style)){
-            for(const [key1,value1] of Object.entries(cssStyle)){
-                if(key===key1){
-                    button.style[key]=value1;
-                }
-            }
-        }
-        button.onmouseover=(e:MouseEvent)=>{
-            if(e){
-
-                const startCol=button.style.backgroundColor;
-                const endCol=bgEffect;
-                button.animate([
-                    {backgroundColor:startCol},
-                    {backgroundColor:endCol},
-                ],{iterations:1,duration:time});
-            }
-        }
-        button.onmouseout=(e:MouseEvent)=>{
-            if(e){
-
-                const startCol=button.style.backgroundColor;
-                const endCol=bgEffect;
-                button.animate([
-                    {backgroundColor:endCol},
-                    {backgroundColor:startCol},
-                ],{iterations:1,duration:time});
-            }
-        }
-        anchor.appendChild(button);
-        return {button}
-    }
-
-    static regTest({item,value_}:{item:string,value_:string}):boolean{
-        const check=["password","email"].includes(value_)
-        const password=/[a-zA-Z0-9.?!-]{6,}/g;
-        const email=/[a-zA-Z0-9.]{2,}@[a-zA-Z0-9]{2,}\.[a-z]{2,3}/g;
-        const arr=[{name:"email",value:email},{name:"password",value:password},];
-        if(check){
-            arr.map(item_=>{
-                if(item===item_.name){
-                    return item_.value.test(value_)
-                }
-            });
-        }
-        return false;
-    }
     static starRating(starRate:{parent:HTMLElement,rating:number,cssStyle:{[key:string]:string},rowCssStyle:{[key:string]:string}}){
         const less900=window.innerWidth <900;
         const less400=window.innerWidth <400;
@@ -1534,7 +1326,7 @@ class Misc{
         parent.appendChild(container);
     };
 
-    
+    ;
     static selectComponent(item:{parent:HTMLElement,name:string,selects:{name:string,value:string}[],cssStyle:{[key:string]:string}}):{select:HTMLSelectElement,label:HTMLLabelElement,formGrp:HTMLElement}{
         //SELECTS=> MUST BE {NAME,VALUE}[] ARRAY,NOTE:!!! IF COLOR=>ADD:bgColor:true/false to cssStyles
         const {parent,name,cssStyle,selects}=item
@@ -1576,7 +1368,8 @@ class Misc{
         select.selectedIndex=0;
         parent.appendChild(formGrp);
         return {select,formGrp,label}
-    }
+    };
+
     static fontFamilySelect(item:{parent:HTMLElement,selects:{name:string,value:string}[],cssStyle:{[key:string]:string}}):{select:HTMLSelectElement}{
         //SELECTS=> MUST BE {NAME,VALUE}[] ARRAY
         const {parent,cssStyle,selects}=item
@@ -1608,7 +1401,8 @@ class Misc{
         select.selectedIndex=0;
         parent.appendChild(select);
         return {select}
-    }
+    };
+
     static simpleButton(btn:{anchor:HTMLElement,type:"submit"|"button",bg:string,color:string,text:string,time:number}):{button:HTMLButtonElement}{
         const {anchor,bg,color,text,type,time}=btn;
         const button=document.createElement("button");
@@ -1660,11 +1454,6 @@ class Misc{
         return imageLoader(item)
     };
 
-    static AWSSourceImage(item:{url:string,width:number,quality:number}):string{
-      
-        return AWSImageLoader(item)
-    };
-
     static msgSourceImage(item:{parent:HTMLElement,msg:string,src:string,width:number,quality:number,time:number,cssStyle:{[key:string]:string}}){
         const {parent,msg,src,width,quality,time,cssStyle}=item;
         const img=document.createElement("img");
@@ -1682,10 +1471,9 @@ class Misc{
         const div=document.createElement("div");
         div.id="msgSourceImage";
         div.style.cssText=`display:flex;justify-content:center;align-items:center;gap:1rem;position:absolute;width:clamp(350px,375px,375px);height:${width}px;background:white;z-index:200;padding-inline:1rem;padding-block:2.5rem;`;
+        div.style.transform="translateY(-100%)";
        
-        div.style.inset="0%"
-        div.style.left="0%";
-        div.style.right="0%";
+        div.style.inset="0% 0% 50% 0%"
         div.style.alignSelf="center";
         div.style.justifySelf="center";
         for (const [key,value] of Object.entries(cssStyle)){
@@ -1697,67 +1485,25 @@ class Misc{
         div.appendChild(para);
         parent.appendChild(div);
         // console.log(div)//works
-        Misc.blurIn({anchor:img,blur:"20px",time:time});
-        Misc.growIn({anchor:div,scale:0,opacity:0,time:time});
+        const trans=div.style.transform;
+        div.animate([
+            {transform:trans,opacity:"0"},
+            {transform:"translateY(-50%)",opacity:"0.5"},
+            {transform:"translateY(-10%)",opacity:"1"},
+            {transform:"translateY(0%)",opacity:"1"},
+            {transform:"translateY(10%)",opacity:"1"},
+            {transform:"translateY(20%)",opacity:"1"},
+            {transform:"translateY(0%)",opacity:"0.5"},
+            {transform:trans,opacity:"0"},
+        ],{duration:time,iterations:1,"easing":"eaase-in-out"});
         setTimeout(()=>{
             Misc.growOut({anchor:div,scale:0,opacity:0,time:400});
             setTimeout(()=>{
                 parent.removeChild(div);
             },398);
         },time*2);
-    }
-    static AWSImage(item:{anchor:HTMLElement,url:string,width:number,quality:number,time:number,cssStyle:{[key:string]:string}}):{img:HTMLElement}{
-        const {anchor,url,width,quality,cssStyle,time}=item;
-        const img=document.createElement("img");
-        for(const [key,value] of Object.entries(cssStyle)){
-            img.style[key]=value;
-        }
-        img.animate([
-            {filter:"blur(20px)"},
-            {filter:"blur(0px)"},
-        ],{duration:time,iterations:1});
-        img.src=Misc.AWSSourceImage({url,width,quality});
-        anchor.appendChild(img);
-        return {img};
-    }
-    static thumbsUp(item:{parent:HTMLElement,cssStyle:{[key:string]:string},rating:number,limit:number,time:number}):{iconDiv:HTMLElement}{
-        const {parent,cssStyle,rating,limit,time}=item;
-        const iconDiv=document.createElement("div");
-        iconDiv.id="thumbs-up";
-        iconDiv.style.cssText="margin-inline:auto;width:48px;height:48px;margin-block:1rem;padding-inline:5px;background-color:black;border-radius:50%;display:flex;justify-content:center;align-items:center;position:absolute;right:15%;color:yellow !important;";
-        for ( const [key,value] of Object.entries(cssStyle)){
-            iconDiv.style[key]=value;
-        }
-        FaCreate({parent:iconDiv,name:BsHandThumbsUpFill,cssStyle:{fontSize:iconDiv.style.fontSize}});
-        if(rating >limit){
-            iconDiv.style.color="yellow";
-            parent.appendChild(iconDiv);
-
-        }
-        iconDiv.onmouseover=(e:Event)=>{
-            if(e){
-                iconDiv.style.transform="scale(1.05)";
-                iconDiv.style.color="rgb(12, 175, 255)";
-                iconDiv.animate([
-                    {transform:"scale(1)",color:"yellow"},
-                    {transform:"scale(1.05)",color:"rgb(12, 175, 255)"},
-                ],{duration:time,iterations:1});
-            }
-        };
-        iconDiv.onmouseout=(e:Event)=>{
-            if(e){
-                iconDiv.style.transform="scale(1)";
-                iconDiv.style.color="yellow";
-                iconDiv.animate([
-                    {transform:"scale(1.05)",color:"rgb(12, 175, 255)"},
-                    {transform:"scale(1)",color:"yellow"},
-                ],{duration:time,iterations:1});
-            }
-        };
-        Misc.matchMedia({parent:iconDiv,maxWidth:900,cssStyle:{right:"10%"}});
-        Misc.matchMedia({parent:iconDiv,maxWidth:400,cssStyle:{right:"1%"}});
-        return {iconDiv};
     };
+
     static scrollTo(item:{target:HTMLElement,percX:number,percY:number}){
         //SCROLLS THE CLIENTX AND CLIENTY VALUE OF TEH TARGET
         const {target,percX,percY}=item;
@@ -1773,25 +1519,8 @@ class Misc{
             Misc.message({parent:target,msg:"is not a number",type_:"error",time:900});
         };
 
-    }
-    static offsetTo(item:{target:HTMLElement,e:MouseEvent}):{x:number,y:number}{
-        //SCROLLS THE CLIENTX AND CLIENTY VALUE OF TEH TARGET
-        const {target,e}=item;
-        const targetWidthRaw=window.getComputedStyle(target).getPropertyValue("width").split("px")[0];
-        const targetHeightRaw=window.getComputedStyle(target).getPropertyValue("height").split("px")[0];
-        const targetWidth=parseInt(targetWidthRaw);
-        const targetHeight=parseInt(targetHeightRaw);
-        if(!(isNaN(targetWidth) && isNaN(targetHeight))){
-            const X=e.offsetX;
-            const Y=e.offsetY;
-            return {x:X,y:Y};
-        }else{
-            Misc.message({parent:target,msg:"is not a number",type_:"error",time:900});
-            return {x:0,y:0}
-        };
-            //is a number
-            //offset:readOnly:  mouse pointer between that event and the padding edge of the target node
-    }
+    };
+
      
     static btnIcon(item:{anchor:HTMLElement,icon:IconType,label:string|null,msgHover:string|null,cssStyle:{[key:string]:string},time:number}):HTMLButtonElement{
         const {anchor,icon,cssStyle,time,label,msgHover}=item;
@@ -1857,6 +1586,15 @@ class Misc{
         };
         return btn;
     };
+
+    static tolocalstring(date:Date){
+        if(date && typeof date ==="object"){
+            const newDate=date.toLocaleString("en-US",{timeZone:"America/Toronto"});
+            return newDate.split("T")[0];
+        }else{
+            return String(new Date())
+        }
+    }
 };
 
 
