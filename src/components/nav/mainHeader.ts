@@ -272,7 +272,6 @@ class MainHeader {
         textCont.className = "text-center";
         textCont.style.cssText = "display:flex;flex-direction:column;justify-content:center;align-items:center;margin-inline:auto;";
         textCont.style.height = less400 ? "50%" : "100%";
-        // textCont.style.width=less400 ? "100%":"auto";
         const logoText = document.createElement("p");
         logoText.textContent = "www.ablogroom.com";
         logoText.className = "text-primary text-align-center text-center";

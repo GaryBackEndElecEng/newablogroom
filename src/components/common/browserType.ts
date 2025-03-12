@@ -1,5 +1,5 @@
 import Header from "../editor/header";
-import { stateType, useAgentDataType, userType } from "../editor/Types";
+import { stateType, useAgentDataType } from "../editor/Types";
 
 
 

@@ -610,9 +610,6 @@ class Home{
 
     singleMsgTwo(item:{col:HTMLElement,contScroll:HTMLElement,msg:messageType,imgKey:string|undefined}){
         const {col,contScroll,msg,imgKey}=item;
-        const less900=window.innerWidth <900 ;
-        const less600=window.innerWidth <600 ;
-        const less400=window.innerWidth <400 ;
 
         const css_col="display:flex;flex-direction:column;align-items:center;justify-content:center;";
         const css_row="display:flex;flex-direction:row;align-items:center;justify-content:center;gap:1rem;flex-wrap:wrap;";

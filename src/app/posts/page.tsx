@@ -8,16 +8,17 @@ import { postType, userType } from '@/components/editor/Types';
 import { Metadata, ResolvingMetadata } from 'next';
 import { getServerSession, Session } from 'next-auth';
 
-type Props = {
-    params: Promise<{ id: string }>
-    searchParams: Promise<{ [key: string]: string | string[] | undefined }>
-}
-export async function generateMetadata(props: Props, parent: ResolvingMetadata): Promise<Metadata> {
-    const posts = await getPosts();
-    const singleBlog = await genMetadata(parent, { posts });
-    return singleBlog;
-    //GENERATES AVAILABLE IDS FOR SINGLE PULL
-}
+// type Props = {
+//     params: Promise<{ id: string }>
+//     searchParams: Promise<{ [key: string]: string | string[] | undefined }>
+// };
+// export async function generateMetadata(props: Props, parent: ResolvingMetadata): Promise<Metadata> {
+//     const posts = await getPosts();
+//     const singleBlog = await genMetadata(parent, { posts });
+//     return singleBlog;
+//     //GENERATES AVAILABLE IDS FOR SINGLE PULL
+// };
+
 
 export default async function page() {
     const session = await getServerSession();

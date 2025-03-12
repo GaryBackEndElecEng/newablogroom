@@ -4,8 +4,6 @@ import Home from "@/components/home/home";
 import ModSelector from '../editor/modSelector';
 import Service from '../common/services';
 import AuthService from '../common/auth';
-import User from '../user/userMain';
-import Nav from '../nav/headerNav';
 import AllMsgs from './allMsgs';
 import Message from '../common/message';
 import Features from './feature';

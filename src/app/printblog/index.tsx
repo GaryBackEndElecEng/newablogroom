@@ -6,7 +6,6 @@ import ModSelector from '@/components/editor/modSelector';
 import Service from '@/components/common/services';
 import User from '@/components/user/userMain';
 import ShapeOutside from '@/components/editor/shapeOutside';
-import NewCode from '@/components/editor/newCode';
 import ChartJS from '@/components/chart/chartJS';
 import DisplayBlog from '@/components/blog/displayBlog';
 import Message from '@/components/common/message';
