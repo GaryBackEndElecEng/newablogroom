@@ -1,3 +1,15 @@
+.postsLayout {
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  align-items: center;
+  gap: 1rem;
+  width: 100%;
+  position: relative;
+  background-image: url("/images/background1.png");
+  background-position: 50% 50%;
+  background-size: 100% 100%;
+}
 .mainPost {
   display: flex;
   flex-direction: column;
@@ -10,6 +22,7 @@
   margin-inline: 1rem;
   overflow-x: hidden;
   min-height: 100vh;
+  background: transparent;
 }
 .layoutposts {
   display: flex;

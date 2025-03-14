@@ -88,7 +88,8 @@ class MainFooter{
         injector.style.marginBottom="0";
         MainFooter.cleanUp(injector);
         const container=document.createElement("section");
-        container.style.cssText="width:100%;height:auto;color:white;box-shadow:1px 1px 6px 1px white;position:relative;margin:auto;z-index:30;background:black;margin-top:1.5rem;margin-bottom:0;";
+        container.id="mainFooter-container";
+        container.style.cssText="width:100%;height:auto;color:white;box-shadow:1px 1px 6px 1px white;position:relative;margin:auto;z-index:30;background:black;margin-bottom:0;";
         injector.appendChild(container);
         const msgCont=document.createElement("div");
         msgCont.style.cssText=css + "margin-inline:auto;background:transparent;";

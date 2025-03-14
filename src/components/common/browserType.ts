@@ -1,27 +1,28 @@
 import Header from "../editor/header";
-import { stateType, useAgentDataType } from "../editor/Types";
+import { pageType, stateType, useAgentDataType } from "../editor/Types";
 
 
 
 class BrowserType {
-    public static readonly pages: { id: number, page: string }[] = [
-        { id: 0, page: "/" },
-        { id: 1, page: "/editor" },
-        { id: 2, page: "/posts" },
-        { id: 3, page: "/blogs" },
-        { id: 4, page: "/chart" },
-        { id: 5, page: "/post" },
-        { id: 6, page: "/blog" },
-        { id: 7, page: "/admin" },
-        { id: 8, page: "/printblog" },
-        { id: 9, page: "/policy" },
-        { id: 10, page: "/quote" },
-        { id: 11, page: "/register" },
-        { id: 12, page: "/signin" },
-        { id: 13, page: "/termsOfService" },
+    public static readonly pages: pageType[] = [
+        {reg:/(?!\/)(editor)/, id: 1, pathname: "/editor",pagename:"editor" },
+        {reg:/(?!\/)(posts)/, id: 2, pathname: "/posts",pagename:"posts" },
+        {reg:/(?!\/)(blogs)/, id: 3, pathname: "/blogs",pagename:"blogs" },
+        {reg:/(?!\/)(chart)/, id: 4, pathname: "/chart",pagename:"chart" },
+        {reg:/(?!\/)(post)\/\d+/, id: 5, pathname: "/post/",pagename:"post" },
+        {reg:/(?!\/)(blog)\/\d+/, id: 6, pathname: "/blog/",pagename:"blog" },
+        {reg:/(?!\/)(admin)/, id: 7, pathname: "/admin",pagename:"admin" },
+        {reg:/(?!\/)(printblog)/, id: 8, pathname: "/printblog",pagename:"printblog" },
+        {reg:/(?!\/)(policy)/, id: 9, pathname: "/policy",pagename:"policy" },
+        {reg:/(?!\/)(quote)/, id: 10, pathname: "/quote",pagename:"quote" },
+        {reg:/(?!\/)(register)/, id: 11, pathname: "/register",pagename:"register" },
+        {reg:/(?!\/)(signin)/, id: 12, pathname: "/signin",pagename:"signin" },
+        {reg:/(?!\/)(termsOfService)/, id: 13, pathname: "/termsOfService",pagename:"termsOfAervice" },
+        {reg:/(?!\/)(error_page)/, id: 14, pathname: "/error_page",pagename:"error_page" },
+        {reg:/(?!\/)/, id: 0, pathname: "/",pagename:"" },
 
 
-    ]
+    ];
     _keywords: string[];
     list: { name: string, func: (name: string) => boolean }[];
     public readonly pagename: string = window.location.pathname;
@@ -88,33 +89,48 @@ class BrowserType {
     };
 
 
-    pushHistory({ user_id }: { user_id: string | undefined }) {
+    pushHistory({ user_id,pathname}: { user_id: string | undefined,pathname:string }) {
         this.user_id = user_id || "";
         const states: stateType[] = [];
-        const pagename = (window.location.pathname.split("/")[1]);
+       
+        
         // setTimeout(()=>{
-        const getPage = BrowserType.pages.find(res => (res.page.includes(pagename)));
+            const pagename=pathname.split("/")[1];
+        const getPage = BrowserType.pages.find(res => {
+           if( res.reg.test(pathname)){
+                return res
+           };
+        });
+       
         if (getPage) {
             const getstates = localStorage.getItem("states");
-            let state = { id: 0, num: getPage.id, page: getPage.page, user_id: user_id, name: pagename };
+          
             if (!getstates) {
-                state = { ...state, id: 0 };
+                //NOT FOUND
+                const state:stateType = { id: 0, page_id: getPage.id, pathname: pathname, user_id: user_id, pagename: pagename,count:1 };
                 states.push(state);
-                window.history.pushState(state, "", window.location.href);
                 localStorage.setItem("states", JSON.stringify(states));
             } else {
-                const retStates = JSON.parse(getstates) as stateType[];
-                const len = retStates.length;
-                state = { ...state, id: len };
-                retStates.push(state);
+                //FOUND
+                let retStates = JSON.parse(getstates) as stateType[];
+               if(user_id){
+                retStates=retStates.map(kv=>({...kv,user_id:user_id}));
+               };
+                const remain=retStates.filter(kv=>(kv.page_id !==getPage.id));
+                const state=retStates.find(kv=>(kv.page_id ===getPage.id));
+                
+                if(state){
+                    state.count+=1;
+                    retStates=[...remain,state];
+                }else{
+                    const state = { id: retStates.length, page_id: getPage.id, pathname: pathname, user_id: user_id, pagename: pagename,count:1 };
+                    retStates.push(state);
+                };
+              
                 localStorage.setItem("states", JSON.stringify(retStates))
-            }
+            };
 
-        }
-
-
-
-
+        };
     };
 
 
@@ -127,14 +143,18 @@ class BrowserType {
         return null
     };
 
+
     repeatShowControl({repeatCount}:{repeatCount:number}):boolean{
          //----------REPEAT PROCESS CONTROL----------//
          const pathname=window.location.pathname;
          const states=this.getHistory();
-         const checks=states?.filter(kv=>kv.page.includes(pathname))?.length || 0;
-         return checks <=repeatCount
+         const getState=states?.find(kv=>kv.pathname===pathname);
+         if(getState){
+            return getState.count <=repeatCount
+         };
+         return true;
          //----------REPEAT PROCESS CONTROL----------//
-    }
+    };
 
 
     showMessage(item: { parent: HTMLElement }) {

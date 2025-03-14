@@ -343,7 +343,11 @@ class Header{
                     row.setAttribute("data-backgroundImg","true");
                     idValues.push({eleId:rEleId,id:"backgroundImg",attValue:"true"});
                     idValues.push({eleId:rEleId,id:"imgKey",attValue:_row_.imgKey});
-                    
+                    const check=this._service.checkFreeImgKey({imgKey:_row_.imgKey as string});
+                        if(check){
+                            const url=this._service.getFreeBgImageUrl({imgKey:_row_.imgKey as string});
+                            row.style.backgroundImage=`url(${url})`;
+                        }
                 };
             //-------////// ----GETTING COMPONENT ATTRIBUTES-------\\\\\\---/////
                     Header.detectImageEffect(row);
@@ -394,7 +398,11 @@ class Header{
                         if(_col_.imgKey){
                             idValues.push({eleId,id:"imgKey",attValue:_col_.imgKey});
                             col.setAttribute("data-backgroundImg","true");
-                        
+                            const check=this._service.checkFreeImgKey({imgKey:_col_.imgKey as string});
+                            if(check){
+                                const url=this._service.getFreeBgImageUrl({imgKey:_col_.imgKey as string});
+                                col.style.backgroundImage=`url(${url})`;
+                            }
                         }
                         //-------////// ----GETTING COMPONENT ATTRIBUTES-------\\\\\\---/////
                         col.setAttribute("is-column","true");
@@ -576,12 +584,21 @@ class Header{
 
             case element.name==="img":
                 if( element.imgKey){
-                    this._service.getSimpleImg(element.imgKey).then(async(res)=>{
-                        if(res){
-                            (target as HTMLImageElement).src=res.img;
-                            (target as HTMLImageElement).alt=res.Key
+                    const check=this._service.checkFreeImgKey({imgKey:element.imgKey as string});
+                    console.log("check",check)
+                        if(check){
+                            const url=this._service.getFreeBgImageUrl({imgKey:element.imgKey as string});
+                            (target as HTMLImageElement).src=url;
+                            (target as HTMLImageElement).alt=url;
+                        }else{
+
+                            this._service.getSimpleImg(element.imgKey).then(async(res)=>{
+                                if(res){
+                                    (target as HTMLImageElement).src=res.img;
+                                    (target as HTMLImageElement).alt=res.Key
+                                }
+                            });
                         }
-                    });
                 }else{
                     (target as HTMLImageElement).src=element.img ||this.urlImg;
                     (target as HTMLImageElement).alt="www.ablogroom.com"
@@ -1842,6 +1859,8 @@ class Header{
         const node=target.nodeName.toLowerCase();
         const parent= target.parentElement;
         const parent_id=parent ? parent.id : null;
+        const getImgKey=this._modSelector.dataset.getIdValue({target,idValues,id:"imgKey"});
+        const imgKey=getImgKey?.attValue || undefined;
         let ele:element_selType={} as element_selType;
         if(parent_id) idValues.push({eleId,id:"divContId",attValue:parent_id})
         const {cleaned}=this._modSelector.removeClasses({target,classes:["isActive","box-shadow"]});
@@ -1863,7 +1882,7 @@ class Header{
                 inner_html:target.innerHTML,
                 attr:undefined,
                 col_id:col.id,
-                imgKey:undefined,
+                imgKey:imgKey,
                 order:ID,
                 type:undefined,
                 
@@ -1972,6 +1991,8 @@ class Header{
                    const arr= Header.getImgKeys({selector:sel});
                    arr.map(item=>{
                     if(item){
+                        const check=this._service.checkFreeImgKey({imgKey:item.imgKey});
+                            if(check) return;
                         this._service.adminImagemark(item.imgKey).then(async(res)=>{
                             if(res && parent){
                                 Misc.message({parent:parent,msg:`${item.imgKey} is deleted`,type_:"success",time:400});
@@ -1992,6 +2013,8 @@ class Header{
      updateElement({target,idValues,selRowCol}:{target:HTMLElement,idValues:idValueType[],selRowCol:selRowColType}):Promise<{element:element_selType|undefined,selRowCol:selRowColType,idValues:idValueType[]}>{
     
         let element:element_selType={} as element_selType;
+        const getImgKey=this._modSelector.dataset.getIdValue({target,idValues,id:"imgKey"});
+        const imgKey=getImgKey?.attValue ||undefined;
         const {selectorId,rowId,colId}=selRowCol as selRowColType ;
         if(selRowCol){
 
@@ -2006,6 +2029,7 @@ class Header{
                                             if(ele.eleId===target.id){
                                                 this._modSelector.dataset.simpleInsertAttrAndType({target,ele,idValues});
                                                 ele.cssText=target.style.cssText;
+                                                ele.imgKey=imgKey
                                                 ele.class=target.className.split(" ").filter(cl=>(cl !== "isActive")).join(" ");
                                                 ele.inner_html=target.innerHTML;
                                                 this._modSelector.datasetSincUpdate({target,ele:ele,idValues,level:"element",loc:"flexbox"});
@@ -2131,6 +2155,8 @@ class Header{
                                 console.log(res.ele,res.getEleIds)
                                 const idValue=res.getEleIds.find(kat=>(kat.id==="imgKey"));
                                 if(idValue){
+                                    const check=this._service.checkFreeImgKey({imgKey:idValue.attValue});
+                                    if(check) return;
                                     this._service.adminImagemark(idValue.attValue).then(async(res)=>{
                                         if(res){
                                             Misc.message({parent,msg:`${idValue.attValue} is removed`,type_:"success",time:700});
@@ -2272,9 +2298,12 @@ class Header{
     };
 
 
+
     async updateColumn({target,idValues,selRowCol}:{target:HTMLElement,idValues:idValueType[],selRowCol:selRowColType}): Promise<{target:HTMLElement,col:colType|undefined,idValues:idValueType[]}|undefined>{
         const eleId=target.id;
         let colEle:colType|undefined;
+        const getImgKey=this._modSelector.dataset.getIdValue({target,idValues,id:"imgKey"});
+        const imgKey=getImgKey?.attValue ||undefined;
         const {selectorId,rowId,colId}=selRowCol;
         const isCol=eleId===colId;
         if(!isCol){
@@ -2291,6 +2320,7 @@ class Header{
                                 if(_col_.eleId===eleId){
                                     _col_.class=target.className;
                                     _col_.cssText=target.style.cssText;
+                                    _col_.imgKey=imgKey;
                                     //LOADING ELEMENT 
                                     //REPOPULATING TARGET
                                     this._modSelector.datasetSincUpdate({target,ele:_col_,idValues,level:"col",loc:"flexbox"});
@@ -2313,7 +2343,9 @@ class Header{
         //RE-POPULATING TARGET WITH NEW COLLECTED ATTRIBUTES
         return Promise.resolve({target,col:colEle,idValues}) as Promise<{target:HTMLElement,col:colType|undefined,idValues:idValueType[]}|undefined>;
         
-    }
+    };
+
+
 
     flexColAdjustments({target,class_,idValues,selRowCol}:{target:HTMLElement,class_:string,idValues:idValueType[],selRowCol:selRowColType}){
         //THIS CHANGES FLEX PARTITION (ie;flex:1 1 25%,,,50%,,,75%)

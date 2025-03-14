@@ -1,6 +1,6 @@
 import { FaCrosshairs } from "react-icons/fa";
 import ModSelector from "../editor/modSelector";
-import { blogType, deletedImgType, gets3ImgKey, imgEleType, imgExtractType, userType } from "../editor/Types";
+import { blogType, deletedImgType, gets3ImgKey, imageInsertType, imgEleType, imgExtractType, userType } from "../editor/Types";
 import Nav from "../nav/headerNav";
 import Misc from "./misc";
 import { FaCreate } from "./ReactIcons";
@@ -8,7 +8,7 @@ import Service from "./services";
 import { AWSImageLoader, imageLoader } from "./tsFunctions";
 import Main from "../editor/main";
 import { idValueType, selRowColType, selRowType } from "@/lib/attributeTypes";
-import {  typeEnumArr } from "./lists";
+
 
 
 class AddImageUrl {
@@ -18,7 +18,7 @@ class AddImageUrl {
     logo:string;
     unsplash:string;
     freepicurl:string="https://newablogroom-free-bucket.s3.us-east-1.amazonaws.com";
-    imageUrls:{key:string|undefined,name:string,url:string}[];
+    imageUrls:imageInsertType[];
     imgEles:imgEleType[];
     constructor(private _modSelector:ModSelector,private _service:Service){
         this.hasBlobMsg="the image was not uploaded because it has a blob file that was not saved in the server. As a result, an image was replaced temporarily as space. The system can not freely upload files from your personal system to show your image.It must be requested by you to download it from your personal computer...just download it to the server to remove this message.";
@@ -98,16 +98,16 @@ class AddImageUrl {
             {key:"signInProcess.png",name:"signin process",url:this.freepicurl +"/signInProcess.png"},
             {key:"specials.png",name:"specials",url:this.freepicurl +"/specials.png"},
             {key:"solarWorks.png",name:"solar works",url:this.freepicurl +"/solarWorks.png"},
-            {key:undefined,name:"Explore",url:`${this.unsplash}/photo-1657736301709-b1365740ddbe?crop=entropy`,},
-            {key:undefined,name:"symetric",url:`${this.unsplash}/photo-1658288797137-7ca820c77a2b?crop=entropy`},
-            {key:undefined,name:"fast",url:`${this.unsplash}/photo-1657987273071-fbe77b5b4e90?crop=entropy&h=900`},
-            {key:undefined,name:"elagent",url:`${this.unsplash}/photo-1655760862449-52e5b2bd8620?crop=entropy`},
-            {key:undefined,name:"symetry",url:`${this.unsplash}/photo-1657963928657-9da48ea0c496?crop=entropy`},
-            {key:undefined,name:"time",url:`${this.unsplash}/photo-1656922612260-2ebb170dd637?crop=entropy`},
-            {key:undefined,name:"wonder",url:`${this.unsplash}/photo-1656342468017-a298b6c63cc9?crop=entropy`},
-            {key:undefined,name:"tranquil",url:`${this.unsplash}/photo-1658137135662-82ab663ee627?crop=entropy&cs=tinysrgb&fit=max&fm=jpg`},
-            {key:undefined,name:"majestic",url:`${this.unsplash}/photo-1657653463810-fa2f223fbb82?crop=entropy`},
-            {key:undefined,name:"earth",url:`${this.unsplash}/photo-1657832034979-e2f9c5b0a2fc?crop=fit&h=900`},
+            {key:null,name:"Explore",url:`${this.unsplash}/photo-1657736301709-b1365740ddbe?crop=entropy`,},
+            {key:null,name:"symetric",url:`${this.unsplash}/photo-1658288797137-7ca820c77a2b?crop=entropy`},
+            {key:null,name:"fast",url:`${this.unsplash}/photo-1657987273071-fbe77b5b4e90?crop=entropy&h=900`},
+            {key:null,name:"elagent",url:`${this.unsplash}/photo-1655760862449-52e5b2bd8620?crop=entropy`},
+            {key:null,name:"symetry",url:`${this.unsplash}/photo-1657963928657-9da48ea0c496?crop=entropy`},
+            {key:null,name:"time",url:`${this.unsplash}/photo-1656922612260-2ebb170dd637?crop=entropy`},
+            {key:null,name:"wonder",url:`${this.unsplash}/photo-1656342468017-a298b6c63cc9?crop=entropy`},
+            {key:null,name:"tranquil",url:`${this.unsplash}/photo-1658137135662-82ab663ee627?crop=entropy&cs=tinysrgb&fit=max&fm=jpg`},
+            {key:null,name:"majestic",url:`${this.unsplash}/photo-1657653463810-fa2f223fbb82?crop=entropy`},
+            {key:null,name:"earth",url:`${this.unsplash}/photo-1657832034979-e2f9c5b0a2fc?crop=fit&h=900`},
             {key:"AIMapping.png",name:"AIMapping",url:this.freepicurl +"/AIMapping.png"},
             {key:"blackHType.png",name:"black hole type",url:this.freepicurl +"/blackHType.png"},
             {key:"galaxyFormation.png",name:"galaxyFormation",url:this.freepicurl +"/galaxyFormation.png"},
@@ -166,7 +166,7 @@ class AddImageUrl {
         const reg:RegExp=/(background-image)/
         //get images;
         this.imgEles=[];
-        
+       
         const getColImgs=this.mainContainer.querySelectorAll("[data-is-column]") as any as HTMLElement[];
         const getRowImgs=this.mainContainer.querySelectorAll("[data-is-row]") as any as HTMLElement[];
         const getElements=this.mainContainer.querySelectorAll("[data-is-element]") as any as HTMLElement[];
@@ -174,30 +174,50 @@ class AddImageUrl {
             if(col){
                 const check=(reg.test(col.style.cssText));
                 if(!check)return;
-                const retSelImg=await this.extractImg({target:col,idValues,level:"col"}) as imgExtractType;
-                const {imgUrl,selRowCol,imgKey,level,hasBlob,hasFreeImg}=retSelImg
-                this.imgEles.push({level,target:col as HTMLElement,selRowCol,imgUrl,imgKey,hasBlob,hasFreeImg});
+                const getImgKey=this._modSelector.dataset.getIdValue({target:col,idValues,id:"imgKey"});
+                const _imgKey=getImgKey ? getImgKey.attValue:null;
+                const retSelImg=await this.extractImg({target:col,idValues,level:"col",imgKey:_imgKey}) as imgExtractType;
+                const {imgUrl,selRowCol,imgKey,level,hasBlob,hasFreeImg,hasGenericImgKey}=retSelImg
+                this.imgEles.push({level,target:col as HTMLElement,selRowCol,imgUrl,imgKey,hasBlob,hasFreeImg,hasGenericImgKey});
             }
         }));
 
         await Promise.all([...getElements].map(async(target)=>{
             if(target){
+                const getImgKey=this._modSelector.dataset.getIdValue({target,idValues,id:"imgKey"});
+                const _imgKey=getImgKey ? getImgKey.attValue:null;
                 const node=target.nodeName.toLowerCase();
-                const isImgKey=this._modSelector.dataset.getIdValue({target,idValues,id:"imgKey"});
-                const isbgImage=reg.test(target.style.cssText) || isImgKey !==null;
                 const check2=([...target.children as any] as HTMLElement[]).map(child=>child.nodeName.toLowerCase()).includes("img");
+                const check3=([...target.children as any] as HTMLElement[]).map(child=>{
+                    if(child){
+                      const check3=([...child.children as any] as HTMLElement[]).map(ch=>(ch.nodeName)).includes("IMG");
+                      return check3
+                    }
+                    return false;
+                }).find(ch=>(ch)) || false;
                 
                
                 if( node==="img"){
-                    const imgItem=await this.extractImg({target,idValues,level:"element"}) as imgExtractType;
-                    const {imgUrl,selRowCol,imgKey,level,hasBlob,hasFreeImg}=imgItem
-                    this.imgEles.push({level,target,selRowCol,imgUrl,imgKey,hasBlob,hasFreeImg});
-                }else if(check2 && isbgImage){
-
-                    const retSelImg=this.extractSpecial({target,idValues,level:"special"}) as imgExtractType;
-                    const {imgUrl,selRowCol,imgKey,level,hasBlob,hasFreeImg}=retSelImg
-                    this.imgEles.push({level,target,selRowCol,imgUrl,imgKey,hasBlob,hasFreeImg});
-                };
+                    const imgItem=await this.extractImg({target,idValues,level:"element",imgKey:_imgKey}) as imgExtractType;
+                    const {imgUrl,selRowCol,imgKey,level,hasBlob,hasFreeImg,hasGenericImgKey}=imgItem
+                    this.imgEles.push({level,target,selRowCol,imgUrl,imgKey,hasBlob,hasFreeImg,hasGenericImgKey});
+                }else if(check2){
+                    //for shapeOutside and headerflags
+                    const img=([...target.children as any] as HTMLElement[]).find(child=>(child.nodeName==="IMG")) as HTMLImageElement;
+                    const imgKey1=this._modSelector.dataset.getIdValue({idValues,target,id:"imgKey"});
+                    const imgKey2=this._modSelector.dataset.getIdValue({idValues,target:img,id:"imgKey"});
+                    const imgKey3=imgKey1?.attValue ? imgKey1.attValue :(imgKey2?.attValue)|| null;
+                    const retSelImg=this.extractSpecial({target,img,idValues,level:"special",imgKey:imgKey3}) as imgExtractType;
+                    const {imgUrl,selRowCol,imgKey,level,hasBlob,hasFreeImg,hasGenericImgKey}=retSelImg
+                    this.imgEles.push({level,target,selRowCol,imgUrl,imgKey,hasBlob,hasFreeImg,hasGenericImgKey});
+                }else if(check3){
+                    //HEADERFLAG: DEEPER=> HAS IMGCONTAINER
+                    const imgKey1=this._modSelector.dataset.getIdValue({idValues,target,id:"imgKey"});
+                    const imgKey3=imgKey1?.attValue || null;
+                    const retSelImg=this.extractHeaderType({target,idValues,level:"headerflag",imgKey:imgKey3,selRowCol:null}) as imgExtractType;
+                    const {imgUrl,selRowCol,imgKey,level,hasBlob,hasFreeImg,hasGenericImgKey}=retSelImg
+                    this.imgEles.push({level,target,selRowCol,imgUrl,imgKey,hasBlob,hasFreeImg,hasGenericImgKey});
+                }
             }//THIS CAN NOT UPLOAD A BLOB:HTTP-CHECK ID=F BLOG=> THEN INSERT NOIMAGE IN ITS PLACE
         }));
 
@@ -206,14 +226,13 @@ class AddImageUrl {
                  const reg:RegExp=/(background-image)/
                 const check=(reg.test(row.style.cssText)) ;
                 if(!check)return;
-                const retSelImg=await this.extractImg({target:row,idValues,level:"row"}) as imgExtractType;
-                const {imgUrl,selRowCol,imgKey,level,hasBlob,hasFreeImg}=retSelImg
-                this.imgEles.push({level,target:row as HTMLElement,imgUrl,selRowCol,imgKey,hasBlob,hasFreeImg});
+                const getImgKey=this._modSelector.dataset.getIdValue({target:row,idValues,id:"imgKey"});
+                const imgKey1=getImgKey?.attValue ? getImgKey.attValue : null;
+                const retSelImg=await this.extractImg({target:row,idValues,level:"row",imgKey:imgKey1}) as imgExtractType;
+                const {imgUrl,selRowCol,imgKey,level,hasBlob,hasFreeImg,hasGenericImgKey}=retSelImg
+                this.imgEles.push({level,target:row as HTMLElement,imgUrl,selRowCol,imgKey,hasBlob,hasFreeImg,hasGenericImgKey});
             }
         }));
-
-
-
 
         if(this.imgEles && this.imgEles.length>0){
             await Promise.all(this.imgEles.map(async(item,index)=>{
@@ -238,7 +257,7 @@ class AddImageUrl {
                         //free file from server
                         img.src=item.imgUrl as string;
                         img.alt=item.imgKey ? item.imgKey : "www.ablogroom.com";
-                    }else if(item.level==="special" && item.imgUrl){
+                    }else if((item.level==="special" || item.level==="headerflag") && item.imgUrl){
                         // free file from server
                         img.src=item.imgUrl as string ;
                         img.alt=item.imgKey ? item.imgKey :"www.ablogroom";
@@ -433,7 +452,7 @@ class AddImageUrl {
     };
 
 
-
+//FIX ADD IMGKEY TO ELE UPON INSERT IMAGE
     insertImage({parent,item,idValues,user}:{parent:HTMLElement,item:imgEleType,idValues:idValueType[],user:userType|null}){
         const popup=document.createElement("div");
         popup.className="insert-popup";
@@ -451,7 +470,7 @@ class AddImageUrl {
         this.removePopup({parent,target:popup});
         this.imageUrls.map((insertImg,index)=>{
             if(insertImg){
-                const key=insertImg.key;
+                
                 const divCont=document.createElement("div");
                 const title=document.createElement("h6");
                 title.className="text-primary text-center my-2";
@@ -473,83 +492,99 @@ class AddImageUrl {
                     if(e){
                        
                         //SELECTING IMAGE TO BE INSERTED
-                        const {selRowCol,target,imgKey,level}=item
-                        const eleId=target.id;
-                        const node=target.nodeName.toLowerCase();
-                        if(imgKey && key){
-                            const idValue:idValueType={eleId:target.id,id:"imgKey",attValue:key}
-                            this._modSelector.dataset.upDateIdValue({target,idValues,idValue});
-                        }else if(!key){
-                            this._modSelector.dataset.removeSubValue({target:target,id:"imgKey",idValues,eleId:target.id});
-                       
-                        };
-                        const {selectorId,rowId}=selRowCol || {selectorId:null,rowId:null,colId:null}
-                        const selRow={selectorId,rowId} as selRowType;
-                        if(level==="element"){
-                            (target as HTMLImageElement).src=insertImg.url;
-                            (target as HTMLImageElement).alt=insertImg.name;
-                        }else if(level==="col"){
-                            target.style.backgroundImage=`url(${insertImg.url})`;
-                        }else if(level==="row"){
-                            target.style.backgroundImage=`url(${insertImg.url})`;
-                        } else if(level==="special"){
-                            const childs=([...target.children as any] as HTMLElement[]);
-                            [...childs as HTMLElement[]].map(child=>{
-                                if(child && child.nodeName==="IMG"){
-                                    const img=child as HTMLImageElement;
-                                    const getWidth=getComputedStyle(img).getPropertyValue("width");
-                                    const width=Number(getWidth.split("px")[0]);
-                                    img.src=imageLoader({src:insertImg.url,width,quality:95});
-                                }
-                            });
-                        };
-                        if(imgKey){
-                            const eleId=target.id;
-                            const markDel:deletedImgType={imgKey:imgKey,del:true,date:new Date()};
-                            this._service.markDelKey(markDel);
-                            if(key){
-                                const idValue:idValueType={eleId,id:"imgKey",attValue:key}
-                                this._modSelector.dataset.upDateIdValue({target,idValues,idValue})
-                            }
-                        
-                        
-                        if(level==="element" || level==="special"){
-                            this._modSelector.updateElement({target:target,idValues,selRowCol});
-                        }else if(level==="col" && selRowCol){
-                            this._modSelector.updateColumn({target:target,idValues,selRowCol})
-                        }else if(level==="row" && selRowCol){
-                            this._modSelector.updateRow({target:target,idValues,selRow})
-                        }
-                    }else{
-                      
-                        const imgKey=target.getAttribute("data-img-key");
-                        if(imgKey){
-                            const markDel:deletedImgType={imgKey:imgKey,del:true,date:new Date()};
-                            this._service.markDelKey(markDel);
-                            if(key){
-                                const idValue:idValueType={eleId,id:"imgKey",attValue:key}
-                                this._modSelector.dataset.upDateIdValue({target,idValues,idValue})
-                            }
-                        }
-                        
-
-                        this._modSelector.updateElement({target:target,idValues,selRowCol});
-                    };
-                    if(selRowCol && key && node){
-                        
-                        this.updateParaShapeOutside({parent,image:(target as HTMLImageElement),key,idValues,selRowCol});
+                        this.insertSelectedImage({item,insert:insertImg,idValues});
+                        Misc.growOut({anchor:popup,scale:0,opacity:0,time:400});
+                        setTimeout(()=>{
+                            parent.removeChild(popup);
+                        },390);
                     }
-                    Misc.growOut({anchor:popup,scale:0,opacity:0,time:400});
-                    setTimeout(()=>{
-                        parent.removeChild(popup);
-                    },390);
-                    }
-            };
+                };
             };
             
         });
-    
     };
+
+
+
+    insertSelectedImage({item,insert,idValues}:{
+        insert:imageInsertType,
+        item:imgEleType,
+        idValues:idValueType[]
+
+    }){
+        //SELECTING IMAGE TO BE INSERTED
+        const {selRowCol,target,imgKey,level,hasFreeImg,hasGenericImgKey}=item;
+        const {key:selectedKey,name:selectedName,url:selectedUrl}=insert;
+        
+        if(selectedKey){
+            const eleId=target.id;
+            const idValue:idValueType={eleId,id:"imgKey",attValue:selectedKey};
+            this._modSelector.dataset.upDateIdValue({target,idValues,idValue});
+            target.setAttribute("data-img-key",selectedKey);
+        }else if(!selectedKey){
+            this._modSelector.dataset.removeSubValue({target:target,id:"imgKey",idValues,eleId:target.id});
+       
+        };
+        const {selectorId,rowId}=selRowCol || {selectorId:null,rowId:null,colId:null}
+        const selRow={selectorId,rowId} as selRowType;
+        
+        if(selectedKey && imgKey && !hasFreeImg && !hasGenericImgKey){
+            //deleting none free/or none generic imgkey in db/aws
+            const check=this._service.checkFreeImgKey({imgKey});
+            if(!check){
+                const markDel:deletedImgType={imgKey:imgKey,del:true,date:new Date()};
+                this._service.markDelKey(markDel);
+            };
+        };
+        if(selectedKey && selectedUrl){
+            //FREE PICS
+            if(level==="col" || level==="row"){
+                target.style.backgroundImage=`url(${selectedUrl})`;
+                if(level==="col" && selRowCol){
+                    this._modSelector.updateColumn({target:target,idValues,selRowCol});
+                }else if(level==="row" && selRowCol){
+                    this._modSelector.updateRow({target:target,idValues,selRow})
+                }
+            }else if(level==="element"){
+                (target as HTMLImageElement).src=selectedUrl;
+                (target as HTMLImageElement).alt=selectedName;
+            }else if(level==="special"){
+                const childs=([...target.children as any] as HTMLElement[]);
+                [...childs as HTMLElement[]].map(child=>{
+                    if(child && child.nodeName==="IMG"){
+                        const img=child as HTMLImageElement;
+                        const getWidth=getComputedStyle(img).getPropertyValue("width");
+                        const width=Number(getWidth.split("px")[0]);
+                        img.src=imageLoader({src:selectedUrl,width,quality:95});
+                    }
+                });
+            }else if(level==="headerflag"){
+                const childs=([...target.children as any] as HTMLElement[]);
+                [...childs as HTMLElement[]].map(child=>{
+                    if(child ){
+                        ([...child.children as any] as HTMLElement[]).map(ch=>{
+                            if(ch && ch.nodeName==="IMG"){
+
+                                const img=ch as HTMLImageElement;
+                                const getWidth=getComputedStyle(img).getPropertyValue("width");
+                                const width=Number(getWidth.split("px")[0]);
+                                img.src=imageLoader({src:selectedUrl,width,quality:95});
+                            }
+                        });
+                    }
+                });
+            }
+            if(level==="element" || level==="special" || level==="headerflag"){
+                if(selRowCol){
+                    this._modSelector.updateElement({target:target,idValues,selRowCol});
+                }else{
+                    this._modSelector.updateElement({target:target,idValues,selRowCol:null});
+                }
+            }
+        };
+
+    };
+
 
 
     asyncPicImage(item:{parent:HTMLElement}):Promise<{arr:{btn:HTMLButtonElement,imageUrl:string}[],popup:HTMLElement,reParent:HTMLElement}>{
@@ -607,47 +642,51 @@ class AddImageUrl {
     };
 
 
-    async extractImg(item:{target:HTMLElement,idValues:idValueType[],level:"element"|"col"|"row"}):Promise<imgExtractType>{
-        const {target,idValues,level}=item;
+    async extractImg({target,idValues,level,imgKey}:{target:HTMLElement,idValues:idValueType[],level:"element"|"col"|"row",imgKey:string|null}):Promise<imgExtractType>{
         const url=new URL(window.location.origin)
         const noimage=`${url}${this.noimage}`;
         let hasBlob=false;
         const node=target.nodeName.toLowerCase();
         const urlStr=target.style.backgroundImage;
-        const idValue:idValueType|null=this._modSelector.dataset.getIdValue({target,idValues,id:"imgKey"});
-        const imgKey=idValue?.attValue
         const getSelRowCol:idValueType|null=this._modSelector.dataset.getIdValue({target,idValues,id:"selRowCol"});
         const selRowCol:selRowColType|null=getSelRowCol?.attValue ? JSON.parse(getSelRowCol.attValue) as selRowColType:null
         let imgUrl:string|undefined;
         let hasFreeImg:boolean=false;
         //no_userid-unknownUser-sequenceSolution.png
+        //https://newablogroom-free-bucket.s3.us-east-1.amazonaws.com/imgKey
         const blob:RegExp=/(blob:http)/;
-        const regFreeTest:RegExp=/(newablogroom-free-bucket)/;
+        const regFreeTest:RegExp=/(https:\/\/newablogroom-free-bucket.s3.us-east-1.amazonaws.com)/;
         const null_:RegExp=/(null)/;
         let hasGenericImgKey:boolean=false;
         const genericImgKey:RegExp=/(no_userid)/;
         hasGenericImgKey=imgKey ? genericImgKey.test(imgKey) || null_.test(imgKey):false;
-
+        
         if(level==="col" || level==="row"){
-            imgUrl= this.extractBgImage({str:urlStr});
+            imgUrl= this.extractBgImage({str:urlStr});//url(image)
             hasFreeImg=imgUrl ? regFreeTest.test(imgUrl):false;
+            imgKey =(hasFreeImg && imgUrl && !hasBlob) ? this._service.getKey({imgUrl}) : imgKey;
             hasBlob=imgUrl ?  blob.test(imgUrl as string):false;
             switch(true){
-                case !hasBlob && hasFreeImg && !hasGenericImgKey && imgKey !==undefined:
-                    imgUrl=this._service.getFreeBgImageUrl({imgKey}) as string;// same as `${this.freepicurl}/${imgKey}`
+                
+                case !hasBlob && hasFreeImg && !hasGenericImgKey && imgKey !==null:
+                    //free image
+                    imgUrl=this._service.getFreeBgImageUrl({imgKey}) as string;// same as `${this.freepicurl}/${imgKey}`;
                 break;
                 case hasBlob:
+                    //not downloaded && no key
                     imgUrl=noimage;
                 break;
-               
+
                 default:
                     break;
             }
             
         }else if( level==="element" && node==="img"){
             const img_=target as HTMLImageElement;
-            hasBlob=blob.test(img_.src);
-            hasFreeImg=regFreeTest.test(img_.src);
+            imgUrl=img_.src;
+            hasBlob=blob.test(imgUrl);
+            hasFreeImg=regFreeTest.test(imgUrl);
+            imgKey =(hasFreeImg && imgUrl && !hasBlob) ? this._service.getKey({imgUrl}) : imgKey;
             switch(true){
                 case imgKey && !hasBlob && !hasFreeImg :
                     await this._service.getSimpleImg(imgKey).then(async(res)=>{
@@ -668,61 +707,96 @@ class AddImageUrl {
             }
             
         };
-        
-        return {imgUrl,selRowCol,imgKey,level,hasBlob,hasFreeImg};
+       
+        return {imgUrl,selRowCol,imgKey,level,hasBlob,hasFreeImg,hasGenericImgKey};
     };
 
 
     //@ level [data-is-element]
-    extractSpecial({target,idValues,level}:{target:HTMLElement,idValues:idValueType[],level:"row"|"col"|"element"|"special"}):imgExtractType{
-        
+    extractSpecial({target,img,idValues,level,imgKey}:{target:HTMLElement,img:HTMLImageElement|null,idValues:idValueType[],level:"row"|"col"|"element"|"special",imgKey:string|null}):imgExtractType{
+        const getSelRowCol=this._modSelector.dataset.getIdValue({target,idValues,id:"selRowCol"});
+        const selRowCol=getSelRowCol?.attValue ? JSON.parse(getSelRowCol.attValue) as selRowColType:null;
         const url=new URL(window.location.origin)
         const noimage=`${url}${this.noimage}`;
         let hasBlob:boolean=false;
         let hasFreeImg:boolean=false;
         const blob:RegExp=/(blob:http)/;
-      
+        let hasGenericImgKey:boolean=false;
+        const genericImgKey:RegExp=/(no_userid)/;
+        hasGenericImgKey=imgKey ? genericImgKey.test(imgKey):false;
         const regFreeTest:RegExp=/(newablogroom-free-bucket)/;
         let imgExtract:imgExtractType={} as imgExtractType;
-        const childs=([...target.children as any] as HTMLElement[]);
-        typeEnumArr.map(type=>{
-            const check=this._modSelector.dataset.getIdValue({target,idValues,id:type});
-            if(type && check){
-                [...childs as HTMLElement[]].map(child=>{
-                    if(child && child.nodeName==="IMG"){
-                        let imgUrl:string="";
-                        const img=child as HTMLImageElement;
-                        hasBlob=blob.test(img.src);
-                        hasFreeImg=regFreeTest.test(img.src);
-                        const idValue=this._modSelector.dataset.getIdValue({target,idValues,id:"imgKey"});
-                        const imgKey= idValue ? idValue.attValue:undefined;
-                        
-                        let hasGenericImgKey:boolean=false;
-                        const genericImgKey:RegExp=/(no_userid)/;
-                        hasGenericImgKey=imgKey ? genericImgKey.test(imgKey):false;
-                        switch(true){
-                            case hasBlob:
-                                imgUrl=noimage;
-                            break;
-                            case hasFreeImg:
-                                imgUrl=img.src;
-                            break;
-                            case hasFreeImg && !hasGenericImgKey && typeof imgKey==="string":
-                                imgUrl=this._service.getFreeBgImageUrl({imgKey});
-                            break;
-                            default:
-                                imgUrl=img.src;
-                                break;
-                        }
-                        const getSelRowCol=this._modSelector.dataset.getIdValue({target,idValues,id:"selRowCol"});
-                        const selRowCol=getSelRowCol?.attValue ? JSON.parse(getSelRowCol.attValue) as selRowColType:null;
-                        imgExtract={imgUrl,selRowCol,imgKey,level,hasBlob,hasFreeImg}
-                    }
-                });
+        if(img){
+            let imgUrl:string=img.src;
+            hasBlob=blob.test(img.src);
+            hasFreeImg=regFreeTest.test(img.src);
+            imgKey =(hasFreeImg && imgUrl && !hasBlob) ? this._service.getKey({imgUrl}) : imgKey;
+            switch(true){
+                case hasBlob:
+                    imgUrl=noimage;
+                break;
+                case hasFreeImg && !hasGenericImgKey && !hasBlob && imgKey !==null:
+                    imgUrl=this._service.getFreeBgImageUrl({imgKey});
+                break;
+                default:
+                    imgUrl=img.src;
+                    break;
             }
-        });
+            
+            imgExtract={imgUrl,selRowCol,imgKey,level,hasBlob,hasFreeImg,hasGenericImgKey}
+            return imgExtract
+        };
+        imgExtract={imgUrl:noimage,selRowCol,imgKey,level,hasBlob,hasFreeImg,hasGenericImgKey}
         return imgExtract
     };
+
+
+    extractHeaderType({target,idValues,imgKey,level,selRowCol}:{
+        target:HTMLElement,
+        idValues:idValueType[],
+        imgKey:string|null,
+        level:"element"|"col"|"row"|"special"|"headerflag",
+        selRowCol:selRowColType|null
+        }):imgExtractType{
+            const url=new URL(window.location.origin)
+            const noimage=`${url}${this.noimage}`;
+            let imgUrl:string|undefined;
+            let hasBlob:boolean=false;
+            let hasFreeImg:boolean=false;
+            const blob:RegExp=/(blob:http)/;
+            const regHeaderFlag:RegExp=/(headerflag)/;
+            const genericImgKey:RegExp=/(no_userid)/;
+            const hasGenericImgKey=imgKey ? genericImgKey.test(imgKey):false;
+            const regFreeTest:RegExp=/(newablogroom-free-bucket)/;
+            const getImgKey=this._modSelector.dataset.getIdValue({target,idValues,id:"imgKey"});
+            const _imgKey=getImgKey?.attValue ? getImgKey.attValue : null;
+            imgKey=imgKey || _imgKey;
+            ([...target.children as any] as HTMLElement[]).map(child=>{
+                if(child){
+                    ([...child.children as any] as HTMLElement[]).map(ch=>{
+                        if(ch && ch.nodeName==="IMG"){
+                            const img=ch as HTMLImageElement
+                            imgUrl=img.src;
+                            hasBlob=blob.test(imgUrl);
+                            const hasHflagImg=regHeaderFlag.test(imgUrl);
+                            hasFreeImg=regFreeTest.test(img.src);
+                            const checkImg=hasFreeImg && imgUrl && !hasBlob && !hasHflagImg;
+                            if(checkImg){
+                                imgKey =this._service.getKey({imgUrl});
+                            };
+                            if(!hasFreeImg && hasHflagImg) imgUrl=img.src;
+                            if(hasBlob) imgUrl=noimage;
+                        }
+                    });
+                }
+            });
+
+        const imgExtract:imgExtractType={imgUrl,selRowCol,imgKey,level,hasBlob,hasFreeImg,hasGenericImgKey};
+        return imgExtract
+    };
+
+
+   
 
     extractBgImage({str}:{str:string}):string|undefined{
         let retImg:string|undefined;

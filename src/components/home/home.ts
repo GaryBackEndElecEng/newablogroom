@@ -92,11 +92,8 @@ class Home{
     //INJECTION !! STYLE FOR PARENT IS DONE VIA home.module.css
     async main(parent:HTMLElement){
         //----------REPEAT PROCESS CONTROL----------//
-        const repeat=1;
-        const pathname=window.location.pathname;
-        const states=this.browser.getHistory();
-        const checks=states?.filter(kv=>kv.page.includes(pathname))?.length || 0;
-        const isRepeat=checks <=repeat
+        const repeatCount=1;
+        const isRepeat=this.browser.repeatShowControl({repeatCount});
         //----------REPEAT PROCESS CONTROL----------//
         Header.cleanUp(parent);
         const show=true;

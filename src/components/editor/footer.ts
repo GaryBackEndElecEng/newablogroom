@@ -1174,6 +1174,8 @@ class Footer{
         const flex=parsed as flexType;
         const {imgKey} = flex;
         if( imgKey){
+            const check=this._service.checkFreeImgKey({imgKey});
+                if(check) return;
                 this._service.adminImagemark(imgKey as string).then(async(res)=>{
                     if(res){
                         Misc.message({parent:column,msg:`${imgKey} is removed`,type_:"success",time:700});
@@ -1666,6 +1668,8 @@ class Footer{
                            
                             keys.map(key=>{
                                 if(key){
+                                    const check=this._service.checkFreeImgKey({imgKey:key});
+                                    if(check) return;
                                     this._service.adminImagemark(key);
                                 }
                             });
@@ -2181,10 +2185,13 @@ class Footer{
                
                    if(target.nodeName==="IMG"){
                        const getImgKey=this._modSelector.dataset.getIdValue({target,idValues,id:"imgKey"});
-                       if(getImgKey.attValue){
-                           this._service.adminImagemark(getImgKey.attValue).then(async(res)=>{
+                       const imgKey=getImgKey?.attValue || null;
+                       if(imgKey){
+                        const check=this._service.checkFreeImgKey({imgKey});
+                            if(check) return;
+                           this._service.adminImagemark(imgKey).then(async(res)=>{
                                if(res){
-                                   Misc.message({parent:parent,msg:`${getImgKey.attValue} was deleted`,type_:"success",time:700});
+                                   Misc.message({parent:parent,msg:`${imgKey} was deleted`,type_:"success",time:700});
                                }
                            });
                        }

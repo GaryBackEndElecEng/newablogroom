@@ -221,6 +221,7 @@ showCleanHeaderflag({parent,element,idValues}:{parent:HTMLElement,element:elemen
     const img=target.querySelector("img") as HTMLImageElement;
     img.src=element.img || this.headerPic;
     img.alt="www.ablogroom.com";
+    console.log("HEADERFLAG IMG",element.img,"IMGKEY",element.imgKey)
     if(element.imgKey){
         const src=`${this.freepicurl}/${element.imgKey}`;
         img.src=src;
@@ -254,7 +255,7 @@ showCleanHeaderflag({parent,element,idValues}:{parent:HTMLElement,element:elemen
             this.removeMainElement({parent,divCont:this.divCont,target,show:true,idValues});
         }
     };
-    this._modSelector.editElement({target,idValues});
+    this._modSelector.editElement({target,idValues,selRowCol:null});
     const arrDivCont:arrDivContType={divCont:this.divCont,placement:element.placement,target,isNormal:false,ele:element,chart:null,sel:null}
     return arrDivCont
 };
@@ -273,7 +274,7 @@ async initMain({parent,cardBodyCss,idValues}:{parent:HTMLElement,cardBodyCss:car
             this.element=res.ele;
             idValues=res.idValues
             this.screenSizeAdjust({target:res.target,less900,less400});
-            this._modSelector.editElement({target:res.target,idValues});
+            this._modSelector.editElement({target:res.target,idValues,selRowCol:null});
             //return ele and target:=> generate list styles
             const divCont=res.target.parentElement as HTMLElement;
             this.customAttributes({divCont,target:res.target,less400,less900,css_col:this.css_col,element:this.element,idValues});

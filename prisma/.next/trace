@@ -210,3 +210,6 @@
 [{"name":"next-dev","duration":1058088,"timestamp":600567890438,"id":1,"tags":{},"startTime":1741763862277,"traceId":"c598e5fadc3c26c4"}]
 [{"name":"next-dev","duration":1000165,"timestamp":608080270683,"id":1,"tags":{},"startTime":1741771374652,"traceId":"b443346a0f33f95d"}]
 [{"name":"next-dev","duration":1000974,"timestamp":612555117039,"id":1,"tags":{},"startTime":1741775849504,"traceId":"3fa57891e13fa18a"}]
+[{"name":"next-dev","duration":1149581,"timestamp":617871307053,"id":1,"tags":{},"startTime":1741781165680,"traceId":"f76ff3d6a85a6dbd"}]
+[{"name":"next-dev","duration":961627,"timestamp":647527177465,"id":1,"tags":{},"startTime":1741810821564,"traceId":"7d9f4ce66105837d"}]
+[{"name":"next-dev","duration":992794,"timestamp":715648724913,"id":1,"tags":{},"startTime":1741878941617,"traceId":"cf8de03a52b762ad"}]

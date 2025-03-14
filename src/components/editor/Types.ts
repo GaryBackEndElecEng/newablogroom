@@ -719,19 +719,26 @@ export type idEmailType={
 export type imgExtractType={
     imgUrl?:string,
     selRowCol:selRowColType|null,
-    imgKey?:string,
-    level:"element"|"col"|"row"|"special",
+    imgKey:string|null,
+    level:"element"|"col"|"row"|"special"|"headerflag",
     hasBlob:boolean,
-    hasFreeImg:boolean
+    hasFreeImg:boolean,
+    hasGenericImgKey:boolean
 }
 export type imgEleType={
-    level:"element"|"col"|"row"|"special",
+    level:"element"|"col"|"row"|"special"|"headerflag",
     target:HTMLImageElement|HTMLElement,
     imgUrl?:string,
-    imgKey?:string,
+    imgKey:string|null,
     selRowCol:selRowColType|null,
     hasBlob:boolean,
-    hasFreeImg:boolean
+    hasFreeImg:boolean,
+    hasGenericImgKey:boolean
+}
+export type imageInsertType={
+    key: string | null;
+    name: string;
+    url: string;
 }
 ///---ADIMAGEURL----////
 //------headerflag  -------//
@@ -784,11 +791,19 @@ export type useAgentDataType={
 }
 //----BROWSER---///
 export type stateType={
-    num:number,
-    page:string,
+    page_id:number,
+    pathname:string,
     id:number,
-    name:string,
-    user_id?:string
+    pagename:string,
+    user_id?:string,
+    count:number
+
+}
+export type pageType={
+    reg:RegExp,
+    id: number,
+     pathname: string,
+    pagename:string
 
 }
 //----BROWSER---///

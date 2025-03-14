@@ -49,7 +49,8 @@ function Index({ _user_ }: { _user_: userType | null }) {
                     const user = new User(modSelector, service, auth);
                     modSelector.loadFromLocal().then(async (_res) => {
                         const blogUser = _res.getBlog();
-                        browserType.pushHistory({ user_id: res.user.id });
+                        const url = new URL(window.location.href);
+                        browserType.pushHistory({ user_id: res.user.id, pathname: url.pathname });
                         const { blog: _blog, user: _user } = blogUser;
                         modSelector.blog = _blog;
                         modSelector.loadBlog({ blog: _blog, user: _user })

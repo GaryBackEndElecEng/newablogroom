@@ -511,6 +511,8 @@ class DisplayBlog{
                             row.setAttribute("data-backgroundImg","true");
                             idValues.push({eleId,id:"imgKey",attValue:row_.imgKey});
                             idValues.push({eleId,id:"backgroundImg",attValue:"true"});
+                            const url=this._service.getFreeBgImageUrl({imgKey:row_.imgKey});
+                            row.style.backgroundImage=`url(${url})`;
                         };
                         this._modSelector.dataset.populateElement({target:row,level:"row",loc:"flexbox",idValues,selRowColEle:row_,clean:true});
                         await Promise.all(row_.cols.toSorted((a,b)=>{if(a.order < b.order){return -1}; return 1}).map(async(col_)=>{
@@ -587,6 +589,9 @@ class DisplayBlog{
         if(col_.imgKey){
             idValues.push({eleId,id:"imgKey",attValue:col_.imgKey});
             idValues.push({eleId,id:"backgroundImg",attValue:"true"});
+            const url=this._service.getFreeBgImageUrl({imgKey:col_.imgKey});
+            col.style.backgroundImage=`url(${url})`;
+            
         }
         col.className=col_.class;
 
@@ -798,20 +803,29 @@ class DisplayBlog{
                 target.style.maxWidth=maxWidthImg;
                 (target as HTMLImageElement).alt=element.inner_html;
                 if(element.imgKey){
-                    const res= await this._service.getSimpleImg(element.imgKey);
-                    if(res){
-                        (target as HTMLImageElement).src=res.img as string;
-                        (target as HTMLImageElement).alt=res.Key as string;
-                        Misc.blurIn({anchor:target,blur:"20px",time:500});
-                        
+                    const check=this._service.checkFreeImgKey({imgKey:element.imgKey as string});
+                    if(check){
+                        const url=this._service.getFreeBgImageUrl({imgKey:element.imgKey as string});
+                        (target as HTMLImageElement).src=url as string;
+                        (target as HTMLImageElement).alt=url as string;
+                    }else{
+                        const res= await this._service.getSimpleImg(element.imgKey);
+                        if(res){
+                            (target as HTMLImageElement).src=res.img as string;
+                            (target as HTMLImageElement).alt=res.Key as string;
+                            Misc.blurIn({anchor:target,blur:"20px",time:500});
+                            
+                        }
                     }
                 }
+                divCont.appendChild(target);
                 return {id:element.order,divCont,parent:col,displayClean:true,type:"element",chart:null,element,selector:null,target};
                 
             }
             
         };
-    }
+    };
+
    
   
     genStars(parent:HTMLElement,rating:number){

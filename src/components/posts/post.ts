@@ -19,6 +19,7 @@ import BrowserType from "../common/browserType";
 class Post{
    public readonly handPic:string="/images/hand.png";
    public readonly smile:string="/images/emojiSmile.png";
+   public readonly background1:string="/images/backround1.png";
    public count:number;
    public no_posts:string;
    public addImageClass:AddImageUrl
@@ -37,6 +38,7 @@ class Post{
 
     constructor(private _modSelector:ModSelector,private _service:Service,private auth:AuthService,private _user:User,signinUser:userType|null){
         this._signinUser=signinUser;
+        this.background1="/images/backround1.png";
         this.smile="/images/emojiSmile.png";
         this.logo="/images/gb_logo.png";
         this.postLogo="/images/posts.png";
@@ -100,9 +102,13 @@ class Post{
     async main(item:{injector:HTMLElement,posts:postType[],usersinfo:userType[]}){
         const {injector,posts,usersinfo}=item;
         //recieved posts:posts from index
+        //CONTROLLING THE ANIMATION ITERATIONS
+        const repeatCount=1;
+        const isAnimate=this.browser.repeatShowControl({repeatCount});
+        console.log("isAnimate",isAnimate)
+        //CONTROLLING THE ANIMATION ITERATIONS
         const url=new URL(window.location.href);
         const pathname=url.pathname;
-        const repeatcount=1;
         this.posts=posts;
         this.searchbar= new Searchbar({blogs:null,posts:this.posts});//INPUT INTO POST DISPLAYS
         const less900=window.innerWidth < 900;
@@ -131,7 +137,7 @@ class Post{
         Misc.matchMedia({parent:injector,maxWidth:900,cssStyle:{width:"100%"}});
 
 
-        this.titlePage({container,time:4000,less400,less900,repeatcount}).then(async(res)=>{
+        this.titlePage({container,time:4000,less400,less900,isAnimate}).then(async(res)=>{
             if(res){
                 res.para.style.fontSize=less900 ? (less400 ? "130%":"150%"):"135%";
                 //SEARCH BAR CONTROLS THE POST LISTS funcPosts is the DISPLAYER
@@ -177,19 +183,17 @@ class Post{
         time:number,
         less900:boolean,
         less400:boolean,
-        repeatcount:number
+        isAnimate:boolean
     }):Promise<{
         textContainer:HTMLElement,
         container:HTMLElement,
         para:HTMLElement,
-        time:number
+        time:number,
+        isAnimate:boolean
        
     }>{
         const phrase="updates, comments && Miscelanous";
-        const {container,time,less400,less900,repeatcount}=item;
-        //CONTROLLING THE ANIMATION ITERATIONS
-        const isAnimate=this.browser.repeatShowControl({repeatCount:repeatcount});
-        //CONTROLLING THE ANIMATION ITERATIONS
+        const {container,time,less400,less900,isAnimate}=item;
         const css_col="margin-inline:auto;display:flex;flex-direction:column;justify-content:center;align-items:center;";
         const textContainer=document.createElement("div");
         textContainer.id="post-titlepage-textContainer";
@@ -324,7 +328,7 @@ class Post{
         ///--------------------------title display ----------------------///
         
         container.appendChild(textContainer);
-        return Promise.resolve({textContainer,container,para,time}) as Promise<{textContainer:HTMLElement,container:HTMLElement,para:HTMLElement,time:number}>;
+        return Promise.resolve({textContainer,container,para,time,isAnimate}) as Promise<{textContainer:HTMLElement,container:HTMLElement,para:HTMLElement,time:number,isAnimate:boolean}>;
     };
 
 
@@ -982,7 +986,7 @@ class Post{
         col.id=`posts-postcard-col-${index}`;
         col.className=less900 ? "col-md-12" : "col-md-6";
         //background-color:#098ca091
-        col.style.cssText="margin-inline:auto;display:flex;flex-direction:column;justify-content:flex-start;align-items:center;gap:0.75rem;border-radius:12px;box-shadow:1px 1px 6px 1px #9de8eb;";
+        col.style.cssText="margin-inline:auto;display:flex;flex-direction:column;justify-content:flex-start;align-items:center;gap:0.75rem;border-radius:12px;box-shadow:1px 1px 6px 1px #9de8eb;background-color:#ffffffb3;";
         col.style.width=less900 ? "100%":"auto";
         col.style.flex=less900 ? "1 0 100%":"1 0 47%";
         col.style.paddingInline=less900 ? (less400 ? "0rem":"0.5rem"):"1rem";
@@ -1042,8 +1046,10 @@ class Post{
         datePosterCont.style.cssText=css_row + "position:relative;";
         datePosterCont.style.gap=less900 ?(less400 ? "1rem":"1.25rem"):"1.5rem";
         const date=document.createElement("small");
+        date.className="text-primary";
         date.id=`date-${index}`;
         const poster=document.createElement("small");
+        poster.className="text-primary";
         poster.id=`userinfo-poster-name-${index}`;
         poster.textContent=(userinfo?.name) ||"blogger";
         date.textContent= post.date ? Misc.tolocalstring(post.date):"no date";

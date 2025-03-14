@@ -150,8 +150,22 @@ async apiUploadSaveFree(item:{parent:HTMLElement,Key:string,formdata:FormData}):
 };
 
 getFreeBgImageUrl({imgKey}:{imgKey:string}):string{
+    //https://newablogroom-free-bucket.s3.us-east-1.amazonaws.com/imgKey
     return `${this.freeurl}/${imgKey}`
 };
+
+
+getKey({imgUrl}:{imgUrl:string}):string|null{
+    const regFreeTest:RegExp=/(https:\/\/newablogroom-free-bucket.s3.us-east-1.amazonaws.com)/;
+    if(regFreeTest.test(imgUrl)){
+        const match=RegExp(regFreeTest).exec(imgUrl);
+        if(match){
+            const end=match.index+match[0].length +1;
+            return imgUrl.slice(end,imgUrl.length);
+        };
+    }
+    return null
+}
 
  
     saveItems(item:{blog:blogType,user:userType|null}):blogType{
@@ -191,7 +205,10 @@ getFreeBgImageUrl({imgKey}:{imgKey:string}):string{
         const {blog,user}=item;
         return Promise.resolve(this.saveItems({blog,user})) as Promise<blogType>
         
-    }
+    };
+
+
+
     checkElements(item:{blog:blogType}):elementType[]{
         const {blog}=item;
         let eles=blog.elements as elementType[];
@@ -208,6 +225,8 @@ getFreeBgImageUrl({imgKey}:{imgKey:string}):string{
         }
         
     };
+
+
     checkSelectors(item:{blog:blogType}){
         const {blog}=item;
         let selects:selectorType[]=blog.selectors;
@@ -574,6 +593,19 @@ getFreeBgImageUrl({imgKey}:{imgKey:string}):string{
         }
     };
 
+    checkFreeImgKey({imgKey}:{imgKey:string}){
+        //FORM: ${user_id}-${name}-${file.name}
+        //cm82yqjd70000w958mglvn99p-testthis/56efea2f-firePic.png
+        const regName:RegExp=/\w/;
+        const regNoUser:RegExp=/(no_userid)/;
+        const words=imgKey.split("-");
+        const testLen=words.length===1;
+        const testNoUser=regNoUser.test(words[0]);
+        const testName=regName.test(words[1]);
+        const check=(testNoUser && !testName) || (testLen)
+        return check
+    }
+
 
     generateQuoteKey(item:{formdata:FormData,user:userType}):{Key:string|undefined}{
         //THIS GENERATES AN IMAGE KEY=> NEEDS FORMDATA &&  (N/A)=>user. IF USER then all quotes will have unique keys for user account
@@ -593,7 +625,8 @@ getFreeBgImageUrl({imgKey}:{imgKey:string}):string{
             return {Key:getKey as string}
 
         }
-    }
+    };
+
     generatePostSendReqKey(item:{formdata:FormData,post:postType}):{Key:string|undefined}{
         //THIS GENERATES AN IMAGE KEY=> NEEDS FORMDATA &&  (N/A)=>user. IF USER then all quotes will have unique keys for user account
         const {formdata,post}=item;
@@ -1142,13 +1175,15 @@ getFreeBgImageUrl({imgKey}:{imgKey:string}):string{
 
             },
             method:"PUT",
-        }
-        return fetch(`${this.adminimages}?imgKey=${imgKey}`,option).then(async(res)=>{
-            //api/admin/images
-            if(res){
-                return await res.json() as adminImageType
-            }
-        });
+        };
+       
+            return fetch(`${this.adminimages}?imgKey=${imgKey}`,option).then(async(res)=>{
+                //api/admin/images
+                if(res){
+                    return await res.json() as adminImageType
+                }
+            });
+       
     };
 
 
@@ -1670,16 +1705,7 @@ getFreeBgImageUrl({imgKey}:{imgKey:string}):string{
     };
 
 
-    async checkFreeImgKey({key}:{key:string|undefined}){
-        if(!(key && key==="undefined" || key===undefined || key==="null" || key===null)) return false;
-        if(key){
-
-            return fetch(`${this.freeurl}/${key}`).then(async(res)=>{
-                if(res.ok) return true;
-                return false;
-            });
-        }
-    };
+    
 
 
     async simpleSignUp(item:{name:string,email:string}):Promise<{email:string,name:string}|undefined>{

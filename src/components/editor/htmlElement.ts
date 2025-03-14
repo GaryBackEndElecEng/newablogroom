@@ -201,12 +201,20 @@ class HtmlElement {
                 return Promise.resolve({div_cont,idValues}) as Promise<{div_cont:arrDivContType,idValues:idValueType[]}>;
             }else if(node==="img"){
                 if(element.imgKey){
-                    await this._service.getSimpleImg(element.imgKey).then(async(res)=>{
+                    const check=this._service.checkFreeImgKey({imgKey:element.imgKey as string});
+                    if(check){
+                        const url=this._service.getFreeBgImageUrl({imgKey:element.imgKey as string});
+                        (target as HTMLImageElement).src=url as string;
+                        (target as HTMLImageElement).alt=url as string;
+                    }else{
+                        const res= await this._service.getSimpleImg(element.imgKey);
                         if(res){
-                            (target as HTMLImageElement).src=res.img;
-                            (target as HTMLImageElement).alt=res.Key;
-                        };
-                    });
+                            (target as HTMLImageElement).src=res.img as string;
+                            (target as HTMLImageElement).alt=res.Key as string;
+                            Misc.blurIn({anchor:target,blur:"20px",time:500});
+                            
+                        }
+                    }
                 };
                 if(isImgDesc){
                     const idValue={eleId,id:"imgDesc",attValue:isImgDesc} as idValueType;
@@ -255,7 +263,7 @@ class HtmlElement {
         const divCont=document.createElement("div");
         const target=document.createElement(node);
         const rand=Math.floor(Math.random() *1000);
-        console.log(element);
+      
         
         const isImgDesc= attrTest && attrTest.id==="imgDesc"? attrTest.value:undefined;
         if(selRowCol){
@@ -391,13 +399,21 @@ class HtmlElement {
                 (target as HTMLImageElement).alt=element.inner_html ||"www.ablogroom.com";
                 divCont.appendChild(target);
                 if(element.imgKey){
-                    await this._service.getSimpleImg(element.imgKey).then(async(res)=>{
+                    const check=this._service.checkFreeImgKey({imgKey:element.imgKey as string});
+                    if(check){
+                        const url=this._service.getFreeBgImageUrl({imgKey:element.imgKey as string});
+                        (target as HTMLImageElement).src=url as string;
+                        (target as HTMLImageElement).alt=url as string;
+                    }else{
+                        const res= await this._service.getSimpleImg(element.imgKey);
                         if(res){
-                            (target as HTMLImageElement).src=res.img;
-                            (target as HTMLImageElement).alt=res.Key;
-                        };
-                    });
-                };
+                            (target as HTMLImageElement).src=res.img as string;
+                            (target as HTMLImageElement).alt=res.Key as string;
+                            Misc.blurIn({anchor:target,blur:"20px",time:500});
+                            
+                        }
+                    }
+                }
                 if(isImgDesc){
                     idValues.push({eleId,id:"imgDesc",attValue:isImgDesc});
                     const imgDesc=document.createElement("small");
@@ -952,7 +968,7 @@ class HtmlElement {
                    
                    
                         // useParent.classList.add(".position-relative")
-                        this._modSelector.editElement({target,idValues})//pulls flex if exist from target attrubutes
+                        this._modSelector.editElement({target,idValues,selRowCol:null})//pulls flex if exist from target attrubutes
                     //ADDING element
           
             
@@ -1140,6 +1156,8 @@ class HtmlElement {
                             if(target.nodeName==="IMG"){
                                 const imgKey=target.getAttribute("imgKey");
                                 if(imgKey){
+                                    const check=this._service.checkFreeImgKey({imgKey});
+                                    if(check) return;
                                     this._service.adminImagemark(imgKey).then(async(res)=>{
                                         if(res){
                                             Misc.message({parent:parent,msg:`${imgKey}`,type_:"success",time:700});
@@ -1261,8 +1279,11 @@ class HtmlElement {
 
 
      updateElement({target,idValues}:{target:HTMLElement,idValues:idValueType[]}):{ele:elementType,idValues:idValueType[],target:HTMLElement}{
-        const imgKey:string | null=target.getAttribute("data-img-key");
         let retEle:elementType={} as elementType;
+        const getAttr=this._modSelector.dataset.getIdValue({target,idValues,id:"attr"});
+        const attr=getAttr?.attValue || undefined;
+        const getImgKey=this._modSelector.dataset.getIdValue({target,idValues,id:"imgKey"});
+        const imgKey=getImgKey?.attValue ||undefined;
         const {cleaned}=this._modSelector.removeClasses({target,classes:["isActive"]});
         const class_=cleaned.join(" ");
         this._elements=this.elements.map(ele=>{
@@ -1271,7 +1292,8 @@ class HtmlElement {
                 retEle.cssText=target.style.cssText;
                 ele.class=class_;
                 ele.inner_html=target.innerHTML;
-                ele.imgKey=imgKey || undefined;
+                ele.imgKey=imgKey;
+                ele.attr=attr;
                 retEle=ele;
             }
             return ele;

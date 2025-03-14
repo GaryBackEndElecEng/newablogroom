@@ -1315,8 +1315,9 @@ p.post-title {
   background-image: var(--bg-image-colors);
   background-position: 50% 50%;
   background-size: 200% 200%;
-  text-shadow: #0cafff 0px 0px 2px;
+  text-shadow: #0366fa 0px 0px 2px;
   -webkit-text-stroke: 0.5px white;
+  font-weight: bold;
   animation: rotate 10s infinite;
 }
 @keyframes rotate {

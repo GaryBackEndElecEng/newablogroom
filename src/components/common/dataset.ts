@@ -1798,16 +1798,11 @@ class Dataset{
         }else{
             idValues.push(idValue);
         };
-        IDKeys.map(kv=>{
-            if( kv.key && (kv.key !==undefined || kv.key!=="undefined")){
-                idValues.map(kat=>{
-                    if(kv.id===kat.id && kat.attValue && kat.attValue!=="null"){
-                        target.setAttribute(kv.key as string,idValue.attValue);
-
-                    }
-                });
-            }
-        });
+        const getIDKey=IDKeys.find(kv=>(kv.id===id));
+        if(getIDKey?.key && idValue.attValue){
+            target.setAttribute(getIDKey.key as string,idValue.attValue);
+        }
+        
         if(idValues.length>0){
             this.upDateIdValues({idValues});
         }

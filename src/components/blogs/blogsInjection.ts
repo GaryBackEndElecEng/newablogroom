@@ -277,7 +277,7 @@ class Blogs{
                     blogs.toSorted((a,b)=>{if(a.rating > b.rating) return -1; return 1}).
                         sort((a,b)=>{if(a.update > b.update) return -1; return 1}).map(async(blog,index)=>{
                     const colBlog=document.createElement("div");
-                    colBlog.style.cssText=blogBaseCss ;
+                    colBlog.style.cssText=blogBaseCss + "background-color:#ffffff87;" ;
                     colBlog.className=`text-center`;
                     colBlog.id="showBlogs-generateBlogs-mainRow-colBlogs";
                     colBlog.style.color=`#00008B`;

@@ -34,13 +34,13 @@ class Searchbar{
         const css_row="display:flex;flex-wrap:nowrap;align-items:center;justify-content:center;margin:auto;gap:2rem;"
         const container=document.createElement("div");
         container.id="searchbar-main-container";
-        container.style.cssText=css_col + "border-radius:12px;";
+        container.style.cssText=css_col + "border-radius:12px;border-radius:8px;";
         const row=document.createElement("div");
         row.id="container-row";
         row.style.cssText=css_row;
         const searchBox=document.createElement("div");
         searchBox.id="row-searchBox";
-        searchBox.style.cssText=css_col + "margin:auto;width:200px;height:50px;box-shadow:1px 1px 12px 1px lightblue;border-radius:6px;";
+        searchBox.style.cssText=css_col + "margin:auto;width:200px;height:50px;box-shadow:1px 1px 12px 1px lightblue;border-radius:6px;background-color:white;border-radius:8px;box-shadow:1px 1px 12px 1px lightblue;";
         const text=document.createElement("h6");
         text.className="text-primary";
         text.style.cssText="margin-inline:0.5rem;margin-block:auto;";
@@ -143,7 +143,8 @@ class Searchbar{
         const {input,label,formGrp}=Nav.inputComponent(parent);
         let post_s:postType[]=this.posts;
         label.textContent="title";
-        formGrp.className="mx-auto px-0 py-0 my-0";
+        formGrp.className="mx-auto px-0 py-0 my-0 bg-light text-center";
+        formGrp.style.cssText="border-radius:8px;box-shadow:1px 1px 12px 1px lightblue;"
         formGrp.id="formGrp";
         label.id="searchWord-labe-input";
         input.id="searchWord-input";

@@ -127,7 +127,7 @@ class Design{
             const {cleaned:cleanClasses}=this._modSelector.removeClasses({target,classes:["isActive","box-shadow","showName"]});
             target.className=cleanClasses.join(" ");
             divCont.appendChild(target);
-             this._modSelector.editElement({target,idValues});
+             this._modSelector.editElement({target,idValues,selRowCol:null});
                 divCont.onclick=async(e:MouseEvent)=>{
                     if(!e) return;
                     divCont.classList.toggle("isActive");
@@ -205,7 +205,7 @@ class Design{
                                 this.updateElement({target,idValues});
                             }
                         };
-                        this._modSelector.editElement({target,idValues});
+                        this._modSelector.editElement({target,idValues,selRowCol:null});
                     }
                 };
             }
@@ -498,7 +498,7 @@ class Design{
                                 setTimeout(()=>{
                                     container.removeChild(res.cont);
                                 });
-                                this._modSelector.editElement({target:svg.target,idValues});
+                                this._modSelector.editElement({target:svg.target,idValues,selRowCol:null});
                                 divCont.onclick=(e:MouseEvent)=>{
                                     if(e){
                                         svg.target.classList.toggle("isActive");
@@ -729,7 +729,7 @@ class Design{
                 divCont.setAttribute("data-placement",`${ele.placement}`)
             }
         });
-        this._modSelector.editElement({target,idValues});
+        this._modSelector.editElement({target,idValues,selRowCol:null});
         parent.appendChild(divCont);
         Misc.fadeIn({anchor:divCont,xpos:100,ypos:50,time:500});
     }
@@ -897,7 +897,7 @@ class Design{
                                             parent.removeChild(container);
                                         }
                                     });
-                                    this._modSelector.editElement({target:_res.target,idValues});
+                                    this._modSelector.editElement({target:_res.target,idValues,selRowCol:null});
                                 }
                             });
                             divCont.onclick=(e:MouseEvent)=>{
@@ -1283,7 +1283,7 @@ class Design{
                 }
             });
             
-            this._modSelector.editElement({target,idValues})//pulls flex if exist from target attrubutes
+            this._modSelector.editElement({target,idValues,selRowCol:null})//pulls flex if exist from target attrubutes
             Misc.matchMedia({parent:divCont,maxWidth:400,cssStyle:{paddingInline:"0px",marginInline:"0px;"}});
     
     };
@@ -1495,6 +1495,7 @@ class Design{
             return Promise.resolve({ele:element,idValues,target}) as Promise<{ele:elementType|undefined,idValues:idValueType[],target:HTMLElement}>;
     };
 
+    
 
     updateElement({target,idValues}:{target:HTMLElement,idValues:idValueType[]}):{ele:elementType,target:HTMLElement,idValues:idValueType[]}{
         const eleId=target.id;

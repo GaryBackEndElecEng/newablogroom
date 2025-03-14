@@ -10,7 +10,8 @@ import { Color } from "chart.js";
 import Dataset from '../common/dataset';
 import { idEnumType, idValueType, locationEnumType, selRowColType, selRowType, typeEnumType } from "@/lib/attributeTypes";
 import { attrEnumArr, attrEnumArrTest, IDKeys, typeEnumArr, typeEnumArrTest } from '../common/lists';
-import BrowserType from '../common/browserType';
+import { HTTP_METHOD } from 'next/dist/server/web/http';
+
 
 
 
@@ -1071,6 +1072,8 @@ set rows(rows:rowType[]){
     
         const eleId=target.id;
         const node=target.nodeName.toLowerCase()
+        const getImgKey=this.dataset.getIdValue({target,idValues,id:"imgKey"});
+        const imgKey=getImgKey?.attValue ||undefined
         let retEle:elementType|element_selType|undefined={} as elementType|element_selType|undefined;
        
         if(selRowCol){
@@ -1087,6 +1090,7 @@ set rows(rows:rowType[]){
                                             ele.cssText=target.style.cssText;
                                             ele.class=target.className;
                                             ele.inner_html=target.innerHTML;
+                                            ele.imgKey=imgKey;
                                             if(node==="img"){ 
                                                 ele.img=(target as HTMLImageElement).src;
                                                 ele.inner_html=(target as HTMLImageElement).alt
@@ -1118,6 +1122,7 @@ set rows(rows:rowType[]){
                 if(ele.eleId===target.id){
                     ele.cssText=target.style.cssText;
                     ele.class=target.className;
+                    ele.imgKey=imgKey;
                     ele.inner_html=target.innerHTML;
                     if(node==="img") ele.inner_html=(target as HTMLImageElement).alt;
                     retEle=ele;
@@ -1151,17 +1156,15 @@ set rows(rows:rowType[]){
     
     
    
-    editElement({target,idValues}:{target:HTMLElement | HTMLImageElement,idValues:idValueType[]}){
+    editElement({target,idValues,selRowCol}:{target:HTMLElement | HTMLImageElement,idValues:idValueType[],selRowCol:selRowColType|null}){
         const eleId=target.id;
-        
-        const getEleIds=idValues.filter(kat=>(kat.eleId===eleId));
-        const selRowCol=getEleIds.find(kat=>(kat.id==="selRowCol"));
-        const {isJSON,parsed}= (selRowCol?.attValue) ? Header.checkJson(selRowCol.attValue) : {isJSON:false,parsed:null};
+        const idValue={eleId,id:"update",attValue:"edit"} as idValueType;
+        this.dataset.upDateIdValue({target,idValue,idValues})
         const {cleaned}=this.removeClasses({target,classes:["isActive","box-shadow"]});
         target.addEventListener("input",(e:Event)=>{
             if(e){
-                if(isJSON){
-                    const {selectorId,rowId,colId}= parsed as selRowColType;
+                if(selRowCol){
+                    const {selectorId,rowId,colId}= selRowCol as selRowColType;
                     this._selectors=this._selectors.map(selector_=>{
                         if(selector_.eleId===selectorId){
                             const {rows}=this.checkGetRows({select:selector_});
@@ -1218,6 +1221,8 @@ set rows(rows:rowType[]){
        
         const eleId=target.id;
         let row_:rowType| undefined = {} as rowType|undefined;
+        const getImgKey=this.dataset.getIdValue({idValues,target,id:"imgKey"});
+        const imgKey=getImgKey?.attValue || undefined;
         if(!selRow) return;
         const {selectorId,rowId}=selRow;
         const isRow= rowId===eleId
@@ -1232,6 +1237,7 @@ set rows(rows:rowType[]){
                         if(row.eleId===target.id){
                             row.class=target.className;
                             row.cssText=target.style.cssText;
+                            row.imgKey=imgKey
                             this.datasetSincUpdate({target,ele:row,idValues,level:"row",loc:"flexbox"})
                         }
                         row_=row;
@@ -1257,7 +1263,8 @@ set rows(rows:rowType[]){
   
     async updateColumn({target,idValues,selRowCol}:{target:HTMLElement,idValues:idValueType[],selRowCol:selRowColType}): Promise<{target:HTMLElement,col:colType|undefined,idValues:idValueType[]}|undefined>{
         const eleId=target.id;
-        
+        const getImgKey=this.dataset.getIdValue({idValues,target,id:"imgKey"});
+        const imgKey=getImgKey?.attValue || undefined;
         let colEle:colType|undefined;
         const {selectorId,rowId,colId}=selRowCol
         
@@ -1277,6 +1284,7 @@ set rows(rows:rowType[]){
                                 if(_col_.eleId===eleId){
                                     _col_.class=target.className;
                                     _col_.cssText=target.style.cssText;
+                                    _col_.imgKey=imgKey;
                                     //LOADING ELEMENT 
                                     //REPOPULATING TARGET
                                     this.datasetSincUpdate({target,ele:_col_,idValues,level:"col",loc:"flexbox"})
@@ -1323,8 +1331,8 @@ set rows(rows:rowType[]){
             ele=ele as elementType;
         }
 
-        const attrTest=attrEnumArrTest(ele);
-        const typeTest=typeEnumArrTest(ele);
+        const attrTest=attrEnumArrTest(ele);//ele.attr
+        const typeTest=typeEnumArrTest(ele);//ele.type
         const removeAddIdValues:idValueType[]=[];
         for(const [key,value] of Object.entries(target.dataset)){
             if(attrTest && key===attrTest.id ){
@@ -1362,30 +1370,31 @@ set rows(rows:rowType[]){
                             if(kat && kat.id===kv.id){
                                 if(kv.attValue==="remove"){
                                     idValues.splice(index,1);
+                                    const idKey=IDKeys.find(k=>(k.id===kv.id));
+                                    if(idKey?.key){
+                                        target.removeAttribute(idKey.key)
+                                    };
                                 }else{
                                     kat.attValue=kv.attValue;
-                                    IDKeys.map(idk=>{
-                                       
-                                        if(idk.key && idk.id===kat.id){
-                                            target.setAttribute(idk.key,kv.attValue);
-                                        }
-                                    })
-                                }
-                            }
+                                    const getIDKey=IDKeys.find(kv_=>(kv_.id===kv.id))
+                                    if(getIDKey?.key){
+                                        target.setAttribute(getIDKey.key,kv.attValue);
+                                    }
+                                };
+                            };
 
                         }else if(!check && kv.attValue !=="remove"){
                             idValues.push({eleId,id:kv.id,attValue:kv.attValue});
-                            
-                                IDKeys.map(idk=>{
-                                    if(idk.key && idk.id===kat.id){
-                                        target.setAttribute(idk.key,kv.attValue);
-                                    }
-                                });
-                        }
-                    }
+                            const getIDKey=IDKeys.find(kv_=>(kv_.id===kv.id))
+                                if(getIDKey?.key){
+                                    target.setAttribute(getIDKey.key,kv.attValue);
+                                }
+                        };
+                    };
                 });
-            }
+            };
         });
+        idValues=Dataset.removeIdValueDuplicates({arr:idValues,eleId})
         return idValues;
     };
 

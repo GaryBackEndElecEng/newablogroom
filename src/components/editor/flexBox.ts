@@ -341,7 +341,7 @@ colAttrs=["col-start","col-end","col-center"];
                                             const selRowCol:selRowColType={selectorId:selector.eleId,rowId:row_.eleId,colId:col_.eleId}
                                             eres.col.appendChild(eres.ele);
                                             if(eres.isEdit){
-                                                this.editElement({target:eres.ele,idValues:eres.idValues})
+                                                this.editElement({target:eres.ele,idValues:eres.idValues,selRowCol})
                                             };
                                             eres.divCont.onclick=(e:MouseEvent)=>{
                                                 if(e){
@@ -998,13 +998,14 @@ colAttrs=["col-start","col-end","col-center"];
         
     }
     //PARENT genChoice
-   async addClass({column,class_,idValues}:{column:HTMLElement,class_:string,idValues:idValueType[]}){
+
+   async addClass({column,class_,idValues,selRowCol}:{column:HTMLElement,class_:string,idValues:idValueType[],selRowCol:selRowColType}){
         const eles=column.querySelectorAll(`[is-element].isActive`) as any as HTMLElement[];
         
            await Promise.all(([...eles] as HTMLElement[]).map(async(ele)=>{
                 if(ele ){
                     ele.classList.toggle(class_);
-                   await this.updateElement({target:ele,idValues}).then(async(res)=>{
+                   await this.updateElement({target:ele,idValues,selRowCol}).then(async(res)=>{
                     if(res){
                         const ele=res.ele;
                         console.log("retEle",ele);
@@ -1049,7 +1050,7 @@ colAttrs=["col-start","col-end","col-center"];
         col:colType
     }) {
         if(!icon)return;
-    
+       
         target.classList.add(icon.display);
         target.classList.add("w-100");
         target.innerHTML = `${icon.name}=>`;
@@ -1082,7 +1083,7 @@ colAttrs=["col-start","col-end","col-center"];
                        idValues=this.removeMainElement({parent,divCont,target:res.target,idValues,selRowCol});
                     }
                 };
-                this.editElement({target:res.target,idValues})//pulls flex if exist from target attrubutes
+                this.editElement({target:res.target,idValues,selRowCol})//pulls flex if exist from target attrubutes
             }
         });//CRITICAL: needs flexTracker!!,this adds elements to selector and/or elements
           
@@ -1104,7 +1105,7 @@ colAttrs=["col-start","col-end","col-center"];
         const blog=this._modSelector.blog;
         const user=this._user.user;
         this._modSelector.loadBlog({blog,user});
-        const idValue:idValueType|undefined=this._modSelector.dataset.getIdValue({target,idValues,id:"imgKey"})
+        const idValue:idValueType|null=this._modSelector.dataset.getIdValue({target,idValues,id:"imgKey"})
         if(idValue){
             const markDel:deletedImgType={id:undefined,imgKey:idValue.attValue,del:true,date:new Date()};
             await this._service.markDelKey(markDel);
@@ -1218,8 +1219,11 @@ colAttrs=["col-start","col-end","col-center"];
                     column.style.backgroundSize=`100% 100%`;
                     column.style.backgroundPosition=`50% 50%`;
                     const idValue2:idValueType={eleId,id:"imgKey",attValue:Key};
+                    const idValue3:idValueType={eleId,id:"backgroundImg",attValue:"backgroundImg"};
+                    const idValue4:idValueType={eleId,id:"selRowCol",attValue:JSON.stringify(selRowCol)};
                     this._modSelector.dataset.upDateIdValue({target:column,idValues,idValue:idValue2});
-                    this._modSelector.dataset.upDateIdValue({target:column,idValues,idValue:idValue2});
+                    this._modSelector.dataset.upDateIdValue({target:column,idValues,idValue:idValue3});
+                    this._modSelector.dataset.upDateIdValue({target:column,idValues,idValue:idValue4});
                     await this.updateColumn({target:column,idValues,selRowCol}).then(async(res)=>{
                     if(res ){
                         const col=res.col;
@@ -1240,7 +1244,7 @@ colAttrs=["col-start","col-end","col-center"];
         if(!row) return;
         
         const countCols=([...row.children as any] as HTMLElement[]).length;
-        const idValue:idValueType|undefined=this._modSelector.dataset.getIdValue({target:row,idValues,id:"imgKey"});
+        const idValue:idValueType|null=this._modSelector.dataset.getIdValue({target:row,idValues,id:"imgKey"});
         const oldKey=idValue  ? idValue.attValue : null;
         const {form,reParent}=Misc.imageForm(row);
         
@@ -1408,6 +1412,7 @@ colAttrs=["col-start","col-end","col-center"];
 
     }){
         btn.classList.add("active");
+        const selRowCol:selRowColType={selectorId:selector.eleId,rowId:row.eleId,colId:col.eleId}
         Main.textarea=document.querySelector("div#textarea");
         const node=target.nodeName.toLowerCase()
         let list:HTMLOListElement|HTMLUListElement;
@@ -1447,7 +1452,7 @@ colAttrs=["col-start","col-end","col-center"];
                 const ele=res.ele as element_selType;
                 divCont.setAttribute("data-placement",`${ele.order}-A`);
                 
-                this.editElement({target:res.target,idValues})//pulls flex if exist from target attrubutes
+                this.editElement({target:res.target,idValues,selRowCol})//pulls flex if exist from target attrubutes
                 divCont.onclick=(e:MouseEvent)=>{
                     if(e){
                          const selRowCol={selectorId:res.selector.eleId,rowId:res.row.eleId,colId:res.col.eleId} as selRowColType;
@@ -1478,7 +1483,7 @@ colAttrs=["col-start","col-end","col-center"];
         divCont:HTMLElement,
         idValues:idValueType[]
     }){
-        
+        const selRowCol:selRowColType={selectorId:selector.eleId,rowId:row.eleId,colId:col.eleId}
         Main.textarea=document.querySelector("div#textarea");
         const quote=target as HTMLQuoteElement;
         const countEles=([...parent.children as any] as HTMLElement[]).length;
@@ -1519,7 +1524,7 @@ colAttrs=["col-start","col-end","col-center"];
                     };
                 };
             };
-            this.editElement({target:res.target,idValues})//realtime edits on either flex or none items
+            this.editElement({target:res.target,idValues,selRowCol})//realtime edits on either flex or none items
         });//CRITICAL: needs flexTracker!!,this adds elements to selector and/or elements
        
         
@@ -1691,6 +1696,8 @@ colAttrs=["col-start","col-end","col-center"];
                         if(arr && arr.length>0){
                             arr.map(item=>{
                                 if(item){
+                                    const check=this._service.checkFreeImgKey({imgKey:item.imgKey});
+                                    if(check) return;
                                     this._service.adminImagemark(item.imgKey).then(async(res)=>{
                                         if(res){
                                             Misc.message({parent,msg:`${item.imgKey}`,type_:"success",time:400});
@@ -1699,10 +1706,17 @@ colAttrs=["col-start","col-end","col-center"];
                                 }
                             });
                         }
+                        
+                    }
+                });
+                this._modSelector.selectors.forEach((sel,index)=>{
+                    if(sel.eleId===target.id){
                         this._modSelector.selectors.splice(index,1);
                         this._modSelector.shiftPlace(sel.placement);
                     }
                 });
+                this._modSelector.blog={...this._modSelector.blog,selectors:this._modSelector.selectors}
+                this._modSelector.localStore({blog:this._modSelector.blog});
                 Misc.fadeOut({anchor:target,xpos:100,ypos:100,time:400});
                 setTimeout(()=>{
                     parent.removeChild(target);
@@ -1789,7 +1803,7 @@ colAttrs=["col-start","col-end","col-center"];
                                 const idValue:idValueType={eleId,id:"selRowCol",attValue:JSON.stringify(selRowCol)};
                                 this._modSelector.dataset.upDateIdValue({target:activeEle,idValues,idValue});
                                 activeEle.style.backgroundColor=shade.value;
-                               await this.updateElement({target:activeEle,idValues}).then(async(res)=>{
+                               await this.updateElement({target:activeEle,idValues,selRowCol}).then(async(res)=>{
                                 if(res){
                                     const ele=res.ele
                                     console.log("ele",ele);
@@ -1833,7 +1847,7 @@ colAttrs=["col-start","col-end","col-center"];
                                 const idValue:idValueType={eleId,id:"selRowCol",attValue:JSON.stringify(selRowCol)};
                                 this._modSelector.dataset.upDateIdValue({target:activeEle,idValues,idValue});
                                 activeEle.style.backgroundColor=value;
-                                await this.updateElement({target:activeEle,idValues}).then(async(res)=>{
+                                await this.updateElement({target:activeEle,idValues,selRowCol}).then(async(res)=>{
                                     if(res){
                                         const ele=res.ele;
                                         console.log("retEle",ele);
@@ -2033,92 +2047,93 @@ colAttrs=["col-start","col-end","col-center"];
     };
 
 
-    async updateElement({target,idValues}:{target:HTMLElement,idValues:idValueType[]}):Promise<{ele:element_selType|undefined,target:HTMLElement}>{
+    async updateElement({target,idValues,selRowCol}:{
+        target:HTMLElement,
+        idValues:idValueType[],
+        selRowCol:selRowColType
+
+    }):Promise<{ele:element_selType|undefined,target:HTMLElement,selRowCol:selRowColType}>{
         const eleId=target.id;
-        const getEleIds=idValues.filter(kat=>(kat.eleId===eleId));
-        const idValue=getEleIds.find(kat=>(kat.id==="selRowCol"));
+        const idValue={eleId,id:"update",attValue:"update"} as idValueType;
+        this._modSelector.dataset.upDateIdValue({target,idValues,idValue})
         const node=target.nodeName.toLowerCase();
         const {cleaned}=this._modSelector.removeClasses({target,classes:["isActive","box-shadow"]});
         let retEle:element_selType|undefined={} as element_selType;
-      const {isJSON,parsed}=(idValue) ? Header.checkJson(idValue.attValue) : {isJSON:false,parsed:null};
-        if(isJSON){
-            const {selectorId,rowId,colId}=parsed as selRowColType;
-            this._selectors=this._modSelector.selectors.map(select=>{
-                if(select.eleId===selectorId){
-                    const {rows}=this._modSelector.checkGetRows({select});
-                   const newRows= rows.map(row=>{
+    
+        const {selectorId,rowId,colId}=selRowCol as selRowColType;
+        this._selectors=this._modSelector.selectors.map(select=>{
+            if(select.eleId===selectorId){
+                const {rows}=this._modSelector.checkGetRows({select});
+                const newRows= rows.map(row=>{
+                    if(row.eleId===rowId){
+                        row.cols.map(col=>{
+                            if(col.eleId===colId){
+                                col.elements.map(ele=>{
+                                    if(ele.eleId===target.id){
+                                        ele.cssText=target.style.cssText;
+                                        ele.class=cleaned.join(" ");
+                                        ele.inner_html=target.innerHTML;
+                                        if(node==="img") ele.inner_html=(target as HTMLImageElement).alt;
+                                        this._modSelector.datasetSincUpdate({target,ele:ele,idValues,level:"element",loc:"flexbox"});
+                                        retEle=ele;
+                                    }
+                                    return ele;
+                                });
+                            }
+                            return col;
+                        });
+                    }
+                    return row;
+                });
+                select.rows=JSON.stringify(newRows);
+            }
+        return select;
+        });
+        this._modSelector.selectors=this._selectors;
+        this._modSelector.dataset.upDateIdValues({idValues});
+        
+        return Promise.resolve({ele:retEle,target,selRowCol}) as Promise<{ele:element_selType|undefined,target:HTMLElement,selRowCol:selRowColType}>;
+    };
+
+
+
+    editElement({target,idValues,selRowCol}:{target:HTMLElement | HTMLImageElement,idValues:idValueType[],selRowCol:selRowColType}){
+       
+        const eleId=target.id;
+        const idValue={eleId,id:"update",attValue:"edit"} as idValueType;
+        this._modSelector.dataset.upDateIdValue({target,idValue,idValues});
+        const {selectorId,rowId,colId} = selRowCol as selRowColType;
+        target.oninput=(e:Event)=>{
+            if(!e) return;
+            this.selectors=this._modSelector.selectors.map(selector_=>{
+                if(selector_.eleId===selectorId){
+                    const {rows}=this._modSelector.checkGetRows({select:selector_});
+                    const newRows=rows.map(row=>{
                         if(row.eleId===rowId){
                             row.cols.map(col=>{
                                 if(col.eleId===colId){
-                                    col.elements.map(ele=>{
-                                        if(ele.eleId===target.id){
-                                            ele.cssText=target.style.cssText;
-                                            ele.class=cleaned.join(" ");
-                                            ele.inner_html=target.innerHTML;
-                                            if(node==="img") ele.inner_html=(target as HTMLImageElement).alt;
-                                            this._modSelector.datasetSincUpdate({target,ele:ele,idValues,level:"element",loc:"flexbox"});
-                                          retEle=ele;
-                                        }
-                                        return ele;
+                                    col.elements.map(element=>{
+                                        
+                                        if(element.eleId===target.id){
+                                            element.inner_html=target.innerHTML;
+                                        };
+                                        return element;
                                     });
-                                }
+                                };
+                                
                                 return col;
                             });
-                        }
+                        };
                         return row;
                     });
-                    select.rows=JSON.stringify(newRows);
-                }
-            return select;
+                    selector_.rows=JSON.stringify(newRows);
+                };
+                return selector_;
             });
-            this._modSelector.selectors=this._selectors;
-            this._modSelector.dataset.upDateIdValues({idValues});
-        }
-        return Promise.resolve({ele:retEle,target}) as Promise<{ele:element_selType|undefined,target:HTMLElement}>;
-    };
-
-
-    editElement({target,idValues}:{target:HTMLElement | HTMLImageElement,idValues:idValueType[]}){
-       
-        const eleId=target.id;
-        const getEleIds=idValues.filter(kat=>(kat.eleId===eleId));
-        const selRowCol=getEleIds.find(kat=>(kat.id==="selRowCol"));
-        const {parsed,isJSON}= (selRowCol) ? Header.checkJson(selRowCol.attValue) :{isJSON:false,parsed:null};
-       
-        if(isJSON){
-            const {selectorId,rowId,colId} = parsed as selRowColType;
-            target.oninput=(e:Event)=>{
-                if(!e) return;
-                this.selectors=this._modSelector.selectors.map(selector_=>{
-                    if(selector_.eleId===selectorId){
-                        const {rows}=this._modSelector.checkGetRows({select:selector_});
-                       const newRows=rows.map(row=>{
-                            if(row.eleId===rowId){
-                                row.cols.map(col=>{
-                                    if(col.eleId===colId){
-                                        col.elements.map(element=>{
-                                           
-                                            if(element.eleId===target.id){
-                                                element.inner_html=target.innerHTML;
-                                            };
-                                            return element;
-                                        });
-                                    };
-                                    
-                                    return col;
-                                });
-                            };
-                            return row;
-                        });
-                        selector_.rows=JSON.stringify(newRows);
-                    };
-                    return selector_;
-                });
-              
-            };
+            
         };
+      
     };
-
 
 
    async updateColumn({target,idValues,selRowCol}:{target:HTMLElement,idValues:idValueType[],selRowCol:selRowColType}):Promise<{col:colType|undefined,target:HTMLElement}|undefined>{
@@ -2126,12 +2141,13 @@ colAttrs=["col-start","col-end","col-center"];
         let col_:colType|undefined={} as colType;
         const {selectorId,colId,rowId}=selRowCol as selRowColType;
         const isCol=eleId===colId;
+        const getImgKey=this._modSelector.dataset.getIdValue({target,idValues,id:"imgKey"});
+        const imgKey=getImgKey?.attValue ||undefined;
         const idValue:idValueType={eleId,id:"selRowCol",attValue:JSON.stringify(selRowCol)};
         this._modSelector.dataset.upDateIdValue({target,idValues,idValue});
         const {cleaned}=this._modSelector.removeClasses({target,classes:["isActive","box-shadow"]});
       if(!isCol){
         Misc.message({parent:target,msg:"!!TARGET IS NOT COLID,,- canceling upgrade",type_:"error",time:1200});
-        console.log("selRowCol",selRowCol);
         return
       }else{
           this.selectors=this.selectors.map(select=>{
@@ -2143,6 +2159,7 @@ colAttrs=["col-start","col-end","col-center"];
                               if(col.eleId===eleId){
                                   col.class=cleaned.join(" ");
                                   col.cssText=target.style.cssText;
+                                  col.imgKey=imgKey;
                                   this._modSelector.datasetSincUpdate({target,ele:col,idValues,level:"col",loc:"flexbox"});
                                   col_=col;
                               }
@@ -2166,6 +2183,8 @@ colAttrs=["col-start","col-end","col-center"];
    async updateRow({target,idValues,selRow}:{target:HTMLElement,idValues:idValueType[],selRow:selRowType}):Promise<{target:HTMLElement,row:rowType|undefined}|undefined>{
         const eleId=target.id;
         const {cleaned}=this._modSelector.removeClasses({target,classes:["isActive","box-shadow"]});
+        const getImgKey=this._modSelector.dataset.getIdValue({target,idValues,id:"imgKey"});
+        const imgKey=getImgKey?.attValue ||undefined;
         const {selectorId,rowId}=selRow as selRowType;
         const isRow=eleId===rowId;
         let row_:rowType|undefined={} as rowType
@@ -2182,6 +2201,7 @@ colAttrs=["col-start","col-end","col-center"];
                         if(row.eleId===target.id){
                             row.class=cleaned.join(" ");
                             row.cssText=target.style.cssText;
+                            row.imgKey=imgKey;
                             this._modSelector.datasetSincUpdate({target,ele:row,idValues,level:"row",loc:"flexbox"});
                         }
                         row_=row;
@@ -2230,6 +2250,8 @@ colAttrs=["col-start","col-end","col-center"];
                             
                             if(target.nodeName==="IMG" && idValue){
                                 if(idValue){
+                                    const check=this._service.checkFreeImgKey({imgKey:idValue.attValue});
+                                    if(check) return;
                                     this._service.adminImagemark(idValue.attValue).then(async(res)=>{
                                         if(res){
                                             Misc.message({parent:parent,msg:`${idValue.attValue} is deleted`,type_:"success",time:700});
@@ -2298,39 +2320,6 @@ colAttrs=["col-start","col-end","col-center"];
         return Promise.resolve({idValues,eleId,selRowCol}) as Promise<{idValues:idValueType[],eleId:string,selRowCol:selRowColType}>;
     };
 
-
-    removeFlexbox(parent:HTMLElement,select:HTMLElement){
-        const selectorId=select.id;
-        select.style.position="relative";
-        const css="position:absolute;transform:translate(-2px,-10px);background:inherit;font-size:16px;background:lightgrey;font-weight:bold;border-radius:50%;color:black;top:0px;left:0px;"
-        const xIconDiv=document.createElement("div");
-        xIconDiv.setAttribute("contenteditable","false");
-        xIconDiv.setAttribute("is-icon","true");
-        xIconDiv.className="xIconDiv";
-        xIconDiv.style.cssText=`${css}`;
-        const cssStyle={background:"inherit",fontSize:"inherit"};
-        FaCreate({parent:xIconDiv,name:FaTrash,cssStyle});
-        select.appendChild(xIconDiv);
-        xIconDiv.onmouseover=(e:MouseEvent)=>{
-            if(e){
-                parent.classList.toggle("borderOn")
-            }
-        }
-        xIconDiv.addEventListener("click",(e:MouseEvent)=>{
-            if(e){
-                parent.removeChild(select);
-                
-                    this._modSelector.selectors.map((sel,index)=>{
-                        if(sel.eleId===selectorId){
-                            this._modSelector.selectors.splice(index,1);
-                            this._modSelector.shiftPlace(sel.placement);
-                        }
-                        return sel
-                    });
-            }
-        });
-
-    };
 
 
     addLinkEmailTelImg({target,image,href,name,type}:{target:HTMLAnchorElement,image:string,href:string,name:string,type:"link"|"email"|"tel"}){

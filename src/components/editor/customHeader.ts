@@ -334,7 +334,11 @@ set selector(selector:selectorType){
                         
                         idValues.push({eleId,id:"backgroundImg",attValue:_row_.imgKey});
                         row.setAttribute("data-backgroundimage","true");
-                  
+                        const check=this._service.checkFreeImgKey({imgKey:_row_.imgKey as string});
+                        if(check){
+                            const url=this._service.getFreeBgImageUrl({imgKey:_row_.imgKey as string});
+                            row.style.backgroundImage=`url(${url})`;
+                        }
                     
                     }
                    
@@ -363,6 +367,11 @@ set selector(selector:selectorType){
                         if(_col_.imgKey){
                             col.setAttribute("data-backgroundimage","true");
                             idValues.push({eleId,id:"backgroundImg",attValue:"true"});
+                            const check=this._service.checkFreeImgKey({imgKey:_row_.imgKey as string});
+                            if(check){
+                                const url=this._service.getFreeBgImageUrl({imgKey:_row_.imgKey as string});
+                                row.style.backgroundImage=`url(${url})`;
+                            }
                         
                         }
                       
@@ -1170,7 +1179,7 @@ set selector(selector:selectorType){
                                     }
                                 }
                             });
-                            this.editElement({target:res.target,idValues:res.idValues});//ADDS A LISTENER TO HEADER LABELS
+                            this.editElement({target:res.target,idValues:res.idValues,selRowCol});//ADDS A LISTENER TO HEADER LABELS
                         }
                     });//adds both selector eles and elements
                     divCont.appendChild(target);
@@ -1211,7 +1220,7 @@ set selector(selector:selectorType){
                     ModSelector.modAddEffect(divCont);
                     
                 
-                    this.editElement({target,idValues});//ADDS A LISTENER TO HEADER LABELS
+                    this.editElement({target,idValues,selRowCol});//ADDS A LISTENER TO HEADER LABELS
                 return;
                 case name==="logo":
                     this.getImage({parent:column,target,divCont,idValues,selector,row,col});
@@ -1385,7 +1394,7 @@ set selector(selector:selectorType){
                         }
                     });
                     
-                    this.editElement({target,idValues});//ADDS A LISTENER TO HEADER LABELS
+                    this.editElement({target,idValues,selRowCol});//ADDS A LISTENER TO HEADER LABELS
                 return;
                 case isUlType:
                     target.style.cssText="padding-inline:1.25rem;border-radius:8px;";
@@ -1408,7 +1417,7 @@ set selector(selector:selectorType){
                         }
                     });
                 
-                    this.editElement({target,idValues});//ADDS A LISTENER TO HEADER LABELS
+                    this.editElement({target,idValues,selRowCol});//ADDS A LISTENER TO HEADER LABELS
                 return;
                 case element.name==="img":
                     target.setAttribute("contenteditable","false");
@@ -1999,7 +2008,7 @@ set selector(selector:selectorType){
                               this.removeMainElement({parent,divCont,target:res.target,idValues,selRowCol});
                             }
                         };
-                        this.editElement({target:res.target,idValues:res.idValues});//ADDS A LISTENER TO HEADER LABELS
+                        this.editElement({target:res.target,idValues:res.idValues,selRowCol});//ADDS A LISTENER TO HEADER LABELS
                     }
                 });
                 Misc.fadeOut({anchor:form,xpos:100,ypos:100,time:400});
@@ -2094,6 +2103,8 @@ set selector(selector:selectorType){
                     if(target.nodeName==="IMG"){
                        const idValue=this._modSelector.dataset.getIdValue({target,idValues,id:"imgKey"});
                         if(idValue){
+                            const check=this._service.checkFreeImgKey({imgKey:idValue.attValue});
+                            if(check) return;
                             this._service.adminImagemark(idValue.attValue).then(async(res)=>{
                                 if(res){
                                     Misc.message({parent,msg:`${idValue.attValue} is removed`,type_:"success",time:700});
@@ -2222,7 +2233,7 @@ set selector(selector:selectorType){
                             this.removeMainElement({parent,divCont,target:res.target,idValues,selRowCol});
                         }
                     });
-                    this.editElement({target:res.target,idValues:res.idValues});//ADDS A LISTENER TO HEADER LABELS
+                    this.editElement({target:res.target,idValues:res.idValues,selRowCol});//ADDS A LISTENER TO HEADER LABELS
                     }
                 });
                 divCont.appendChild(anchor);
@@ -2237,7 +2248,9 @@ set selector(selector:selectorType){
 
         
         
-    }
+    };
+
+
     removeHeader({target,parent,idValues}:{parent:HTMLElement,target:HTMLElement,idValues:idValueType[]}){
         target.style.position="relative";
         const cssStyle={color:"red"}
@@ -2276,7 +2289,12 @@ set selector(selector:selectorType){
                                 });
                             }
                         });
-                        this._modSelector.selectors.splice(index,1)
+                        
+                    }
+                });
+                this._modSelector.selectors.map((sel,index)=>{
+                    if(sel.header){
+                        this._modSelector.selectors.splice(index,1);
                     }
                 });
                
@@ -2290,6 +2308,8 @@ set selector(selector:selectorType){
                 this._modSelector.dataset.upDateIdValues({idValues})
                 arr.map(item=>{
                     if(item){
+                        const check=this._service.checkFreeImgKey({imgKey:item.imgKey});
+                            if(check) return;
                         this._service.adminImagemark(item.imgKey).then(async(res)=>{
                             if(res){
                                 Misc.message({parent:parent,msg:`${item.imgKey}`,type_:"success",time:400});
@@ -2297,6 +2317,14 @@ set selector(selector:selectorType){
                         });
                     }
                 });
+                this._modSelector.selectors.forEach((sel,index)=>{
+                    if(sel.eleId===target.id){
+                        this._modSelector.selectors.splice(index,1);
+                        this._modSelector.shiftPlace(sel.placement);
+                    }
+                });
+                this._modSelector.blog={...this._modSelector.blog,selectors:this._modSelector.selectors}
+                this._modSelector.localStore({blog:this._modSelector.blog});
                 Misc.fadeOut({anchor:target,xpos:50,ypos:100,time:600});
                 setTimeout(()=>{
                     parent.removeChild(target);
@@ -2307,13 +2335,15 @@ set selector(selector:selectorType){
     };
 
     
-    editElement({target,idValues}:{target:HTMLElement | HTMLImageElement,idValues:idValueType[]}){
-        const getSelRowCol=this._modSelector.dataset.getIdValue({target,idValues,id:"selRowCol"});
-        const {parsed,isJSON}= (getSelRowCol) ? Header.checkJson(getSelRowCol.attValue) :{isJSON:false,parsed:null};
+    editElement({target,idValues,selRowCol}:{target:HTMLElement | HTMLImageElement,idValues:idValueType[],selRowCol:selRowColType}){
+        const eleId=target.id;
+        const idValue={eleId,id:"selRowCol",attValue:JSON.stringify(selRowCol)} as idValueType;
+        this._modSelector.dataset.upDateIdValue({target,idValue,idValues})
+       
         const {cleaned}=this._modSelector.removeClasses({target,classes:["isActive","box-shadow"]});
         
-        if(isJSON){
-            const {rowId,colId}= parsed as selRowColType;
+        if(selRowCol){
+            const {rowId,colId}= selRowCol as selRowColType;
             
             target.oninput=(e:Event)=>{
                 if(e){
@@ -2348,15 +2378,21 @@ set selector(selector:selectorType){
                 }
             };
            
-                const idValue:idValueType={eleId:target.id,id:"update",attValue:"true"}
+                const idValue:idValueType={eleId:target.id,id:"update",attValue:"edit"}
                 this._modSelector.dataset.upDateIdValue({target,idValues,idValue});
                
         }
             
        
-    }
+    };
+
+
+
+
     updateElement({target,idValues}:{target:HTMLElement,idValues:idValueType[]}){
         const eleId=target.id;
+        const getImgKey=this._modSelector.dataset.getIdValue({target,idValues,id:"imgKey"});
+        const imgKey=getImgKey?.attValue ||undefined;
         const selRowCol=this._modSelector.dataset.getIdValue({target,idValues,id:"selRowCol"});
         const {parsed,isJSON}=selRowCol  ? Header.checkJson(selRowCol.attValue) : {isJSON:false,parsed:null};
         const {cleaned}=this._modSelector.removeClasses({target,classes:["isActive","box-shadow"]})
@@ -2373,6 +2409,7 @@ set selector(selector:selectorType){
                                             if(ele.eleId===eleId){
                                                 ele.cssText=target.style.cssText;
                                                 ele.class=cleaned.join(" ");
+                                                ele.imgKey=imgKey;
                                                 ele.inner_html=target.innerHTML;
                                                 this._modSelector.datasetSincUpdate({target,ele:ele,idValues,level:"element",loc:"flexbox"});
                                             }
@@ -2425,6 +2462,8 @@ set selector(selector:selectorType){
         idValues.push({eleId,id:"isElement",attValue:"true"});
         idValues.push({eleId,id:"name",attValue:node});
         idValues.push({eleId,id:"elementId",attValue:eleId});
+        const getImgKey=this._modSelector.dataset.getIdValue({target,idValues,id:"imgKey"});
+        const imgKey=getImgKey?.attValue || undefined;
         const {cleaned}=this._modSelector.removeClasses({target,classes:["isActive","box-shadow"]});
         //ADDING ATTRIBUTES
         const check=colEle.elements.map(ele_=>(ele_.eleId)).includes(target.id as string);
@@ -2441,7 +2480,7 @@ set selector(selector:selectorType){
                     inner_html:target.innerHTML,
                     attr:undefined,
                     col_id:colEle.id,
-                    imgKey:undefined,
+                    imgKey:imgKey,
                     order:ID,
                     type:undefined,
                     
