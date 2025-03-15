@@ -10,7 +10,7 @@ import { Color } from "chart.js";
 import Dataset from '../common/dataset';
 import { idEnumType, idValueType, locationEnumType, selRowColType, selRowType, typeEnumType } from "@/lib/attributeTypes";
 import { attrEnumArr, attrEnumArrTest, IDKeys, typeEnumArr, typeEnumArrTest } from '../common/lists';
-import { HTTP_METHOD } from 'next/dist/server/web/http';
+
 
 
 
@@ -1073,6 +1073,8 @@ set rows(rows:rowType[]){
         const eleId=target.id;
         const node=target.nodeName.toLowerCase()
         const getImgKey=this.dataset.getIdValue({target,idValues,id:"imgKey"});
+        const getImgDesc=this.dataset.getIdValue({target,idValues,id:"imgDesc"});
+        const imgDesc=getImgDesc?.attValue || undefined;
         const imgKey=getImgKey?.attValue ||undefined
         let retEle:elementType|element_selType|undefined={} as elementType|element_selType|undefined;
        
@@ -1091,13 +1093,29 @@ set rows(rows:rowType[]){
                                             ele.class=target.className;
                                             ele.inner_html=target.innerHTML;
                                             ele.imgKey=imgKey;
+                                            ele.attr=imgDesc;
                                             if(node==="img"){ 
                                                 ele.img=(target as HTMLImageElement).src;
                                                 ele.inner_html=(target as HTMLImageElement).alt
                                             };
                                             retEle=ele;
-                                            this.datasetSincUpdate({target,ele:ele,idValues,level:"element",loc:"flexbox"});
+                                           idValues= this.datasetSincUpdate({target,ele:ele,idValues,level:"element",loc:"flexbox"});
                                             retEle=ele;
+                                            const getEleIds=idValues.filter(kat=>(kat.eleId===eleId));
+                                            const testAttr=attrEnumArrTest(ele);
+                                            const testType=typeEnumArrTest(ele);
+                                            getEleIds.map(kat=>{
+                                                if(kat.attValue){
+                                                    if(testAttr && kat.id===testAttr.id ){
+                                                        ele.attr=kat.attValue
+                                                    }else if(testType && kat.id===testType.id ){
+                                                        ele.type=kat.attValue
+                                                    }else if(kat.id==="imgKey"){
+                                                        ele.imgKey=kat.attValue
+                                                    }
+                                                }
+                                            });
+
                                         };
                                         
                                         return ele;
@@ -1123,8 +1141,25 @@ set rows(rows:rowType[]){
                     ele.cssText=target.style.cssText;
                     ele.class=target.className;
                     ele.imgKey=imgKey;
+                    ele.attr=imgDesc;
                     ele.inner_html=target.innerHTML;
                     if(node==="img") ele.inner_html=(target as HTMLImageElement).alt;
+                    idValues= this.datasetSincUpdate({target,ele:ele,idValues,level:"element",loc:"htmlElement"});
+                    retEle=ele;
+                    const getEleIds=idValues.filter(kat=>(kat.eleId===eleId));
+                    const testAttr=attrEnumArrTest(ele);
+                    const testType=typeEnumArrTest(ele);
+                    getEleIds.map(kat=>{
+                        if(kat.attValue){
+                            if(testAttr && kat.id===testAttr.id ){
+                                ele.attr=kat.attValue
+                            }else if(testType && kat.id===testType.id ){
+                                ele.type=kat.attValue
+                            }else if(kat.id==="imgKey"){
+                                ele.imgKey=kat.attValue
+                            }
+                        }
+                    });
                     retEle=ele;
                 }
             return ele;
@@ -1238,7 +1273,21 @@ set rows(rows:rowType[]){
                             row.class=target.className;
                             row.cssText=target.style.cssText;
                             row.imgKey=imgKey
-                            this.datasetSincUpdate({target,ele:row,idValues,level:"row",loc:"flexbox"})
+                           idValues= this.datasetSincUpdate({target,ele:row,idValues,level:"row",loc:"flexbox"});
+                           const getEleIds=idValues.filter(kat=>(kat.eleId===eleId));
+                                  const testAttr=attrEnumArrTest(row);
+                                  const testType=typeEnumArrTest(row);
+                                  getEleIds.map(kat=>{
+                                    if(kat.attValue){
+                                        if(testAttr && kat.id===testAttr.id ){
+                                            row.attr=kat.attValue
+                                        }else if(testType && kat.id===testType.id ){
+                                            row.type=kat.attValue
+                                        }else if(kat.id==="imgKey"){
+                                            row.imgKey=kat.attValue
+                                        }
+                                    }
+                                  });
                         }
                         row_=row;
                         return row;
@@ -1287,7 +1336,21 @@ set rows(rows:rowType[]){
                                     _col_.imgKey=imgKey;
                                     //LOADING ELEMENT 
                                     //REPOPULATING TARGET
-                                    this.datasetSincUpdate({target,ele:_col_,idValues,level:"col",loc:"flexbox"})
+                                  idValues=this.datasetSincUpdate({target,ele:_col_,idValues,level:"col",loc:"flexbox"});
+                                  const getEleIds=idValues.filter(kat=>(kat.eleId===eleId));
+                                  const testAttr=attrEnumArrTest(_col_);
+                                  const testType=typeEnumArrTest(_col_);
+                                  getEleIds.map(kat=>{
+                                    if(kat.attValue){
+                                        if(testAttr && kat.id===testAttr.id ){
+                                            _col_.attr=kat.attValue
+                                        }else if(testType && kat.id===testType.id ){
+                                            _col_.type=kat.attValue
+                                        }else if(kat.id==="imgKey"){
+                                            _col_.imgKey=kat.attValue
+                                        }
+                                    }
+                                  });
                                 }
                                 colEle=_col_;
                                 return _col_;

@@ -8,6 +8,7 @@ import Meta from "../meta/meta";
 import NavArrow from "./arrow";
 import SignInAndUp from "./signinAndUp";
 import BrowserType from "../common/browserType";
+import MiddleLogo from "./middleLogo";
 
 class MainHeader {
     public meta: Meta
@@ -28,6 +29,7 @@ class MainHeader {
     public _status: "authenticated" | "loading" | "unauthenticated";
     private _isSignedIn: boolean;
     public browser:BrowserType;
+    public middleLogo:MiddleLogo;
 
     constructor(private _modSelector: ModSelector, private _service: Service, public navArrow: NavArrow, private auth: AuthService, public signinAndUp: SignInAndUp) {
         this.bgColor = "#0C090A";
@@ -43,6 +45,7 @@ class MainHeader {
         this.textFlow = "Create your own flexible page to download."
         this._status = "unauthenticated";
         this.browser= new BrowserType(this.auth.user.id);
+        this.middleLogo=new MiddleLogo(this.browser);
     };
 
 
@@ -60,7 +63,7 @@ class MainHeader {
 
 
     //INJECTOR:headerInjector)
-    main(item: { parent: HTMLElement, user: userType, isAuthenticated: boolean }) {
+   async main(item: { parent: HTMLElement, user: userType, isAuthenticated: boolean }) {
         const { parent, user, isAuthenticated } = item;
         const less900 = window.innerWidth < 900;
         const less400 = window.innerWidth < 400;
@@ -81,20 +84,30 @@ class MainHeader {
         MainHeader.header.id = "navHeader"
         parent.style.zIndex = "0;"
         MainHeader.header.style.cssText = MainHeader.mainHeader_css;
+        const headerStart=document.createElement("div");
+        headerStart.id="headerStart;"
+        headerStart.style.cssText="display:inline-flex;";
         const headerMain = document.createElement("div");
         headerMain.id = "headerMain";
         headerMain.style.cssText = "display:flex;"
-        headerMain.style.flex = less900 ? (less400 ? "1 0 80%" : "1 0 85%") : "1 0 90%";
+        headerMain.style.flex = less900 ? "1 0 80%" : "1 0 90%";
+        const headerMiddle=document.createElement("div");
+        headerMiddle.id="headerMiddle";
+        headerMiddle.style.cssText="display:inline-flex;position:relative;";
+        headerStart.style.flex=less900 ?(less400 ? "1 0 36%":"1 0 26%"):"1 0 10%";
+        headerMiddle.style.flex=less900 ?(less400 ? "1 0 66%":"1 0 74%"):"1 0 90%";
         const headerEnd = document.createElement("div");
         headerEnd.id = "header-end";
         headerEnd.style.cssText = "display:flex;justify-content:center;align-items:center;position:relative;"
-        headerEnd.style.flex = less900 ? (less400 ? "1 0 20%" : "1 0 15%") : "1 0 10%";
+        headerEnd.style.flex = less900 ? "1 0 20%" : "1 0 10%";
+        headerMain.appendChild(headerStart);
+        headerMain.appendChild(headerMiddle);
         MainHeader.header.appendChild(headerMain);
         MainHeader.header.appendChild(headerEnd);
         //signIn-out
         if (user.id === "") {
             // NOT SIGNEDIN=> SHOW SIGNIN && SIGNUP
-            this.signinAndUp.main({ parent: headerEnd }).then(async (_res) => {
+           await this.signinAndUp.main({ parent: headerEnd }).then(async (_res) => {
                 if (_res) {
                     _res.parent.appendChild(_res.container);
                 }
@@ -104,10 +117,11 @@ class MainHeader {
         //NAV BUTTON
         const button = document.createElement("button");
         this.navArrow.rotateArrow({ button, time: 800, user, isAuthenticated });//arrow navigator
-        headerMain.appendChild(button);
+        headerStart.appendChild(button);
+        this.middleLogo.main({parent:headerMiddle});
         parent.appendChild(MainHeader.header);
         //NAV BUTTON
-        this.showRectDropDown({ parent: MainHeader.injector, headerMain, headerEnd, user, count: 0, isSignedIn: isAuthenticated,isRepeat });
+       await this.showRectDropDown({ parent: MainHeader.injector, headerMain,headerMiddle,headerStart, headerEnd, user, count: 0, isSignedIn: isAuthenticated,isRepeat });
         //AUTH INJECTION UNDER MainHeader.header=document.querySelector(header#navHeader)
 
     };
@@ -117,6 +131,8 @@ class MainHeader {
     async showRectDropDown(item: {
          parent: HTMLElement,
          headerMain: HTMLElement,
+         headerStart: HTMLElement,
+         headerMiddle:HTMLElement,
          headerEnd: HTMLElement, 
         user: userType | null,
          count: number,
@@ -124,7 +140,7 @@ class MainHeader {
         isRepeat:boolean
 
      }) {
-        const { parent, headerMain, user, count, headerEnd, isSignedIn,isRepeat } = item;
+        const { parent, headerMain, user, count, headerEnd, isSignedIn,isRepeat,headerMiddle,headerStart } = item;
         const url = new URL(window.location.href);
         const pathname = "/";
         const isTimeUp=isRepeat ? 5000 :1000;
@@ -135,7 +151,7 @@ class MainHeader {
         await this.sleep({
             time: time,
             func: async () => {
-                await this.asyncShowRectDrpDown({ parent, headerMain, user, count, pathname, time, isSignedIn,isRepeat }).then(async (res) => {
+                await this.asyncShowRectDrpDown({ parent, headerMain,headerStart,headerMiddle, user, count, pathname, time, isSignedIn,isRepeat }).then(async (res) => {
                     if (res && res.count === 1) {
                         //GENERATES DROP-DOWN 'WELCOME"
                         await this.sleep({
@@ -150,9 +166,13 @@ class MainHeader {
                                 }
 
                                 MainHeader.removeAllClass({ parent: res.parent, class_: "ablogroom" });
-                                if (!res.isSignedIn) await this.ablogroom({ parent: res.parent, user: null });//SHOWS IF USER===NULL
+                                if (!res.isSignedIn && pathname==="/"){
+                                    
+                                    await this.ablogroom({ parent: res.headerMiddle, user: null })
+                                
+                                };//SHOWS IF USER===NULL}
                                 //GENERATES DISPLAY PAGE COUNT(TOP-LEFT)
-                                await this.genPageCount({ parent: res.headerMain, count });//PAGE COUNT ON HEADER
+                                await this.genPageCount({ parent: res.headerStart,headerMiddle, count });//PAGE COUNT ON HEADER
                                 //GENERATES (IF USER IS SIGNED IN HIS SIGNED IN)
                                 await this.signinAndUp.main({ parent: headerEnd }).then(async (res_) => {
                                     if (res_) {
@@ -183,6 +203,8 @@ class MainHeader {
     async asyncShowRectDrpDown(item: {
          parent: HTMLElement,
          headerMain: HTMLElement,
+         headerStart: HTMLElement,
+         headerMiddle: HTMLElement,
          user: userType | null,
          count: number,
          pathname: string,
@@ -193,7 +215,7 @@ class MainHeader {
      }) {
         //DISPLAY A BLOGROOM BLOCK ON LOAD
         //BLOGROOM BLOCK SHOWS ONLY @ HOME
-        const { parent, headerMain, user, count, pathname, time, isSignedIn,isRepeat } = item;
+        const { parent, headerMain, user, count, pathname, time, isSignedIn,isRepeat,headerStart,headerMiddle } = item;
         let rectangle: HTMLElement | undefined;
         const less900 = window.innerWidth < 900;
         const less700 = window.innerWidth < 700;
@@ -240,7 +262,7 @@ class MainHeader {
         };
 
 
-        return Promise.resolve({ parent, headerMain, rect: rectangle, user, count: count + 1, isSignedIn,isRepeat}) as Promise<{ parent: HTMLElement, headerMain: HTMLElement, rect: HTMLElement | undefined, user: userType | null, count: number, isSignedIn: boolean,isRepeat:boolean}>;
+        return Promise.resolve({ parent, headerMain, rect: rectangle, user, count: count + 1, isSignedIn,isRepeat,headerStart,headerMiddle}) as Promise<{ parent: HTMLElement, headerMain: HTMLElement, rect: HTMLElement | undefined, user: userType | null, count: number, isSignedIn: boolean,isRepeat:boolean,headerStart:HTMLElement,headerMiddle:HTMLElement}>;
 
     };
 
@@ -311,7 +333,7 @@ class MainHeader {
 
     ablogroom(item: { parent: HTMLElement, user: userType | null }): Promise<{ parent: HTMLElement }> {
         const { parent, user } = item;
-        if (!user) {
+        if (!user && window.location.pathname==="/") {
             ///----ONLY SHOW IF NOT LOGGED IN----//////
             Header.cleanUpByID(parent, "ablogroom");
             parent.style.zIndex = '';
@@ -339,8 +361,8 @@ class MainHeader {
 
     };
 
-    async genPageCount(item: { parent: HTMLElement, count: number }): Promise<void> {
-        const { parent, count } = item;
+    async genPageCount(item: { parent: HTMLElement, count: number,headerMiddle:HTMLElement }): Promise<void> {
+        const { parent, count,headerMiddle } = item;
         if (typeof window === "undefined") return;
         const less900 = window.innerWidth < 900;
         const less400 = window.innerWidth < 400;

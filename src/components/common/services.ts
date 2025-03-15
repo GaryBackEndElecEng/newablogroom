@@ -583,7 +583,7 @@ getKey({imgUrl}:{imgUrl:string}):string|null{
         if(!getKey){
             const name=user.name ? user.name.split(" ").join("").trim() :"unknownUser";
             const user_id=user.id ? user.id : "no_userid"
-            const Key=`${user_id}-${name}-${file.name}`;
+            const Key=`${user_id}-${name}-freeImg-${file.name}`;
             const Key_=Key.trim();
             formdata.set("Key",Key_);
             return {Key:Key_}
@@ -596,13 +596,14 @@ getKey({imgUrl}:{imgUrl:string}):string|null{
     checkFreeImgKey({imgKey}:{imgKey:string}){
         //FORM: ${user_id}-${name}-${file.name}
         //cm82yqjd70000w958mglvn99p-testthis/56efea2f-firePic.png
-        const regName:RegExp=/\w/;
-        const regNoUser:RegExp=/(no_userid)/;
+        // const regName:RegExp=/\w/;
+        const regFree:RegExp=/(freeImg)/;
         const words=imgKey.split("-");
         const testLen=words.length===1;
-        const testNoUser=regNoUser.test(words[0]);
-        const testName=regName.test(words[1]);
-        const check=(testNoUser && !testName) || (testLen)
+
+        const testFree=regFree.test(imgKey);
+        const check=testFree || (testLen)
+        
         return check
     }
 

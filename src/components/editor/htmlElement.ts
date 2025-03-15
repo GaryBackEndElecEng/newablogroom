@@ -5,7 +5,7 @@ import { arrDivContType,  elementType, iconType } from "./Types";
 import ModSelector from "./modSelector";
 import { FaCreate } from "../common/ReactIcons";
 import Main from "./main";
-import { btnReturnDisableType, buttonRetDisable, buttonReturn } from "../common/tsFunctions";
+import { btnReturnDisableType, buttonRetDisable, } from "../common/tsFunctions";
 import Misc from "../common/misc";
 import Header from "@/components/editor/header";
 import ShapeOutside from "./shapeOutside";
@@ -15,10 +15,11 @@ import EditText from "../common/editText";
 import Dataset from "../common/dataset";
 import { eleEnumType, idEnumType,  idValueType, selRowColType, typeEnumType } from "@/lib/attributeTypes";
 import Design from "../common/design";
-import { attrEnumArr, attrEnumArrTest,  typeEnumArr, typeEnumArrTest,IDKeyValuepairs} from "@/components/common/lists";
+import { attrEnumArr, attrEnumArrTest,  typeEnumArr, typeEnumArrTest} from "@/components/common/lists";
 import Ven from "../common/venDiagram";
 import Headerflag from "./headerflag";
 import PasteCode from "../common/pasteCode";
+import Nav from "../nav/headerNav";
 
 
 
@@ -92,14 +93,18 @@ class HtmlElement {
        const eleId=element.eleId;
        
         const node=element.name as eleEnumType;
-    
+        const editableNodes=["p","ul","blockquote","ol","h1","h2","h3","h4","h5","h6"].includes(node);
         const attrTest= (element.attr && attrEnumArrTest(element)) ? attrEnumArrTest(element) : undefined;
         const typeTest= (element.type && typeEnumArrTest(element)) ? typeEnumArrTest(element) : undefined;
+        const isTime=attrTest?.id==="time" ? attrTest.value:undefined;
+        const isLink=attrTest?.id==="link" ? attrTest.value:undefined;
+        const isEmail=attrTest?.id==="email" ? attrTest.value:undefined;
+        const isTel=attrTest?.id==="tel" ? attrTest.value:undefined;
+        const isImgDesc=attrTest?.id==="imgDesc" ? attrTest.value:undefined;
         const imgKey= element.imgKey ? element.imgKey : undefined;
         if(attrTest) idValues.push({eleId,id:attrTest.id as idEnumType,attValue:attrTest.value});
         if(typeTest) idValues.push({eleId,id:typeTest.id as idEnumType,attValue:typeTest.value});
         if(imgKey) idValues.push({eleId,id:"imgKey",attValue:String(element.imgKey)});
-        const isImgDesc=attrTest && attrTest.id==="imgDesc" ? attrTest.value:undefined;
         idValues.push({eleId,id:"name",attValue:node});
         idValues.push({eleId,id:"isElement",attValue:"true"});
         
@@ -141,7 +146,7 @@ class HtmlElement {
             }
             //THEN TACKLE FLEXBOX, THEN COMBINED THEM TO DISPLAY
         }else{
-            const target=document.createElement(element.name);
+            const target=document.createElement(node);
             target.id=element.eleId;
             const divCont=document.createElement("div");
             divCont.id=`divCont-normal-${rand}`;
@@ -165,40 +170,50 @@ class HtmlElement {
             target.style.paddingInline=less400 ? "0.25rem":"1rem";
             const {idValues:retIdValues}=this._modSelector.dataset.coreDefaultIdValues({target,sel:null,row:null,col:null,ele:element,clean:true,level:"element",loc:"htmlElement",idValues});
             idValues=retIdValues;
-            
-            if(node==="p"){
-                if(!(target.style.lineHeight !=="" ||target.style.lineHeight)){
-                    target.style.lineHeight="1.75rem";
-                }
+            if(editableNodes){
+                if(node==="p"){
+                    if(!(target.style.lineHeight !=="" ||target.style.lineHeight)){
+                        target.style.lineHeight="1.75rem";
+                    };
+                  
+                }else if(node==="ul" || node==="ol"){
+                    target.style.lineHeight="1.85rem";
+                    const lis=(target as HTMLElement).querySelectorAll("li") as any as HTMLElement[];
+                    lis.forEach(li=>{
+                        if(li && li.textContent===""){
+                            li.remove();
+                        }
+                    });
+                };
                 divCont.appendChild(target);
                 const div_cont:arrDivContType={divCont,target,placement:element.placement,ele:element,isNormal:true,chart:null,sel:null}
                 return Promise.resolve({div_cont,idValues}) as Promise<{div_cont:arrDivContType,idValues:idValueType[]}>;
-            }else if(node==="ul" || node==="ol"){
-                target.style.lineHeight="1.85rem";
-                const lis=(target as HTMLElement).querySelectorAll("li") as any as HTMLElement[];
-                lis.forEach(li=>{
-                    if(li && li.textContent===""){
-                        li.remove();
-                    }
-                });
-                divCont.appendChild(target);
-                const div_cont:arrDivContType={divCont,target,placement:element.placement,ele:element,isNormal:true,chart:null,sel:null}
-                return Promise.resolve({div_cont,idValues}) as Promise<{div_cont:arrDivContType,idValues:idValueType[]}>;
-            }else if(node==="a"){
-                if(attrTest && attrTest.id==="link"){
-                    const anchor=target as HTMLAnchorElement;
-                    const link=attrTest.value;
+            } else if(node==="a"){
+                const anchor=target as HTMLAnchorElement;
+                if(isLink){
+                    const link=isLink;
                     const name=anchor.textContent ? anchor.textContent:"link"
                     this.addLinkEmailTelImg({target:anchor,image:this.link,href:link,name,type:"link"});
-                    divCont.appendChild(target);
-                    const div_cont:arrDivContType={divCont,target:anchor,placement:element.placement,ele:element,isNormal:true,chart:null,sel:null}
-                    return Promise.resolve({div_cont,idValues}) as Promise<{div_cont:arrDivContType,idValues:idValueType[]}>;
+                }else if(isEmail){
+                    const email=isEmail;
+                    const name=anchor.textContent ? anchor.textContent:"email"
+                    this.addLinkEmailTelImg({target:anchor,image:this.mail,href:email,name,type:"email"});
+                }else if(isTel){
+                    const tel=isTel;
+                    const name=anchor.textContent ? anchor.textContent:"tel"
+                    this.addLinkEmailTelImg({target:anchor,image:this.mail,href:tel,name,type:"tel"});
                 }
+                divCont.appendChild(target);
+                const div_cont:arrDivContType={divCont,target:anchor,placement:element.placement,ele:element,isNormal:true,chart:null,sel:null}
+                return Promise.resolve({div_cont,idValues}) as Promise<{div_cont:arrDivContType,idValues:idValueType[]}>;
             }else if(node==="time"){
                 const time=target as HTMLTimeElement;
-                divCont.appendChild(target);
-                const div_cont:arrDivContType={divCont,target:time,placement:element.placement,ele:element,isNormal:true,chart:null,sel:null}
-                return Promise.resolve({div_cont,idValues}) as Promise<{div_cont:arrDivContType,idValues:idValueType[]}>;
+                if(isTime){
+                    time.setAttribute("data-time",isTime);
+                    divCont.appendChild(target);
+                    const div_cont:arrDivContType={divCont,target:time,placement:element.placement,ele:element,isNormal:true,chart:null,sel:null}
+                    return Promise.resolve({div_cont,idValues}) as Promise<{div_cont:arrDivContType,idValues:idValueType[]}>;
+                }
             }else if(node==="img"){
                 if(element.imgKey){
                     const check=this._service.checkFreeImgKey({imgKey:element.imgKey as string});
@@ -216,17 +231,12 @@ class HtmlElement {
                         }
                     }
                 };
+                divCont.appendChild(target);
                 if(isImgDesc){
                     const idValue={eleId,id:"imgDesc",attValue:isImgDesc} as idValueType;
                     this._modSelector.dataset.upDateIdValue({target,idValues,idValue});
-                    idValues.push({eleId,id:"imgDesc",attValue:isImgDesc});
-                    const imgDesc=document.createElement("small");
-                    imgDesc.textContent=isImgDesc;
-                    imgDesc.style.cssText="margin-left:1rem;margin-block:auto;font-weight:bold;text-wrap:pretty;";
-                    divCont.appendChild(imgDesc);
+                    this.createImgDesc({divCont,target:(target as HTMLImageElement),element,clean:true,idValues});
                 };
-            }else{
-                divCont.appendChild(target);
                 const div_cont:arrDivContType={divCont,target,placement:element.placement,ele:element,isNormal:true,chart:null,sel:null}
                 return Promise.resolve({div_cont,idValues}) as Promise<{div_cont:arrDivContType,idValues:idValueType[]}>;
             };
@@ -253,8 +263,8 @@ class HtmlElement {
 
     }):Promise<arrDivContType|undefined>{
       
-        const editableNodes=["p","ul","blockquote","ol","h1","h2","h3","h4","h5","h6"];
         const node=element.name;
+        const editableNodes=["p","ul","blockquote","ol","h1","h2","h3","h4","h5","h6"].includes(node);
         const eleId=element.eleId;
         const attrTest=attrEnumArrTest(element);
         const typeTest=typeEnumArrTest(element);
@@ -264,7 +274,6 @@ class HtmlElement {
         const target=document.createElement(node);
         const rand=Math.floor(Math.random() *1000);
       
-        
         const isImgDesc= attrTest && attrTest.id==="imgDesc"? attrTest.value:undefined;
         if(selRowCol){
             const idValue:idValueType={eleId,id:"selRowCol",attValue:JSON.stringify(selRowCol)};
@@ -347,7 +356,7 @@ class HtmlElement {
             
 
             if(editableNodes){
-
+               
                 divCont.appendChild(target);
                 divCont.setAttribute("data-placement",`${element.placement}-A`)
                 if(node==="p"){
@@ -389,11 +398,35 @@ class HtmlElement {
                 }else if(isTel){
                     this.addLinkEmailTelImg({target:(target as HTMLAnchorElement),image:this.link,href:isTel.value,name,type:"tel"});
                 };
+                divCont.appendChild(target);
+                divCont.onclick=(e:MouseEvent)=>{
+                    if(!e) return;
+                    divCont.classList.toggle("isActive");
+                    target.classList.toggle("isActive");
+                    this.removeMainElement({parent,divCont,target,idValues});
+                    Main.activatebuttons({target});
+                };
                 if(divCont){ 
                    const div_cont={divCont,placement:element.placement,target,isNormal:true,ele:element,chart:null,sel:null}
                     return Promise.resolve(div_cont) as Promise<arrDivContType>;
                 };
-
+                
+            }else if(node==="time"){
+                const isTime=attrTest && attrTest.id==="time" ? attrTest:undefined;
+                if(!isTime)return;
+                idValues.push({eleId:target.id,id:"time",attValue:isTime.value})
+                divCont.appendChild(target);
+                divCont.onclick=(e:MouseEvent)=>{
+                    if(!e) return;
+                    divCont.classList.toggle("isActive");
+                    target.classList.toggle("isActive");
+                    this.removeMainElement({parent,divCont,target,idValues});
+                    Main.activatebuttons({target});
+                };
+                if(divCont){ 
+                   const div_cont={divCont,placement:element.placement,target,isNormal:true,ele:element,chart:null,sel:null}
+                    return Promise.resolve(div_cont) as Promise<arrDivContType>;
+                };
             }else if(node==="img"){
                 (target as HTMLImageElement).src=element.img ||this.logo;
                 (target as HTMLImageElement).alt=element.inner_html ||"www.ablogroom.com";
@@ -415,12 +448,16 @@ class HtmlElement {
                     }
                 }
                 if(isImgDesc){
+                   
                     idValues.push({eleId,id:"imgDesc",attValue:isImgDesc});
-                    const imgDesc=document.createElement("small");
-                    imgDesc.textContent=isImgDesc;
-                    imgDesc.style.cssText="margin-left:1rem;margin-block:auto;font-weight:bold;text-wrap:pretty;";
-                    divCont.appendChild(imgDesc);
-                    this.imgDescUpdate({target:(target as HTMLImageElement),imgDesc});//updates desc editing for image
+                    this.createImgDesc({divCont,target:(target as HTMLImageElement),element,clean:false,idValues});
+                };
+                target.onclick=(e:MouseEvent)=>{
+                    if(!e) return;
+                    divCont.classList.toggle("isActive");
+                    target.classList.toggle("isActive");
+                    this.removeMainElement({parent,divCont,target,idValues});
+                    Main.activatebuttons({target});
                 };
                 if(divCont) {
                     const div_cont={divCont,placement:element.placement,target,isNormal:true,ele:element,chart:null,sel:null};
@@ -431,89 +468,85 @@ class HtmlElement {
     };
 
 
-    ///-------------INJECTION/SOW WORK------------------///
+    ///-------------INJECTION: PARENT:TEXTAREA/SOW WORK------------------///
     fromMain({parent,btn,icon,idValues}:{parent:HTMLElement,btn: HTMLButtonElement, icon: iconType,idValues:idValueType[]}): void {
+    const rand=Math.floor(Math.random()*1000);
+    const divCont=document.createElement('div');
+    divCont.id=`divCont-normal-${rand}`;
+    this._modSelector.dataset.insertcssClassIntoComponents({target:divCont,level:"element",headerType:undefined,id:"divContId",loc:"htmlElement",type:"htmlElement"});
+    const node=icon.name;
+    const target = document.createElement(icon.name); //ICON.NAME=ELE TYPE
+    target.id=`htmlele-${icon.name}-${rand}`;
+    const eleId=target.id;
+    idValues.push({eleId,id:"name",attValue:node});
+    idValues.push({eleId,id:"elementId",attValue:eleId});
+    idValues.push({eleId,id:"ID",attValue:eleId});
+    btn.classList.add(icon.display);
+    target.classList.add(icon.name);
+        if (icon.name === "img") {
 
-        Main.textarea = document.querySelector("div#textarea");
-        if (Main.textarea) {
-            const rand=Math.floor(Math.random()*1000);
-            const divCont=document.createElement('div');
-            divCont.id=`divCont-normal-${rand}`;
-            divCont.className=this.divCont_class;
-            divCont.style.cssText=this.divCont_css;
-            const node=icon.name;
-            const target = document.createElement(icon.name); //ICON.NAME=ELE TYPE
-            target.id=`htmlele-${icon.name}-${rand}`;
-            const eleId=target.id;
-            idValues.push({eleId,id:"name",attValue:node});
+          
+            this.addImage({
+                parent,
+                target,
+                divCont,
+                btnClicked:btn,
+                    icon,
+                idValues
+
+            });
+
+        } else if (icon.name === "SH") {
+            let ele: elementType = {} as elementType;
+            ele = { ...ele,eleId:target.id, type: "shapeoutside", attr: "shapeOutsideCircle" };
+            idValues.push({eleId,id:"shapeOutside",attValue:"true"});
+            idValues.push({eleId,id:"type",attValue:"shapeOutside"});
             idValues.push({eleId,id:"elementId",attValue:eleId});
             idValues.push({eleId,id:"ID",attValue:eleId});
-            btn.classList.add(icon.display);
-            target.classList.add(icon.name);
-            if (icon.name === "img") {
-
-                btn.classList.add(icon.display)
-                this.addImage({
-                    parent,
-                    target,
-                    divCont,
+            idValues.push({eleId,id:"shapeOutsideCircle",attValue:"true"});
+            this.shapeOutside.addShapeOutside({ parent, sel: null,rowEle:null,colEle:null, element: ele,idValues })
+        }else if(icon.name==="time"){
+            this.insertDateTime({
+                parent,
+                target,
+                divCont,
                     btnClicked:btn,
-                     icon,
-                    idValues
-
-                });
-
-            } else if (icon.name === "SH") {
-                let ele: elementType = {} as elementType;
-                ele = { ...ele,eleId:target.id, type: "shapeoutside", attr: "shapeOutsideCircle" };
-                idValues.push({eleId,id:"shapeOutside",attValue:"true"});
-                idValues.push({eleId,id:"type",attValue:"shapeOutside"});
-                idValues.push({eleId,id:"elementId",attValue:eleId});
-                idValues.push({eleId,id:"ID",attValue:eleId});
-                idValues.push({eleId,id:"shapeOutsideCircle",attValue:"true"});
-                this.shapeOutside.addShapeOutside({ parent, sel: null,rowEle:null,colEle:null, element: ele,idValues })
-            }else if(icon.name==="time"){
-                this.insertDateTime({
-                    parent,
-                    target,
-                    divCont,
-                     btnClicked:btn,
-                    idValues,
-                    icon
-                });
-            } else if(icon.name==="ul"){
-                this.selectUltype(parent,btn,icon);
-            }else if(icon.name==="a"){
-                this.createAnchor({
-                    parent,
-                    target,
-                    divCont,
-                     btn,
-                    idValues,
-                    icon
-                });
-            }else if(icon.name==="blockquote"){
-                this.createQuote({
-                    parent,
-                    target,
-                    divCont,
-                     btn,
-                     icon,
-                    idValues
-                })
-            }else {
-                this.appElement({
-                    parent,
-                    target,
-                    divCont,
-                     btn,
-                     icon,
-                    idValues
-                });
-
-            }
+                idValues,
+                icon
+            });
+        } else if(icon.name==="ul"){
+            this.selectUltype(parent,btn,icon);
+        }else if(icon.name==="a"){
+            this.createAnchor({
+                parent,
+                target,
+                divCont,
+                    btn,
+                idValues,
+                icon
+            });
+        }else if(icon.name==="blockquote"){
+            this.createQuote({
+                parent,
+                target,
+                divCont,
+                    btn,
+                    icon,
+                idValues
+            })
+        }else {
+            this.appElement({
+                parent,
+                target,
+                divCont,
+                    btn,
+                    icon,
+                idValues
+            });
 
         }
+
+     
     };
 
     
@@ -615,27 +648,29 @@ class HtmlElement {
 
     }):void{
         const img=target as HTMLImageElement;
-        const rand=Math.round(Math.random()*1000);
+        const eleId=img.id;
         parent.style.position="relative";
         btnClicked.classList.add("active");
-        btnClicked.classList.add(icon.display);
         const floatContainer=document.createElement("div");
-        floatContainer.style.cssText="position:absolute;z-index:200;display:flex;justify-content:center;align-items:center;gap:1rem;";
-        floatContainer.style.inset="20% 35% 50% 35%";
-        parent.classList.add("position-relative");
+        floatContainer.style.cssText="position:absolute;z-index:200;display:flex;justify-content:flex-start;align-items:center;gap:1rem;flex-direction:column;width:fit-content;";
+        floatContainer.style.inset="20% 0% auto 0%";
         parent.classList.add("z-0");
         floatContainer.classList.add("select-image-container");
-        floatContainer.classList.add("flexCol");
         const form=document.createElement("form");
-        form.id=`add-image-${rand}`;
-        form.classList.add("group-form");
-        form.classList.add("flexCol");
-        const input=document.createElement("input") as HTMLInputElement;
+        form.style.cssText="display:flex;flex-direction:column;align-items:center;gap:1.5rem;";
+        const {input,label,formGrp}=Nav.inputComponent(form);
+        formGrp.style.cssText="display:flex;justify-content:center;align-items:center;gap:1rem;flex-direction:column;";
+        input.id="file";
         input.type="file";
         input.name="file";
-        input.id="file-image";
-        form.appendChild(input);
-        buttonReturn({parent:form,bg:this.btnColor,color:"white",type:"submit",text:"submit"});
+        label.setAttribute("for",input.id);
+        label.textContent="add a large image";
+        const {button}=Misc.simpleButton({anchor:form,bg:this.btnColor,color:"white",type:"submit",text:"submit",time:400});
+        button.disabled=true;
+        input.onchange=(e:Event)=>{
+            if(!e) return;
+            button.disabled=false;
+        };
         floatContainer.appendChild(form);
         parent.appendChild(floatContainer);
         Misc.fadeIn({anchor:floatContainer,xpos:50,ypos:100,time:500});
@@ -646,22 +681,15 @@ class HtmlElement {
                 const file=formelement.get("file");
                 const image=URL.createObjectURL(file as File);
                 //creating container && img
-                const eleId=img.id;
                 img.src=image ||this.urlImg;
                 img.alt="image";
-                const desc=document.createElement("small");
-                desc.style.cssText=HtmlElement.imgDesc_css;
-                desc.setAttribute("contenteditable","true");
-                desc.textContent="add description";
                 idValues.push({eleId,id:"name",attValue:"img"});
                 idValues.push({eleId,id:"ID",attValue:eleId});
-                idValues.push({eleId,id:"imgDesc",attValue:desc.textContent});
                
                 //THIS ADDS ATTRIBUTES ANC CLASSES TO THE ELEMENTS FROM DATASET CLASS
 
             //THIS ADDS ATTRIBUTES ANC CLASSES TO THE ELEMENTS FROM DATASET CLASS
                 divCont.appendChild(target as HTMLImageElement);
-                divCont.appendChild(desc);
                 parent.appendChild(divCont);
                 Misc.matchMedia({parent:divCont,maxWidth:920,cssStyle:{marginInline:"1.5rem"}});
                 Misc.matchMedia({parent:divCont,maxWidth:420,cssStyle:{marginInline:"10px"}});
@@ -678,13 +706,13 @@ class HtmlElement {
                         idValues=_res.idValues
                         const img_= _res.target as HTMLImageElement;
                         this._user.askSendToServer({bg_parent:parent,formdata:formelement,image:img_ as HTMLImageElement,blog,oldKey:null,idValues,selRowCol:null});
-                        this.imgDescUpdate({target:img_,imgDesc:desc});//updates desc editing for image
+                        this.createImgDesc({divCont,target:img_,element:_res.ele,clean:false,idValues});//create && updates desc editing for image
                         divCont.addEventListener("click",(e:MouseEvent)=>{
                             if(e){
                                 divCont.classList.toggle("isActive");
                                 img_.classList.toggle("isActive");
                                 this._modSelector.footerPlacement();//this shifts footer placement down
-                                const isActive=([...img_  as any] as string[]).includes("isActive");
+                                const isActive=([...img_.classList  as any] as string[]).includes("isActive");
                                 
                                 this.removeMainElement({
                                     parent,
@@ -708,11 +736,9 @@ class HtmlElement {
                 Misc.matchMedia({parent:divCont,maxWidth:400,cssStyle:{paddingInline:"0px",marginInline:"0px;"}});
         }
         });
-               
-                
-        
+    };
 
-    }
+
    
     selectColumns({parent,btnClk,idValues}:{parent:HTMLElement,btnClk:HTMLButtonElement,idValues:idValueType[]}){
         btnClk.classList.add("active");
@@ -915,8 +941,7 @@ class HtmlElement {
         btnClick.classList.toggle(icon.name);
         if(useParent){
             const divCont=document.createElement("div");
-            divCont.className="eleContainer";
-            divCont.style.cssText="margin:0px;padding:0.25rem;position:relative;";
+            this._modSelector.dataset.insertcssClassIntoComponents({target:divCont,level:"element",headerType:undefined,id:"divContId",loc:"htmlElement",type:"htmlElement"});
             const ul=document.createElement("ul");
             ul.id=`ul-${Math.round(Math.random()*1000)}`;
             const eleId=ul.id;
@@ -1190,42 +1215,43 @@ class HtmlElement {
    async elementAdder({target,idValues}:{target:HTMLElement,idValues:idValueType[]}):Promise<{ele:elementType | undefined,target:HTMLElement,idValues:idValueType[]}>{
         // adds none selector elements to modSelector.blog
        
-        
-        const ID=( this._modSelector.elements?.length)||1;
-        const blog=this._modSelector.blog;
         const node=target.nodeName.toLowerCase()
         const eleId=target.id;
-      
+        const getImgKey=this._modSelector.dataset.getIdValue({target,idValues,id:"imgKey"});
+        const imgKey=getImgKey?.attValue || undefined;
+        const ID=( this._modSelector.elements?.length)||1;
+        const blog=this._modSelector.blog;
+        
         idValues=Dataset.removeIdValueDuplicates({arr:idValues,eleId});
+        const getImgDesc=this._modSelector.dataset.getIdValue({target,idValues,id:"imgDesc"});
+        const imgDesc=getImgDesc?.attValue || "not inserted";
+        const {cleaned:classes}=this._modSelector.removeClasses({target,classes:["isActive","box-shadow"]});
+        const check=this.elements.map(ele_=>(ele_.eleId)).includes(target.id as string);
+        let ele:elementType|undefined={} as elementType;
+        if( !check){
+            
+            ele={
+                ...ele,
+                id:ID ,
+                blog_id:blog.id,
+                selectorId:undefined,
+                placement:this.placement,
+                name:node as string,
+                class:classes.join(" "),
+                eleId:target.id,
+                inner_html:target.innerHTML,
+                cssText:target.style.cssText,
+                attr:imgDesc,
+                imgKey: imgKey ||undefined,
+                type:undefined
+            };
+            idValues.push({eleId,id:"elementId",attValue:target.id});
+            idValues.push({eleId,id:"elePlacement",attValue:String(this.placement)});
+            idValues.push({eleId,id:"ele_id",attValue:String(ID)});
+            idValues.push({eleId,id:"elePlacement",attValue:`${ele.placement}`});
+            if(imgKey)idValues.push({eleId,id:"imgKey",attValue:imgKey});
             const getEleIds=idValues.filter(kat=>(kat.eleId===eleId));
-            const imgDesc=target.getAttribute("data-img-desc");
-            const {cleaned:classes}=this._modSelector.removeClasses({target,classes:["isActive","box-shadow"]});
-            const imgKey:string | null= target.getAttribute("data-imgKey");
-            const check=this.elements.map(ele_=>(ele_.eleId)).includes(target.id as string);
-            let ele:elementType|undefined={} as elementType;
-                if( !check){
-
-                    ele={
-                        ...ele,
-                        id:ID ,
-                        blog_id:blog.id,
-                        selectorId:undefined,
-                        placement:this.placement,
-                        name:node as string,
-                        class:classes.join(" "),
-                        eleId:target.id,
-                        inner_html:target.innerHTML,
-                        cssText:target.style.cssText,
-                        attr:undefined,
-                        imgKey: imgKey ||undefined,
-                        type:undefined
-                    };
-                    idValues.push({eleId,id:"elementId",attValue:target.id});
-                    idValues.push({eleId,id:"elePlacement",attValue:String(this.placement)});
-                    idValues.push({eleId,id:"ele_id",attValue:String(ID)});
-                    idValues.push({eleId,id:"elePlacement",attValue:`${ele.placement}`});
-                    if(imgKey)idValues.push({eleId,id:"imgKey",attValue:imgKey});
-
+            
                     getEleIds.map(kat=>{
                         const hasAttr=attrEnumArr.includes(kat.id);
                         const hasType=typeEnumArr.includes(kat.id as typeEnumType);
@@ -1268,6 +1294,7 @@ class HtmlElement {
                 
                     this.elements=[...this.elements,ele];
                    this.placement= this.placement + 1;
+                   this._modSelector.blog={...this._modSelector.blog,elements:this.elements};
                    this._modSelector.localStore({blog:this._modSelector.blog});
                    
                 }
@@ -1381,21 +1408,33 @@ class HtmlElement {
     };
     };
 
+    createImgDesc({divCont,target,element,clean,idValues}:{divCont:HTMLElement,target:HTMLImageElement,element:elementType|undefined,clean:boolean,idValues:idValueType[]}){
+        const desc=document.createElement("small");
+        desc.id="imgDesc";
+        desc.style.cssText="margin-block:1rem;width:80%;margin-inline:auto;font-weight:bold;font-family:Poppins-Regular;";
+        desc.textContent=element?.attr || "image description";
+        if(clean){
+            desc.removeAttribute("contenteditable");
+        }else if(!clean){
+            desc.setAttribute("contenteditable","true");
+            this.imgDescUpdate({target,imgDesc:desc,idValues})
+        }
+        divCont.appendChild(desc);
+    };
 
-    imgDescUpdate(item:{target:HTMLImageElement,imgDesc:HTMLElement}){
+
+    imgDescUpdate(item:{target:HTMLImageElement,imgDesc:HTMLElement,idValues:idValueType[]}){
         //IMAGE DESCRIPTION IS SAVED IN ELEMENT.ATTR
-        const { target,imgDesc}=item;
-        const node=imgDesc.nodeName.toLowerCase() as eleEnumType;
+        const { target,imgDesc,idValues}=item;
+        const eleId=target.id;
         imgDesc.oninput=(e:Event)=>{
             if(e){
                 const value=(e.currentTarget as HTMLElement).textContent;
+              console.log("value:outside",value)
                 if(value){
-                    IDKeyValuepairs.map(kv=>{
-                        const checkNode=kv.nodes.includes(node);
-                        if(checkNode && kv.id==="imgDesc"){
-                            target.setAttribute(kv.key,value);
-                        }
-                    });
+                    const idValue={eleId,id:"imgDesc",attValue:value} as idValueType;
+                    this._modSelector.dataset.upDateIdValue({target,idValues,idValue});
+                    console.log("inside",value)
                     this.elements=this.elements.map(ele=>{
                         if( ele.eleId===target.id){
                             ele.inner_html=target.alt;
@@ -1404,7 +1443,17 @@ class HtmlElement {
                         return ele;
                     });
                     this.elements=this._elements;
+                    this._modSelector.blog={...this._modSelector.blog,elements:this.elements};
+                    this._modSelector.localStore({blog:this._modSelector.blog})
                 }
+            }
+        };
+        imgDesc.onchange=(e:Event)=>{
+            if(e){
+                const ele=this.elements.find(ele=>(ele.eleId===eleId));
+                if(!ele) return;
+                const idValue={eleId,id:"imgDesc",attValue:ele?.attr} as idValueType;
+                    this._modSelector.dataset.upDateIdValue({target,idValues,idValue});
             }
         };
     };

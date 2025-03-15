@@ -1594,6 +1594,20 @@ class Misc{
         }else{
             return String(new Date())
         }
+    };
+
+   static capitalize({str}:{str:string}){
+        let arr=str.split(" ");
+        arr=arr.map(wd=>{
+            wd=wd.split("").map((lt,ind)=>{
+                    if(ind===0){
+                        lt.toUpperCase();
+                    }
+                return lt;
+            }).join("");
+            return wd;
+        });
+        return arr.join(" ");
     }
 };
 

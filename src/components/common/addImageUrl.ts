@@ -314,7 +314,8 @@ class AddImageUrl {
         const title=document.createElement("h6");
         title.textContent="insert URL?/insertImage?";
         title.className="text-primary text-center my-2";
-        popup.style.cssText="position:absolute;max-width:350px;width:100%;min-height:5vh;height:auto;border-radius:12px;box-shadow:1px 1px 12px 1px black;display:flex;flex-direction:row;padding:1rem;gap:1.5rem;z-index:200;left:35%;right:35%;background-color:white;";
+        popup.style.cssText="position:absolute;max-width:350px;width:100%;min-height:5vh;height:auto;border-radius:12px;box-shadow:1px 1px 12px 1px black;display:flex;flex-direction:row;padding:1rem;gap:1.5rem;z-index:200;background-color:white;";
+        popup.style.inset="20% 0% auto 0%";
         this.removePopup({parent,target:popup});
         parent.appendChild(popup);
         Misc.matchMedia({parent:popup,maxWidth:900,cssStyle:{top:"20%",left:"25%",right:"25%"}});
@@ -456,7 +457,8 @@ class AddImageUrl {
     insertImage({parent,item,idValues,user}:{parent:HTMLElement,item:imgEleType,idValues:idValueType[],user:userType|null}){
         const popup=document.createElement("div");
         popup.className="insert-popup";
-        popup.style.cssText="position:absolute;max-width:800px;width:100%;min-height:5vh;height:auto;border-radius:12px;box-shadow:1px 1px 12px 1px black;display:flex;flex-direction:column;padding:1rem;gap:1.5rem;background-color:black;color:white;left:20%;right:20%";
+        popup.style.cssText="position:absolute;max-width:800px;width:100%;min-height:5vh;height:auto;border-radius:12px;box-shadow:1px 1px 12px 1px black;display:flex;flex-direction:column;padding:1rem;gap:1.5rem;background-color:black;color:white;";
+        popup.style.inset="0%";
         const title=document.createElement("h6");
         title.textContent="insert Image";
         title.className="text-center text-primary my-2";
@@ -513,7 +515,7 @@ class AddImageUrl {
 
     }){
         //SELECTING IMAGE TO BE INSERTED
-        const {selRowCol,target,imgKey,level,hasFreeImg,hasGenericImgKey}=item;
+        const {selRowCol,target,imgKey,level,}=item;
         const {key:selectedKey,name:selectedName,url:selectedUrl}=insert;
         
         if(selectedKey){
@@ -521,67 +523,66 @@ class AddImageUrl {
             const idValue:idValueType={eleId,id:"imgKey",attValue:selectedKey};
             this._modSelector.dataset.upDateIdValue({target,idValues,idValue});
             target.setAttribute("data-img-key",selectedKey);
-        }else if(!selectedKey){
-            this._modSelector.dataset.removeSubValue({target:target,id:"imgKey",idValues,eleId:target.id});
-       
-        };
-        const {selectorId,rowId}=selRowCol || {selectorId:null,rowId:null,colId:null}
-        const selRow={selectorId,rowId} as selRowType;
-        
-        if(selectedKey && imgKey && !hasFreeImg && !hasGenericImgKey){
-            //deleting none free/or none generic imgkey in db/aws
-            const check=this._service.checkFreeImgKey({imgKey});
-            if(!check){
-                const markDel:deletedImgType={imgKey:imgKey,del:true,date:new Date()};
-                this._service.markDelKey(markDel);
+            const {selectorId,rowId}=selRowCol || {selectorId:null,rowId:null,colId:null}
+            const selRow={selectorId,rowId} as selRowType;
+            const check=["element","special","headerflag"].includes(level);
+            if(imgKey ){
+                //deleting none free/or none generic imgkey in db/aws
+                const check=this._service.checkFreeImgKey({imgKey});
+                if(!check){
+                    const markDel:deletedImgType={imgKey:imgKey,del:true,date:new Date()};
+                    this._service.markDelKey(markDel);
+                };
             };
-        };
-        if(selectedKey && selectedUrl){
-            //FREE PICS
-            if(level==="col" || level==="row"){
-                target.style.backgroundImage=`url(${selectedUrl})`;
-                if(level==="col" && selRowCol){
-                    this._modSelector.updateColumn({target:target,idValues,selRowCol});
-                }else if(level==="row" && selRowCol){
-                    this._modSelector.updateRow({target:target,idValues,selRow})
-                }
-            }else if(level==="element"){
-                (target as HTMLImageElement).src=selectedUrl;
-                (target as HTMLImageElement).alt=selectedName;
-            }else if(level==="special"){
-                const childs=([...target.children as any] as HTMLElement[]);
-                [...childs as HTMLElement[]].map(child=>{
-                    if(child && child.nodeName==="IMG"){
-                        const img=child as HTMLImageElement;
-                        const getWidth=getComputedStyle(img).getPropertyValue("width");
-                        const width=Number(getWidth.split("px")[0]);
-                        img.src=imageLoader({src:selectedUrl,width,quality:95});
+            if( selectedUrl){
+                //FREE PICS
+                if((level==="col" || level==="row") && selRowCol && selRow){
+                    target.style.backgroundImage=`url(${selectedUrl})`;
+                    if(level==="col" ){
+                        this._modSelector.updateColumn({target:target,idValues,selRowCol});
+                    }else if(level==="row" ){
+                        this._modSelector.updateRow({target:target,idValues,selRow})
                     }
-                });
-            }else if(level==="headerflag"){
-                const childs=([...target.children as any] as HTMLElement[]);
-                [...childs as HTMLElement[]].map(child=>{
-                    if(child ){
-                        ([...child.children as any] as HTMLElement[]).map(ch=>{
-                            if(ch && ch.nodeName==="IMG"){
-
-                                const img=ch as HTMLImageElement;
+                }else if(check){
+                    if(level==="element"){
+                        (target as HTMLImageElement).src=selectedUrl;
+                        (target as HTMLImageElement).alt=selectedName;
+                    }else if(level==="special"){
+                        const childs=([...target.children as any] as HTMLElement[]);
+                        [...childs as HTMLElement[]].map(child=>{
+                            if(child && child.nodeName==="IMG"){
+                                const img=child as HTMLImageElement;
                                 const getWidth=getComputedStyle(img).getPropertyValue("width");
                                 const width=Number(getWidth.split("px")[0]);
                                 img.src=imageLoader({src:selectedUrl,width,quality:95});
                             }
                         });
+                    }else if(level==="headerflag"){
+                        const childs=([...target.children as any] as HTMLElement[]);
+                        [...childs as HTMLElement[]].map(child=>{
+                            if(child ){
+                                ([...child.children as any] as HTMLElement[]).map(ch=>{
+                                    if(ch && ch.nodeName==="IMG"){
+    
+                                        const img=ch as HTMLImageElement;
+                                        const getWidth=getComputedStyle(img).getPropertyValue("width");
+                                        const width=Number(getWidth.split("px")[0]);
+                                        img.src=imageLoader({src:selectedUrl,width,quality:95});
+                                    }
+                                });
+                            }
+                        });
                     }
-                });
-            }
-            if(level==="element" || level==="special" || level==="headerflag"){
-                if(selRowCol){
-                    this._modSelector.updateElement({target:target,idValues,selRowCol});
-                }else{
-                    this._modSelector.updateElement({target:target,idValues,selRowCol:null});
-                }
-            }
+                   
+                    this._modSelector.updateElement({target,idValues,selRowCol});
+                };
+            };
+
+        }else if(!selectedKey){
+            this._modSelector.dataset.removeSubValue({target:target,id:"imgKey",idValues,eleId:target.id});
+       
         };
+        
 
     };
 
@@ -659,6 +660,8 @@ class AddImageUrl {
         const null_:RegExp=/(null)/;
         let hasGenericImgKey:boolean=false;
         const genericImgKey:RegExp=/(no_userid)/;
+        const regFreeImgKey:RegExp=/(freeImg)/;
+        const hasFreeImgKey=imgKey ? regFreeImgKey.test(imgKey):false;
         hasGenericImgKey=imgKey ? genericImgKey.test(imgKey) || null_.test(imgKey):false;
         
         if(level==="col" || level==="row"){
@@ -668,7 +671,7 @@ class AddImageUrl {
             hasBlob=imgUrl ?  blob.test(imgUrl as string):false;
             switch(true){
                 
-                case !hasBlob && hasFreeImg && !hasGenericImgKey && imgKey !==null:
+                case !hasBlob && hasFreeImg && hasFreeImgKey && imgKey !==null:
                     //free image
                     imgUrl=this._service.getFreeBgImageUrl({imgKey}) as string;// same as `${this.freepicurl}/${imgKey}`;
                 break;
@@ -725,6 +728,8 @@ class AddImageUrl {
         const genericImgKey:RegExp=/(no_userid)/;
         hasGenericImgKey=imgKey ? genericImgKey.test(imgKey):false;
         const regFreeTest:RegExp=/(newablogroom-free-bucket)/;
+        const regFreeImgKey:RegExp=/(freeImg)/;
+        const hasFreeImgKey=imgKey ? regFreeImgKey.test(imgKey):false;
         let imgExtract:imgExtractType={} as imgExtractType;
         if(img){
             let imgUrl:string=img.src;
@@ -735,7 +740,7 @@ class AddImageUrl {
                 case hasBlob:
                     imgUrl=noimage;
                 break;
-                case hasFreeImg && !hasGenericImgKey && !hasBlob && imgKey !==null:
+                case hasFreeImg && hasFreeImgKey && !hasBlob && imgKey !==null:
                     imgUrl=this._service.getFreeBgImageUrl({imgKey});
                 break;
                 default:

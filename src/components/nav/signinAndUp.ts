@@ -42,19 +42,19 @@ class SignInAndUp{
         const isSignedIn=this._isSignedIn;
         const less900= window.innerWidth <900;
         const less400= window.innerWidth <400;
+        parent.style.position="relative";
         const css_col="display:flex;justify-content:center;align-items:center;flex-direction:column;height:45px;";
         const css_row="display:flex;justify-content:center;align-items:center;flex-wrap:nowrap;height:40px;gap:1rem;";
         const btnShape="margin:auto;position:relative;height:100%;aspect-ratio:1 / 1;background-color:black;filter:drop-shadow(0 0 1rem white);border-radius:50%;";
         const container=document.createElement("div");
         container.id="signInAndUp-main-container";
-        container.style.cssText=css_row + "margin:auto;justify-content:space-between";
+        container.style.cssText="margin:auto;height:inherit;";
         container.style.gap=less400 ? "0":"1rem";
         if(pathname !=="/register"){
             if(isSignedIn){
                 await this.signInDisplay({parent,user:this.user})
     
             }else{
-    
                 this.dropDownIcon({parent:container,css_col,css_row,less900,less400,btnShape});
                 
             };
@@ -75,8 +75,9 @@ class SignInAndUp{
         let isOn=false;
         const div=document.createElement("div");
         div.id="dropDownIcon-barIcon-cont";
-        div.style.cssText="display:flex;justify-content:center;align-items:center;border-radius:10px;height:inherit;aspect-ratio:1.35 / 1;cursor:pointer;border-radius:26px;padding:10px;";
+        div.style.cssText="display:flex;justify-content:center;align-items:center;border-radius:10px;height:40px;width:auto;cursor:pointer;border-radius:26px;padding:10px;";
         const img=document.createElement("img");
+        img.id="bar-img";
         img.style.cssText="height:inherit;aspect-ratio:inherit;width:auto;border-radius:inherit;filter:drop-shadow(0 0 0.5rem white);border:none;";
         img.style.transform=less900 ? (less400 ? "scale(0.3)":"scale(0.4)"):"scale(0.5)";
         img.src=this.barIcon;
@@ -111,23 +112,27 @@ class SignInAndUp{
         const popup=document.createElement("div");
         popup.id="dropDown-popup";
         popup.className="popup";
-        popup.style.cssText=css_row +"position:absolute;inset:0% 30% auto -80%;height:inherit;border-radius:inherit;height:inherit;z-index:2000;";
+        popup.style.cssText=css_row +"position:absolute;inset:0%;width:fit-content;height:inherit;border-radius:inherit;height:inherit;z-index:2000;background-color:white;border-radius:8px;";
         popup.style.transform="translateX(-100px)";
-        const signUpInCont=document.createElement("div");
-        signUpInCont.style.cssText=css_row +"width:100%;height:100%;";
-        popup.appendChild(signUpInCont);
+        popup.style.gap="0.5rem";
+        popup.style.paddingInline="0.5rem";
+        popup.style.paddingBlock="0.25rem";
         const time=1000;
         if(isOn){
             popup.style.opacity="1";
             popup.animate([
-                {transform:"translateX(0%)",opacity:"0"},
-                {transform:"translateX(-100px)",opacity:"1"},
+                {transform:"translateX(0px) scale(0)",opacity:"0",backgroundColor:"transparent"},
+                {transform:"translateX(-25px) scale(0.5)",opacity:"1",backgroundColor:"whitesmoke"},
+                {transform:"translateX(-50px) scale(1)",opacity:"0.5",backgroundColor:"white"},
+                {transform:"translateX(-100px) scale(1)",opacity:"1",backgroundColor:"white"},
             ],{duration:time,iterations:1,"easing":"ease-in-out"});
         }else{
             popup.style.opacity="0";
             popup.animate([
-                {transform:"translateX(-100px)",opacity:"1"},
-                {transform:"translateX(0%)",opacity:"0"},
+                {transform:"translateX(-100px) scale(1)",opacity:"1",backgroundColor:"white"},
+                {transform:"translateX(-50px) scale(1)",opacity:"1",backgroundColor:"white"},
+                {transform:"translateX(-25px) scale(0.5)",opacity:"0.5",backgroundColor:"whitesmoke"},
+                {transform:"translateX(0px) scale(0)",opacity:"0",backgroundColor:"transparent"},
             ],{duration:time,iterations:1,"easing":"ease-in-out"});
             await this.sleep({time,func:()=>{parent.removeChild(popup)}});
         }
@@ -151,7 +156,7 @@ class SignInAndUp{
     }){
         const container=document.createElement("div");
         container.id="signIn-container";
-        container.style.cssText=css_col + btnShape;
+        container.style.cssText= btnShape;
         container.style.transform=less400 ? "scale(0.8)":"scale(1)";
         const img=document.createElement("img");
         img.id="signin-img";
@@ -170,7 +175,7 @@ class SignInAndUp{
     signUpBtn({parent,css_col,less900,less400,btnShape}:{parent:HTMLElement,css_col:string,less900:boolean,less400:boolean,btnShape:string}){
         const container=document.createElement("div");
         container.id="signUp-container";
-        container.style.cssText=css_col + btnShape;
+        container.style.cssText=btnShape;
         container.style.transform=less400 ? "scale(0.8)":"scale(1)";
         const img=document.createElement("img");
         img.id="signup-img";

@@ -585,7 +585,7 @@ class Header{
             case element.name==="img":
                 if( element.imgKey){
                     const check=this._service.checkFreeImgKey({imgKey:element.imgKey as string});
-                    console.log("check",check)
+                   
                         if(check){
                             const url=this._service.getFreeBgImageUrl({imgKey:element.imgKey as string});
                             (target as HTMLImageElement).src=url;
@@ -1758,6 +1758,7 @@ class Header{
                 if(e){
                     const idValue:idValueType={eleId,id:"update",attValue:"true"};
                     this._modSelector.dataset.upDateIdValue({target,idValues,idValue});
+                    this.updateElement({target,idValues,selRowCol});
                 }
             };
             
@@ -2011,7 +2012,7 @@ class Header{
      };
 
      updateElement({target,idValues,selRowCol}:{target:HTMLElement,idValues:idValueType[],selRowCol:selRowColType}):Promise<{element:element_selType|undefined,selRowCol:selRowColType,idValues:idValueType[]}>{
-    
+        const eleId=target.id;
         let element:element_selType={} as element_selType;
         const getImgKey=this._modSelector.dataset.getIdValue({target,idValues,id:"imgKey"});
         const imgKey=getImgKey?.attValue ||undefined;
@@ -2032,7 +2033,22 @@ class Header{
                                                 ele.imgKey=imgKey
                                                 ele.class=target.className.split(" ").filter(cl=>(cl !== "isActive")).join(" ");
                                                 ele.inner_html=target.innerHTML;
-                                                this._modSelector.datasetSincUpdate({target,ele:ele,idValues,level:"element",loc:"flexbox"});
+                                          
+                                                idValues= this._modSelector.datasetSincUpdate({target,ele:ele,idValues,level:"element",loc:"flexbox"});
+                                                const getEleIds=idValues.filter(kat=>(kat.eleId===eleId));
+                                                const testAttr=attrEnumArrTest(ele);
+                                                const testType=typeEnumArrTest(ele);
+                                                getEleIds.map(kat=>{
+                                                    if(kat.attValue){
+                                                        if(testAttr && kat.id===testAttr.id ){
+                                                            ele.attr=kat.attValue
+                                                        }else if(testType && kat.id===testType.id ){
+                                                            ele.type=kat.attValue
+                                                        }else if(kat.id==="imgKey"){
+                                                            ele.imgKey=kat.attValue
+                                                        }
+                                                    }
+                                                });
                                                 element=ele;
                                             }
                                             return ele;
@@ -2323,7 +2339,22 @@ class Header{
                                     _col_.imgKey=imgKey;
                                     //LOADING ELEMENT 
                                     //REPOPULATING TARGET
-                                    this._modSelector.datasetSincUpdate({target,ele:_col_,idValues,level:"col",loc:"flexbox"});
+                                    idValues=this._modSelector.datasetSincUpdate({target,ele:_col_,idValues,level:"col",loc:"flexbox"});
+                                   
+                                    const getEleIds=idValues.filter(kat=>(kat.eleId===eleId));
+                                    const testAttr=attrEnumArrTest(_col_);
+                                    const testType=typeEnumArrTest(_col_);
+                                    getEleIds.map(kat=>{
+                                        if(kat.attValue){
+                                            if(testAttr && kat.id===testAttr.id ){
+                                                _col_.attr=kat.attValue
+                                            }else if(testType && kat.id===testType.id ){
+                                                _col_.type=kat.attValue
+                                            }else if(kat.id==="imgKey"){
+                                                _col_.imgKey=kat.attValue
+                                            }
+                                        }
+                                    });
                                 }
                                 colEle=_col_;
                                 return _col_;
@@ -2349,197 +2380,93 @@ class Header{
 
     flexColAdjustments({target,class_,idValues,selRowCol}:{target:HTMLElement,class_:string,idValues:idValueType[],selRowCol:selRowColType}){
         //THIS CHANGES FLEX PARTITION (ie;flex:1 1 25%,,,50%,,,75%)
-        const eleId=target.id;
         const row=target.parentElement as HTMLElement;
-        const columns=([...row.children as any] as HTMLElement[]);
-        const colLen=columns.length;
+        if(!row) return;
+        const eleId=target.id;
+        const cols=([...row.children as any] as HTMLElement[]) as HTMLElement[];
+        const colLen=cols.length;
         const rowManipClasses=["flex-double","flex-quarter","flex-default","flex-static"]
         const checkRowManipulation=rowManipClasses.includes(class_);
         const colClasses=([...target.classList as any] as string[]);
         colClasses.map(cl=>{
             if(cl){
-                const findFlex=cl.includes("flex") ? cl:null;
+                const findFlex=cl.includes("flex") || null;
                 if(findFlex){
                     target.classList.remove(cl);
+                    //initializing
                 };
                
             }
         });
         
-        if(checkRowManipulation){
-            columns.map(col=>{
+        if(checkRowManipulation && colLen>1){
+            //INITIALIZING
+            [...cols].map((col,index)=>{
                 if(col){
-                    const flex=`1 0 ${100/colLen}%`;
-                    col.style.flex=flex;
+                    for(const key of Object.keys(target.style)){
+                        const check=["justifyContent","alignItems","display","flex"].includes(key);
+                        if(check){
+                            target.style[key]="";
+                        }
+                    }
                     const colClasses=([...col.classList as any] as string[]);
-                   
-                        const findClass=colClasses.find(cl=>(cl.includes("col-")));
-                        if(findClass){
-                            col.classList.remove(findClass);
-                        };
-                   
+                    const rowManip=colClasses.find(cl=>(rowManipClasses.includes(cl)))
                     const findFlex=colClasses.find(cl=>(cl.includes("flex")));
-                    rowManipClasses.map(cl=>{
-                        col.classList.remove(cl);
-                    });
-                    
-                        if(findFlex){
-                        col.classList.remove(findFlex);
+                    const findClass=colClasses.find(cl=>(cl.includes("col-")));
+                    if(findFlex || findClass || rowManip){
+                       if(findFlex) col.classList.remove(findFlex);
+                       if(findClass) col.classList.remove(findClass);
+                       if(rowManip) col.classList.remove(rowManip);
                     };
-                    if(class_){
-                        col.classList.add(class_);
-                    };
-                    console.log("col classes",colClasses)
-                    const selRowCol_={...selRowCol,colId:col.id};
-                    this.updateColumn({target:col,idValues,selRowCol:selRowCol_});
                 }
             });
+            //INITIALIZING
+           [...cols].map((col,index)=>{
+            if(col){
+                
+                if(class_==="flex-double"){
+                    if(col.id===target.id){
+                        col.classList.add(class_);
+                        col.classList.add("col-md-8");
+                        col.style.flex="1 0 75%";
+                    }else{
+                        col.style.flex="1 0 25%";
+                        col.classList.add("col-md-4");
+                        col.classList.add("flex-quarter");
+                    }
+                }else if(class_==="flex-quarter"){
+                    if(col.id===target.id){
+                        col.classList.add(class_);
+                        col.classList.add("col-md-4");
+                        col.style.flex="1 0 25%";
+                    }else{
+                        col.classList.add("flex-double");
+                        col.classList.add("col-md-8");
+                        col.style.flex="1 0 75%";
+                    }
+                }else if(class_==="flex-static"){
+                    col.classList.add(class_);
+                    const flex=`1 0 ${100/colLen}%`;
+                    col.classList.add(`col-md-${12/colLen}`);
+                    col.style.flex=flex;
+                }else{
+                    col.classList.add(class_);
+                    col.classList.add(`col-md-${12/colLen}`);
+                };
+              
+                const selRowCol_={...selRowCol,colId:col.id};
+                this.updateColumn({target:col,idValues,selRowCol:selRowCol_});
+            };
+           });
+         
 
-        }
+        };
         
-       
-        //initializing
-        for(const key of Object.keys(target.style)){
-            const check=["justifyContent","alignItems","display"].includes(key);
-            if(check){
-                target.style[key]="";
-            }
-        }
+        
         //initializing
         const idValue:idValueType={eleId,id:"cssStyle",attValue:class_};
         this._modSelector.dataset.upDateIdValue({target,idValues,idValue});
-        const checkAttr =CustomHeader.columnPartition.find(colAttr=>(colAttr.attr===class_));
-       
-        if(checkAttr && colLen){
-            if(checkRowManipulation){
-                //row manipulation
-                const double=(12/colLen)*0.75;
-                const single=(12/colLen)*0.25;
-                const double1=(12/colLen)*0.75;
-                const single1=(12/colLen)*0.25;
-                switch(true){
-                    case class_==="flex-double":
-                        columns.map(col=>{
-                            if(col){
-                                const findClass=([...col.classList as any] as string[]).find(cl=>(cl.includes("col-")));
-                                if(findClass){
-                                    col.classList.remove(findClass)
-                                    if(col.id===target.id){
-                                        col.classList.add(class_);
-                                    }
-                                    if(col.id !==target.id){
-                                        col.classList.add(`col-md-${single}`);
-                                        col.style.flex=`1 0 ${25}%`;
-                                    }else{
-                                        col.classList.add(`col-lg-${double}`);
-                                        col.style.flex=`1 0 ${50}%`;
-                                    }
-                                }
-                                const selRowCol_={...selRowCol,colId:col.id};
-                                this.updateColumn({target:col,idValues,selRowCol:selRowCol_})
-                            }
-                        });
-
-                    return;
-                    case class_==="flex-quarter":
-                            
-                            columns.map(col=>{
-                                if(col){
-                                    col.classList.add(class_);
-                                    const findClass=([...col.classList as any] as string[]).find(cl=>(cl.includes("col-")));
-                                    if(findClass){
-                                        col.classList.remove(findClass);
-                                        col.classList.add(class_);
-                                    };
-                                    if(col.id===target.id){
-                                        col.classList.add(class_);
-                                    };
-                                    if(col.id ===target.id){
-                                        //1/4*12
-                                        col.classList.add(`col-lg-${single1}`);
-                                        col.style.width=`${25}%`;
-                                        col.style.flex=`1 0 ${25}%`;
-                                    }else{
-                                        col.classList.add(`col-lg-${double1}`);
-                                        col.style.flex=`1 0 ${50}%`;
-                                        col.style.width=`${50}%`;
-                                    }
-                                   col.classList.add(class_)
-                                    this.updateColumn({target:col,idValues,selRowCol})
-                                }
-                            });
-                        return;
-                    case class_==="flex-static":
-                        columns.map(col=>{
-                            if(col){
-                                const findClass=([...col.classList as any] as string[]).find(cl=>(cl.includes("col-")));
-                                if(findClass) col.classList.remove(findClass);
-                                col.classList.add(`col-md-${12/colLen}`);
-                                col.style.width=`${100/colLen}%`;
-                                col.classList.add(class_);
-                                this.updateColumn({target:col,idValues,selRowCol});
-                            }
-                        });
-                        
-                    return;
-                    case class_==="flex-default":
-                        columns.map((col)=>{
-                            if(col){
-                                col.classList.add(`col-lg-${12/colLen}`)
-                                col.style.flex=`1 0 ${100/colLen}%`;
-                                col.style.width=`${100/colLen}%`;
-                                col.classList.add(class_);
-                                this.updateColumn({target:col,idValues,selRowCol})
-                            }
-                        });
-                    return;
-                    default:
-                        return;
-
-                }
-            }else{
-                //individula
-                    target.style.display="flex";
-                    switch(true){
-                        case class_==="flex-normal":
-                            target.style.flexDirection="row";
-                            target.style.justifyContent="flex-start";
-                            target.style.alignItems="flex-start";
-                            target.style.flexWrap="wrap";
-                            target.classList.add(class_);
-                        return this.updateColumn({target,idValues,selRowCol});
-                        case class_==="flexRow":
-                            target.style.display="inline-flex";
-                            target.style.flexDirection="";
-                            target.style.justifyContent="flex-start";
-                            target.style.alignItems="flex-start";
-                            target.style.flexWrap="wrap";
-                            target.classList.add(class_);
-                        return this.updateColumn({target,idValues,selRowCol});
-                        case class_==="flexCol":
-                            target.style.display="flex";
-                            target.style.flexDirection="column";
-                            target.style.justifyContent="flex-start";
-                            target.style.alignItems="flex-start";
-                            target.style.flexWrap="";
-                            target.classList.add(class_);
-                        return this.updateColumn({target,idValues,selRowCol});
-                        case class_==="flexCol-normal":
-                            target.style.display="flex";
-                            target.style.flexDirection="";
-                            target.style.justifyContent="flex-start";
-                            target.style.alignItems="flex-start";
-                            target.style.flexWrap="";
-                            target.classList.add(class_);
-                        return this.updateColumn({target,idValues,selRowCol});
-                            default:
-                                return;
-                    }
-             
-            }
-        }else{
-            Misc.message({parent:target,msg:"nothing in the box,,sorry",type_:"error",time:800});
-        }
+        
     };
     
     

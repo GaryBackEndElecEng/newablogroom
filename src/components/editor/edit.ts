@@ -65,10 +65,17 @@ class EditSetups{
         desc.style.cssText="text-wrap:pretty;padding-inline:1rem;margin-bottom:2rem;line-height:1.25rem;";
         imgText.appendChild(desc);
         cont.appendChild(imgText);
-        this._modSelector.editElement({target:desc,idValues});
+        desc.oninput=(e:Event)=>{
+            if(!e) return;
+            const value=(e.currentTarget as HTMLParagraphElement).textContent;
+            if(value){
+                this._modSelector.blog={...this._modSelector.blog,desc:value};
+                this._modSelector.localStore({blog:this._modSelector.blog});
+            }
+        };
         parent.appendChild(cont);
         return {image:img,desc,cont,title,idValues};
-    }
+    };
    
     saveNoBlogSetup(parent:HTMLElement): {retParent:HTMLElement,retBtn:HTMLButtonElement,container:HTMLElement}{
         const container = document.createElement("section");
@@ -417,6 +424,7 @@ class Edit {
         row.className="row";
         await this._service.userBlogs(user_id).then(async(blogs)=>{
             if(blogs && blogs.length>0){
+                blogs=blogs.toSorted((a,b)=>{if(a.id-b.id) return -1;return 1});
                 this._modSelector.blogs=blogs;
                 container.appendChild(row);
                 
@@ -770,7 +778,7 @@ class Edit {
                     
                     if(item?.divCont){
                         parent.appendChild(item.divCont);
-                        // arrDivPlaces.splice(index,1);
+                       
 
                     }
                     

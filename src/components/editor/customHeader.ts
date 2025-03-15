@@ -2411,7 +2411,21 @@ set selector(selector:selectorType){
                                                 ele.class=cleaned.join(" ");
                                                 ele.imgKey=imgKey;
                                                 ele.inner_html=target.innerHTML;
-                                                this._modSelector.datasetSincUpdate({target,ele:ele,idValues,level:"element",loc:"flexbox"});
+                                               idValues=this._modSelector.datasetSincUpdate({target,ele:ele,idValues,level:"element",loc:"flexbox"});
+                                                const getEleIds=idValues.filter(kat=>(kat.eleId===eleId));
+                                                const testAttr=attrEnumArrTest(ele);
+                                                const testType=typeEnumArrTest(ele);
+                                                getEleIds.map(kat=>{
+                                                    if(kat.attValue){
+                                                        if(testAttr && kat.id===testAttr.id ){
+                                                            ele.attr=kat.attValue
+                                                        }else if(testType && kat.id===testType.id ){
+                                                            ele.type=kat.attValue
+                                                        }else if(kat.id==="imgKey"){
+                                                            ele.imgKey=kat.attValue
+                                                        }
+                                                    }
+                                                });
                                             }
                                             return ele;
                                         });

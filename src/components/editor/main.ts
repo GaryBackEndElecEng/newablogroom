@@ -135,7 +135,7 @@ class Main {
         { id: "16", attr: true, name: "line-height", display: "line-height", class_: "line-height", faIcon: TbLineHeight, isIcon: true, isElement: false },
         
         { id: "10", attr: false, name: "ul", display: "List", class_: "fa-solid fa-table-list", faIcon: FaTable, isIcon: true, isElement: true },
-        { id: "13", attr: false, name: "img", display: "image", class_: "far fa-file-image", faIcon: FaFileImage, isIcon: true, isElement: true },
+        { id: "13", attr: false, name: "img", display: "add-image", class_: "far fa-file-image", faIcon: FaFileImage, isIcon: true, isElement: true },
         { id: "12", attr: false, name: "p", display: "paragraph", class_: "fa fa-paragraph", faIcon: FaParagraph, isIcon: true, isElement: true },
         { id: "17", attr: false, name: "h1", display: "Title", class_: "H1", isIcon: false, isElement: true },
         { id: "18", attr: false, name: "h2", display: "h2-title", class_: "H2", isIcon: false, isElement: true },
@@ -236,7 +236,8 @@ class Main {
                 if (checkUser) {
                     if (!(filename)) { Misc.message({ parent, msg: "No filename", type_: "error", time: 1400 }); return container.remove(); }
                     const name = filename.split(" ").join("");
-                    this._modSelector.blog = { ...initBlog, name:name, title: title, desc: desc, user_id: user.id, eleId: parent.id };
+                    const _title=Misc.capitalize({str:title})
+                    this._modSelector.blog = { ...initBlog, name:name, title: _title, desc: desc, user_id: user.id, eleId: parent.id };
                     const blog = this._modSelector.blog;
                     this._service.newBlog(blog).then(async (blog_) => {
                         if (blog_ && blog_.user_id) {
@@ -346,13 +347,13 @@ class Main {
             const bottomMain = document.createElement("section");
             bottomMain.id = "bottomMain";
             bottomMain.style.cssText = "margin-inline:auto;width:100%;min-height:5vh;display:flex;flex-direction:column;align-items:center;"
-            this.mainBtn(Main.topMain,idValues);
             //HEADER INJECTION
             // this._header.editorHeader({parent:mainCont});
             // this.customHeader.editorHeader({parent:mainCont});
             //HEADER INJECTION
             const {mainHeader}= await this.header(mainCont);
-           const {textarea}= await this.textArea(mainCont);
+            const {textarea}= await this.textArea(mainCont);
+            this.mainBtn({parent:Main.topMain,textarea,idValues});
             Main.topMain.appendChild(mainCont);
             mainCont.style.width = "100% !important";
             mainCont.classList.add("w-100");
@@ -386,7 +387,7 @@ class Main {
 
     ////- MAIN INJECTOR ABOVE ----///////////////////////////
     //INITIALIZED
-    mainBtn(parent: HTMLElement | null,idValues:idValueType[]): void {
+    mainBtn({parent,textarea,idValues}:{parent: HTMLElement | null,textarea:HTMLElement,idValues:idValueType[]}): void {
         if (!parent) return;
         Main.cleanUp(parent)
         Main.textarea = document.querySelector("div#textarea");
@@ -469,7 +470,7 @@ class Main {
                 case isElement:
                     btn.addEventListener("click", (e: MouseEvent) => {
                         if (e) {
-                            this.addElement(btn, icon,idValues);
+                            this.addElement({textarea,btn, icon,idValues});
                            
                         }
                     });
@@ -809,22 +810,21 @@ class Main {
 
 
     //ADD ELEMENT FROM TOOLBAR ANND ADD FONT-KEEP HERE
-    addElement(btn: HTMLButtonElement, icon: iconType,idValues:idValueType[]): void {
+    addElement({textarea,btn,icon,idValues}:{textarea:HTMLElement,btn: HTMLButtonElement, icon: iconType,idValues:idValueType[]}): void {
 
-        Main.textarea = document.querySelector("div#textarea");
-        if (Main.textarea) {
+        if (textarea) {
             if (icon.name !== "line-height") {
 
                 btn.classList.add(icon.display)
                 this._htmlElement.fromMain({
-                    parent:Main.textarea as HTMLElement,
+                    parent:textarea,
                      btn,
                      icon,
                     idValues
                 });
 
             }else{
-                this.lineHeight(Main.textarea,btn,idValues)
+                this.lineHeight(textarea,btn,idValues)
             };
 
         };
@@ -930,9 +930,9 @@ class Main {
        
         popup.id="remove-popup";
         popup.className="remove-popup";
-        popup.style.cssText="position:absolute;top:0%;right:0%;transform:translate(0px,0px);z-index:200;width:16px;aspect-ratio:1/1;border-radius:50%;background-color:black;color:white;";
+        popup.style.cssText="position:absolute;top:0%;right:0%;transform:translate(0px,0px);z-index:200;aspect-ratio:1/1;border-radius:50%;background-color:black;color:white;cursor:pointer;display:flex;justify-content:center;align-items:center;padding:3px;";
         const span=document.createElement("span");
-        span.style.cssText="color:white;";
+        span.style.cssText="color:white;width:auto;";
         span.textContent="X";
         popup.appendChild(span);
         target.appendChild(popup);
@@ -1144,7 +1144,7 @@ class Main {
         const input = document.createElement("input") as HTMLInputElement;
         input.type = "color";
         palContainer.appendChild(input);
-       
+        this.removePopup({parent,target:palContainer});
         parent.appendChild(palContainer);
         parent.classList.add("position-relative");
         input.addEventListener("change", async(e: Event) => {

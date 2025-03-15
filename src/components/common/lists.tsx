@@ -34,7 +34,7 @@ export const imgKeyTest2 = ({ imgKey, img }: { imgKey: string, img: string }) =>
 export const attrEnumArrTest = (ele: elementType | element_selType | rowType | colType) => {
     if (!(ele.attr)) return;
     const hasImgKey = imgKeyTest(ele);
-    const regDesc: RegExp = /[a-zA-Z0-9.,"']+/;
+    const regDesc: RegExp = /\w+/;
     const reTime: RegExp = /^(?:(?:31(\/|-|\.)(?:0?[13578]|1[02]))\1|(?:(?:29|30)(\/|-|\.)(?:0?[13-9]|1[0-2])\2))(?:(?:1[6-9]|[2-9]\d)?\d{2})$|^(?:29(\/|-|\.)0?2\3(?:(?:(?:1[6-9]|[2-9]\d)?(?:0[48]|[2468][048]|[13579][26])|(?:(?:16|[2468][048]|[3579][26])00))))$|^(?:0?[1-9]|1\d|2[0-8])(\/|-|\.)(?:(?:0?[1-9])|(?:1[0-2]))\4(?:(?:1[6-9]|[2-9]\d)?\d{2})$/
     return [
         { id: "shapeOutsideCircle", test: ele?.attr.includes("shapeOutsideCircle"), value: ele.attr as string },
@@ -147,7 +147,7 @@ export const cssClassArr: cssClassType[] = [
     { headerType: undefined, level: "element", eleType: "div", id: "clean", loc: "htmlElement", type: "reference", className: "eleContainer mx-auto w-100 ", key: undefined, css: "margin:0px;padding:1rem;" },
     { headerType: undefined, level: "element", eleType: "div", id: "isArch", loc: "htmlElement", type: "design", className: "eleContainer arch mx-auto w-100", key: undefined, css: " padding:1rem;width:100%;" },
     { headerType: undefined, level: "element", eleType: "div", id: "isVen", loc: "htmlElement", type: "ven", className: "eleContainer arch mx-auto w-100", key: undefined, css: " padding:1rem;width:100%;" },
-    { headerType: undefined, level: "element", eleType: "div", id: "divContId", loc: "htmlElement", type: "htmlElement", className: "eleContainer arch mx-auto", key: undefined, css: "margin-block:auto;padding:0.25rem;position:relative;width:100%;border-radius:8px;border:none;" },
+    { headerType: undefined, level: "element", eleType: "div", id: "divContId", loc: "htmlElement", type: "htmlElement", className: "eleContainer arch mx-auto", key: undefined, css: "margin-block:auto;padding:0.25rem;position:relative;width:100%;border-radius:8px;border:none;display:flex;flex-direction:column;align-items:center;" },
     { headerType: undefined, level: "element", eleType: "p", id: "para", loc: "htmlElement", type: "htmlElement", className: "para  mx-auto w-100", key: undefined, css: "margin-block:2rem;padding:0.25rem;position:relative;width:100%;display:flex;flex-direction:column;align-items:center;border-radius:8px;border:none;" },
     { headerType: undefined, level: "element", eleType: "div", id: "divContId", loc: "flexbox", type: "flexbox", className: "eleContainer arch mx-auto", key: undefined, css: "margin-block:auto;padding:0.25rem;position:relative;display:flex;flex-direction:column;align-items:center;border-radius:8px;border-radius:8px;border:none;" },
     { headerType: undefined, level: "element", eleType: "p", id: "para", loc: "flexbox", type: "flexbox", className: "para mx-auto w-100", key: undefined, css: "margin-block:auto;padding:0.25rem;position:relative;display:flex;flex-direction:column;align-items:center;border-radius:8px;border-radius:8px;border:none;" },

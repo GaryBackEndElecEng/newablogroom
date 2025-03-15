@@ -109,8 +109,8 @@ set user(user:userType){
     slideMenu(item:{navHeader:HTMLElement,show:boolean,time:number,user:userType,isAuthenticated:boolean}){
         const {navHeader,show,time,user,isAuthenticated}=item;
         const less400=window.innerWidth <400;
-        const header_height=window.innerWidth < 420 ? 195 :150;
-        const headerHeight=this.checkUser ? header_height + 67 : header_height;
+        const header_height=window.innerWidth < 400 ? 195 :150;
+        const headerHeight=this.isAuthenticated ? header_height + 70 : header_height;
         Header.cleanUpByID(navHeader,"slide-menu");
         const popup=document.createElement("div");
         popup.id="slide-menu";
@@ -175,7 +175,7 @@ set user(user:userType){
         const width=less400 ? "375px":"400px";
         const container=document.createElement("div");
         container.id="header-logo";
-        container.style.cssText=`width:100%;max-width:${width}height:${headerHeight}px;padding:10px;border-radius:12px;margin-inline:auto;display:flex;place-items:center;background-color:white;color:black;position:absolute;top:0%;left:0%;box-shadow:1px 1px 6px 1px white;`;
+        container.style.cssText=`width:100%;max-width:${width}height:${headerHeight-0}px;padding:10px;border-radius:12px;margin-inline:auto;display:flex;place-items:center;background-color:white;color:black;position:absolute;top:0%;left:0%;box-shadow:1px 1px 6px 1px white;`;
         const para=document.createElement("p");
         para.id="para-header";
         const img=document.createElement("img");
@@ -301,7 +301,7 @@ set user(user:userType){
         ////----------!!IS CLIENT LOGGED IN ? YES=> SHOW ELSE: HIDE -----//////
         const container=document.createElement("div");
         container.id="list-items-container";
-        container.style.cssText=`margin:auto;margin-top:${headerHeight + 16}px;display:flex;flex-direction:column;justify-content:center;align-items:center; gap:1rem;width:100%;padding-inline:2rem;`;
+        container.style.cssText=`margin:auto;margin-top:${headerHeight}px;display:flex;flex-direction:column;justify-content:center;align-items:center; gap:1rem;width:100%;padding-inline:2rem;`;
         parent.appendChild(container);
         this.btnArray.map(navItem=>{
             if(navItem.show){

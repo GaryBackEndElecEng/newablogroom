@@ -889,7 +889,10 @@ class User{
             const msg=getErrorMessage(err);
             console.error(msg);
         }) ;
-    }
+    };
+
+
+
     async userUpdate(parent:HTMLElement,user:userType){
         const option={
             headers:{
@@ -912,7 +915,9 @@ class User{
             const msg=getErrorMessage(err);
             console.error(msg);
         }) ;
-    }
+    };
+
+
     
    async getRefreshedUser():Promise<{user:Promise<userType|undefined>,user_id:Promise<string|undefined>}>{
     return{
@@ -930,7 +935,10 @@ class User{
                 }
             }) as Promise<string|undefined>
         }
-   }
+   };
+
+
+
    async getLocalUserID(){
     return new Promise((resolver,reject)=>{
         if(typeof window !=="undefined"){
@@ -938,7 +946,10 @@ class User{
            
         }
     }) as Promise<string|null>;
-   }
+   };
+
+
+
    async getLocalUser(){
     return new Promise((resolver,rejector)=>{
         if(typeof window !=="undefined"){
@@ -946,7 +957,10 @@ class User{
        
         }
     }) as Promise<string |null>;
-   }
+   };
+
+
+
    //ATTENTION!!:PARENT===navHeader (from Sidebar)
     async saveWork({parent,blog,func}:{parent:HTMLElement,blog:blogType,func:()=>Promise<void>|void|undefined}){
         //ATTENTION!!:PARENT===navHeader (from Sidebar)
@@ -980,8 +994,10 @@ class User{
         return;
         default:
             return;
-     }
+     };
+
     };
+
 
 
     async saveOnlyImage({parent,formdata,selRowCol,img,blog,idValues}:{
@@ -1024,6 +1040,7 @@ class User{
             
         }
     };
+
 
     SaveWorkblogNameDesc({parent,blog,user,func}:{
         parent:HTMLElement,
@@ -1109,7 +1126,8 @@ class User{
              console.error(msg);
             Misc.message({parent,msg:msg,type_:"error",time:1600});
          });
-    }
+    };
+
 
 
 

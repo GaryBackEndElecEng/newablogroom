@@ -2074,7 +2074,21 @@ colAttrs=["col-start","col-end","col-center"];
                                         ele.class=cleaned.join(" ");
                                         ele.inner_html=target.innerHTML;
                                         if(node==="img") ele.inner_html=(target as HTMLImageElement).alt;
-                                        this._modSelector.datasetSincUpdate({target,ele:ele,idValues,level:"element",loc:"flexbox"});
+                                       idValues= this._modSelector.datasetSincUpdate({target,ele:ele,idValues,level:"element",loc:"flexbox"});
+                                        const getEleIds=idValues.filter(kat=>(kat.eleId===eleId));
+                                        const testAttr=attrEnumArrTest(ele);
+                                        const testType=typeEnumArrTest(ele);
+                                        getEleIds.map(kat=>{
+                                            if(kat.attValue){
+                                                if(testAttr && kat.id===testAttr.id ){
+                                                    ele.attr=kat.attValue
+                                                }else if(testType && kat.id===testType.id ){
+                                                    ele.type=kat.attValue
+                                                }else if(kat.id==="imgKey"){
+                                                    ele.imgKey=kat.attValue
+                                                }
+                                            }
+                                        });
                                         retEle=ele;
                                     }
                                     return ele;
@@ -2160,7 +2174,21 @@ colAttrs=["col-start","col-end","col-center"];
                                   col.class=cleaned.join(" ");
                                   col.cssText=target.style.cssText;
                                   col.imgKey=imgKey;
-                                  this._modSelector.datasetSincUpdate({target,ele:col,idValues,level:"col",loc:"flexbox"});
+                                 idValues=this._modSelector.datasetSincUpdate({target,ele:col,idValues,level:"col",loc:"flexbox"});
+                                  const getEleIds=idValues.filter(kat=>(kat.eleId===eleId));
+                                    const testAttr=attrEnumArrTest(col);
+                                    const testType=typeEnumArrTest(col);
+                                    getEleIds.map(kat=>{
+                                        if(kat.attValue){
+                                            if(testAttr && kat.id===testAttr.id ){
+                                                col.attr=kat.attValue
+                                            }else if(testType && kat.id===testType.id ){
+                                                col.type=kat.attValue
+                                            }else if(kat.id==="imgKey"){
+                                                col.imgKey=kat.attValue
+                                            }
+                                        }
+                                    });
                                   col_=col;
                               }
                               return col;

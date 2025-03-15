@@ -1738,6 +1738,7 @@ class Sidebar{
         parent.appendChild(container);
     };
 
+
      //PARENT MAIN()-onTop!!FIX!!!!!!!!!!!!!!!
      async editMeta({parent,mainCont}:{parent:HTMLElement,mainCont:HTMLElement}){
          const btnContainer=document.createElement("div");
@@ -1794,6 +1795,8 @@ class Sidebar{
             }
         });
      };
+
+     
    
      //PARENT MAIN()-onTop
      initiateHeaderTemplate(parent:HTMLElement,idValues:idValueType[],mainHeader:HTMLElement){
