@@ -1,5 +1,5 @@
 import BrowserType from "../common/browserType";
-
+import styles from "./nav.module.css";
 
 class MiddleLogo {
     public readonly logo:string="/images/gb_logo.png";
@@ -22,14 +22,12 @@ class MiddleLogo {
                 const css_row="display:flex;justify-content:center;align-items:center;flex-wrap:nowrap;height:40px;gap:1rem;";
                 const container=document.createElement("div");
                 container.id="middleLogo-main-container";
-                container.style.cssText=css_col + "margin:auto;justify-content:center;height:100%;width:fit-content;align-items:center;";
-                container.style.transform=less400 ? "scale(0.8)":"scale(1.0)";
-                container.style.gap=less400 ? "0":"1rem";
+                container.className=styles.middleLogoMain;
                 this.logoEffect({parent:container,css_col,css_row,less400,isRepeat}).then(async(res)=>{
                     if(res){
-                        // if(res.isRepeat){
+                        
                             this.ablogroomEffect({parent:res.container,time:res.time,pagename:res.pagename})
-                        // }
+                       
                     }
                 });
                parent.appendChild(container);

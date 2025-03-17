@@ -1,0 +1,23 @@
+.postsLayout {
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  align-items: center;
+  gap: 1rem;
+  width: 100%;
+  position: relative;
+  background-image: url("/images/background3.png");
+  background-position: 50% 50%;
+  background-size: 300% 100%;
+}
+.postsLayoutInner {
+  margin: auto;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  align-items: center;
+  gap: 1rem;
+  width: 100%;
+  position: relative;
+  background-color: rgba(255, 255, 255, 0.753);
+}

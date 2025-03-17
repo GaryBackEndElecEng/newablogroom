@@ -26,7 +26,7 @@ export default function Index() {
                 if (res) {
                     const blogs = new Blogs(modSelector, service);
                     const feature = new Features();
-                    const message = new Message(modSelector, service, modSelector.blog, null)
+                    const message = new Message(modSelector, service, modSelector.blog, null, res.user)
                     const allmsgs = new AllMsgs(modSelector, service, message);
                     const _home = new Home(modSelector, service, auth, allmsgs, feature, blogs);
                     _home.main(home as HTMLElement);

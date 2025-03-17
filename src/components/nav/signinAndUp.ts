@@ -6,7 +6,7 @@ import ModSelector from "../editor/modSelector";
 import Nav from "./headerNav";
 import RegSignIn from "./regSignin";
 import { FaCreate } from "../common/ReactIcons";
-import { FaCrosshairs, FaSign, FaSignOutAlt } from "react-icons/fa";
+import { FaCrosshairs, FaSignOutAlt } from "react-icons/fa";
 import { gets3ImgKey, userType } from "../editor/Types";
 import AuthService from "../common/auth";
 
@@ -18,6 +18,7 @@ class SignInAndUp{
     public readonly signupTwo:string="/images/signupTwo.png";
     public logo:string="/images/gb_logo.png";
     private _isSignedIn:boolean;
+    public isOn:boolean;
     constructor(private _modSelector:ModSelector,private _service:Service,public regSignin:RegSignIn,private auth:AuthService,isSignedIn:boolean){
         this.signin="/images/signin.png";
         this.signup="/images/signup.png";
@@ -25,7 +26,7 @@ class SignInAndUp{
         this.signupTwo="/images/signupTwo.png";
         this.barIcon="/images/barIcon.png";
         this._isSignedIn=isSignedIn;
-
+        this.isOn=false;
     };
 
     //----------------SETTERS/GETTERS----------------------//
@@ -72,7 +73,7 @@ class SignInAndUp{
         btnShape:string
 
     }){
-        let isOn=false;
+        this.isOn=false;
         const div=document.createElement("div");
         div.id="dropDownIcon-barIcon-cont";
         div.style.cssText="display:flex;justify-content:center;align-items:center;border-radius:10px;height:40px;width:auto;cursor:pointer;border-radius:26px;padding:10px;";
@@ -85,12 +86,12 @@ class SignInAndUp{
         div.appendChild(img);
         parent.appendChild(div);
         div.onclick=async(e:MouseEvent)=>{
-            if(isOn){
-                isOn=false;
+            if(this.isOn){
+                this.isOn=false;
             }else{
-                isOn=true;
+                this.isOn=true;
             }
-            await this.dropDownCont({parent,css_col,css_row,less900,less400,btnShape,isOn});
+            await this.dropDownCont({parent,css_col,css_row,less900,less400,btnShape,isOn:this.isOn});
             if(!e) return;
         };
 
@@ -107,6 +108,7 @@ class SignInAndUp{
         isOn:boolean
 
     }){
+        this.isOn=isOn
         Header.cleanUpByID(parent,"dropDown-popup")
         parent.style.position="relative";
         const popup=document.createElement("div");
@@ -118,7 +120,7 @@ class SignInAndUp{
         popup.style.paddingInline="0.5rem";
         popup.style.paddingBlock="0.25rem";
         const time=1000;
-        if(isOn){
+        if(this.isOn){
             popup.style.opacity="1";
             popup.animate([
                 {transform:"translateX(0px) scale(0)",opacity:"0",backgroundColor:"transparent"},
@@ -137,8 +139,8 @@ class SignInAndUp{
             await this.sleep({time,func:()=>{parent.removeChild(popup)}});
         }
         parent.appendChild(popup);
-        this.signInBtn({parent:popup,css_col,less900,less400,btnShape});
-        this.signUpBtn({parent:popup,css_col,less900,less400,btnShape});
+        this.signInBtn({grandParent:parent,parent:popup,css_col,less900,less400,btnShape,time,isOn:this.isOn});
+        this.signUpBtn({grandParent:parent,parent:popup,css_col,less900,less400,btnShape,time,isOn:this.isOn});
     };
 
  async sleep({time,func}:{time:number,func:()=>Promise<void>|void}){
@@ -146,14 +148,18 @@ class SignInAndUp{
  }
 
 
-    signInBtn({parent,css_col,less900,less400,btnShape}:{
+    signInBtn({grandParent,parent,css_col,less900,less400,btnShape,time,isOn}:{
         parent:HTMLElement,
         css_col:string,
         less900:boolean,
         less400:boolean,
-        btnShape:string
+        btnShape:string,
+        grandParent:HTMLElement,
+        time:number,
+        isOn:boolean
 
     }){
+        this.isOn=isOn;
         const container=document.createElement("div");
         container.id="signIn-container";
         container.style.cssText= btnShape;
@@ -165,14 +171,16 @@ class SignInAndUp{
         img.style.cssText="width:100%;margin:auto;border-radius:inherit;";
         container.appendChild(img);
         parent.appendChild(container);
-        container.onclick=(e:MouseEvent)=>{
+        container.onclick=async(e:MouseEvent)=>{
             if(e){
                 this.regSignin.signIn();
+              this.isOn=await this.removeSigninUp({parent:grandParent,target:parent,time});
             }
         };
     };
 
-    signUpBtn({parent,css_col,less900,less400,btnShape}:{parent:HTMLElement,css_col:string,less900:boolean,less400:boolean,btnShape:string}){
+    signUpBtn({grandParent,parent,css_col,less900,less400,btnShape,time,isOn}:{grandParent:HTMLElement,parent:HTMLElement,css_col:string,less900:boolean,less400:boolean,btnShape:string,time:number,isOn:boolean}){
+        this.isOn=isOn
         const container=document.createElement("div");
         container.id="signUp-container";
         container.style.cssText=btnShape;
@@ -184,12 +192,27 @@ class SignInAndUp{
         img.style.cssText="width:100%;margin:auto;border-radius:inherit;";
         container.appendChild(img);
         parent.appendChild(container);
-        container.onclick=(e:MouseEvent)=>{
+        container.onclick=async(e:MouseEvent)=>{
             if(e){
                 this.signupForm({css_col,less400});
+               this.isOn=await  this.removeSigninUp({parent:grandParent,target:parent,time});
             }
         };
     };
+
+
+   async removeSigninUp({parent,target,time}:{parent:HTMLElement,target:HTMLElement,time:number}){
+        target.style.opacity="0";
+        target.animate([
+            {transform:"translateX(-100px) scale(1)",opacity:"1",backgroundColor:"white"},
+            {transform:"translateX(-50px) scale(1)",opacity:"1",backgroundColor:"white"},
+            {transform:"translateX(-25px) scale(0.5)",opacity:"0.5",backgroundColor:"whitesmoke"},
+            {transform:"translateX(0px) scale(0)",opacity:"0",backgroundColor:"transparent"},
+        ],{duration:time,iterations:1,"easing":"ease-in-out"});
+        await this.sleep({time,func:()=>{parent.removeChild(target)}});
+        return false
+    };
+
 
     signupForm({css_col,less400}:{css_col:string,less400:boolean}){
    

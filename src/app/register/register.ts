@@ -9,6 +9,7 @@ import User from "@/components/user/userMain";
 import { getErrorMessage } from "@/lib/errorBoundaries";
 import { getCsrfToken, getProviders } from "next-auth/react";
 import { onChangeVerifyType } from '../../components/editor/Types';
+import styles from "./register.module.css";
 
 
 
@@ -32,16 +33,14 @@ class Register {
         Header.cleanUpByID(parent,"register-page-main");
         Header.cleanUpByID(parent,"button-signin");
         Header.cleanUpByID(parent,"register-page-main-text");
-        parent.style.cssText="margin-inline:auto;padding-block:1rem;height:auto;width:100%;display:flex;flex-direction:column;width:100%;align-items:center;justify-content:flex-start;";
         parent.style.paddingInline=less900 ? (less400 ? "0rem":"1rem"):"10rem";
         const container=document.createElement("section");
         container.id="register-page-main";
-        container.style.cssText="padding-inline:2rem;margin-inline:2rem;margin-block:3rem;display:flex;flex-direction:column;justify-content:flex-start;align-items:center;gap:1.5rem;background-color:black;border-radius:12px;z-index:2;width:100%;height:auto;";
-        container.style.paddingInline=less900 ? (less400 ? "0rem":"0.25rem"):"1rem";
+        container.className=styles.regPageMain;
         const innerContainer=document.createElement("div");
-        innerContainer.id="register-page-main-sub";
-        innerContainer.style.cssText="border-radius:12px;background-color:#0000ff70;z-index:2;width:100%;display:flex;align-items:center;flex-direction:column;justify-content:flex-start;";
-        innerContainer.style.padding=less900 ? (less400 ? "0rem":"0.5rem"):"5rem";
+        innerContainer.id="register-page-main-failed-signin";
+        innerContainer.className=styles.regMainFailedSignin;
+       
         this.displayFailedSignin({parent:innerContainer,less400,less900});//ONLY SHOWS ON searchParams.get(error) exists
         container.appendChild(innerContainer);
         this.register({mainContainer:container,section:innerContainer,less400,less900});
@@ -128,14 +127,7 @@ class Register {
         mainContainer.style.position="relative";
         const container=document.createElement("div");
         container.id="register-container";
-        section.style.position="relative";
-        section.style.display="flex";
-        section.style.flexDirection="column";
-        section.style.alignItems="center";
-        section.style.backgroundColor="transparent";
-        container.style.cssText = "position:relative;margin-inline:auto;margin-block:1rem;display:flex;justify-content:flex-start;flex-direction:column;align-items:center;gap:1rem;padding-inline:2rem;padding-block:1rem;padding-inline:3rem;backround-color:white;border-radius:16px;background-color:white;padding:1rem;font-size:18px;max-width:650px;width:100%;";
-        container.style.zIndex="0";
-       
+        section.className=styles.regPageMainContainer;
         const paraLogo=document.createElement("p");
         paraLogo.id="paraLogo";
         paraLogo.style.cssText="margin-inline;auto;font-family:LobsterTwo-Regular;color:white;font-size:18px;padding-inline:1rem;line-height:2.75rem;border-radius:15px;background-color:#0C090A";

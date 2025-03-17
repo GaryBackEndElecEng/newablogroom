@@ -770,11 +770,28 @@ class ChartJS {
         };
         popup.appendChild(form);
         divCont.appendChild(popup);
+        this.removeOptionForm({parent:divCont,target:popup});
         Misc.growIn({anchor:popup,scale:0,opacity:20,time:400});
         return {form,popup}
 
 
     };
+
+
+    removeOptionForm({parent,target}:{parent:HTMLElement,target:HTMLElement}){
+        const xDelete=document.createElement("div");
+        const css_col="display:flex;justify-content:center;align-items:center;"
+        xDelete.style.cssText=css_col + "position:absolute;top:0%;left:0%;transform:translate(8px,8px);padding:2px;border-radius:50%;background-color:black;color:white;";
+        FaCreate({parent:xDelete,name:FaCrosshairs,cssStyle:{fontSize:"20px",color:"white",borderRadius:"50%"}});
+        target.appendChild(xDelete);
+        xDelete.onclick=(e:MouseEvent)=>{
+            if(!e) return;
+            Misc.growOut({anchor:target,scale:0,opacity:0,time:400});
+            setTimeout(()=>{
+                parent.removeChild(target);
+            },395);
+        }
+    }
 
 
     convertToBarLineOption(item:{option:barOptionType|lineOptionType}):barDataType[]{

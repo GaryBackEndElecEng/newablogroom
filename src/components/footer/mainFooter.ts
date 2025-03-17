@@ -18,6 +18,7 @@ import { FaGooglePlay, FaMobileScreen, FaRightLong } from "react-icons/fa6";
 import styles from "./footer.module.css";
 import AuthService from "../common/auth";
 import CommonInfo from "../common/commonInfo";
+import BrowserType from "../common/browserType";
 
 
 
@@ -41,7 +42,7 @@ class MainFooter{
     masterultilsUrl:string="https://www.masterultils.com";
     arrUrl:{name:string,link:string}[];
     public injector_:HTMLElement
-    constructor(private _modSelector:ModSelector,private _service:Service,injector:HTMLElement,private auth:AuthService,private _user:User,public dataflow:Dataflow,public feature:Features,public allMsgs:AllMsgs,public commonInfo:CommonInfo){
+    constructor(private _modSelector:ModSelector,private _service:Service,injector:HTMLElement,private auth:AuthService,private _user:User,public dataflow:Dataflow,public feature:Features,public allMsgs:AllMsgs,public commonInfo:CommonInfo,private browser:BrowserType){
         this.btnColor=Nav.btnColor
         this.injector_=injector;
         MainFooter.entry=injector;
@@ -83,24 +84,22 @@ class MainFooter{
         this.status=isAuthenticated ? "authenticated" : "unauthenticated";
         const less900=window.innerWidth < 900;
         const less400= window.innerWidth < 400;
-        const css="position:relative;margin:auto;width:100%;"
-        injector.style.width="100%";
-        injector.style.marginBottom="0";
         MainFooter.cleanUp(injector);
         const container=document.createElement("section");
         container.id="mainFooter-container";
-        container.style.cssText="width:100%;height:auto;color:white;box-shadow:1px 1px 6px 1px white;position:relative;margin:auto;z-index:30;background:black;margin-bottom:0;";
+        container.className=styles.mainFooterCont;
         injector.appendChild(container);
-        const msgCont=document.createElement("div");
-        msgCont.style.cssText=css + "margin-inline:auto;background:transparent;";
-        container.appendChild(msgCont);
-        this.showStorageMsg({parent:container,msgCont:msgCont,user,closeInfoMsg:this.closeInfoMsg});
+        injector.appendChild(container);
+        const repeatCount=0;
+        const isRepeat=this.browser.homeShowControl({repeatCount});
+        this.showStorageMsg({parent:container,isRepeat});
         const row=document.createElement("div");
         row.style.cssText="display:flex;justify-content:center;align-items:center;width:100%;min-height:15vh;height:auto;"
         row.id="row-mainFooter";
         const arr:string[]=["col-md-4 left-side","col-md-5 center","col-md-3 right-side"];
         Misc.matchMedia({parent:row,maxWidth:900,cssStyle:{flexDirection:"column",justifyContent:"center",alignItems:"center"}})
-
+        const getmsgCont=container.querySelector("div#msgCont-popup-container")
+        console.log("GETMSGcONT",getmsgCont);
         arr.map((str,index)=>{
             const col=document.createElement("div");
             col.id=`col-mainFooter-${index}`;
@@ -166,6 +165,7 @@ class MainFooter{
     };
 
 
+
     leftSide(item:{col:HTMLElement,size:{width:string,height:string}}):Promise<{container:HTMLElement}>{
         const {col,size,}=item;
         const {width,height}=size;
@@ -220,6 +220,7 @@ class MainFooter{
     };
 
 
+
     centerSide(item:{col:HTMLElement,isAuthenticated:boolean,less400:boolean,less900:boolean,user:userType}){
         const {col,isAuthenticated,less400,less900,user}=item;
         const container=document.createElement("div");
@@ -230,6 +231,7 @@ class MainFooter{
         this.copyRight({parent:container,less400,less900});
         col.appendChild(container);
     };
+
 
 
     rightSide(item:{col:HTMLElement,isAuthenticated:boolean}){
@@ -253,6 +255,7 @@ class MainFooter{
         col.appendChild(container);
        
     };
+
 
 
     privacy(item:{parent:HTMLElement,isAuthenticated:boolean}){
@@ -451,6 +454,7 @@ class MainFooter{
     };
 
 
+
     async centerBtns(item:{parent:HTMLElement,isAuthenticated:boolean,user:userType}){
         const {parent,isAuthenticated,user}=item;
         const container=document.createElement("div");
@@ -461,6 +465,7 @@ class MainFooter{
         this.centerBtnsRow({container,isAuthenticated,user});
         parent.appendChild(container);
     };
+
 
 
     centerBtnsRow(item:{container:HTMLElement,isAuthenticated:boolean,user:userType}){
@@ -665,92 +670,84 @@ class MainFooter{
             parent.removeChild(parent.lastChild as ChildNode);
         }
     }
-    }
-    showStorageMsg(item:{parent:HTMLElement,msgCont:HTMLElement,user:userType,closeInfoMsg:boolean}){
-        const {parent,user,closeInfoMsg,msgCont}=item;
-        const url=new URL(window.location.href);
+    };
+
+
+
+    showStorageMsg(item:{parent:HTMLElement,isRepeat:boolean}){
+        const {parent,isRepeat}=item;
         // console.log("url",url)//url.pathname="/":home works
-        const observer=new IntersectionObserver((entries)=>{
-            const entry=entries[0];
-            if(entry.isIntersecting){
-                this.storageMsg({parent,msgCont,show:true,closeInfoMsg});
-            }else{
-                this.storageMsg({parent,msgCont,show:false,closeInfoMsg});
-            }
-        },{threshold:0.5});
-        if(parent && !closeInfoMsg && url.pathname==="/" && user.id!==""){
-            setTimeout(()=>{
-                observer.observe(msgCont);
-            },5000);
-        }else{
-            parent.removeChild(msgCont);
-            observer.disconnect();
-        }
-    }
-    storageMsg(item:{parent:HTMLElement,msgCont:HTMLElement,show:boolean,closeInfoMsg:boolean}){
-        const {parent,show,msgCont,closeInfoMsg}=item;
-        const less900= window.innerWidth < 900;
-        const less700= window.innerWidth < 700;
-        const less400= window.innerWidth < 400;
+       
+        this.storageMsg({parent,isRepeat});
+       
+    };
+
+
+
+    storageMsg(item:{parent:HTMLElement,isRepeat:boolean}){
+        const {parent,isRepeat}=item;
         Header.cleanUpByID(parent,"popup-storageMsg");
-        parent.style.position="relative";
-        const popup=document.createElement("div");
-        popup.id="popup-storageMsg";
-        popup.className=styles.storage_message_popup;
-        popup.style.minHeight=less900 ?(less700 ?(less400 ? "76vh":"60vh"):"42%"):"46%";
-        const h6=document.createElement("h6");
-        h6.textContent="Storage Message";
-        popup.appendChild(h6);
-        const text=document.createElement("p");
-        text.innerHTML=this.infoMsg;
-        popup.appendChild(text);
-        const btnCont=document.createElement("div");
-        btnCont.id="btnCont";
-        btnCont.style.cssText="width:100%;display:flex;justify-content:center;align-items:center;gap:3rem;margin-bottom:2rem;";
-        
-        const {button:close}=Misc.simpleButton({anchor:btnCont,type:"button",bg:"rgb(31, 48, 94)",color:"white",text:"Got it!",time:400});
-        const {button:openStorage}=Misc.simpleButton({anchor:btnCont,type:"button",bg:"#06f0be",color:"white",text:"more info?",time:400});
-        popup.appendChild(btnCont);
-        
-        close.onclick=(e:MouseEvent)=>{
-            if(e){
-                this.closeInfoMsg=true;
-                parent.removeChild(msgCont);//observer ref
-            }
-        };
-        openStorage.onclick=(e:MouseEvent)=>{
-            if(e){
-                this.closeInfoMsg=true;
-                parent.removeChild(msgCont);//observer ref
-                const getNavHeader=document.querySelector("header#navHeader") as HTMLElement;
-                window.scroll(0,0);
-                this.dataflow.storageMessage(getNavHeader);
-            }
-        };
-        parent.appendChild(popup);
-    
-        if(show && !closeInfoMsg){
-            popup.style.transform="translateY(-100%)";//height, above was replaced because issues with variables included in animate()
+        if(isRepeat){
+
+            parent.style.position="relative";
+            const popup=document.createElement("div");
+            popup.id="popup-storageMsg";
+            popup.className=styles.storage_message_popup;
+            const title=document.createElement("p");
+            title.className=styles.titleArt;
+            title.textContent="Storage Message";
+            popup.appendChild(title);
+            const text=document.createElement("p");
+            text.innerHTML=this.infoMsg;
+            popup.appendChild(text);
+            const btnCont=document.createElement("div");
+            btnCont.id="btnCont";
+            btnCont.style.cssText="width:100%;display:flex;justify-content:center;align-items:center;gap:3rem;margin-bottom:2rem;";
+            
+            const {button:close}=Misc.simpleButton({anchor:btnCont,type:"button",bg:"rgb(31, 48, 94)",color:"white",text:"Got it!",time:400});
+            const {button:openStorage}=Misc.simpleButton({anchor:btnCont,type:"button",bg:"#06f0be",color:"white",text:"more info?",time:400});
+            popup.appendChild(btnCont);
+            
+            close.onclick=(e:MouseEvent)=>{
+                if(e){
+                    this.closeInfoMsg=true;
+                    popup.style.transform="translateY(100%)";
+                   
+                popup.animate([
+                    {transform:"translateY(0%)",opacity:"1"},
+                    {transform:"translateY(100%)",opacity:"0"},
+                ],{iterations:1,duration:800});
+                setTimeout(()=>{
+                    ([...parent.children as any] as HTMLElement[]).map(html=>{
+                        if(html && html.id==="popup-storageMsg"){
+                            parent.removeChild(html);
+                        }
+                    });
+                  
+                },790);
+                }
+            };
+            openStorage.onclick=(e:MouseEvent)=>{
+                if(e){
+                    this.closeInfoMsg=true;
+                    parent.removeChild(popup);//observer ref
+                    const getNavHeader=document.querySelector("header#navHeader") as HTMLElement;
+                    window.scroll(0,0);
+                    this.dataflow.storageMessage(getNavHeader);
+                }
+            };
+            parent.appendChild(popup);
+            popup.style.transform="translateY(0%)";//height, above was replaced because issues with variables included in animate()
             popup.animate([
-                {transform:"translateY(0%)",opacity:"0"},
-                {opacity:"1"},
+                {transform:"translateY(100%)",opacity:"0"},
+                {transform:"translateY(0%)",opacity:"1"},
             ],{iterations:1,duration:800});
-        }else{
-            popup.style.transform="translateY(100%)";
-            popup.animate([
-                {transform:"translateY(-100%)",opacity:"1"},
-                {transform:"translateY(0%)",opacity:"0"},
-            ],{iterations:1,duration:800});
-            setTimeout(()=>{
-                ([...parent.children as any] as HTMLElement[]).map(html=>{
-                    if(html && html.id==="popup-storageMsg"){
-                        parent.removeChild(html);
-                    }
-                });
-            },790);
+           
         }
 
-    }
+    };
+
+
     scrollToTop(item:{parent:HTMLElement}){
         const {parent}=item;
         const less900= window.innerWidth < 900;
@@ -781,17 +778,22 @@ class MainFooter{
         }
        };
 
-    }
+    };
+
+
+
     async getUser():Promise<userType | undefined>{
        return this.asyncGetUser().then(async(value)=>{
             if(value && typeof(value)==="string"){
                 return JSON.parse(value as string) as userType;
             }
         }) as Promise<userType | undefined>;
-    }
+    };
+
+
     asyncGetUser(){
         return Promise.resolve(localStorage.getItem("user"));
-    }
+    };
    
 }
 export default MainFooter;

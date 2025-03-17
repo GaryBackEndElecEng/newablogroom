@@ -45,7 +45,6 @@ class Blogs{
        this._blogs=[] as blogType[];
         this._blog={} as blogType;
        this.bgColor=this._modSelector._bgColor;
-       this.message=new Message(this._modSelector,this._service,this._modSelector.blog,null);
         this.allMsgs=new AllMsgs(this._modSelector,this._service,this.message);
         
     }
@@ -268,8 +267,8 @@ class Blogs{
         if(blogs && blogs.length>0){
             const mainRow=document.createElement("div");
             mainRow.id="showBlogs-generateBlogs-mainRow";
-            const blogBaseCss=`display:flex;justify-content:center;flex-direction:column;margin-top:0rem;position:relative;width:100%;`;
-                mainRow.style.cssText=blogBaseCss;
+            const blogBaseCss=`display:flex;justify-content:flex-start;flex-direction:column;margin-top:0rem;position:relative;width:100%;gap:1rem;`;
+                mainRow.style.cssText=blogBaseCss + "height:100vh;overflow-y:scroll;justify-content:flex-start;";
                 mainRow.style.paddingInline=less900 ? (less400 ? "0.25rem":"2rem"): "4rem";
                 mainRow.style.borderRadius="16px";
             
@@ -277,10 +276,10 @@ class Blogs{
                     blogs.toSorted((a,b)=>{if(a.rating > b.rating) return -1; return 1}).
                         sort((a,b)=>{if(a.update > b.update) return -1; return 1}).map(async(blog,index)=>{
                     const colBlog=document.createElement("div");
-                    colBlog.style.cssText=blogBaseCss + "background-color:#ffffff87;" ;
+                    colBlog.style.cssText=blogBaseCss + "background-color:#ffffff87;padding-block:1rem;" ;
                     colBlog.className=`text-center`;
                     colBlog.id="showBlogs-generateBlogs-mainRow-colBlogs";
-                    colBlog.style.color=`#00008B`;
+                    
                     if(index%2===0){
                         colBlog.style.backgroundImage=`url(${this.bendImg})`;
 
@@ -289,6 +288,7 @@ class Blogs{
                     }
                   
                     colBlog.style.paddingInline="10px";
+                    colBlog.style.height="100%";
                     colBlog.style.marginBlock=window.innerWidth <400 ? "1rem":"0.5rem";
                     colBlog.style.borderRadius=`inherit`;
                     colBlog.style.backgroundSize=`100% 100%`;
@@ -296,6 +296,7 @@ class Blogs{
                     await this.displayCard(colBlog,blog);
                     this.allMsgs.blogMsgs({col:colBlog,blog});
                     const {button:btn}=Misc.simpleButton({anchor:colBlog,text:"view details",bg:"#0C090A",color:"white",type:"button",time:400});
+                    btn.style.zIndex="200";
                     btn.id="showBlogs-generateBlogs-btn";
                     btn.style.marginBottom="1rem";
                     colBlog.appendChild(btn);
@@ -318,7 +319,10 @@ class Blogs{
             
             parent.appendChild(mainRow)
         };
-    }
+    };
+
+
+
     async displayCard(column:HTMLElement,blog:blogType){
         const flex_between= window.innerWidth < 500 ? "center" : "space-between";
         const css_col="margin:auto;display:flex;flex-direction:column;justify-content:center;align-items:center;";
@@ -327,7 +331,6 @@ class Blogs{
         const less400= window.innerWidth <400;
         column.style.position="relative";
         const card=document.createElement("div");
-        card.className="displayCard-card";
         card.id="displayCard-card";
         card.style.cssText=css_col + `margin:0;padding;width:100%;position:relative;border-radius:12px;font-family:'Poppins-Regular'`;
         card.style.flexDirection=window.innerWidth < 900 ? "column":"row";
@@ -349,7 +352,7 @@ class Blogs{
         imgCont.id="displayCard-card-imgCont";
         imgCont.className="imgCont col-md-6"
         imgCont.style.cssText="display:flex;flex-direction:column;justify-content:center;align-items:center;gap:0.65rem;";
-        imgCont.style.flex=less900 ? "1 0 100%":"1 1 40%";
+        imgCont.style.flex=less900 ? "":"1 1 40%";
         const small=document.createElement("small");
         small.id="displayCard-card-small";
         const date=document.createElement("span");
@@ -366,7 +369,7 @@ class Blogs{
         img.className="";
         img.alt=`${blog.name}-www.ablogroom.com`;
         img.style.cssText="filter:drop-shadow(0 0 0.25rem #0aa2db);background-color:#34282C;padding:5px;";
-        img.style.width=less400 ? "280px" : "180px";
+        img.style.width=less400 ? "100%" : "180px";
         if(blog.imgKey){
             await this._service.getSimpleImg(blog.imgKey).then(async(res)=>{
                 if(res){
@@ -401,17 +404,17 @@ class Blogs{
         cardBody.id="cardBody";
         cardBody.className="C";
         cardBody.style.cssText=`padding-inline:5px;flex:1 1 auto;border-radius:6px;margin-inline:auto;`;
-        cardBody.style.flex=less900 ? "1 0 100%":"1 1 55%";
+        cardBody.style.flex=less900 ? "":"1 1 55%";
         cardBody.style.width=less900 ? "100%":"auto";
         const update=document.createElement("small");
         update.style.cssText="margin-inline:auto;margin-block:0.5rem;margin-bottom:1rem;margin-bottom:1rem;";
         update.className="text-primary";
         update.textContent=blog.update ? `update: ${Blogs.tolocalstring(blog.date)}`:"no date";
         const desc=document.createElement("div");
-        const descHeight=window.innerWidth < 900 ? (window.innerWidth <400 ? "20vh": "15vh") :"12vh";
+        const descHeight=less900? (less400 ? "20vh": "15vh") :"12vh";
         desc.id=`blog-desc-${blog.id}`;
-        desc.textContent=blog.desc ? `${(blog.desc as string)}`:" no description";
-        desc.style.cssText=`margin-inline:auto; padding:1.25rem; text-align:center; margin-block:1rem;border-radius:inherit;background-color:black;color:white;filter:none;box-shadow:1px 1px 12px 1px #0aa2db;height:${descHeight};overflow-y:scroll;text-wrap:pretty;`;
+        desc.textContent=blog.desc ? `${(blog.desc.slice(0,76) as string)}...`:" no description";
+        desc.style.cssText=`margin-inline:auto; padding:1.25rem; text-align:center; margin-block:1rem;border-radius:inherit;background-color:black;color:white;box-shadow:1px 1px 12px 1px #0aa2db;height:${descHeight};text-wrap:pretty;`;
         this.thumbsUpStartRating({parent:cardBody,rating:blog.rating,minRating:3});
         card.appendChild(imgCont);
         cardBody.appendChild(desc);
@@ -419,15 +422,17 @@ class Blogs{
         card.appendChild(cardBody);
         column.appendChild(card);
         card.animate([
-            {opcity:"0"},
-            {opcity:"1"},
+            {opacity:"0"},
+            {opacity:"1"},
         ],{duration:400,iterations:1});
         Misc.matchMedia({parent:card,maxWidth:600,cssStyle:{flexDirection:"column"}});
         Misc.matchMedia({parent:cardBody,maxWidth:500,cssStyle:{flex:"1 1 100%"}});
         Misc.matchMedia({parent:imgCont,maxWidth:500,cssStyle:{flex:"1 1 100%"}});
        
 
-    }
+    };
+
+
 
     thumbsUpStartRating(item:{parent:HTMLElement,rating:number,minRating:number}){
         const {parent,rating,minRating}=item;
@@ -453,6 +458,7 @@ class Blogs{
     };
 
 
+    
       noBlogs(item:{parent:HTMLElement}){
         const {parent}=item;
         const container=document.createElement("section");

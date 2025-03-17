@@ -598,13 +598,19 @@ getKey({imgUrl}:{imgUrl:string}):string|null{
         //cm82yqjd70000w958mglvn99p-testthis/56efea2f-firePic.png
         // const regName:RegExp=/\w/;
         const regFree:RegExp=/(freeImg)/;
-        const words=imgKey.split("-");
-        const testLen=words.length===1;
+        const regHyph:RegExp=/[a-zA-Z90]-[a-zA-Z0-9]/;
+        if(regHyph.test(imgKey)){
+            const words=imgKey.split("-");
+            const testLen=words.length===1;
+            const testFree=regFree.test(imgKey);
+            const check=testFree || (testLen)
+            return check;
 
-        const testFree=regFree.test(imgKey);
-        const check=testFree || (testLen)
+        }else{
+            return true;
+        }
+
         
-        return check
     }
 
 

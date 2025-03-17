@@ -53,7 +53,7 @@ function Index() {
                             if (res) {
                                 countRef.current = res.count;
                                 const _user = new User(modSelector, service, auth);
-                                const message = new Message(modSelector, service, blog, null);
+                                const message = new Message(modSelector, service, blog, null, res.user);
                                 const newCode = new NewCode(modSelector, service, _user);
                                 const chart = new ChartJS(modSelector, service, _user, message);
                                 const design = new Design(modSelector);

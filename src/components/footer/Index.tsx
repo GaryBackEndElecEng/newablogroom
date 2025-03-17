@@ -12,13 +12,14 @@ import Message from '../common/message';
 import Dataset from '../common/dataset';
 import { blogType, userType } from '../editor/Types';
 import CommonInfo from '../common/commonInfo';
+import styles from "./footer.module.css";
+import BrowserType from '../common/browserType';
 
 
 
 
 export default function Index({ _user }: { _user: userType | null }) {
     const countRef = React.useRef(0);
-    const injectorStyle: { [key: string]: string } = { width: "100%" }
 
     React.useEffect(() => {
         if (typeof window !== "undefined") {
@@ -33,15 +34,16 @@ export default function Index({ _user }: { _user: userType | null }) {
                     auth.confirmUser({ user: _user, count: countRef.current }).then(async (res) => {
                         if (res) {
                             countRef.current = res.count;
+                            const browser = new BrowserType(res.user.id);
                             const isAuthenticated = res.isAuthenicated;
                             const commonInfo = new CommonInfo(modSelector, service, auth);
-                            const message = new Message(modSelector, service, blog, null);
+                            const message = new Message(modSelector, service, blog, null, res.user);
                             const dataflow = new Dataflow(service);
                             const allMsgs = new AllMsgs(modSelector, service, message)
                             const user = new User(modSelector, service, auth);
                             const feature = new Features();
                             const injector = document.querySelector("section#footerInjector") as HTMLElement;
-                            const mainFooter = new MainFooter(modSelector, service, injector, auth, user, dataflow, feature, allMsgs, commonInfo);
+                            const mainFooter = new MainFooter(modSelector, service, injector, auth, user, dataflow, feature, allMsgs, commonInfo, browser);
                             mainFooter.main({ injector, isAuthenticated, user: res.user });
 
                         }
@@ -54,7 +56,7 @@ export default function Index({ _user }: { _user: userType | null }) {
     return (
         <footer className="w-100 mx-0 mb-0" >
 
-            <section id="footerInjector" style={injectorStyle}>
+            <section id="footerInjector" className={styles.footerIndex}>
 
 
             </section>

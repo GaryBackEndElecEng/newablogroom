@@ -369,13 +369,15 @@ class Edit {
 
 
     //PARENT: Injection Sidebar class
-    async editViewUserBlogs({parent,mainCont,mainHeader,textarea,footer,idValues}:{
+    async editViewUserBlogs({parent,mainCont,mainHeader,textarea,footer,idValues,less900,less400}:{
         parent:HTMLElement,
         mainCont:HTMLElement,
         mainHeader:HTMLElement,
         textarea:HTMLElement,
         footer:HTMLElement,
-        idValues:idValueType[]
+        idValues:idValueType[],
+        less400:boolean,
+        less900:boolean
 
     }){
         //get blogs per user_id: verifify if user={...user.email:"",id:""}
@@ -394,7 +396,7 @@ class Edit {
 
         if(userEmailPlusUser_id){
             
-           await this.retUserBlogs({parent,mainCont,mainHeader,textarea,footer,container,user_id:user_.id,idValues});
+           await this.retUserBlogs({parent,mainCont,mainHeader,textarea,footer,container,user_id:user_.id,idValues,less400,less900});
         }else{
            await this._regSignin.signIn();
         }
@@ -405,7 +407,7 @@ class Edit {
 
 
     //PARENT:editViewUserBlogs()
-   async retUserBlogs({parent,mainCont,mainHeader,textarea,footer,container,user_id,idValues}:{
+   async retUserBlogs({parent,mainCont,mainHeader,textarea,footer,container,user_id,idValues,less400,less900}:{
     parent:HTMLElement,
     container:HTMLElement,
     mainCont:HTMLElement,
@@ -413,7 +415,9 @@ class Edit {
     mainHeader:HTMLElement,
     footer:HTMLElement,
     user_id:string,
-    idValues:idValueType[]
+    idValues:idValueType[],
+    less400:boolean,
+    less900:boolean
 
    }){
         container.style.position="absolute";
@@ -431,7 +435,7 @@ class Edit {
                 blogs.map(async(blog)=>{
                     const col=document.createElement("div");
                         col.className="col-md-4";
-                       await this.blogCard({parent,mainCont,mainHeader,textarea,footer,container,row,col,blog,idValues});
+                       await this.blogCard({parent,mainCont,mainHeader,textarea,footer,container,row,col,blog,idValues,less400,less900});
 
                     });
                     //REMOVE BUTTON
@@ -459,7 +463,7 @@ class Edit {
 
 
    //PARENT:retuserBlogs()
-    async blogCard({parent,mainCont,textarea,mainHeader,footer,container,row,col,blog,idValues}:{
+    async blogCard({parent,mainCont,textarea,mainHeader,footer,container,row,col,blog,idValues,less400,less900}:{
         parent:HTMLElement,
         container:HTMLElement,
         row:HTMLElement,
@@ -469,7 +473,9 @@ class Edit {
         mainCont:HTMLElement,
         textarea:HTMLElement,
         mainHeader:HTMLElement,
-        footer:HTMLElement
+        footer:HTMLElement,
+        less400:boolean,
+        less900:boolean
     }){
         const {user_id,id}=blog;
         const card=document.createElement("div");
@@ -511,7 +517,7 @@ class Edit {
                     if(resBlog && resBlog as blogType){
                         const _blog={...resBlog as blogType};
                         this._modSelector.blog={..._blog, selectors:_blog.selectors,elements:_blog.elements,codes:_blog.codes};
-                        this.viewBlog({parent,container,row,blog:_blog,idValues,mainCont,textarea,mainHeader,footer});
+                        this.viewBlog({parent,container,row,blog:_blog,idValues,mainCont,textarea,mainHeader,footer,less900,less400});
                     }else if(resBlog && resBlog as string){
                         const msg=resBlog as string
                         Misc.message({parent:container,msg,type_:"error",time:700})
@@ -543,7 +549,7 @@ class Edit {
 
 
     //PARENT:blogCard()
-    async viewBlog({parent,container,row,blog,mainCont,textarea,mainHeader,footer,idValues}:{
+    async viewBlog({parent,container,row,blog,mainCont,textarea,mainHeader,footer,idValues,less400,less900}:{
         parent:HTMLElement,
         container:HTMLElement,
         row:HTMLElement,
@@ -553,12 +559,14 @@ class Edit {
         textarea:HTMLElement,
         mainHeader:HTMLElement,
         footer:HTMLElement,
+        less400:boolean,
+        less900:boolean
     }){
         container.style.zIndex="";
         const arrDivPlaces:arrDivPlaceType[]=[];
         const innerContainer=document.createElement("div");
         innerContainer.style.cssText="width:100%;position:absolute;z-index:200;background:white;";
-        await this.displayBlog.saveFinalWork({innerContainer,blog,idValues,arrDivPlaces:arrDivPlaces});
+        await this.displayBlog.saveFinalWork({innerContainer,blog,idValues,arrDivPlaces:arrDivPlaces,less400,less900});
         const btnCont=document.createElement("div");
         btnCont.style.cssText="display:flex;flex-direction:row;padding-inline:margin;margin-block:1.5rem;gap:1.5rem;justify-content:space-around;align-items:center;";
         const {button:close}=Misc.simpleButton({anchor:btnCont,type:"button",bg:Nav.btnColor,color:"white",text:"close",time:400});
@@ -596,12 +604,12 @@ class Edit {
         };
         del.onclick=(e:MouseEvent)=>{
             if(e){
-                this.messageDelete({parent,container,innerContainer,row,blog,idValues,mainCont,textarea,mainHeader,footer});
+                this.messageDelete({parent,container,innerContainer,row,blog,idValues,mainCont,textarea,mainHeader,footer,less400,less900});
             }
         };
     };
 
-    messageDelete({parent,container,innerContainer,row,blog,idValues,mainCont,textarea,mainHeader,footer}:{
+    messageDelete({parent,container,innerContainer,row,blog,idValues,mainCont,textarea,mainHeader,footer,less400,less900}:{
         parent:HTMLElement,
         container:HTMLElement,
         innerContainer:HTMLElement,
@@ -611,7 +619,9 @@ class Edit {
         mainCont:HTMLElement,
         textarea:HTMLElement,
         mainHeader:HTMLElement,
-        footer:HTMLElement
+        footer:HTMLElement,
+        less400:boolean,
+        less900:boolean
     }){
         const popup=document.createElement("div");
         popup.style.cssText="positiion:absolute;inset:40%;background:white;box-shadow:1px 1px 12px 1px black;border-radius:12px;display:flex;justify-content:space-around;align-items:center;z-index:2000";
@@ -642,7 +652,7 @@ class Edit {
                         [...userBlogs].forEach(async(blog)=>{
                         const col=document.createElement("div");
                         col.className="col-md-4";
-                        await this.blogCard({parent,container,row,col,blog,idValues,mainCont,textarea,mainHeader,footer});
+                        await this.blogCard({parent,container,row,col,blog,idValues,mainCont,textarea,mainHeader,footer,less400,less900});
     
                         });
                     }

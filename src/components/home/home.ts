@@ -92,7 +92,7 @@ class Home{
     //INJECTION !! STYLE FOR PARENT IS DONE VIA home.module.css
     async main(parent:HTMLElement){
         //----------REPEAT PROCESS CONTROL----------//
-        const repeatCount=1;
+        const repeatCount=0;
         const isRepeat=this.browser.repeatShowControl({repeatCount});
         //----------REPEAT PROCESS CONTROL----------//
         Header.cleanUp(parent);
@@ -109,7 +109,7 @@ class Home{
                     }
                 };
                 
-                this.editorAttributeDisplay(container);//SNAP-SCROLL IMAGES
+                this.editorAttributeDisplay({parent:container,isRepeat});//SNAP-SCROLL IMAGES
             }
             });
         await this.asyncMain({parent}).then(async(res)=>{
@@ -303,7 +303,9 @@ class Home{
        
     };
   
-     editorAttributeDisplay(parent:HTMLElement){
+
+
+    async editorAttributeDisplay({parent,isRepeat}:{parent:HTMLElement,isRepeat:boolean}){
         //DISPLAYS THE SCOLLING -SNAP-TO-CENTER-IMAGES
         // Home.cleanUp(parent);
         const itemArr:HTMLElement[]=[];
@@ -326,8 +328,68 @@ class Home{
             {name:"peronalized",desc:"your own secure account",image:"/images/display/secureAccount.png",detail:"build your blog in minutes, using our tools with ease. We provide free data exports, avalaible within your profile page."},
 
         ];
-        arrImgs.map((item,index)=>{
-            const container=document.createElement("div");
+       
+        const count=0;
+        const time=3500;
+        await Promise.all(arrImgs.map(async(item,index)=>{
+            await this.showAttributeCard({parent:outerContainer,item,index,itemArr});
+        }));
+
+        //SCROLL EFFECT TO THE DISPLAY CARDS-HOME PAGE
+        if(isRepeat){
+            setTimeout(()=>{
+                this.scrollEffect({parent:outerContainer,count,len:arrImgs.length,time})
+            },6000);
+        };
+       
+       
+        parent.appendChild(outerContainer);
+        const cssStyleOn:{[key:string]:string}={opacity:"1",backgroundSize:"100% 100%"};
+        const cssStyleOff:{[key:string]:string}={opacity:"0",backgroundSize:"75% 75%"};
+        Misc.observe({arr:itemArr,root:null,cssStyleOn:cssStyleOn,cssStyleOff:cssStyleOff,time:2000});
+       
+        
+    };
+
+
+
+    scrollEffect({parent,count,len,time}:{parent:HTMLElement,count:number,len:number,time:number}){
+        let count_=count+1;
+        const interval= setInterval(async()=>{
+            scrollExec({parent,count:count_});
+            console.log("count",count_,"len",len,)
+            if(count_===len-1){ 
+                clearInterval(interval);
+                setTimeout(()=>{
+                    scrollExec({parent,count:0});
+                },time);
+            };
+            count_=count_+1;
+            },time);
+
+        const scrollExec=({parent,count}:{parent:HTMLElement,count:number})=>{
+            const id=`editorAttributeDisplay-arrImg-${count}`;
+                const getCont=parent.querySelector(`div#${id}`) as HTMLElement;
+                getCont.scrollIntoView({
+                    behavior:"smooth",
+                    block:"center",
+                });
+
+        };
+        
+    }
+
+
+
+    showAttributeCard({parent,item,index,itemArr}:{
+        parent:HTMLElement,
+        item:arrItemType,
+        index:number,
+        itemArr:HTMLElement[]
+
+    }):Promise<{parent:HTMLElement,container:HTMLElement}>{
+        const {name,image,desc}=item;
+        const container=document.createElement("div");
             container.id=`editorAttributeDisplay-arrImg-${index}`;
             container.classList.add("arrImg");
             container.style.cssText="margin-inline:auto;display:flex;flex-direction:column;justify-content:center;align-items:center; gap:1rem;padding-inline:0.75rem;min-height:25vh;background-color:black;color:white;text-align:center;padding-block:1.5rem;flex:1 1 25%;align-self:stretch;position:relative;z-index:0;width:100%;border-radius:12px;box-shadow:1px 1px 12px 1px #0CAFFF,-1px -1px 12px 1px black;cursor:pointer;";
@@ -336,18 +398,18 @@ class Home{
             const mask=document.createElement("div");
             mask.id="editorAttributeDisplay-mask";
             mask.style.cssText=`position:absolute;inset:0%;z-index:0;border-radius:inherit;`;
-            mask.style.backgroundImage=`url(${item.image})`;
+            mask.style.backgroundImage=`url(${image})`;
             mask.style.backgroundPosition="50% 50%";
             mask.style.backgroundSize="100% 100%";
             container.appendChild(mask);
             const h6=document.createElement("h6");
             h6.id="h6"+ index;
-            h6.textContent=item.name;
+            h6.textContent=name;
             h6.style.cssText="margin-inline:auto;margin-bottom:2rem;text-align:center;z-index:10;color:white;background:rgba(0,0,0,0.2);";
             container.appendChild(h6);
             const text=document.createElement("p");
             text.style.cssText="margin-inline:auto;padding-inline:1rem;color:white;z-index:10;background:rgba(0,0,0,0.2);";
-            text.textContent=item.desc;
+            text.textContent=desc;
             text.id="text" + index;
             container.appendChild(text);
             text.animate([
@@ -363,7 +425,7 @@ class Home{
             text.style.fontSize=window.innerWidth <900 ? "160%":"250%";
             Misc.matchMedia({parent:h6,maxWidth:420,cssStyle:{"fontSize":"220%",marginBottom:"auto"}});
             Misc.matchMedia({parent:text,maxWidth:420,cssStyle:{"fontSize":"200%"}});
-            outerContainer.appendChild(container);
+           
             itemArr.push(mask)
             mask.onclick=(e:MouseEvent)=>{
                 if(e){
@@ -371,14 +433,11 @@ class Home{
                     this.showMaskDetail({container,item:item,index});
                 }
             };
-        });
-        parent.appendChild(outerContainer);
-        const cssStyleOn:{[key:string]:string}={opacity:"1",backgroundSize:"100% 100%"};
-        const cssStyleOff:{[key:string]:string}={opacity:"0",backgroundSize:"75% 75%"};
-        Misc.observe({arr:itemArr,root:null,cssStyleOn:cssStyleOn,cssStyleOff:cssStyleOff,time:2000});
-       
-        
+            parent.appendChild(container)
+            return Promise.resolve({parent,container}) as Promise<{parent:HTMLElement,container:HTMLElement}>
     };
+
+
 
     //LIST SCROLL
     normalCreateYourBlog(parent: HTMLElement){

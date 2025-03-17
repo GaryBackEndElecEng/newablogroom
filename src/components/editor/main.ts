@@ -389,6 +389,8 @@ class Main {
     //INITIALIZED
     mainBtn({parent,textarea,idValues}:{parent: HTMLElement | null,textarea:HTMLElement,idValues:idValueType[]}): void {
         if (!parent) return;
+        const less400=window.innerWidth < 400;
+        const less900=window.innerWidth < 900;
         Main.cleanUp(parent)
         Main.textarea = document.querySelector("div#textarea");
         const row = document.createElement("div");
@@ -507,7 +509,7 @@ class Main {
 
                                 Main.container = document.querySelector("section#main") as HTMLElement;
                                 if (Main.container) {
-                                    this._displayBlog.showFinal(Main.container, blog,idValues);
+                                    this._displayBlog.showFinal({parent:Main.container, blog,idValues,less400,less900});
                                 }
 
                             } else {
@@ -597,13 +599,14 @@ class Main {
         parent.style.width = "100% !important";
         Header.cleanUpByID(parent, "textarea");
         parent.style.position = "relative";
-        const cssTextarea = "margin-inline:auto;padding-inline:1rem;padding-block:1.5rem;margin-block:1rem;border:1px solid lightgrey; border-radius:4px;width:100%;height:110vh;box-shadow:1px 1px 4px 1px grey;overflow-y:scroll;display:block;position:relative;padding-block;1rem;padding-bottom:2rem;";
+        const cssTextarea = "margin-inline:auto;padding-inline:1rem;padding-block:1.5rem;margin-block:1rem;border:1px solid lightgrey; border-radius:4px;width:100%;height:110vh;box-shadow:1px 1px 4px 1px grey;overflow-y:scroll;display:block;position:relative;padding-block;1rem;padding-bottom:2rem;display:flex;align-items:stretch flex-direction:column;gap:1rem;";
         
         const textarea = document.createElement("div");
         textarea.setAttribute("contenteditable", "false");
         textarea.style.cssText = cssTextarea;
         textarea.style.paddingInline = less900 ? (less400 ? "0.25rem" : "0.5rem") : "1rem";
         textarea.style.width = "100%";
+        textarea.style.flexDirection = "column";
         textarea.id = `textarea`;
         Main.textarea = document.createElement("div");
         Main.textarea.setAttribute("contenteditable", "false");

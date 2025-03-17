@@ -248,7 +248,7 @@ initTypes:component_type[]=[
         const email=user?.email || "";
         const form=document.createElement("form");
         form.id="main-container-form";
-        form.style.cssText=css_col + " width:100%;border-radius:12px;box-shadow:1px 1px 6px 1px lightblue";
+        form.style.cssText=css_col + " width:100%;border-radius:12px;box-shadow:1px 1px 6px 1px lightblue;background-color:white;";
         form.style.padding=less400 ? "0.5rem":"1rem";
         const {input:inName,label:labName,formGrp:grpName}=Nav.inputComponent(form);
         grpName.classList.add("w-100");

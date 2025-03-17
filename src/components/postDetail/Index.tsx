@@ -5,7 +5,6 @@ import { postType, userType } from '../editor/Types'
 import ModSelector from '../editor/modSelector';
 import Service from '../common/services';
 import PostDetail from './postdetail';
-import Header from '../editor/header';
 import User from '../user/userMain';
 import Dataset from '../common/dataset';
 import AuthService from '../common/auth';
@@ -22,9 +21,10 @@ export default function Index({ post, user, isUser, poster }: { post: postType |
             const auth = new AuthService(modSelector, service);
             auth.getUser({ user, count: countRef.current }).then(async (res) => {
                 if (res) {
+                    const pathname = window.location.pathname;
                     const _user = new User(modSelector, service, auth);
                     const _post = new PostDetail(modSelector, service, auth, _user, res.user);
-                    _post.main({ injector, post, count: countRef.current, poster: poster, isPage: true, isUser, user }).then((count) => {
+                    _post.main({ injector, post, count: countRef.current, poster: poster, isPage: true, isUser, user, pathname }).then((count) => {
                         countRef.current = count;
                         _post.cleaupKeepOne({ parent: injector, class_: `postdetail-main-container` });
                     });
@@ -33,6 +33,6 @@ export default function Index({ post, user, isUser, poster }: { post: postType |
         }
     }, [countRef, docRef, post, user, isUser, poster]);
     return (
-        <section ref={docRef} id="postdetail" className={style.postdetail}></section>
+        <section ref={docRef} id="postdetail" className={style.postdetailIndex}></section>
     )
 }

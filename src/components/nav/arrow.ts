@@ -1,6 +1,6 @@
 
 import { FaAccessibleIcon, FaBlog,FaInfo,FaEdit,FaHome,FaMedapps,FaSign,FaFilePowerpoint,FaArrowRight} from "react-icons/fa";
-import { navLinkBtnType, userType, blogType, gets3ImgKey, } from "../editor/Types";
+import { navLinkBtnType, userType, blogType, } from "../editor/Types";
 import { FaBtn, FaCreate } from "../common/ReactIcons";
 import * as Icons from "react-icons/fa";
 import Header from '../editor/header';
@@ -16,6 +16,7 @@ import Features from '../home/feature';
 import AuthService from "../common/auth";
 import { FaRightLong } from "react-icons/fa6";
 import CommonInfo from "../common/commonInfo";
+import styles from "./nav.module.css";
 
 class NavArrow{
     public logo:string;
@@ -54,11 +55,11 @@ set user(user:userType){
         this.user=this._user.init
     }
    }
-    rotateArrow(item:{button:HTMLButtonElement,time:number,user:userType,isAuthenticated:boolean}){
-        const {button,time,user,isAuthenticated}=item;
+    rotateArrow(item:{navHeader:HTMLElement,headerStart:HTMLElement,button:HTMLButtonElement,time:number,user:userType,isAuthenticated:boolean}){
+        const {navHeader,headerStart,button,time,user,isAuthenticated}=item;
         const heightWidth=36;
         let show:boolean=false;
-        this.mainHeader=document.querySelector("header#navHeader") as HTMLElement;
+      
         let getPageCount:HTMLElement|null;
         button.style.cssText=`position:relative;display:flex;justify:content:center;align-items:center;border-radius:50%;padding:5px;background-color:transparent;box-shadow:1px 1px 12px 1px white;color:white;transform:rotate(180deg);width:${heightWidth}px;height:${heightWidth}px;padding:1px;margin-block:auto;`
         button.style.color="white";
@@ -66,24 +67,22 @@ set user(user:userType){
         FaCreate({parent:button,name:FaArrowRight,cssStyle:{width:"100%"}});
         button.onclick=(e:MouseEvent)=>{
             if(e){
-                const getNavHeader=button.parentElement as HTMLElement;
-                if(getNavHeader){
-                    getPageCount=getNavHeader.querySelector("div#genPageCount-main") as HTMLElement;
+                
+                    getPageCount=headerStart.querySelector("div#genPageCount-main") as HTMLElement;
                     if(getPageCount){
                         const marginLeft=getPageCount.style.marginLeft;
                         const left=getPageCount.style.left;
                        const cssStyle={marginLeft,left}as any as {[key:string]:string}
                        this.fadeOutIn({target:getPageCount,time:400,cssStyle});
                     }
-                }
-                if(!getNavHeader) return;
+             
                 if(button.style.transform==="" || button.style.transform==="rotate(180deg)"){
                     show=true;
                     this.imageAfterEffect({button,heightWidth,time:600,show:true});
                     button.style.transform="rotate(0deg)";
                     button.style.color="black";
                     button.style.backgroundColor="white";
-                    this.slideMenu({navHeader:getNavHeader,show:true,time:600,user,isAuthenticated});
+                    this.slideMenu({navHeader,show:true,time:600,user,isAuthenticated});
                     button.animate([
                         { transform: "rotate(180deg)",color:"white",backgroundColor:"transparent" },
                         { transform: "rotate(0deg)",color:"black",backgroundColor:"white" },
@@ -93,7 +92,7 @@ set user(user:userType){
                     button.style.transform="rotate(180deg)";
                     button.style.color="white";
                     button.style.backgroundColor="transparent";
-                    this.slideMenu({navHeader:getNavHeader,show:false,time:600,user,isAuthenticated});
+                    this.slideMenu({navHeader,show:false,time:600,user,isAuthenticated});
                     button.animate([
                         { transform: "rotate(0deg)",color:"black",backgroundColor:"white" },
                         { transform: "rotate(180deg)",color:"white",backgroundColor:"transparent" },
@@ -108,8 +107,9 @@ set user(user:userType){
 
     slideMenu(item:{navHeader:HTMLElement,show:boolean,time:number,user:userType,isAuthenticated:boolean}){
         const {navHeader,show,time,user,isAuthenticated}=item;
+        navHeader.style.zIndex="";
         const less400=window.innerWidth <400;
-        const header_height=window.innerWidth < 400 ? 195 :150;
+        const header_height=less400 ? 195 :160;
         const headerHeight=this.isAuthenticated ? header_height + 70 : header_height;
         Header.cleanUpByID(navHeader,"slide-menu");
         const popup=document.createElement("div");

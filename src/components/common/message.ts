@@ -1,4 +1,4 @@
-import {  blogType, chartType, messageType, postType, sendPostRequestType } from '@/components/editor/Types';
+import {  blogType, chartType, messageType, postType, sendPostRequestType, userType } from '@/components/editor/Types';
 import {FaCrosshairs} from "react-icons/fa";
 import Misc from '../common/misc';
 import Nav from '../nav/headerNav';
@@ -428,10 +428,11 @@ class Message{
     msgSetup:MessageSetup;
     static bgColor:string;
     static btnColor:string;
+    private _user:userType|null;
     
-    constructor(private _modSelector:ModSelector,private _service:Service,blog:blogType|null,post:postType|null){
+    constructor(private _modSelector:ModSelector,private _service:Service,blog:blogType|null,post:postType|null,user:userType|null){
         this.freepicurl="https://newablogroom-free-bucket.s3.us-east-1.amazonaws.com";
-        
+        this._user=user;
         this._blog={} as blogType;
         this._message={} as messageType;
         this._messages=[] as messageType[];
@@ -811,6 +812,7 @@ class Message{
         const {button:cancel}=Misc.simpleButton({anchor:btnCont,text:"cancel",bg:Nav.btnColor,color:"white",type:"button",time:400});
         cancel.onclick=(e:MouseEvent)=>{
             if(e){
+                this._modSelector.blogInitializer(this._user);
                 Misc.growOut({anchor:popup,scale:0,opacity:0,time:40});
                 setTimeout(()=>{
                     parent.removeChild(popup);

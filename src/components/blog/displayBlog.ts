@@ -117,7 +117,7 @@ class DisplayBlog{
      //MAIN INJECTION DONE @ Index.tsx//id=client_blog
     async main(item:{parent:HTMLElement,blog:blogType|null,user:userType|null}){
         const {parent,blog,user}=item;
-        const idValues=this._modSelector.dataset.idValues
+        const idValues=this._modSelector.dataset.idValues;
         this._arrDivPlaces=[];
         if(blog ){
             const less400=window.innerWidth < 420;
@@ -221,7 +221,7 @@ class DisplayBlog{
                 },800);
                 
                 //SHOWS PAGE
-                await this.saveFinalWork({innerContainer:container,blog,idValues,arrDivPlaces:this._arrDivPlaces}).then(async(res)=>{
+                await this.saveFinalWork({innerContainer:container,blog,idValues,arrDivPlaces:this._arrDivPlaces,less900,less400}).then(async(res)=>{
                     if(res){
 
                         this.getUserInfo({htmlUserInfo:outerContainer,user:user}).then(async(_res)=>{
@@ -276,7 +276,7 @@ class DisplayBlog{
      ///////////////////FINALE SHOW/////////////////////////////
      //INJECTED IN MAIN (BUTTON => final)
     
-    async showFinal(parent:HTMLElement,blog:blogType,idValues:idValueType[]):Promise<HTMLElement|undefined>{
+    async showFinal({parent,blog,idValues,less400,less900}:{parent:HTMLElement,blog:blogType,idValues:idValueType[],less400:boolean,less900:boolean}):Promise<HTMLElement|undefined>{
         this._arrDivPlaces=[];
         this.cleanAttributes(parent,true);
         const checkBlog=(( blog?.elements.length>0 || blog?.selectors.length>0) || blog?.charts.length>0);
@@ -305,7 +305,7 @@ class DisplayBlog{
             innerContainer.style.cssText="width:100%; padding:1rem;margin:1rem;border-radius:10px;margin-inline:auto;padding-inline:1rem;display:flex;flex-direction:column;justify-content:center;align-items:center;";
             innerContainer.className="mx-auto";
             mainContainer.appendChild(innerContainer);
-           await this.saveFinalWork({innerContainer,blog,idValues,arrDivPlaces:this._arrDivPlaces}).then(async(res)=>{
+           await this.saveFinalWork({innerContainer,blog,idValues,arrDivPlaces:this._arrDivPlaces,less900,less400}).then(async(res)=>{
             if(res){
 
                 //BUTTON SELECTION
@@ -355,11 +355,13 @@ class DisplayBlog{
         }
     }
     //--PARENT:showFinal(parent)-----------PARENT Edit.editSetup.saveWorkSetup-()---------///
-   async saveFinalWork({innerContainer,blog,idValues,arrDivPlaces}:{
+   async saveFinalWork({innerContainer,blog,idValues,arrDivPlaces,less900,less400}:{
     innerContainer:HTMLElement,
     blog:blogType,
     idValues:idValueType[],
-    arrDivPlaces:arrDivPlaceType[]
+    arrDivPlaces:arrDivPlaceType[],
+    less900:boolean,
+    less400:boolean
 
    }):Promise<{blogContainer:HTMLElement,innerContainer:HTMLElement}>{
        
@@ -393,7 +395,7 @@ class DisplayBlog{
             head.style.cssText=ModSelector.mainHeader_css ? ModSelector.mainHeader_css as string : "margin-inline:0px;width:100%;display:flex;flex-direction:column;align-items:center;";
             head.className=ModSelector.mainHeader_class ? ModSelector.mainHeader_class :"sectionHeader";
             head.id=Main._mainHeader? Main._mainHeader.id as string :"mainHeader";
-           const _header= await this.showCleanSelector({parent:head,selector:header,idValues});
+           const _header= await this.showCleanSelector({parent:head,selector:header,idValues,less900,less400});
             container.appendChild(_header);
         }
         if(maxCount>0){
@@ -406,7 +408,7 @@ class DisplayBlog{
 
                     const select =sels.find(sel=>(sel.placement===num));
                     if(select){
-                      const divCont= await this.showCleanSelector({parent:main,selector:select,idValues});
+                      const divCont= await this.showCleanSelector({parent:main,selector:select,idValues,less900,less400});
                         arrDivPlaces.push({id:num,divCont,displayClean:true,parent:main,type:"selector",selector:select,element:null,chart:null,target:divCont})
     
                     }
@@ -439,6 +441,7 @@ class DisplayBlog{
                    
                         if(item.type==="element" || item.type==="selector"){
                             item.parent.appendChild(item.divCont);
+                            item.target.removeAttribute("contenteditable");
                             Header.cleanUpByID(item.divCont,"setAttributes");
                         }else if(item.type==="chart" && item.chart){
                             const {divCont,chart}=item
@@ -458,19 +461,22 @@ class DisplayBlog{
             const foot=document.createElement(footer.name);
             foot.className=ModSelector.mainFooter_class;
             foot.style.cssText=ModSelector.mainFooter_css;
-           const _footer=await this.showCleanSelector({parent:foot,selector:footer,idValues});
+           const _footer=await this.showCleanSelector({parent:foot,selector:footer,idValues,less400,less900});
             container.appendChild(_footer);
         }
         innerContainer.appendChild(container);
         return Promise.resolve({blogContainer:container,innerContainer}) as Promise<{blogContainer:HTMLElement,innerContainer:HTMLElement}>;
         
-    }
-   async showCleanSelector({parent,selector,idValues}:{parent:HTMLElement,selector:selectorType,idValues:idValueType[]}):Promise<HTMLElement>{
+    };
+
+
+
+   async showCleanSelector({parent,selector,idValues,less900,less400}:{parent:HTMLElement,selector:selectorType,idValues:idValueType[],less400:boolean,less900:boolean}):Promise<HTMLElement>{
    
        
         const innerCont=document.createElement(selector.name);
        
-        const less400=window.innerWidth < 400 ;
+      
         if(selector?.name){
             const maxWidthImg=selector.header ? "100px":"auto";
             innerCont.id=selector.eleId;
@@ -524,7 +530,7 @@ class DisplayBlog{
 
                                 }
 
-                               await this.generateCleanColumn({row,sel:selector,row_,col_,selRowCol,idValues,less400:less400}).then(async(cres)=>{
+                               await this.generateCleanColumn({row,sel:selector,row_,col_,selRowCol,idValues,less400:less400,less900}).then(async(cres)=>{
                                     if(cres){
                                         cres.col_.elements.map(async(element)=>{
                                             if(element){
@@ -561,14 +567,15 @@ class DisplayBlog{
     };
 
 
-   async generateCleanColumn({row,sel,selRowCol,col_,row_,idValues,less400}:{
+   async generateCleanColumn({row,sel,selRowCol,col_,row_,idValues,less400,less900}:{
         row:HTMLElement;
         selRowCol:selRowColType;
         sel:selectorType;
         col_:colType;
         row_:rowType;
         idValues:idValueType[],
-        less400:boolean
+        less400:boolean,
+        less900:boolean
     }):Promise<{row:HTMLElement,sel:selectorType,col:HTMLElement,col_:colType,row_:rowType,less400:boolean,idValues:idValueType[]}>{
         const eleId=col_.eleId;
         const col=document.createElement("div");
@@ -578,6 +585,7 @@ class DisplayBlog{
         idValues.push({eleId,id:"rowId",attValue:row_.eleId});
         idValues.push({eleId,id:"selRowCol",attValue:JSON.stringify(selRowCol)});
         col.style.cssText=col_.cssText;
+        col.style.width=less900 ? "100%" :"";
         col.style.paddingInline="0rem";
         if(less400){
             col.style.flex="0 0 100%";
@@ -716,6 +724,7 @@ class DisplayBlog{
             idValues.push({eleId,id:"numCols",attValue:String(len)});
             idValues.push({eleId,id:"selRowCol",attValue:JSON.stringify(selRowCol)});
             this._modSelector.dataset.populateElement({target,selRowColEle:element,idValues,level:"element",loc:"flexbox",clean:true});
+            target.removeAttribute("contenteditable");
             if(!checkArr){
                 //p,hs
                 if(less400){

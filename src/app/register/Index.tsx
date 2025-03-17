@@ -6,6 +6,7 @@ import ModSelector from '@/components/editor/modSelector';
 import User from '@/components/user/userMain';
 import Register from './register';
 import Dataset from '@/components/common/dataset';
+import styles from './register.module.css';
 
 export default function Index() {
     const readyRef = React.useRef(null);
@@ -34,6 +35,6 @@ export default function Index() {
     }, []);
 
     return (
-        <div id="register_page" className="mx-auto" ref={readyRef}></div>
+        <div id="register_page" className={styles.registerIndex} ref={readyRef}></div>
     )
 }

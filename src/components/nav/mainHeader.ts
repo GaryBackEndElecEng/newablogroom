@@ -9,6 +9,7 @@ import NavArrow from "./arrow";
 import SignInAndUp from "./signinAndUp";
 import BrowserType from "../common/browserType";
 import MiddleLogo from "./middleLogo";
+import styles from "./nav.module.css";
 
 class MainHeader {
     public meta: Meta
@@ -74,35 +75,20 @@ class MainHeader {
         //-----------------REPEAT CONTROL(ANIMATION)-------------------//
         MainHeader.injector = parent;
         Header.cleanUpByID(parent, "navHeader");
-        //SETTING WIDTH
-        let width_: number;
-        if (typeof window !== "undefined") {
-            width_ = window.innerWidth < 983 ? 99 : 100;
-            MainHeader.injector.style.width = `${width_}%`;
-        }
         MainHeader.header = document.createElement("header");
-        MainHeader.header.id = "navHeader"
-        parent.style.zIndex = "0;"
-        MainHeader.header.style.cssText = MainHeader.mainHeader_css;
+        MainHeader.header.id = "navHeader";
+        MainHeader.header.className=styles.mainHeader;
         const headerStart=document.createElement("div");
         headerStart.id="headerStart;"
-        headerStart.style.cssText="display:inline-flex;";
-        const headerMain = document.createElement("div");
-        headerMain.id = "headerMain";
-        headerMain.style.cssText = "display:flex;"
-        headerMain.style.flex = less900 ? "1 0 80%" : "1 0 90%";
+        headerStart.className=styles.headerStart;
         const headerMiddle=document.createElement("div");
         headerMiddle.id="headerMiddle";
-        headerMiddle.style.cssText="display:inline-flex;position:relative;";
-        headerStart.style.flex=less900 ?(less400 ? "1 0 36%":"1 0 26%"):"1 0 10%";
-        headerMiddle.style.flex=less900 ?(less400 ? "1 0 66%":"1 0 74%"):"1 0 90%";
+        headerMiddle.className=styles.headerMiddle;
         const headerEnd = document.createElement("div");
-        headerEnd.id = "header-end";
-        headerEnd.style.cssText = "display:flex;justify-content:center;align-items:center;position:relative;"
-        headerEnd.style.flex = less900 ? "1 0 20%" : "1 0 10%";
-        headerMain.appendChild(headerStart);
-        headerMain.appendChild(headerMiddle);
-        MainHeader.header.appendChild(headerMain);
+        headerEnd.id = "headerEnd";
+        headerEnd.className=styles.headerEnd;
+        MainHeader.header.appendChild(headerStart);
+        MainHeader.header.appendChild(headerMiddle);
         MainHeader.header.appendChild(headerEnd);
         //signIn-out
         if (user.id === "") {
@@ -116,12 +102,12 @@ class MainHeader {
         //signIn-out
         //NAV BUTTON
         const button = document.createElement("button");
-        this.navArrow.rotateArrow({ button, time: 800, user, isAuthenticated });//arrow navigator
+        this.navArrow.rotateArrow({navHeader:MainHeader.header,headerStart, button, time: 800, user, isAuthenticated });//arrow navigator
         headerStart.appendChild(button);
         this.middleLogo.main({parent:headerMiddle});
         parent.appendChild(MainHeader.header);
         //NAV BUTTON
-       await this.showRectDropDown({ parent: MainHeader.injector, headerMain,headerMiddle,headerStart, headerEnd, user, count: 0, isSignedIn: isAuthenticated,isRepeat });
+       await this.showRectDropDown({ parent: MainHeader.injector,headerMiddle,headerStart, headerEnd, user, count: 0, isSignedIn: isAuthenticated,isRepeat });
         //AUTH INJECTION UNDER MainHeader.header=document.querySelector(header#navHeader)
 
     };
@@ -130,7 +116,6 @@ class MainHeader {
     //AUTH:EXECUTOR: INJECTION:MainHeader.header=document.querySelector("header#navHeader") as HTMLElement
     async showRectDropDown(item: {
          parent: HTMLElement,
-         headerMain: HTMLElement,
          headerStart: HTMLElement,
          headerMiddle:HTMLElement,
          headerEnd: HTMLElement, 
@@ -140,7 +125,7 @@ class MainHeader {
         isRepeat:boolean
 
      }) {
-        const { parent, headerMain, user, count, headerEnd, isSignedIn,isRepeat,headerMiddle,headerStart } = item;
+        const { parent, user, count, headerEnd, isSignedIn,isRepeat,headerMiddle,headerStart } = item;
         const url = new URL(window.location.href);
         const pathname = "/";
         const isTimeUp=isRepeat ? 5000 :1000;
@@ -151,7 +136,7 @@ class MainHeader {
         await this.sleep({
             time: time,
             func: async () => {
-                await this.asyncShowRectDrpDown({ parent, headerMain,headerStart,headerMiddle, user, count, pathname, time, isSignedIn,isRepeat }).then(async (res) => {
+                await this.asyncShowRectDrpDown({ parent, headerEnd,headerStart,headerMiddle, user, count, pathname, time, isSignedIn,isRepeat }).then(async (res) => {
                     if (res && res.count === 1) {
                         //GENERATES DROP-DOWN 'WELCOME"
                         await this.sleep({
@@ -172,9 +157,9 @@ class MainHeader {
                                 
                                 };//SHOWS IF USER===NULL}
                                 //GENERATES DISPLAY PAGE COUNT(TOP-LEFT)
-                                await this.genPageCount({ parent: res.headerStart,headerMiddle, count });//PAGE COUNT ON HEADER
+                                await this.genPageCount({ parent: res.headerStart, count });//PAGE COUNT ON HEADER
                                 //GENERATES (IF USER IS SIGNED IN HIS SIGNED IN)
-                                await this.signinAndUp.main({ parent: headerEnd }).then(async (res_) => {
+                                await this.signinAndUp.main({ parent: res.headerEnd }).then(async (res_) => {
                                     if (res_) {
                                         if (res_.isSignedIn) {
                                             this.navArrow.cleanUpByQueryKeep(res_.parent, "div#headerNav-signInDisplay-container"); //this cleans up but one
@@ -202,7 +187,7 @@ class MainHeader {
 
     async asyncShowRectDrpDown(item: {
          parent: HTMLElement,
-         headerMain: HTMLElement,
+         headerEnd: HTMLElement,
          headerStart: HTMLElement,
          headerMiddle: HTMLElement,
          user: userType | null,
@@ -215,7 +200,7 @@ class MainHeader {
      }) {
         //DISPLAY A BLOGROOM BLOCK ON LOAD
         //BLOGROOM BLOCK SHOWS ONLY @ HOME
-        const { parent, headerMain, user, count, pathname, time, isSignedIn,isRepeat,headerStart,headerMiddle } = item;
+        const { parent, headerEnd, user, count, pathname, time, isSignedIn,isRepeat,headerStart,headerMiddle } = item;
         let rectangle: HTMLElement | undefined;
         const less900 = window.innerWidth < 900;
         const less700 = window.innerWidth < 700;
@@ -262,7 +247,7 @@ class MainHeader {
         };
 
 
-        return Promise.resolve({ parent, headerMain, rect: rectangle, user, count: count + 1, isSignedIn,isRepeat,headerStart,headerMiddle}) as Promise<{ parent: HTMLElement, headerMain: HTMLElement, rect: HTMLElement | undefined, user: userType | null, count: number, isSignedIn: boolean,isRepeat:boolean,headerStart:HTMLElement,headerMiddle:HTMLElement}>;
+        return Promise.resolve({ parent, headerEnd, rect: rectangle, user, count: count + 1, isSignedIn,isRepeat,headerStart,headerMiddle}) as Promise<{ parent: HTMLElement, headerEnd: HTMLElement, rect: HTMLElement | undefined, user: userType | null, count: number, isSignedIn: boolean,isRepeat:boolean,headerStart:HTMLElement,headerMiddle:HTMLElement}>;
 
     };
 
@@ -361,62 +346,60 @@ class MainHeader {
 
     };
 
-    async genPageCount(item: { parent: HTMLElement, count: number,headerMiddle:HTMLElement }): Promise<void> {
-        const { parent, count,headerMiddle } = item;
+    async genPageCount(item: { parent: HTMLElement, count: number,}): Promise<void> {
+        const { parent, count } = item;
         if (typeof window === "undefined") return;
         const less900 = window.innerWidth < 900;
         const less400 = window.innerWidth < 400;
-        const less375 = window.innerWidth < 375;
 
 
         const pg = window.location.pathname;
-        if (!pg || count > 0) return;
+        if (count > 0) return;
         //ensuring to count page based on landed pages from match RegExp
         const blog_id = MainHeader.getBlogPostID({ pathname: pg }).name === "blog" ? MainHeader.getBlogPostID({ pathname: pg }).num : undefined;
         const post_id = MainHeader.getBlogPostID({ pathname: pg }).name === "post" ? MainHeader.getBlogPostID({ pathname: pg }).num : undefined;
-        await Promise.all(this.meta.pages.map(async (page) => {
-            if ((page.match.test(pg)) && this.pageCount === 0) {
+       const isPage=this.meta.pages.find(async (page) => {
+            if ((page.match.test(pg))) {
+                   return page;}})
+                if(!isPage) return
                 this.pageCount++;
                 await this._service.getPageCount({ page: pg, blog_id, post_id }).then(async (res) => {
                     if (res) {
-                        Header.cleanUpByID(parent, "genPageCount-main");
-                        let name = (res.name !== "") || "";
-                        if (res.name === "/") {
-                            name = "/home"
-                        }
                         const count_ = (res.count) || 0;
-                        const container = document.createElement("div");
-                        container.id = "genPageCount-main";
-                        container.style.cssText = "position:relative;width:auto;height:auto;display:flex;justify-content:center;flex-direction:column;align-items:center;border-left:1px solid white;border-right:1px solid white;margin-left:5px;justify-self:start;";
-                        container.style.left = less900 ? (less400 ? (less375 ? "-10px" : "-2px") : "50px") : "90px";
-                        container.style.transform = less900 ? (less400 ? (less375 ? "scale(0.4)" : "scale(0.5)") : "scale(0.7)") : "scale(0.8)";
-                        const div = document.createElement("div");
-                        div.id = "genPageCount-inner";
-                        div.style.cssText = "margin:auto;display:flex;justify-content:center;gap:1rem;align-items:center;flex-direction:row;flex-wrap:wrap;"
-                        const text = document.createElement("small");
-                        text.id = "genPageCount-inner-text";
-                        text.style.cssText = "color:#0CAFFF;font-size:10px;font-weight:bold;";
-                        text.textContent = `${name} :`;
-                        const count = document.createElement("small");
-                        count.id = "genPageCount-inner-count";
-                        count.style.cssText = "color:white;font-size:10px;font-weight:bold;"
-                        count.innerHTML = `<span style="color:#0CAFFF;">#: </span>${count_}`;
-                        text.style.fontSize = less900 ? (less400 ? "80%" : "90%") : "100%";
-                        count.style.fontSize = less900 ? (less400 ? "80%" : "90%") : "100%";
-                        div.appendChild(text);
-                        div.appendChild(count);
-                        container.appendChild(div);
-                        parent.appendChild(container);
-                        Misc.matchMedia({ parent: container, maxWidth: 400, cssStyle: { transform: "scale(0.6)", left: "0px" } })
-                        Misc.growIn({ anchor: container, scale: 0.2, opacity: 0, time: 500 });
+                     this.pageCountMain({parent,name:res.name,count:count_,less400,less900});
+                   
                     }
                 });
-            }
-        }));
+      
 
 
 
     };
+
+
+    pageCountMain({parent,name,count,less400,less900}:{parent:HTMLElement,less400:boolean,less900:boolean,name:string,count:number}):{pageCountContainer:HTMLElement}{
+        if(name==="/") name="/home";
+        Header.cleanUpByID(parent, "genPageCount-main");
+        const container = document.createElement("div");
+        container.id = "genPageCount-main";
+        container.className=styles.pageCountMain;
+        const text = document.createElement("small");
+        text.id = "genPageCount-inner-text";
+        text.style.cssText = "color:#0CAFFF;font-size:10px;font-weight:bold;";
+        text.textContent = `${name} :`;
+        const count_ = document.createElement("small");
+        count_.id = "genPageCount-inner-count";
+        count_.style.cssText = "color:white;font-size:10px;font-weight:bold;"
+        count_.innerHTML = `<span style="color:#0CAFFF;">#: </span>${count}`;
+        text.style.fontSize = less900 ? (less400 ? "80%" : "90%") : "100%";
+        count_.style.fontSize = less900 ? (less400 ? "80%" : "90%") : "100%";
+        container.appendChild(text);
+        container.appendChild(count_);
+        parent.appendChild(container);
+        Misc.growIn({ anchor: container, scale: 0.2, opacity: 0, time: 500 });
+        return {pageCountContainer:container}
+    }
+
 
 
     static closeNav(logoCont: HTMLElement) {

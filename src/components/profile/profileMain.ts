@@ -20,6 +20,7 @@ import Post from "../posts/post";
 import Blogs from "../blogs/blogsInjection";
 import CodeElement from "../common/codeElement";
 import HtmlElement from "../editor/htmlElement";
+import { FaRadio } from "react-icons/fa6";
 
 
 
@@ -62,8 +63,8 @@ class ProfileMain{
         this.codeElement=new CodeElement(this._modSelector,this._service);
         this.newCode=new NewCode(this._modSelector,this._service,this._user);
         this.shapeOutside=new ShapeOutside(this._modSelector,this._service,this._user);
-        this.classMsg= new Message(this._modSelector,this._service,this._modSelector.blog,null);
-        this._displayBlog=new DisplayBlog(this._modSelector,this._service,this._user,this.newCode,this.chart,this.classMsg,this.htmlElement);
+        this.classMsg= new Message(this._modSelector,this._service,this._modSelector.blog,null,this._user.user);
+        this._displayBlog=new DisplayBlog(this._modSelector,this._service,this._user,this._modSelector.blog,this.chart,this.classMsg,this.htmlElement);
         this.freebucket="https://newablogroom-free-bucket.s3.us-east-1.amazonaws.com"
 
     }
@@ -1617,6 +1618,7 @@ class ProfileMain{
             cardBody.appendChild(anchor);
         }
         card.appendChild(cardBody);
+        this.showIsLive({parent:card,goLive:post.published});
         col.appendChild(card);
         await this.removePost({parent:scrollCol1,target:col,post,index}).then(async(res)=>{
             if(res){
@@ -1633,6 +1635,19 @@ class ProfileMain{
         return {card}
        
     };
+
+    showIsLive({parent,goLive}:{parent:HTMLElement,goLive:boolean}){
+        if(goLive){
+            const showLive=document.createElement("div");
+            const css_col="display:flex;align-items:center;justify-content:center;"
+            showLive.id="show-live";
+            showLive.style.cssText=css_col + "position:absolute;top:0%;left:0%;transform:translate(12px,12px);background-color:black;color:white;border-radius:50%;padding:3px;";
+            FaCreate({parent:showLive,name:FaRadio,cssStyle:{fontSize:"24px",borderRadius:"50%",color:"white"}});
+            parent.appendChild(showLive);
+        }else{
+            Header.cleanUpByID(parent,"show-live");
+        }
+    }
 
 
     editPost(item:{parent:HTMLElement,displayCol2:HTMLElement,col1:HTMLElement,post:postType,user:userType,index:number}){
@@ -2054,7 +2069,7 @@ class ProfileMain{
 
 
     askToDelete(item:{scrollCol1:HTMLElement,target:HTMLElement,post:postType,user:userType}){
-        const {target,post,user}=item;
+        const {scrollCol1,target,post,user}=item;
         target.style.position="relative";
         const css_row="margin-inline:auto;display:flex;flex-direction:row;flex-wrap:wrap;justify-content:center;align-items:center;gap:0.7rem;";
         const container=document.createElement("div");
@@ -2079,11 +2094,11 @@ class ProfileMain{
                         this._post.posts.map((_post,ind)=>{
                             if(_post && _post.id===post.id){
                                 this._post.posts.splice(ind,1);
-                                this._post.posts=this._post._posts;
+                                
                                
                             }
                         });
-                        const scrollCol1=document.querySelector("div#scrollCol1") as HTMLElement;
+                      
                         if(scrollCol1){
                             //MEANS DELETING FROM PROFILE: PROFILE SECTION IS USING THIS
                             Header.cleanUp(scrollCol1);

@@ -1,6 +1,6 @@
 // "use server";//USE SERVER CAN ONLY EXPORT ASYNC FUNCTION
 import React from 'react';
-import styles from "@/components/posts/post.module.css";
+import styles from "./posts.module.css";
 import type { Metadata } from 'next';
 
 export const metadata: Metadata = {
@@ -49,7 +49,10 @@ export default function blogslayout({
 }) {
     return (
         <div className={styles.postsLayout}>
-            {children}
+            <div className={styles.postsLayoutInner}>
+                {children}
+
+            </div>
         </div>
     )
 }

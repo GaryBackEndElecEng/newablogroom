@@ -34,7 +34,7 @@ export default function Index() {
                     user.user = _user;
                     modSelector.asyncBlogInitializer({ user: _user }).then(async (res) => {
                         if (res) {
-                            const message = new Message(modSelector, service, res, null);
+                            const message = new Message(modSelector, service, res, null, _user);
                             const chart = new ChartJS(modSelector, service, user, message);
                             countRef.current = 2;
 

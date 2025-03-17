@@ -5,3 +5,118 @@
   height: 5vh;
   position: relative;
 }
+
+.mainHeader {
+  margin-inline: 0px;
+  height: inherit;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: nowrap;
+  width: 100%;
+  position: relative;
+  background-color: #0c090a;
+  z-index: none;
+  box-shadow: 1px 1px 5px 1px white, -1px -1px 5px -1px white;
+}
+.headerStart {
+  display: flex;
+  height: inherit;
+  flex-wrap: nowrap;
+  justify-content: flex-start;
+  align-items: center;
+  flex: 1 1 10%;
+  padding-left: 5px;
+}
+.headerMiddle {
+  height: inherit;
+  display: flex;
+  flex-wrap: nowrap;
+  justify-content: center;
+  align-items: center;
+  flex: 1 1 80%;
+}
+.headerEnd {
+  height: inherit;
+  display: flex;
+  flex-wrap: nowrap;
+  justify-content: flex-end;
+  align-items: center;
+  flex: 1 1 10%;
+}
+
+.pageCountMain {
+  position: relative;
+  width: auto;
+  height: auto;
+  display: flex;
+  justify-content: center;
+  flex-direction: row;
+  flex-wrap: nowrap;
+  align-items: center;
+  border-left: 1px solid white;
+  border-right: 1px solid white;
+  margin-left: 5px;
+  justify-self: start;
+  transform: scale(0.8);
+}
+.middleLogoMain {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-direction: column;
+  height: inherit;
+  transform: scale(1);
+  gap: 1rem;
+}
+
+@media screen and (max-width: 900px) {
+  .headerindex {
+    height: 4vh;
+  }
+  .headerStart {
+    flex: 1 1 20%;
+  }
+  .headerMiddle {
+    flex: 1 1 65%;
+  }
+  .headerEnd {
+    flex: 1 1 15%;
+  }
+  .pageCountMain {
+    left: auto;
+    transform: scale(0.7);
+  }
+  .middleLogoMain {
+    transform: scale(0.9);
+  }
+}
+@media screen and (max-width: 400px) {
+  .headerindex {
+    height: 6vh;
+  }
+  .headerStart {
+    flex: 1 1 35%;
+    transform: scale(0.9);
+  }
+  .headerMiddle {
+    flex: 1 1 30%;
+  }
+  .headerEnd {
+    flex: 1 1 35%;
+  }
+  .pageCountMain {
+    left: auto;
+    transform: scale(0.6);
+    flex-wrap: nowrap !important;
+  }
+  .middleLogoMain {
+    gap: 0;
+  }
+}
+@media screen and (max-width: 375px) {
+  .pageCountMain {
+    transform: scale(0.4);
+    left: -10px;
+  }
+}

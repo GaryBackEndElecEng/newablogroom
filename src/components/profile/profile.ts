@@ -47,7 +47,7 @@ class Profile{
         this._blogs=[] as blogType[];
         this.newCode=new NewCode(this._modSelector,this._service,this._user);
         this.shapeOutside=new ShapeOutside(this._modSelector,this._service,this._user);
-        this.classMsg= new Message(this._modSelector,this._service,this._modSelector.blog,null);
+        this.classMsg= new Message(this._modSelector,this._service,this._modSelector.blog,null,this._user.user);
         const blog=this._modSelector.blog;
         this._displayBlog=new DisplayBlog(this._modSelector,this._service,this._user,blog,this.chart,this.classMsg,this.htmlElement);
 
@@ -139,7 +139,7 @@ class Profile{
         this.updateImageBio(row,user,1)
         this.emailForm(row,2);
         this.passwordForm(row,2);
-        this.userBlogs({row,column:1});//row.id=row-profile
+        this.userBlogs({row,column:1,less400,less900});//row.id=row-profile
         await this.messages(row,user,2);
         await this.userposts({row,user,cols:2})
         headerAnchor.appendChild(outerMain);
@@ -574,8 +574,8 @@ class Profile{
             }
         });
     }
-    userBlogs(item:{row:HTMLElement,column:number}){
-        const {row,column}=item;
+    userBlogs(item:{row:HTMLElement,column:number,less400:boolean,less900:boolean}){
+        const {row,column,less400,less900}=item;
         Profile.cleanUpByID(row,"section#contID")
         const partition=Math.round(12/column);
         const cont=document.createElement("section");
@@ -606,7 +606,7 @@ class Profile{
                     this._modSelector.blogs=blogs;
                     localStorage.setItem("userBlogs",JSON.stringify(blogs));
                     blogs.map((blog,index)=>{
-                        this.showBlog({grandRow:row,innerRow:inner_row,blog,index})
+                        this.showBlog({grandRow:row,innerRow:inner_row,blog,index,less400,less900})
 
                     });
                 }else{
@@ -944,8 +944,8 @@ class Profile{
             }
         };
     }
-    async showBlog(item:{grandRow:HTMLElement,innerRow:HTMLElement,blog:blogType,index:number}){
-        const {grandRow,innerRow,blog,index}=item;
+    async showBlog(item:{grandRow:HTMLElement,innerRow:HTMLElement,blog:blogType,index:number,less400:boolean,less900:boolean}){
+        const {grandRow,innerRow,blog,index,less900,less400}=item;
             Profile.cleanUpByID(innerRow,`div#column-${blog.id}`);
             const flex=window.innerWidth < 900 ? (window.innerWidth < 410 ? "none":"1 0 50%") :"1 0 33%";
             const col=document.createElement("div");
@@ -999,7 +999,7 @@ class Profile{
             const btn=buttonReturn({parent:card,text:"option",bg:this.btnColor,color:"white",type:"button"});
             btn.addEventListener("click",(e:MouseEvent)=>{
                 if(e){
-                    this.viewChoice({grandRow,innerRow,col,card,blog,index});
+                    this.viewChoice({grandRow,innerRow,col,card,blog,index,less400,less900});
                     
                 }
             });
@@ -1027,8 +1027,11 @@ class Profile{
         col.appendChild(para);
         row.appendChild(col);
 
-    }
-    async showFinalWork(grandRow:HTMLElement,blog:blogType){
+    };
+
+
+
+    async showFinalWork({grandRow,blog,less400,less900}:{grandRow:HTMLElement,blog:blogType,less400:boolean,less900:boolean}){
         const popup=document.createElement("section");
         grandRow.style.width="100%";
         popup.style.cssText="position:absolute;background:white;width:100%;height:auto;z-index:200;"
@@ -1046,7 +1049,7 @@ class Profile{
         popup.appendChild(container);
         //APPENDING POPUPU TO GRANDROW
         grandRow.appendChild(popup);
-        await this._displayBlog.saveFinalWork({innerContainer:container,blog,arrDivPlaces,idValues});
+        await this._displayBlog.saveFinalWork({innerContainer:container,blog,arrDivPlaces,idValues,less400,less900});
         Misc.fadeIn({anchor:popup,xpos:50,ypos:100,time:400});
         const btnGrp=document.createElement("div");
         btnGrp.classList.add("profile-showFinalWork-btnGrp");
@@ -1096,13 +1099,17 @@ class Profile{
                 const getColumn=grandRow.querySelector(`div#column-${blog.id}`) as HTMLElement | null;
                 const getInnerRow=grandRow.querySelector(`div#user-blogs`) as HTMLElement | null;
                 if(!(getColumn && getInnerRow)) return;
-                this.verifyDeleteFinaleShow(grandRow,popup,getInnerRow,getColumn,blog)
+                this.verifyDeleteFinaleShow({grandRow,parentPopup:popup,innerRow:getInnerRow,col:getColumn,blog,less400,less900})
                
             }
         });
-    }
-    viewChoice(item:{grandRow:HTMLElement,innerRow:HTMLElement,col:HTMLElement,card:HTMLElement,blog:blogType,index:number}){
-        const {grandRow,innerRow,col,card,blog,index}=item;
+    };
+
+
+
+
+    viewChoice(item:{grandRow:HTMLElement,innerRow:HTMLElement,col:HTMLElement,card:HTMLElement,blog:blogType,index:number,less400:boolean,less900:boolean}){
+        const {grandRow,innerRow,col,card,blog,index,less400,less900}=item;
         Profile.cleanUpByID(card,`div#choice`);
         let liveOnOff:HTMLButtonElement;
         col.style.position="relative";
@@ -1136,7 +1143,7 @@ class Profile{
                         //redue view
                        res.blogs.map(_blog=>{
                             if(_blog){
-                                this.showBlog({grandRow,innerRow,blog:_blog,index});
+                                this.showBlog({grandRow,innerRow,blog:_blog,index,less400,less900});
                             }
                         });
                     }
@@ -1156,7 +1163,7 @@ class Profile{
                             this._modSelector.loadBlog({blog,user});
                             Profile.cleanUpByID(grandRow,"section#show-final-popup");
                             grandRow.style.width="100%";
-                            await this.showFinalWork(grandRow,blog);
+                            await this.showFinalWork({grandRow,blog,less400,less900});
                             Misc.fadeOut({anchor:popup,xpos:100,ypos:50,time:400});
                             setTimeout(()=>{
                                 col.removeChild(popup);
@@ -1176,7 +1183,7 @@ class Profile{
         });
         delBtn.addEventListener("click",(e:MouseEvent)=>{
             if(e){
-                this.verifyDeleteChoice(grandRow,innerRow,col,blog);
+                this.verifyDeleteChoice({grandRow,innerRow,col,blog,less400,less900});
             }
         });
         cancel.addEventListener("click",(e:MouseEvent)=>{
@@ -1190,7 +1197,10 @@ class Profile{
 
 
 
-    }
+    };
+
+
+
    async promLiveonoff(card:HTMLElement,blog:blogType):Promise<void | {blogs: blogType[],show: boolean} | undefined>{
         //THE SERVER CHANGES THE SHOW LOGIC
         return this._service.liveonoff(blog).then(async(blog_)=>{
@@ -1204,9 +1214,11 @@ class Profile{
                 return {blogs:this._user.blogs,show:blog_.show}
             }
         }).catch((err)=>{const msg=getErrorMessage(err);console.error(msg);Misc.message({parent:card,msg:msg,type_:"error",time:700})});
-    }
+    };
 
-    verifyDeleteChoice(grandRow:HTMLElement,innerRow:HTMLElement,col:HTMLElement,blog:blogType){
+
+
+    verifyDeleteChoice({grandRow,innerRow,col,blog,less900,less400}:{grandRow:HTMLElement,innerRow:HTMLElement,col:HTMLElement,blog:blogType,less900:boolean,less400:boolean}){
         Header.cleanUpByID(col,"verifyDeleteChoice");
         const popup=document.createElement("div");
         popup.id="verifyDeleteChoice";
@@ -1249,7 +1261,7 @@ class Profile{
                         Misc.message({parent:grandRow,msg:`marked: ${JSON.stringify(ids)} as delete`,type_:"success",time:1000});
                         remainderBlogs.map((blog_,index)=>{
                             if(blog_){
-                                this.showBlog({grandRow,innerRow,blog:blog_,index})
+                                this.showBlog({grandRow,innerRow,blog:blog_,index,less900,less400})
                             }
                         });
                     }
@@ -1260,8 +1272,20 @@ class Profile{
                 },380);
             }
         };
-    }
-    verifyDeleteFinaleShow(grandRow:HTMLElement,parentPopup:HTMLElement,innerRow:HTMLElement,col:HTMLElement,blog:blogType){
+    };
+
+
+
+    verifyDeleteFinaleShow({grandRow,parentPopup,innerRow,col,blog,less400,less900}:{
+        grandRow:HTMLElement,
+        parentPopup:HTMLElement,
+        innerRow:HTMLElement,
+        col:HTMLElement,
+        blog:blogType,
+        less400:boolean,
+        less900:boolean
+
+    }){
         Header.cleanUpByID(col,"verifyDeleteFinalShow");
         const popup=document.createElement("div");
         popup.id="verifyDeleteFinalShow"
@@ -1306,7 +1330,7 @@ class Profile{
                         Misc.message({parent:grandRow,msg:`marked: ${JSON.stringify(ids)} as delete`,type_:"success",time:1000});
                         remainderBlogs.map((blog_,index)=>{
                             if(blog_){
-                                this.showBlog({grandRow,innerRow,blog:blog_,index})
+                                this.showBlog({grandRow,innerRow,blog:blog_,index,less400,less900})
                             }
                         });
                     }
@@ -1317,7 +1341,10 @@ class Profile{
                 },380);
             }
         };
-    }
+    };
+
+
+    
     promGetmsgs(user:userType){
         return this._service.getUserMessages(user.id).then(async(msgs:messageType[])=>{
             if(msgs){

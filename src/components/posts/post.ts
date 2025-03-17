@@ -105,7 +105,7 @@ class Post{
         //CONTROLLING THE ANIMATION ITERATIONS
         const repeatCount=1;
         const isAnimate=this.browser.repeatShowControl({repeatCount});
-        console.log("isAnimate",isAnimate)
+       
         //CONTROLLING THE ANIMATION ITERATIONS
         const url=new URL(window.location.href);
         const pathname=url.pathname;
@@ -128,7 +128,7 @@ class Post{
             create_post.style.marginBottom="1rem;"
             create_post.onclick=(e:MouseEvent) =>{
                 if(e){
-                    this.createPost({injector:injector,user:this.auth.user,pathname});
+                    this.createPost({injector:injector,user:this.auth.user,pathname,mainPostCont:container});
                 }
             };
         }
@@ -458,21 +458,26 @@ class Post{
         Header.cleanUpByID(container,"main-post-container-subDiv");//CLEANING UP
         const css="margin-inline:auto;display:flex;flex-direction:column;justify-content:flex-start;align-items:center;gap:1.5rem;";
         const css_row="margin-inline:auto;display:flex;justify-content:flex-start;align-items:flex-start;flex-wrap:wrap;width:100%;";
+    
         const subDiv=document.createElement("div");
         subDiv.id="main-post-container-subDiv";
         subDiv.style.cssText=css + "position:relative;width:100%;padding-inline:2rem;border-radius:12px;";
         subDiv.style.paddingInline=less900 ? (less400 ? "0rem" : "0.5rem") : "2rem";
         subDiv.style.paddingBottom=less900 ? (less400 ? "2rem" : "1.5rem") :"2rem";
-        subDiv.style.minHeight=less900 ? (less400 ? "100vh" : "80vh") :"70vh";
+        subDiv.style.height="100vh";
+        subDiv.style.overflowY="scroll";
         const row=document.createElement("div");
         row.id="main-post-container-subDiv-row";
         row.style.cssText=css_row + "gap:1rem;";
         row.style.justifyContent="flex-start";
-        row.className="row";
-        if(window.innerWidth <900){
+        if(less900){
             row.classList.remove("row");
             row.style.flexDirection="column";
+            row.style.display="block";
             row.style.gap="2rem";
+        }else{
+            row.className="row";
+
         }
         subDiv.appendChild(row);
         container.appendChild(subDiv);
@@ -481,8 +486,8 @@ class Post{
 
 
 
-    createPost(item:{injector:HTMLElement,user:userType,pathname:string|null}){
-        const {injector,user,pathname}=item;
+    createPost(item:{injector:HTMLElement,user:userType,pathname:string|null,mainPostCont:HTMLElement}){
+        const {injector,user,pathname,mainPostCont}=item;
         const less900= window.innerWidth < 900;
         const less400= window.innerWidth < 400;
         injector.style.position="relative";
@@ -613,7 +618,7 @@ class Post{
                 if(content && title){
                     const send_msg=sendMsg;
                     const post:postType={...this.initPost,userId:user.id,sendMsg:send_msg,title:title as string,content:content as string,published:Boolean(pub),link}
-                    this.uploadFreeNone({injector,popup:popup,post:post,user,css_col,css_row,pathname});
+                    this.uploadFreeNone({injector,popup:popup,post:post,user,css_col,css_row,pathname,mainPostCont});
                     const labelDisplay2=injector.querySelector("div#labelDisplay2") as HTMLElement;
                     if(labelDisplay2){
                         labelDisplay2.hidden=false;
@@ -641,8 +646,18 @@ class Post{
     };
 
 
-    uploadFreeNone(item:{injector:HTMLElement,popup:HTMLElement,post:postType,user:userType,css_col:string,css_row:string,pathname:string|null}){
-        const {injector,popup,post,user,css_col,css_row,pathname}=item;
+    uploadFreeNone(item:{
+        injector:HTMLElement,
+        popup:HTMLElement,
+        mainPostCont:HTMLElement,
+        post:postType,
+        user:userType,
+        css_col:string,
+        css_row:string,
+        pathname:string|null
+
+    }){
+        const {injector,popup,post,user,css_col,css_row,pathname,mainPostCont}=item;
         this.post=post;
         const less900= window.innerWidth < 900;
         const less400= window.innerWidth < 400;
@@ -658,7 +673,7 @@ class Post{
         popup.appendChild(btnContainer);
         uploadBtn.onclick=(e:MouseEvent)=>{
             if(e){
-                this.uploadPic({injector,popup,post,user,pathname});
+                this.uploadPic({injector,popup,post,user,pathname,mainPostCont});
                 uploadBtn.disabled=true;
                 popup.removeChild(btnContainer);
                 popup.style.zIndex="1";
@@ -689,11 +704,11 @@ class Post{
                     if(res){
                         this.posts=[...this._posts,res];
 
-                        const getScrollCol1=document.querySelector("div#scrollCol1") as HTMLElement;
-                        if(getScrollCol1){
+                       
+                        if(mainPostCont){
                             //USED BY Profile: client account
-                            const getCont=getScrollCol1.querySelector("div#main-post-container") as HTMLElement;
-                            await this.Posts({container:getCont,posts:this.posts,user}).then(async(res_)=>{
+                            // const getCont=getScrollCol1.querySelector("div#main-post-container") as HTMLElement;
+                            await this.Posts({container:mainPostCont,posts:this.posts,user}).then(async(res_)=>{
                                 if(res_.posts && res_.posts.length>0){
                                     this.posts=res_.posts.toSorted((a,b)=>{if(a.likes > b.likes)return -1;return 1}).map(post=>(post));
                                     this.posts.map(async(post,index)=>{
@@ -706,20 +721,6 @@ class Post{
                                 }
                             });
                             injector.style.height="auto";
-                        }else{
-                            const getCont=this.injector.querySelector("div#main-post-container") as HTMLElement;
-                            await this.Posts({container:getCont,posts:this.posts,user}).then(async(res_)=>{
-                                if(res_.posts && res_.posts.length>0){
-                                    this.posts=res_.posts.toSorted((a,b)=>{if(a.likes > b.likes)return -1;return 1}).map(post=>(post));
-                                    this.posts.map(async(post,index)=>{
-                                        if(post){
-                                            const userinfo=this.usersinfo.find(user_=>(user_.id===post.userId));
-                                            this.postCard({row:res_.row,post,user:this.user,userinfo,index,pathname});
-                                        }
-                                    });
-                                    Misc.matchMedia({parent:res_.container,maxWidth:400,cssStyle:{paddingInline:"0px"}})
-                                }
-                            });
                         }
                         Misc.growOut({anchor:popup,scale:0,opacity:0,time:400});
                         setTimeout(()=>{
@@ -812,8 +813,16 @@ class Post{
 
 
 
-    uploadPic(item:{injector:HTMLElement,popup:HTMLElement,post:postType,user:userType,pathname:string|null}){
-        const {user,post,injector,popup,pathname}=item;
+    uploadPic(item:{
+        injector:HTMLElement,
+        popup:HTMLElement,
+        post:postType,
+        user:userType,
+        pathname:string|null,
+        mainPostCont:HTMLElement,
+
+    }){
+        const {user,post,injector,popup,pathname,mainPostCont}=item;
         this.post={...post,userId:user.id};
         const css_col="margin-inline:auto;display:flex;flex-direction:column;justify-content:center;align-items:center;gap:0.7rem;";
         const form=document.createElement("form");
@@ -847,11 +856,11 @@ class Post{
                            await this._service.saveUpdatepost({post:this.post}).then(async(post_)=>{
                                 if(post_){
                                     this.posts=[...this._posts,post_];
-                                    const getScrollCol1=document.querySelector("div#scrollCol1") as HTMLElement;
-                                    if(getScrollCol1){
+                                    // const getScrollCol1=document.querySelector("div#scrollCol1") as HTMLElement;
+                                    if(mainPostCont){
                                         //USED BY Profile: client account
-                                        const getCont=getScrollCol1.querySelector("div#main-post-container") as HTMLElement;
-                                        await this.Posts({container:getCont,posts:this.posts,user}).then(async(res_)=>{
+                                        // const getCont=scrollCol1.querySelector("div#main-post-container") as HTMLElement;
+                                        await this.Posts({container:mainPostCont,posts:this.posts,user}).then(async(res_)=>{
                                             if(res_.posts && res_.posts.length>0){
                                                 this.posts=res_.posts.toSorted((a,b)=>{if(a.likes > b.likes)return -1;return 1}).map(post=>(post));
                                                 this.posts.toSorted((a,b)=>{if(a.likes > b.likes)return -1;return 1}).map(async(post,index)=>{
@@ -864,20 +873,6 @@ class Post{
                                             }
                                         });
                                         injector.style.height="auto";
-                                    }else{
-                                        const getCont=injector.querySelector("div#main-post-container") as HTMLElement;
-                                        await this.Posts({container:getCont,posts:this.posts,user}).then(async(res_)=>{
-                                            if(res_.posts && res_.posts.length>0){
-                                                this.posts=res_.posts.toSorted((a,b)=>{if(a.likes > b.likes)return -1;return 1}).map(post=>(post));
-                                                this.posts.toSorted((a,b)=>{if(a.likes > b.likes)return -1;return 1}).map(async(post,index)=>{
-                                                    if(post){
-                                                        const userinfo=this.usersinfo.find(user_=>(user_.id===post.userId));
-                                                        this.postCard({row:res_.row,post,user:this.user,userinfo,index,pathname});
-                                                    }
-                                                });
-                                                Misc.matchMedia({parent:res_.container,maxWidth:400,cssStyle:{paddingInline:"0px"}})
-                                            }
-                                        });;
                                     }
                                     Misc.growOut({anchor:popup,scale:0,opacity:0,time:400});
                                     Misc.growOut({anchor:form,scale:0,opacity:0,time:400});

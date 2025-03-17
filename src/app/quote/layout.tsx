@@ -50,7 +50,9 @@ export default function quotelayout({
 }) {
     return (
         <div id="quote-layout" className={style.quoteLayout}>
-            {children}
+            <div className={style.quoteLayoutInner}>
+                {children}
+            </div>
         </div>
     )
 }

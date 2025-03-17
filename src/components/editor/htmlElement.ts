@@ -224,6 +224,7 @@ class HtmlElement {
                     }else{
                         const res= await this._service.getSimpleImg(element.imgKey);
                         if(res){
+                            target.style.width="100%";
                             (target as HTMLImageElement).src=res.img as string;
                             (target as HTMLImageElement).alt=res.Key as string;
                             Misc.blurIn({anchor:target,blur:"20px",time:500});
@@ -231,6 +232,8 @@ class HtmlElement {
                         }
                     }
                 };
+                target.style.width="100%";
+                target.style.marginInline="1rem";
                 divCont.appendChild(target);
                 if(isImgDesc){
                     const idValue={eleId,id:"imgDesc",attValue:isImgDesc} as idValueType;
@@ -430,6 +433,7 @@ class HtmlElement {
             }else if(node==="img"){
                 (target as HTMLImageElement).src=element.img ||this.logo;
                 (target as HTMLImageElement).alt=element.inner_html ||"www.ablogroom.com";
+                target.style.width="100%";
                 divCont.appendChild(target);
                 if(element.imgKey){
                     const check=this._service.checkFreeImgKey({imgKey:element.imgKey as string});
@@ -683,6 +687,7 @@ class HtmlElement {
                 //creating container && img
                 img.src=image ||this.urlImg;
                 img.alt="image";
+                img.style.cssText="width:100%;margin:auto;margin-inline:1rem;";
                 idValues.push({eleId,id:"name",attValue:"img"});
                 idValues.push({eleId,id:"ID",attValue:eleId});
                

@@ -53,7 +53,7 @@ class PrintPdf{
         innerContainer.style.background="white";
         await this.getUserInfo({parent:innerContainer,user:user}).then(async(res)=>{
             if(res){
-        await this._displayBlog.saveFinalWork({innerContainer:res.parent,blog,idValues,arrDivPlaces}).then(async(res_)=>{
+        await this._displayBlog.saveFinalWork({innerContainer:res.parent,blog,idValues,arrDivPlaces,less900,less400}).then(async(res_)=>{
             if(res_){
                         const {button}=Misc.simpleButton({anchor:res_.innerContainer,bg:"#03052c",color:"white",type:"button",time:700,text:"print"});
                         button.style.marginBlock="2rem";

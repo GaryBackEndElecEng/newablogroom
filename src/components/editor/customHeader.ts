@@ -509,7 +509,7 @@ set selector(selector:selectorType){
                    await this._modSelector.rowAdder({target:row,selectEle:sel.target,idValues,selector:sel.selector}).then(async(rw)=>{
                        if(rw.selectEle && rw.idValues && rw.rowEle && rw.sel){
                         idValues=rw.idValues;
-                        // console.log("outside:after row:selector",sel.selector)//WORKS HAS ROW
+                        console.log("outside:after row:selector",sel.selector)//WORKS HAS ROW
                            this.selectColunms({parent:rw.target,sel:rw.sel,rowEle:rw.rowEle,idValues});
                        }
                    });//works
@@ -603,7 +603,9 @@ set selector(selector:selectorType){
         const node=target.nodeName.toLowerCase();
         const eleId=target.id
         this._modSelector.dataset.insertcssClassIntoComponents({target,level:"selector",headerType:"custom",id:"selectorId",loc:"flexbox",type:"customHeader"});
-        this._modSelector.selectors.filter(select=>(!select.header));
+       this._modSelector.selectors=this._modSelector.selectors.filter(select=>(!select.header));
+       const blog={...this._modSelector.blog,selectors:this._modSelector.selectors}
+       this._modSelector.localStore({blog});
         const {cleaned}=this._modSelector.removeClasses({target,classes:["isActive","box-shadow","text-center"]});
        
         const colAttr:colAttrType={
@@ -634,6 +636,8 @@ set selector(selector:selectorType){
         this._modSelector.count=this._modSelector.count+1;
         this.selector=selector;
         this._modSelector.selectors= [...this._modSelector.selectors,selector];//adding iot to teh stack
+        const blog1={...this._modSelector.blog,selectors:this._modSelector.selectors}
+       this._modSelector.localStore({blog:blog1});
         this._modSelector.footerPlacement();//shifting footer down by one
         this._modSelector.header=selector;
         idValues.push({eleId,id:"selectorId",attValue:eleId});
@@ -656,64 +660,16 @@ set selector(selector:selectorType){
 
         });
         idValues=retIdValues;
-       
+       this._modSelector.dataset.populateElement({target,selRowColEle:selector,idValues,level:"selector",loc:"flexbox",clean:false});
+       console.log("selectorAdder",selector)
         //----------//---POPULATING ATTRIBUTES TO TARGET------\\-----///
         parent.appendChild(target);//appending/or re-apending target
         return Promise.resolve({selector,target,idValues,colsTop,colsBot})as Promise<{selector:selectorType,target:HTMLElement,idValues:idValueType[],colsTop:number,colsBot:number}>;
-    }
+    };
 
-    async rowAdder({selectorHeader,target,selector}:{selectorHeader:HTMLElement,target:HTMLElement,selector:selectorType}):Promise<{select:selectorType,row:rowType,target:HTMLElement}>{
-        //THIS ADDS ROW INFO TO _modSelector.blog
-        let idValues:idValueType[]=[];
-        const node=target.nodeName.toLowerCase();
-        const selectorId=selectorHeader.id;
-        const eleId=target.id;
-        idValues.push({eleId,id:"selectorId",attValue:selectorId});
-        let _select:selectorType={} as selectorType;
-        _select=selector;
-        
-        let row_:rowType={} as rowType;
-        this._modSelector.selectors= await Promise.all(this._modSelector.selectors.map(async(select)=>{
-            if(select.eleId===selector.eleId){
-                const {rows}=this._modSelector.checkGetRows({select});
-                const check=rows.find(rw=>(rw.eleId ===target.id));
-                if(check) return select;
-                const ID=rows ? rows.length :0;
-                    row_={
-                        id: ID,
-                        name:node ,
-                        class:target.className,
-                        eleId:target.id,
-                        inner_html:target.textContent ? target.textContent : "",
-                        cssText:target.style.cssText,
-                        cols:[] as colType[],
-                        selector_id:select.id,
-                        order:ID
-                    } as rowType;
-                    //THIS APPENDS ITEMS TO ROW(ATTR,IMGKEY,TYPE)
-                    const {idValues:retIdValues}=this._modSelector.dataset.coreDefaultIdValues({
-                        target,
-                        sel:selector,
-                        row:row_,
-                        col:null,
-                        ele:null,
-                        idValues,
-                        loc:"flexbox",
-                        level:"row",
-                        clean:false
-                    });
-                    idValues=retIdValues
 
-                    rows.push(row_);
-                    select.rows=JSON.stringify(rows);
-            }
-            this._modSelector.header=select;
-            _select=select;
-            return select;
-        }));
-       
-        return {select:_select,row:row_,target}
-    }
+
+  
 
     async colAdder({parent,target,idValues,sel,rowEle}:{parent:HTMLElement,target:HTMLElement,idValues:idValueType[],sel:selectorType,rowEle:rowType}):Promise<{target:HTMLElement,colEle:colType,idValues:idValueType[],parent:HTMLElement,sel:selectorType,rowEle:rowType}>{
        
@@ -756,6 +712,7 @@ set selector(selector:selectorType){
             });
             idValues=retIdValues
             idValues=Dataset.removeIdValueDuplicates({arr:idValues,eleId:eleId});
+            this._modSelector.dataset.populateElement({target,selRowColEle:colEle,level:"col",loc:"flexbox",idValues,clean:false});
             //----------//---POPULATING ATTRIBUTES TO TARGET------\\-----///
             
             rowEle.cols=[...rowEle.cols,colEle];
@@ -927,7 +884,9 @@ set selector(selector:selectorType){
         });
        
         
-    }
+    };
+
+
 
     changePartition({target,attr,idValues,selRowCol}:{target:HTMLElement,attr:string,idValues:idValueType[],selRowCol:selRowColType}):void{
         //THIS CHANGES FLEX PARTITION (ie;flex:1 1 25%,,,50%,,,75%)

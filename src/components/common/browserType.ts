@@ -157,6 +157,27 @@ class BrowserType {
     };
 
 
+
+   homeShowControl({repeatCount}:{repeatCount:number}){
+    const pathname=window.location.pathname;
+    if(pathname==="/"){
+        const states=this.getHistory();
+        //HOME
+        if(states){
+            const state=states.find(kv=>(kv.pathname===pathname));
+            if(state){
+                return state.count <=repeatCount
+            }
+        }
+        return true;
+    }else{
+        return false;
+    }
+
+   };
+
+
+
     showMessage(item: { parent: HTMLElement }) {
         const { parent } = item;
         const time = 15200;

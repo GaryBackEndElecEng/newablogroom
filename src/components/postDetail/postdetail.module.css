@@ -1,4 +1,4 @@
-.postdetail {
+.postdetailIndex {
   margin-inline: auto;
   margin-block: 1rem;
   display: flex;
@@ -8,26 +8,26 @@
   padding-inline: 1rem;
   padding-block: 1.5rem;
   width: 60%;
-  min-height: 70vh;
+  min-height: 100vh;
   position: relative;
   overflow-x: hidden;
 }
 @media screen and (max-width: 1350) {
-  .postdetail {
+  .postdetailIndex {
     width: 70%;
     padding-inline: 2rem;
     min-height: 80vh;
   }
 }
 @media screen and (max-width: 900) {
-  .postdetail {
+  .postdetailIndex {
     width: 80%;
     padding-inline: 2rem;
     min-height: 80vh;
   }
 }
 @media screen and (max-width: 900) {
-  .postdetail {
+  .postdetailIndex {
     width: 100%;
     padding-inline: 0rem;
     margin-top: 0rem;

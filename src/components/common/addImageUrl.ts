@@ -43,7 +43,15 @@ class AddImageUrl {
             {key:"alignment.png",name:"align",url:this.freepicurl + "/alignment.png"},
             {key:"article.png",name:"articles",url:this.freepicurl + "/article.png"},
             {key:"bank.png",name:"bank",url:this.freepicurl + "/bank.png"},
+            {key:"background1.png",name:"background1",url:this.freepicurl + "/background1.png"},
+            {key:"background2.png",name:"background2",url:this.freepicurl + "/background2.png"},
+            {key:"background3.png",name:"background3",url:this.freepicurl + "/background3.png"},
+            {key:"colors.png",name:"colors",url:this.freepicurl + "/colors.png"},
+            {key:"bend.png",name:"background4",url:this.freepicurl + "/bend.png"},
+            {key:"bend1.png",name:"background5",url:this.freepicurl + "/bend1.png"},
+            {key:"bend2.png",name:"background6",url:this.freepicurl + "/bend2.png"},
             {key:"beautyGirl.png",name:"beauty",url:this.freepicurl + "/beautyGirl.png"},
+            {key:"userpic.png",name:"user",url:this.freepicurl + "/userpic.png"},
             {key:"blackDesign.png",name:"blackDesign",url:this.freepicurl + "/blackDesign.png"},
             {key:"book.png",name:"book",url:this.freepicurl + "/book.png"},
             {key:"businessMan.png",name:"businessman",url:this.freepicurl + "/businessMan.png"},
@@ -457,7 +465,7 @@ class AddImageUrl {
     insertImage({parent,item,idValues,user}:{parent:HTMLElement,item:imgEleType,idValues:idValueType[],user:userType|null}){
         const popup=document.createElement("div");
         popup.className="insert-popup";
-        popup.style.cssText="position:absolute;max-width:800px;width:100%;min-height:5vh;height:auto;border-radius:12px;box-shadow:1px 1px 12px 1px black;display:flex;flex-direction:column;padding:1rem;gap:1.5rem;background-color:black;color:white;";
+        popup.style.cssText="position:absolute;max-width:800px;width:100%;min-height:5vh;height:auto;border-radius:12px;box-shadow:1px 1px 12px 1px black;display:flex;flex-direction:column;padding:1rem;gap:1.5rem;background-color:black;color:white;z-index:200;";
         popup.style.inset="0%";
         const title=document.createElement("h6");
         title.textContent="insert Image";

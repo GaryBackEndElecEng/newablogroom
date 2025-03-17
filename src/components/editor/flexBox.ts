@@ -471,9 +471,8 @@ colAttrs=["col-start","col-end","col-center"];
         if(isPolygon) idValues.push({eleId,id:"shapeOutsidePolygon",attValue:isPolygon});
         const divCont=document.createElement("div");
         divCont.setAttribute("data-placement",`${element.order}-A`);
-        divCont.className=this.divCont_class;
         divCont.id=`flexbox-divCont-${element.name}-${rand}`;
-        divCont.style.cssText=this.divCont_css;
+        this._modSelector.dataset.insertcssClassIntoComponents({target:divCont,headerType:undefined,id:"divContId",type:"flexbox",level:"element",loc:"flexbox",});
         const target:HTMLElement=document.createElement(element.name);
         target.id=element.eleId;
         target.className=element.class;
@@ -943,7 +942,8 @@ colAttrs=["col-start","col-end","col-center"];
                         }
 
                 }else if(!ele){
-                    if(level==="col" && class_==="undefined"){
+                    if(level==="col"){
+                        
                         const selRow:selRowType={selectorId:selector.eleId,rowId:row.eleId}
                        switch(true){
                            case name ==="bg-shade":
@@ -961,7 +961,7 @@ colAttrs=["col-start","col-end","col-center"];
                            column.classList.toggle(class_ as string);
                        return
                        case name==="set-even-height":
-                          
+                        
                            this.setEvenHeight({target:column,idValues,selRowCol});
                        return
                        case name==="remove-even-height":
@@ -1531,6 +1531,9 @@ colAttrs=["col-start","col-end","col-center"];
        
         
     };
+
+
+
     insertDateTime({parent,target,divCont,selector,row,col,icon,idValues}:{
         parent:HTMLElement,
         icon:iconType,
@@ -1636,8 +1639,10 @@ colAttrs=["col-start","col-end","col-center"];
         }
         
         const getRow=target.parentElement;
+        console.log("getRow",getRow)
         if(!( getRow)) return;
         const rowHeight=window.getComputedStyle(getRow).getPropertyValue("height");
+        console.log("rowHeight",rowHeight)
         target.style.height=rowHeight;
         const idValue:idValueType={eleId,id:"height",attValue:rowHeight};
         this._modSelector.dataset.upDateIdValue({target,idValues,idValue});

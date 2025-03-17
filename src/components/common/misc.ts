@@ -1279,7 +1279,7 @@ class Misc{
             }
         }
         const {parent,rating,cssStyle,rowCssStyle}=starRate;
-        if(!rating) return Misc.message({parent,msg:"no rating",type_:"error",time:700});
+      
         const container=document.createElement("div");
         container.style.cssText="display:flex;flex-direction:column;justify-content:center;align-items:center;gap:1rem;";
         const row=document.createElement("div");

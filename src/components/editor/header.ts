@@ -399,6 +399,7 @@ class Header{
                             idValues.push({eleId,id:"imgKey",attValue:_col_.imgKey});
                             col.setAttribute("data-backgroundImg","true");
                             const check=this._service.checkFreeImgKey({imgKey:_col_.imgKey as string});
+                            
                             if(check){
                                 const url=this._service.getFreeBgImageUrl({imgKey:_col_.imgKey as string});
                                 col.style.backgroundImage=`url(${url})`;
@@ -1812,6 +1813,7 @@ class Header{
             });
             idValues=retIdValues2
             idValues=Dataset.removeIdValueDuplicates({arr:idValues,eleId})
+            this._modSelector.dataset.populateElement({target,selRowColEle:col,idValues,level:"col",loc:"flexbox",clean:false});
             //THIS LOADS THE DEFAULTS AND POPULATES THE ELEMENT BASED ON IDVALUE INPUTS
                 row.cols=[...row.cols,col];
                 
