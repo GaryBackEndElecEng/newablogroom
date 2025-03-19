@@ -13,6 +13,7 @@ import Header from "./header";
 import { attrEnumArrTest, IDKeys, IDKeyValuepairs, typeEnumArrTest} from "../common/lists";
 import { idEnumType, idValueType, selRowColType, } from "@/lib/attributeTypes";
 import Dataset from "../common/dataset";
+import Toolbar from "../common/toolbar";
 
 
 export type attributeType={
@@ -75,7 +76,7 @@ class ShapeOutside{
     constructor(private _modSelector:ModSelector,private _service:Service,private _user:User){
         this.btnColor=this._modSelector.btnColor;
         this.bgColor=this._modSelector._bgColor;
-        this.icons=Main.icons;
+        this.icons=Toolbar.icons;
         
         this.initElementSel={
             id: 0, 
@@ -205,19 +206,26 @@ class ShapeOutside{
         img.setAttribute("is-shapeoutside","true");
         img.src=element.img || this.logo;
         img.alt="ww.ablogroom.com";
-        img.style.width=less900 ? ( less400 ? "300px":"320px"):"330px";
+    
         if(img){
             if(element.imgKey){
               const url=this._service.getFreeBgImageUrl({imgKey:element.imgKey});
               const getWidth=Number(getComputedStyle(img).getPropertyValue("width").split("px")[0]);
-              img.src=imageLoader({src:url,width:getWidth,quality:90});
               img.alt=element.imgKey;
               idValues.push({eleId,id:"imgKey",attValue:element.imgKey});
+              if(less400){
+                  const maxWidth=img.style.maxWidth;
+                  img.src=imageLoader({src:url,width:maxWidth,quality:90});
+                  const cssStyle={width:"350px",float:"center",marginRight:"0px",height:"auto"}
+                  para.innerHTML=this.adjdustParaLess400({para,subComponent:img,cssStyle});
+            }else{
+                img.src=imageLoader({src:url,width:getWidth,quality:90});
+            }
             };
             if(less400){
-                img.style.shapeOutside="";
-                img.style.width="100%";
-
+                const cssStyle={width:"350px",float:"center",marginRight:"0px",height:"auto"}
+                  para.innerHTML=this.adjdustParaLess400({para,subComponent:img,cssStyle});
+                  console.log("img",img)
             }
 
         }
@@ -254,8 +262,7 @@ class ShapeOutside{
                
              });
              idValues=retidValues3
-             
-             
+            
              //appending attributes for BOT FLEX AND NON FLEX TARGET ELEMENT
             idValues.map(kat=>{
                 if(kat.attValue && kat.eleId===eleId){
@@ -277,16 +284,25 @@ class ShapeOutside{
           Misc.matchMedia({parent:divCont,maxWidth:920,cssStyle:{marginInline:"1.5rem"}});
           Misc.matchMedia({parent:divCont,maxWidth:420,cssStyle:{marginInline:"10px"}});
           
-          this.setAttributes({column:parent,divCont,target:para,idValues,selRowCol});//ID=shape-outside-${rand}
-          
           if((element as elementType).placement){
            
             const ele=element as elementType
             this._modSelector.dataset.populateElement({target:para,level:"element",loc:"htmlElement",selRowColEle:ele,idValues,clean:true});
             const arrDivCont:arrDivContType={divCont,target:para,placement:ele.placement,ele,isNormal:false,chart:null,sel:null};
+            ([...para.children as any] as HTMLElement[]).map(child=>{
+                if(child && child.nodeName==="IMG"){
+                    const img=child as HTMLImageElement;
+                    console.log("img",img.style.cssText)
+
+                }
+            });
+            if(less400){
+                const cssStyle={width:"350px",float:"center",marginRight:"0px",height:"auto"}
+                  para.innerHTML=this.adjdustParaLess400({para,subComponent:img,cssStyle});
+                  console.log("img",img)
+            };
             para.removeAttribute("contenteditable");
             return Promise.resolve(arrDivCont) as Promise<arrDivContType>;
-
         }else{
             
             const ele=element as element_selType
@@ -387,7 +403,7 @@ class ShapeOutside{
         para.innerHTML =element.inner_html;
         divCont.appendChild(para);
        
-        this._modSelector.editElement({target:para,idValues});
+        this._modSelector.editElement({target:para,idValues,selRowCol});
         
         Misc.matchMedia({parent:divCont,maxWidth:920,cssStyle:{marginInline:"1.5rem"}});
         Misc.matchMedia({parent:divCont,maxWidth:420,cssStyle:{marginInline:"10px"}});
@@ -625,7 +641,7 @@ class ShapeOutside{
                            
                         }
                     });
-                    this._modSelector.editElement({target:res.target,idValues});
+                    this._modSelector.editElement({target:res.target,idValues,selRowCol});
                 }
             });
 
@@ -878,7 +894,11 @@ class ShapeOutside{
          }else{
             Header.cleanUpByID(divCont,"xIconDiv-shapeOutside")
          }
-    }
+    };
+
+
+
+
     setAttributes({column,divCont,target,idValues,selRowCol}:{
         column:HTMLElement,
         divCont:HTMLElement,
@@ -1624,7 +1644,28 @@ class ShapeOutside{
         retStr=strArr.find(sh=>(sh===str));
        });
        return retStr
-    }
+    };
+
+
+    adjdustParaLess400({para,subComponent,cssStyle}:{para:HTMLElement,subComponent:HTMLElement,cssStyle:{[key:string]:string}}){
+            const node=subComponent.nodeName;
+            ([...para.children as any] as HTMLElement[]).forEach(child=>{
+                if( child && child.nodeName===node ){
+                    for(const key of Object.keys(child.style)){
+                        for(const [keyNew,valueNew] of Object.entries(cssStyle)){
+                            if(key===keyNew && valueNew){
+                                child.style[key]=valueNew;
+                            }
+                        }
+                    }
+
+                }
+            });
+        return para.innerHTML;
+    };
+
+
+
     static cleanUpByNodeName(parent:HTMLElement,node:string){
         ([...parent.children as any] as HTMLElement[]).map(child=>{
             if(child && child.nodeName===node){

@@ -1,6 +1,7 @@
 "use client"
 import Admin from '@/components/admin/admin';
 import AuthService from '@/components/common/auth';
+import Dataset from '@/components/common/dataset';
 import Service from '@/components/common/services';
 import ModSelector from '@/components/editor/modSelector';
 import { userType } from '@/components/editor/Types';
@@ -13,14 +14,20 @@ export default function Index({ users, admin }: { users: userType[], admin: user
         if (typeof window !== "undefined" && users && admin && countRef.current === 0) {
 
             const getIndex = document.getElementById("admin-injection") as HTMLElement;
-            const modSelector = new ModSelector();
-            // auth.admin = emailArr;
+            const dataset = new Dataset();
+            const modSelector = new ModSelector(dataset);
             const service = new Service(modSelector);
-            const user = new User(modSelector, service);
-            const adminClass = new Admin(service, modSelector, user, users, admin);
-            adminClass.main({ injector: getIndex, count: countRef.current }).then(async (res) => {
+            const auth = new AuthService(modSelector, service);
+            const user = new User(modSelector, service, auth);
+            auth.confirmUser({ user: admin, count: countRef.current }).then(async (res) => {
                 if (res) {
-                    countRef.current = res;
+                    countRef.current = res.count + 1;
+                    const adminClass = new Admin(service, modSelector, user, users, res.user);
+                    adminClass.main({ injector: getIndex, count: countRef.current }).then(async (res) => {
+                        if (res) {
+                            countRef.current = res;
+                        }
+                    });
                 }
             });
         }

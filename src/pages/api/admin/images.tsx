@@ -1,4 +1,4 @@
-import { PrismaClient } from "@prisma/client";
+
 import { NextApiRequest, NextApiResponse } from "next";
 import { adminImageType, } from "@/components/editor/Types";
 import { getErrorMessage } from "@/lib/errorBoundaries";
@@ -13,6 +13,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
     if (req.method === "POST") {
         const { email, id } = req.body;
+
         if (email === EMAIL || email === EMAIL2) {
 
             try {
@@ -45,9 +46,10 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
             }
         } else {
             res.status(400).json({ msg: `unauthorized` });
-        }
-    }
-    else if (req.method === "DELETE") {
+        };
+
+
+    } else if (req.method === "DELETE") {
         const { id } = req.query;
         if (id as string) {
             try {
@@ -66,9 +68,10 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
             } finally {
                 await prisma.$disconnect()
             }
-        }
-    }
-    else if (req.method === "PUT") {
+        };
+
+
+    } else if (req.method === "PUT") {
         const { imgKey } = req.query;
         if (imgKey) {
             try {
@@ -95,9 +98,10 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
             }
         } else {
             res.status(400).json({ msg: "missing key" })
-        }
-    }
-    else if (req.method === "GET") {
+        };
+
+
+    } else if (req.method === "GET") {
         const { imgKey, count } = req.query as { imgKey: string, count: string };
         const noImage = {
             id: 0,

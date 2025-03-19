@@ -1083,6 +1083,8 @@ class Design{
     ///---------------------SEMI-CIRCLE-----------//////
     //FROM SIDEBAR PARENT===Main.textarea
     titleArt(parent:HTMLElement,idValues:idValueType[]){
+        const getHeight=getComputedStyle(parent).getPropertyValue("height");
+        const height=Number(getHeight.split("px")[0]);
         const idEnum="isArt";
         const attr="isArt";
         const type="design";
@@ -1093,7 +1095,7 @@ class Design{
         popup.className="popup";
         popup.setAttribute("is-popup","true");
         popup.style.cssText="position:absolute;box-shadow:1px 1px 10px black,-1px -1px 12px 1px blue;border-radius:20px;min-height:15vh;z-index:200;background-color:white;";
-        popup.style.top="5%";
+        popup.style.top=`${height/2}px`;
         popup.style.left="10%";
         popup.style.right="10%";
         const row = document.createElement("div");
@@ -1291,14 +1293,14 @@ class Design{
     addFill({parent,idValues}:{parent:HTMLElement,idValues:idValueType[]}){
         parent.style.position="relative";
         const desc="enter the number of words to be added then click on the button below to complete the request. it adds words after the original content."
-        Header.cleanUpByID(parent,"popup-title-art");
+        Header.cleanUpByID(parent,"popup-add-fill");
         if(!Main.textarea) return;
         const popup=document.createElement("div");
-        popup.id="popup-title-art";
+        popup.id="popup-add-fill";
         popup.className="popup";
         popup.setAttribute("is-popup","true");
         popup.style.cssText="position:absolute;box-shadow:1px 1px 10px black,-1px -1px 12px 1px blue;border-radius:20px;min-height:15vh;z-index:200;background-color:white;display:flex;flex-direction:column;align-items:center;justify-content:center;";
-        popup.style.top="5%";
+        popup.style.top="40%";
         popup.style.left="10%";
         popup.style.right="10%";
         const getParas=Main.textarea.querySelectorAll("p") as any as HTMLParagraphElement[];

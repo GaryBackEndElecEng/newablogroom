@@ -26,7 +26,7 @@ import Reference from './reference';
 import PasteCode from '../common/pasteCode';
 import AuthService from '../common/auth';
 import CommonInfo from '../common/commonInfo';
-import BrowserType from '../common/browserType';
+import Toolbar from '../common/toolbar';
 
 
 function Index() {
@@ -62,10 +62,10 @@ function Index() {
                                 const reference = new Reference(modSelector);
                                 const shapeOutside = new ShapeOutside(modSelector, service, _user);
                                 const headerFlag = new Headerflag(modSelector, service, _user);
-                                const _htmlElement = new HtmlElement(modSelector, service, _user, shapeOutside, design, ven, reference, headerFlag, pasteCode);
+                                const _htmlElement = new HtmlElement(modSelector, service, _user, shapeOutside, design, ven, reference, headerFlag, pasteCode,);
+                                const _toolbar = new Toolbar(modSelector, service, _user, _htmlElement);
                                 const displayBlog = new DisplayBlog(modSelector, service, _user, blog, chart, message, _htmlElement);
                                 const commonInfo = new CommonInfo(modSelector, service, auth);
-
                                 const _header = new Header(modSelector, service, _user);
                                 const customHeader = new CustomHeader(modSelector, service, _header, _user, shapeOutside)
                                 const _flexbox = new Flexbox(modSelector, service, _user, shapeOutside);
@@ -74,12 +74,12 @@ function Index() {
                                 const regSignin = new RegSignIn(modSelector, service, _user);
                                 const _edit = new Edit(modSelector, service, mainInjection, _user, _flexbox, _htmlElement, _header, customHeader, _footer, displayBlog, chart);
 
-                                const main = new Main(modSelector, service, auth, mainInjection, _edit, _user, blog, _htmlElement, _header, customHeader, displayBlog, shapeOutside, commonInfo);
-                                const sidebar = new Sidebar(modSelector, service, auth, main, _flexbox, newCode, _header, customHeader, _footer, _edit, _user, regSignin, displayBlog, chart, shapeOutside, metablog, headerFlag);
+                                const main = new Main(modSelector, service, auth, mainInjection, _toolbar, _edit, _user, blog, _htmlElement, _header, customHeader, displayBlog, shapeOutside, commonInfo);
+                                const sidebar = new Sidebar(modSelector, service, auth, main, _flexbox, newCode, _header, customHeader, _footer, _edit, _user, regSignin, displayBlog, chart, shapeOutside, metablog, headerFlag, _toolbar);
                                 await main.mainContainer(mainInjection).then(async (_res) => {
                                     if (_res) {
-                                        const { textarea, mainCont, footer, mainHeader } = _res;
-                                        if (mainCont && textarea && footer && mainHeader) {
+                                        const { textarea, mainCont, footer, mainHeader, toolbar } = _res;
+                                        if (mainCont && textarea && footer && mainHeader && toolbar) {
 
                                             sidebar.onclickHideShowSideBar({ injector: side_bar, mainContainer: mainCont, textarea, footer, mainHeader });
                                             countRef.current++;

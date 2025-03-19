@@ -33,6 +33,7 @@ import PasteCode from "../common/pasteCode";
 import Headerflag from "./headerflag";
 import { idValueType, selRowColType } from "@/lib/attributeTypes";
 import AuthService from "../common/auth";
+import Toolbar from "../common/toolbar";
 
 
 
@@ -1077,7 +1078,7 @@ class Sidebar{
     
     //---------------------INITIALIZE------------------------///
 
-    constructor(private _modSelector:ModSelector,private _service:Service,private auth:AuthService,main:Main, private _flexbox:Flexbox,private _code:NewCode,header:Header,public customHeader:CustomHeader,footer:Footer,edit:Edit,private _user:User,private _regSignin:RegSignIn,displayBlog:DisplayBlog,public chart:ChartJS,public shapeOutside:ShapeOutside,private _metablog:MetaBlog,private _headerFlag:Headerflag){
+    constructor(private _modSelector:ModSelector,private _service:Service,private auth:AuthService,main:Main, private _flexbox:Flexbox,private _code:NewCode,header:Header,public customHeader:CustomHeader,footer:Footer,edit:Edit,private _user:User,private _regSignin:RegSignIn,displayBlog:DisplayBlog,public chart:ChartJS,public shapeOutside:ShapeOutside,private _metablog:MetaBlog,private _headerFlag:Headerflag,public toolbar:Toolbar){
         this.emojiSmile="./images/emojiSmile.png";
         this.logo="/images/logo.png";
         this._selectors_=Flexbox.selectors_;
@@ -1272,7 +1273,9 @@ class Sidebar{
         mainHeader:HTMLElement
 
     }){
-        const height=less1000 ? "60vh":"130vh";
+        const less400= window.innerWidth <400;
+        const less900= window.innerWidth <900;
+        const height=less1000 ? "60vh":"140vh";
         const user=this._user.user;
         const blog=this._modSelector.blog;
         const idValues=this._modSelector.dataset.idValues
@@ -1290,9 +1293,10 @@ class Sidebar{
         sidebarMain.className="flexCol";
         this.introduction(sidebarMain,mainCont);
         this.initializeTheme({parent:sidebarMain,mainCont,idValues,textarea,mainHeader,footer});
+        this.addToolbar({parent:sidebarMain,mainCont,idValues,textarea,mainHeader,footer});
         this.initiatesAddNewBlog(sidebarMain,mainCont);
         this.addAGraph(sidebarMain,textarea,idValues);
-        this.initiateEdit({parent:sidebarMain,mainCont,textarea,mainHeader,footer,idValues});
+        this.initiateEdit({parent:sidebarMain,mainCont,textarea,mainHeader,footer,idValues,less400,less900});
         this.refreshEditor({parent:sidebarMain,mainCont,textarea,mainHeader,footer,blog,user});
         this.editMeta({parent:sidebarMain,mainCont});//edit Meta
         // this.initiateEdit(sidebarMain);
@@ -1412,6 +1416,62 @@ class Sidebar{
             }
         });
      };
+
+
+
+    addToolbar({parent,idValues,mainCont,textarea,mainHeader,footer}:{
+        parent: HTMLElement,
+        idValues:idValueType[],
+        mainCont:HTMLElement,
+        textarea:HTMLElement,
+        mainHeader:HTMLElement,
+        footer:HTMLElement
+
+    }){
+        const btnContainer=document.createElement("div");
+        btnContainer.className="flexCol text-center";
+        btnContainer.style.cssText="box-shadow:1px 1px 12px 1px white;border-radius:10px;padding-inline:0.5rem;padding-block:1rem;width:100%;";
+        const H5=document.createElement("h5");
+        H5.textContent="Add toolbar";
+        H5.style.cssText="margin:auto;text-decoration:underline;text-underline-offset:1rem;";
+        H5.className="text-primary lean";
+        btnContainer.appendChild(H5);
+        const divpara=document.createElement("div");
+        divpara.style.cssText="color:white;font-size:18px;"
+        const para=document.createElement("p");
+        para.className="mc-auto px-1 text-balance text-center";
+        para.style.color="white";
+        para.style.cssText="text-wrap:wrap;margin-block:1rem;";
+        para.textContent="add toolbar for easy access";
+        divpara.appendChild(para);
+        btnContainer.appendChild(divpara);
+        const btn_:btnType={
+            parent:btnContainer,
+            text:"toolbar",
+            bg:"gold",
+            color:"white",
+            type:"button"
+        }
+        const btn=buttonReturn(btn_);
+        parent.appendChild(btnContainer);
+        btn.animate([
+            {transform:"translateY(-100%) skew(45deg,0deg)",opacity:"0.3"},
+            {transform:"translateY(0%) skew(0deg,0deg)",opacity:"1"}
+        ],{duration:1000,iterations:1});
+       
+        Misc.buttonHoverEffect(btn);
+        btn.addEventListener("click",(e:MouseEvent)=>{
+            if(e){
+                btn.disabled=true;
+                setTimeout(()=>{
+                    btn.disabled=false;
+                },1000);
+                this.toolbar.mainColBtn({parent:textarea,mainContainer:mainCont,textarea});
+            }
+        });
+     };
+
+
    
     //BTN INITIATE EDIT
     saveBlog(parent:HTMLElement,mainCont:HTMLElement){
@@ -1694,13 +1754,15 @@ class Sidebar{
  
       //!! NOT USED-BTN INITIATE EDIT
     
-      initiateEdit({parent,mainCont,idValues,textarea,mainHeader,footer}:{
+      initiateEdit({parent,mainCont,idValues,textarea,mainHeader,footer,less400,less900}:{
         parent:HTMLElement,
         mainCont:HTMLElement,
         idValues:idValueType[],
         textarea:HTMLElement,
         mainHeader:HTMLElement,
-        footer:HTMLElement
+        footer:HTMLElement,
+        less400:boolean,
+        less900:boolean
       }){
         const container=document.createElement("div");
         container.className="flexCol my-2 py-2";
@@ -1731,7 +1793,7 @@ class Sidebar{
                 setTimeout(()=>{
                     retBtn.disabled=false;
                 },1000);
-                this._edit.editViewUserBlogs({parent:mainCont,mainCont,mainHeader,textarea,footer,idValues})
+                this._edit.editViewUserBlogs({parent:mainCont,mainCont,mainHeader,textarea,footer,idValues,less400,less900})
             }
         });
        

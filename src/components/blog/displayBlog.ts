@@ -509,6 +509,7 @@ class DisplayBlog{
                         row.id=eleId;
                         if(less400){
                             row.style.flexDirection="column";
+                            row.style.maxHeight="";
                         };
                         
                         innerCont.appendChild(row);
@@ -593,6 +594,10 @@ class DisplayBlog{
             col.classList.remove("col-md-4");
             col.classList.remove("col-md-6");
             col.classList.add("col-md-12");
+            col.style.minHeight="22vh";
+            col.style.width="100%";
+            col.style.borderRadius="6px";
+            col.style.borderBottom="1px solid lightgrey";
         }
         if(col_.imgKey){
             idValues.push({eleId,id:"imgKey",attValue:col_.imgKey});

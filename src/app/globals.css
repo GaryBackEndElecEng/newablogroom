@@ -400,6 +400,12 @@ p {
   position: absolute;
   inset: -120% -30% 120% -30%;
 }
+.btnHover-col::after {
+  display: none;
+  content: "";
+  position: absolute;
+  inset: 0% -90% 0% 30%;
+}
 .btnHover:hover::after {
   display: block;
   content: attr(data-btnName);
@@ -410,6 +416,18 @@ p {
   padding-inline: auto;
   text-align: center;
   animation: slideUp 0.75s ease-in-out;
+}
+.btnHover-col:hover::after {
+  display: block;
+  content: attr(data-btnName);
+  position: absolute;
+  inset: 0% -160% 0% -100%;
+  background: white;
+  color: black;
+  padding-inline: auto;
+  text-align: center;
+  transform: translateX(100%);
+  animation: slideLeft 0.75s ease-in-out;
 }
 .position-relative {
   position: relative;
@@ -631,6 +649,16 @@ p {
   }
   to {
     transform: translateY(10%);
+    opacity: 1;
+  }
+}
+@keyframes slideLeft {
+  from {
+    transform: translateX(-100%);
+    opacity: 0;
+  }
+  to {
+    transform: translateX(100%);
     opacity: 1;
   }
 }

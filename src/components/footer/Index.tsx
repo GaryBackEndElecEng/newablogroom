@@ -34,13 +34,15 @@ export default function Index({ _user }: { _user: userType | null }) {
                     auth.confirmUser({ user: _user, count: countRef.current }).then(async (res) => {
                         if (res) {
                             countRef.current = res.count;
-                            const browser = new BrowserType(res.user.id);
+                            const user_id = res?.user?.id || undefined
+                            const browser = new BrowserType(user_id);
                             const isAuthenticated = res.isAuthenicated;
                             const commonInfo = new CommonInfo(modSelector, service, auth);
                             const message = new Message(modSelector, service, blog, null, res.user);
                             const dataflow = new Dataflow(service);
                             const allMsgs = new AllMsgs(modSelector, service, message)
                             const user = new User(modSelector, service, auth);
+                            user.user = user_id ? res.user : {} as userType;
                             const feature = new Features();
                             const injector = document.querySelector("section#footerInjector") as HTMLElement;
                             const mainFooter = new MainFooter(modSelector, service, injector, auth, user, dataflow, feature, allMsgs, commonInfo, browser);

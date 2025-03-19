@@ -13,6 +13,7 @@ import AuthService from "../common/auth";
 
 class SignInAndUp{
     public readonly signin:string="/images/signin.png";
+    public readonly register:string="/images/register.png";
     public readonly barIcon:string="/images/barIcon.png";
     public readonly signup:string="/images/signup.png";
     public readonly signupTwo:string="/images/signupTwo.png";
@@ -22,6 +23,7 @@ class SignInAndUp{
     constructor(private _modSelector:ModSelector,private _service:Service,public regSignin:RegSignIn,private auth:AuthService,isSignedIn:boolean){
         this.signin="/images/signin.png";
         this.signup="/images/signup.png";
+        this.register="/images/register.png";
         this.logo="/images/gb_logo.png";
         this.signupTwo="/images/signupTwo.png";
         this.barIcon="/images/barIcon.png";
@@ -36,7 +38,7 @@ class SignInAndUp{
     //----------------SETTERS/GETTERS----------------------//
 
     //INJECTED:Id:mainHeader#header-end
-   async main({parent}:{parent:HTMLElement}):Promise<{parent:HTMLElement,container:HTMLElement,user:userType,isSignedIn:boolean}>{
+   async main({parent,navHeader,isRepeat}:{parent:HTMLElement,navHeader:HTMLElement,isRepeat:boolean}):Promise<{parent:HTMLElement,container:HTMLElement,user:userType,isSignedIn:boolean,navHeader:HTMLElement,isRepeat:boolean}>{
         //MUST PARENT MUST APPEND CONTAINER OR IT WILL NOT SHOW
         const url=new URL(window.location.href);
         const pathname=url.pathname;
@@ -60,7 +62,7 @@ class SignInAndUp{
                 
             };
         }
-        return Promise.resolve({parent,container,user:this.user,isSignedIn}) as Promise<{parent:HTMLElement,container:HTMLElement,user:userType,isSignedIn:boolean}>;
+        return Promise.resolve({parent,container,user:this.user,isSignedIn,navHeader,isRepeat}) as Promise<{parent:HTMLElement,container:HTMLElement,user:userType,isSignedIn:boolean,navHeader:HTMLElement,isRepeat:boolean}>;
     };
 
 
@@ -115,7 +117,7 @@ class SignInAndUp{
         popup.id="dropDown-popup";
         popup.className="popup";
         popup.style.cssText=css_row +"position:absolute;inset:0%;width:fit-content;height:inherit;border-radius:inherit;height:inherit;z-index:2000;background-color:white;border-radius:8px;";
-        popup.style.transform="translateX(-100px)";
+        popup.style.transform="translateX(-150px)";
         popup.style.gap="0.5rem";
         popup.style.paddingInline="0.5rem";
         popup.style.paddingBlock="0.25rem";
@@ -126,12 +128,12 @@ class SignInAndUp{
                 {transform:"translateX(0px) scale(0)",opacity:"0",backgroundColor:"transparent"},
                 {transform:"translateX(-25px) scale(0.5)",opacity:"1",backgroundColor:"whitesmoke"},
                 {transform:"translateX(-50px) scale(1)",opacity:"0.5",backgroundColor:"white"},
-                {transform:"translateX(-100px) scale(1)",opacity:"1",backgroundColor:"white"},
+                {transform:"translateX(-150px) scale(1)",opacity:"1",backgroundColor:"white"},
             ],{duration:time,iterations:1,"easing":"ease-in-out"});
         }else{
             popup.style.opacity="0";
             popup.animate([
-                {transform:"translateX(-100px) scale(1)",opacity:"1",backgroundColor:"white"},
+                {transform:"translateX(-150px) scale(1)",opacity:"1",backgroundColor:"white"},
                 {transform:"translateX(-50px) scale(1)",opacity:"1",backgroundColor:"white"},
                 {transform:"translateX(-25px) scale(0.5)",opacity:"0.5",backgroundColor:"whitesmoke"},
                 {transform:"translateX(0px) scale(0)",opacity:"0",backgroundColor:"transparent"},
@@ -141,6 +143,7 @@ class SignInAndUp{
         parent.appendChild(popup);
         this.signInBtn({grandParent:parent,parent:popup,css_col,less900,less400,btnShape,time,isOn:this.isOn});
         this.signUpBtn({grandParent:parent,parent:popup,css_col,less900,less400,btnShape,time,isOn:this.isOn});
+        this.registerBtn({grandParent:parent,parent:popup,css_col,less900,less400,btnShape,time,isOn:this.isOn});
     };
 
  async sleep({time,func}:{time:number,func:()=>Promise<void>|void}){
@@ -184,17 +187,54 @@ class SignInAndUp{
         const container=document.createElement("div");
         container.id="signUp-container";
         container.style.cssText=btnShape;
+        container.style.display="flex";
         container.style.transform=less400 ? "scale(0.8)":"scale(1)";
         const img=document.createElement("img");
         img.id="signup-img";
         img.src=this.signup;
         img.alt="www.ablogroom.com";
-        img.style.cssText="width:100%;margin:auto;border-radius:inherit;";
+        img.style.cssText="width:100%;border-radius:inherit;";
         container.appendChild(img);
         parent.appendChild(container);
         container.onclick=async(e:MouseEvent)=>{
             if(e){
                 this.signupForm({css_col,less400});
+               this.isOn=await  this.removeSigninUp({parent:grandParent,target:parent,time});
+            }
+        };
+    };
+
+
+    registerBtn({grandParent,parent,css_col,less900,less400,btnShape,time,isOn}:{grandParent:HTMLElement,parent:HTMLElement,css_col:string,less900:boolean,less400:boolean,btnShape:string,time:number,isOn:boolean}){
+        const getNav=document.querySelector("header#navHeader") as HTMLElement;
+        const section=document.createElement("section");
+        section.id="regBtn-register-section";
+        section.style.cssText="position:absolute;transform:translateY(100%);display:flex";
+        section.style.inset=less900 ? "0% 0% auto 0%":"0% 20% auto 20%";
+        if(!getNav) return;
+        getNav.appendChild(section);
+        this.isOn=isOn
+        const container=document.createElement("div");
+        container.id="regBtn-register-container";
+        container.style.cssText=btnShape;
+        container.style.display="flex";
+        container.style.transform=less400 ? "scale(0.8)":"scale(1)";
+        const img=document.createElement("img");
+        img.id="signup-img";
+        img.src=this.register;
+        img.alt="www.ablogroom.com";
+        img.style.cssText="width:100%;border-radius:inherit;";
+        container.appendChild(img);
+        parent.appendChild(container);
+        container.onclick=async(e:MouseEvent)=>{
+            if(e){
+                this.regSignin.register(getNav,section);
+                const getRegContainer=section.querySelector("div#register-container") as HTMLElement;
+                this.removePopup({parent:section,target:getRegContainer});
+                setTimeout(()=>{
+                    this.removePopup({parent:getNav,target:section});
+
+                },0);
                this.isOn=await  this.removeSigninUp({parent:grandParent,target:parent,time});
             }
         };
@@ -449,6 +489,23 @@ class SignInAndUp{
             if(e){
                 this.auth.logout({func:()=>undefined,redirect:true});
             }
+        };
+    };
+
+    removePopup({parent,target}:{parent:HTMLElement,target:HTMLElement}){
+        const popup=document.createElement("popup");
+        
+        popup.id="remove-popup";
+        popup.className="remove-popup";
+        popup.style.cssText="position:absolute;top:0%;right:0%;transform:translate(0px,-20px);z-index:200;aspect-ratio:1/1;border-radius:50%;background-color:black;color:white;cursor:pointer;display:flex;justify-content:center;align-items:center;padding:3px;";
+        FaCreate({parent:popup,name:FaCrosshairs,cssStyle:{borderRadius:"50%",fontSize:"14px",color:"white"}});
+        target.appendChild(popup);
+        popup.onclick=(e:MouseEvent)=>{
+            if(!e) return;
+            Misc.growOut({anchor:target,scale:0,opacity:0,time:400});
+            setTimeout(()=>{
+                parent.removeChild(target);
+            },390);
         };
     };
 

@@ -24,6 +24,7 @@ import Nav from "../nav/headerNav";
 
 
 
+
 class HtmlElement {
     phone:string="./images/phone.png";
     link:string="./images/link.png";
@@ -677,6 +678,7 @@ class HtmlElement {
         };
         floatContainer.appendChild(form);
         parent.appendChild(floatContainer);
+        this.removePopup({parent,target_:floatContainer});
         Misc.fadeIn({anchor:floatContainer,xpos:50,ypos:100,time:500});
         form.addEventListener("submit",async(e:SubmitEvent)=>{
             if(e ){
@@ -940,7 +942,6 @@ class HtmlElement {
     }
     //PARENT SELECTULTYPE()
    async createList(parent:HTMLElement,btnClick:HTMLElement,icon:iconType,type:string){
-        Main.textarea=document.querySelector("div#textarea");
         const useParent=Main.textarea;
         const idValues: idValueType[]=[];
         btnClick.classList.toggle(icon.name);
@@ -958,6 +959,12 @@ class HtmlElement {
                    
                     if(type==="decimal"){
                         li.classList.add("decimal");
+                        li.textContent="edit"
+                        target.appendChild(li);
+
+                    }else{
+                        li.textContent="edit"
+                        target.appendChild(li);
                     }
                     target.style.cssText="padding-inline:6px;width:90%;margin-inline:auto;";
                     idValues.push({eleId,id:"ID",attValue:eleId});
@@ -967,6 +974,25 @@ class HtmlElement {
                                 const ele=_res.ele as elementType;
                                 divCont.setAttribute("data-placement",`${ele.placement}-A`);
                                 this.editElement({target:_res.target,idValues});
+                                divCont.addEventListener("click", (e:MouseEvent)=>{
+                                    if(e){
+                                    
+                                        _res.target.classList.toggle("isActive");
+                                        divCont.classList.toggle("isActive");
+                                        if(([..._res.target.classList as any] as string[]).includes("isActive")){
+                                        this.removeMainElement({
+                                            parent,
+                                            divCont,
+                                            target:ul,
+                                            idValues
+                                           });
+                                       
+                                        }
+                                        btnClick.classList.remove("active");
+                                        this._modSelector.footerPlacement();//this shifts footer placement down
+                                        
+                                    }
+                                },true);
                              
                             }
                         });
@@ -974,37 +1000,6 @@ class HtmlElement {
                     Misc.matchMedia({parent:divCont,maxWidth:920,cssStyle:{marginInline:"1.5rem"}});
                     Misc.matchMedia({parent:divCont,maxWidth:420,cssStyle:{marginInline:"10px"}});
                     useParent.appendChild(divCont);
-                    target.addEventListener("click", (e:MouseEvent)=>{
-                        if(e){
-                            if(!(([...target.children as any] as HTMLElement[]).map(li=>(li.nodeName)).includes("LI"))){
-                                ul.appendChild(li);
-                            }
-                            target.classList.toggle("isActive");
-                            divCont.classList.toggle("isActive");
-                            if(([...target.classList as any] as string[]).includes("isActive")){
-                            this.removeMainElement({
-                                parent:useParent,
-                                divCont,
-                                target:ul,
-                                idValues
-                               });
-                           
-                            }
-                            btnClick.classList.remove("active");
-                            this._modSelector.footerPlacement();//this shifts footer placement down
-                            
-                        }
-                    },true);
-                   
-                   
-                        // useParent.classList.add(".position-relative")
-                        this._modSelector.editElement({target,idValues,selRowCol:null})//pulls flex if exist from target attrubutes
-                    //ADDING element
-          
-            
-            
-           
-           //NOTE CHANGE EVENT ONLY WORKS FOR INPUT,TEXTAREA TYPE
         }
     };
 
@@ -1485,6 +1480,27 @@ class HtmlElement {
     };
 
 
+    removePopup({parent,target_}:{parent:HTMLElement,target_:HTMLElement}){
+        const popup=document.createElement("popup");
+        
+        popup.id="remove-popup";
+        popup.className="remove-popup";
+        popup.style.cssText="position:absolute;top:0%;right:0%;transform:translate(0px,0px);z-index:200;aspect-ratio:1/1;border-radius:50%;background-color:black;color:white;cursor:pointer;display:flex;justify-content:center;align-items:center;padding:3px;";
+        const span=document.createElement("span");
+        span.style.cssText="color:white;width:auto;";
+        span.textContent="X";
+        popup.appendChild(span);
+        target_.appendChild(popup);
+        popup.onclick=(e:MouseEvent)=>{
+            if(!e) return;
+            Misc.growOut({anchor:target_,scale:0,opacity:0,time:400});
+            setTimeout(()=>{
+                parent.removeChild(target_);
+            },390);
+        };
+    };
+
+    
     //!!!THIS IS FOR ALL FLEX AND NON FLEX ELEMENTS ON FONTACTIONS
    async fontAction(btn:HTMLButtonElement,idValues:idValueType[]){
         //THIS IS THE MAIN CONTROLLER FOR ALL NONFLEX AND FLEX ITEMS

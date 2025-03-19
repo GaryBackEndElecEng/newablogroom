@@ -184,10 +184,12 @@ class AuthService {
 
     confirmUser({user,count}:{user:userType|null,count:number}): Promise<{user:userType,isAuthenicated:boolean,count:number}>{
         if(user){
-            const check=(this._isAuthenticated && this.user.id===user.id && this.user.email===user.email);
-            if(check){
+            const check=(this._isAuthenticated && this.user.id===user?.id && this.user.email===user?.email);
+            if(!check){
+               
                 this.user=user;
-            };
+            }
+            
         }
         return Promise.resolve({user:this.user,isAuthenicated:this._isAuthenticated,count:count+1,states:this.states}) as Promise<{user:userType,isAuthenicated:boolean,count:number,states:stateType[]}>;
     }

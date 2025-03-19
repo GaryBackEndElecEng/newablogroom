@@ -16,6 +16,7 @@ import {  idValueType, selRowColType, selRowType, typeEnumType } from "@/lib/att
 import { attrEnumArr, attrEnumArrTest, typeEnumArr, typeEnumArrTest } from "../common/lists";
 
 import Nav from "../nav/headerNav";
+import Toolbar from "../common/toolbar";
 
 
 
@@ -305,7 +306,7 @@ colAttrs=["col-start","col-end","col-center"];
                     row.style.cssText=row_.cssText;
                     row.id=row_.eleId;
                     //REMOVES BLOB URLS
-                    console.log(row_.cssText);
+                  
                     await this._modSelector.removeBlob({target:row,rowColEle:row_,loc:"flexbox",level:"row",idValues});
                     //REMOVES BLOB URLS
                      
@@ -335,11 +336,16 @@ colAttrs=["col-start","col-end","col-center"];
                     await Promise.all(row_?.cols.toSorted((a,b)=>{if(a.order < b.order) return -1;return 1}).map(async(col_,index1)=>{
                      this.generateColumn({row,row_,sel:selector,idValues,col_}).then(async(cres)=>{
                             if(cres){
+                                cres.col.addEventListener("click",(e:MouseEvent)=>{
+                                    if(e){
+                                        cres.col.classList.toggle("coliIsActive");
+                                    }
+                                });
                                await Promise.all(cres.col_.elements.map(async(element)=>{
                                     await this.generateElement({col:cres.col,element,sel:selector,row_,col_:cres.col_,idValues:cres.idValues}).then(async(eres)=>{
                                         if(eres){
                                             const selRowCol:selRowColType={selectorId:selector.eleId,rowId:row_.eleId,colId:col_.eleId}
-                                            eres.col.appendChild(eres.ele);
+                                            eres.col.appendChild(eres.divCont);
                                             if(eres.isEdit){
                                                 this.editElement({target:eres.ele,idValues:eres.idValues,selRowCol})
                                             };
@@ -427,11 +433,7 @@ colAttrs=["col-start","col-end","col-center"];
                 selector:sel,
                 col:col_
             });
-            col.addEventListener("click",(e:MouseEvent)=>{
-                if(e){
-                    col.classList.toggle("coliIsActive");
-                }
-            });
+           
 
         return Promise.resolve({row,col,col_,idValues,row_,sel}) as Promise<{row:HTMLElement,col_:colType,idValues:idValueType[],row_:rowType,sel:selectorType,col:HTMLElement}>;
     };
@@ -688,6 +690,7 @@ colAttrs=["col-start","col-end","col-center"];
                                             });
                                             resCol.target.addEventListener("click",(e:MouseEvent)=>{
                                                 if(e){
+                                                    
                                                     resCol.target.classList.toggle("coliIsActive");
                                                 }
                                             });
@@ -826,7 +829,7 @@ colAttrs=["col-start","col-end","col-center"];
                             
                             switch(true){
                                 case ele==="img":
-                                    icon=Main.icons.find(ico=>(ico.name==="img")) as iconType;
+                                    icon=Toolbar.icons.find(ico=>(ico.name==="img")) as iconType;
                                     btn=document.querySelector(`button#${icon.name}`) as HTMLButtonElement;
                                     //ADDING IMAGE
                                     this.addImage({
@@ -845,7 +848,7 @@ colAttrs=["col-start","col-end","col-center"];
                                 return;
                                 
                                 case checkText :
-                                     icon=Main.icons.filter(ico=>(ico.isElement===true)).find(ico=>(ico.name===ele)) as iconType;
+                                     icon=Toolbar.icons.filter(ico=>(ico.isElement===true)).find(ico=>(ico.name===ele)) as iconType;
                                      btn=document.querySelector(`button#${icon.name}`) as HTMLButtonElement;
                                     this._modSelector.dataset.insertcssClassIntoComponents({
                                         target,level:"element",
@@ -872,7 +875,7 @@ colAttrs=["col-start","col-end","col-center"];
                                      }
                                 return;
                                 case ele ==="blockquote":
-                                    icon=Main.icons.find(ico=>(ico.name==="blockquote")) as iconType;
+                                    icon=Toolbar.icons.find(ico=>(ico.name==="blockquote")) as iconType;
                                     
                                      this.createQuote({
                                         parent:column,
@@ -888,7 +891,7 @@ colAttrs=["col-start","col-end","col-center"];
                                      
                                 return;
                                 case ele ==="a":
-                                    icon=Main.icons.find(ico=>(ico.name==="a")) as iconType;
+                                    icon=Toolbar.icons.find(ico=>(ico.name==="a")) as iconType;
                                     
                                      this.createAnchor({
                                         parent:column,
@@ -920,7 +923,7 @@ colAttrs=["col-start","col-end","col-center"];
                                     
                                 return;
                                 case ele ==="time":
-                                    icon=Main.icons.find(ico=>(ico.name==="time")) as iconType;
+                                    icon=Toolbar.icons.find(ico=>(ico.name==="time")) as iconType;
                                    
                                     this.insertDateTime({
                                         parent:column,
@@ -947,7 +950,7 @@ colAttrs=["col-start","col-end","col-center"];
                         const selRow:selRowType={selectorId:selector.eleId,rowId:row.eleId}
                        switch(true){
                            case name ==="bg-shade":
-                           icon=Main.icons.find(ico=>(ico.name==="bg-shade")) as iconType;
+                           icon=Toolbar.icons.find(ico=>(ico.name==="bg-shade")) as iconType;
                            btn=document.querySelector(`button#${icon.name}`) as HTMLButtonElement;
                            this.bgShade({parent:column,btn,sel:selector,row,col,idValues});
                        return;

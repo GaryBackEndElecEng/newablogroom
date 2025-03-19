@@ -13,8 +13,8 @@ const EMAIL2 = process.env.EMAIL2 as string;
 
 export default async function page() {
     const session = await getServerSession() ? await getServerSession() : null;
-    const isEmail = (session && session.user && session.user.email) ? session.user.email : null as string | null;
-    const email = (isEmail === EMAIL) || (isEmail === EMAIL2) ? isEmail : null;
+    const isEmail = session?.user?.email || null;
+    const email = ((isEmail === EMAIL) || (isEmail === EMAIL2)) ? isEmail : null;
     const users = await getUsers();
     const admin = await adminUser({ email });
     if (email) {
@@ -44,14 +44,20 @@ export async function getUsers(): Promise<userType[] | []> {
                 posts: true
             }
         }) as unknown[] as userType[];
+        if (users) {
+            await prisma.$disconnect();
+            return users;
+        }
+        return [] as userType[];
     } catch (error) {
         const msg = getErrorMessage(error);
         console.log(msg);
-    } finally {
         await prisma.$disconnect();
-        return users;
+        return [] as userType[]
     }
-}
+};
+
+
 
 export async function adminUser(item: { email: string | null }): Promise<userType | null> {
     const { email } = item;
@@ -71,13 +77,16 @@ export async function adminUser(item: { email: string | null }): Promise<userTyp
                 username: true
             }
         }) as unknown as userType;
+        if (user) {
+            return user;
+        };
+        return null;
     } catch (error) {
         const msg = getErrorMessage(error);
         console.log(msg);
-    } finally {
         await prisma.$disconnect();
-        return user;
-    }
-}
+        return null
+    };
+};
 
 

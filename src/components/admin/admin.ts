@@ -5,7 +5,6 @@ import User from "../user/userMain";
 import Header from "../editor/header";
 import Misc from "../common/misc";
 import Nav from "../nav/headerNav";
-import AuthService from "../common/auth";
 import {FaCreate} from '@/components/common/ReactIcons';
 import { FaCrosshairs } from "react-icons/fa";
 import { getErrorMessage } from "@/lib/errorBoundaries";
@@ -13,30 +12,31 @@ import { getErrorMessage } from "@/lib/errorBoundaries";
 
 
 class Admin{
-    _info:infoType2;
-    
-    _adminimgs:adminImageType[];
-    _pagecounts:pageCountType[];
-    _admin:userType;
-    _users:userType[];
-    _posts:postType[];
-    _blogs:blogType[];
-    _messages:messageType[];
-    logo:string="./images/gb_logo.png";
+    private _info:infoType2;
+   private _adminimgs:adminImageType[];
+   private _pagecounts:pageCountType[];
+   private _admin:userType;
+   private _posts:postType[];
+   private _blogs:blogType[];
+   private _messages:messageType[];
+   public readonly btnColor:string="#0C090A";
+   public readonly logo:string="./images/gb_logo.png";
     nofilePara:string=" no files";
-    constructor(private _service:Service,private _modSelector:ModSelector,private _user:User,private clients:userType[],admin:userType|null){
+    constructor(private _service:Service,private _modSelector:ModSelector,private _user:User,private _users:userType[],admin:userType|null){
+        this.logo="./images/gb_logo.png";
+        this.btnColor="#0C090A";
         this._adminimgs=[] as adminImageType[];
         this._messages=[];
         this.posts=[] as postType[];
         this.blogs=[] as blogType[];
-        this.clients.map(user=>{
+        this._users.map(user=>{
             if(user){
                 this._posts=this._posts.concat(user.posts);
                 this._blogs=this._blogs.concat(user.blogs);
             }
         });
         
-        this._admin=admin ? admin : {} as userType;
+        this._admin=admin ||{} as userType;
         this._info={
             id: 2,
             name: "Gary Wallace",
@@ -102,10 +102,10 @@ class Admin{
         this._admin=user;
     }
     get users(){
-        return this.clients
+        return this._users
     }
     set users(users:userType[]){
-        this.clients=users;
+        this._users=users;
     }
     set messages(messages:messageType[]){
         this._messages=messages;
@@ -148,7 +148,6 @@ class Admin{
         const less400=window.innerWidth < 400;
         Header.cleanUpByID(injector,"injector-mainContainer");
         const adminUser=this.adminUser;
-        const adminEmail=adminUser.email;
         const css="display:flex;flex-direction:column;align-items:center;margin:auto;padding-inline:1rem;width:100%;position:relative;";
         const css_row="display:flex;place-items:center;margin-inline:auto;padding-inline:1rem;width:100%;position:relative;flex-warp:wrap;";
         const mainContainer=document.createElement("section");
@@ -166,24 +165,23 @@ class Admin{
         mainContainer.appendChild(btnContainer);
         injector.appendChild(mainContainer);
             
-        const {button:btnImages}=Misc.simpleButton({anchor:btnContainer,text:"open images",type:"button",time:400,bg:Nav.btnColor,color:"white"});
+        const {button:btnImages}=Misc.simpleButton({anchor:btnContainer,text:"open images",type:"button",time:400,bg:this.btnColor,color:"white"});
             btnImages.onclick=(e:MouseEvent)=>{
                 if(e){
                     // GET IMAGES!!
                     btnImages.disabled=true;
                      setTimeout(()=>{btnImages.disabled=false;},1000);
-                    const target="images";
+
                     this.openClean({parent:viewport});
                     const row=document.createElement("div");
                     row.style.cssText="display:flex;margin-inline:auto;flex-direction:row;flex-wrap:wrap;align-items:center;";
                     row.id="row-images";
                     viewport.appendChild(row)
-                    // Header.cleanUpByID(innerCont,"btnGrp");
                         if(!(this._adminimgs && this._adminimgs.length>0)){
                             this._service.adminImages(adminUser).then(async(res)=>{
                                 if(res && res.length>0){
                                         this.adminimgs=res;
-                                        this.adminimgs.sort((a,b)=>{if(a.id<b.id) return -1;return 1}).map(adminimg=>{
+                                        this.adminimgs.toSorted((a,b)=>{if(a.id<b.id) return -1;return 1}).map(adminimg=>{
                                             if(adminimg){
                                                 this.imgCard(row,adminimg);
                                                 
@@ -197,7 +195,7 @@ class Admin{
                             });
                         
                     }else{
-                        this.adminimgs.sort((a,b)=>{if(a.id<b.id) return -1;return 1}).map(adminimg=>{
+                        this.adminimgs.toSorted((a,b)=>{if(a.id<b.id) return -1;return 1}).map(adminimg=>{
                             if(adminimg){
                                 this.imgCard(row,adminimg);
         
@@ -207,19 +205,19 @@ class Admin{
                     }
                 }
             };
-        const {button:usersBtn}=Misc.simpleButton({anchor:btnContainer,text:"open users",type:"button",time:400,bg:Nav.btnColor,color:"white"});
+        const {button:usersBtn}=Misc.simpleButton({anchor:btnContainer,text:"open users",type:"button",time:400,bg:this.btnColor,color:"white"});
             usersBtn.onclick=(e:MouseEvent)=>{
                 if(e){
                     //GET USERS
                     usersBtn.disabled=true;
                     setTimeout(()=>{usersBtn.disabled=false;},1000);
                     this.openClean({parent:viewport});
-                   this.getUsers({parent:viewport,css,users:this.clients,adminUser});
-                   this.searchUser({viewport:viewport,users:this.clients,adminUser});
+                   this.getUsers({parent:viewport,css,users:this._users,adminUser});
+                   this.searchUser({viewport:viewport,users:this._users,adminUser});
                   
                 }
             };
-        const {button:postBtn}=Misc.simpleButton({anchor:btnContainer,text:"open posts",type:"button",time:400,bg:Nav.btnColor,color:"white"});
+        const {button:postBtn}=Misc.simpleButton({anchor:btnContainer,text:"open posts",type:"button",time:400,bg:this.btnColor,color:"white"});
             postBtn.onclick=(e:MouseEvent)=>{
                 if(e){
                     //GET USERS
@@ -227,54 +225,48 @@ class Admin{
                     setTimeout(()=>{postBtn.disabled=false;},1000);
                     postBtn.disabled=true;
                     setTimeout(()=>{postBtn.disabled=false;},1000);
-                    const target="users";
                     this.openClean({parent:viewport});
                    this.getPosts({parent:viewport,posts:this.posts});
                   
                 }
             };
-        const {button:blogBtn}=Misc.simpleButton({anchor:btnContainer,text:"open blogs",type:"button",time:400,bg:Nav.btnColor,color:"white"});
+        const {button:blogBtn}=Misc.simpleButton({anchor:btnContainer,text:"open blogs",type:"button",time:400,bg:this.btnColor,color:"white"});
             blogBtn.onclick=(e:MouseEvent)=>{
                 if(e){
                     //GET USERS
                     blogBtn.disabled=true;
                      setTimeout(()=>{blogBtn.disabled=false;},1000);
-                    const target="users";
                     this.openClean({parent:viewport});
                    this.getBlogs({parent:viewport,blogs:this.blogs});
                   
                 }
             };
-        const {button:messBtn}=Misc.simpleButton({anchor:btnContainer,text:"open msgs",type:"button",time:400,bg:Nav.btnColor,color:"white"});
+        const {button:messBtn}=Misc.simpleButton({anchor:btnContainer,text:"open msgs",type:"button",time:400,bg:this.btnColor,color:"white"});
             messBtn.onclick=(e:MouseEvent)=>{
                 if(e){
                     messBtn.disabled=true;
                     setTimeout(()=>{messBtn.disabled=false;},1000);
                     //GET MESSAGES
-                    const target="messages";
                     this.openClean({parent:viewport});
                    this.getMessages(viewport,this.adminUser);
                 }
             };
 
-        const {button:openpgcounts}=Misc.simpleButton({anchor:btnContainer,text:"open pg-counts",type:"button",time:400,bg:Nav.btnColor,color:"white"});
+        const {button:openpgcounts}=Misc.simpleButton({anchor:btnContainer,text:"open pg-counts",type:"button",time:400,bg:this.btnColor,color:"white"});
             openpgcounts.onclick=(e:MouseEvent)=>{
                 if(e){
                     openpgcounts.disabled=true;
                     setTimeout(()=>{openpgcounts.disabled=false;},1000);
-                    const target="page-counts";
                     this.openClean({parent:viewport});
-                    // Header.cleanUpByID(mainContainer,"innerUser");
                     const user_id=this._user.user.id;
                     this.getPagecounts(viewport,user_id);
                 }
             }
-        const {button:close}=Misc.simpleButton({anchor:btnContainer,text:"close",type:"button",time:400,bg:Nav.btnColor,color:"white"});
+        const {button:close}=Misc.simpleButton({anchor:btnContainer,text:"close",type:"button",time:400,bg:this.btnColor,color:"white"});
         close.onclick=(e:MouseEvent)=>{
             if(e){
                 close.disabled=true;
                 setTimeout(()=>{close.disabled=false;},1000);
-                // Header.cleanUpByID(mainContainer,"innerUser");
                 const searchContainer=viewport.querySelector("div#search-container") as HTMLElement;
                 const getmsgsContainer=document.querySelector("div#messages-container") as HTMLElement;
                 const getUsers=viewport.querySelector("div#getUsers-row") as HTMLElement ;
@@ -291,7 +283,7 @@ class Admin{
                         const check=([...viewport.children as any] as HTMLElement[]).map(html=>html.id).includes(ID)
                         if(check){
 
-                            if(!(item.name==="images")){
+                            if(item.name !== "images"){
                                 Misc.fadeOut({anchor:item.html,xpos:100,ypos:100,time:400});
                                 setTimeout(()=>{
                                     viewport.removeChild(item.html);
@@ -313,7 +305,7 @@ class Admin{
             }
             };
             
-            const {button:infoBtn}=Misc.simpleButton({anchor:btnContainer,text:"open info form",type:"button",time:400,bg:Nav.btnColor,color:"white"});
+            const {button:infoBtn}=Misc.simpleButton({anchor:btnContainer,text:"open info form",type:"button",time:400,bg:this.btnColor,color:"white"});
             infoBtn.onclick=async(e:MouseEvent)=>{
                 if(e){
                     infoBtn.disabled=true;
@@ -330,9 +322,7 @@ class Admin{
                 }
             };
             
-            return new Promise(resolve=>{
-                resolve(count+1);
-            }) as Promise<number>;
+            return Promise.resolve(count+1) as Promise<number>;
     };
     //end
 
@@ -364,7 +354,6 @@ class Admin{
         div.id="imgCard-container";
         div.style.cssText="margin:auto;display:flex;justify-content:center;align-items:center;gap:1rem;flex-wrap:wrap;";
         const img=document.createElement("img");
-        // img.src=Misc.AWSSourceImage({url:adminimg.img,width:175,quality:50});
         img.src=adminimg.img;
         img.alt=adminimg.imgKey;
         img.style.cssText="float:left;margin:auto;width:175px;aspect-ratio: 1 / 1;border-radius:50%;box-shadow:1px 1px 12px 1px black;";
@@ -430,7 +419,7 @@ class Admin{
         row.appendChild(col);
         Misc.matchMedia({parent:div,maxWidth:400,cssStyle:{flexDirection:"column",alignItems:"center",justifyContent:"center"}})
         Misc.matchMedia({parent:ul,maxWidth:400,cssStyle:{paddingInline:"2rem"}})
-        const {button}=Misc.simpleButton({anchor:col,type:"button",bg:Nav.btnColor,color:"white",time:300,text:"delete"});
+        const {button}=Misc.simpleButton({anchor:col,type:"button",bg:this.btnColor,color:"white",time:300,text:"delete"});
         button.onclick=(e:MouseEvent)=>{
             if(e){
                 button.disabled=true;
@@ -446,7 +435,7 @@ class Admin{
                                     this._adminimgs.splice(index,1);
                                 }
                             });
-                            this._adminimgs.sort((a,b)=>{if(a.id<b.id) return -1;return 1}).map(adminimage=>{
+                            this._adminimgs.toSorted((a,b)=>{if(a.id<b.id) return -1;return 1}).map(adminimage=>{
                                 if(adminimage){
                                     this.imgCard(row,adminimage);
                                 }
@@ -456,7 +445,9 @@ class Admin{
                 });
             }
         };
-    }
+    };
+
+
 
     noFiles(parent:HTMLElement){
         Header.cleanUpByID(parent,"noFiles");
@@ -475,7 +466,10 @@ class Admin{
         setTimeout(()=>{
             parent.removeChild(cont);
         },time-20);
-    }
+    };
+
+
+    
     async getUsers(item:{parent:HTMLElement,css:string,users:userType[],adminUser:userType}){
         const {parent,css,users,adminUser}=item;
         const display=window.innerWidth <400 ? "block":"flex";
@@ -485,7 +479,7 @@ class Admin{
         containerRow.style.cssText=`display:${display};flex-direction:row;flex-wrap:wrap;width:100%;position:relative;justify-content:space-around;align-items:center;`;
         parent.appendChild(containerRow);
             
-           users.sort((a,b)=>{if(a.id<b.id) return -1;return 1}).map((user,index)=>{
+           users.toSorted((a,b)=>{if(a.id<b.id) return -1;return 1}).map((user,index)=>{
                if(user){
                 this.userCard({parent,containerRow,user,css,index,adminUser});
                }
@@ -493,7 +487,9 @@ class Admin{
         
            Misc.matchMedia({parent:containerRow,maxWidth:400,cssStyle:{display:"block",flexDirection:"column",justifyContent:"flex-start",alignItems:"center",gap:"1.5rem"}});
        
-    }
+    };
+
+
     userCard(item:{parent:HTMLElement,containerRow:HTMLElement,user:userType,css:string,index:number,adminUser:userType}){
         const { parent,containerRow,user,index,adminUser}=item;
         const css_col="margin-inline:auto;display:flex;flex-direction:column;place-items:center;gap:0px;"
@@ -555,13 +551,13 @@ class Admin{
         // console.log("containerRow",containerRow)//works
         // console.log("card")//works
         // console.log("parent",parent)// works
-        const {button:deleteUser}=Misc.simpleButton({anchor:card,bg:Nav.btnColor,color:"white",text:"delete",time:400,type:"button"});
+        const {button:deleteUser}=Misc.simpleButton({anchor:card,bg:this.btnColor,color:"white",text:"delete",time:400,type:"button"});
         deleteUser.onclick=(e:MouseEvent)=>{
             if(e){
                 const item:delteUserType={adminemail:adminUser.email,adminId:adminUser.id,delete_id:user.id};
                 this._service.adminDelUser(item).then(async(res)=>{
-                    if(res && res.id){
-                        this.deleteUser({parent,user,adminUser,item});
+                    if(res?.id){
+                        this.deleteUser({parent,adminUser,item});
                     }
                 });
             }
@@ -570,23 +566,26 @@ class Admin{
         Misc.matchMedia({parent:card,maxWidth:400,cssStyle:{flex:"1 1 100%"}});
         Misc.matchMedia({parent:containerRow,maxWidth:400,cssStyle:{flexDirection:"column"}});
 
-    }
-    deleteUser(items:{parent:HTMLElement,user:userType,adminUser:userType,item:delteUserType}){
-        const {parent,user,adminUser,item}=items;
+    };
+
+
+
+    deleteUser(items:{parent:HTMLElement,adminUser:userType,item:delteUserType}){
+        const {parent,adminUser,item}=items;
         //it deletes user and then redoes the user row
         const css_col="margin-inline:auto;display:flex;flex-direction:column;place-items:center;gap:0px;"
         this._service.adminDelUser(item).then(async(res)=>{
-            if(res && res.id){
-                this.clients.map((user_,ind)=>{
+            if(res?.id){
+                this._users.map((user_,ind)=>{
                     if(user_ && (user_.id !==item.delete_id)){
-                        this.clients.splice(ind,1)
+                        this._users.splice(ind,1)
+                        this.users=this._users;
                     }
                 });
-                this.users=this.clients;
                 const getRow=parent.querySelector("div#getUsers-row") as HTMLElement;
                 if(getRow){
                     Header.cleanUp(getRow);
-                    this.clients.map((user_,index_)=>{
+                    this.users.map((user_,index_)=>{
                         if(user_){
                             this.userCard({parent,containerRow:getRow,user:user_,css:css_col,index:index_,adminUser});
                         }
@@ -614,7 +613,6 @@ class Admin{
         resultText.className="text-center text-underline text-primary my-2";
         resultText.textContent="Found - items";
         const {input,label,formGrp}=Nav.inputComponent(searchUser);
-        const {button:clear}=Misc.simpleButton({anchor:searchUser,bg:"black",color:"white",text:"clear",time:400,type:"button"});
         input.type="text";
         input.name="search-user";
         input.id="search-user";
@@ -632,28 +630,23 @@ class Admin{
                 const value=(e.currentTarget as HTMLInputElement).value.toLowerCase();
                 const userOnes=users.filter(user=>(user.name?.toLowerCase().includes(value) || user.email.toLowerCase().includes(value)));
                 if(userOnes && value){
-                    this.getSearchUser({viewport,container,results,users:userOnes,adminUser});
+                    this.getSearchUser({viewport,results,users:userOnes,adminUser});
                     
                 }else{
                     Header.cleanUpByID(viewport,"getSearchUser-results-row");
                 }
             };
         };
-        clear.onclick=(e:MouseEvent)=>{
-            if(e){
+        
 
-            }
-        };
+    };
 
-    }
-    getSearchUser(item:{viewport:HTMLElement,container:HTMLElement,results:HTMLElement,users:userType[],adminUser:userType}){
-        const {viewport,container,results,users,adminUser}=item;
-        const less900=window.innerWidth <900;
-        const less400=window.innerWidth <400;
+
+
+    getSearchUser(item:{viewport:HTMLElement,results:HTMLElement,users:userType[],adminUser:userType}){
+        const {viewport,results,users,adminUser}=item;
         Header.cleanUpByID(viewport,"getSearchUser-results-row");
-        const css="margin-inline;padding-inline:1rem;padding-block:1.5rem;";
         const css_row="margin-inline:auto;display:flex;flex-wrap:wrap;justify-content:flex-start;align-items:center;";
-        const css_col="margin-inline:auto;display:flex;flex-direction:center;flex-wrap:wrap;justify-content:center;align-items:center;";
         const row=document.createElement("div");
         row.id="getSearchUser-results-row";
         row.style.cssText=css_row ;
@@ -661,14 +654,17 @@ class Admin{
         if(users && users.length>0){
             users.map((user,index)=>{
                 if(user){
-                    this.searchUserItem({viewport,results,row,user,index,adminUser})
+                    this.searchUserItem({results,row,user,index,adminUser})
                     
                 }
             });
         }
-    }
-    searchUserItem(item:{viewport:HTMLElement,results:HTMLElement,row:HTMLElement,user:userType,index:number,adminUser:userType}){
-        const {viewport,results,row,user,index,adminUser}=item;
+    };
+
+
+
+    searchUserItem(item:{results:HTMLElement,row:HTMLElement,user:userType,index:number,adminUser:userType}){
+        const {results,row,user,index,adminUser}=item;
         const less900=window.innerWidth <900;
         const less400=window.innerWidth <400;
         const css="margin-inline;padding-inline:1rem;padding-block:1.5rem;";
@@ -752,11 +748,11 @@ class Admin{
             });
             col.appendChild(postContTitle);
             col.appendChild(postCont);
-            const {button:delUser}=Misc.simpleButton({anchor:col,bg:Nav.btnColor,text:"delete",color:"white",type:"button",time:400});
+            const {button:delUser}=Misc.simpleButton({anchor:col,bg:this.btnColor,text:"delete",color:"white",type:"button",time:400});
             delUser.onclick=(e:MouseEvent)=>{
                 if(e){
                     const item:delteUserType={adminemail:adminUser.email,adminId:adminUser.id,delete_id:user.id}
-                    this.deleteUser({parent:results,user,adminUser,item});
+                    this.deleteUser({parent:results,adminUser,item});
                 }
             };
             row.appendChild(col);
@@ -802,8 +798,6 @@ class Admin{
                 Header.cleanUp(results);
                 const value=(e.currentTarget as HTMLInputElement).value as string;
                 adminImages=adminimgs.filter(adimg=>(adimg.imgKey.includes(value)));
-               
-                // Header.cleanUpByID(popup,"div-search");
                 const row=document.createElement("div");
                 row.className="row";
                 results.appendChild(row);
@@ -889,7 +883,7 @@ class Admin{
         col.id="row-col"+ `${blog.id}`;
         col.style.cssText=css_col + "background-color:white;color:black;";
         col.style.width=less900 ? (less400 ? "100%":"48%"): "33%";
-        const user=this.clients.find(user=>(user.id===blog.user_id));
+        const user=this.users.find(user=>(user.id===blog.user_id));
         const ul=document.createElement("ul");
         ul.id="col"+ `${blog.id}-ul`;
         this.postUser({ul,user});
@@ -920,9 +914,12 @@ class Admin{
         });
        
         col.appendChild(ul);
-        this.delBlog({parent,row,col,blog});
+        this.delBlog({parent,col,blog});
         row.appendChild(col);
-    }
+    };
+
+
+
     postcard(item:{parent:HTMLElement,row:HTMLElement,post:postType}){
         const {parent,row,post}=item;
         const less900=window.innerWidth <900;
@@ -932,7 +929,7 @@ class Admin{
         col.id="row-col"+ `${post.id}`;
         col.style.cssText=css_col + "background-color:white;color:black;";
         col.style.width=less900 ? (less400 ? "100%":"48%"):"33%";
-        const user=this.clients.find(user=>(user.id===post.userId));
+        const user=this.users.find(user=>(user.id===post.userId));
         const ul=document.createElement("ul");
         ul.id="col"+ `${post.id}-ul`;
         this.postUser({ul,user});
@@ -960,7 +957,9 @@ class Admin{
         col.appendChild(ul);
         this.delPost({parent,row,col,post});
         row.appendChild(col);
-    }
+    };
+
+
     postUser(item:{ul:HTMLUListElement,user:userType|undefined}){
         const {ul,user}=item;
         const css_col="margin-inline:auto;display:flex;flex-direction:column;place-items:center;padding-inline:0.25rem;";
@@ -982,9 +981,11 @@ class Admin{
             });
         }
 
-    }
-    delBlog(item:{parent:HTMLElement,row:HTMLElement,col:HTMLElement,blog:blogType}){
-        const {parent,row,col,blog}=item;
+    };
+
+
+    delBlog(item:{parent:HTMLElement,col:HTMLElement,blog:blogType}){
+        const {parent,col,blog}=item;
         col.style.position="relative";
         const xDiv=document.createElement("div");
         xDiv.style.cssText="position:absolute;top:0%;right:0%;transform:translate(-10px,10px);max-width:20px;width:100%;background-color:black;color:white;border-radius:50%;padding:2px;";
@@ -998,8 +999,6 @@ class Admin{
                         this._blogs.map((blog_,index)=>{
                             if(blog_.id===blog.id){
                                 this._blogs.splice(index,1);
-                                // const viewport=document.querySelector("div#viewport") as HTMLElement;
-                                // if(!viewport) return;
                                 this.getBlogs({parent:parent,blogs:this._blogs});
                             }
                         });
@@ -1008,9 +1007,12 @@ class Admin{
             }
         };
 
-    }
+    };
+
+
+
     delPost(item:{parent:HTMLElement,row:HTMLElement,col:HTMLElement,post:postType}){
-        const {parent,row,col,post}=item;
+        const {col,post}=item;
         col.style.position="relative";
         const xDiv=document.createElement("div");
         xDiv.style.cssText="position:absolute;top:0%;right:0%;transform:translate(-10px,10px);max-width:20px;width:100%;background-color:black;color:white;border-radius:50%;padding:2px;";
@@ -1034,7 +1036,10 @@ class Admin{
             }
         };
 
-    }
+    };
+
+
+
     getMessages(parent:HTMLElement,user:userType):void{
         if(!( user && user.admin)) return
         Header.cleanUpByID(parent,"messages-container")
@@ -1065,7 +1070,10 @@ class Admin{
                 this.noFiles(parent);
             }
         });
-    }
+    };
+
+
+
     singleMsg(item:{parent:HTMLElement,row:HTMLElement,msg:messageType,col:HTMLElement,index:number}):void{
         const {parent,row,msg,index,col}=item;
         let j=0;
@@ -1080,14 +1088,14 @@ class Admin{
             if(typeof(value)!=="boolean"){
                 li.innerHTML=`<span style="color:blue;">${key} :</span><span style="color:green;text-wrap:pretty;display:flex;flex-wrap:wrap;">${nValue}</span>`;
             }else{
-                const nValue=Boolean(value) ? "true":"false";
+                const nValue=Boolean(value) || "false";
                 li.innerHTML=`<span style="color:green;">${key} :</span><span style="color:red;">${nValue}</span>`;
             }
             ul.appendChild(li);
         }
         col.appendChild(ul);
         row.appendChild(col);
-        const {button:reply}=Misc.simpleButton({anchor:col,text:"reply",bg:Nav.btnColor,color:"white",time:400,type:"button"});
+        const {button:reply}=Misc.simpleButton({anchor:col,text:"reply",bg:this.btnColor,color:"white",time:400,type:"button"});
         reply.onclick=(e:MouseEvent)=>{
             if(e){
                 const user=this._user.user;
@@ -1096,7 +1104,10 @@ class Admin{
         };
         Misc.matchMedia({parent:col,maxWidth:400,cssStyle:{flex:"1 1 auto"}});
         Misc.matchMedia({parent:row,maxWidth:400,cssStyle:{flexDirection:"column"}});
-    }
+    };
+
+
+
     deleteMsg(item:{parent:HTMLElement,row:HTMLElement,col:HTMLElement,msg:messageType,msgs:messageType[]}):void{
         const {parent,row,col,msg,msgs}=item;
         col.style.position="relative";
@@ -1132,6 +1143,10 @@ class Admin{
         };
 
     };
+
+
+
+
     getPagecounts(parent:HTMLElement,user_id:string){
         Header.cleanUpByID(parent,"pg-counts-main");
         parent.style.position="relative";
@@ -1145,7 +1160,7 @@ class Admin{
         this._service.getAdminPageCounts(user_id).then(async(res)=>{
             if(res && res.length>0){
                 this.pagecounts=res;
-                this.pagecounts.sort((a,b)=>{if(a.count > b.count) return -1;else return 1}).map((pg,index)=>{
+                this.pagecounts.toSorted((a,b)=>{if(a.count > b.count) return -1;else return 1}).map((pg,index)=>{
                     if(pg){
                         this.pageCountPage(parent,user_id,row,pg,index);
                     }
@@ -1156,7 +1171,10 @@ class Admin{
                 this.noFiles(parent);
             }
         });
-    }
+    };
+
+
+
     pageCountPage(parent:HTMLElement,user_id:string,row:HTMLElement,pg:pageCountType,index:number){
         Header.cleanUpByID(parent,`col-pg-count-${index}`);
         const col=document.createElement("div");
@@ -1187,8 +1205,6 @@ class Admin{
         col.appendChild(xDiv);
         xDiv.onclick=(e:MouseEvent)=>{
             if(e){
-               
-                // if(!getRow) return;
                 this._service.delPageCount(pg.id as number).then(async(res)=>{
                     if(res && res.id){
                         this.pagecounts.map((pg_,ind)=>{
@@ -1207,7 +1223,11 @@ class Admin{
             }
         };
         //DELETE
-    }
+    };
+
+
+
+
     replyClient(items:{parent:HTMLElement,row:HTMLElement,col:HTMLElement,msg:messageType,user:userType}):void{
         const {parent,row,col,msg,user}=items;
         Header.cleanUpByID(col,"reply-client");
@@ -1226,7 +1246,7 @@ class Admin{
         label.setAttribute("for",reply.id);
         reply.style.cssText="min-width:300px;border-radius:inherit;";
         reply.placeholder="Your comments";
-        const {button:btn}=Misc.simpleButton({anchor:form,text:"submit",type:"submit",bg:Nav.btnColor,color:"white",time:400});
+        const {button:btn}=Misc.simpleButton({anchor:form,text:"submit",type:"submit",bg:this.btnColor,color:"white",time:400});
         btn.disabled=true;
         popup.appendChild(form);
         col.appendChild(popup);
@@ -1258,14 +1278,14 @@ class Admin{
                 const reply=formdata.get("reply") as string;
                 if(reply && !btn.disabled){
 
-                    const item:adminReplyMsgType={msg,user_id:user.id,reply}
+                    const item:adminReplyMsgType={msg,user_id:user.id,reply,admin_id:this.adminUser.id}
                     //generate popup with textarea for reply to client in admin
                     await this._service.adminSendEmail(item).then(async(reply:{msg:string,success:boolean}|undefined)=>{
                         if(reply && reply.success){
                             Misc.message({parent:col,msg:reply.msg,type_:"success",time:1000});
                             // UPDATE MESSAGES
-                            let msg_=msg;
-                            msg_={...msg,sent:true};
+                            
+                            const msg_={...msg,sent:true};
                             const remain=this.messages.filter(_ms=>(_ms.id !==msg.id));
                             this.messages=[...remain,msg_];
                             Header.cleanUp(row);
@@ -1290,9 +1310,10 @@ class Admin{
             }
         };
 
+    };
 
 
-    }
+
     
     lengthMsg(item:{parent:HTMLElement,btn:HTMLButtonElement,mess:string,len:number,limit:number}){
         const {parent,btn,mess,len,limit}=item;
@@ -1311,7 +1332,10 @@ class Admin{
             btn.disabled=false;
         }
 
-    }
+    };
+
+
+
 
     infoForm(item:{parent:HTMLElement,info:infoType2}){
         const {parent,info}=item;
@@ -1337,7 +1361,7 @@ class Admin{
             if(key !=="id"){
                 if(key !=="siteArray"){
     
-                    const {input:nInput,label:nLabel,formGrp:nGrp}=Nav.inputComponent(persContainer);
+                    const {input:nInput,label:nLabel}=Nav.inputComponent(persContainer);
                     nLabel.classList.remove("text-primary");
                     nLabel.classList.add("text-light");
                     nInput.id=`${key}-${index}`;
@@ -1349,7 +1373,7 @@ class Admin{
                     const siteArray=value as {name:string,url:string}[];
                     siteArray.map((item,index)=>{
                         if(item){
-                            const {input,label,formGrp}=Nav.inputComponent(arrContainer);
+                            const {input,label}=Nav.inputComponent(arrContainer);
                             label.classList.remove("text-primary");
                             label.classList.add("text-danger");
                             label.style.backgroundColor="white";
@@ -1364,12 +1388,16 @@ class Admin{
                 }
                 index++;
             }
-        }
+        };
+
+
+
+
         
         form.appendChild(persContainer);
         form.appendChild(subTitle);
         form.appendChild(arrContainer);
-        const {button}=Misc.simpleButton({anchor:form,text:"submit",type:"submit",bg:Nav.btnColor,color:"white",time:400});
+        const {button}=Misc.simpleButton({anchor:form,text:"submit",type:"submit",bg:this.btnColor,color:"white",time:400});
         form.onsubmit=(e:SubmitEvent)=>{
             if(e){
                 e.preventDefault();
@@ -1393,9 +1421,8 @@ class Admin{
                         }
                     });
                 }
-                if(formdata && isChecked && !(this.info === undefined)){
+                if(formdata && isChecked && this.info !== undefined){
                     button.disabled=true;
-                    // console.log("before",this.info);//works
                   
                     //WRITE CODE TO SEND INFO TO api/info (node) for s3.send to new ablogroom
                     //https://newablogroom-free-bucket.s3.us-east-1.amazonaws.com/info.json @ NODE
@@ -1435,10 +1462,6 @@ class Admin{
                 const span=document.createElement("span");
                 span.textContent=str.slice(2*num+1,index);
                 mSpan.appendChild(span);
-            }else{
-                // const span=document.createElement("span");
-                // span.textContent=str.slice(arr.length-num,arr.length-1);
-                // mSpan.appendChild(span);
             }
         });
         return mSpan.innerHTML;

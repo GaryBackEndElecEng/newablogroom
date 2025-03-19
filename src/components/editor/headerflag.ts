@@ -145,6 +145,7 @@ showCleanHeaderflag({parent,element,idValues}:{parent:HTMLElement,element:elemen
     idValues.push({eleId,id:"isHeaderflag",attValue:String(element.attr)});
     //LARGE TEXT-ADJUSMENTS:CARDBODY>cardBody-middlePara 
     const middlePara=target.querySelector("p#cardBody-middlePara") as HTMLElement;
+    const imgCont=target.querySelector("div#imgCont-container") as HTMLElement;
     if(less400){
         if(middlePara){
             target.style.flexDirection="";
@@ -154,6 +155,17 @@ showCleanHeaderflag({parent,element,idValues}:{parent:HTMLElement,element:elemen
             middlePara.style.fontSize="";
             middlePara.style.fontSize="auto";
         }
+        if(imgCont){
+            console.log("maxHeight",imgCont.style.maxHeight);
+            imgCont.style.maxHeight="";
+            imgCont.style.maxHeight="none";
+            const getImg=imgCont.querySelector("img") as HTMLElement;
+            getImg.style.maxHeight="";
+            getImg.style.maxHeight="355px";
+        };
+        console.log("maxHeight",imgCont.style.maxHeight);
+    }else{
+        this.screenSizeAdjust({target:target,less900,less400});
     }
     //LARGE TEXT-ADJUSMENTS:CARDBODY>cardBody-middlePara 
     const img=target.querySelector("img") as HTMLImageElement;
@@ -173,7 +185,6 @@ showCleanHeaderflag({parent,element,idValues}:{parent:HTMLElement,element:elemen
         
       });
     divCont.appendChild(target);
-    this.screenSizeAdjust({target:target,less900,less400});
     this.removeEditable({target});//REMOVING contenteditable
     const arrDivCont:arrDivContType={divCont,placement:element.placement,target,isNormal:false,ele:element,chart:null,sel:null};
     return arrDivCont
@@ -404,6 +415,8 @@ async initMain({parent,cardBodyCss,idValues}:{parent:HTMLElement,cardBodyCss:car
         //----------------BODY---------------------------//
         return Promise.resolve({retParent:parent}) as Promise<{retParent:HTMLElement}>;
     };
+
+
     imgCont(item:{parent:HTMLElement,less900:boolean,less400:boolean}){
         //ADDS IMG AND CONTAINER
         const {parent,less400}=item;

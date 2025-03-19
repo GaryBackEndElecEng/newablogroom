@@ -32,10 +32,11 @@ class MainHeader {
     public browser:BrowserType;
     public middleLogo:MiddleLogo;
 
-    constructor(private _modSelector: ModSelector, private _service: Service, public navArrow: NavArrow, private auth: AuthService, public signinAndUp: SignInAndUp) {
+    constructor(private _modSelector: ModSelector, private _service: Service, public navArrow: NavArrow, private auth: AuthService, public signinAndUp: SignInAndUp,) {
         this.bgColor = "#0C090A";
         this.btnColor = this._modSelector.btnColor;
         MainHeader.mainHeader_css = `width:100%;height:5vh;box-shadow:1px 1px 5px 1px black,-1px -1px 5px -1px black;margin-block:0px;position:relative;background:${this.bgColor};display:flex;justify-content:space-between;`;
+
 
 
         this.logo = "gb_logo.png";
@@ -93,7 +94,7 @@ class MainHeader {
         //signIn-out
         if (user.id === "") {
             // NOT SIGNEDIN=> SHOW SIGNIN && SIGNUP
-           await this.signinAndUp.main({ parent: headerEnd }).then(async (_res) => {
+           await this.signinAndUp.main({ parent: headerEnd ,navHeader:MainHeader.header,isRepeat}).then(async (_res) => {
                 if (_res) {
                     _res.parent.appendChild(_res.container);
                 }
@@ -159,14 +160,14 @@ class MainHeader {
                                 //GENERATES DISPLAY PAGE COUNT(TOP-LEFT)
                                 await this.genPageCount({ parent: res.headerStart, count });//PAGE COUNT ON HEADER
                                 //GENERATES (IF USER IS SIGNED IN HIS SIGNED IN)
-                                await this.signinAndUp.main({ parent: res.headerEnd }).then(async (res_) => {
+                                await this.signinAndUp.main({ parent: res.headerEnd,navHeader:res.parent,isRepeat:res.isRepeat }).then(async (res_) => {
                                     if (res_) {
                                         if (res_.isSignedIn) {
                                             this.navArrow.cleanUpByQueryKeep(res_.parent, "div#headerNav-signInDisplay-container"); //this cleans up but one
                                             const admin = res_.user?.admin;
-                                            if (admin) {
+                                            if (admin && isRepeat) {
                                                 //ADMIN PRIVILEDGES
-                                                Misc.msgSourceImage({ parent: res_.parent, msg: "You have admin Rights", src: this.logo, width: 125, quality: 75, time: 2200, cssStyle: { boxShadow: "1px 1px 12px 1px white", backgroundColor: "black", color: "white", inset: "680% 0% 70% 0%", position: "absolute" } });
+                                                Misc.msgSourceImage({ parent: res_.navHeader, msg: "You have admin Rights", src: this.logo, width: 125, quality: 75, time: 5200, cssStyle: { boxShadow: "1px 1px 12px 1px white", backgroundColor: "black", color: "white", inset: "680% 0% 70% 0%", position: "absolute" } });
                                             }
                                         }
 

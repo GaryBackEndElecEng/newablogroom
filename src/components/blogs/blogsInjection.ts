@@ -267,9 +267,10 @@ class Blogs{
         if(blogs && blogs.length>0){
             const mainRow=document.createElement("div");
             mainRow.id="showBlogs-generateBlogs-mainRow";
-            const blogBaseCss=`display:flex;justify-content:flex-start;flex-direction:column;margin-top:0rem;position:relative;width:100%;gap:1rem;`;
+            const blogBaseCss=`display:flex;justify-content:flex-start;flex-direction:column;margin-top:0rem;position:relative;width:100%;`;
                 mainRow.style.cssText=blogBaseCss + "height:100vh;overflow-y:scroll;justify-content:flex-start;";
                 mainRow.style.paddingInline=less900 ? (less400 ? "0.25rem":"2rem"): "4rem";
+                mainRow.style.gap=less900 ? (less400 ? "3rem":"2rem"): "1.5rem";
                 mainRow.style.borderRadius="16px";
             
                 await Promise.all(
@@ -296,7 +297,7 @@ class Blogs{
                     await this.displayCard(colBlog,blog);
                     this.allMsgs.blogMsgs({col:colBlog,blog});
                     const {button:btn}=Misc.simpleButton({anchor:colBlog,text:"view details",bg:"#0C090A",color:"white",type:"button",time:400});
-                    btn.style.zIndex="200";
+                    btn.style.zIndex="0";
                     btn.id="showBlogs-generateBlogs-btn";
                     btn.style.marginBottom="1rem";
                     colBlog.appendChild(btn);
@@ -386,7 +387,7 @@ class Blogs{
                 }
            });
         }else{
-            img.src=imageLoader({src:this.logo,quality:75,width:100});
+            img.src=imageLoader({src:this.logo,quality:95,width:100});
             img.alt="www.ablogrrom.com";
             if(blog.attr==="square"){
                 img.style.borderRadius="12px";

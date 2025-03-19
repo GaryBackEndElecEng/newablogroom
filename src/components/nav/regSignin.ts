@@ -102,7 +102,7 @@ class RegSignIn {
         section.style.flexDirection="column";
         section.style.alignItems="center";
         section.style.backgroundColor="transparent";
-        container.style.cssText = "position:absolute;margin-inline:auto;margin-block:1rem;display:flex;justify-content:flex-start;flex-direction:column;align-items:center;gap:1rem;padding-inline:2rem;padding-block:1rem;padding-inline:3rem;backround-color:white;border-radius:16px;background-color:white;padding:1rem;font-size:18px;max-width:650px;width:100%;";
+        container.style.cssText = "position:absolute;margin-inline:auto;margin-block:1rem;display:flex;justify-content:flex-start;flex-direction:column;align-items:center;gap:1rem;padding-inline:2rem;padding-block:1rem;padding-inline:3rem;backround-color:white;border-radius:16px;background-color:white;padding:1rem;font-size:18px;max-width:650px;width:100%;min-height:80vh;";
         container.style.zIndex="0";
         const paraLogo=document.createElement("p");
         paraLogo.id="paraLogo";
@@ -244,9 +244,11 @@ class RegSignIn {
 
     wantProfileImage(mainHeader:HTMLElement,section:HTMLElement,container:HTMLElement,image:HTMLImageElement,user:userType){
         //THIS GIVES THE USER TWO CHOICES CLOSE UPLOADING IMAGE AND OPEN SIGNIN POPUP OR UPLOAD IMAGE THEN GO TO SIGNIN
+        const less900=window.innerWidth <900;
         const popup=document.createElement("div");
         popup.id="ask-profile-image-upload";
         popup.style.cssText="margin-inline:auto;position:absolute;inset:0%;background-color:white;border-radius:12px;box-shadow:1px 1px 12px 1px black;padding:1rem;";
+        popup.style.inset=less900 ? "0% 0% auto 0%":"0% 20% auto 20%";
         const text=document.createElement("h6");
         text.textContent="profile upload?";
         text.className="text-center text-primary text-decoration-underline text-underline-offset-3 mb-4";

@@ -664,7 +664,8 @@ class MainFooter{
     
   
     static cleanUp(parent:HTMLElement){
-        if(typeof window !=="undefined" ){
+        const check=[...parent.childNodes].length >0
+        if(typeof window !=="undefined" && check ){
             if((parent && !parent.firstChild)) return;
         while(parent.firstChild){
             parent.removeChild(parent.lastChild as ChildNode);

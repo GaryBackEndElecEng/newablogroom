@@ -1409,7 +1409,7 @@ class Misc{
         const rand=Math.round(Math.random()*100);
         button.id=`button-${type}-${rand}`;
         button.className="simpleButton";
-        button.style.cssText="display:flex;flex-direction:column;justify-content:center;align-items:center;padding-inline:2rem;padding-block:0rem;align-self:center;";
+        button.style.cssText="display:flex;flex-direction:column;justify-content:center;align-items:center;padding-inline:2rem;padding-block:0rem;align-self:center;z-index:0;";
         button.textContent=text;
         button.style.backgroundColor=bg;
         button.style.color=color;
@@ -1446,6 +1446,7 @@ class Misc{
                 ],{iterations:1,duration:time})
             }
         };
+        button.style.zIndex="0"
         return {button};
     };
 
@@ -1489,19 +1490,17 @@ class Misc{
         div.animate([
             {transform:trans,opacity:"0"},
             {transform:"translateY(-50%)",opacity:"0.5"},
-            {transform:"translateY(-10%)",opacity:"1"},
             {transform:"translateY(0%)",opacity:"1"},
-            {transform:"translateY(10%)",opacity:"1"},
-            {transform:"translateY(20%)",opacity:"1"},
+            {transform:"translateY(150%)",opacity:"1"},
+            {transform:"translateY(150%)",opacity:"1"},
+            {transform:"translateY(150%)",opacity:"1"},
             {transform:"translateY(0%)",opacity:"0.5"},
+            {transform:"translateY(-100%)",opacity:"0"},
             {transform:trans,opacity:"0"},
-        ],{duration:time,iterations:1,"easing":"eaase-in-out"});
+        ],{duration:time,iterations:1,"easing":"ease-in-out"});
         setTimeout(()=>{
-            Misc.growOut({anchor:div,scale:0,opacity:0,time:400});
-            setTimeout(()=>{
-                parent.removeChild(div);
-            },398);
-        },time*2);
+            parent.removeChild(div);
+        },time-30);
     };
 
     static scrollTo(item:{target:HTMLElement,percX:number,percY:number}){

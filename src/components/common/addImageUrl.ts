@@ -47,9 +47,9 @@ class AddImageUrl {
             {key:"background2.png",name:"background2",url:this.freepicurl + "/background2.png"},
             {key:"background3.png",name:"background3",url:this.freepicurl + "/background3.png"},
             {key:"colors.png",name:"colors",url:this.freepicurl + "/colors.png"},
-            {key:"bend.png",name:"background4",url:this.freepicurl + "/bend.png"},
-            {key:"bend1.png",name:"background5",url:this.freepicurl + "/bend1.png"},
-            {key:"bend2.png",name:"background6",url:this.freepicurl + "/bend2.png"},
+            {key:"beachRelax.png",name:"beach-relax",url:this.freepicurl + "/beachRelax.png"},
+            {key:"contactUs.png",name:"contactUs",url:this.freepicurl + "/contactUs.png"},
+            {key:"design.png",name:"design",url:this.freepicurl + "/design.png"},
             {key:"beautyGirl.png",name:"beauty",url:this.freepicurl + "/beautyGirl.png"},
             {key:"userpic.png",name:"user",url:this.freepicurl + "/userpic.png"},
             {key:"blackDesign.png",name:"blackDesign",url:this.freepicurl + "/blackDesign.png"},
@@ -86,8 +86,10 @@ class AddImageUrl {
             {key:"wolf3.png",name:"wolf 3",url:this.freepicurl +"/wolf3.png"},
             {key:"coffee.png",name:"coffee",url:this.freepicurl +"/coffee.png"},
             {key:"coffee2.png",name:"coffee",url:this.freepicurl +"/coffee2.png"},
-            {key:"moonToEarth.png",name:"moon-earth-view",url:this.freepicurl +"/moonToEarth.png"},
-            {key:"moonToEarth2.png",name:"moon-earth-view",url:this.freepicurl +"/moonToEarth2.png"},
+            {key:"moon.png",name:"moon-earth-view",url:this.freepicurl +"/moon.png"},
+            {key:"bannerBio.png",name:"livingroom",url:this.freepicurl +"/bannerBio.png"},
+            {key:"londonBridge.JPG",name:"londonBridge",url:this.freepicurl +"/londonBridge.JPG"},
+            {key:"bannerBio.png",name:"livingroom",url:this.freepicurl +"/bannerBio.png"},
             {key:"gb_logo_600.png",name:"logo",url:this.freepicurl +"/gb_logo_600.png"},
             {key:"img1.png",name:"cartoon 1",url:this.freepicurl +"/img1.png"},
             {key:"img10.png",name:"cartoon 2",url:this.freepicurl +"/img10.png"},
@@ -117,13 +119,13 @@ class AddImageUrl {
             {key:null,name:"majestic",url:`${this.unsplash}/photo-1657653463810-fa2f223fbb82?crop=entropy`},
             {key:null,name:"earth",url:`${this.unsplash}/photo-1657832034979-e2f9c5b0a2fc?crop=fit&h=900`},
             {key:"AIMapping.png",name:"AIMapping",url:this.freepicurl +"/AIMapping.png"},
-            {key:"blackHType.png",name:"black hole type",url:this.freepicurl +"/blackHType.png"},
+            {key:"beachView.png",name:"beach view",url:this.freepicurl +"/beachView.png"},
             {key:"galaxyFormation.png",name:"galaxyFormation",url:this.freepicurl +"/galaxyFormation.png"},
-            {key:"jamesWeb.png",name:"jamesWeb",url:this.freepicurl +"/jamesWeb.png"},
+            // {key:"jamesWeb.png",name:"jamesWeb",url:this.freepicurl +"/jamesWeb.png"},
             {key:"javascript.png",name:"javaScript",url:this.freepicurl +"/javascript.png"},
             {key:"sistersBlackhole.png",name:"sisters black hole",url:this.freepicurl +"/sistersBlackhole.png"},
             {key:"time.png",name:"time",url:this.freepicurl +"/time.png"},
-            {key:"/ourBlackH.png",name:"our black hole",url:this.freepicurl +"/ourBlackH.png"},
+            // {key:"/ourBlackH.png",name:"our black hole",url:this.freepicurl +"/ourBlackH.png"},
             {key:"sampleQuote.png",name:"sample Quote",url:this.freepicurl +"/sampleQuote.png"},
 
         ]
@@ -466,7 +468,7 @@ class AddImageUrl {
         const popup=document.createElement("div");
         popup.className="insert-popup";
         popup.style.cssText="position:absolute;max-width:800px;width:100%;min-height:5vh;height:auto;border-radius:12px;box-shadow:1px 1px 12px 1px black;display:flex;flex-direction:column;padding:1rem;gap:1.5rem;background-color:black;color:white;z-index:200;";
-        popup.style.inset="0%";
+        popup.style.inset="0% 0% auto 0%";
         const title=document.createElement("h6");
         title.textContent="insert Image";
         title.className="text-center text-primary my-2";
