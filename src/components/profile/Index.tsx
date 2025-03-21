@@ -17,6 +17,8 @@ import Ven from '../common/venDiagram';
 import Reference from '../editor/reference';
 import PasteCode from '../common/pasteCode';
 import AuthService from '../common/auth';
+import RegSignIn from '../nav/regSignin';
+import Message from '../common/message';
 
 export default function Index({ user }: { user: userType | null }) {
   const countRef = React.useRef(0);
@@ -30,7 +32,8 @@ export default function Index({ user }: { user: userType | null }) {
       const auth = new AuthService(modSelector, service)
       auth.getUser({ user, count: countRef.current }).then(async (res) => {
         if (res?.user) {
-          const _user = new User(modSelector, service, auth);
+          const regSignIn = new RegSignIn(modSelector, service, res.user)
+          const _user = new User(modSelector, service, res.status, regSignIn, res.user);
           _user.user = res.user
           const shapeOutside = new ShapeOutside(modSelector, service, _user);
           const design = new Design(modSelector);
@@ -38,10 +41,11 @@ export default function Index({ user }: { user: userType | null }) {
           const reference = new Reference(modSelector);
           const headerFlag = new Headerflag(modSelector, service, _user);
           const pasteCode = new PasteCode(modSelector, service);
-          const metablog = new MetaBlog(modSelector, service, _user);
-          const htmlElement = new HtmlElement(modSelector, service, _user, shapeOutside, design, ven, reference, headerFlag, pasteCode)
-          const chart = new ChartJS(modSelector, service, _user);
-          const post = new Post(modSelector, service, auth, _user);
+          const metablog = new MetaBlog(modSelector, service, modSelector.blog);
+          const htmlElement = new HtmlElement(modSelector, service, _user, shapeOutside, design, ven, reference, headerFlag, pasteCode);
+          const message = new Message(modSelector, service, null, null, res.user);
+          const chart = new ChartJS(modSelector, service, _user, message);
+          const post = new Post(modSelector, service, res.status, res.user);
           const profile = new ProfileMain(modSelector, service, _user, metablog, chart, post, htmlElement);
           await profile.main({ parent: profileMainInjector, user: res.user }).then(() => {
             countRef.current++;

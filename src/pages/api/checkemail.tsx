@@ -16,13 +16,15 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
                 select: {
                     email: true,
                     name: true,
+                    password: true
                 }
             });
             if (checkUser) {
-                res.status(200).json(checkUser);
+                const hasPassword = typeof (checkUser.password) === "string";
+                res.status(200).json({ email: checkUser.email, hasPassword, name: checkUser.name });
                 return await prisma.$disconnect();
             } else {
-                res.status(200).json({ email: null, name: null });
+                res.status(200).json({ email: null, name: null, hasPassword: false });
                 return await prisma.$disconnect();
             }
 

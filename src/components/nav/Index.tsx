@@ -46,11 +46,12 @@ function Index({ _user_ }: { _user_: userType | null }) {
                 if (res) {
                     const browserType = new BrowserType(res.user.id);
                     countRef.current++;
-                    const user = new User(modSelector, service, auth);
+                    const regSignin = new RegSignIn(modSelector, service, res.user, res.status);
+                    const user = new User(modSelector, service, res.status, regSignin, res.user);
                     modSelector.loadFromLocal().then(async (_res) => {
                         const blogUser = _res.getBlog();
                         const url = new URL(window.location.href);
-                        browserType.pushHistory({ user_id: res.user.id, pathname: url.pathname });
+                        browserType.pushHistory({ user_id: res.user.id, pathname: url.pathname, isAdmin: res.isAdmin });
                         const { blog: _blog, user: _user } = blogUser;
                         modSelector.blog = _blog;
                         modSelector.loadBlog({ blog: _blog, user: _user })
@@ -64,11 +65,10 @@ function Index({ _user_ }: { _user_: userType | null }) {
                         const pasteCode = new PasteCode(modSelector, service);
                         const headerFlag = new Headerflag(modSelector, service, user);
                         const feature = new Features();
-                        const regSignin = new RegSignIn(modSelector, service, user);
-                        const signInAndUp = new SignInAndUp(modSelector, service, regSignin, auth, res.isSignedIn);
-                        const metaBlog = new MetaBlog(modSelector, service, user);
+                        const signInAndUp = new SignInAndUp(modSelector, service, regSignin, auth, res.isSignedIn, browserType);
+                        const metaBlog = new MetaBlog(modSelector, service, _blog);
                         const htmlElement = new HtmlElement(modSelector, service, user, shapeOutside, design, ven, reference, headerFlag, pasteCode);
-                        const post = new Post(modSelector, service, auth, user, res.user);
+                        const post = new Post(modSelector, service, res.status, res.user);
                         const profile = new Profile(modSelector, service, user, metaBlog, chart, post, htmlElement);
                         const navArrow = new NavArrow(user, auth, regSignin, service, profile, modSelector, feature, commonUser);
                         const mainHeader = new MainHeader(modSelector, service, navArrow, auth, signInAndUp);

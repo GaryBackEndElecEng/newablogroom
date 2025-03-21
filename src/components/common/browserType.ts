@@ -89,7 +89,7 @@ class BrowserType {
     };
 
 
-    pushHistory({ user_id,pathname}: { user_id: string | undefined,pathname:string }) {
+    pushHistory({ user_id,pathname,isAdmin}: { user_id: string | undefined,pathname:string,isAdmin:boolean }) {
         this.user_id = user_id || "";
         const states: stateType[] = [];
        
@@ -107,7 +107,7 @@ class BrowserType {
           
             if (!getstates) {
                 //NOT FOUND
-                const state:stateType = { id: 0, page_id: getPage.id, pathname: pathname, user_id: user_id, pagename: pagename,count:1 };
+                const state:stateType = { id: 0, page_id: getPage.id, pathname: pathname, user_id: user_id, pagename: pagename,count:1,isAdmin };
                 states.push(state);
                 localStorage.setItem("states", JSON.stringify(states));
             } else {
@@ -121,9 +121,10 @@ class BrowserType {
                 
                 if(state){
                     state.count+=1;
+                    state.isAdmin=isAdmin;
                     retStates=[...remain,state];
                 }else{
-                    const state = { id: retStates.length, page_id: getPage.id, pathname: pathname, user_id: user_id, pagename: pagename,count:1 };
+                    const state = { id: retStates.length, page_id: getPage.id, pathname: pathname, user_id: user_id, pagename: pagename,count:1,isAdmin };
                     retStates.push(state);
                 };
               
@@ -142,6 +143,35 @@ class BrowserType {
         };
         return null
     };
+
+    
+    addAdmin({user_id,pathname}:{user_id:string,pathname:string}){
+        const states=this.getHistory();
+        const getPage = BrowserType.pages.find(res => {
+            if( res.reg.test(pathname)){
+                 return res
+            };
+         });
+        if(states && states?.length>0 && getPage){
+            const getState=states.find(st=>(st.pathname));
+            if(getState){
+                const remain=states.filter(st=>(st.pathname !==pathname));
+                getState.isAdmin=true;
+                const newStates=[...remain,getState];
+                localStorage.setItem("states",JSON.stringify(newStates));
+            }
+        }
+    };
+
+    repeatAdminControl({repeatCount}:{repeatCount:number}):boolean{
+        const pathname=window.location.pathname;
+         const states=this.getHistory();
+         const getState=states?.filter(kv=>(kv.isAdmin)).find(kv=>kv.pathname===pathname);
+         if(getState){
+            return getState.count <=repeatCount
+         };
+         return true;
+    }
 
 
     repeatShowControl({repeatCount}:{repeatCount:number}):boolean{

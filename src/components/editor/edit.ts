@@ -2,12 +2,9 @@ import {elementType,selectorType,codeType,blogType, chartType, regenCleanType, u
 import ModSelector from "@/components/editor/modSelector";
 import DisplayBlog, {separator} from "@/components/blog/displayBlog";
 import Header from "@/components/editor/header";
-import { FaCreate } from "../common/ReactIcons";
-import { FaCrosshairs } from "react-icons/fa";
 import Misc, {btnOptionMsgType, btnOptionType, btnOptionType2,msgType} from "@/components/common/misc";
 import Main from "@/components/editor/main";
 import { buttonReturn,btnReturnType } from "../common/tsFunctions";
-import User from "../user/userMain";
 import Footer from "@/components/editor/footer";
 import Service from "@/components/common/services";
 import { getErrorMessage } from "@/lib/errorBoundaries";
@@ -225,7 +222,7 @@ class Edit {
    private  _pasteCode:PasteCode;
     css:string="min-height:100vh;height:auto;box-shadow:1px 1px 12px 2px black;border-radius:10px;padding-inline:0px;padding-block:0px;margin:0px;z-index:0;position:relative;width:100%;display:flex;flex-direction:column;justify-content:flex-start;align-items:center;gap:1rem;";
   
-    constructor(private _modSelector:ModSelector,private _service:Service,public _mainInjection:HTMLElement | null,private _user:User,public _flexbox:Flexbox,public _htmlElement:HtmlElement,public header:Header, public customHeader:CustomHeader,public footer:Footer,public displayBlog:DisplayBlog,public chart:ChartJS,){
+    constructor(private _modSelector:ModSelector,private _service:Service,public _mainInjection:HTMLElement | null,private _user:userType,public _flexbox:Flexbox,public _htmlElement:HtmlElement,public header:Header, public customHeader:CustomHeader,public footer:Footer,public displayBlog:DisplayBlog,public chart:ChartJS,){
         this.flexbox=_flexbox;
         this._footer=footer;
         this._header=header;
@@ -243,7 +240,12 @@ class Edit {
     
 
     //GETTER SETTERS
-  
+    get user(){
+        return this._user;
+     };
+     set user(user:userType){
+         this._user=user;
+     }
     //GETTER SETTERS
     //INJECTION : MainContainer
    async main({parent,textarea,mainHeader,footer,blog,user}:{
@@ -383,7 +385,7 @@ class Edit {
         //get blogs per user_id: verifify if user={...user.email:"",id:""}
         parent=textarea || parent;
         parent.style.width="100%";
-        const user_=this._user.user;
+        const user_=this.user;
         const userEmailPlusUser_id=user_.id!=="" && user_.email!=="" ;
         const container=document.createElement("div");
         container.style.cssText="position:absolute; background:white;width:100%;border-radius:20px;box-shadow:1px 1px 12px 1px 10px;min-height:700px;display:flex;flex-direction:column;justify-content:flex-start;align-items:center;padding:1rem;inset:0%;z-index:200 !important;backdrop-filter:blur(20px);";
@@ -530,7 +532,7 @@ class Edit {
                 this._service.getUserBlog({user_id,blog_id:id}).then(async(resBlog)=>{
                     if(resBlog && resBlog as blogType){
                         const _blog=resBlog as blogType;
-                        const user=this._user.user;
+                        const user=this.user;
                         this._modSelector.loadBlog({blog:_blog,user});
                         localStorage.setItem("user_id",user.id);
                         localStorage.setItem("email",user.email);
@@ -595,7 +597,7 @@ class Edit {
                 const maxCount=ModSelector.maxCount(blog);
                 localStorage.setItem("placement",String(maxCount));
                 localStorage.setItem("blog",JSON.stringify(this._modSelector.blog));
-                const user=this._user.user;
+                const user=this.user;
                 localStorage.setItem("user_id",user.id);
                 localStorage.setItem("email",user.email);
                 this.main({parent:mainCont,textarea,mainHeader,footer,blog,user});
@@ -926,22 +928,8 @@ class Edit {
 
         }
         Misc.message(Msg);
-    }
-    async saveRecord(item:{parent:HTMLElement,blog:blogType,user:userType}){
-        const {parent,blog,user}=item;
-        //parent==container
-        if(blog.user_id){
-        return this._user.saveBlog({parent,blog,user}).then(async(blog_)=>{
-            if(blog_){
-                this._modSelector.blog=blog_;
-                return blog_;
-            }
-
-        }); 
-        }else{
-        return this._user.signInBlogForm({parent,blog,func:()=>undefined});  
-        } 
     };
+    
     
 
 
@@ -1313,125 +1301,6 @@ class Edit {
             }) as Promise<()=>Promise<void>>;
     };
 
-
-
-    async editDescBlog(parent:HTMLElement,idValues:idValueType[]){
-        let blog=this._modSelector.blog;
-        const flex="display:flex;flex-direction:column;align-items:center;gap:1.5rem;justify-content:center;width:100%;";
-        const container=document.createElement("div");
-        container.id="editDescBlog";
-        container.className="popup";
-        container.style.cssText="position:absolute;box-shadow:1px 1px 12px 1px lightblue;border-radius:12px;display:flex;flex-direction:column;align-items:center;gap:1.5rem;justify-content:center;background:white;border-radius:12px;padding-block:2rem;";
-        container.style.inset="20%";
-        container.style.width="700px";
-        const form=document.createElement("form");
-        form.style.cssText=flex;
-        container.appendChild(form);
-        if(blog.imgKey){
-            const img_key= await this._service.getSimpleImg(blog.imgKey);
-            blog={...blog,img:img_key ? img_key.img : this.logo}
-        }
-        const {cont:sample,image,desc:Desc}=this.editSetup.blogDescSetup(container,blog,idValues);
-        sample.id="sample-desc";
-        //DESC IS EDITED VIA blogDescSetup();
-        const {textarea,label}=Nav.textareaComponent(form);
-        textarea.name="desc";
-        textarea.id="desc";
-        textarea.value=blog.desc as string;
-        textarea.style.cssText="width:100%;min-width:350px;";
-        textarea.rows=5;
-        label.setAttribute("for",textarea.id);
-        const {input:file,label:fileLabel,formGrp:fileForm}=Nav.inputComponent(form);
-        fileForm.style.cssText=flex;
-        file.type="file";
-        file.name="file";
-        file.id="file";
-        fileLabel.setAttribute("for",file.id);
-        const {button:btn}=Misc.simpleButton({anchor:form,type:"submit",text:"submit",bg:Nav.btnColor,color:"white",time:400});
-        btn.disabled=true;
-        Misc.matchMedia({parent:container,maxWidth:900,cssStyle:{inset:"0%",width:"600px"}});
-        Misc.matchMedia({parent:container,maxWidth:400,cssStyle:{inset:"0%",width:"375px"}});
-        container.appendChild(form);
-        parent.appendChild(container);
-        Misc.growIn({anchor:container,scale:0,opacity:0,time:400});
-        //DELETE
-        const divx=document.createElement("div");
-        divx.style.cssText="position:absolute;top:0%;right:0%;transform:translate(4px,4px);width:20px;length:20px;border-radius:50%;background:black;";
-        FaCreate({parent:divx,name:FaCrosshairs,cssStyle:{color:"white",fontSize:"18px"}});
-        container.appendChild(divx);
-        divx.onclick=(e:MouseEvent)=>{
-            if(e){
-                Misc.growOut({anchor:container,scale:0,opacity:0,time:400});
-                setTimeout(()=>{parent.removeChild(container)},390);
-            }
-        };
-        //DELETE
-        file.onchange=(e:Event)=>{
-            if(e){
-                btn.disabled=false;
-            }
-        };
-        textarea.onchange=(e:Event)=>{
-            if(e){
-                btn.disabled=false;
-            }
-        };
-        form.onsubmit=(e:SubmitEvent)=>{
-            if(e){
-                e.preventDefault();
-                const formdata=new FormData(e.currentTarget as HTMLFormElement);
-                const desc=formdata.get("desc") as string;
-                const file=formdata.get("file");
-                const oldImgKey=this._modSelector.blog.imgKey;
-                    this._modSelector.blog={...blog,desc:desc as string};
-                    blog=this._modSelector.blog;
-                    Desc.textContent=desc as string;
-                    Misc.blurIn({anchor:Desc,blur:"20px",time:600});
-                if(file){
-                    const filename=(file as File).name;
-                    const newUrl=URL.createObjectURL(file as File);
-                    image.src=newUrl;
-                    image.alt=filename;
-                    Misc.blurIn({anchor:image,blur:"20px",time:700});
-                    const {Key}=this._service.generateImgKey(formdata,blog) as {Key:string};
-                    this._modSelector.blog={...blog,imgKey:Key};
-                    blog=this._modSelector.blog;
-                    image.setAttribute("imgKey",Key);
-                    if(oldImgKey){
-                        // console.log("BEFORE",oldImgKey)
-                        this._service.adminImagemark(oldImgKey).then(async(res)=>{
-                            if(res){
-                                // console.log("AFTER",res)
-                                Misc.message({parent:container,msg:"cleaned",type_:"success",time:400});
-                                const {button}=Misc.simpleButton({anchor:container,text:"next",bg:Nav.btnColor,color:"white",type:"button",time:400});
-                                Misc.growOut({anchor:form,scale:0,opacity:0,time:400});
-                                setTimeout(()=>{container.removeChild(form)},390);
-                                button.onclick=(e:MouseEvent)=>{
-                                    if(e){
-                                        this._user.askSendToServer({bg_parent:parent,formdata,image,blog,oldKey:null,idValues,selRowCol:null});
-                                        Misc.growOut({anchor:container,scale:0,opacity:0,time:400});
-                                        setTimeout(()=>{parent.removeChild(container)},390);
-                                    }
-                                };
-                            }
-                        }).catch((err)=>{const msg=getErrorMessage(err);console.error(msg)});
-                    }else{
-                        const {button}=Misc.simpleButton({anchor:container,text:"next",bg:Nav.btnColor,color:"white",type:"button",time:400});
-                        Misc.growOut({anchor:form,scale:0,opacity:0,time:400});
-                        setTimeout(()=>{container.removeChild(form)},390);
-                        button.onclick=(e:MouseEvent)=>{
-                            if(e){
-                                this._user.askSendToServer({bg_parent:parent,formdata,image,blog,oldKey:null,idValues,selRowCol:null});
-                                Misc.growOut({anchor:container,scale:0,opacity:0,time:400});
-                                setTimeout(()=>{parent.removeChild(container)},390);
-                            }
-                        };
-                    }
-                }
-            }
-           
-        };
-    }
    
    static cleanUpByID(parent:HTMLElement,id:string){
     ([...parent.children as any] as HTMLElement[]).forEach(child=>{

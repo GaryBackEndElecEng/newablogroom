@@ -1,7 +1,6 @@
 import Service from "../common/services";
 import ModSelector from "../editor/modSelector";
-import { postType, userType } from "../editor/Types";
-import User from "../user/userMain";
+import { postType, statusType, userType } from "../editor/Types";
 import Nav from "../nav/headerNav";
 import Misc from "../common/misc";
 import Header from "../editor/header";
@@ -12,7 +11,6 @@ import { imageLoader } from "../common/tsFunctions";
 import AddImageUrl from "../common/addImageUrl";
 import PostDetail from "../postDetail/postdetail";
 import Searchbar from "../common/searchbar";
-import AuthService from "../common/auth";
 import BrowserType from "../common/browserType";
 
 
@@ -20,6 +18,9 @@ class Post{
    public readonly handPic:string="/images/hand.png";
    public readonly smile:string="/images/emojiSmile.png";
    public readonly background1:string="/images/backround1.png";
+   public readonly btnColor:string;
+   public readonly btnUpdate:string;
+   public readonly btnDetail:string;
    public count:number;
    public no_posts:string;
    public addImageClass:AddImageUrl
@@ -32,12 +33,15 @@ class Post{
    private _like:boolean;
    private postDetail:PostDetail;
    private _usersinfo:userType[];
-    private _signinUser:userType|null;
+    private _user:userType|null;
    public searchbar:Searchbar;
     public browser:BrowserType;
 
-    constructor(private _modSelector:ModSelector,private _service:Service,private auth:AuthService,private _user:User,signinUser:userType|null){
-        this._signinUser=signinUser;
+    constructor(private _modSelector:ModSelector,private _service:Service,private _status:statusType,signinUser:userType|null){
+        this._user=signinUser;
+        this.btnColor=this._modSelector.btnColor;
+        this.btnUpdate=this._modSelector.btnUpDate;
+        this.btnDetail=this._modSelector.btnDetail;
         this.background1="/images/backround1.png";
         this.smile="/images/emojiSmile.png";
         this.logo="/images/gb_logo.png";
@@ -49,11 +53,10 @@ class Post{
         this._like=false;
         this._usersinfo=[] as userType[];
         this.addImageClass= new AddImageUrl(this._modSelector,this._service);
-        const thisuser=this._user.user
-        this.postDetail=new PostDetail(this._modSelector,this._service,this.auth,this._user,thisuser);
+        this.postDetail=new PostDetail(this._modSelector,this._service,this._status,this._user);
         this.count=0;
         this.handPic="/images/hand.png";
-        this.browser=new BrowserType(this.auth.user?.id || "");
+        this.browser=new BrowserType(this._user?.id || "");
        
         
     };
@@ -85,10 +88,13 @@ class Post{
         this._usersinfo=usersinfo;
     };
     get user(){
-        return this._user.user;
+        return this._user;
     };
-    get signinUser(){
-        return this._signinUser;
+    get status(){
+        return this._status;
+    };
+    set status(status:statusType){
+        this._status=status;
     };
 
     loadPosts({posts}:{posts:postType[]}):Promise<postType[]>{
@@ -101,6 +107,7 @@ class Post{
 
     async main(item:{injector:HTMLElement,posts:postType[],usersinfo:userType[]}){
         const {injector,posts,usersinfo}=item;
+        const isSignedIn=this.status==="authenticated";
         //recieved posts:posts from index
         //CONTROLLING THE ANIMATION ITERATIONS
         const repeatCount=1;
@@ -123,12 +130,12 @@ class Post{
         container.style.cssText=css_col + " width:100%;min-height:110vh;";
         container.style.gap=less900 ? (less400 ? "3rem":"2.5rem"):"2rem";
         injector.appendChild(container);
-        if(this.signinUser){
-            const {button:create_post}=Misc.simpleButton({anchor:container,type:"button",bg:Nav.btnColor,color:"white",time:400,text:"create a post"});
+        if(this.user?.id && isSignedIn){
+            const {button:create_post}=Misc.simpleButton({anchor:container,type:"button",bg:this.btnColor,color:"white",time:400,text:"create a post"});
             create_post.style.marginBottom="1rem;"
             create_post.onclick=(e:MouseEvent) =>{
                 if(e){
-                    this.createPost({injector:injector,user:this.auth.user,pathname,mainPostCont:container});
+                    this.createPost({injector:injector,user:this.user as userType,pathname,mainPostCont:container});
                 }
             };
         }
@@ -451,7 +458,7 @@ class Post{
     };
 
 
-    async Posts(item:{container:HTMLElement,posts:postType[],user:userType}):Promise<{container:HTMLElement,subDiv:HTMLElement,row:HTMLElement,posts:postType[],user:userType}>{
+    async Posts(item:{container:HTMLElement,posts:postType[],user:userType|null}):Promise<{container:HTMLElement,subDiv:HTMLElement,row:HTMLElement,posts:postType[],user:userType|null}>{
         const {container,posts,user}=item;
         const less900=window.innerWidth < 900 ;
         const less400=window.innerWidth < 400 ;
@@ -578,17 +585,12 @@ class Post{
         const btnContainer=document.createElement("div");
         btnContainer.id="createPoste-btnContainer";
         btnContainer.style.cssText=css_row + "";
-        const {button:submit}=Misc.simpleButton({anchor:form,type:"submit",bg:Nav.btnColor,color:"white",text:"submit",time:400});
+        const {button:submit}=Misc.simpleButton({anchor:form,type:"submit",bg:this.btnColor,color:"white",text:"submit",time:400});
         submit.disabled=true;
         form.appendChild(btnContainer);
-        
-        if(this.signinUser){
-            popup.appendChild(form);
-            injector.appendChild(popup);
-            Misc.fadeIn({anchor:popup,xpos:100,ypos:100,time:500});
-        }else{
-            Header.cleanUpByID(injector,`createPost-popup`);
-        }
+        popup.appendChild(form);
+        injector.appendChild(popup);
+        Misc.fadeIn({anchor:popup,xpos:100,ypos:100,time:500});
         //-------DELETE----------//
         const xDiv=document.createElement("div");
         xDiv.id="xDiv-delete-createpost"
@@ -665,10 +667,10 @@ class Post{
         btnContainer.id="uploadFreeNone-btn";
         btnContainer.style.cssText=css_row;
         btnContainer.style.paddingInline=less900 ? (less400 ? "1rem":"2rem") :"3rem";
-        const {button:uploadBtn}=Misc.simpleButton({anchor:btnContainer,type:"button",bg:Nav.btnColor,color:"white",text:"upload",time:400});
-        const {button:freePicBtn}=Misc.simpleButton({anchor:btnContainer,type:"button",bg:Nav.btnColor,color:"white",text:"free-pics",time:400});
-        const {button:noPic}=Misc.simpleButton({anchor:btnContainer,type:"button",bg:Nav.btnColor,color:"white",text:"no pic",time:400});
-        const {button:addSendReqKey}=Misc.simpleButton({anchor:btnContainer,type:"button",bg:Nav.btnColor,color:"white",text:"add answer image",time:400});
+        const {button:uploadBtn}=Misc.simpleButton({anchor:btnContainer,type:"button",bg:this.btnColor,color:"white",text:"upload",time:400});
+        const {button:freePicBtn}=Misc.simpleButton({anchor:btnContainer,type:"button",bg:this.btnColor,color:"white",text:"free-pics",time:400});
+        const {button:noPic}=Misc.simpleButton({anchor:btnContainer,type:"button",bg:this.btnColor,color:"white",text:"no pic",time:400});
+        const {button:addSendReqKey}=Misc.simpleButton({anchor:btnContainer,type:"button",bg:this.btnColor,color:"white",text:"add answer image",time:400});
         addSendReqKey.id="addSendReqKey";
         popup.appendChild(btnContainer);
         uploadBtn.onclick=(e:MouseEvent)=>{
@@ -834,7 +836,7 @@ class Post{
         file.placeholder="";
         lfile.textContent="Upload a Pic";
         lfile.setAttribute("for",file.id);
-        const {button:submitBtn}=Misc.simpleButton({anchor:form,type:"submit",text:"submit",bg:Nav.btnColor,color:"white",time:400});
+        const {button:submitBtn}=Misc.simpleButton({anchor:form,type:"submit",text:"submit",bg:this.btnColor,color:"white",time:400});
         submitBtn.disabled=true;
         file.onchange=(e:Event)=>{
             if(e){
@@ -856,7 +858,7 @@ class Post{
                            await this._service.saveUpdatepost({post:this.post}).then(async(post_)=>{
                                 if(post_){
                                     this.posts=[...this._posts,post_];
-                                    // const getScrollCol1=document.querySelector("div#scrollCol1") as HTMLElement;
+                                 
                                     if(mainPostCont){
                                         //USED BY Profile: client account
                                         // const getCont=scrollCol1.querySelector("div#main-post-container") as HTMLElement;
@@ -929,7 +931,7 @@ class Post{
         lFile.textContent="upload an img or pdf for automatic request to answer your post";
         lFile.className="text-dark lean font-bold";
         lFile.setAttribute("for",inFile.id);
-        const {button:submit}=Misc.simpleButton({anchor:form,type:"submit",text:"submit img",bg:Nav.btnColor,color:"white",time:400});
+        const {button:submit}=Misc.simpleButton({anchor:form,type:"submit",text:"submit img",bg:this.btnColor,color:"white",time:400});
         submit.id="btn-submit";
         submit.disabled=true;
         submit.style.marginBlock="1.5rem";
@@ -969,7 +971,7 @@ class Post{
     };
 
 
-    async postCard(item:{row:HTMLElement,post:postType,user:userType,userinfo:userType |undefined,index:number,pathname:string|null}){
+    async postCard(item:{row:HTMLElement,post:postType,user:userType|null,userinfo:userType |undefined,index:number,pathname:string|null}){
         const {row,post,user,userinfo,index,pathname}=item;
         const less900=window.innerWidth < 900;
         const less400=window.innerWidth < 400;
@@ -1064,8 +1066,8 @@ class Post{
         const btnContainer=document.createElement("div");
         btnContainer.id="card-btnContainer";
         btnContainer.style.cssText=css_row + "gap:2rem;margin-block:1rem;";
-        if(post.userId===user.id){
-            const {button:edit}=Misc.simpleButton({anchor:btnContainer,bg:Nav.btnColor,color:"white",type:"button",time:400,text:"update"});
+        if(post.userId===user?.id){
+            const {button:edit}=Misc.simpleButton({anchor:btnContainer,bg:this.btnUpdate,color:"white",type:"button",time:400,text:"update"});
             edit.disabled=false;
             edit.onclick=(e:MouseEvent)=>{
                 if(e){
@@ -1074,16 +1076,17 @@ class Post{
                 }
             };
         }
-        const {button:detail}=Misc.simpleButton({anchor:btnContainer,bg:Nav.btnColor,color:"white",type:"button",time:400,text:"quick detail"});
+        const {button:detail}=Misc.simpleButton({anchor:btnContainer,bg:this.btnDetail,color:"white",type:"button",time:400,text:"quick detail"});
+        detail.classList.add("btnBoxShadow");
         detail.onclick=(e:MouseEvent)=>{
             if(e){
                 detail.disabled=true;
-                const _userinfo:userType|null=userinfo ? userinfo as userType : null;
+                const _userinfo:userType|null=userinfo || null;
                 const postMod={...post,content:Post.brInserter({targetStr:post.content})}
                 this.postDetail.main({injector:col,post:postMod,count:0,poster:_userinfo,isPage:false,isUser:false,user,pathname});
             }
         };
-        const {button:pageDetail}=Misc.simpleButton({anchor:btnContainer,bg:Nav.btnColor,color:"white",type:"button",time:400,text:"page detail"});
+        const {button:pageDetail}=Misc.simpleButton({anchor:btnContainer,bg:this.btnColor,color:"white",type:"button",time:400,text:"page detail"});
         pageDetail.onclick=(e:MouseEvent)=>{
             if(e){
                 detail.disabled=true;
@@ -1272,7 +1275,7 @@ class Post{
         lLink.textContent="add a link ";
         lLink.style.cssText="font-size:140%;text-decoration:underline;text-underline-offset:0.5rem;margin-bottom:1rem;";
         lLink.setAttribute("for",link.id);
-        const {button:submit}=Misc.simpleButton({anchor:form,bg:Nav.btnColor,color:"white",text:"submit",time:400,type:"submit"});
+        const {button:submit}=Misc.simpleButton({anchor:form,bg:this.btnColor,color:"white",text:"submit",time:400,type:"submit"});
         submit.disabled=false;
         form.onsubmit=async(e:SubmitEvent) =>{
             if(e){
@@ -1308,13 +1311,13 @@ class Post{
     };
 
 
-    removePost(item:{parent:HTMLElement,target:HTMLElement,post:postType,user:userType,pathname:string|null}){
+    removePost(item:{parent:HTMLElement,target:HTMLElement,post:postType,user:userType|null,pathname:string|null}){
         const {parent,target,post,user,pathname}=item;
         Header.cleanUpByID(target,`delete-${post.id}`);
         target.style.position="relative";
        
         const css_row="margin-inline:auto;display:flex;flex-direction:row;flex-wrap:wrap;justify-content:center;align-items:center;gap:0.7rem;";
-        if(post.userId===user.id){
+        if(post.userId===user?.id){
             const xDiv=document.createElement("div");
             xDiv.id=`delete-${post.id}`;
             xDiv.style.cssText=css_row + "position:absolute;padding:0.37rem;background:black;color:white;top:0%;right:0%;transform:translate(-18px,32px);z-index:1;border-radius:50%;";
@@ -1337,7 +1340,7 @@ class Post{
         const container=document.createElement("div");
         container.id="askToDelete-popup";
         container.style.cssText=css_row + "position:absolute;inset:0%;backdrop-filter:blur(12px);border-radius:12px;justify-content:center;gap:1.5rem;border:none;";
-        const {button:cancel}=Misc.simpleButton({anchor:container,bg:Nav.btnColor,color:"white",type:"button",time:40,text:"cancel"});
+        const {button:cancel}=Misc.simpleButton({anchor:container,bg:this.btnColor,color:"white",type:"button",time:40,text:"cancel"});
         const {button:del}=Misc.simpleButton({anchor:container,bg:"#007FFF",color:"red",type:"button",time:40,text:"delete"});
         target.appendChild(container);
         Misc.growIn({anchor:container,scale:0,opacity:0,time:400});

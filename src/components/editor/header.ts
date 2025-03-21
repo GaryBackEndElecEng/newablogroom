@@ -344,6 +344,7 @@ class Header{
                     idValues.push({eleId:rEleId,id:"backgroundImg",attValue:"true"});
                     idValues.push({eleId:rEleId,id:"imgKey",attValue:_row_.imgKey});
                     const check=this._service.checkFreeImgKey({imgKey:_row_.imgKey as string});
+                    
                         if(check){
                             const url=this._service.getFreeBgImageUrl({imgKey:_row_.imgKey as string});
                             row.style.backgroundImage=`url(${url})`;
@@ -434,8 +435,10 @@ class Header{
                                 if(res.selRowCol && res.isEdit===true){
                                     this.editElement({target:res.target,idValues:res.idValues,selRowCol:res.selRowCol});
                                 };
+                             
                                 res.divCont.addEventListener("click",async(e:MouseEvent)=>{
                                     if(e){
+                                      
                                         res.target.classList.toggle("isActive");
                                         res.divCont.classList.toggle("isActive");
                                         Main.activatebuttons({target:res.target});
@@ -548,14 +551,6 @@ class Header{
         switch(true){
             case textTypes:
                 divCont.appendChild(target);
-                divCont.addEventListener("click",async(e:MouseEvent) =>{
-                    if(e){
-                        target.classList.toggle("isActive");
-                        divCont.classList.toggle("isActive");
-                        this.showRemoveItem({parent:column,divCont,target:target,idValues,selRowCol});
-                        await this.updateElement({target,idValues,selRowCol});
-                    }
-                });
             return Promise.resolve({column,divCont,target,idValues,selRowCol,isEdit:true}) as Promise<{column:HTMLElement,divCont:HTMLElement,target:HTMLElement,idValues:idValueType[],selRowCol:selRowColType,isEdit:boolean}>;
             case listTypes:
                 divCont.style.cssText+="margin-top:1.5rem;"
@@ -614,7 +609,6 @@ class Header{
             return Promise.resolve({column,divCont,target,idValues,selRowCol,isEdit:false}) as Promise<{column:HTMLElement,divCont:HTMLElement,target:HTMLElement,idValues:idValueType[],selRowCol:selRowColType,isEdit:boolean}>;
 
             default:
-                console.log("getEleIds",idValues.filter(kat=>(kat.eleId===eleId)),"eleId",eleId);
                 return;
         }
     };
@@ -693,7 +687,9 @@ class Header{
                 }
         }
         
-     }
+     };
+
+
      //PARENT:headerSidebar:mainHeader HEADERSIDEBAR()=> INJECTED ONTO MAIN
     async appendRowColLayout({mainHeader,targetSel,idValues,selector}:{mainHeader:HTMLElement,targetSel:HTMLElement,idValues:idValueType[],selector:selectorType}):Promise<void>{
         const colAttr=selector.colAttr[0];
@@ -856,6 +852,7 @@ class Header{
         popup.appendChild(text);
         popup.appendChild(select);
         parent.appendChild(popup);
+        Header.removePopup({parent,target:popup,position:"right"});
         Misc.matchMedia({parent:popup,maxWidth:900,cssStyle:{top:"60%",left:"0%",right:"",inset:"",fontSize:"10px",transform:""}});
         Misc.matchMedia({parent:popup,maxWidth:700,cssStyle:{top:"50%",left:"0%",right:"",inset:"",fontSize:"10px",transform:""}});
         select.addEventListener("change",(e:Event)=>{
@@ -1231,6 +1228,7 @@ class Header{
         col:colType
     }){
         const {form,popup,l_input,n_input}=Misc.addLink(parent);
+        Header.removePopup({parent,target:form,position:"right"});
         form.addEventListener("submit",async(e:SubmitEvent)=>{
             if(e){
                 e.preventDefault();
@@ -1330,6 +1328,7 @@ class Header{
         };
         parent.appendChild(form);
         form.onsubmit=async(e:SubmitEvent)=>{
+        Header.removePopup({parent,target:form,position:"right"});
             if(e){
                 e.preventDefault();
                 const selRowCol:selRowColType={selectorId:selector.eleId,rowId:row.eleId,colId:col.eleId}
@@ -1344,7 +1343,6 @@ class Header{
                
                 divCont.appendChild(target);
                 parent.appendChild(divCont);
-               
                 await this.elementAdder({target,idValues,selector,row,col}).then(async(res)=>{
                     if(res){
                         const ele_=res.ele as element_selType;
@@ -1405,6 +1403,7 @@ class Header{
             }
         };
         parent.appendChild(form);
+        Header.removePopup({parent,target:form,position:"right"});
         form.onsubmit=async(e:SubmitEvent)=>{
             if(e){
                 e.preventDefault();
@@ -1456,6 +1455,7 @@ class Header{
             title.className="text-primary text-center";
             popup.appendChild(title)
             row.appendChild(popup);
+            Header.removePopup({parent:row,target:popup,position:"right"});
             if(row as HTMLElement){
                 const input=document.createElement("input");
                 input.type="color";
@@ -1474,6 +1474,9 @@ class Header{
         }
        
      };
+
+
+
      bgRowHeight({target,idValues,selRowCol}:{target:HTMLElement,idValues:idValueType[],selRowCol:selRowColType}){
         if(!target) return;
         const {selectorId,rowId}=selRowCol as selRowColType;
@@ -1497,6 +1500,7 @@ class Header{
         label.classList.add("text-primary");
         const {button}=Misc.simpleButton({anchor:cont,bg:Nav.btnColor,color:"white",text:"ok",time:300,type:"button"});
         parent.appendChild(cont);
+        Header.removePopup({parent,target:cont,position:"right"});
         input.oninput=(e:Event)=>{
             if(e){
                 const number=(e.currentTarget as HTMLInputElement).value;
@@ -1528,6 +1532,7 @@ class Header{
             input.type="color";
             input.id="color-col-picker";
             target.appendChild(input);
+            Header.removePopup({parent:target,target:input,position:"right"});
             input.addEventListener("change",()=>{
                 const color:string=input.value;
                 // console.log("color!!:",color)
@@ -1542,6 +1547,8 @@ class Header{
        
      };
     
+
+
      bgImage({column,blog,idValues,selRowCol}:{column:HTMLElement,blog:blogType,idValues:idValueType[],selRowCol:selRowColType}){
        
         column.style.minHeight="15vh";
@@ -1577,6 +1584,7 @@ class Header{
         formContainer.appendChild(form);
         parent.appendChild(formContainer);
         ModSelector.modAddEffect(formContainer);
+        Header.removePopup({parent,target:formContainer,position:"right"});
         input.addEventListener("change",(e:Event)=>{
             if(e){
                 btn.disabled=false;
@@ -1682,6 +1690,7 @@ class Header{
             const oldKey=getOld?.attValue ? getOld.attValue : null;
             const {form:form2,reParent:parent}=Misc.imageForm(column);
             parent.style.zIndex="-1";
+            Header.removePopup({parent:column,target:form2,position:"right"});
             form2.addEventListener("submit",async(e:SubmitEvent)=>{
                 if(e){
                     e.preventDefault();
@@ -1769,6 +1778,8 @@ class Header{
             
        
     };
+
+
     async colAdder({parent,target,idValues,selector,row}:{parent:HTMLElement,target:HTMLElement,idValues:idValueType[],selector:selectorType,row:rowType}):Promise<{target:HTMLElement,col:colType,idValues:idValueType[],parent:HTMLElement,selector:selectorType,row:rowType}>{
        
         const eleId=target.id;
@@ -1842,7 +1853,9 @@ class Header{
            this._modSelector.dataset.idValues=idValues;
            return Promise.resolve({target,col,idValues,parent,selector,row}) as Promise<{target:HTMLElement,col:colType,idValues:idValueType[],parent:HTMLElement,selector:selectorType,row:rowType}>;
             
-    }
+    };
+
+
     async elementAdder({target,idValues,selector,row,col}:{
         target:HTMLElement | HTMLImageElement,
         idValues:idValueType[],
@@ -1967,6 +1980,8 @@ class Header{
        
     };
     
+
+
     deleteHeaderElement(parent:HTMLElement|null,target:HTMLElement){
         //TARGET TO BE REMOVED!!
         Main.cleanUp(target);
@@ -2012,6 +2027,8 @@ class Header{
         });
        
      };
+
+
 
      updateElement({target,idValues,selRowCol}:{target:HTMLElement,idValues:idValueType[],selRowCol:selRowColType}):Promise<{element:element_selType|undefined,selRowCol:selRowColType,idValues:idValueType[]}>{
         const eleId=target.id;
@@ -2071,6 +2088,8 @@ class Header{
         return Promise.resolve({element,selRowCol,idValues}) as Promise<{element:element_selType|undefined,selRowCol:selRowColType,idValues:idValueType[]}>;
         
     };
+
+
     
      btnAttributeUpdate(target:HTMLElement){
         const actives=document.querySelectorAll("[is-icon = 'true']");
@@ -2087,6 +2106,9 @@ class Header{
             });
         }
      };
+
+
+
     //HEADERS USE THEIR OWN ADDER SEPARATE FROM MODSELECTOR
     selectorAdder({target,selector,idValues}:{
         target:HTMLElement,
@@ -2142,7 +2164,6 @@ class Header{
         return Promise.resolve({target,selector,idValues}) as Promise<{target:HTMLElement,selector:selectorType,idValues:idValueType[]}>; 
     };
   
-
  
    
     showRemoveItem({parent,divCont,target,idValues,selRowCol}:{
@@ -2191,6 +2212,8 @@ class Header{
         
         
     };
+
+
    
     removeElement({target,idValues,selRowCol}:{
         target:HTMLElement,
@@ -2472,6 +2495,7 @@ class Header{
     };
     
     
+
      deleteSelector({mainHeader,target}:{mainHeader:HTMLElement,target:HTMLElement}){
         //TARGET TO BE REMOVED!!
         const iconDiv=document.createElement("div");
@@ -2506,6 +2530,27 @@ class Header{
         });
        
      };
+
+
+    static removePopup({parent,target,position}:{parent:HTMLElement,target:HTMLElement,position:"left"|"right"}){
+            const xDiv=document.createElement("div");
+            xDiv.id="removePopup-popup";
+            const css_row="display:flex;justify-content:center;align-items:center;"
+            xDiv.style.cssText=css_row + `position:absolute;top:0%;${position}:0%;border-radius:50%;background-color:black;color:white;`;
+            if(position==="right"){
+                xDiv.style.transform="translate(-3px,3px)";
+            }else{
+                xDiv.style.transform="translate(3px,3px)";
+            }
+            FaCreate({parent:xDiv,name:FaCrosshairs,cssStyle:{color:"white",borderRadius:"50%"}});
+            target.appendChild(xDiv);
+            xDiv.onclick=(e:MouseEvent)=>{
+                if(!e) return;
+                Misc.growOut({anchor:target,scale:0,opacity:0,time:400});
+                setTimeout(()=>{parent.removeChild(target)},390);
+            };
+     };
+
 
 
      static getImgKeysIdValues({selector,idValues,selRowCol}:{selector:selectorType,idValues:idValueType[],selRowCol:selRowColType}):{targetName:string,imgKey:string}[]{

@@ -65,22 +65,22 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
                 where: { id: blog.id, user_id: blog.user_id },
                 data: {
                     name: blog.name,
-                    title: blog.title ? blog.title : null,
+                    title: blog.title || null,
                     desc: blog.desc,
                     img: null,
-                    eleId: blog.eleId ? blog.eleId : null,
-                    class: blog.class ? blog.class : null,
-                    inner_html: blog.inner_html ? blog.inner_html : null,
-                    cssText: blog.cssText ? blog.cssText : null,
-                    imgKey: blog.imgKey ? blog.imgKey : null,
-                    imgBgKey: blog.imgBgKey ? blog.imgBgKey : null,
+                    eleId: blog.eleId || null,
+                    class: blog.class || null,
+                    inner_html: blog.inner_html || null,
+                    cssText: blog.cssText || null,
+                    imgKey: blog.imgKey || null,
+                    imgBgKey: blog.imgBgKey || null,
                     show: blog.show,
-                    username: blog.username ? blog.username : null,
+                    username: blog.username || null,
                     attr: blog.attr ? blog.attr : "circle"
 
                 }
             });
-            if (!metaBlog) { res.status(400).json({ msg: "blog not found" }) };
+            if (!metaBlog) { res.status(400).json({ msg: "blog not found" }); await prisma.$disconnect() };
             res.status(200).json(metaBlog);
             await prisma.$disconnect();
         } catch (error) {

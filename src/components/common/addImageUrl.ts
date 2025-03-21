@@ -186,14 +186,18 @@ class AddImageUrl {
                 if(!check)return;
                 const getImgKey=this._modSelector.dataset.getIdValue({target:col,idValues,id:"imgKey"});
                 const _imgKey=getImgKey ? getImgKey.attValue:null;
-                const retSelImg=await this.extractImg({target:col,idValues,level:"col",imgKey:_imgKey}) as imgExtractType;
-                const {imgUrl,selRowCol,imgKey,level,hasBlob,hasFreeImg,hasGenericImgKey}=retSelImg
-                this.imgEles.push({level,target:col as HTMLElement,selRowCol,imgUrl,imgKey,hasBlob,hasFreeImg,hasGenericImgKey});
+                const getSelRowCol=this._modSelector.dataset.getIdValue({target:col,idValues,id:"selRowCol"});
+                const _selRowCol=getSelRowCol?.attValue ? JSON.parse(getSelRowCol.attValue) as selRowColType:null;
+                const retSelImg=await this.extractImg({target:col,idValues,level:"col",imgKey:_imgKey,selRowCol:_selRowCol,selRow:null}) as imgExtractType;
+                const {imgUrl,selRowCol,selRow,imgKey,level,hasBlob,hasFreeImg,hasGenericImgKey}=retSelImg
+                this.imgEles.push({level,target:col as HTMLElement,selRowCol,selRow,imgUrl,imgKey,hasBlob,hasFreeImg,hasGenericImgKey});
             }
         }));
 
         await Promise.all([...getElements].map(async(target)=>{
             if(target){
+                const getSelRowCol=this._modSelector.dataset.getIdValue({target:target,idValues,id:"selRowCol"});
+                const _selRowCol=getSelRowCol?.attValue ? JSON.parse(getSelRowCol.attValue) as selRowColType:null;
                 const getImgKey=this._modSelector.dataset.getIdValue({target,idValues,id:"imgKey"});
                 const _imgKey=getImgKey ? getImgKey.attValue:null;
                 const node=target.nodeName.toLowerCase();
@@ -208,25 +212,25 @@ class AddImageUrl {
                 
                
                 if( node==="img"){
-                    const imgItem=await this.extractImg({target,idValues,level:"element",imgKey:_imgKey}) as imgExtractType;
-                    const {imgUrl,selRowCol,imgKey,level,hasBlob,hasFreeImg,hasGenericImgKey}=imgItem
-                    this.imgEles.push({level,target,selRowCol,imgUrl,imgKey,hasBlob,hasFreeImg,hasGenericImgKey});
+                    const imgItem=await this.extractImg({target,idValues,level:"element",imgKey:_imgKey,selRowCol:_selRowCol,selRow:null}) as imgExtractType;
+                    const {imgUrl,selRowCol,selRow,imgKey,level,hasBlob,hasFreeImg,hasGenericImgKey}=imgItem
+                    this.imgEles.push({level,target,selRowCol,selRow,imgUrl,imgKey,hasBlob,hasFreeImg,hasGenericImgKey});
                 }else if(check2){
                     //for shapeOutside and headerflags
                     const img=([...target.children as any] as HTMLElement[]).find(child=>(child.nodeName==="IMG")) as HTMLImageElement;
                     const imgKey1=this._modSelector.dataset.getIdValue({idValues,target,id:"imgKey"});
                     const imgKey2=this._modSelector.dataset.getIdValue({idValues,target:img,id:"imgKey"});
                     const imgKey3=imgKey1?.attValue ? imgKey1.attValue :(imgKey2?.attValue)|| null;
-                    const retSelImg=this.extractSpecial({target,img,idValues,level:"special",imgKey:imgKey3}) as imgExtractType;
-                    const {imgUrl,selRowCol,imgKey,level,hasBlob,hasFreeImg,hasGenericImgKey}=retSelImg
-                    this.imgEles.push({level,target,selRowCol,imgUrl,imgKey,hasBlob,hasFreeImg,hasGenericImgKey});
+                    const retSelImg=this.extractSpecial({target,img,idValues,level:"special",imgKey:imgKey3,selRowCol:_selRowCol,selRow:null}) as imgExtractType;
+                    const {imgUrl,selRowCol,selRow,imgKey,level,hasBlob,hasFreeImg,hasGenericImgKey}=retSelImg
+                    this.imgEles.push({level,target,selRowCol,selRow,imgUrl,imgKey,hasBlob,hasFreeImg,hasGenericImgKey});
                 }else if(check3){
                     //HEADERFLAG: DEEPER=> HAS IMGCONTAINER
                     const imgKey1=this._modSelector.dataset.getIdValue({idValues,target,id:"imgKey"});
                     const imgKey3=imgKey1?.attValue || null;
-                    const retSelImg=this.extractHeaderType({target,idValues,level:"headerflag",imgKey:imgKey3,selRowCol:null}) as imgExtractType;
-                    const {imgUrl,selRowCol,imgKey,level,hasBlob,hasFreeImg,hasGenericImgKey}=retSelImg
-                    this.imgEles.push({level,target,selRowCol,imgUrl,imgKey,hasBlob,hasFreeImg,hasGenericImgKey});
+                    const retSelImg=this.extractHeaderType({target,idValues,level:"headerflag",imgKey:imgKey3,selRowCol:_selRowCol,selRow:null}) as imgExtractType;
+                    const {imgUrl,selRowCol,selRow,imgKey,level,hasBlob,hasFreeImg,hasGenericImgKey}=retSelImg
+                    this.imgEles.push({level,target,selRowCol,selRow,imgUrl,imgKey,hasBlob,hasFreeImg,hasGenericImgKey});
                 }
             }//THIS CAN NOT UPLOAD A BLOB:HTTP-CHECK ID=F BLOG=> THEN INSERT NOIMAGE IN ITS PLACE
         }));
@@ -238,9 +242,12 @@ class AddImageUrl {
                 if(!check)return;
                 const getImgKey=this._modSelector.dataset.getIdValue({target:row,idValues,id:"imgKey"});
                 const imgKey1=getImgKey?.attValue ? getImgKey.attValue : null;
-                const retSelImg=await this.extractImg({target:row,idValues,level:"row",imgKey:imgKey1}) as imgExtractType;
-                const {imgUrl,selRowCol,imgKey,level,hasBlob,hasFreeImg,hasGenericImgKey}=retSelImg
-                this.imgEles.push({level,target:row as HTMLElement,imgUrl,selRowCol,imgKey,hasBlob,hasFreeImg,hasGenericImgKey});
+                const getSelRow=this._modSelector.dataset.getIdValue({target:row,idValues,id:"selRow"});
+                const _selRow=getSelRow?.attValue ? JSON.parse(getSelRow.attValue) as selRowType : null;
+                const retSelImg=await this.extractImg({target:row,idValues,level:"row",imgKey:imgKey1,selRow:_selRow,selRowCol:null}) as imgExtractType;
+                const {imgUrl,selRowCol,selRow,imgKey,level,hasBlob,hasFreeImg,hasGenericImgKey}=retSelImg;
+               
+                this.imgEles.push({level,target:row as HTMLElement,imgUrl,selRowCol,selRow,imgKey,hasBlob,hasFreeImg,hasGenericImgKey});
             }
         }));
 
@@ -525,16 +532,14 @@ class AddImageUrl {
 
     }){
         //SELECTING IMAGE TO BE INSERTED
-        const {selRowCol,target,imgKey,level,}=item;
+        const {selRowCol,selRow,target,imgKey,level,}=item;
         const {key:selectedKey,name:selectedName,url:selectedUrl}=insert;
-        
+       
         if(selectedKey){
             const eleId=target.id;
             const idValue:idValueType={eleId,id:"imgKey",attValue:selectedKey};
             this._modSelector.dataset.upDateIdValue({target,idValues,idValue});
             target.setAttribute("data-img-key",selectedKey);
-            const {selectorId,rowId}=selRowCol || {selectorId:null,rowId:null,colId:null}
-            const selRow={selectorId,rowId} as selRowType;
             const check=["element","special","headerflag"].includes(level);
             if(imgKey ){
                 //deleting none free/or none generic imgkey in db/aws
@@ -546,12 +551,19 @@ class AddImageUrl {
             };
             if( selectedUrl){
                 //FREE PICS
-                if((level==="col" || level==="row") && selRowCol && selRow){
+               
+                if((level==="col" || level==="row") ){
+                
                     target.style.backgroundImage=`url(${selectedUrl})`;
                     if(level==="col" ){
-                        this._modSelector.updateColumn({target:target,idValues,selRowCol});
+                        if(selRowCol){
+                            this._modSelector.updateColumn({target:target,idValues,selRowCol:selRowCol});
+                        }
                     }else if(level==="row" ){
-                        this._modSelector.updateRow({target:target,idValues,selRow})
+                        if(selRow){
+                           
+                            this._modSelector.updateRow({target:target,idValues,selRow})
+                        }
                     }
                 }else if(check){
                     if(level==="element"){
@@ -653,14 +665,12 @@ class AddImageUrl {
     };
 
 
-    async extractImg({target,idValues,level,imgKey}:{target:HTMLElement,idValues:idValueType[],level:"element"|"col"|"row",imgKey:string|null}):Promise<imgExtractType>{
+    async extractImg({target,idValues,level,imgKey,selRow,selRowCol}:{target:HTMLElement,idValues:idValueType[],level:"element"|"col"|"row",imgKey:string|null,selRow:selRowType|null,selRowCol:selRowColType|null}):Promise<imgExtractType>{
         const url=new URL(window.location.origin)
         const noimage=`${url}${this.noimage}`;
         let hasBlob=false;
         const node=target.nodeName.toLowerCase();
         const urlStr=target.style.backgroundImage;
-        const getSelRowCol:idValueType|null=this._modSelector.dataset.getIdValue({target,idValues,id:"selRowCol"});
-        const selRowCol:selRowColType|null=getSelRowCol?.attValue ? JSON.parse(getSelRowCol.attValue) as selRowColType:null
         let imgUrl:string|undefined;
         let hasFreeImg:boolean=false;
         //no_userid-unknownUser-sequenceSolution.png
@@ -720,15 +730,13 @@ class AddImageUrl {
             }
             
         };
-       
-        return {imgUrl,selRowCol,imgKey,level,hasBlob,hasFreeImg,hasGenericImgKey};
+
+        return {imgUrl,selRowCol,selRow,imgKey,level,hasBlob,hasFreeImg,hasGenericImgKey};
     };
 
 
     //@ level [data-is-element]
-    extractSpecial({target,img,idValues,level,imgKey}:{target:HTMLElement,img:HTMLImageElement|null,idValues:idValueType[],level:"row"|"col"|"element"|"special",imgKey:string|null}):imgExtractType{
-        const getSelRowCol=this._modSelector.dataset.getIdValue({target,idValues,id:"selRowCol"});
-        const selRowCol=getSelRowCol?.attValue ? JSON.parse(getSelRowCol.attValue) as selRowColType:null;
+    extractSpecial({target,img,idValues,level,imgKey,selRowCol,selRow}:{target:HTMLElement,img:HTMLImageElement|null,idValues:idValueType[],level:"row"|"col"|"element"|"special",imgKey:string|null,selRowCol:selRowColType|null,selRow:selRowType|null}):imgExtractType{
         const url=new URL(window.location.origin)
         const noimage=`${url}${this.noimage}`;
         let hasBlob:boolean=false;
@@ -758,20 +766,21 @@ class AddImageUrl {
                     break;
             }
             
-            imgExtract={imgUrl,selRowCol,imgKey,level,hasBlob,hasFreeImg,hasGenericImgKey}
+            imgExtract={imgUrl,selRowCol,selRow,imgKey,level,hasBlob,hasFreeImg,hasGenericImgKey}
             return imgExtract
         };
-        imgExtract={imgUrl:noimage,selRowCol,imgKey,level,hasBlob,hasFreeImg,hasGenericImgKey}
+        imgExtract={imgUrl:noimage,selRowCol,selRow,imgKey,level,hasBlob,hasFreeImg,hasGenericImgKey}
         return imgExtract
     };
 
 
-    extractHeaderType({target,idValues,imgKey,level,selRowCol}:{
+    extractHeaderType({target,idValues,imgKey,level,selRowCol,selRow}:{
         target:HTMLElement,
         idValues:idValueType[],
         imgKey:string|null,
         level:"element"|"col"|"row"|"special"|"headerflag",
-        selRowCol:selRowColType|null
+        selRowCol:selRowColType|null,
+        selRow:selRowType|null
         }):imgExtractType{
             const url=new URL(window.location.origin)
             const noimage=`${url}${this.noimage}`;
@@ -806,7 +815,7 @@ class AddImageUrl {
                 }
             });
 
-        const imgExtract:imgExtractType={imgUrl,selRowCol,imgKey,level,hasBlob,hasFreeImg,hasGenericImgKey};
+        const imgExtract:imgExtractType={imgUrl,selRowCol,selRow,imgKey,level,hasBlob,hasFreeImg,hasGenericImgKey};
         return imgExtract
     };
 

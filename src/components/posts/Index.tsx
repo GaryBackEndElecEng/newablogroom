@@ -8,6 +8,7 @@ import User from '../user/userMain';
 import styles from "./post.module.css"
 import { postType, userType } from '../editor/Types';
 import Dataset from '../common/dataset';
+import RegSignIn from '../nav/regSignin';
 
 
 
@@ -24,9 +25,9 @@ export default function Index({ posts, usersinfo, user }: { posts: postType[], u
             const auth = new AuthService(modSelector, service);
             auth.getSessionUser({ user }).then(async (res) => {
                 if (res) {
-
-                    const _user = new User(modSelector, service, auth);
-                    const _posts = new Post(modSelector, service, auth, _user, res.user);
+                    const regSignIn = new RegSignIn(modSelector, service, res.user)
+                    const _user = new User(modSelector, service, res.status, regSignIn, res.user);
+                    const _posts = new Post(modSelector, service, res.status, res.user);
                     _posts.loadPosts({ posts }).then(async (retPosts) => {
                         if (retPosts) {
                             _posts.main({ injector: htmlPosts, posts: retPosts, usersinfo: usersinfo }).then(async () => {

@@ -14,6 +14,7 @@ import { blogType, userType } from '../editor/Types';
 import CommonInfo from '../common/commonInfo';
 import styles from "./footer.module.css";
 import BrowserType from '../common/browserType';
+import RegSignIn from '../nav/regSignin';
 
 
 
@@ -37,11 +38,12 @@ export default function Index({ _user }: { _user: userType | null }) {
                             const user_id = res?.user?.id || undefined
                             const browser = new BrowserType(user_id);
                             const isAuthenticated = res.isAuthenicated;
+                            const regSignIn = new RegSignIn(modSelector, service, res.user);
+                            const user = new User(modSelector, service, res.status, regSignIn, res.user);
                             const commonInfo = new CommonInfo(modSelector, service, auth);
                             const message = new Message(modSelector, service, blog, null, res.user);
                             const dataflow = new Dataflow(service);
                             const allMsgs = new AllMsgs(modSelector, service, message)
-                            const user = new User(modSelector, service, auth);
                             user.user = user_id ? res.user : {} as userType;
                             const feature = new Features();
                             const injector = document.querySelector("section#footerInjector") as HTMLElement;

@@ -18,6 +18,7 @@ import Ven from '../common/venDiagram';
 import Reference from '../editor/reference';
 import PasteCode from '../common/pasteCode';
 import AuthService from '../common/auth';
+import RegSignIn from '../nav/regSignin';
 
 
 function Index({ blog, user }: { blog: blogType | null, user: userType | null }) {
@@ -37,35 +38,41 @@ function Index({ blog, user }: { blog: blogType | null, user: userType | null })
                 const _modSelector = new ModSelector(dataset);
                 const _service = new Service(_modSelector);
                 const auth = new AuthService(_modSelector, _service);
-                const _user = new User(_modSelector, _service, auth);
-                if (blog) {
+                auth.getSessionUser({ user }).then(async (resuser) => {
+                    if (resuser) {
+                        const regSignIn = new RegSignIn(_modSelector, _service, resuser.user, resuser.status)
+                        const _user = new User(_modSelector, _service, resuser.status, regSignIn, resuser.user);
+                        if (blog) {
 
-                    _modSelector.awaitLoadBlog(blog).then(async (res) => {
-                        const _blog = res.blog();
-                        if (_blog) {
+                            _modSelector.awaitLoadBlog(blog).then(async (res) => {
+                                const _blog = res.blog();
+                                if (_blog) {
 
-                            const design = new Design(_modSelector);
-                            const ven = new Ven(_modSelector);
-                            const reference = new Reference(_modSelector);
-                            const shapeOutside = new ShapeOutside(_modSelector, _service, _user);
-                            const headerFlag = new Headerflag(_modSelector, _service, _user);
-                            const pasteCode = new PasteCode(_modSelector, _service);
-                            const htmlElement = new HtmlElement(_modSelector, _service, _user, shapeOutside, design, ven, reference, headerFlag, pasteCode)
-                            target.style.maxWidth = "auto";
-                            Misc.matchMedia({ parent: target, maxWidth: 420, cssStyle: { maxWidth: maxWidth, width: "100%", paddngInline: "0rem" } })
+                                    const design = new Design(_modSelector);
+                                    const ven = new Ven(_modSelector);
+                                    const reference = new Reference(_modSelector);
+                                    const shapeOutside = new ShapeOutside(_modSelector, _service, _user);
+                                    const headerFlag = new Headerflag(_modSelector, _service, _user);
+                                    const pasteCode = new PasteCode(_modSelector, _service);
+                                    const htmlElement = new HtmlElement(_modSelector, _service, _user, shapeOutside, design, ven, reference, headerFlag, pasteCode)
+                                    target.style.maxWidth = "auto";
+                                    Misc.matchMedia({ parent: target, maxWidth: 420, cssStyle: { maxWidth: maxWidth, width: "100%", paddngInline: "0rem" } })
 
-                            // GET BLOG
-                            const message = new Message(_modSelector, _service, _blog, null);
-                            const chart = new ChartJS(_modSelector, _service, _user, message);
-                            const displayBlog = new DisplayBlog(_modSelector, _service, _user, _blog, chart, message, htmlElement);
-                            displayBlog._onlyMeta = true;
-                            displayBlog.main({ parent: target, blog: _blog, user: user });
-                            countRef.current++;
+                                    // GET BLOG
+                                    const message = new Message(_modSelector, _service, _blog, null, resuser.user);
+                                    const chart = new ChartJS(_modSelector, _service, _user, message);
+                                    const displayBlog = new DisplayBlog(_modSelector, _service, _user, _blog, chart, message, htmlElement);
+                                    displayBlog._onlyMeta = true;
+                                    displayBlog.main({ parent: target, blog: _blog, user: user });
+                                    countRef.current++;
+                                }
+                            });
                         }
-                    });
-                }
-            }
-        }
+                    }
+
+                });
+            };
+        };
 
     }, [countRef, clientRef, blog, user]);
 

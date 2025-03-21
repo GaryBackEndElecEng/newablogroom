@@ -96,7 +96,8 @@ const authOptions: NextAuthOptions = {
                 password: { label: "Password", type: "password" }
             },
             async authorize(credentials) {
-                const cred = credentials
+                const cred = credentials;
+                //hascsrftoken in credentials
                 if (!cred?.email || !cred?.password) {
                     return null
                 }
@@ -118,7 +119,6 @@ const authOptions: NextAuthOptions = {
                     }
                 });
                 let retUser = user;
-                // console.log("OPTION:user", user)
                 if (!retUser) {
                     // console.log("OPTIONS: no user")
                     await prisma.$disconnect()
@@ -126,17 +126,17 @@ const authOptions: NextAuthOptions = {
                 }
                 if (retUser.password) {
                     const check = await hashComp(cred?.password, retUser?.password);
-
                     if (!check) {
                         await prisma.$disconnect()
                         return null
                     }
-                } else if (cred.email === EMAIL || cred.email === EMAIL2) {
-                    retUser = { ...retUser, admin: true }
                 } else {
                     await prisma.$disconnect()
                     return null
-                }
+                };
+                if (cred.email === EMAIL || cred.email === EMAIL2) {
+                    retUser = { ...retUser, admin: true }
+                };
 
                 await prisma.$disconnect();
                 return { ...retUser, password: undefined }

@@ -9,9 +9,12 @@ import { FaCreate } from "../common/ReactIcons";
 import { FaCrosshairs, FaSignOutAlt } from "react-icons/fa";
 import { gets3ImgKey, userType } from "../editor/Types";
 import AuthService from "../common/auth";
+import BrowserType from "../common/browserType";
 
 
 class SignInAndUp{
+    public readonly signUpMsg:string;
+    public readonly happy:string="/images/emojiSmile.png";
     public readonly signin:string="/images/signin.png";
     public readonly register:string="/images/register.png";
     public readonly barIcon:string="/images/barIcon.png";
@@ -20,7 +23,8 @@ class SignInAndUp{
     public logo:string="/images/gb_logo.png";
     private _isSignedIn:boolean;
     public isOn:boolean;
-    constructor(private _modSelector:ModSelector,private _service:Service,public regSignin:RegSignIn,private auth:AuthService,isSignedIn:boolean){
+    constructor(private _modSelector:ModSelector,private _service:Service,public regSignin:RegSignIn,private auth:AuthService,isSignedIn:boolean,private browser:BrowserType){
+        this.happy="/images/emojiSmile.png";
         this.signin="/images/signin.png";
         this.signup="/images/signup.png";
         this.register="/images/register.png";
@@ -29,6 +33,7 @@ class SignInAndUp{
         this.barIcon="/images/barIcon.png";
         this._isSignedIn=isSignedIn;
         this.isOn=false;
+        this.signUpMsg="This will only give you informed messaging on Ablogroom updates. again we thank you for trusting us. "
     };
 
     //----------------SETTERS/GETTERS----------------------//
@@ -38,9 +43,10 @@ class SignInAndUp{
     //----------------SETTERS/GETTERS----------------------//
 
     //INJECTED:Id:mainHeader#header-end
-   async main({parent,navHeader,isRepeat}:{parent:HTMLElement,navHeader:HTMLElement,isRepeat:boolean}):Promise<{parent:HTMLElement,container:HTMLElement,user:userType,isSignedIn:boolean,navHeader:HTMLElement,isRepeat:boolean}>{
+   async main({parent,navHeader,isRepeat}:{parent:HTMLElement,navHeader:HTMLElement,isRepeat:boolean}):Promise<{parent:HTMLElement,container:HTMLElement,user:userType,isSignedIn:boolean,navHeader:HTMLElement,isRepeat:boolean,isAdminRepeat:boolean}>{
         //MUST PARENT MUST APPEND CONTAINER OR IT WILL NOT SHOW
         const url=new URL(window.location.href);
+        let isAdminRepeat=true;
         const pathname=url.pathname;
         const isSignedIn=this._isSignedIn;
         const less900= window.innerWidth <900;
@@ -56,13 +62,15 @@ class SignInAndUp{
         if(pathname !=="/register"){
             if(isSignedIn){
                 await this.signInDisplay({parent,user:this.user})
-    
+                if(this.auth.isAdmin){
+                isAdminRepeat=this.browser.repeatAdminControl({repeatCount:1});
+                }
             }else{
                 this.dropDownIcon({parent:container,css_col,css_row,less900,less400,btnShape});
                 
             };
         }
-        return Promise.resolve({parent,container,user:this.user,isSignedIn,navHeader,isRepeat}) as Promise<{parent:HTMLElement,container:HTMLElement,user:userType,isSignedIn:boolean,navHeader:HTMLElement,isRepeat:boolean}>;
+        return Promise.resolve({parent,container,user:this.user,isSignedIn,navHeader,isRepeat,isAdminRepeat}) as Promise<{parent:HTMLElement,container:HTMLElement,user:userType,isSignedIn:boolean,navHeader:HTMLElement,isRepeat:boolean,isAdminRepeat:boolean}>;
     };
 
 
@@ -265,21 +273,17 @@ class SignInAndUp{
       
         const section=document.createElement("section");
         section.id="signInUp-signIn-section-popup";
-        section.style.cssText=css_col + "margin:auto;position:absolute;background-color:#10c0b68f;filter:drop-shadow(0 0 0.75rem crimson);border-radius:7px;padding:1rem;z-index:100;padding:1.5rem;z-index:20;backdrop-filter:blur(20px);gap:1rem;";
+        section.style.cssText=css_col + "margin:auto;position:absolute;background-color:rgb(8 244 231 / 26%);filter:drop-shadow(0 0 0.75rem crimson);border-radius:7px;padding:1rem;z-index:100;padding:1.5rem;z-index:20;backdrop-filter:blur(20px);gap:1rem;";
         section.style.inset=less900 ? (less400 ? "-100% 0% auto 0%":"0% 20% auto 20%") :"0% 30% auto 30%";
         section.style.transform=less900 ? (less400 ? "translateY(100px)":"translateY(90px)"):"translateY(90px)";
-        section.style.height="400px";
+        section.style.height=less900 ? (less400 ? "60vh":"55vh"):"65vh";
         section.style.maxWidth=less900 ? (less400 ? (less380 ? "390px" :"490px"):"500px") :"600px";
         section.style.minWidth=less900 ? (less400 ? (less380 ? "370px" :"320px"):"400px") :"400px";
         section.style.width="100%";
         section.style.position="absolute";
-        //SIGNUP IMG
-        const img=document.createElement("img");
-        img.style.cssText="border-radius:26%; width:150px;aspect-ratio:1 /1;filter:drop-shadow(0 0 0.5rem black);border:none;";
-        img.src=this.signupTwo;
-        img.alt="www.ablogroom.com";
-        section.appendChild(img);
-        //SIGNUP IMG
+        //SIGNUP IMG BLOCK
+        this.signUpImgBlock({parent:section,css_col});
+        //SIGNUP IMG BLOCK
         //FORM => NAME && EMAIL
         const form=document.createElement("form");
         form.id="signUpForm-form";
@@ -358,6 +362,71 @@ class SignInAndUp{
             }
         };
     };
+
+
+
+    signUpImgBlock({parent,css_col}:{parent:HTMLElement,css_col:string}){
+        const time=120;
+        const less900=window.innerWidth <900;
+        const less400=window.innerWidth <400;
+        const container=document.createElement("div");
+        container.id="signUpImgBlock-container";
+        container.style.cssText=css_col +"margin-inline:auto;height:auto;background-color:#ffffff47;border-radius:inherit;padding-block:0.5rem;padding-inline:1rem;color:white;width:100%;";
+        container.style.minHeight=less900 ? (less400 ? "38vh":"35vh"):"30vh";
+        const para=document.createElement("p");
+        para.id="signUpImgBlock-text";
+        this.messageEffect({para,str:this.signUpMsg,time});
+        const img=document.createElement("img");
+        img.style.cssText="border-radius:26%; width:150px;aspect-ratio:1 /1;filter:drop-shadow(0 0 0.5rem black);border:none;";
+        img.src=this.signupTwo;
+        img.alt="www.ablogroom.com";
+        container.appendChild(img);
+        container.appendChild(para);
+        parent.appendChild(container);
+    };
+
+
+    messageEffect({para,str,time}:{para:HTMLParagraphElement,str:string,time:number}){
+        const arr=str.split("");
+        const len=arr.length;
+        let count=0;
+       const clear= setInterval(()=>{
+            if(count <=len-1){
+                const getLt=arr[count];
+                const span=document.createElement("span");
+                span.textContent=getLt;
+                para.appendChild(span);
+                count++;
+            }else{
+                clearInterval(clear);
+                setTimeout(()=>{
+                    this.signUpTheTeamEffect({para,time:400});
+
+                },time*3.25);
+            }
+       },time);
+    };
+
+
+    signUpTheTeamEffect({para,time}:{para:HTMLElement,time:number}){
+        const pre=document.createElement("pre");
+        pre.style.cssText="background-color:white;width:fit-content;border-radius:12px;display:flex;color:black;padding-inline:1rem;";
+        const span=document.createElement("span");
+        span.textContent="The Team, a friend";
+        const img=document.createElement("img");
+        img.src=this.happy;
+        img.alt="www.ablogroom.com";
+        img.style.cssText="width:25px;border-radius:50%;border:none; margin-left:1rem;filter:drop-shadow(0 0 0.25rem black);"
+        pre.appendChild(span);
+        para.appendChild(pre);
+        Misc.slideIn({anchor:span,xpos:100,ypos:0,time});
+        setTimeout(()=>{
+            pre.appendChild(img);
+            Misc.slideIn({anchor:img,xpos:0,ypos:150,time:time-100});
+        },time-100);
+    };
+
+
 
     saveMessage(parent:HTMLElement,str:string){
         const container=document.createElement("div");

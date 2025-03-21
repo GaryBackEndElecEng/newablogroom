@@ -1,4 +1,4 @@
-import { providerType} from "@/components/editor/Types";
+import { providerSigninType, providerType} from "@/components/editor/Types";
 
 import {FaCreate} from "@/components/common/ReactIcons";
 import { FaStar,FaStarHalf,FaRegStar, FaCrosshairs } from "react-icons/fa";
@@ -84,7 +84,8 @@ export type mediaQueryType={
     maxWidth:number
 }
 class Misc{
-    public static providersImgs:{id:string,name:string,img:string}[]=[
+    public static readonly newBlogImg="/images/newBlogImg.png";
+    public static providersImgs:providerSigninType[]=[
         {id:"",name:"google",img:"/images/providers/gmail.png"},
         {id:"",name:"facebook",img:"/images/providers/facebook.png"},
         {id:"",name:"instragramProvider",img:"/images/providers/instagram.png"}
@@ -188,7 +189,7 @@ class Misc{
       
         const container=document.createElement("div");
         container.id="message-id";
-        container.style.cssText="position:absolute;top:20%;width:80%;max-width:300px;backdrop-filter:blur(10px);margin-inline:auto;display:flex;place-items:center;flex-direction:column;border-radius:30px;box-shadow:1px 1px 6px 1px #0a2351,-1px -1px 6px -1px #0a2351;padding-inline:1rem;padding-block:0.5rem;background-color:#002244;";
+        container.style.cssText="position:absolute;top:20%;width:80%;max-width:300px;backdrop-filter:blur(10px);margin-inline:auto;display:flex;place-items:center;flex-direction:column;border-radius:30px;box-shadow:1px 1px 6px 1px #0a2351,-1px -1px 6px -1px #0a2351;padding-inline:1rem;padding-block:0.5rem;background-color:#002244;z-index:2000;";
         const inner=document.createElement("div");
         inner.style.cssText="margin:auto;text-align:center;padding:inherit;box-shadow:1px 1px 6px 1px black;border-radius:30px;width:100%;";
         if(type_==="warning"){
@@ -623,11 +624,11 @@ class Misc{
             useParent=parent
         }
         const popup=document.createElement("section");
-        popup.id="popup-blogNameDesc";
-        popup.style.cssText="margin:auto;position:absolute;inset:120% 0% 0%;background-color:white;filter:drop-shadow(0 0 0.75rem crimson);border-radius:7px;z-index:200;padding:1rem;";
+        popup.id="misc-popup-blogNameDesc";
+        popup.style.cssText="margin:auto;position:absolute;inset:120% 0% auto 0%;background-color:white;filter:drop-shadow(0 0 0.75rem crimson);border-radius:7px;z-index:200;padding:1rem;";
         popup.style.inset=`120% 0% 0%`;
         popup.style.maxWidth=`clamp(320px,400px,500px)`;
-        popup.style.height=`clamp(420px,500px,600px)`;
+        popup.style.height=`clamp(420px,600px,650px)`;
         popup.style.width="100%";
         for(const key of Object.keys(popup.style)){
             for( const [key1,value1] of Object.entries(cssPopup)){
@@ -636,6 +637,9 @@ class Misc{
                 }
             }
         }
+        //TITLE BLOCK
+        Misc.titleBlock({parent:popup});
+        //TITLE BLOCK
         const form=document.createElement("form");
         form.style.cssText="display:flexflex-direction:column;align-items:center;justify-content:center;gap:1rem;";
         const {input,label:labelName}=Nav.inputComponent(form);
@@ -699,6 +703,23 @@ class Misc{
         return {btn,popup,form,input,tinput,textarea,retParent:useParent};
 
 
+
+    };
+    static titleBlock({parent}:{parent:HTMLElement}){
+        const css_col="display:flex;flex-direction:column;align-items:center;justify-content:center";
+        const container=document.createElement("div");
+        container.id="BlogNameDesc-titleBlock";
+        container.style.cssText=css_col + "box-shadow:1px 1px 12px 1px black;border-radius:12px;position:relative;margin-block:1rem;";
+        const img=document.createElement("img");
+        img.style.cssText="max-width:125px;width:100%;filter:drop-shadow(0 0 0.5rem black);border-radius:30%;border:none"
+        img.src=Misc.newBlogImg;
+        img.alt=Misc.newBlogImg;
+        const text=document.createElement("p");
+        text.textContent="Data Organizer";
+        text.className="text-primary text-center";
+        container.appendChild(text);
+        container.appendChild(img);
+        parent.appendChild(container);
 
     };
 
@@ -1415,7 +1436,7 @@ class Misc{
         button.style.color=color;
         button.type=type;
         button.style.borderRadius="20px";
-        button.style.boxShadow="1px 1px 12px 1px rgb(12, 175, 255),-1px -1px 12px -1px rgb(12, 175, 255)";
+        button.classList.add("btnBoxShadow");
         if(!button.disabled){
             button.style.color=color;
             button.style.backdropFilter="";

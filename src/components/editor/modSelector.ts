@@ -28,6 +28,7 @@ class ModSelector {
     private _count=1;
     private _placement=1;
     private _chart:chartType;
+    public initUser:userType;
     public readonly initChart:chartType={
         id:0,
         type:"bar",
@@ -115,10 +116,14 @@ class ModSelector {
     public _bgColor:string;
   
     private _afterSignIn:saveProcessType;
-    private _pageCounts:pageCountType[]
+    private _pageCounts:pageCountType[];
+    public readonly btnUpDate:string;
+    public readonly btnDetail:string;
    
     constructor(public dataset:Dataset)
     {
+        this.btnUpDate="#0d6efd";
+        this.btnDetail="#0dcaf0";
         this.initElement_sel={
             id: 0,
             col_id:0,
@@ -1298,6 +1303,7 @@ set rows(rows:rowType[]){
                 return select;
             });
             this.selectors=this._selectors;
+            this.blog={...this.blog,selectors:this.selectors};
             this.localStore({blog:this.blog});
             //REPOPULATING TARGET
             idValues=Dataset.removeIdValueDuplicates({arr:idValues,eleId});
@@ -1362,6 +1368,8 @@ set rows(rows:rowType[]){
                 }
                 return select;
             });
+            this.selectors=this._selectors;
+            this.blog={...this.blog,selectors:this.selectors};
             this.localStore({blog:this.blog});
         }
         //RE-POPULATING TARGET WITH NEW COLLECTED ATTRIBUTES
@@ -2142,14 +2150,17 @@ loadSimpleBlog(blog:blogType){
     };
 
 
-    async removeBlob({target,rowColEle,loc,level,idValues}:{
+    async removeBlob({target,rowColEle,loc,level,idValues,selRowCol,selRow}:{
         target:HTMLElement,
         rowColEle:rowType|colType|elementType|element_selType,
         loc:locationEnumType,
         level:"row"|"col"|"element",
-        idValues:idValueType[]
+        idValues:idValueType[],
+        selRowCol:selRowColType|null,
+        selRow:selRowType|null,
      }):Promise<rowType|colType|elementType|element_selType>{
         const node=target.nodeName.toLowerCase();
+        const eleId=target.id;
         let ele=rowColEle as rowType|colType|elementType|element_selType;
         if(loc==="flexbox" || loc==="header" || loc==="footer" || loc==="customHeader"){
             if(level==='row'){
@@ -2165,61 +2176,34 @@ loadSimpleBlog(blog:blogType){
         const reg:RegExp=/(blob:http)/
         const checkBg=reg.test(target.style.backgroundImage)
         const check1=node==="img" && reg.test((target as HTMLImageElement).src) ;
-        if(check1){
-            (target as HTMLImageElement).src=Header.logo
-        }else if(checkBg){
-            ele.imgKey=undefined
-            target.style.backgroundImage=`url(${Header.logo})`;
-            target.style.backgroundPosition="50% 50%";
-            target.style.backgroundSize="100% 100%";
-            
-        };
-        if(check1 ||checkBg){
-            this.dataset.removeSubValue({target,idValues,id:"imgKey",eleId:target.id});
-            ele={...ele,imgKey:undefined};
-            if(loc==="flexbox"){
-                const getSelRowCol=this.dataset.getIdValue({target,idValues,id:"selRowCol"});
-                const getSelRow=this.dataset.getIdValue({target,idValues,id:"selRow"});
-                if(getSelRowCol || getSelRow){
+        if(checkBg || check1){
+            ele.imgKey=undefined;
+            target.removeAttribute("data-img-key");
+            this.dataset.removeSubValue({target,idValues,id:"imgKey",eleId});
+            if(check1 && level==="element"){
+                (target as HTMLImageElement).src=Header.logo;
+             const retEle=await this.updateElement({target,idValues,selRowCol});
+             const {ele:newEle}=retEle as {target:HTMLElement,ele:elementType|element_selType}
+             ele=newEle;
+            }else if(level==="col" || level==="row"){
+                target.style.backgroundImage=`url(${Header.logo})`;
+                target.style.backgroundPosition="50% 50%";
+                target.style.backgroundSize="100% 100%";
 
-                    IDKeys.map(kv=>{
-                        if(kv.key && kv && kv.id==="imgKey"){
-                            target.removeAttribute(kv.key);
-                        }
-                    });
-                    if(level==="element" ){
-                        const selRowCol=getSelRowCol ? JSON.parse(getSelRowCol.attValue):null;
-                        if(selRowCol){
-                            await this.updateElement({target,idValues,selRowCol});
-                        };
-                    }else if(level==="col"){
-                        const selRowCol=getSelRowCol?.attValue ? JSON.parse(getSelRowCol.attValue):null;
-                        if(selRowCol){
-                            await this.updateColumn({target,idValues,selRowCol});
-                        };
-                    }else if(level==="row"){
-                        const selRow=getSelRow?.attValue ? JSON.parse(getSelRow?.attValue) as selRowType:null;
-                        if(selRow){
-                            await this.updateRow({target,idValues,selRow});
-                        }
-                    }
+                if(level==="col" && selRowCol){
+                  const retCol=await this.updateColumn({target,idValues,selRowCol});
+                  const {col:newEle}=retCol as {target:HTMLElement,col:colType}
+                  if(newEle){
+                      ele=newEle;
+                  };
+                }else if(level==="row" && selRow){
+                    const retRow =await this.updateRow({target,idValues,selRow});
+                    const {row:newEle}=retRow as {target:HTMLElement,row:rowType}
+                    ele=newEle
                 }
-
-            }else{
-                await this.updateElement({target,idValues,selRowCol:null})
-                
-            }
-            this.dataset.removeSubValue({target,idValues,id:"imgKey",eleId:target.id});
-                ele={...ele,imgKey:undefined};
-                IDKeys.map(kv=>{
-                    if(kv.key){
-                        if(kv.id==="imgKey" || kv.id==="backgroundImg"){
-                            target.removeAttribute(kv.key);
-                        }
-                    }
-                });
-        }
-       
+            };
+          
+        };
         return ele
      };
 

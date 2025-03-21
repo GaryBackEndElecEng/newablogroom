@@ -108,7 +108,6 @@ class DisplayBlog{
     };
     set blog(blog:blogType){
         this._blog=blog;
-
     }
    
      //GETTERS SETTERS
@@ -118,6 +117,8 @@ class DisplayBlog{
     async main(item:{parent:HTMLElement,blog:blogType|null,user:userType|null}){
         const {parent,blog,user}=item;
         const idValues=this._modSelector.dataset.idValues;
+        
+        const css_col="display:flex;flex-direction:column;align-items:center;justify-content:center";
         this._arrDivPlaces=[];
         if(blog ){
             const less400=window.innerWidth < 420;
@@ -126,13 +127,19 @@ class DisplayBlog{
             DisplayBlog.cleanUp(parent);//cleansup duplicates
             const outerContainer=document.createElement("article");
             outerContainer.id="display-main";
-            outerContainer.style.cssText="margin-inline:auto;margin-block:1rem;padding-block:auto;width:100%;position:relative;min-height:110vh;";
+            outerContainer.style.cssText=css_col +"margin-inline:auto;margin-block:1rem;padding-block:auto;width:100%;position:relative;min-height:110vh;gap:2rem;";
             outerContainer.style.paddingInline=paddingInline;
             outerContainer.style.paddingBlock=less900 ? "0%" :"2rem";
             outerContainer.style.opacity="0";
             outerContainer.style.paddingBlock=less400 ? "0rem":"2rem";
             outerContainer.style.paddingBottom=less400 ? "2rem":"";
-            
+            //-------------META- BLOG----------------------------///
+            const metaCont=document.createElement("div");
+            metaCont.id="displayBlog-main-metaCont";
+            metaCont.style.cssText=css_col;
+            this.metaDisplay({parent:metaCont,blog,user,css_col,less900,less400});
+            outerContainer.appendChild(metaCont);
+            //-------------META- BLOG----------------------------///
             //-----------BTN CONTAINER FOR FINAL WORK-----------------//
             const btnContainer=document.createElement("div");
             btnContainer.id="btnContainer";
@@ -257,6 +264,65 @@ class DisplayBlog{
             parent.appendChild(outerContainer);
             
         }
+     };
+
+
+     metaDisplay({parent,blog,user,css_col,less900,less400}:{parent:HTMLElement,blog:blogType,user:userType|null,css_col:string,less900:boolean,less400:boolean}){
+        const container=document.createElement("div");
+        container.id="metaDisplay-cont";
+        container.style.cssText=css_col + "position:relative;background-color:white;color:black;width:100%;";
+        container.style.height="auto";
+        container.style.borderRadius="8px";
+        const title=document.createElement("p");
+        title.id="metaDisplay-title";
+        title.classList.add("title-art-display");
+        title.textContent=blog.title || "";
+        const para=document.createElement("p");
+        para.style.cssText="margin-inline:auto;margin-block:1rem;padding-inline:1rem; padding-block:0.5rem;height:100%;position:relative;";
+        para.id="metaDisplay-para";
+        para.style.height=less900 ? (less400 ? "auto":"30vh"):"20vh";
+        para.style.lineHeight="1.85rem";
+        if(less400){
+            para.style.display="flex";
+            para.style.alignItems="center";
+            para.style.flexDirection="column";
+        }
+        const text = new Text(blog.desc || "");
+        const img=document.createElement("img");
+        img.style.cssText="height:100%;margin-inline:auto;margin-right:2rem;border:none;";
+        img.style.width=less400 ? "100%":"auto";
+        img.style.float="left";
+        if(blog.imgKey){
+             this._service.getSimpleImg(blog.imgKey).then(async(res)=>{
+                if(res){
+                    img.src=res.img;
+                    img.alt=res.Key;
+                }
+            });
+        }else{
+            img.src=this.logo;
+            img.alt="www.ablogroom.com";
+        };
+         if(blog?.attr==="circle"){
+            img.style.shapeOutside=less400 ? "": "circle(50%)";
+            img.style.borderRadius="50%";
+            img.style.border="none";
+           
+        }else{
+            img.style.shapeOutside=less400 ? "":"square()";
+            img.style.borderRadius="8px";
+            img.style.border="none";
+        };
+       
+
+        para.appendChild(img);
+        Misc.blurIn({anchor:img,blur:"20px",time:600});
+        para.appendChild(text);
+        container.appendChild(title);
+        container.appendChild(para);
+        parent.appendChild(container);
+
+
      }
 
     async awaitBlog(blog:blogType):Promise<{blog:()=>blogType}>{

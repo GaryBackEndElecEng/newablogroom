@@ -6,10 +6,9 @@ import Service from "../common/services";
 import { imageLoader } from "../common/tsFunctions";
 import Header from "../editor/header";
 import ModSelector from "../editor/modSelector";
-import { pageCountType, postType, userType } from "../editor/Types";
+import { pageCountType, postType, statusType, userType } from "../editor/Types";
 import Nav from "../nav/headerNav";
 import AddImageUrl from "../common/addImageUrl";
-import User from "../user/userMain";
 import Post from "../posts/post";
 import EditText from "../common/editText";
 import Message from "../common/message";
@@ -29,7 +28,11 @@ class PostDetail{
     postLogo:string;
     logo:string;
     injector:HTMLElement|null;
-    constructor(private _modSelector:ModSelector,private _service:Service,private auth:AuthService,private _user:User,user:userType|null){
+    private _user:userType;
+    private _status:statusType;
+    constructor(private _modSelector:ModSelector,private _service:Service,status_:statusType,user:userType|null){
+        this._status=status_;
+        this._user=user || AuthService.userInit;
         this.injector=document.querySelector("section#postdetail") as HTMLElement;
         this.postLogo="/images/posts.png";
         this.logo="/images/gb_logo.png";
@@ -53,7 +56,7 @@ class PostDetail{
         };
         this._post=this.initPost;
         this.addImageClass=new AddImageUrl(this._modSelector,this._service);
-        this._message=new Message(this._modSelector,this._service,null,this._post)
+        this._message=new Message(this._modSelector,this._service,null,this._post,user)
     }
     /////--------GETTERS/SETTERS---------////
     get post(){
@@ -69,27 +72,30 @@ class PostDetail{
         this._poster=poster;
     }
     get user(){
-        return this._user.user
+        return this._user
     }
     set user(user:userType){
-        this.auth.user=user
-        this._user.user=user
+        this._user=user
+    }
+    get status(){
+        return this._status
+    }
+    set status(status:statusType){
+        this._status=status
     }
     
 
    async main(item:{injector:HTMLElement,post:postType,count:number,poster:userType |null,isPage:boolean,isUser:boolean,user:userType|null,pathname:string|null}):Promise<number>{
         const {injector,post,poster,count,isPage,isUser,user,pathname}=item;
-        console.log(window.location.ancestorOrigins);
-        window.history.pushState({page_id:1,user_id:5},"",window.location.href)
-        console.log(window.history)
+        const isStatus=this.status==="authenticated";
         const idValues=this._modSelector.dataset.idValues;
         const less1550=window.innerWidth < 1550;
         const less900=window.innerWidth < 900;
         const less400=window.innerWidth < 400;
-        if(poster){
+        if(poster?.email){
             this.poster=poster;
         }
-        if(user){
+        if(user?.id && isStatus ){
             this.user=user;
         }
         this.injector=injector as HTMLElement;

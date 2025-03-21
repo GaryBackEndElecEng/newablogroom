@@ -51,6 +51,7 @@
   --bg-image-graphic: url("/images/display/graphic.png");
   --bg-image-colors: url("/images/colors.png");
   --bg-image-body: url("/images/main.png");
+  --bg-image-blueWhite: url("/images/blueWhite.png");
 }
 @media screen and (max-width: 400px) {
   .client_blog {
@@ -448,6 +449,10 @@ p {
 .growName:hover {
   background: white;
   color: black;
+}
+
+.btnBoxShadow {
+  box-shadow: 1px 1px 2px 1px #780404, -1px -1px 4px -1px #0cafff;
 }
 .btnStyle1 {
   box-shadow: var(--box-shadow);
@@ -868,6 +873,22 @@ p.pretty-font {
   transition: all 1s ease-in-out;
 }
 
+.title-art-display {
+  background-clip: text !important;
+  -webkit-background-clip: text !important;
+  background-image: var(--bg-image-blueWhite);
+  background-color: transparent;
+  text-underline-offset: 0.5rem;
+  -webkit-text-fill-color: transparent;
+  background-size: 200% 100%;
+  background-position: 0% 50%;
+  text-decoration: underline;
+  -webkit-text-decorations-in-effect: underline;
+  animation: swipeAccross 20s infinite;
+  margin-block: 1rem;
+  margin-bottom: 2rem;
+  font-size: 275%;
+}
 .title-art-one {
   background-clip: text !important;
   -webkit-background-clip: text !important;
@@ -988,6 +1009,17 @@ p.pretty-font {
   margin-block: 1rem;
   margin-bottom: 2rem;
   font-size: 275%;
+}
+@keyframes swipeAccross {
+  from {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+  to {
+    background-position: 0% 50%;
+  }
 }
 @keyframes swipeDownInf {
   from {

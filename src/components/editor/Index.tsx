@@ -52,7 +52,8 @@ function Index() {
                         auth.confirmUser({ user, count: countRef.current }).then(async (res) => {
                             if (res) {
                                 countRef.current = res.count;
-                                const _user = new User(modSelector, service, auth);
+                                const regSignin = new RegSignIn(modSelector, service, res.user);
+                                const _user = new User(modSelector, service, res.status, regSignin, res.user);
                                 const message = new Message(modSelector, service, blog, null, res.user);
                                 const newCode = new NewCode(modSelector, service, _user);
                                 const chart = new ChartJS(modSelector, service, _user, message);
@@ -70,11 +71,10 @@ function Index() {
                                 const customHeader = new CustomHeader(modSelector, service, _header, _user, shapeOutside)
                                 const _flexbox = new Flexbox(modSelector, service, _user, shapeOutside);
                                 const _footer = new Footer(modSelector, service, _user, reference);
-                                const metablog = new MetaBlog(modSelector, service, _user);
-                                const regSignin = new RegSignIn(modSelector, service, _user);
-                                const _edit = new Edit(modSelector, service, mainInjection, _user, _flexbox, _htmlElement, _header, customHeader, _footer, displayBlog, chart);
+                                const metablog = new MetaBlog(modSelector, service, blog);
+                                const _edit = new Edit(modSelector, service, mainInjection, res.user, _flexbox, _htmlElement, _header, customHeader, _footer, displayBlog, chart);
 
-                                const main = new Main(modSelector, service, auth, mainInjection, _toolbar, _edit, _user, blog, _htmlElement, _header, customHeader, displayBlog, shapeOutside, commonInfo);
+                                const main = new Main(modSelector, service, auth, mainInjection, _toolbar, _edit, res.user, blog, _header, customHeader, displayBlog, shapeOutside, commonInfo);
                                 const sidebar = new Sidebar(modSelector, service, auth, main, _flexbox, newCode, _header, customHeader, _footer, _edit, _user, regSignin, displayBlog, chart, shapeOutside, metablog, headerFlag, _toolbar);
                                 await main.mainContainer(mainInjection).then(async (_res) => {
                                     if (_res) {

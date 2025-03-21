@@ -1174,7 +1174,7 @@ class Profile{
         });
         editmetaBtn.addEventListener("click",(e:MouseEvent)=>{
             if(e){
-                this.editMeta({grandRow:grandRow,blog:blog});
+                this.editMeta({grandRow:grandRow,inner_row:innerRow,blog:blog,index});
                 Misc.fadeOut({anchor:popup,xpos:100,ypos:50,time:400});
                 setTimeout(()=>{
                     col.removeChild(popup);
@@ -1352,9 +1352,13 @@ class Profile{
                 return msgs;
             }
         }) as Promise<messageType[]>;
-    }
-    async editMeta(item:{grandRow:HTMLElement,blog:blogType}){
-        const {grandRow,blog}=item;
+    };
+
+
+    async editMeta(item:{grandRow:HTMLElement,blog:blogType,inner_row:HTMLElement,index:number}){
+        const {grandRow,blog,inner_row,index}=item;
+        const less900= window.innerWidth < 900;
+        const less400= window.innerWidth < 400;
         const user=this._user.user;
         const isSelects=(blog?.selectors.length>0);
         const isElements=(blog?.elements.length>0);
@@ -1371,7 +1375,15 @@ class Profile{
                     const {button:saveClose}=Misc.simpleButton({anchor:container,bg:Nav.btnColor,color:"white",text:"close",type:"button",time:400});
                     grandRow.appendChild(container);
                     this.removeChild(grandRow,container);
-                    this._metaBlog.metablog({grandParent:grandRow,parent:container,blog:resBlog,type:"profile"});
+                    this._metaBlog.metablog({
+                        grandParent:grandRow,
+                        parent:container,
+                        blog:resBlog,
+                        type:"profile",
+                        func:(blog:blogType)=>{
+                            this.showBlog({grandRow,innerRow:inner_row,blog,index,less400,less900})
+                        }
+                    });
                     saveClose.onclick=(e:MouseEvent)=>{
                         if(e){
                             Misc.growOut({anchor:container,scale:0,opacity:0,time:400});

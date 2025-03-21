@@ -1,5 +1,4 @@
 import { getErrorMessage } from "@/lib/errorBoundaries";
-import { PrismaClient } from "@prisma/client";
 import { NextApiRequest, NextApiResponse } from "next";
 import { blogType } from "@/components/editor/Types";
 import { findCountKeys, generateMarkImgkey } from "@/lib/ultils/functions";
@@ -52,32 +51,44 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
                 const blogImgKey = await prisma.blog.findUnique({
                     where: { id: parseInt(id as string) }
                 });
-                const imgKeys: { level: string, imgKey: string }[] = generateMarkImgkey(blogImgKey as blogType | null);
-                // console.log("blog/id:delete:imgKeys", imgKeys)//SHOWING []
-                if (imgKeys && imgKeys.length > 0) {
-                    await Promise.all(imgKeys.map(async (item) => {
-                        if (item) {
+                if (blogImgKey) {
 
-                            await prisma.deletedImg.update({
-                                where: { imgKey: item.imgKey },
-                                data: {
-                                    del: true
+                    const imgKeys: { level: string, imgKey: string }[] = generateMarkImgkey(blogImgKey as blogType | null);
+                    // console.log("blog/id:delete:imgKeys", imgKeys)//SHOWING []
+                    if (imgKeys && imgKeys.length > 0) {
+                        await Promise.all(imgKeys.map(async (item) => {
+                            if (item) {
+
+                                const delImg = await prisma.deletedImg.update({
+                                    where: { imgKey: item.imgKey },
+                                    data: {
+                                        del: true
+                                    }
+                                });
+                                if (!delImg) {
+                                    await prisma.deletedImg.create({
+                                        data: {
+                                            imgKey: item.imgKey,
+                                            del: true,
+                                            count: 1
+                                        }
+                                    });
                                 }
-                            });
-                        }
-                    }));
-                }
-                await prisma.blog.delete({
-                    where: { id: parseInt(id as string) }
-                });
-                res.status(200).json({ id: id });
+                            }
+                        }));
+                    }
+                    await prisma.blog.delete({
+                        where: { id: parseInt(id as string) }
+                    });
+                    res.status(200).json({ id: id });
+                    await prisma.$disconnect();
+                };
             } catch (error) {
                 const msg = getErrorMessage(error);
                 console.error(msg);
                 res.status(500).json({ message: msg });
-            } finally {
                 await prisma.$disconnect();
-            }
+            };
         }
     }
 

@@ -70,11 +70,12 @@ class Register {
         if(word){
             const container=document.createElement("div");
             container.id="register-displayFailedSignin-container";
-            container.style.cssText="margin-inline:auto;margin-block:2rem;display:flex;flex-direction:column;place-items:center;padding-block:2rem;border-radius:12px;color:white;box-shadow:1px 1px 12px 1px white;";
+            container.style.cssText="margin-inline:auto;margin-block:2rem;display:flex;flex-direction:column;justify-content:center;place-items:center;padding-block:2rem;border-radius:12px;color:white;box-shadow:1px 1px 12px 1px white;";
             container.style.paddingInline=less900 ? ( less400 ? "1rem":"2rem"):"3rem";
             const message=document.createElement("h6");
             message.id="container-warning";
-            message.style.cssText="font-family:'Poppins-Regular';font-weight:bold;color:white;margin-inline:auto;padding-block:1rem;font-size:140%;";
+            message.style.cssText="font-family:'Poppins-Regular';font-weight:bold;margin-inline:auto;padding-block:1rem;font-size:140%;";
+            message.style.fontSize=less900 ? (less400 ? "80%":"120%"):"140%";
             message.textContent=word;
             const para=document.createElement("p");
             para.id="container-para";
@@ -83,7 +84,8 @@ class Register {
             para.style.paddingInline=less900 ?(less400 ? "1.5rem":"2rem"):"3rem";
             const signed= document.createElement("pre");
             signed.id="container-signed";
-            signed.style.cssText="color:#00fff2;font-size:175%;font-weight:bold;"
+            signed.style.cssText="color:#00fff2;font-weight:bold;";
+            signed.style.fontSize=less400 ? "auto":"165%";
             signed.textContent="registration is below";
             container.appendChild(message);
             container.appendChild(para);
@@ -121,6 +123,8 @@ class Register {
         const {mainContainer,section,less400}=item;
         //ADD LOG AND ENSURE SECRETLEY
         //REMOVING SIGNIN AND BUILDING REGISTER
+        const css_col="display:flex;flex-direction:column;align-items:center;";
+        const css_row="display:flex;align-items:center;justify-content:center;";
         Header.cleanUpByID(section,"signIn-main");
         Header.cleanUpByID(section,"signIn-main-register-btn");
         Header.cleanUpByID(section,"register-container");
@@ -128,13 +132,16 @@ class Register {
         const container=document.createElement("div");
         container.id="register-container";
         section.className=styles.regPageMainContainer;
+        section.style.cssText=css_col;
         const paraLogo=document.createElement("p");
         paraLogo.id="paraLogo";
-        paraLogo.style.cssText="margin-inline;auto;font-family:LobsterTwo-Regular;color:white;font-size:18px;padding-inline:1rem;line-height:2.75rem;border-radius:15px;background-color:#0C090A";
+        paraLogo.style.cssText=css_row + "margin-inline;auto;font-family:LobsterTwo-Regular;color:white;font-size:18px;padding-inline:1rem;line-height:2.75rem;border-radius:15px;background-color:#0C090A";
+        paraLogo.style.flexDirection=less400 ? "column":"row";
         const img=document.createElement("img");
         img.src=Misc.sourceImage({src:this.regSignin.logo,width:125,quality:75});
         img.alt="www.ablogroom.com";
-        img.style.cssText="shape-outside:circle(50%);border-radius:50%;aspect-ratio: 1 / 1;width:155px;filter:drop-shadow(0 0 0 0.5rem white);float:left;line-height:2.54rem;margin-right:1rem;margin-block:1.5rem;box-shadow:1px 1px 12px 1px white;";
+        img.style.cssText="shape-outside:circle(50%);border-radius:50%;aspect-ratio: 1 / 1;filter:drop-shadow(0 0 0 0.5rem white);float:left;line-height:2.54rem;margin-right:1rem;margin-block:1.5rem;box-shadow:1px 1px 12px 1px white;";
+        img.style.width=less400 ? "100%":"155px";
         paraLogo.appendChild(img);
         paraLogo.innerHTML+=Register.msg;
         container.appendChild(paraLogo);

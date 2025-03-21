@@ -5,8 +5,7 @@ import "bootstrap/dist/css/bootstrap.min.css";
 
 
 export default function Home() {
-  // await addpageCount();
-  // main();
+
   const styleOne = { marginInline: 0, minHeight: "100vh", paddingInline: 0 }
 
 

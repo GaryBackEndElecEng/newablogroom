@@ -1,4 +1,4 @@
-import {elementType,selectorType,element_selType,codeType,blogType, gets3ImgKey, userType,messageType, deletedImgType, img_keyType, adminImageType, providerType, pageCountType, delteUserType, sendEmailMsgType, chartType, postType, infoType2, bucketType, quoteType, returnQuoteFinalType, quoteimgType, signupQuoteType, rowType, sendPostRequestType} from "@/components/editor/Types";
+import {elementType,selectorType,codeType,blogType, gets3ImgKey, userType,messageType, deletedImgType, img_keyType, adminImageType, providerType, pageCountType, delteUserType, sendEmailMsgType, chartType, postType, infoType2, bucketType, quoteType, returnQuoteFinalType, quoteimgType, signupQuoteType, rowType, sendPostRequestType, checkemailType} from "@/components/editor/Types";
 import Misc from "../common/misc";
 import ModSelector from "@/components/editor/modSelector";
 import { getErrorMessage } from "@/lib/errorBoundaries";
@@ -11,60 +11,56 @@ import { onChangeVerifyType } from '../editor/Types';
 import { idValueType, selRowColType } from "@/lib/attributeTypes";
 
 class Service {
-    awsimgUrl:string="/api/awsimg";
-    postlike:string="/api/postlike";
-    liveonoffUrl:string="/api/liveonoff";
-    newBlogUrl:string="/api/blog/createNew";
-    urlUpload:string="/api/uploadImage";
-    urlBlog:string="/api/blog";
-    urlsaveBlog:string="/api/savegetblog";
-    urlSignin:string="/api/auth/callback/credentials";
-    urlProvider:string="/api/auth/providers";
-    urlSignOut:string="/api/auth/signout"
-    imgLoad:string="/api/imgload";
-    urlGetImg:string="/api/blog/getimg";
-    urlMsg:string="/api/message";
-    urlAllmsgs:string="/api/allmsgs"
-    urlToken:string="api/token;"
-    urlAdminGetMsgs:string="/api/admin/getmessages";
-    urlAdminEmail:string="/api/admin/adminemail";
-    adminUserUrl:string="/api/admin/user";
-    userUrlUpdate:string="/api/user_update";
-    getuserinfo_url:string="/api/getuserinfo";
-    emailUrl:string="/api/email";
-    signupemailUrl:string="/api/signupemail";
-    sendEmailUrl:string="/api/sendemail";
-    registeruserUrl:string="/api/registeruser";
-    user_blogs:string="/api/user_blogs";
-    userBlogUrl:string="/api/blog/getuserblog";
-    requestUrl:string="/api/admin/request";
-    btnColor:string;
-    bgColor:string;
-    adminimages:string="/api/admin/images";
-    adminusers:string="/api/admin/users";
-    adminpagecountUrl:string="/api/admin/adminpagecount";
-    adminUpdateinfo:string="/api/admin/updateinfo";
-    pageCountUrl:string="/api/pagecount";
-    metaUrl:string="/api/meta";
-    postsUrl:string="/api/posts";
-    userpostUrl:string="/api/userpost";
-    user:userType;
-    uploadfreeimageUrl:string="/api/uploadfreeimage";
-    freeurl:string="https://newablogroom-free-bucket.s3.us-east-1.amazonaws.com";
-    checkemail:string="/api/checkemail";
-    quoteUrl:string="/api/quote";
-    quoteimgUrl:string="/api/quoteimg";
-    signupUrl:string="/api/signup";
-    simpleSignupUrl:string="/api/simplesignup";
-    putimagefileUrl:string="/api/imagefile";
-    showCustomHeader:boolean;
-    showHeader:boolean;
-    bucket:bucketType; 
-    element:elementType | element_selType | undefined;
-    isSignedOut:boolean;
-    deletemarkImg:string="/api/admin/deletemarkimg";
-    requestreset:string="/api/admin/requestreset";
-    postRequest:string="/api/postrequest";
+  private readonly  awsimgUrl:string="/api/awsimg";
+  private readonly  postlike:string="/api/postlike";
+  private readonly  liveonoffUrl:string="/api/liveonoff";
+  private readonly  newBlogUrl:string="/api/blog/createNew";
+  private readonly  urlUpload:string="/api/uploadImage";
+  private readonly  urlBlog:string="/api/blog";
+  private readonly  urlsaveBlog:string="/api/savegetblog";
+  private readonly  urlSignin:string="/api/auth/callback/credentials";
+  private readonly  urlProvider:string="/api/auth/providers";
+  private readonly  urlSignOut:string="/api/auth/signout"
+  private readonly  imgLoad:string="/api/imgload";
+  private readonly  urlGetImg:string="/api/blog/getimg";
+  private readonly  urlMsg:string="/api/message";
+  private readonly  urlAllmsgs:string="/api/allmsgs"
+  private readonly  urlToken:string="api/token;"
+  private readonly  urlAdminGetMsgs:string="/api/admin/getmessages";
+  private readonly  urlAdminEmail:string="/api/admin/adminemail";
+  private readonly  adminUserUrl:string="/api/admin/user";
+  private readonly  userUrlUpdate:string="/api/user_update";
+  private readonly  getuserinfo_url:string="/api/getuserinfo";
+  private readonly  emailUrl:string="/api/email";
+  private readonly  signupemailUrl:string="/api/signupemail";
+  private readonly  sendEmailUrl:string="/api/sendemail";
+  private readonly  registeruserUrl:string="/api/registeruser";
+  private readonly  user_blogs:string="/api/user_blogs";
+  private readonly  userBlogUrl:string="/api/blog/getuserblog";
+  private readonly  requestUrl:string="/api/admin/request";
+  private readonly  btnColor:string;
+  private readonly  bgColor:string;
+  private readonly  adminimages:string="/api/admin/images";
+  private readonly  adminusers:string="/api/admin/users";
+  private readonly  adminpagecountUrl:string="/api/admin/adminpagecount";
+  private readonly  adminUpdateinfo:string="/api/admin/updateinfo";
+  private readonly  pageCountUrl:string="/api/pagecount";
+  private readonly  metaUrl:string="/api/meta";
+  private readonly  postsUrl:string="/api/posts";
+  private readonly  userpostUrl:string="/api/userpost";
+  private readonly  uploadfreeimageUrl:string="/api/uploadfreeimage";
+  private readonly  freeurl:string="https://newablogroom-free-bucket.s3.us-east-1.amazonaws.com";
+  private readonly  checkemail:string="/api/checkemail";
+  private readonly  quoteUrl:string="/api/quote";
+  private readonly  quoteimgUrl:string="/api/quoteimg";
+  private readonly  signupUrl:string="/api/signup";
+  private readonly  simpleSignupUrl:string="/api/simplesignup";
+  private readonly  putimagefileUrl:string="/api/imagefile";
+  private readonly  bucket:bucketType="masterultils-postimages"; 
+  public   isSignedOut:boolean;
+  private readonly  deletemarkImg:string="/api/admin/deletemarkimg";
+  private readonly  requestreset:string="/api/admin/requestreset";
+  private readonly  postRequest:string="/api/postrequest";
     // getInitBlog:blogType;
     constructor(private _modSelector:ModSelector){
         this.bucket="masterultils-postimages";
@@ -113,8 +109,6 @@ class Service {
         this.signupUrl="/api/signup";
         this.requestreset="/api/admin/requestreset";
         this.postRequest="/api/postrequest";
-        this.showCustomHeader=false;
-        this.showHeader=false;
         this.bgColor=this._modSelector._bgColor;
         this.btnColor=this._modSelector.btnColor;
         this.isSignedOut=true;
@@ -593,25 +587,32 @@ getKey({imgUrl}:{imgUrl:string}):string|null{
         }
     };
 
+
     checkFreeImgKey({imgKey}:{imgKey:string}){
         //FORM: ${user_id}-${name}-${file.name}
         //cm82yqjd70000w958mglvn99p-testthis/56efea2f-firePic.png
         // const regName:RegExp=/\w/;
         const regFree:RegExp=/(freeImg)/;
-        const regHyph:RegExp=/[a-zA-Z90]-[a-zA-Z0-9]/;
-        if(regHyph.test(imgKey)){
-            const words=imgKey.split("-");
-            const testLen=words.length===1;
-            const testFree=regFree.test(imgKey);
-            const check=testFree || (testLen)
-            return check;
+        const regHyph:RegExp=/\w-\w/;
+        const hasHyphen=regHyph.test(imgKey);
+        const words=hasHyphen ? imgKey.split("-"):["yes"];
+        const testLen=words.length===1;
+        const testFree=regFree.test(imgKey);
+        if(hasHyphen){
+            //has free && non free key
+            if(testFree){
+                return true
+            }else{
+                return false;
+            }
 
-        }else{
+        }else if(testLen){
+            //from insert image
             return true;
         }
+        return false    
+    };
 
-        
-    }
 
 
     generateQuoteKey(item:{formdata:FormData,user:userType}):{Key:string|undefined}{
@@ -682,7 +683,7 @@ getKey({imgUrl}:{imgUrl:string}):string|null{
                 headers:{
                     "Content-Type":"application/json"
                 },
-                method:"PUT",
+                method:"POST",
                 body:JSON.stringify(item)
             };
             return fetch(this.deletemarkImg,option).then(async(res)=>{
@@ -1342,7 +1343,7 @@ getKey({imgUrl}:{imgUrl:string}):string|null{
     };
 
 
-    async check_email(user:userType):Promise<{name:string|null,email:string|null}|void>{
+    async check_email(user:userType):Promise<checkemailType|void>{
         const option={
             headers:{
                 "Content-Type":"application/json",
@@ -1354,7 +1355,8 @@ getKey({imgUrl}:{imgUrl:string}):string|null{
             ///api/checkemail
             if(res.ok){
                 //if res exist has email else {name:str}
-                const user= await res.json() as {name:string|null,email:string|null};
+                const user= await res.json() as checkemailType;
+                console.log("checkemail",user);
                 return user;
             }
         }).catch((err)=>{console.error(err)})
@@ -1710,7 +1712,6 @@ getKey({imgUrl}:{imgUrl:string}):string|null{
             });
         }
     };
-
 
     
 

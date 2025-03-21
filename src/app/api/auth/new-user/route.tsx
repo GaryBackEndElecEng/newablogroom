@@ -2,28 +2,27 @@ import { NextRequest } from "next/server";
 import { userType } from "@/components/editor/Types";
 import { mailOptions, transporter } from "@/components/emails/nodemailer";
 import { signUpHTML, signUpText } from "@/components/emails/templates";
-import { PrismaClient, Session } from "@prisma/client";
 import { getErrorMessage } from "@/lib/errorBoundaries";
 import { getServerSession } from "next-auth";
 import { redirect, } from "next/navigation";
 import prisma from "@/prisma/prismaclient"
 
 
-// const baseUrl = process.env.NODE_ENV === "production" ? process.env.NEXTAUTH_URL as string : "http://localhost:3000";
+
 export async function GET(req: NextRequest) {
     //THIS IS DIRECTED FROM NEXT-AUTH OPTIONS FOR NEW USERS @/lib/auth/options
-    const session = await getServerSession() as Session | null
+    const session = await getServerSession();
 
-    if (session && session.userId) {
+    if (session?.user?.email) {
         // console.log("NEW USER: SESSION", session)
         try {
             const user = await prisma.user.findUnique({
                 where: {
-                    id: session.userId
+                    id: session.user.email
                 }
             });
             if (user) {
-                const username = user.name ? user.name : "blogger";
+                const username = user.name || "blogger";
                 await transporter.sendMail({
                     ...mailOptions(user.email),
                     subject: `Thank you ${username} for Signin up!`,
@@ -37,6 +36,7 @@ export async function GET(req: NextRequest) {
         } catch (error) {
             const msg = getErrorMessage(error);
             console.error(msg);
+            await prisma.$disconnect();
             return redirect("/register");
         }
     } else {

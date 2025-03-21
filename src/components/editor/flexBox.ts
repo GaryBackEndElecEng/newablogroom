@@ -293,6 +293,7 @@ colAttrs=["col-start","col-end","col-center"];
 
                 await  Promise.all(rows.toSorted((a,b)=>{if(a.order < b.order) return -1;return 1}).map(async(row_,index)=>{
                     const eleId=row_.eleId
+                    const selRow={selectorId:selector.eleId,rowId:eleId} as selRowType;
                     idValues.push({eleId:row_.eleId,id:"rowId",attValue:row_.eleId});
                     idValues.push({eleId:row_.eleId,id:"name",attValue:row_.name});
                     idValues.push({eleId:row_.eleId,id:"row_id",attValue:String(row_.id)});
@@ -307,7 +308,17 @@ colAttrs=["col-start","col-end","col-center"];
                     row.id=row_.eleId;
                     //REMOVES BLOB URLS
                   
-                    await this._modSelector.removeBlob({target:row,rowColEle:row_,loc:"flexbox",level:"row",idValues});
+                   row_= await this._modSelector.removeBlob({target:row,rowColEle:row_,loc:"flexbox",level:"row",idValues,selRowCol:null,selRow}) as rowType;
+                   if(row_.imgKey){
+                    idValues.push({eleId,id:"imgKey",attValue:row_.imgKey});
+                    const check=this._service.checkFreeImgKey({imgKey:row_.imgKey});
+                    if(check){
+                        const url=this._service.getFreeBgImageUrl({imgKey:row_.imgKey});
+                        row.style.backgroundImage=`url(${url})`;
+                        row.style.backgroundSize=`100% 100%`;
+                        row.style.backgroundPosition=`50% 50%`;
+                    }
+                   }
                     //REMOVES BLOB URLS
                      
                      //-------////// ----GETTING COMPONENT ATTRIBUTES-------\\\\\\---/////
@@ -388,6 +399,7 @@ colAttrs=["col-start","col-end","col-center"];
    }):Promise<{row:HTMLElement,col_:colType,idValues:idValueType[],row_:rowType,sel:selectorType,col:HTMLElement}>{
         
         const eleId=col_.eleId;
+        const selRowCol={selectorId:sel.eleId,rowId:row_.eleId,colId:col_.eleId} as selRowColType
         idValues.push({eleId:col_.eleId,id:"colId",attValue:col_.eleId});
         idValues.push({eleId:col_.eleId,id:"name",attValue:col_.name});
         idValues.push({eleId:col_.eleId,id:"col_id",attValue:String(col_.id)});
@@ -398,7 +410,16 @@ colAttrs=["col-start","col-end","col-center"];
             const col=document.createElement("div");
             col.id=col_.eleId;
             col.style.cssText=`${col_.cssText}`;
-            await this._modSelector.removeBlob({target:col,rowColEle:col_,loc:"flexbox",level:"col",idValues});
+           col_= await this._modSelector.removeBlob({target:col,rowColEle:col_,loc:"flexbox",level:"col",idValues,selRowCol,selRow:null}) as colType;
+           if(col_.imgKey){
+            const check=this._service.checkFreeImgKey({imgKey:col_.imgKey});
+            if(check){
+                const url=this._service.getFreeBgImageUrl({imgKey:col_.imgKey});
+                col.style.backgroundImage=`url(${url})`;
+                col.style.backgroundSize=`100% 100%`;
+                col.style.backgroundPosition=`50% 50%`;
+            }
+           }
                 //-------////// ----GETTING COMPONENT ATTRIBUTES-------\\\\\\---/////
             const {idValues:retIdValues4}=this._modSelector.dataset.coreDefaultIdValues({
                 target:col,
@@ -458,6 +479,7 @@ colAttrs=["col-start","col-end","col-center"];
         const selRowCol:selRowColType={selectorId:sel.eleId,rowId:row_.eleId,colId:col_.eleId};
         const rand=Math.floor(Math.random() *1000);
         const eleId=element.eleId;
+        const node=element.name;
         const attrTest=attrEnumArrTest(element);
         const typeTest=typeEnumArrTest(element);
         const link = attrTest && attrTest.id==="link" ? attrTest.value:undefined;
@@ -480,9 +502,18 @@ colAttrs=["col-start","col-end","col-center"];
         target.className=element.class;
         target.style.cssText=element.cssText;
         target.innerHTML=element.inner_html;
-        //REMOVES BLOB URLS
-        await this._modSelector.removeBlob({target,rowColEle:element,loc:"flexbox",level:"element",idValues});
-        //REMOVES BLOB URLS
+        if(node==="img"){
+            element= await this._modSelector.removeBlob({target,rowColEle:element,loc:"flexbox",level:"element",idValues,selRowCol,selRow:null}) as element_selType;
+                   if(element.imgKey){
+                    idValues.push({eleId,id:"imgKey",attValue:element.imgKey});
+                    const check=this._service.checkFreeImgKey({imgKey:element.imgKey});
+                    if(check){
+                        const url=this._service.getFreeBgImageUrl({imgKey:element.imgKey});
+                        (target as HTMLImageElement).src=url;
+                        (target as HTMLImageElement).alt=element.imgKey;
+                    }
+                   }
+        }
 
             //-------////// ----GETTING COMPONENT ATTRIBUTES-------\\\\\\---/////
         const {idValues:retIdValues4}=this._modSelector.dataset.coreDefaultIdValues({
@@ -1206,6 +1237,7 @@ colAttrs=["col-start","col-end","col-center"];
         reParent.style.zIndex="2";
         const idValue=this._modSelector.dataset.getIdValue({target:column,idValues,id:"imgKey"});
         const oldKey=idValue  ? idValue.attValue : null;
+        Header.removePopup({parent:column,target:form,position:"right"});
         form.onsubmit=async(e:SubmitEvent)=>{
             if(e){
                 e.preventDefault();
@@ -1241,7 +1273,10 @@ colAttrs=["col-start","col-end","col-center"];
                 }
             }
         };
-    }
+    };
+
+
+
     async RowBgImage({column,idValues,selRow}:{column:HTMLElement,idValues:idValueType[],selRow:selRowType}){
         const row=column.parentElement;
         if(!row) return;
@@ -1252,6 +1287,7 @@ colAttrs=["col-start","col-end","col-center"];
         const {form,reParent}=Misc.imageForm(row);
         
         reParent.style.zIndex="2";
+        Header.removePopup({parent:reParent,target:form,position:"right"});
         form.onsubmit=async(e:SubmitEvent)=>{
             if(e){
                 e.preventDefault();
@@ -1397,10 +1433,10 @@ colAttrs=["col-start","col-end","col-center"];
                 }
             }
         };
+    };
 
-        
-        
-    }
+
+
  
     //PARENT SELECTULTYPE()
     createList({parent,target,divCont,btn,selector,row,col,idValues}:{
@@ -1575,6 +1611,7 @@ colAttrs=["col-start","col-end","col-center"];
        btn.disabled=true;
         popup.appendChild(form);
         parent.appendChild(popup);
+        Header.removePopup({parent,target:popup,position:"right"});
         input.addEventListener("change",(e:Event)=>{
             if(e){
                 btn.disabled=false;
@@ -1642,7 +1679,6 @@ colAttrs=["col-start","col-end","col-center"];
         }
         
         const getRow=target.parentElement;
-        console.log("getRow",getRow)
         if(!( getRow)) return;
         const rowHeight=window.getComputedStyle(getRow).getPropertyValue("height");
         console.log("rowHeight",rowHeight)
@@ -1840,6 +1876,7 @@ colAttrs=["col-start","col-end","col-center"];
         });
         popup.appendChild(select1);
         parent.appendChild(popup);
+        Header.removePopup({parent,target:popup,position:"right"});
         select1.addEventListener("change",(e:Event)=>{
             if(e){
               

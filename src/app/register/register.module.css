@@ -37,10 +37,6 @@
   height: auto;
 }
 .regPageMainContainer {
-  display: flex;
-  flex-direction: column;
-  justify-content: flex-start;
-  align-items: center;
   position: relative;
   margin-inline: auto;
   margin-block: 1rem;
@@ -48,10 +44,9 @@
   padding-inline: 2rem;
   padding-block: 1rem;
   border-radius: 12px;
-  background-color: white;
   padding: 1rem;
   font-size: 18px;
-  max-width: 650px;
+  max-width: 850px;
   width: 100%;
   z-index: none;
   box-shadow: 1px 1px 12px 1px rgb(1, 135, 245);

@@ -67,8 +67,6 @@ class MainHeader {
     //INJECTOR:headerInjector)
    async main(item: { parent: HTMLElement, user: userType, isAuthenticated: boolean }) {
         const { parent, user, isAuthenticated } = item;
-        const less900 = window.innerWidth < 900;
-        const less400 = window.innerWidth < 400;
         this.meta.checkPathname();// redirecting to error page if error
         //-----------------REPEAT CONTROL(ANIMATION)-------------------//
         const repeatCount=1
@@ -165,7 +163,7 @@ class MainHeader {
                                         if (res_.isSignedIn) {
                                             this.navArrow.cleanUpByQueryKeep(res_.parent, "div#headerNav-signInDisplay-container"); //this cleans up but one
                                             const admin = res_.user?.admin;
-                                            if (admin && isRepeat) {
+                                            if (admin && res_.isAdminRepeat && url.pathname !=="/admin") {
                                                 //ADMIN PRIVILEDGES
                                                 Misc.msgSourceImage({ parent: res_.navHeader, msg: "You have admin Rights", src: this.logo, width: 125, quality: 75, time: 5200, cssStyle: { boxShadow: "1px 1px 12px 1px white", backgroundColor: "black", color: "white", inset: "680% 0% 70% 0%", position: "absolute" } });
                                             }

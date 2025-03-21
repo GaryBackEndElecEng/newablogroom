@@ -4,6 +4,7 @@ import { adminImageType, } from "@/components/editor/Types";
 import { getErrorMessage } from "@/lib/errorBoundaries";
 import { awsDel, awsImage } from "@/lib/awsFunctions";
 import prisma from "@/prisma/prismaclient";
+import { getFreeBgImageUrl } from "@/lib/ultils/functions";
 
 
 
@@ -23,6 +24,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
                 if (!user) { res.status(400).json({ msg: "unauthorized" }); return await prisma.$disconnect(); }
                 if (user) {
                     const images = await prisma.deletedImg.findMany({
+                        where: { del: true },
                         select: {
                             id: true,
                             count: true,
@@ -31,19 +33,30 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
                             del: true
                         }
                     });
+                    console.log(images)
                     const arr = await Promise.all(images.map(async (img) => {
-                        const getImg = img.imgKey ? await awsImage(img.imgKey as string) as string : null;
-                        return { ...img, img: getImg }
-                    })) as unknown[] as adminImageType[];
+                        if (img.imgKey) {
+                            console.log(img.imgKey)
+                            const hasFree = checkFreeImgKey({ imgKey: img.imgKey });
+                            if (hasFree) {
+                                const getImg = getFreeBgImageUrl({ imgKey: img.imgKey });
+                                return { ...img, img: getImg };
+                            } else {
+                                const getImg = img.imgKey ? await awsImage(img.imgKey as string) as string : null;
+                                return { ...img, img: getImg };
+
+                            }
+                        }
+                    }).filter(img_ => (img_))) as unknown[] as adminImageType[];
                     res.status(200).json(arr);
-                }
+                    await prisma.$disconnect();
+                };
             } catch (error) {
                 const msg = getErrorMessage(error);
                 console.log("error: ", msg)
-                res.status(400).json({ message: msg })
-            } finally {
-                await prisma.$disconnect()
-            }
+                res.status(400).json({ message: msg });
+                await prisma.$disconnect();
+            };
         } else {
             res.status(400).json({ msg: `unauthorized` });
         };
@@ -137,8 +150,32 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
             res.status(308).json(noImage)
         }
         await prisma.$disconnect();
+    };
+
+};
+
+
+function checkFreeImgKey({ imgKey }: { imgKey: string }) {
+    //FORM: ${user_id}-${name}-${file.name}
+    //cm82yqjd70000w958mglvn99p-testthis/56efea2f-firePic.png
+    // const regName:RegExp=/\w/;
+    const regFree: RegExp = /(freeImg)/;
+    const regHyph: RegExp = /\w-\w/;
+    const hasHyphen = regHyph.test(imgKey);
+    const words = imgKey.split("-");
+    const testLen = words.length === 1;
+    const testFree = regFree.test(imgKey);
+    if (hasHyphen) {
+        //has free && non free key
+        if (testFree) {
+            return true
+        } else {
+            return false;
+        }
+
+    } else if (testLen) {
+        //from insert image
+        return true;
     }
-
-
-
-}
+    return false
+};

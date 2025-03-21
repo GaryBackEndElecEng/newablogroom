@@ -4,8 +4,7 @@ import { FaCreate } from "../common/ReactIcons";
 import Service from "../common/services";
 import Header from "../editor/header";
 import ModSelector from "../editor/modSelector";
-import { providerType, userType } from "../editor/Types";
-import User from "../user/userMain";
+import { blogType, checkemailType, providerSigninType, providerType, statusType, userType } from "../editor/Types";
 import Nav from "./headerNav";
 import { getCsrfToken,getProviders,LiteralUnion,signIn } from "next-auth/react";
 import { BuiltInProviderType } from "next-auth/providers/index";
@@ -14,17 +13,45 @@ import { getErrorMessage } from "@/lib/errorBoundaries";
 
 
 
+
 class RegSignIn {
     logo:string;
     count:number;
+    private _checkemail:checkemailType;
     pReg:RegExp=/[0-9a-zA-Z.?#!]{5,}/;
     eReg:RegExp=/[0-9a-zA-Z.]{2,}@[a-z]{2,}\.[a-z]{1,3}/;
-    constructor(private _modSelector:ModSelector,private _service:Service,private _user:User,){
+    private _user:userType;
+
+
+    constructor(private _modSelector:ModSelector,private _service:Service,user_:userType|null,private _status:statusType){
         this.pReg=/[0-9a-zA-Z.?#!]{5,}/;
         this.eReg=/[0-9a-zA-Z.]{2,}@[a-z]{2,}\.[a-z]{1,3}/;
         this.count=0;
         this.logo="gb_logo.png";
+        this._checkemail={email:"",hasPassword:false,name:""};
+        this._user=user_ || this._modSelector.initUser;
+    };
+    //GETTER SETTERS------------------//
+    get checkemail(){
+        return this._checkemail;
+    };
+
+    set checkemail(checkemail:checkemailType){
+        this._checkemail=checkemail;
     }
+    get user(){
+        
+        return this._user;
+    };
+    set user(user:userType){
+        this._user=user;
+    }
+    get status(){
+        return this._status
+    }
+    //GETTER SETTERS------------------//
+
+
     async signIn(){
         //parent=MainHeader.header
         const getmainHeader=document.querySelector("header#navHeader") as HTMLElement;
@@ -38,7 +65,7 @@ class RegSignIn {
         Header.cleanUpByID(getmainHeader,"container-signin-signin-popup");
         const section=document.createElement("section");
         section.id="regSignin-signIn-section-popup";
-        section.style.cssText="margin:auto;position:absolute;background-color:#10c0b68f;filter:drop-shadow(0 0 0.75rem crimson);border-radius:7px;padding:1rem;z-index:100;display:flex;flex-direction:column;align-items:center;gap:2rem;padding:1.5rem;z-index:20;backdrop-filter:blur(20px);";
+        section.style.cssText="margin:auto;position:absolute;background-color:rgb(16 192 182 / 15%);border-radius:7px;padding:1rem;z-index:100;display:flex;flex-direction:column;align-items:center;gap:2rem;padding:1.5rem;z-index:20;backdrop-filter:blur(20px);";
         section.style.top=less900 ? (less400 ? "100%" :"150%") :"150%";
         section.style.left=less900 ? (less400 ? "0%" :"1%") :"0%";
         section.style.right=less900 ? (less400 ? "0%" :"1%") :"0%";
@@ -49,8 +76,9 @@ class RegSignIn {
         Misc.growIn({anchor:section,scale:0,opacity:0,time:400});
         
         const hasBlog=await this.hasStorage();
+        //NEED BROWSER.VERIFICATION THAT USER HAS VISITED AND SAVED ITEMS
         if(hasBlog){
-            const user=this._user.user;
+            const user=this.user;
             const blog=this._modSelector.blog;
            await this._service.promsaveItems({blog,user}).then(async(res)=>{
             if(res){
@@ -71,14 +99,21 @@ class RegSignIn {
             }
          };
          section.style.position="absolute";
-    }
+    };
+
+
     hasStorage():Promise<boolean>{
         return new Promise(resolve=>{
-            let isblog:boolean=false;
-            if(localStorage.getItem("blog")){
-                isblog=true;
-            }
-            resolve(isblog)
+            const blogStr=localStorage.getItem("blog")
+            if(blogStr){
+                const blog=JSON.parse(blogStr) as blogType;
+                const maxCount=ModSelector.maxCount(blog);
+                if(maxCount>0){
+                   return resolve(true);
+                }
+            };
+            return resolve(false);
+            
         }) as Promise<boolean>;
         
 
@@ -219,15 +254,15 @@ class RegSignIn {
                 if(verifyPassword !==password){
                     this.showPasswordMatch({formPass:fpass,pass:password,vpass:verifyPassword,change:false,btn:submit})
                 }
-                const user={...this._user.user,email,name,password,bio:bio,showinfo:showinfo};
+                const user={...this.user,email,name,password,bio:bio,showinfo:showinfo};
                 this._service.registerUser(user).then(async(user_)=>{
                     if(user_){
-                            this._user.user={...user_,password:user.password};
+                            this.user={...user_,password:user.password};
                             container.removeChild(form);
                             //ADD IMAGE DISPLAY ON CONTAINER FROM HERE
                             const image=document.createElement("img");
                             image.style.cssText="width:150px;border-radius:50%;box-shadow:1px 1px 12px 1px black;position:absolute;inset:0%;filter:drop-shadow(0 0 0.5rem black);margin:auto;";
-                            const user_id=this._user.user.id as string;
+                            const user_id=this.user.id as string;
                             //THIS SENDS AN EMAIL AND ADDS USER TO EMAIL LIST//
                            await this._service.newUserEMailTo(user_id)//res={msg:string}=> Thank you name, we sent you a welcome email for registering with us
                            //THIS ASKS IF THEY WANT TO UPLOAD AN IMAGE PIC
@@ -327,11 +362,11 @@ class RegSignIn {
                 await this._service.simpleImgUpload(section,formdata).then(async(res)=>{
                     if(res){
                         user={...user,imgKey:res.Key}
-                        this._user.user=user;
+                        this.user=user;
                         this._service.updateUser(user).then(async(user_)=>{
                             if(user_ ){
                                 Misc.message({parent:section,type_:"success",time:700,msg:"saved"})
-                                this._user.user={...user_,password:user.password};
+                                this.user={...user_,password:user.password};
                                 //removing subsection
                                 Misc.growOut({anchor:reSubSection,scale:0,opacity:0,time:400});
                                 setTimeout(()=>{
@@ -372,7 +407,8 @@ class RegSignIn {
         section.style.position="absolute";
         const container=document.createElement("section");
         container.id="signIn-main";
-        container.style.cssText="margin:auto;position:relative;background-color:white;filter:drop-shadow(0 0 0.75rem crimson);border-radius:7px;padding:1rem;;z-index:1000;display:flex;flex-direction:column;align-items:center;gap:2rem;padding:1.5rem;width:100%;";
+        //#06efec
+        container.style.cssText="margin:auto;position:relative;background-color:transparent;border-radius:7px;padding:1rem;;z-index:1000;display:flex;flex-direction:column;align-items:center;gap:2rem;padding:1.5rem;width:100%;border-radius:8px;";
         Object.values(providers).map((provider)=>{
             const signInCallBack=provider.callbackUrl as unknown as string;
             if((provider.id as unknown as string)==="credentials"){
@@ -388,12 +424,12 @@ class RegSignIn {
 
 
     signInForm(parent:HTMLElement,signinUrl:string|undefined,csrfToken:string|undefined):{btn:HTMLButtonElement,container:HTMLElement,form:HTMLFormElement,email:HTMLInputElement,password:HTMLInputElement}{
-        const user=this._user.user;
+        const user=this.user;
         window.scroll(0,0);
         const cssGrp="margin:auto;display:flex;flex-direction:column;align-items:center;gap:1rem;";
         const container=document.createElement("section");
         container.id="container-signIn";
-        container.style.cssText="margin:auto;background-color:white;filter:drop-shadow(0 0 0.75rem crimson);border-radius:7px;padding:1rem;;z-index:1000;display:flex;align-items:center;gap:1rem;flex-direction:column;";
+        container.style.cssText="margin:auto;background-color:white;filter:drop-shadow(0 0 0.15rem #06efec);border-radius:7px;padding:1rem;;z-index:1000;display:flex;align-items:center;gap:1rem;flex-direction:column;";
         container.style.width=`100%`;
         container.style.minHeight=`auto`;
         const form=document.createElement("form");
@@ -452,10 +488,21 @@ class RegSignIn {
                 await this.checkEmailSignin({femail:grpEmail,email:evalue,btn:btn})
             }
         };
+        password.oninput=(e:Event)=>{
+            if(e){
+
+                const pValue=(e.currentTarget as HTMLInputElement).value;
+                if(pValue && pValue !==""){
+                  const hasPass=  this.hasPassord({parent:grpPassword,checkemail:this.checkemail,isComplete:false,input:password});
+                  btn.disabled=!hasPass
+                }
+            }
+        };
         password.onchange=(e:Event)=>{
             if(e){
                 const pValue=(e.currentTarget as HTMLInputElement).value;
-                if(pValue && pValue !==""){
+                const isOkay=this.hasPassord({parent:grpPassword,checkemail:this.checkemail,isComplete:true,input:password});
+                if(isOkay){
                     this.checkPassSignin({fpass:grpPassword,pass:pValue,btn:btn});
                 }
             }
@@ -481,7 +528,7 @@ class RegSignIn {
     //THE AUTH FORM, BELOW USES A DIFFERENT ENCRYPTION FORM BYCRYPT- REASON WHY NOT USING!!
     authSignInForm(item:{parent:HTMLElement,csrfToken:string|undefined}){
         const {parent,csrfToken}=item;
-        const user=this._user.user;
+        const user=this.user;
         window.scroll(0,0);
         const cssGrp="margin:auto;display:flex;flex-direction:column;align-items:center;gap:1rem;";
         const container=document.createElement("section");
@@ -539,11 +586,23 @@ class RegSignIn {
                 await this.checkEmailSignin({femail:grpEmail,email:evalue,btn:btn})
             }
         };
+        password.oninput=(e:Event)=>{
+            if(e){
+                const pValue=(e.currentTarget as HTMLInputElement).value;
+                if(pValue && pValue !==""){
+                    this.hasPassord({parent:grpPassword,checkemail:this.checkemail,isComplete:false,input:password});
+                }
+            }
+        };
         password.onchange=(e:Event)=>{
             if(e){
                 const pValue=(e.currentTarget as HTMLInputElement).value;
                 if(pValue && pValue !==""){
-                    this.checkPassSignin({fpass:grpPassword,pass:pValue,btn:btn});
+
+                    const isOkay=this.hasPassord({parent:grpPassword,checkemail:this.checkemail,isComplete:true,input:password});
+                    if(isOkay){
+                        this.checkPassSignin({fpass:grpPassword,pass:pValue,btn:btn});
+                    }
                 }
             }
         };
@@ -590,52 +649,17 @@ class RegSignIn {
 
      signInProvider(parent:HTMLElement,signinUrl:string|undefined,provider:providerType,):{container:HTMLElement}{
         //Misc.providersImgs
+        const less400=window.innerWidth < 400;
         const container=document.createElement("div");
-        container.style.cssText="margin:auto;display:flex;justify-content:center;align-items:center;gap:1rem;flex-direction:column;position:relative;";
+        container.id="signInProvider-container";
+        container.style.cssText="margin:auto;display:flex;justify-content:center;align-items:center;gap:1rem;flex-direction:column;position:relative;border-radius:inherit;padding-inline:1rem;padding-block:0.5rem;filter:drop-shadow(0 0 .25rem #06efec);";
        
             Misc.providersImgs.map(item=>{
-                if(item.name==="google" && (provider.id as unknown as string) ==="google"){
+                if((item.name==="google") && (provider.id as unknown as string) ==="google"){
                    
-                    const grp=document.createElement("div");
-                    grp.id=`${item.name}-container`;
-                    grp.style.cssText="margin:auto;width:100%;display:flex;align-items:center;justify-content:center;gap:1rem;flex-direction:column;"
-                    const title=document.createElement("h6");
-                    title.className="text-center text-primary text-decoration-underline text-underline-offset-2 my-1 lean display-6";
-                    title.textContent=provider.name as unknown as string;
-                    const img=document.createElement("img");
-                    img.src=item.img;
-                    img.alt="google";
-                    img.style.cssText="max-width:250px;margin-inline:1rem";
-                    grp.appendChild(title);
-                    grp.appendChild(img);
-                    const {button}=Misc.simpleButton({anchor:grp,bg:Nav.btnColor,color:"white",type:"button",time:400,text:"submit"});
-                    container.appendChild(grp);
-                    button.onclick=() => {
-                        const providerID= provider.id as unknown as LiteralUnion<BuiltInProviderType> | undefined
-                        signIn(providerID)
-                       
-                    };
+                    this.providerSignature({parent:container,item,less400});
 
-                }else if(item.name==="facebook" && (provider.id as unknown as string) ==="facebook"){
-                    const grp=document.createElement("div");
-                    grp.id=`${item.name}-container`;
-                    grp.style.cssText="margin:auto;width:100%;display:flex;align-items:center;justify-content:center;gap:1rem;flex-direction:column;"
-                    const title=document.createElement("h6");
-                    title.className="text-center text-primary text-decoration-underline text-underline-offset-2 my-1 lean display-6";
-                    title.textContent=provider.name as unknown as string;
-                    const img=document.createElement("img");
-                    img.src=item.img;
-                    img.alt=item.name;
-                    img.style.cssText="max-width:250px;margin-inline:1rem";
-                    grp.appendChild(title);
-                    grp.appendChild(img);
-                    const {button}=Misc.simpleButton({anchor:grp,bg:Nav.btnColor,color:"white",type:"button",time:400,text:"submit"});
-                    container.appendChild(grp);
-                    button.onclick=() => {
-                        const providerID= provider.id as unknown as LiteralUnion<BuiltInProviderType> | undefined
-                        signIn(providerID)
-                    };
-                }
+                };
             });
         
         parent.appendChild(container);
@@ -643,7 +667,64 @@ class RegSignIn {
 
     };
 
-     
+    providerSignature({parent,item,less400}:{parent:HTMLElement,item:providerSigninType,less400:boolean}){
+        const {id,name,img}=item;
+        const css_col="display:flex;flex-direction:column;align-items:center;justify-content:center;";
+        const css_row="display:flex;flex-wrap:wrap;align-items:center;justify-content:center;";
+        const grp=document.createElement("div");
+        grp.id=`${item.name}-container`;
+        grp.style.cssText=css_row + "margin:auto;width:100%;gap:1rem;justify-content:space-between;background-color:white;border-radius:inherit;padding-block:0.5rem;padding-inline:1rem;";
+        grp.style.flexDirection=less400 ? "column":"row";
+        const imgCont=document.createElement("div");
+        imgCont.id="providerSignature-imgCont";
+        imgCont.style.cssText=css_col + "position:relative;max-width:225px;";
+        const title=document.createElement("small");
+        title.className="text-center text-primary lean";
+        title.textContent=name as unknown as string;
+        const image=document.createElement("img");
+        image.src=img;
+        image.alt="google";
+        image.style.cssText="border-radius:50%;border:none;filter:drop-shadow(2px 4px 6px black);padding:0.75rem";
+        image.style.maxWidth="170px";
+        imgCont.appendChild(image);
+        imgCont.appendChild(title);
+        grp.appendChild(imgCont);
+        const {button}=Misc.simpleButton({anchor:grp,bg:Nav.btnColor,color:"white",type:"button",time:400,text:"submit"});
+        parent.appendChild(grp);
+        button.onclick=() => {
+            const providerID=id as unknown as LiteralUnion<BuiltInProviderType> | undefined
+            signIn(providerID)
+            
+        };
+    };
+
+
+     hasPassord({parent,input,checkemail,isComplete}:{checkemail:checkemailType,parent:HTMLElement,isComplete:boolean,input:HTMLInputElement}){
+        const {email,hasPassword,name}=checkemail;
+        if(hasPassword && email){
+            Header.cleanUpByID(parent,"hasPassword");
+            const span=document.createElement("span");
+            span.id="hasPassword";
+            if( !isComplete){
+                span.textContent=`${name}: please enter a password`;
+                span.style.cssText="color:red;padding-block:1rem;";
+                parent.appendChild(span);
+                return false;
+            }else{
+                span.style.cssText="color:green;padding-block:1rem;";
+                span.textContent="thanks";
+                setTimeout(()=>{Header.cleanUpByID(parent,"hasPassword");},1500);
+                return true;
+            }
+        }else if(email && !hasPassword){
+            Misc.message({parent,msg:"We believe you used GOOGLE to sign in. Sign in with GOOGLE",type_:"warning",time:2500});
+            input.hidden=true;
+            return false;
+        }
+     };
+
+
+
      showPasswordMatch(item:{formPass:HTMLElement,pass:string,vpass:string|null,change:boolean,btn:HTMLButtonElement}){
         const {formPass,pass,vpass,btn}=item;
         Header.cleanUpByID(formPass,"showPasswordmatch");
@@ -706,10 +787,10 @@ class RegSignIn {
             btn.textContent="disabled";
             Misc.growIn({anchor:container,scale:0,opacity:0,time:400});
         }else if(check){
-            const user={...this._user.user,email:email}
+            const user={...this.user,email:email}
             await this._service.check_email(user).then(async(res)=>{
                 if(res){
-
+                    this.checkemail=res as checkemailType
                     if(res.email){
                         btn.disabled=false;
                         btn.textContent="sign in";
@@ -725,7 +806,7 @@ class RegSignIn {
                                 femail.removeChild(container)
                             },398);
                         },800);
-                    }else if(this.count < 1){
+                    }else if(this.count < 2){
                             this.count +=1;
                             btn.disabled=true;
                             btn.textContent="disabled";
@@ -792,12 +873,12 @@ class RegSignIn {
             femail.appendChild(container);
             Misc.growIn({anchor:container,scale:0,opacity:0,time:400});
         }else{
-            const user={...this._user.user,email:email}
+            const user={...this.user,email:email}
             //tries fiv times before transfering to error page
             await this._service.check_email(user).then(async(res:{email:string|null,name:string|null}|void)=>{
                 this.count +=1;
                 if(res){
-
+                    this.checkemail=res as checkemailType
                     if(this.count < 4){
                         const isEmail=res.email || "";
                         if(isEmail){
@@ -841,7 +922,7 @@ class RegSignIn {
         xDivIcon.id="delete-mainSignin";
         xDivIcon.className="delete";
         xDivIcon.style.cssText="position:absolute;top:0%;left:100%;transform:translate(-15px,2px);";
-        FaCreate({parent:xDivIcon,name:FaCrosshairs,cssStyle:{color:"blue",fontSize:"1rem"}});
+        FaCreate({parent:xDivIcon,name:FaCrosshairs,cssStyle:{color:"white",fontSize:"1rem"}});
         //creating cancel
         //APPENDING CANCEL TO FORM
         target.appendChild(xDivIcon);

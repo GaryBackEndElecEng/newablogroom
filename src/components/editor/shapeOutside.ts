@@ -136,12 +136,14 @@ class ShapeOutside{
     }
     set elementSel(elementSel:element_selType){
         this._elementSel={...elementSel,type:"shapeOutside"};
+    };
+    get user(){
+        return this._user.user;
     }
     //////------GETTERS/SETTERS-----/////////
     ///-----FROM HTMLEMENT CLASS///
     async showCleanShapeOutside({parent,selRowCol,element,idValues}:{parent:HTMLElement,selRowCol:selRowColType|null,element:elementType|element_selType,idValues:idValueType[]}):Promise<arrDivContType|undefined>{
         //FOR HTMLELEMENT ON REFRESH; HTMLELEMENT THEN GOES TO EDIT
-        const less900=window.innerWidth < 900;
         const less400=window.innerWidth < 400;
         const typeTest=typeEnumArrTest(element);
         const isShape= typeTest && typeTest.id==="shapeOutside";

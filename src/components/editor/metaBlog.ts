@@ -3,7 +3,6 @@ import ModSelector from "@/components/editor/modSelector";
 import { FaCreate } from "../common/ReactIcons";
 import { FaCrosshairs } from "react-icons/fa";
 import Misc from "@/components/common/misc";
-import User from "../user/userMain";
 import Service from "@/components/common/services";
 import Nav from "../nav/headerNav";
 import Header from "./header";
@@ -11,10 +10,24 @@ import Header from "./header";
 
 class MetaBlog{
     logo:string;
-    constructor(private _modSelector:ModSelector,private _service:Service,private _user:User){
+    constructor(private _modSelector:ModSelector,private _service:Service,private _blog:blogType){
         this.logo="/images/gb_logo.png";
+    };
+
+    //GETTER SETTERS----//
+    get blog(){
+        return this._blog;
+    };
+    set blog(blog:blogType){
+        this._blog=blog;
     }
-    async metablog({grandParent,parent,blog,type}:{grandParent:HTMLElement|null,parent:HTMLElement,blog:blogType,type:string}){
+    //GETTER SETTERS----//
+
+
+
+
+    async metablog({grandParent,parent,blog,type,func}:{grandParent:HTMLElement|null,parent:HTMLElement,blog:blogType,type:string,func:(blog:blogType)=>Promise<void>|void}){
+        this.blog=blog;
         //USER MUST BE LOGGED-IN!!!
         ///check to see if blog.selectors & blog.elements exit=>if not then get it from api and then save=>_service. promsaveitems(blog).then()
         Header.cleanUpByID(parent,"popup-main-metablog");
@@ -54,7 +67,7 @@ class MetaBlog{
         paraShape.setAttribute("contenteditable","true");
         const img=document.createElement("img");
         img.id="meta-image";
-        img.style.cssText="filter:drop-shadow(0 0 0.75rem #0039a6);width:clamp(175px,220px,300px);float:left;shape-outside:circle(50%);margin-right:1rem;margin-bottom:1rem;box-shadow:1px 1px 12px 1px black;";
+        img.style.cssText="filter:drop-shadow(0 0 0.75rem #0039a6);width:clamp(175px,220px,300px);float:left;margin-right:1rem;margin-bottom:1rem;box-shadow:1px 1px 12px 1px black;";
         if(blog.attr==="square"){
             img.style.borderRadius="12px";
             img.style.shapeOutside="square()";
@@ -90,14 +103,54 @@ class MetaBlog{
                     blog={...blog,attr:"circle"};
                     Misc.blurIn({anchor:image,blur:"12px",time:400});
                 }
+                this.blog=blog
             }
         };
-        this.fileUploader({container:formDivider,img:img,blog});
+       await this.fileUploader({container:formDivider,img:img,blog,paraShape}).then(async(res)=>{
+        if(res){
+             res.form.onsubmit=async(e:SubmitEvent)=>{
+                if(e){
+                    e.preventDefault();
+                    const formdata=new FormData(e.currentTarget as HTMLFormElement);
+                    const file=formdata.get("file") as File;
+                    if(file){
+                        const filename=file.name;
+                        const getImg=res.paraShape.querySelector("img#img-metablog") as HTMLImageElement;
+                        const imgurl=URL.createObjectURL(file);
+                        getImg.src=imgurl;
+                        Misc.blurIn({anchor:res.img,blur:"20px",time:700});
+                        const {Key}=this._service.generateImgKey(formdata,res.blog) as {Key:string};
+                        getImg.setAttribute("data-img-key",Key);
+                        getImg.setAttribute("level","blog");
+                        res.blog={...res.blog,imgKey:Key};
+                        this.blog=res.blog;
+                     const s3ImgKey=  await this._service.simpleImgUpload(container,formdata);
+                     if(s3ImgKey){
+                        getImg.src=s3ImgKey.img;
+                        getImg.alt=filename;
+                        res.blog={...res.blog,imgKey:s3ImgKey.Key};
+                     const _blog=   await this._service.updateBlogMeta(res.blog);
+                     if(_blog){
+                        this._modSelector.blog={...blog,id:_blog.id};
+                        res.blog={...res.blog,id:_blog.id};
+                        Misc.message({parent:container,type_:"success",msg:"uploaded",time:600});
+                        blog=res.blog;
+                        this.blog={...blog};
+                        getImg.setAttribute("data-img-key",s3ImgKey.Key);
+                    }
+                    }
+                    }
+                }
+            };
+        }
+       });
+    //   //has no key
         paraShape.oninput=(e:Event)=>{
             if(e){
                 const paraValue=(e.currentTarget as HTMLParagraphElement).textContent;
                 if(paraValue){
-                    blog={...blog,desc:paraValue};
+                    this.blog={...this.blog,desc:paraValue}
+                    blog=this.blog
                 }
             }
         };
@@ -106,17 +159,19 @@ class MetaBlog{
                 const paraValue=(e.currentTarget as HTMLParagraphElement).textContent;
                
                 if(paraValue){
-                    blog={...blog,title:paraValue};
+                    this.blog={...this.blog,title:paraValue};
+                    blog=this.blog
                 }
             }
         };
         const {button:save}=Misc.simpleButton({anchor:container,type:"button",bg:Nav.btnColor,color:"white",text:"save",time:400});
-        save.onclick=(e:MouseEvent)=>{
+        save.onclick=async(e:MouseEvent)=>{
             if(e){
 
-                this._service.updateBlogMeta(blog).then(async(res)=>{
+               await this._service.updateBlogMeta(this.blog).then(async(res)=>{
                     if(res){
-                        this._modSelector.blog={...res};
+                        this.blog={...this.blog,id:res.id};
+                        this._modSelector.blog={...this.blog};
                         if(grandParent){
                         Misc.message({parent:grandParent,type_:"success",msg:"saved",time:600});
                         Misc.growOut({anchor:parent,scale:0,opacity:0,time:400});
@@ -130,10 +185,12 @@ class MetaBlog{
                             parent.removeChild(popup);
                         },390);
                         }
-                    }
+                        func(this.blog);
+                    };
                 });
                 
-            }
+            };
+        
         };
 
         const less900=window.innerWidth <900;
@@ -145,12 +202,13 @@ class MetaBlog{
         this.removeChild(parent,popup);
         parent.appendChild(popup);
         Misc.fadeIn({anchor:popup,xpos:100,ypos:100,time:400});
+       
 
     };
 
 
     removeChild(parent:HTMLElement,target:HTMLElement){
-        parent.style.position="relative";
+       
         const popup=document.createElement("div");
         popup.id="del-metablog-element";
         popup.className="popup";
@@ -184,7 +242,7 @@ class MetaBlog{
     };
 
 
-    fileUploader({container,blog}:{container:HTMLElement,img:HTMLImageElement,blog:blogType}){
+   async fileUploader({container,blog,img,paraShape}:{container:HTMLElement,img:HTMLImageElement,blog:blogType,paraShape:HTMLParagraphElement}){
         const form=document.createElement("form");
         form.id="metablog-form";
         form.style.cssText="display:flex;flex-direction:column;align-items:center;gap:1rem;border-radius:12px;box-shadow:1px 1px 12px 1px;margin-block:2.25rem;margin-inline:auto;"
@@ -197,48 +255,14 @@ class MetaBlog{
         label.setAttribute("for",file.id);
         const {button:submit}=Misc.simpleButton({anchor:form,bg:Nav.btnColor,color:"white",text:"submit",type:"submit",time:400});
         submit.disabled=true;
-        container.appendChild(form);
         file.onchange=(e:Event)=>{
             if(e){
                 submit.disabled=false;
             }
         };
-        form.onsubmit=(e:SubmitEvent)=>{
-            if(e){
-                e.preventDefault();
-                const formdata=new FormData(e.currentTarget as HTMLFormElement);
-                const file=formdata.get("file") as File;
-                if(file){
-                    const filename=file.name;
-                    const imgurl=URL.createObjectURL(file);
-                    const newImg=document.querySelector("img#img-metablog") as HTMLImageElement;
-                    newImg.src=imgurl;
-                    Misc.blurIn({anchor:newImg,blur:"20px",time:700});
-                    const {Key}=this._service.generateImgKey(formdata,blog) as {Key:string};
-                    newImg.setAttribute("imgKey",Key);
-                    newImg.setAttribute("level","blog");
-                    blog={...blog,imgKey:Key};
-                    this._modSelector.blog={...blog,imgKey:Key};
-                    this._service.simpleImgUpload(container,formdata).then(async(res)=>{
-                        //UPDATES ONLY BLOG WITHOUT SELETORS && ELEMENTS
-                        if(res){
-                            newImg.src=res.img;
-                            newImg.alt=filename;
-                            blog={...blog,imgKey:res.Key};
-                            this._service.updateBlogMeta(blog).then(async(res)=>{
-                                if(res){
-                                    this._modSelector.blog={...blog,id:res.id};
-                                    localStorage.setItem("blog",JSON.stringify(blog));
-                                    Misc.message({parent:container,type_:"success",msg:"uploaded",time:600});
-
-                                }
-                            });
-                        }
-                    });
-                }
-
-            }
-        };
+        container.appendChild(form);
+        return Promise.resolve({container,form,blog,img,paraShape}) as Promise<{container:HTMLElement,form:HTMLFormElement,blog:blogType,img:HTMLImageElement,paraShape:HTMLParagraphElement}>
+        
     }
 
 }

@@ -176,6 +176,7 @@ class Admin{
                     const row=document.createElement("div");
                     row.style.cssText="display:flex;margin-inline:auto;flex-direction:row;flex-wrap:wrap;align-items:center;";
                     row.id="row-images";
+                    row.classList.add("row");
                     viewport.appendChild(row)
                         if(!(this._adminimgs && this._adminimgs.length>0)){
                             this._service.adminImages(adminUser).then(async(res)=>{
@@ -347,7 +348,8 @@ class Admin{
   
     imgCard(row:HTMLElement,adminimg:adminImageType){
         const col=document.createElement("div");
-        col.style.cssText="margin:auto;background:white;border-radius:12px;box-shadow:1px 1px 12px 1px black;display:flex;flex-direction:column;align-items:center;gap:1.5rem;margin-bottom:1rem;overflow-x:hidden;";
+        col.id="col-img-card";
+        col.style.cssText="margin:auto;background:white;border-radius:12px;box-shadow:1px 1px 12px 1px black;display:flex;flex-direction:column;align-items:center;gap:1.5rem;margin-bottom:1rem;overflow-x:hidden;width:100%;";
         col.className="col-md-4 mx-auto";
         const div=document.createElement("div");
         div.className="imgCard-container";
@@ -380,27 +382,26 @@ class Admin{
                     li.textContent=`${key}:${value}`;
                     ul.appendChild(li);
                 }
-                if(key==="imgKey"){
+                if(key==="imgKey" && value && typeof(value)==="string"){
                     const li=document.createElement("li");
                     const ul1=document.createElement("ul");
                     li.appendChild(ul1);
-                    const imgKeySplit=(value as string).split("/");
-                    imgKeySplit.map((str,index)=>{
+                    const arrImgKey=this.arrImgkey({value:value,num:6})
+                    const li1=document.createElement("li");
+                    const div=document.createElement("div");
+                    div.style.cssText="display:flex;flex-wrap:wrap;justify-content:center;align-items:center;text-wrap:wrap;"
+                    arrImgKey.map((str,index)=>{
                         if(str){
-                            const li1=document.createElement("li");
-                            li1.style.cssText="text-wrap:wrap;display:flex;flex-wrap:wrap;"
-                            if(index===0){
-                                const str_=Nav.splitString(str,8);
-                                li1.innerHTML=`<span style="color:blue;">folder:</span><span> ${str_}</span>`;
-
-                            }else{
-                                const str_=Nav.splitString(str,8);
-                                li1.innerHTML=`<span style="color:green;">file: </span><span> ${str_}</span>`;
-                            }
-                            ul1.appendChild(li1);
-                            ul.appendChild(li);
+                            const span=document.createElement("span");
+                            span.textContent=str;
+                            div.appendChild(span);
                         }
                     });
+                    const text=new Text(key);
+                    li1.appendChild(text);
+                    li1.appendChild(div);
+                    ul1.appendChild(li1);
+                    ul.appendChild(li);
 
                 }
                 if(key==="date"){
@@ -448,6 +449,21 @@ class Admin{
     };
 
 
+
+    arrImgkey({value,num}:{value:string,num:number}):string[]{
+        const arr=value.split("");
+        let count=0
+       
+        const arr2 = arr.map((lt,index)=>{
+            if(index%num===0){
+                const word=arr.slice(count,index).join("");
+                count=index;
+                return word;
+            }
+            
+        }).filter(kv=>kv!==undefined);
+        return arr2
+    };
 
     noFiles(parent:HTMLElement){
         Header.cleanUpByID(parent,"noFiles");
@@ -593,7 +609,9 @@ class Admin{
                 }
             }
         });
-    }
+    };
+
+
     searchUser(item:{viewport:HTMLElement,users:userType[],adminUser:userType}){
         const {viewport,users,adminUser}=item;
         Header.cleanUpByID(viewport,"userSearch-container");
@@ -602,7 +620,8 @@ class Admin{
         text.className="text-center text-underline text-primary my-2";
         text.textContent="search user";
         container.id="userSearch-container";
-        container.style.cssText="width:100%;box-shadow:1px 1px 12px 1px black;padding:1.rem;margin-inline:auto;margin-block:2rem;display:flex;flex-direction:row;align-items:center;padding:1rem;background-color:#dedeec;";
+        container.style.cssText="width:100%;box-shadow:1px 1px 12px 1px black;padding:1.rem;margin-inline:auto;margin-block:2rem;display:flex;flex-direction:row;align-items:center;padding:1rem;background-color:#dedeec;flex-wrap:wrap";
+        container.style.flexWrap="wrap";
         const searchUser=document.createElement("div");
         searchUser.id="searchUser";
         searchUser.style.cssText="box-shadow:1px 1px 12px 1px black;padding:1.rem;margin-inline:auto;margin-block:2rem;display:flex;flex-direction:column;align-items:center;flex:1 1 33%";
@@ -813,9 +832,15 @@ class Admin{
                        img.style.cssText=imgCss;
                        img.src=admin_.img;
                         const ul=document.createElement("ul");
-                        ul.style.cssText="display:flex;justify-content:flex-start;align-items:center;";
                         ul.id=`span-search-folder`;
-                        ul.innerHTML=`<li><span style="color:red;">folder: </span>${admin_.imgKey.split("/")[0]}</li><li><span style="color:red;">file: </span>${admin_.imgKey.split("/")[1]}</li>`;
+                        ul.style.cssText="display:flex;justify-content:flex-start;align-items:center;flex-wrap:wrap;";
+                        const retKeyArr=this.arrImgkey({value:admin_.imgKey,num:6});
+                        const newArrKey=retKeyArr.map(word=>{
+                            return `<span>${word}</span>`
+                        });
+                        ul.innerHTML=`<li><span style="color:red;">folder: </span>
+                        ${newArrKey}
+                        </li><li><span style="color:red;">file: </span>${admin_.imgKey.split("/")[1]}</li>`;
                         col.appendChild(img);
                         col.appendChild(ul);
                         row.appendChild(col);
@@ -830,7 +855,10 @@ class Admin{
                 Header.cleanUp(results);
             }
         };
-    }
+    };
+
+
+
     getPosts(item:{parent:HTMLElement,posts:postType[]}){
         const {parent,posts}=item;
         Header.cleanUpByID(parent,"getPosts-container");
@@ -1160,7 +1188,10 @@ class Admin{
         this._service.getAdminPageCounts(user_id).then(async(res)=>{
             if(res && res.length>0){
                 this.pagecounts=res;
-                this.pagecounts.toSorted((a,b)=>{if(a.count > b.count) return -1;else return 1}).map((pg,index)=>{
+                const sortPageCounts=this.pagecounts.toSorted((a,b)=>{if(a.count > b.count) return -1;else return 1})
+                    .toSorted((a,b)=>{if(!b.blog_id) return 1;else return -1})
+                    .toSorted((a,b)=>{if(!b.post_id) return 1;else return -1})
+                        sortPageCounts.map((pg,index)=>{
                     if(pg){
                         this.pageCountPage(parent,user_id,row,pg,index);
                     }
@@ -1181,22 +1212,27 @@ class Admin{
         col.id=`col-pg-count-${index}`;
         col.style.cssText="margin:auto;display:flex;justify-content:center;align-items:flex-start;flex-direction:column;padding:1rem;box-shadow:1px 1px 12px 1px;border-radius:12px;position:relative;background-color:white;border-radius:12px;";
         col.className="col-md-3";
-        const ul=document.createElement("ul");
-        ul.style.cssText="margin-left:1rem;display:block;";
+        const card=document.createElement("div");
+        card.id="col-pg-count-card";
+        card.style.cssText="margin-left:1rem;display:flex;flex-wrap:wrap;";
         for( const [key,value] of Object.entries(pg)){
-            const ul1=document.createElement("ul");
-            ul1.style.cssText="margin-inline:auto;padding:1rem;display:flex;justify-content:center;flex-direction:column;align-items:center:gap:1.25rem;margin-right:1.25rem;color:green;";
-            const li1=document.createElement("li");
-            li1.style.cssText="color:red;order:2;list-style:none;";
-            li1.innerHTML=`${key}.) :${value}`;
-            ul1.innerHTML+="<span style='color:blue;order:1;'>item:</span>";
-            if(key !=="id"){
-
-                ul1.appendChild(li1);
-                ul.appendChild(ul1);
+            if(key === "blog_id" || key==="post_id" ){
+                const title=document.createElement("h6");
+                title.className="text-primary text-center";
+                if(key==="blog_id" && value){
+                    title.textContent="Blog";
+                }else if(value){
+                    title.textContent="Post";
+                }
+                col.appendChild(title);
             }
+            const span=document.createElement("span");
+            span.style.cssText="margin-inline:auto;padding:1rem;display:flex;flex-wrap:wrap;color:green;";
+            span.innerHTML=`<span>${key}:</span><span style=color:blue;>${value}</span>`
+          
+            card.appendChild(span);
         }
-        col.appendChild(ul);
+        col.appendChild(card);
         row.appendChild(col);
         //DELETE
         const xDiv=document.createElement("div");

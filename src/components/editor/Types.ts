@@ -1,4 +1,4 @@
-import { eleEnumType, selRowColType } from '@/lib/attributeTypes';
+import { eleEnumType, selRowColType, selRowType } from '@/lib/attributeTypes';
 import { ChartConfiguration, ChartConfigurationCustomTypesPerDataset, Color } from 'chart.js/auto'
  import { LiteralUnion, ClientSafeProvider} from "next-auth/react";
  import { Languages } from "next/dist/lib/metadata/types/alternative-urls-types";
@@ -409,8 +409,15 @@ export type credentialType={
     email:string,
     password?:string,
     admin:boolean
-}
+};
+
+
+export type statusType="authenticated" | "loading" | "unauthenticated";
+
+
 export type providerType =Record<LiteralUnion<any, string>, ClientSafeProvider> ;
+
+
 export type userType={
     id:string,
     name?:string;
@@ -448,6 +455,11 @@ export type classAttType={
     level:string
 }
 
+export type providerSigninType={
+    id: string;
+    name: string;
+    img: string;
+}
 
 export type generalInfoType={
     id: number,
@@ -673,6 +685,12 @@ export type signupType={
     email:string,
     name:string,
 };
+export type checkemailType={
+    name:string|null,
+    email:string|null,
+    hasPassword:boolean
+
+};
 export type signupQuoteType={
     id?:number
     email:string,
@@ -719,6 +737,7 @@ export type idEmailType={
 export type imgExtractType={
     imgUrl?:string,
     selRowCol:selRowColType|null,
+    selRow:selRowType|null,
     imgKey:string|null,
     level:"element"|"col"|"row"|"special"|"headerflag",
     hasBlob:boolean,
@@ -731,6 +750,7 @@ export type imgEleType={
     imgUrl?:string,
     imgKey:string|null,
     selRowCol:selRowColType|null,
+    selRow:selRowType|null,
     hasBlob:boolean,
     hasFreeImg:boolean,
     hasGenericImgKey:boolean
@@ -796,9 +816,11 @@ export type stateType={
     id:number,
     pagename:string,
     user_id?:string,
-    count:number
+    count:number,
+    isAdmin:boolean
 
-}
+};
+
 export type pageType={
     reg:RegExp,
     id: number,

@@ -69,8 +69,8 @@ export function insertBackgroundImage(item: { css: string, url: string }): strin
 }
 export function generateMarkImgkey(blog: blogType | null): { level: string, imgKey: string }[] {
     const arrImgKey: { level: string, imgKey: string }[] = []
-    const selects = blog && blog.selectors;
-    const elements = blog && blog.elements;
+    const selects = blog?.selectors;
+    const elements = blog?.elements;
     if (selects) {
         selects.map(select => {
             if (!select) return;
@@ -307,4 +307,9 @@ export async function markPostsImg(item: { posts: postType[] }) {
         }
     });
 
-}
+};
+
+export function getFreeBgImageUrl({ imgKey }: { imgKey: string }): string {
+    const freeUrl = "https://newablogroom-free-bucket.s3.us-east-1.amazonaws.com"
+    return `${freeUrl}/${imgKey}`
+};

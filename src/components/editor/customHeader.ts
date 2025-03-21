@@ -172,6 +172,7 @@ class CustomHeader {
         {id:16,name:"email",value:"a",level:"element"},
         {id:17,name:"insert-tel",value:"a",level:"element"},
         {id:18,attr:"bg-color",name:"bg-color",level:"col"},
+        {id:18,attr:"set-even-height",name:"set-even-height",level:"col"},
         {id:19,name:"adjust-img-size",attr:"adjust-img-size",level:"element"},
         {id:20,name:"pretty-font",attr:"pretty-font",level:"element"},
         {id:21,name:"flex-normal",attr:"flex-normal",level:"col"},
@@ -298,7 +299,7 @@ set selector(selector:selectorType){
             idValues.push({eleId:innerCont.id,id:"selector_id",attValue:String(selector.id)});
             idValues.push({eleId:innerCont.id,id:"isHeader",attValue:"true"});
             //-------////// ----GETTING COMPONENT ATTRIBUTES-------\\\\\\---/////
-           const {idValues:retIdValues}=this._modSelector.dataset.coreDefaultIdValues({
+           const {idValues:retIdValues1}=this._modSelector.dataset.coreDefaultIdValues({
             target:innerCont,
             sel:selector,
             row:null,
@@ -309,7 +310,7 @@ set selector(selector:selectorType){
             level:"selector",
             clean:false
            });
-           idValues=retIdValues
+           idValues=retIdValues1
            idValues=Dataset.removeIdValueDuplicates({arr:idValues,eleId});
            this._modSelector.dataset.populateElement({target:innerCont,selRowColEle:selector,idValues,level:"selector",loc:"flexbox",clean:false});
            //-------////// ----GETTING COMPONENT ATTRIBUTES-------\\\\\\---/////
@@ -318,6 +319,7 @@ set selector(selector:selectorType){
             const {rows}=this._modSelector.checkGetRows({select:selector});
             rows.toSorted((a,b)=>{if(a.order < b.order) return -1;return 1}).map(async(row_,index)=>{
                 const eleId=row_.eleId;
+                const selRow={selectorId:selector.eleId,rowId:row_.eleId} as selRowType;
                     const row=document.createElement("div");
                     row.id=row_.eleId;
                     idValues.push({eleId,id:"selectorId",attValue:innerCont.id});
@@ -329,14 +331,15 @@ set selector(selector:selectorType){
                     row.className=row_.class.split(" ").filter(cl=>(cl !=="box-shadow")).join(" ");
                     row.style.cssText=row_.cssText;
                     row.setAttribute("name",row_.name);
-                    const _row_= await this._modSelector.removeBlob({target:row,rowColEle:row_,loc:"flexbox",level:"row",idValues});
-                    if(_row_.imgKey){
+                    row_= await this._modSelector.removeBlob({target:row,rowColEle:row_,loc:"flexbox",level:"row",idValues,selRowCol:null,selRow}) as rowType;
+                    if(row_.imgKey){
                         
-                        idValues.push({eleId,id:"backgroundImg",attValue:_row_.imgKey});
+                        idValues.push({eleId,id:"backgroundImg",attValue:row_.imgKey});
                         row.setAttribute("data-backgroundimage","true");
-                        const check=this._service.checkFreeImgKey({imgKey:_row_.imgKey as string});
+                        const check=this._service.checkFreeImgKey({imgKey:row_.imgKey as string});
+                       
                         if(check){
-                            const url=this._service.getFreeBgImageUrl({imgKey:_row_.imgKey as string});
+                            const url=this._service.getFreeBgImageUrl({imgKey:row_.imgKey as string});
                             row.style.backgroundImage=`url(${url})`;
                         }
                     
@@ -360,19 +363,22 @@ set selector(selector:selectorType){
                     this._modSelector.dataset.populateElement({target:row,selRowColEle:row_,idValues,level:"row",loc:"flexbox",clean:false});
                     //-------////// ----GETTING COMPONENT ATTRIBUTES-------\\\\\\---/////
                     await Promise.all(row_.cols.toSorted((a,b)=>{if(a.order < b.order) return -1;return 1}).map(async(col_,index)=>{
+                        const selRowCol={...selRow,colId:col_.eleId} as selRowColType;
                         const col=document.createElement("div");
                         col.id=col_.eleId;
                         const eleId=col.id;
-                        const _col_=await this._modSelector.removeBlob({target:col,rowColEle:col_,loc:"flexbox",level:"col",idValues});
-                        if(_col_.imgKey){
+                        
+                      
+                        col_=await this._modSelector.removeBlob({target:col,rowColEle:col_,loc:"flexbox",level:"col",idValues,selRowCol,selRow:null}) as colType;
+                        if(col_.imgKey){
                             col.setAttribute("data-backgroundimage","true");
                             idValues.push({eleId,id:"backgroundImg",attValue:"true"});
-                            const check=this._service.checkFreeImgKey({imgKey:_row_.imgKey as string});
+                            const check=this._service.checkFreeImgKey({imgKey:col_.imgKey as string});
                             if(check){
-                                const url=this._service.getFreeBgImageUrl({imgKey:_row_.imgKey as string});
-                                row.style.backgroundImage=`url(${url})`;
+                                const url=this._service.getFreeBgImageUrl({imgKey:col_.imgKey as string});
+                                col.style.backgroundImage=`url(${url})`;
                             }
-                        
+                            
                         }
                       
                         idValues.push({eleId,id:"colId",attValue:eleId});
@@ -841,6 +847,9 @@ set selector(selector:selectorType){
                             case name==="bg-color":
                                 this.columnColor({target:parent,idValues,selRowCol});
                             return;
+                            case name==="set-even-height":
+                                this.setEvenHeight({target:parent,idValues,selRowCol});
+                            return;
                             case name==="bg-image":
                                 this.getBgImage({target:parent,blog:this._modSelector.blog,idValues,selRowCol});
                             return;
@@ -1036,7 +1045,9 @@ set selector(selector:selectorType){
                     return;
                 }
         }
-    }
+    };
+
+
 
     removeChoices({target,parent}:{parent:ParentNode,target:HTMLElement}){
         target.style.position="relative";
@@ -1380,8 +1391,8 @@ set selector(selector:selectorType){
                 return;
                 case element.name==="img":
                     target.setAttribute("contenteditable","false");
+                    element=await this._modSelector.removeBlob({target,rowColEle:element,loc:"flexbox",level:"element",idValues,selRowCol,selRow:null}) as element_selType;
                     if(element.imgKey){
-                        this.flex={...this.flex,imgKey:element.imgKey};
                         this._service.getSimpleImg(element.imgKey).then(async(res)=>{
                             if(res){
                                 (target as HTMLImageElement).src=res.img;
@@ -1558,7 +1569,7 @@ set selector(selector:selectorType){
        const selRow={selectorId,rowId} as selRowType;
         const formContainer=document.createElement("div");
         formContainer.className="flexCol box-shadow";
-        formContainer.style.cssText="position:relative;width:150px;height:150px;z-index:0;font-size:15px;";
+        formContainer.style.cssText="position:absolute;width:200px;height:200px;z-index:0;font-size:12px;z-index:100;";
         const form=document.createElement("form");
         form.className="m-auto d-flex flex-column gap-1 form-group";
         form.setAttribute("data-form-group","true");
@@ -1579,6 +1590,7 @@ set selector(selector:selectorType){
         form.appendChild(btn);
         formContainer.appendChild(form);
         target.appendChild(formContainer);
+        Header.removePopup({parent:target,target:formContainer,position:"right"});
         ModSelector.modAddEffect(formContainer);
         input.addEventListener("change",(e:Event)=>{
             if(e){
@@ -1620,9 +1632,10 @@ set selector(selector:selectorType){
             }
         });
 
+     };
 
-        
-     }
+
+
      bgRowImage({column,blog,idValues,selRow}:{column:HTMLElement,blog:blogType,idValues:idValueType[],selRow:selRowType}){
        
         const target=column.parentElement;
@@ -1634,7 +1647,7 @@ set selector(selector:selectorType){
         const getOld=this._modSelector.dataset.getIdValue({target,idValues,id:"imgKey"});
         const oldKey=getOld ? getOld.attValue : null;
         const {form:form2,reParent:mainTextarea}=Misc.imageForm(column);
-        
+        Header.removePopup({parent:column,target:form2,position:"right"});
         form2.addEventListener("submit",async(e:SubmitEvent)=>{
             if(e){
                 e.preventDefault();
@@ -1667,6 +1680,30 @@ set selector(selector:selectorType){
      };
 
      
+     setEvenHeight({target,idValues,selRowCol}:{target:HTMLElement,idValues:idValueType[],selRowCol:selRowColType}){
+        const eleId=target.id
+        for(const key of Object.keys(target.style)){
+            if(key==="height"){
+                target.style.height="auto";
+            }
+        }
+        
+        const getRow=target.parentElement;
+        if(!( getRow)) return;
+        const rowHeight=window.getComputedStyle(getRow).getPropertyValue("height");
+        console.log("rowHeight",rowHeight)
+        target.style.height=rowHeight;
+        const idValue:idValueType={eleId,id:"height",attValue:rowHeight};
+        this._modSelector.dataset.upDateIdValue({target,idValues,idValue});
+        this._modSelector.updateColumn({target:target,idValues,selRowCol}).then(async(col)=>{
+            if(!col){
+                Misc.message({parent:target,msg:"set height failed",time:700,type_:"error"});
+            }
+        });
+    };
+
+
+
      rmBgImage({target,idValues}:{target:HTMLElement,idValues:idValueType[]}){
         for(const key of Object.keys(target.style)){
             if(key==="backgroundImg"){
@@ -1804,7 +1841,11 @@ set selector(selector:selectorType){
                 },398);
             }
         };
-     }
+     };
+
+
+
+
      columnColor({target,idValues,selRowCol}:{target:HTMLElement,idValues:idValueType[],selRowCol:selRowColType}){
         // console.log("INSIDE COLOR")
         if(target){
@@ -1815,6 +1856,7 @@ set selector(selector:selectorType){
             input.id="color-col-picker";
            input.style.cssText="position:absolute;inset:30% 40%;z-index:300;width:20%;"
             target.appendChild(input);
+            Header.removePopup({parent:target,target:input,position:"right"});
             input.addEventListener("change",()=>{
                 const color:string=input.value;
                 // console.log("color!!:",color)
@@ -2333,6 +2375,7 @@ set selector(selector:selectorType){
                         }
                         return selector_;
                     });
+                    this._modSelector.blog={...this._modSelector.blog,selectors:this._modSelector.selectors};
                     this._modSelector.localStore({blog:this._modSelector.blog});
                 }
             };

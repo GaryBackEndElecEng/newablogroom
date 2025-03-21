@@ -173,10 +173,12 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
                                 const chart_ = await prisma.chart.create({
                                     data: {
-                                        type: chart.type,
+                                        type: chart.type as unknown as string,
                                         chartOption: chart.chartOption,
                                         placement: chart.placement,
                                         eleId: chart.eleId,
+                                        cssText: chart.cssText,
+                                        class: chart.class,
                                         blog_id: blog.id
                                     }
                                 });
@@ -194,7 +196,6 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
                         res.status(400).json({ message: "no body provided" });
                         return await prisma.$disconnect();
                     };
-
 
                 } catch (error) {
                     const msg = getErrorMessage(error);

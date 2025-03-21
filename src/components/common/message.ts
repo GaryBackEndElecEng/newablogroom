@@ -129,10 +129,10 @@ class MessageSetup{
         popup.id="contact2-message";
         popup.style.cssText=`position:absolute;padding:1rem;background:white;color:black;height:fit-content;margin-inline:auto;display:flex;flex-direction:column;align-items:center;justify-content:center;border-radius:16px;box-shadow:1px 1px 6px 1px aquamarine;padding:1rem;z-index:200;background-color:black;padding-block:1rem;align-self:center`;
         popup.style.top="5%";
-        popup.style.left=less900 ? (less400 ? "0%" :"15%" ) : "25%";
-        popup.style.right=less900 ? (less400 ? "0%" :"15%" ) : "25%";
+        popup.style.left=less900 ? "0%" : "25%";
+        popup.style.right=less900 ? "0%" : "25%";
         popup.style.width="100%";
-        popup.style.maxWidth=less900 ? (less400 ? "375px" :"400px" ) : "420px";
+        popup.style.maxWidth=less900 ? (less400 ? "375px" :"600px" ) : "620px";
         const img=document.createElement("img");
         img.style.cssText="shape-outside:circle(50%);margin-right:1rem;width:125px;height:125px;border-radius:50%;box-shadow:1px 1px 12px 1px white;filter:drop-shadow(0 0 0.75rem white);float:left;";
         img.src=this.logo;
@@ -145,6 +145,7 @@ class MessageSetup{
         const form=document.createElement("form");
         form.id="contact-form";
         form.style.cssText="display:flex;flex-direction:column;align-items:center;justify-content:center;gap:1.5rem;padding:1.5rem;border-radius:inherit;background:white;color:black;margin:1rem;box-shadow:1px 1px 10px 1px black;";
+        form.style.width=less400 ? "100%":"80%";
         const text=document.createElement("h6");
         text.textContent="Your thoughts";
         text.className="text-primary display-6 my-2 mx-auto text-center";

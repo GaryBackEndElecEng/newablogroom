@@ -344,6 +344,7 @@ class Blogs{
         text.className="text-center  lean mt-2";
         //text-decoration:underline;text-decoration-style:wavy;text-underline-offset:0.55rem;
         text.style.cssText="color:rgb(7, 4, 125);text-decoration-thickness:5%;text-transform:capitalize;";
+        text.classList.add("title-art-display");
         text.style.fontSize=window.innerWidth<900 ? (window.innerWidth<400 ? "130%" : "175%") : "220%";
         text.textContent=blog.title ? blog.title : " your title";
         textDiv.appendChild(text);

@@ -9,8 +9,6 @@ import { buttonReturn } from "../common/tsFunctions";
 import Edit from "@/components/editor/edit";
 import Service from "@/components/common/services";
 import CustomHeader from "./customHeader";
-import User from "../user/userMain";
-import HtmlElement from "./htmlElement";
 import Misc, { mediaQueryType } from "../common/misc";
 import Nav from "../nav/headerNav";
 import AuthService from "../common/auth";
@@ -143,7 +141,7 @@ class Main {
     public textarea:HTMLElement;
     public topMain:HTMLElement;
     public toolbar:HTMLElement;
-    constructor(private _modSelector: ModSelector, private _service: Service,private auth:AuthService, mainInject: HTMLElement,public _toolbar:Toolbar, public edit: Edit, private _user: User, blog:blogType, private _htmlElement: HtmlElement, header: Header, public customHeader: CustomHeader, displayBlog: DisplayBlog, public shapeOutside: ShapeOutside, public commonInfo: CommonInfo) {
+    constructor(private _modSelector: ModSelector, private _service: Service,private auth:AuthService, mainInject: HTMLElement,public _toolbar:Toolbar, public edit: Edit, private _user: userType, blog:blogType, header: Header, public customHeader: CustomHeader, displayBlog: DisplayBlog, public shapeOutside: ShapeOutside, public commonInfo: CommonInfo) {
         this._blog=blog;
         this._regSignin = new RegSignIn(this._modSelector, this._service, this._user);
         this.mainInjection = mainInject;
@@ -153,8 +151,8 @@ class Main {
         this.btnColor = this._modSelector.btnColor;
         this._edit = edit
         this.mainSetup = new MainSetup(this._modSelector);
-        Main.main_css=ModSelector.main_css + "width:100%";
-        Main.main_class= ModSelector.main_class;
+        Main.main_css=blog?.cssText || ModSelector.main_css + "width:100%";
+        Main.main_class= blog.class || ModSelector.main_class;
         this._header=header;
     }
     //--------------SETTER GETTERS----------////////
@@ -178,6 +176,12 @@ class Main {
        
         this._blog=blog;
     };
+    get user(){
+        return this._user;
+    };
+    set user(user:userType){
+        this._user=user;
+    };
 
 
 
@@ -192,7 +196,7 @@ class Main {
         parent.style.position = "relative";
         const { form, container } = this.mainSetup.newBlogSetup(parent);
         container.id = "newBlogSetup";
-        const user = this._user.user;
+        const user = this.user;
         const initBlog = this._modSelector.blogInitializer(user);
         form.addEventListener("submit", (e: SubmitEvent) => {
             if (e) {
@@ -259,6 +263,8 @@ class Main {
             }
         });
     };
+
+
     //INJECTION POINT////////////////
     async mainContainer(parent: HTMLElement | null): Promise<{
         mainCont:HTMLElement|null,
@@ -349,9 +355,9 @@ class Main {
                 { transform: "scale(0.2)" },
                 { transform: "scale(1)" },
             ], { duration: 1000, iterations: 1 });
-            await this.localBlogLoad({mainCont:this.mainCont,textarea,footer,mainHeader,blog:this.blog,user:this._user.user});
+            await this.localBlogLoad({mainCont:this.mainCont,textarea,footer,mainHeader,blog:this.blog,user:this.user});
                 this.mainCont.style.width = "100% !important";
-                return {mainCont:this.mainCont,textarea,footer,mainHeader,toolbar:this.toolbar,blog:this.blog,user:this._user.user}
+                return {mainCont:this.mainCont,textarea,footer,mainHeader,toolbar:this.toolbar,blog:this.blog,user:this.user}
           
         } else {
             alert("no parent");
@@ -382,10 +388,8 @@ class Main {
         //INDEX(AUTH GETS USER=>CONFIRMS USER=> THEN STORES USER)
 
         if (blog) {
-       
             await this._service.promsaveItems({blog,user}).then(async(res)=>{
                 if(res){
-                    
                     localStorage.removeItem("count");
                     mainCont.style.cssText = res.cssText + "width:100%;"||mainCont.style.cssText;
                     mainCont.className=res.class || mainCont.className;

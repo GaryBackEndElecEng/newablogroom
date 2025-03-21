@@ -112,13 +112,20 @@ class Footer{
     set placement(placement:number){
         this._modSelector.placement=placement;
     };
+    get user(){
+        return this._user.user;
+    };
+
+    set user(user:userType){
+        this._user.user=user;
+    };
 
     //SETTER GETTERS
     //INJECTION FROM LOCALSTORAGE
     async showSelector({parent_,selector,idValues,user}:{parent_:HTMLElement,selector:selectorType,idValues:idValueType[],user:userType|null}){
         const getMainFooter=document.querySelector("footer#mainFooter") as HTMLElement;
         const parent=getMainFooter || Main._mainFooter as HTMLElement;
-        const _user = user || this._user.user;
+        const _user = user || this.user;
         // console.log("Header selector",selector)//works
         if(selector){
             const innerCont=document.createElement(selector.name);
@@ -648,7 +655,7 @@ class Footer{
     createFooter(parent:HTMLElement,select:selectorType,idValues:idValueType[]){
         // FROM FORM ( footer.main()) 
         this.selector=select;
-        const user=this._user.user;
+        const user=this.user;
         const check=this.selectors.find(select=>(select.footer===true)) || false;
         // console.log(check);//works
         if(!check){

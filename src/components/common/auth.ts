@@ -1,9 +1,10 @@
-import {blogType, userType, jwtPayload, accountType, sessionType, postType, stateType} from "@/components/editor/Types";
+import {blogType, userType, jwtPayload, accountType, sessionType, postType, stateType, statusType} from "@/components/editor/Types";
 import ModSelector from "@/components/editor/modSelector";
 import Service from "./services";
 import MainHeader from "../nav/mainHeader";
 import { userDevelopType, userQuoteType } from '../editor/Types';
 import BrowserType from "./browserType";
+import { getSession } from "next-auth/react";
 
 
 class AuthService {
@@ -14,12 +15,10 @@ class AuthService {
     blog:blogType;
     bgColor:string;
     btnColor:string;
-   private adminEmail:string;
-   private _admin:string[];
-   private isSignedOut:boolean;
+   private _isAdmin:boolean;
    private _user:userType;
     private _states:stateType[];
-    userInit:userType={
+   static readonly userInit:userType={
         id:"",
         email:"",
         name:undefined,
@@ -38,25 +37,23 @@ class AuthService {
         admin:false,
         username:undefined,
     } as userType;
-    _status:"authenticated" | "loading" | "unauthenticated";
+    _status:statusType;
 
     constructor(private _modSelector:ModSelector,private _service:Service){
         this._isAuthenticated=false;
-        this._user=this.userInit as userType;
+        this._user=AuthService.userInit as userType;
         this.bgColor=this._modSelector._bgColor;
         this.btnColor=this._modSelector.btnColor;
         this.logo=`gb_logo.png`;
-        this._admin=[];
-        this.adminEmail= "" as string;
-        this.isSignedOut=false;
+        this._isAdmin=false;
         this._states=[]
         // console.log("AUTH:Constructor")
     }
     ///-------------------GETTER SETTERS-------------------------//
     get status(){
         return this._status
-    }
-    set status(status:"authenticated" | "loading" | "unauthenticated"){
+    };
+    set status(status:statusType){
         this._status=status;
         if(status==="authenticated"){
             this._isAuthenticated=true;
@@ -64,20 +61,20 @@ class AuthService {
             this._isAuthenticated=false;
         };
        
-    }
+    };
    
     ///-------------------GETTER SETTERS-------------------------//
 
     set user(user:userType){
         if((user?.id && user.id!=="" && user.email!=="")){
             this._user=user;
-            this.isSignedOut=false;
+            this._isAuthenticated=true;
             this.status="authenticated";
             localStorage.setItem("user",JSON.stringify(user));
         }else{
-            this.isSignedOut=true;
+            this._isAuthenticated=false;
             this.status="unauthenticated";
-            this._user=this.userInit;
+            this._user=AuthService.userInit;
         };
         
     }
@@ -90,14 +87,11 @@ class AuthService {
     get payload(){
         return this._jwtPayload;
     }
-    set admin(admin:string[]){
-        if(admin && admin.length>0){
-            this._user={...this._user,admin:true}
-        }
-        this._admin=admin;
+    set isAdmin(isAdmin:boolean){
+        this._isAdmin=isAdmin
     };
-    get admin(){
-        return this._admin;
+    get isAdmin(){
+        return this._isAdmin;
     };
     set states(states:stateType[]){
         this._states=states
@@ -108,46 +102,40 @@ class AuthService {
 
     //-----GETTER SETTERS-----////
 
-    async generateUser(): Promise<{user:userType}>{
-        return Promise.resolve({user:this.user?.id ? this.user : null}) as Promise<{user:userType}>;
+    async generateUser(): Promise<{user:userType|null}>{
+        return Promise.resolve({user:this.user?.id ? this.user : null}) as Promise<{user:userType|null}>;
     };
 
 
-    async getUser(item:{user:userType|null,count:number}):Promise<{isSignedIn:boolean,user:userType,count:number}>{
+    async getUser(item:{user:userType|null,count:number}):Promise<{isSignedIn:boolean,user:userType,count:number,isAdmin:boolean,status:statusType}>{
         const {count,user}=item;
         //MAIN HEADER INJECTOR GOES THROUGH THIS
-
-        const url=new URL(window.location.href);
-        const check=["/editor","/chart"].includes(url.pathname);
-        if(!check){
-            this._modSelector.blogInitializer(user);
-            const blog=this._modSelector.blog;
-            this.storeLocal(user,blog).then(async(res)=>{
-                res(); //stores user_id && email to localStorage
-            });
-        };
+        const pathname=window.location.pathname;
+        const check=["/editor","/chart","/"].includes(pathname);
+        const getBlog= await this.getBlogLocal();
+        const blog=getBlog();
+        this.storeLocal(user,blog);
         const browser=new BrowserType(this.user.id);
         this.states=browser.getHistory()|| [] as stateType[];
-
         if(user?.id && user?.id!=="" && user?.email !=="" && count===0){
              //---!!!!!!!initinilizes blog and user && stores it in local!!!!!!!
             this.user=user;
-            
+            this.isAdmin=user.admin;
             //---!!!!!!!initinilizes blog and user && stores it in local!!!!!!!
             this._isAuthenticated=true;
             this.status="authenticated";
             this._modSelector.status="authenticated";
             this._service.isSignedOut=false;
-            
-            return Promise.resolve({isSignedIn:this._isAuthenticated,count:count+1,user:this.user}) as Promise<{isSignedIn:boolean,user:userType,count:number}>;
+            return Promise.resolve({isSignedIn:this._isAuthenticated,count:count+1,user:this.user,isAdmin:this.isAdmin,status:this.status}) as Promise<{isSignedIn:boolean,user:userType,count:number,isAdmin:boolean,status:statusType}>;
         }else{
             
             //THIS INITIALIZE ALL PARAMS TO ALL PAGES( WITHOUT USER)
-            this.user=this.userInit;
+            this.user=AuthService.userInit;
             this._isAuthenticated=false;
             this._modSelector.status="unauthenticated";
             this.status="unauthenticated";
             this._service.isSignedOut=true;
+            this.isAdmin=false;
             localStorage.removeItem("user");
             localStorage.removeItem("user_id");
             localStorage.removeItem("userBlogs");
@@ -157,41 +145,40 @@ class AuthService {
                 localStorage.removeItem("placement");
             };
 
-            return Promise.resolve({isSignedIn:this._isAuthenticated,count:count+1,user:this.user}) as Promise<{isSignedIn:boolean,user:userType,count:number}>;
+            return Promise.resolve({isSignedIn:this._isAuthenticated,count:count+1,user:this.user,isAdmin:false}) as Promise<{isSignedIn:boolean,user:userType,count:number,isAdmin:boolean,status:statusType}>;
         };
         
 
     };
 
     async getSessionUser({user}:{user:userType|null}){
-        
-        if(user){
+        const session=await getSession();
+        if(session && user?.id){
             this._user=user;
             this._isAuthenticated=true;
             this.status="authenticated";
             this._modSelector.status="authenticated";
             this._service.isSignedOut=false;
-            return Promise.resolve({isAuthenticated:this._isAuthenticated,user:this.user,states:this.states}) as Promise<{isAuthenticated:boolean,user:userType,states:stateType[]}>;
-        }else{
+        }else if(user?.id && !session){
             this._isAuthenticated=false;
             this.status="unauthenticated";
             this._modSelector.status="unauthenticated";
             this._service.isSignedOut=true;
-            return Promise.resolve({isAuthenticated:this._isAuthenticated,user:null,states:this.states}) as Promise<{isAuthenticated:boolean,user:null,states:stateType[]}>;
         }
+        return Promise.resolve({isAuthenticated:this._isAuthenticated,user:this.user,states:this.states,status:this.status}) as Promise<{isAuthenticated:boolean,user:userType,states:stateType[],status:statusType}>;
         
     };
 
-    confirmUser({user,count}:{user:userType|null,count:number}): Promise<{user:userType,isAuthenicated:boolean,count:number}>{
+    confirmUser({user,count}:{user:userType|null,count:number}): Promise<{user:userType,isAuthenicated:boolean,count:number,status:statusType}>{
         if(user){
-            const check=(this._isAuthenticated && this.user.id===user?.id && this.user.email===user?.email);
+            const check=(this.user.id===user?.id && this.user.email===user?.email);
             if(!check){
                
                 this.user=user;
             }
             
         }
-        return Promise.resolve({user:this.user,isAuthenicated:this._isAuthenticated,count:count+1,states:this.states}) as Promise<{user:userType,isAuthenicated:boolean,count:number,states:stateType[]}>;
+        return Promise.resolve({user:this.user,isAuthenicated:this._isAuthenticated,count:count+1,states:this.states,status:this.status}) as Promise<{user:userType,isAuthenicated:boolean,count:number,states:stateType[],status:statusType}>;
     }
 
     loadUser(){
@@ -210,7 +197,7 @@ class AuthService {
                 localStorage.removeItem("email");
                 MainHeader.header=document.querySelector("header#navHeader") as HTMLElement;
                 this._service.isSignedOut=true;
-                this._user=this.userInit
+                this._user=AuthService.userInit
                 this.status="unauthenticated";
                 MainHeader.removeAllClass({parent:MainHeader.header,class_:"ablogroom"});
                 window.scroll(0,0);
@@ -244,7 +231,7 @@ class AuthService {
     };
 
     
-    storeLocal(user:userType|null,blog:blogType){
+    storeLocal(user:userType|null,blog:blogType|null){
         return Promise.resolve(()=>{
                 if(typeof window !=="undefined"){
                     if(user && user.id!=="" && user.email!==""){
@@ -253,6 +240,9 @@ class AuthService {
                         localStorage.setItem("user",JSON.stringify(user));
                     }
                     if(blog){
+                        if(user){
+                            blog={...blog,user_id:user.id}
+                        }
                         localStorage.setItem("blog",JSON.stringify(blog));
                         const maxCount=ModSelector.maxCount(blog);
                         localStorage.setItem("placement",String(maxCount+1));
@@ -261,12 +251,32 @@ class AuthService {
             }) as Promise<()=>void>;
     };
 
+
    async refreshUser():Promise<userType|undefined>{
         const str=await this.getUserLocal() as string;
         if(str){
             return JSON.parse(str as string) as userType;
         }
     };
+
+    getBlogLocal():Promise<() => blogType | null>{
+        return Promise.resolve(()=>{
+            const blogStr=localStorage.getItem("blog");
+            if(blogStr){
+                const blog=JSON.parse(blogStr) as blogType;
+                const maxcount=ModSelector.maxCount(blog);
+                if(maxcount>0){
+                    return blog as blogType
+                }else{
+                    return null
+                }
+            }else{
+             
+                return null;
+            };
+            
+        })
+    }
     
     getUserLocal():Promise<string>{
         return new Promise((resolve)=>{

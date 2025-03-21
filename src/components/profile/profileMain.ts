@@ -14,7 +14,6 @@ import Header from "../editor/header";
 import ShapeOutside from "../editor/shapeOutside";
 import Message from "../common/message";
 import MetaBlog from "../editor/metaBlog";
-import NewCode from "../editor/newCode";
 import ChartJS from "../chart/chartJS";
 import Post from "../posts/post";
 import Blogs from "../blogs/blogsInjection";
@@ -35,7 +34,6 @@ class ProfileMain{
     private _displayBlog:DisplayBlog;
     public shapeOutside:ShapeOutside;
    public  classMsg:Message;
-    newCode:NewCode;
     private _posts:postType[];
     private _blogs:blogType[];
     private _quoteImgs:userQuoteType[];
@@ -61,7 +59,6 @@ class ProfileMain{
         this._quoteImgs=this.thisUser.quoteImgs;
         this._devDeployimgs=this.thisUser.devDeployimgs;
         this.codeElement=new CodeElement(this._modSelector,this._service);
-        this.newCode=new NewCode(this._modSelector,this._service,this._user);
         this.shapeOutside=new ShapeOutside(this._modSelector,this._service,this._user);
         this.classMsg= new Message(this._modSelector,this._service,this._modSelector.blog,null,this._user.user);
         this._displayBlog=new DisplayBlog(this._modSelector,this._service,this._user,this._modSelector.blog,this.chart,this.classMsg,this.htmlElement);
@@ -628,7 +625,6 @@ class ProfileMain{
         
         if(blogs.length>0){
             this._modSelector.blogs=blogs;
-            localStorage.setItem("userBlogs",JSON.stringify(blogs));
             blogs.map((blog,index)=>{
                 this.showBlog({mainRow,innerRow:inner_row,blog,index})
 
@@ -1030,6 +1026,7 @@ class ProfileMain{
             const innerCard=document.createElement("div");
             innerCard.style.cssText="display:flex;flex-wrap:wrap;justify-content:center;align-items:center;";
             const img=document.createElement("img");
+            console.log("blog.imgKey",blog.imgKey);
             if(blog.imgKey){
                 const imgs3= await this._service.getSimpleImg(blog.imgKey) as gets3ImgKey | null;
                 if(imgs3){
@@ -1104,7 +1101,8 @@ class ProfileMain{
         const arrDivPlaces:arrDivPlaceType[]=[];
         const idValues=this._modSelector.dataset.idValues;
         const popup=document.createElement("section");
-        
+        const less900=window.innerWidth < 900;
+        const less400=window.innerWidth < 400;
         grandRow.style.width="100%";
         popup.id="profile-show-final-work-popup";
         popup.style.cssText="position:absolute;background:white;width:100%;height:100vh;z-index:200;overflow-y:scroll;"
@@ -1122,7 +1120,7 @@ class ProfileMain{
         popup.appendChild(container);
         //APPENDING POPUPU TO GRANDROW
         grandRow.appendChild(popup);
-        await this._displayBlog.saveFinalWork({innerContainer:container,blog,arrDivPlaces,idValues});
+        await this._displayBlog.saveFinalWork({innerContainer:container,blog,arrDivPlaces,idValues,less900,less400});
         Misc.fadeIn({anchor:popup,xpos:50,ypos:100,time:400});
         const btnGrp=document.createElement("div");
         btnGrp.classList.add("profile-showFinalWork-btnGrp");
@@ -1245,7 +1243,7 @@ class ProfileMain{
         });
         editmetaBtn.addEventListener("click",(e:MouseEvent)=>{
             if(e){
-                this.editMeta({mainRow,blog:blog});
+                this.editMeta({mainRow,blog:blog,inner_row:innerRow,index});
                 Misc.fadeOut({anchor:popup,xpos:100,ypos:50,time:400});
                 setTimeout(()=>{
                     col.removeChild(popup);
@@ -1414,8 +1412,8 @@ class ProfileMain{
     };
 
 
-    async editMeta(item:{mainRow:HTMLElement,blog:blogType}){
-        const {mainRow,blog}=item;
+    async editMeta(item:{mainRow:HTMLElement,inner_row:HTMLElement,blog:blogType,index:number}){
+        const {mainRow,blog,inner_row,index}=item;
         const user=this._user.user;
         const isSelects=(blog?.selectors?.length>0);
         const isElements=(blog?.elements?.length>0);
@@ -1425,12 +1423,20 @@ class ProfileMain{
                     this._modSelector.blog=resBlog;
                     const container=document.createElement("div");
                     container.id="profile-editMeta-main";
-                    container.style.cssText="position:relative;z-index:3;display:flex;justify-content:space-around;flex-direction:column;width:80%;background-color:white;box-shadow:1px 1px 12px 1px black;height:70vh;overflow-y:scroll;border-radius:12px;";
-                    container.style.inset="20% 0% 65% 0%";
+                    container.style.cssText="position:absolute;z-index:200;display:flex;justify-content:space-around;flex-direction:column;width:80%;background-color:white;box-shadow:1px 1px 12px 1px black;height:70vh;overflow-y:scroll;border-radius:12px;";
+                    container.style.inset="30% 0% 65% 0%";
                     const {button:saveClose}=Misc.simpleButton({anchor:container,bg:Nav.btnColor,color:"white",text:"close",type:"button",time:400});
                     mainRow.appendChild(container);
                     this.removeChild(mainRow,container);
-                    this._metaBlog.metablog({grandParent:mainRow,parent:container,blog:resBlog,type:"profile"});
+                   this._metaBlog.metablog({
+                    grandParent:mainRow,
+                    parent:container,
+                    blog:resBlog,
+                    type:"profile",
+                    func:(blog:blogType)=>{
+                        this.showBlog({mainRow,innerRow:inner_row,blog,index})
+                   }});
+                 
                     saveClose.onclick=(e:MouseEvent)=>{
                         if(e){
                             Misc.growOut({anchor:container,scale:0,opacity:0,time:400});

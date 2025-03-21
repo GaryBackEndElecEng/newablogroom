@@ -5,7 +5,6 @@ import Misc, { btnOptionMsgType, btnOptionType, btnOptionType2 } from "../common
 import Service from "@/components/common/services";
 import {msgType} from '@/components/common/misc';
 import { getErrorMessage } from "@/lib/errorBoundaries";
-import AuthService from "../common/auth";
 import Main from "../editor/main";
 import Header from "../editor/header";
 import { btnType, button } from "../common/tsFunctions";
@@ -14,6 +13,7 @@ import Nav from "../nav/headerNav";
 import { FaCrosshairs } from "react-icons/fa";
 import { FaCreate } from "../common/ReactIcons";
 import { idValueType, locationEnumType, selRowColType, selRowType } from "@/lib/attributeTypes";
+import RegSignIn from "../nav/regSignin";
 
 class UserSetups  {
    public bgColor:string;
@@ -379,16 +379,15 @@ class User{
         sessions:[] as sessionType[],
         admin:false,
     } as userType;
-   private _user:userType;
+  
 
    private _signIn:userSignInType;
     hasSignedIn:boolean;
     userSetups:UserSetups;
 
 
-    constructor(private _modSelector:ModSelector,private _service:Service,private auth:AuthService){
-        this._user=this.auth.user;
-        this._status="unauthenticated";
+    constructor(private _modSelector:ModSelector,private _service:Service,_status:"authenticated" | "loading" | "unauthenticated",private regSignIn:RegSignIn,private _user:userType){
+        this._status=_status;
         this.logo=`gb_logo.png`
         this._signIn={} as userSignInType;
         this.bgColor=this._modSelector._bgColor;
@@ -401,7 +400,7 @@ class User{
    
     //GETTER SETTERS
     get status(){
-        return this.auth.status
+        return this._status
     }
     set status(status:"authenticated" | "loading" | "unauthenticated"){
         this._status=status;
@@ -414,19 +413,10 @@ class User{
         this._user={...this._user,email:signIn.email,password:signIn.password}
     }
     set user(user:userType){
-        this.auth.user=user;
         this._user=user;
     }
     get user(){
-        const {parsed,isJSON}=Header.checkJson(localStorage.getItem("user"));
-        if(isJSON){
-            this._user=parsed as userType;
-            this.auth.user=this._user;
-            return this._user;
-        }else{
-            this._user=this.auth.user;
-            return this._user;
-        }
+        return this._user;
     }
     set blogs(blogs:blogType[]){
         this._modSelector.blogs=blogs;
@@ -445,6 +435,9 @@ class User{
     //GETTER SETTERS
 
     //TEST SIGNIN
+    async getSignIn({signIn}:{signIn:()=>Promise<void>}){
+        return Promise.resolve(signIn) as Promise<()=>Promise<void>>;
+    };
 
     async saveBlog(item:{parent:HTMLElement,blog:blogType,user:userType}):Promise<blogType|void>{
         const {blog,user,parent}=item;
@@ -473,7 +466,9 @@ class User{
         
         });
         
-    }
+    };
+
+
     
     async signInBlogForm(item:{parent:HTMLElement,blog:blogType,func:()=>Promise<void>|undefined|void}){
         const {parent,blog,func}=item;
@@ -1029,7 +1024,7 @@ class User{
         const signedInPLUSBlogName=(blog.user_id!=="" && blog.name !=="");
         switch(true){
             case notSignedIn:
-            await this._service.signIn(parent);
+                this.regSignIn.signIn()
             return;
             case signedInPlusNoBlog:
                 this.blogNameDescFill({parent,img,blog,formdata,user,selRowCol,idValues})
@@ -1215,6 +1210,7 @@ class User{
                                             const selRow={selectorId,rowId};
                                             this._modSelector.updateRow({target:parent,idValues,selRow}).then(async(res)=>{
                                                 if(res){
+                                                    
                                                     Misc.message({parent,msg:`${parent.id}- saved`,type_:"success",time:1200});
                                                 }
                                             });
