@@ -32,13 +32,14 @@ export default function Index({ _user }: { _user: userType | null }) {
             modSelector.loadFromLocal().then(async (res_) => {
                 if (res_) {
                     const { blog } = res_.getBlog() as { blog: blogType, user: userType | null };
+                    console.log("footer:12.)isElements", blog?.elements);
                     auth.confirmUser({ user: _user, count: countRef.current }).then(async (res) => {
                         if (res) {
                             countRef.current = res.count;
                             const user_id = res?.user?.id || undefined
                             const browser = new BrowserType(user_id);
                             const isAuthenticated = res.isAuthenicated;
-                            const regSignIn = new RegSignIn(modSelector, service, res.user);
+                            const regSignIn = new RegSignIn(modSelector, service, res.user, res.status);
                             const user = new User(modSelector, service, res.status, regSignIn, res.user);
                             const commonInfo = new CommonInfo(modSelector, service, auth);
                             const message = new Message(modSelector, service, blog, null, res.user);
@@ -47,9 +48,9 @@ export default function Index({ _user }: { _user: userType | null }) {
                             user.user = user_id ? res.user : {} as userType;
                             const feature = new Features();
                             const injector = document.querySelector("section#footerInjector") as HTMLElement;
-                            const mainFooter = new MainFooter(modSelector, service, injector, auth, user, dataflow, feature, allMsgs, commonInfo, browser);
+                            const mainFooter = new MainFooter(modSelector, service, injector, auth, _user, dataflow, feature, allMsgs, commonInfo, browser);
                             mainFooter.main({ injector, isAuthenticated, user: res.user });
-
+                            console.log("footer:13.)isElements", blog?.elements);
                         }
                     });
                 }

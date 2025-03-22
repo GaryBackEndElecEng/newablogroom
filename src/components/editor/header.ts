@@ -338,7 +338,7 @@ class Header{
             this._modSelector.dataset.idValues=this._modSelector.dataset.idValues.concat(getEleIds);
             
             this._modSelector.dataset.populateElement({target:row,selRowColEle:row_,level:"row",loc:"flexbox",idValues,clean:false});
-            const _row_= await this._modSelector.removeBlob({target:row,rowColEle:row_,loc:"flexbox",level:"row",idValues});
+            const _row_= await this._modSelector.removeBlob({target:row,rowColEle:row_,loc:"flexbox",level:"row",idValues,selRowCol:null,selRow});
                 if(_row_.imgKey){
                     row.setAttribute("data-backgroundImg","true");
                     idValues.push({eleId:rEleId,id:"backgroundImg",attValue:"true"});
@@ -356,6 +356,7 @@ class Header{
                   await  Promise.all(row_.cols.toSorted((a,b)=>{if(a.order < b.order) return -1;return 1}).map(async(col_,index)=>{
                     const eleId=col_.eleId;
                     const selRow:selRowType={selectorId:selector.eleId,rowId:row_.eleId};
+                    const selRowCol:selRowColType={selectorId:selector.eleId,rowId:row_.eleId,colId:eleId};
                     
                         const col=document.createElement("div");
                         col.id=eleId;
@@ -394,7 +395,7 @@ class Header{
                         const getEleIds=idValues.filter(kat=>(kat.eleId===eleId));
                         this._modSelector.dataset.idValues=this._modSelector.dataset.idValues.concat(getEleIds);
                         this._modSelector.dataset.populateElement({target:col,selRowColEle:col_,level:"col",loc:"flexbox",idValues,clean:false});
-                        const _col_= await this._modSelector.removeBlob({target:col,rowColEle:col_,loc:"flexbox",level:"col",idValues});
+                        const _col_= await this._modSelector.removeBlob({target:col,rowColEle:col_,loc:"flexbox",level:"col",idValues,selRowCol,selRow:null});
                        
                         if(_col_.imgKey){
                             idValues.push({eleId,id:"imgKey",attValue:_col_.imgKey});

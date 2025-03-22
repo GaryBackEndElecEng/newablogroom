@@ -222,14 +222,14 @@ class Edit {
    private  _pasteCode:PasteCode;
     css:string="min-height:100vh;height:auto;box-shadow:1px 1px 12px 2px black;border-radius:10px;padding-inline:0px;padding-block:0px;margin:0px;z-index:0;position:relative;width:100%;display:flex;flex-direction:column;justify-content:flex-start;align-items:center;gap:1rem;";
   
-    constructor(private _modSelector:ModSelector,private _service:Service,public _mainInjection:HTMLElement | null,private _user:userType,public _flexbox:Flexbox,public _htmlElement:HtmlElement,public header:Header, public customHeader:CustomHeader,public footer:Footer,public displayBlog:DisplayBlog,public chart:ChartJS,){
+    constructor(private _modSelector:ModSelector,private _service:Service,public _mainInjection:HTMLElement | null,private _user:userType,public _flexbox:Flexbox,public _htmlElement:HtmlElement,public header:Header, public customHeader:CustomHeader,public footer:Footer,public displayBlog:DisplayBlog,public chart:ChartJS,private _regSignIn:RegSignIn){
         this.flexbox=_flexbox;
         this._footer=footer;
         this._header=header;
         this.bgColor=this._modSelector._bgColor;
         this.showMeta=false;
         this.btnColor=this._modSelector.btnColor;
-        this._regSignin=new RegSignIn(this._modSelector,this._service,this._user)
+        
        
         this.mainInjection=_mainInjection;
         this.editSetup=new EditSetups(this._modSelector,this._service,this.displayBlog,this.flexbox)
@@ -753,9 +753,9 @@ class Edit {
            
             // Main.cleanUp(parent)
             const selects=blog?.selectors?.filter(select=>(!select.header)).filter(select=>(!select.footer));
-            const selectSorts=selects.toSorted((a,b)=>{if(a.placement < b.placement) return -1;return 1;});
-            const elements=blog.elements.toSorted((a,b)=>{if(a.placement < b.placement) return -1;return 1;});
-            const charts=blog.charts.toSorted((a,b)=>{if(a.placement < b.placement) return -1;return 1;});;
+            const selectSorts=selects?.toSorted((a,b)=>{if(a.placement < b.placement) return -1;return 1;});
+            const elements=blog?.elements.toSorted((a,b)=>{if(a.placement < b.placement) return -1;return 1;});
+            const charts=blog?.charts.toSorted((a,b)=>{if(a.placement < b.placement) return -1;return 1;});;
             const maxcount=ModSelector.maxCount(blog);
             // console.log("selEleGenerator:codes",blog.charts,"maxCount:",maxCount)//works
             

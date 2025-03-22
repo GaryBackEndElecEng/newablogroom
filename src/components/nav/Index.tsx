@@ -53,9 +53,9 @@ function Index({ _user_ }: { _user_: userType | null }) {
                         const url = new URL(window.location.href);
                         browserType.pushHistory({ user_id: res.user.id, pathname: url.pathname, isAdmin: res.isAdmin });
                         const { blog: _blog, user: _user } = blogUser;
-                        modSelector.blog = _blog;
-                        modSelector.loadBlog({ blog: _blog, user: _user })
+
                         const message = new Message(modSelector, service, _blog, null, res.user);
+
                         const chart = new ChartJS(modSelector, service, user, message);
                         const commonUser = new CommonUser(modSelector, service, auth);
                         const shapeOutside = new ShapeOutside(modSelector, service, user);

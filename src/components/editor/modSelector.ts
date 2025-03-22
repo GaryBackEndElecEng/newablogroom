@@ -190,7 +190,7 @@ class ModSelector {
                     }
                 }
             }
-        }
+        };
         this._lineOption={
             type:"line",
             data:{
@@ -221,7 +221,9 @@ class ModSelector {
 
         this._afterSignIn={} as saveProcessType;
         const maxCount=ModSelector.maxCount(this._blog);
-        if(this._blog.user_id==="" && maxCount<=0){
+        const hasId=!!(this.blog?.user_id && this.blog.user_id !=="");
+        const hasBlog=hasId && maxCount >0;
+        if(!hasBlog){
             this._blog=this.initBlog;
         };
     
@@ -442,20 +444,33 @@ set rows(rows:rowType[]){
                     const strUser=localStorage.getItem("user");
                     if(strBlog){
                         const blog=JSON.parse(strBlog);
-                        this.blog={...blog};
-                        if(strUser){
-                            const user=JSON.parse(strUser);
-                            this.blog={...this.blog,user_id:user.id};
-                            return this.loadBlog({blog:this.blog,user});
+                        const maxCount=ModSelector.maxCount(blog);
+                        if(maxCount>0){
+                            this.blog={...blog};
+                            if(strUser){
+                                const user=JSON.parse(strUser);
+                                this.blog={...this.blog,user_id:user.id};
+                                this.loadBlog({blog:this.blog,user});
+                                return {blog:this.blog,user};
+                            }else{
+                                this.loadBlog({blog:this.blog,user:null});
+    
+                                return {blog:this.blog,user:null};
+                            }
+
                         }else{
-                            return this.loadBlog({blog:this.blog,user:null});
+                            this.blog=this.initBlog;
+                            this.loadBlog({blog:this.blog,user:null});
+                            return {blog:this.blog,user:null};
                         }
                     }else if(strUser){
                         const user=JSON.parse(strUser);
-                        this.blog={...this.blog,user_id:user.id};
+                        this.blog={...this.initBlog,user_id:user.id};
+                        this.loadBlog({blog:this.blog,user:null});
                         return {blog:this.blog,user};
                     }else{
-                        return {blog:this.blog,user:null};
+                        this.loadBlog({blog:this.initBlog,user:null});
+                        return {blog:this.initBlog,user:null};
                     }
                     
                 }

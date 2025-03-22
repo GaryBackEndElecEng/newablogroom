@@ -1843,14 +1843,29 @@ class Sidebar{
                 },1000);
                 const user=this._user.user;
                 const blog=this._modSelector.blog;
-                const check= ( user?.id && user.id!=="" && user.email!=="") ;
-                const check1= (check && blog && blog.user_id!=="");
-                const check2=check1 && blog.name;
-                if(check2){
-                    this._metablog.metablog({grandParent:null,parent:Main.textarea as HTMLElement,blog,type:"editor"})
+                const signedIn= ( user?.id && user.id!=="" && user.email!=="") ;
+                const allGood= (signedIn && blog && blog.user_id!=="" && blog.name);
+                if(allGood){
+                    this._metablog.metablog({
+                        grandParent:null,
+                        parent:Main.textarea as HTMLElement,
+                        blog,type:"editor",
+                        func:async(blog:blogType)=>{
+                            await this._metablog.finalMeta({blog,parent,type:"none"});
+                        }
+                    })
                 }
-                else if(check){
-                    this._main.newBlog({parent:mainCont,func:()=>{this._metablog.metablog({grandParent:null,parent:Main.textarea as HTMLElement,blog,type:"editor"})}});
+                else if(signedIn && !allGood){
+                    this._main.newBlog({parent:mainCont,func:async()=>{
+                        this._metablog.metablog({
+                            grandParent:null,
+                            parent:Main.textarea as HTMLElement,
+                            blog,type:"editor",
+                            func:async(blog:blogType)=>{
+                                await this._metablog.finalMeta({blog,parent,type:"none"});
+                            }
+                        })
+                    }});
                 }else{
                     this._regSignin.signIn()
                 }

@@ -221,7 +221,9 @@ class MetaBlog{
                 setTimeout(()=>{parent.removeChild(target)},368);
             }
         };
-    }
+    };
+
+
 
     imageShape(item:{parent:HTMLElement,image:HTMLImageElement,blog:blogType}):{select:HTMLSelectElement}{
         const {parent,blog}=item;
@@ -263,7 +265,67 @@ class MetaBlog{
         container.appendChild(form);
         return Promise.resolve({container,form,blog,img,paraShape}) as Promise<{container:HTMLElement,form:HTMLFormElement,blog:blogType,img:HTMLImageElement,paraShape:HTMLParagraphElement}>
         
-    }
+    };
+
+
+
+   async finalMeta({parent,blog,type}:{parent:HTMLElement,blog:blogType,type:string}){
+    Header.cleanUpByID(parent,"popup-main-metablog");
+        // console.log("metaBlog: blog",_blog)
+        let blogImg=blog?.img || "/images/gb_logo.png";
+        if(blog.imgKey){
+            const gets3= await this._service.getSimpleImg(blog.imgKey) as gets3ImgKey|null;
+            if(gets3){
+                const {img}=gets3;
+                blogImg=img;
+            }
+        }
+        const popup=document.createElement("div");
+        popup.id="popup-main-metablog";
+        popup.style.cssText="margin:auto;background:white;display:flex;flex-direction:column;align-items:center;position:absolute;margin bottom:3rem;overflow-y:scroll;background-color:white;border-radius:12px;font-size:18px;z-index:200;";
+        if(type==="profile"){
+            popup.style.inset="10% 10% 20% 10%";
+        }else{
+            popup.style.inset="0% 10% 10% 10%";
+            popup.style.boxShadow="1px 1px 12px 1px black";
+
+        }
+        popup.className="popup";
+        const container=document.createElement("div");
+        container.id="popup-main-metablog-container";
+        container.style.cssText="width:100%;position:relative;padding:1rem;margin-block:1.5rem;margin-inline:auto;display:flex;flex-direction:column;align-items:center;justify-content:flex-start; gap:1rem;";
+        const title=document.createElement("h4");
+        title.id="title-metablog";
+        title.style.cssText="display:flex;flex-direction:row;flex-wrap:wrap;position:relative;justify-content:space-around;align-items:center;margin-block:1rem;gap:2rem;";
+        title.setAttribute("contenteditable","true");
+        title.className="display-4 text-primary";
+        title.textContent=blog.title ? blog.title : "title";
+        container.appendChild(title);
+        const paraShape=document.createElement("p");
+        paraShape.style.cssText="padding-inline:1.25rem;margin-block:1rem;width:auto;padding-block:1rem;margin-inline:auto;max-width:600px;line-height:2.25rem;";
+        paraShape.id="metablog-parashape";
+        paraShape.setAttribute("contenteditable","true");
+        const img=document.createElement("img");
+        img.id="meta-image";
+        img.style.cssText="filter:drop-shadow(0 0 0.75rem #0039a6);width:clamp(175px,220px,300px);float:left;margin-right:1rem;margin-bottom:1rem;box-shadow:1px 1px 12px 1px black;";
+        if(blog.attr==="square"){
+            img.style.borderRadius="12px";
+            img.style.shapeOutside="square()";
+        }else if(blog.attr==="circle"){
+            img.style.borderRadius="50%";
+            img.style.aspectRatio="1 / 1";
+            img.style.shapeOutside="circle(50%)";
+        }
+        img.src=blogImg;
+        img.alt="www.ablogroom.com";
+        img.id="img-metablog";
+        paraShape.appendChild(img);
+        popup.appendChild(paraShape);
+        parent.appendChild(popup);
+        Header.removePopup({parent,target:popup,position:"right"});
+    };
+
+   
 
 }
 export default MetaBlog;

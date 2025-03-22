@@ -42,13 +42,13 @@ class MainFooter{
     masterultilsUrl:string="https://www.masterultils.com";
     arrUrl:{name:string,link:string}[];
     public injector_:HTMLElement
-    constructor(private _modSelector:ModSelector,private _service:Service,injector:HTMLElement,private auth:AuthService,private _user:User,public dataflow:Dataflow,public feature:Features,public allMsgs:AllMsgs,public commonInfo:CommonInfo,private browser:BrowserType){
+    constructor(private _modSelector:ModSelector,private _service:Service,injector:HTMLElement,private auth:AuthService,private _user:userType|null,public dataflow:Dataflow,public feature:Features,public allMsgs:AllMsgs,public commonInfo:CommonInfo,private browser:BrowserType){
         this.btnColor=Nav.btnColor
         this.injector_=injector;
         MainFooter.entry=injector;
         this.arrUrl=[{name:"masterconnect",link:"https://www.masterconnect.ca"},{name:"masterultils",link:this.masterultilsUrl},{name:"policy",link:"/policy"},{name:"privacy",link:"/termsOfService"},];
         this.noteAddUrl="https://chromewebstore.google.com/detail/note-adder/ipdhlngobmbmoaoheaiflbdmgjmeeoad?hl=en-US&utm_source=ext_sidebar";
-        this._regSignin= new RegSignIn(this._modSelector,this._service,this._user);
+        this._regSignin= new RegSignIn(this._modSelector,this._service,this._user,this.auth.status);
         this.closeInfoMsg=false;
         this.centerBtnsParent=document.querySelector("div#footer-centerBtns-container");
         this._status="unauthenticated";
@@ -76,6 +76,9 @@ class MainFooter{
     set status(status:"authenticated" | "loading" | "unauthenticated"){
         this._status=status;
        
+    }
+    get user(){
+        return this._user;
     }
     //-------GETTERS ------SETTERS------///
 

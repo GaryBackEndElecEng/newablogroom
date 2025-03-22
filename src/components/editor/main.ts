@@ -4,7 +4,6 @@ import ModSelector from "./modSelector";
 import { FaHome, FaBlog, FaSign, FaComment, FaArrowCircleDown } from "react-icons/fa";
 
 import { FaCreate, FaBtn } from "@/components/common/ReactIcons";
-import DisplayBlog from "@/components/blog/displayBlog";
 import { buttonReturn } from "../common/tsFunctions";
 import Edit from "@/components/editor/edit";
 import Service from "@/components/common/services";
@@ -122,8 +121,6 @@ class Main {
    private _edit: Edit;
    public bgColor: string;
     public btnColor: string;
-   private _displayBlog: DisplayBlog;
-   private _header:Header;
     public mainInjection: HTMLElement;
     public static  mainEntry: HTMLElement;
     public static topMain: HTMLElement | null=null;
@@ -141,19 +138,17 @@ class Main {
     public textarea:HTMLElement;
     public topMain:HTMLElement;
     public toolbar:HTMLElement;
-    constructor(private _modSelector: ModSelector, private _service: Service,private auth:AuthService, mainInject: HTMLElement,public _toolbar:Toolbar, public edit: Edit, private _user: userType, blog:blogType, header: Header, public customHeader: CustomHeader, displayBlog: DisplayBlog, public shapeOutside: ShapeOutside, public commonInfo: CommonInfo) {
+    constructor(private _modSelector: ModSelector, private _service: Service,private auth:AuthService, mainInject: HTMLElement,public _toolbar:Toolbar, public edit: Edit, private _user: userType, blog:blogType, header: Header, public customHeader: CustomHeader, public shapeOutside: ShapeOutside, public commonInfo: CommonInfo) {
         this._blog=blog;
-        this._regSignin = new RegSignIn(this._modSelector, this._service, this._user);
+        this._regSignin = new RegSignIn(this._modSelector, this._service, this._user,this.auth._status);
         this.mainInjection = mainInject;
         Main.mainEntry=mainInject;
-        this._displayBlog = displayBlog;
         this.bgColor = this._modSelector._bgColor;
         this.btnColor = this._modSelector.btnColor;
         this._edit = edit
         this.mainSetup = new MainSetup(this._modSelector);
         Main.main_css=blog?.cssText || ModSelector.main_css + "width:100%";
         Main.main_class= blog.class || ModSelector.main_class;
-        this._header=header;
     }
     //--------------SETTER GETTERS----------////////
    
