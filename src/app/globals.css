@@ -39,6 +39,7 @@
   --box-shadow: 1px 1px 7px 1px #325658, -1px -1px 7px -1px #325658;
   --box-shadow1: 1px 1px 7px 1px #237373, -1px -1px 7px -1px #237373;
   --box-shadow2: 1px 1px 7px 1px #3a484a, -1px -1px 7px -1px #3a484a;
+  --linear-divider: 1px 1px 12px 1px #08d8f8, -1px -1px 12px -1px #063c7a;
   --font-family-LobsterTwo-Bold: "LobsterTwo-Regular";
   --font-family-Poppins-Black: "Poppins-Black";
   --font-family-Poppins-Regular: "Poppins-Regular";
@@ -112,6 +113,13 @@ body {
   background-clip: text;
   -webkit-background-clip: text;
   color: transparent;
+}
+.divider {
+  box-shadow: var(--linear-divider);
+  height: 2px;
+  width: 80%;
+  margin-block: 2rem;
+  background-color: rgb(6, 22, 117);
 }
 .showAnchor {
   position: relative;
@@ -801,7 +809,7 @@ p.pretty-font {
   margin-inline: auto;
   padding-inline: 2.5rem;
   text-wrap: pretty;
-  line-height: 1.75rem;
+  line-height: none;
 }
 @media screen and (max-width: 983) {
   .flexCol,
@@ -878,11 +886,9 @@ p.pretty-font {
   -webkit-background-clip: text !important;
   background-image: var(--bg-image-blueWhite);
   background-color: transparent;
-  text-underline-offset: 0.5rem;
   -webkit-text-fill-color: transparent;
   background-size: 200% 100%;
   background-position: 0% 50%;
-  text-decoration: underline;
   -webkit-text-decorations-in-effect: underline;
   animation: swipeAccross 20s infinite;
   margin-block: 1rem;
@@ -1249,6 +1255,16 @@ svg.show {
 .H5 {
   margin-block: 1rem;
   margin-inline: auto;
+  padding-inline: 1.25rem;
+}
+h1,
+h2,
+h3,
+h4,
+h5,
+h6,
+p {
+  padding-inline: 1.25rem;
 }
 .title {
   font-weight: normal;
@@ -1324,6 +1340,14 @@ svg.show {
   column-gap: 1.25em !important ;
   column-rule: 1px solid lightgrey !important;
 }
+
+@media screen and (max-width: 920px) {
+  .title-art-display {
+    font-size: 200%;
+    margin-inline: auto !important;
+  }
+}
+
 @media screen and (max-width: 420px) {
   .columns,
   .columns-3,
@@ -1331,7 +1355,12 @@ svg.show {
     columns: none;
     column-gap: none;
   }
+  .title-art-display {
+    font-size: 200%;
+    margin-inline: auto !important;
+  }
 }
+
 .flex-container {
   display: flex;
   justify-content: space-between;
@@ -1406,11 +1435,7 @@ p.post-title {
   width: 100%;
 }
 .titleStyleOne {
-  background: linear-gradient(
-    to bottom,
-    rgb(238, 18, 2),
-    rgb(245, 242, 242) 70.71%
-  );
+  background: linear-gradient(to bottom, #01f1fd, rgb(245, 242, 242) 70.71%);
   background-clip: text;
   -webkit-background-clip: text;
   color: transparent;
@@ -1419,7 +1444,7 @@ p.post-title {
 .titleStyleTwo {
   background: linear-gradient(
     to bottom,
-    rgba(21, 255, 0, 0.8),
+    npm run devices #01f1fd,
     rgba(236, 232, 232, 0.856) 70.71%
   );
   background-clip: text;

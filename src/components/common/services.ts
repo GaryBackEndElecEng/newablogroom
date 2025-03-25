@@ -1356,7 +1356,6 @@ getKey({imgUrl}:{imgUrl:string}):string|null{
             if(res.ok){
                 //if res exist has email else {name:str}
                 const user= await res.json() as checkemailType;
-                console.log("checkemail",user);
                 return user;
             }
         }).catch((err)=>{console.error(err)})

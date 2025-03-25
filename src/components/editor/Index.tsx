@@ -27,10 +27,13 @@ import PasteCode from '../common/pasteCode';
 import AuthService from '../common/auth';
 import CommonInfo from '../common/commonInfo';
 import Toolbar from '../common/toolbar';
+import { useEditor } from '../context/editorContext';
+
 
 
 function Index() {
     const countRef = React.useRef(0);
+    const { user } = useEditor();
     const styleOne = { Background: "white", color: "black", width: "100%", minHeight: "100vh", marginInline: "0px" }
 
     React.useEffect(() => {
@@ -47,17 +50,15 @@ function Index() {
                 modSelector.loadFromLocal().then(async (res) => {
                     const blogUser = res.getBlog();
                     if (blogUser) {
-                        const { blog, user } = blogUser;
-                        console.log("editor:6.)isElements", blog?.elements);
+                        const { blog, user: user_ } = blogUser;
                         const auth = new AuthService(modSelector, service);
-                        auth.confirmUser({ user, count: countRef.current }).then(async (res) => {
+                        const getUser = user && user.id !== "" ? user : user_;
+                        auth.confirmUser({ user: getUser, count: countRef.current }).then(async (res) => {
                             if (res) {
-                                console.log("editor:7.)isElements", blog?.elements);
                                 countRef.current = res.count;
                                 const regSignin = new RegSignIn(modSelector, service, res.user, res.status);
                                 const _user = new User(modSelector, service, res.status, regSignin, res.user);
                                 const message = new Message(modSelector, service, blog, null, res.user);
-                                console.log("editor:8.)isElements", blog?.elements);
                                 const newCode = new NewCode(modSelector, service, _user);
                                 const chart = new ChartJS(modSelector, service, _user, message);
                                 const design = new Design(modSelector);
@@ -74,16 +75,13 @@ function Index() {
                                 const customHeader = new CustomHeader(modSelector, service, _header, _user, shapeOutside)
                                 const _flexbox = new Flexbox(modSelector, service, _user, shapeOutside);
                                 const _footer = new Footer(modSelector, service, _user, reference);
-                                console.log("editor:9.)isElements", blog?.elements);
                                 const metablog = new MetaBlog(modSelector, service, blog);
-                                console.log("editor:10.)isElements", blog?.elements);
                                 const _edit = new Edit(modSelector, service, mainInjection, res.user, _flexbox, _htmlElement, _header, customHeader, _footer, displayBlog, chart, regSignin);
 
                                 const main = new Main(modSelector, service, auth, mainInjection, _toolbar, _edit, res.user, blog, _header, customHeader, shapeOutside, commonInfo);
                                 const sidebar = new Sidebar(modSelector, service, auth, main, _flexbox, newCode, _header, customHeader, _footer, _edit, _user, regSignin, displayBlog, chart, shapeOutside, metablog, headerFlag, _toolbar);
                                 await main.mainContainer(mainInjection).then(async (_res) => {
                                     if (_res) {
-                                        console.log("editor:11.)isElements", _res.blog?.elements);
                                         const { textarea, mainCont, footer, mainHeader, toolbar } = _res;
                                         if (mainCont && textarea && footer && mainHeader && toolbar) {
 
@@ -101,7 +99,7 @@ function Index() {
 
         }
 
-    }, []);
+    }, [user]);
 
     return (
 

@@ -827,5 +827,21 @@ export type pageType={
      pathname: string,
     pagename:string
 
-}
+};
 //----BROWSER---///
+//----INTRO---///
+export type pointType={
+    id:string,
+    name?:string,
+    point:string
+
+};
+export type firstTimeType={
+    id:number,
+    name:string,
+    desc:string,
+    points:pointType[],
+    image:string
+    
+}
+//----INTRO---///

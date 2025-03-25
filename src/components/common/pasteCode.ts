@@ -22,7 +22,7 @@ class PasteCode{
             name: "div",
             class: "d-flex flex-column align-items-start",
             inner_html: "",
-            cssText: "padding:0rem;width:100%;margin-inline:0rem;min-height:40vh;border-radius:12px;padding:1rem;",
+            cssText: "padding:0rem;width:100%;margin-inline:0rem;min-height:40vh;border-radius:12px;padding:1rem;max-width:850px;overflow-x:scroll;position:relative;",
             img: undefined,
             imgKey:undefined,
             blog_id:0,
@@ -84,6 +84,7 @@ class PasteCode{
             target.innerHTML=element.inner_html;
             target.style.cssText=element.cssText;
             target.style.paddingInline=less900 ? (less400 ? "0.25rem":"0.5rem"):"1rem";
+            target.style.maxWidth=less900 ? (less400 ? "390px":"850px"):"900px";
             target.style.background="black";
             target.style.color="white";
             divCont.classList.remove("isActive");
@@ -134,6 +135,7 @@ class PasteCode{
             target.innerHTML=element.inner_html;
             target.style.cssText=element.cssText;
             target.style.paddingInline=less900 ? (less400 ? "0.25rem":"0.5rem"):"1rem";
+            target.style.maxWidth=less900 ? (less400 ? "390px":"850px"):"900px";
             target.style.background="black";
             target.style.color="white";
             divCont.classList.remove("isActive");
@@ -185,6 +187,7 @@ class PasteCode{
         target.innerHTML=element.inner_html;
         target.style.cssText=element.cssText;
         target.style.paddingInline=less900 ? (less400 ? "0.25rem":"0.5rem"):"1rem";
+        target.style.maxWidth=less900 ? (less400 ? "390px":"850px"):"900px";
         target.style.background="black";
             target.style.color="white";
             if(isNew){

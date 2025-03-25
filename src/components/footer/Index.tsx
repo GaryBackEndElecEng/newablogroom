@@ -15,12 +15,14 @@ import CommonInfo from '../common/commonInfo';
 import styles from "./footer.module.css";
 import BrowserType from '../common/browserType';
 import RegSignIn from '../nav/regSignin';
+import { useEditor } from '../context/editorContext';
 
 
 
 
-export default function Index({ _user }: { _user: userType | null }) {
+export default function Index() {
     const countRef = React.useRef(0);
+    const { user } = useEditor()
 
     React.useEffect(() => {
         if (typeof window !== "undefined") {
@@ -32,8 +34,7 @@ export default function Index({ _user }: { _user: userType | null }) {
             modSelector.loadFromLocal().then(async (res_) => {
                 if (res_) {
                     const { blog } = res_.getBlog() as { blog: blogType, user: userType | null };
-                    console.log("footer:12.)isElements", blog?.elements);
-                    auth.confirmUser({ user: _user, count: countRef.current }).then(async (res) => {
+                    auth.confirmUser({ user: user, count: countRef.current }).then(async (res) => {
                         if (res) {
                             countRef.current = res.count;
                             const user_id = res?.user?.id || undefined
@@ -48,16 +49,16 @@ export default function Index({ _user }: { _user: userType | null }) {
                             user.user = user_id ? res.user : {} as userType;
                             const feature = new Features();
                             const injector = document.querySelector("section#footerInjector") as HTMLElement;
-                            const mainFooter = new MainFooter(modSelector, service, injector, auth, _user, dataflow, feature, allMsgs, commonInfo, browser);
+                            const mainFooter = new MainFooter(modSelector, service, injector, auth, res.user, dataflow, feature, allMsgs, commonInfo, browser);
                             mainFooter.main({ injector, isAuthenticated, user: res.user });
-                            console.log("footer:13.)isElements", blog?.elements);
+
                         }
                     });
                 }
             });
 
         }
-    }, [_user]);
+    }, [user]);
     return (
         <footer className="w-100 mx-0 mb-0" >
 

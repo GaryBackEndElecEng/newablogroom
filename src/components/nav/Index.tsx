@@ -27,12 +27,16 @@ import HtmlElement from '../editor/htmlElement';
 import CommonUser from '../common/commonInfo';
 import SignInAndUp from './signinAndUp';
 import Message from '../common/message';
+import { useEditor } from '../context/editorContext';
 
 
 function Index({ _user_ }: { _user_: userType | null }) {
     const countRef = React.useRef(0);
     const navRef = React.useRef(null);
+    const { setUser } = useEditor();
+
     React.useEffect(() => {
+        setUser(_user_);
 
         if (countRef && countRef.current > 0 && !(navRef.current)) return
         if (typeof window !== "undefined") {
@@ -44,6 +48,7 @@ function Index({ _user_ }: { _user_: userType | null }) {
             //getting USER AFTER SIGNIN
             auth.getUser({ count: countRef.current, user: _user_ }).then(async (res) => {
                 if (res) {
+
                     const browserType = new BrowserType(res.user.id);
                     countRef.current++;
                     const regSignin = new RegSignIn(modSelector, service, res.user, res.status);
@@ -91,7 +96,7 @@ function Index({ _user_ }: { _user_: userType | null }) {
 
 
         }
-    }, [_user_, navRef, countRef]);
+    }, [_user_, navRef, countRef, setUser]);
     return (
         <div id="headerInjector" ref={navRef} className={styles.headerindex}></div>
     )

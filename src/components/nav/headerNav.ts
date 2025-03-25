@@ -62,33 +62,22 @@ class Nav{
 
     static splitWord(item:{parent:HTMLElement,str:string,splitCount:number}):string{
         const {parent,str,splitCount}=item;
-        let word="";
+        let count=0;
+        const arr=str.split("")
+        const len=arr.length-1;
         const arrWord:string[]=[];
-        if(str && str.split("").length > splitCount){
-            str.split("").map((lt,index)=>{
-                if(lt){
-                    word +=lt;
+        if(str && arr.length > splitCount){
+            arr.map((lt,index)=>{
+                if(lt && index%splitCount===0){
+                    
                     if(index===splitCount+1){
-                        const newWord=word.slice(0,index);
+                        const newWord=arr.slice(count,index).join("");
                         arrWord.push(newWord);
-                    }else if(index===splitCount*2 +1){
-                        const newWord=word.slice(splitCount+1,index);
-                        arrWord.push(newWord);
-                    }else if(index === splitCount*3 +1){
-                        const newWord=word.slice(splitCount*2+1,index);
-                        arrWord.push(newWord)
-                    }else if(index===str.length-1){
-                        if(index > splitCount+1 && index < splitCount*2+1){
-                            const newWord=word.slice(splitCount+1,str.length);
-                                arrWord.push(newWord)
-                        }else if(index > splitCount*2+1 && index < splitCount*3+1){
-                            const newWord=word.slice(splitCount*2+1,str.length);
-                                arrWord.push(newWord)
-                        }else{
-                            const newWord=word.slice(splitCount*3+1,str.length);
-                                arrWord.push(newWord)
-                        };
+                        count=index;
                     }
+                }else if((splitCount)>=len-index){
+                        const newWord=arr.slice(index,len).join("");
+                        arrWord.push(newWord);
                 }
             });
             //create span

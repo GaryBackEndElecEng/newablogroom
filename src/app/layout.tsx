@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 import "./globals.css";
 import "bootstrap/dist/css/bootstrap.min.css";
-// import EditorContextProvider from "@/components/context/editorContext";
+import EditorContextProvider from "@/components/context/editorContext";
 import Footer from "@/components/footer/Footer";
 import Header from "@/components/nav/Header";
 import Providers from "./providers";
@@ -132,11 +132,11 @@ export default async function RootLayout({
     <html lang="en">
       <body >
         <Providers>
-          {/* <EditorContextProvider> */}
-          <Header />
-          {children}
-          <Footer />
-          {/* </EditorContextProvider> */}
+          <EditorContextProvider>
+            <Header />
+            {children}
+            <Footer />
+          </EditorContextProvider>
         </Providers>
 
       </body>

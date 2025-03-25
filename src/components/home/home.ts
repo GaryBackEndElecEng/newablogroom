@@ -6,7 +6,7 @@ import Misc from "../common/misc";
 import MainHeader from "../nav/mainHeader";
 import Blogs from "../blogs/blogsInjection";
 import Nav from "../nav/headerNav";
-import { AWSImageLoader, buttonReturn, imageLoader } from "../common/tsFunctions";
+import { buttonReturn, imageLoader } from "../common/tsFunctions";
 import HomeIntro from "./intro";
 import AllMsgs from './allMsgs';
 import Features from "./feature";
@@ -159,12 +159,12 @@ class Home{
                         this.mainLinks(res.sectionOne);//EDITOR/BLOGS LINK
                             // show attributes
                             ///-----------display Blogs-------////
-                                await this.listBlogs(res.showBlogs).then(async(_res)=>{
+                                await this.listBlogs({parent:res.showBlogs}).then(async(_res)=>{
                                     //MAX 4 BLOGS SCROLLING
                                 if(_res?.blogs && _res.blogs.length>0){
                                     _res.blogs.map(async(blog)=>{
                                         if(blog){
-                                            this.blogCard({parent:_res.blogMsgCont,blog})
+                                            this.blogCard({parent:_res.blogMsgCont,blog,cardTopHeight:_res.cardTopHeight})
                                         }
                                     });
                                     
@@ -465,10 +465,11 @@ class Home{
     };
 
 
-    async listBlogs(parent:HTMLElement): Promise<{blogs:blogType[] | undefined,blogMsgCont:HTMLElement}>{
+    async listBlogs({parent}:{parent:HTMLElement}): Promise<{blogs:blogType[] | undefined,blogMsgCont:HTMLElement,cardTopHeight:number}>{
         //MAXIMUM OF QTY=4 && RATING > 3
         const less900=window.innerWidth < 900;
         const less400=window.innerWidth < 400;
+        const cardTopHeight=less900 ? (less400 ? 115 : 110):125;
         parent.style.position="relative";
         const css_col="margin-inline:auto;display:flex;flex-direction:column;";
         const container=document.createElement("section");
@@ -495,15 +496,15 @@ class Home{
                     this.blogPostTitle({parent:container,css_col,context:"top blogs"});
                 }
                 container.appendChild(blogMsgCont);
-                const height=less900 ? (less400 ? "80vh":"60vh"):"60vh";
+                const height=less900 ? (less400 ? "40vh":"30vh"):"30vh";
                 blogMsgCont.style.height= len > 1 ? height :"auto";
                 blogMsgCont.style.overflowY= len > 1 ? "scroll" :"auto";
                 this._modSelector.blogs=blogs;
-                 return {blogMsgCont:blogMsgCont,blogs:limitBlogs};
+                 return {blogMsgCont:blogMsgCont,blogs:limitBlogs,cardTopHeight};
                 
             };
 
-        }) as Promise<{blogMsgCont:HTMLElement,blogs:blogType[] | undefined}>;
+        }) as Promise<{blogMsgCont:HTMLElement,blogs:blogType[] | undefined,cardTopHeight:number}>;
 
         
     };
@@ -540,8 +541,8 @@ class Home{
     };
 
 
-    async blogCard(item:{parent:HTMLElement,blog:blogType}){
-        const {parent,blog}=item;
+    async blogCard(item:{parent:HTMLElement,blog:blogType,cardTopHeight:number}){
+        const {parent,blog,cardTopHeight}=item;
         const less900=window.innerWidth <900;
         const less400=window.innerWidth <400;
         const url=new URL(window.location.href);
@@ -552,7 +553,6 @@ class Home{
         card.id=`home-blogCard-${blog.id}`;
         card.style.cssText=css_col + "position:relative;";
         card.style.paddingBlock=less900 ? (less400 ? "1rem" : "0.75rem"):"0.5rem";
-        const cardTopHeight=less900 ? (less400 ? 75 : 110):150;
         //--------------STAR CONTAINER ---------------------//
         this._blogs.thumbsUpStartRating({parent:card,rating:blog.rating,minRating:3});
         //--------------STAR CONTAINER ---------------------//
@@ -561,11 +561,11 @@ class Home{
         
         const cardTop=document.createElement("div");
         cardTop.id=`home-blogCard-cardTop`;
-        cardTop.style.cssText=css_row + `height:${cardTopHeight}px;margin-block:1rem;`;
+        cardTop.style.cssText=css_row + `height:auto;margin-block:1rem;`;
         //-----------------------IMG--------------------//
         const img=document.createElement("img");
         img.id=`cardTop-img-${blog.id}`;
-        img.style.cssText=`border-radius:50%;height:${cardTopHeight}px;aspect-ratio:1 / 1;filter:drop-shadow(0 0 0.75rem black);padding:0px;`;
+        img.style.cssText=`border-radius:50%;height:${cardTopHeight}px;aspect-ratio:1 / 1;filter:drop-shadow(0 0 0.75rem black);padding:0px;border:none;`;
         if(blog.imgKey){
             this._service.getSimpleImg(blog.imgKey).then(async(res_)=>{
                 if(res_){
@@ -608,20 +608,6 @@ class Home{
         //-----------------------DESC--------------------//
         card.appendChild(cardTop);
         //--------------CARD TOP ---------------------//
-        //--------------CARD BOTTOM ---------------------//
-        const cardBottom=document.createElement("div");
-        cardBottom.id=`home-blogCard-cardBottom`;
-        cardBottom.style.cssText=css_col + "width:100%;position:relative;";
-        cardBottom.style.paddingTop=less900 ? (less400 ? "4rem":"1rem"):"0.5rem";
-        ///////-------------msgsCONTAINER--------/////
-        const msgCont=document.createElement("div");
-        msgCont.style.cssText=css_col + "padding-inline:0.25rem";
-            
-        // all messages--------///
-        this.blogMsgs({col:cardBottom,blog});
-        // all messages--------///
-        ///////-------------msgsCONTAINER--------/////
-        card.appendChild(cardBottom);
         const {button}=Misc.simpleButton({anchor:card,type:"button",bg:Nav.btnColor,color:"white",time:400,text:"view detail"});
         button.style.placeSelf="center";
         button.style.margin="auto";
@@ -730,12 +716,13 @@ class Home{
         }
         const container=document.createElement("div");
         container.id="home-viewCard-container";
-        container.style.cssText ="max-width:800px;padding-inline:1rem;display:flex;flex-direction:column;place-items:center;position:absolute;border-radius:14px;box-shadow:1px 1px 10px 1px #022537,-1px -1px 10px 1px #0CAFFF;z-index:100;background-color:white;padding-block:1rem;min-height:26vh;background-color:#e6f1f4;";
-        container.style.inset=less900 ? (less400 ? "-83% 0% 70% 0%" : "-115% 5% 90% 5%") :"-110% 10% 95% 10%";
+        container.style.cssText ="max-width:800px;padding-inline:1rem;display:flex;flex-direction:column;place-items:center;position:absolute;border-radius:14px;box-shadow:1px 1px 10px 1px #022537,-1px -1px 10px 1px #0CAFFF;z-index:100;background-color:white;padding-block:1rem;background-color:#e6f1f4;";
+        container.style.inset=less400 ? "-60% 0% auto 0%" : "-30% 15% auto 15%";
         parent.appendChild(container);
         const card=document.createElement("div");
         card.id="home-viewCard-card"
         card.style.cssText ="padding-inline:1rem;display:flex;justify-content:space-around;flex-wrap:nowrap;align-items:flex-start;position:relative;background-color:white;width:100%;padding-block:1rem;";
+        card.style.flexDirection=less400 ? "column":"row";
         container.appendChild(card);
         const width=less900 ? (less600 ? (less400 ? 25 : 30) :40) : 50;
         const img=document.createElement("img");
@@ -743,7 +730,7 @@ class Home{
         if(imgKey){
             this._service.getSimpleImg(imgKey).then(async(res)=>{
                 if(res){
-                    img.src=AWSImageLoader({url:res.img,width,quality:70});
+                    img.src=res.img;
                     img.alt="www.ablogroom.ca";
                 }
             });
@@ -754,6 +741,7 @@ class Home{
         
         img.style.cssText=`width:${width}px;aspect-ratio:1 / 1;border-radius:50%;filter:drop-shadow(0 0 0.5rem #0CAFFF);background-color:black;`;
         card.appendChild(img);
+        Misc.rotateIn({anchor:img,rotate:180,direction:"x",time:1000});
         const cardBody=document.createElement("div");
         cardBody.id="card-cardBody";
         cardBody.style.cssText="width:100%; margin-inline:auto;padding:0.25rem;display:flex;flex-direction:column;align-items:flex-start;max-height:15vh;overflow-y:scroll;position:relative;";

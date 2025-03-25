@@ -701,19 +701,21 @@ class RegSignIn {
 
      hasPassord({parent,input,checkemail,isComplete}:{checkemail:checkemailType,parent:HTMLElement,isComplete:boolean,input:HTMLInputElement}){
         const {email,hasPassword,name}=checkemail;
+        Header.cleanUpByID(parent,"hasPassword");
+        const small=document.createElement("small");
+        small.id="hasPassword";
+        small.textContent=`${name}: password please`;
+        small.style.cssText="color:red;";
+        small.style.opacity="0";
+        parent.appendChild(small);
         if(hasPassword && email){
-            Header.cleanUpByID(parent,"hasPassword");
-            const span=document.createElement("span");
-            span.id="hasPassword";
             if( !isComplete){
-                span.textContent=`${name}: please enter a password`;
-                span.style.cssText="color:red;padding-block:1rem;";
-                parent.appendChild(span);
+                small.style.opacity="1";
                 return false;
             }else{
-                span.style.cssText="color:green;padding-block:1rem;";
-                span.textContent="thanks";
-                setTimeout(()=>{Header.cleanUpByID(parent,"hasPassword");},1500);
+                small.style.cssText="color:green;";
+                small.textContent="thanks";
+                small.style.opacity="0";
                 return true;
             }
         }else if(email && !hasPassword){

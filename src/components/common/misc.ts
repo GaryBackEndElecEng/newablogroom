@@ -63,6 +63,12 @@ export type fadeOutType={
     ypos:number,
     time:number
 }
+export type rotateType={
+    anchor:HTMLElement,
+    direction:"x"|"y"|undefined,
+    rotate:number,
+    time:number
+}
 export type slideInGrowType={
     anchor:HTMLElement,
     scale:number,
@@ -528,6 +534,27 @@ class Misc{
             {transform:`translate(-${xpos}%,-${ypos}%)`,opacity:`0.2`},
             {transform:`translate(0%,0%)`,opacity:`1`},
         ],{duration:time,iterations:1});
+    };
+
+    static rotateIn(fadeout:rotateType){
+        const {anchor,rotate,direction,time}=fadeout;
+        if(direction==="x"){
+            anchor.animate([
+                {transform:`rotateX(-${rotate}deg)`,filter:`blur(10px)`},
+                {transform:`rotateX(0deg)`,filter:`blur(0px)`},
+            ],{duration:time,iterations:1});
+        }else if(direction==="y"){
+            anchor.animate([
+                {transform:`rotateY(-${rotate}deg)`,filter:`blur(10px)`},
+                {transform:`rotateY(0deg)`,filter:`blur(0px)`},
+            ],{duration:time,iterations:1});
+        }else{
+
+            anchor.animate([
+                {transform:`rotate(-${rotate}deg)`,filter:`blur(10px)`},
+                {transform:`rotate(0deg)`,filter:`blur(0px)`},
+            ],{duration:time,iterations:1});
+        }
     };
 
     static slideInGrow(fadeout:slideInGrowType){
@@ -1628,7 +1655,60 @@ class Misc{
             return wd;
         });
         return arr.join(" ");
-    }
+    };
+
+    static  adjdustSubStyles({inner_html,parentnode,childnode,cssStyle}:{
+        inner_html:string,
+        parentnode:string,
+        childnode:string,
+        cssStyle:{[key:string]:string}
+    }):string{
+            const newParent=document.createElement(parentnode) as HTMLElement;
+            const replaceParent=document.createElement(parentnode) as HTMLElement;
+            newParent.innerHTML=inner_html;
+            const addStyle=(child:HTMLElement,cssStyle:{[key:string]:string})=>{
+                for(const key of Object.keys(child.style)){
+                    for(const [keyNew,valueNew] of Object.entries(cssStyle)){
+                        if(key===keyNew && valueNew){
+                            child.style[key]=valueNew;
+                        }
+                    }
+                }
+            };
+            ([...newParent.childNodes] as ChildNode[]).forEach((child,index)=>{
+                if(child && child.nodeName.toLowerCase()===childnode.toLowerCase()){
+                        const newChild=child as HTMLElement;
+                        addStyle(newChild,cssStyle);
+                        replaceParent.appendChild(newChild);
+                }else{
+                    replaceParent.appendChild(child);
+                }
+            });
+            
+        return replaceParent.innerHTML;
+    };
+
+
+    static removePopup({parent,target,position}:{parent:HTMLElement,target:HTMLElement,position:"left"|"right"}){
+        const xDiv=document.createElement("div");
+        xDiv.id="removePopup-popup";
+        const css_row="display:flex;justify-content:center;align-items:center;"
+        xDiv.style.cssText=css_row + `position:absolute;top:0%;${position}:0%;border-radius:50%;background-color:black;color:white;z-index:200;`;
+        if(position==="right"){
+            xDiv.style.transform="translate(-3px,3px)";
+        }else{
+            xDiv.style.transform="translate(3px,3px)";
+        }
+        FaCreate({parent:xDiv,name:FaCrosshairs,cssStyle:{color:"white",borderRadius:"50%"}});
+        target.appendChild(xDiv);
+        xDiv.onclick=(e:MouseEvent)=>{
+            if(!e) return;
+            Misc.growOut({anchor:target,scale:0,opacity:0,time:400});
+            setTimeout(()=>{parent.removeChild(target)},390);
+        };
+ };
+
+
 };
 
 

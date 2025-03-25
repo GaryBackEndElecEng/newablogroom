@@ -1,4 +1,4 @@
-import {  blogType, navLinkBtnType, userType, } from "./Types";
+import {  blogType, firstTimeType, navLinkBtnType, pointType, userType, } from "./Types";
 import Header from "./header";
 import ModSelector from "./modSelector";
 import { FaHome, FaBlog, FaSign, FaComment, FaArrowCircleDown } from "react-icons/fa";
@@ -17,6 +17,8 @@ import RegSignIn from "../nav/regSignin";
 
 import CommonInfo from "../common/commonInfo";
 import Toolbar from "../common/toolbar";
+import BrowserType from "../common/browserType";
+import FirstTimeIntro from "../common/firstTimeIntro";
 
 
 class MainSetup {
@@ -138,6 +140,8 @@ class Main {
     public textarea:HTMLElement;
     public topMain:HTMLElement;
     public toolbar:HTMLElement;
+    public browser:BrowserType;
+    public firstTimeIntro:FirstTimeIntro;
     constructor(private _modSelector: ModSelector, private _service: Service,private auth:AuthService, mainInject: HTMLElement,public _toolbar:Toolbar, public edit: Edit, private _user: userType, blog:blogType, header: Header, public customHeader: CustomHeader, public shapeOutside: ShapeOutside, public commonInfo: CommonInfo) {
         this._blog=blog;
         this._regSignin = new RegSignIn(this._modSelector, this._service, this._user,this.auth._status);
@@ -149,6 +153,8 @@ class Main {
         this.mainSetup = new MainSetup(this._modSelector);
         Main.main_css=blog?.cssText || ModSelector.main_css + "width:100%";
         Main.main_class= blog.class || ModSelector.main_class;
+        this.browser=new BrowserType(this._user.id);
+        this.firstTimeIntro=new FirstTimeIntro();
     }
     //--------------SETTER GETTERS----------////////
    
@@ -182,9 +188,39 @@ class Main {
 
 
     //--------------SETTER GETTERS----------////////
-    //MAIN INJECTOR-HEADER////
+    //WELCOME-FIRST-NON-USER////
+    firstTimeNonRegUser({parent}:{parent:HTMLElement}){
+        const repeatCount=1;
+        const isRepeat=this.browser.repeatShowControl({repeatCount});
+        const user=this.user;
+        const check=user && user.id !=="" && user.email !=="";
+        const less900= window.innerWidth < 900;
+        const less400= window.innerWidth <400;
+        const css_col="display:flex;flex-direction:column;align-items:center;justify-content:flex-start;gap:1rem;";
+        const css_row="display:flex;flex-direction:row;flex-wrap:nowrap;align-items:center;justify-content:center;gap:1rem;";
+        parent.style.position="relative";
+        //use browser for one Time execution
+        const time=8000;
+    
+        if(isRepeat && !check){
+            //show QUICK SUMMARY INTRO WITH WELCOME WITH DELETE POPUP OPTION.
+            const popup=document.createElement("div");
+            popup.id="firstTime-popup";
+            popup.style.cssText=css_col + "position:absolute;border-radius:8px;border:none;box-shadow:1px 1px 12px 1px black;background-color:white;z-index:200;width:100%;";
+            popup.style.inset=less900 ? "0% 0% 0% 0%":"0% 0% 40% 0%";
+            Misc.removePopup({parent,target:popup,position:"right"});
+            this.firstTimeIntro.showFirstTimeSlides({parent:popup,css_col,css_row,time,less400,less900});
+            Misc.slideIn({anchor:popup,xpos:0,ypos:100,time:500});
+            parent.appendChild(popup);
+        }
+        
 
-    //MAIN INJECTOR-HEADER////
+    };
+
+
+  
+
+    //WELCOME-FIRST-NON-USER////
     ////- MAIN INJECTOR-----//////////////////////////
     async newBlog(item: { parent: HTMLElement, func: () => Promise<void> | void }): Promise<void> {
         const { parent, func } = item;
@@ -345,15 +381,16 @@ class Main {
             //ASSIGNING Main.container()
             const {footer}= await this.footer(bottomMain);
             this.mainBtnChoices({parent:bottomMain,isAuthenticated,user});
-            this.hideShowBottom({ mainBottom: bottomMain, time: 500 })
+            this.hideShowBottom({ mainBottom: bottomMain, time: 500 });
+
             this.mainCont.animate([
                 { transform: "scale(0.2)" },
                 { transform: "scale(1)" },
             ], { duration: 1000, iterations: 1 });
             await this.localBlogLoad({mainCont:this.mainCont,textarea,footer,mainHeader,blog:this.blog,user:this.user});
-                this.mainCont.style.width = "100% !important";
+            this.mainCont.style.width = "100% !important";
+            this.firstTimeNonRegUser({parent:this.mainCont});
                 return {mainCont:this.mainCont,textarea,footer,mainHeader,toolbar:this.toolbar,blog:this.blog,user:this.user}
-          
         } else {
             alert("no parent");
         

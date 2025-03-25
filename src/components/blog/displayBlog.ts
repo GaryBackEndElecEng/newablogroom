@@ -24,6 +24,7 @@ import { barOptionType, lineOptionType } from "../common/chartTypes";
 
 
 class DisplayBlog{
+    public readonly btnDetail:string;
     public count:number;
     public baseUrl:URL;
     public url:string;
@@ -58,7 +59,8 @@ class DisplayBlog{
 
     private _modSelector:ModSelector;
     constructor(modSelector:ModSelector,private _service:Service,private _user:User,blog:blogType|null,private chart:ChartJS,private _message:Message,private htmlElement:HtmlElement){
-        this._modSelector=modSelector
+        this._modSelector=modSelector;
+        this.btnDetail=this._modSelector.btnDetail;
         // console.log("Display",blog)
         this.mail="/images/mail.png";
         this.phone="/images/phone.png";
@@ -71,7 +73,7 @@ class DisplayBlog{
         this._bgColor=this._modSelector._bgColor;
         this.btnColor=this._modSelector.btnColor;
         this.logo="/images/gb_logo.png";
-        this.logo2="gb_logo.png";
+        this.logo2="/images/gb_logo.png";
         this.url="/api/blog";
         this.signin="/api/user";
         this.imgLoad="/api/imgload";
@@ -121,6 +123,7 @@ class DisplayBlog{
         const css_col="display:flex;flex-direction:column;align-items:center;justify-content:center";
         this._arrDivPlaces=[];
         if(blog ){
+            console.log("MESSAGES",blog.messages)
             const less400=window.innerWidth < 420;
             const less900=window.innerWidth < 900;
             const paddingInline=less900 ? (less400 ? "0rem" : "2px") :"1rem";
@@ -133,6 +136,12 @@ class DisplayBlog{
             outerContainer.style.opacity="0";
             outerContainer.style.paddingBlock=less400 ? "0rem":"2rem";
             outerContainer.style.paddingBottom=less400 ? "2rem":"";
+            //-------------COMMENT CONTAINER----------------------------///
+            const commentUserCont=document.createElement("div");
+            commentUserCont.id="commentUserCont";
+            commentUserCont.style.cssText=css_col +"margin-inline:auto;width:100%;gap:1rem;";
+            //-------------MCOMMENT CONTAINER----------------------------///
+          
             //-------------META- BLOG----------------------------///
             const metaCont=document.createElement("div");
             metaCont.id="displayBlog-main-metaCont";
@@ -154,6 +163,7 @@ class DisplayBlog{
             container.className="section-container";
             container.style.cssText="margin-inline:auto;padding-block:1rem; height:100vh;overflow-y:scroll;position:relative;background-color:white;border-radius:11px;";
             outerContainer.appendChild(container);
+            outerContainer.appendChild(commentUserCont);
             //-----------CONTAINER FOR FINAL WORK-----------------//
             const btnGrp=document.createElement("div");
             btnGrp.style.cssText="display:flex;flex-direction;justify-content:space-between;align-items:center;flex-wrap:wrap;"
@@ -191,9 +201,21 @@ class DisplayBlog{
 
                         }else if(btn.id==="sendMsg"){
                             btn.className=""
-                            btn.addEventListener("click",(e:MouseEvent)=>{
+                            btn.addEventListener("click",async(e:MouseEvent)=>{
                             if(e){
-                                this._message.contact(parent,blog);
+                                const getComment=outerContainer.querySelector("div#commentUserCont") as HTMLElement;
+                                if(getComment){
+                                    await this._message.contact({
+                                        parent,
+                                        commentCont:getComment,
+                                        blog,
+                                        func:async({msgs})=>{
+                                            this._message.contactCards(getComment,msgs);
+                                            await this.showUserComments({parent:outerContainer,user,blog,css_col,showComment:true});
+                                        }
+                                    });
+
+                                }
                             }
                             });
 
@@ -230,15 +252,10 @@ class DisplayBlog{
                 //SHOWS PAGE
                 await this.saveFinalWork({innerContainer:container,blog,idValues,arrDivPlaces:this._arrDivPlaces,less900,less400}).then(async(res)=>{
                     if(res){
-
-                        this.getUserInfo({htmlUserInfo:outerContainer,user:user}).then(async(_res)=>{
-                            if(_res?.outerContainer){
-    
-                                //BTN CONTAINER
-                                outerContainer.appendChild(btnContainer);
-                                //BTN CONTAINER
-                            }
-                        });
+                       await this.showUserComments({parent:outerContainer,user,blog,css_col,showComment:false});
+                        //BTN CONTAINER
+                        outerContainer.appendChild(btnContainer);
+                        //BTN CONTAINER
                        
                         //-----------INTRO EFFECT-----------////
                         setTimeout(()=>{
@@ -281,15 +298,11 @@ class DisplayBlog{
         para.style.cssText="margin-inline:auto;margin-block:1rem;padding-inline:1rem; padding-block:0.5rem;height:100%;position:relative;";
         para.id="metaDisplay-para";
         para.style.height=less900 ? (less400 ? "auto":"30vh"):"20vh";
-        para.style.lineHeight="1.85rem";
-        if(less400){
-            para.style.display="flex";
-            para.style.alignItems="center";
-            para.style.flexDirection="column";
-        }
+        para.style.lineHeight="2.1rem";
         const text = new Text(blog.desc || "");
         const img=document.createElement("img");
-        img.style.cssText="height:100%;margin-inline:auto;margin-right:2rem;border:none;";
+        img.style.cssText="margin-inline:auto;margin-right:2rem;border:none;";
+        img.style.height=less400 ? "auto":"100%";
         img.style.width=less400 ? "100%":"auto";
         img.style.float="left";
         if(blog.imgKey){
@@ -303,10 +316,16 @@ class DisplayBlog{
             img.src=this.logo;
             img.alt="www.ablogroom.com";
         };
+        if(less400){
+            para.style.display="flex";
+            para.style.alignItems="center";
+            para.style.flexDirection="column";
+        }
          if(blog?.attr==="circle"){
             img.style.shapeOutside=less400 ? "": "circle(50%)";
             img.style.borderRadius="50%";
             img.style.border="none";
+            img.style.aspectRatio="1 /1";
            
         }else{
             img.style.shapeOutside=less400 ? "":"square()";
@@ -323,7 +342,69 @@ class DisplayBlog{
         parent.appendChild(container);
 
 
-     }
+     };
+
+
+     async showUserComments({parent,user,blog,css_col,showComment}:{parent:HTMLElement,user:userType|null,blog:blogType,css_col:string,showComment:boolean}){
+        const getCommentUser=parent.querySelector("div#commentUserCont") as HTMLElement;
+        if(getCommentUser){
+          
+            Header.cleanUp(getCommentUser);
+            const {button:btnComments}=Misc.simpleButton({anchor:getCommentUser,bg:this.btnDetail,color:"white",text:"show comments",time:600,type:"button"});
+            const userCont=document.createElement("div");
+            userCont.id="userCont";
+            userCont.style.cssText=css_col;
+            userCont.style.width="100%";
+            userCont.style.marginInline="auto";
+            getCommentUser.appendChild(userCont);
+            const commentCont=document.createElement("div");
+            commentCont.id="userCont";
+            commentCont.style.cssText=css_col ;
+            commentCont.style.width="100%";
+            commentCont.style.marginInline="auto";
+            getCommentUser.appendChild(commentCont);
+            await this.getUserInfo({htmlUserInfo:userCont,user:user});
+
+            await  this._message.getBlogMsgs(commentCont,blog.id).then(async(res1)=>{
+                if(res1){
+                    this._message.contactCards(res1.container,res1.messages);
+                }
+            });
+            const len=this._message.messages.length;
+                    if(len<=0){
+                        btnComments.hidden=true;
+                    }else{
+                        btnComments.hidden=false;
+                    };
+            commentCont.hidden=true;
+            if(showComment){
+                btnComments.textContent="close";
+                commentCont.hidden=false;
+                userCont.hidden=true;
+                Misc.growIn({anchor:commentCont,scale:0,opacity:0,time:400});
+                
+            }
+            btnComments.onclick=(e:MouseEvent)=>{
+                if(!e) return;
+                if(commentCont.hidden===true){
+                    btnComments.textContent="close";
+                    commentCont.hidden=false;
+                    userCont.hidden=true;
+                    Misc.growIn({anchor:commentCont,scale:0,opacity:0,time:400});
+                }else{
+                    btnComments.textContent="show comments";
+                    commentCont.hidden=true;
+                    userCont.hidden=false;
+                    Misc.growIn({anchor:userCont,scale:0,opacity:0,time:400});
+                }
+                
+
+            };
+            
+        }
+     };
+
+
 
     async awaitBlog(blog:blogType):Promise<{blog:()=>blogType}>{
         //NOTE: RELAY PLACEMENT THROUGH HERE
@@ -461,6 +542,8 @@ class DisplayBlog{
             head.style.cssText=ModSelector.mainHeader_css ? ModSelector.mainHeader_css as string : "margin-inline:0px;width:100%;display:flex;flex-direction:column;align-items:center;";
             head.className=ModSelector.mainHeader_class ? ModSelector.mainHeader_class :"sectionHeader";
             head.id=Main._mainHeader? Main._mainHeader.id as string :"mainHeader";
+         
+       
            const _header= await this.showCleanSelector({parent:head,selector:header,idValues,less900,less400});
             container.appendChild(_header);
         }
@@ -494,6 +577,7 @@ class DisplayBlog{
                         await this.htmlElement.showCleanElement({parent:main,element:ele,idValues}).then(async(res)=>{
                             if(res?.div_cont){
                                 const {target,divCont}=res.div_cont;
+                                target.style.lineHeight="";
                                 arrDivPlaces.push({id:res.div_cont.placement,parent:main,displayClean:true,type:"element",divCont,element:ele,selector:null,chart:null,target});
                                
                             }
@@ -796,14 +880,13 @@ class DisplayBlog{
             idValues.push({eleId,id:"selRowCol",attValue:JSON.stringify(selRowCol)});
             this._modSelector.dataset.populateElement({target,selRowColEle:element,idValues,level:"element",loc:"flexbox",clean:true});
             target.removeAttribute("contenteditable");
+            target.style.lineHeight="";
             if(!checkArr){
                 //p,hs
                 if(less400){
                     target.style.paddingInline="0.5rem";
                 }
-                if(node==="p"){
-                    target.style.lineHeight="1.75rem";
-                }
+               
                 target.innerHTML=element.inner_html;
                 
                 if(isBg || isImgkey){
@@ -928,7 +1011,7 @@ class DisplayBlog{
     
    
     
-   async getUserInfo(item:{htmlUserInfo:HTMLElement,user:userType|null}): Promise<{user:userType | null,outerContainer:HTMLElement}>{
+   async getUserInfo(item:{htmlUserInfo:HTMLElement,user:userType|null}): Promise<{user:userType | null,htmlUserInfo:HTMLElement}>{
     const {htmlUserInfo,user}=item;
     const less900=window.innerWidth <900;
     const less400=window.innerWidth <400;
@@ -941,7 +1024,7 @@ class DisplayBlog{
         container.style.cssText="margin-inline:auto;margin-block:1.25rem;display:flex;align-items:center;justify-content:space-around;flex-wrap:wrap;background-color:white;border-radius:11px;padding-inline:1.25rem;box-shadow:1px 1px 12px 2px #10c7e9ab,-1px -1px 12px 1px #10c7e9ab;max-width:800px;";
         container.style.width=less900 ? (less400 ? "100%" :"85%" ) : "67%";
         container.style.paddingInline=less900 ? (less400 ? "1rem" :"1.5rem" ) : "2rem";
-        if(!(user?.id!=="" && user?.showinfo)) return {user:null,outerContainer:htmlUserInfo};
+        if(!(user?.id!=="" && user?.showinfo)) return {user:null,htmlUserInfo};
                 const img=document.createElement("img");
                 const maximgwidth=less400 ? 90 : 120;
                 img.style.cssText=`max-width:${maximgwidth}px;border-radius:50%;aspect-ratio: 1 / 1;box-shadow:1px 1px 10px 1px black;float:left; `;
@@ -1001,7 +1084,7 @@ class DisplayBlog{
                 infoContainer.appendChild(bioMain);
                 container.appendChild(infoContainer);
                 htmlUserInfo.appendChild(container);
-                return {user,outerContainer:htmlUserInfo}
+                return {user,htmlUserInfo}
         
             
       

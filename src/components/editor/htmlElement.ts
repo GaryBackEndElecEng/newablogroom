@@ -108,7 +108,6 @@ class HtmlElement {
         if(imgKey) idValues.push({eleId,id:"imgKey",attValue:String(element.imgKey)});
         idValues.push({eleId,id:"name",attValue:node});
         idValues.push({eleId,id:"isElement",attValue:"true"});
-        
         if(typeTest){
             
             const id=typeTest.id as idEnumType
@@ -172,13 +171,8 @@ class HtmlElement {
             const {idValues:retIdValues}=this._modSelector.dataset.coreDefaultIdValues({target,sel:null,row:null,col:null,ele:element,clean:true,level:"element",loc:"htmlElement",idValues});
             idValues=retIdValues;
             if(editableNodes){
-                if(node==="p"){
-                    if(!(target.style.lineHeight !=="" ||target.style.lineHeight)){
-                        target.style.lineHeight="1.75rem";
-                    };
-                  
-                }else if(node==="ul" || node==="ol"){
-                    target.style.lineHeight="1.85rem";
+                if(node==="ul" || node==="ol"){
+                    target.style.lineHeight="2rem";
                     const lis=(target as HTMLElement).querySelectorAll("li") as any as HTMLElement[];
                     lis.forEach(li=>{
                         if(li && li.textContent===""){
@@ -482,6 +476,7 @@ class HtmlElement {
     const node=icon.name;
     const target = document.createElement(icon.name); //ICON.NAME=ELE TYPE
     target.id=`htmlele-${icon.name}-${rand}`;
+    target.classList.add("px-1");
     const eleId=target.id;
     idValues.push({eleId,id:"name",attValue:node});
     idValues.push({eleId,id:"elementId",attValue:eleId});

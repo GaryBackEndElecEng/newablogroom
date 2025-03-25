@@ -12,9 +12,11 @@ import Header from '../editor/header';
 import Main from '../editor/main';
 
 class MessageSetup{
-    logo:string="/images/gb_logo.png";
+    public readonly logo:string="/images/gb_logo.png";
+    public readonly happy:string;
     requestPic:string;
     constructor(){
+        this.happy="/images/emojiSmile.png";
         this.requestPic="/images/requestAnswer.png";
     }
     contact(parent:HTMLElement): {form:HTMLFormElement,email:HTMLInputElement,textarea:HTMLTextAreaElement,rate:HTMLInputElement,btn:HTMLButtonElement,name:HTMLInputElement,msgEvent:HTMLElement,cont:HTMLElement}{
@@ -115,9 +117,11 @@ class MessageSetup{
            msg_e.style.inset="100% 0% -40% 0%";
            formGrp.appendChild(msg_e);
         return {form,email,textarea:msg,name,rate,btn,msgEvent:msg_e,cont}
-    }
+    };
+
+
     contact2(parent:HTMLElement):{form:HTMLFormElement,popup:HTMLElement,useParent:HTMLElement,btn:HTMLButtonElement}{
-        const css="margin-inline:auto;display:flex;flex-direction:column;justify-content:center;align-items:center;gap:1rem;";
+        const css_col="margin-inline:auto;display:flex;flex-direction:column;justify-content:center;align-items:center;gap:1rem;";
         const less900=window.innerWidth < 900;
         const less400=window.innerWidth < 400;
         Nav.navHeader=document.querySelector("header#navHeader") as HTMLElement;
@@ -152,7 +156,7 @@ class MessageSetup{
         text.style.cssText="font-family:'Playwrite'";
         const {input:name,label:lname,formGrp:grpName}=Nav.inputComponent(form);
         name.autocomplete="name";
-        grpName.style.cssText=css;
+        grpName.style.cssText=css_col;
         name.type="text";
         name.id="name";
         name.name="name";
@@ -162,7 +166,7 @@ class MessageSetup{
         lname.classList.add("text-primary");
         lname.setAttribute("for",name.id);
         const {input:email,label:lemail,formGrp:grpEmail}=Nav.inputComponent(form);
-        grpEmail.style.cssText=css;
+        grpEmail.style.cssText=css_col;
         email.autocomplete="email";
         email.type="email";
         email.id="email";
@@ -173,7 +177,7 @@ class MessageSetup{
         lemail.classList.add("text-primary");
         lemail.setAttribute("for",email.id);
         const {textarea:tArea,label,formGrp:grpText}=Nav.textareaComponent(form);
-        grpText.style.cssText=css;
+        grpText.style.cssText=css_col;
         label.textContent="your thoughts"
         tArea.autocomplete="on";
         tArea.rows=4;
@@ -183,7 +187,7 @@ class MessageSetup{
         label.setAttribute("for",tArea.id);
         tArea.placeholder="Your thoughts";
         const {input:rate,label:lrate,formGrp:grpRate}=Nav.inputComponent(form);
-        grpRate.style.cssText=css;
+        grpRate.style.cssText=css_col;
         rate.type="number";
         rate.min="1";
         rate.max="5";
@@ -194,7 +198,7 @@ class MessageSetup{
         lrate.classList.add("text-primary");
         lrate.setAttribute("for",rate.id);
         const {input:secret,label:lsecret,formGrp:grpSecret}=Nav.inputComponent(form);
-        grpSecret.style.cssText=css;
+        grpSecret.style.cssText=css_col;
         secret.className="";
         secret.type="checkbox";
         secret.id="secret";
@@ -238,6 +242,7 @@ class MessageSetup{
                     btn.textContent="disabled";
                     this.eleMsg({parent:grpText,msg,close:false,color:"red"});
                 }
+                this.rateMsg({parent:grpRate,isOnchange:false,css_col});
             }
         };
         email.onchange=(e:Event)=>{
@@ -256,10 +261,60 @@ class MessageSetup{
                 }
             }
         };
+        rate.onchange=(e:MouseEvent)=>{
+            if(!e)return;
+            this.rateMsg({parent:grpRate,isOnchange:true,css_col});
+        };
         Misc.fadeIn({anchor:popup,xpos:50,ypos:100,time:500});
         window.scroll(0,0);
         return {form,popup,useParent,btn}
     };
+
+    rateMsg({parent,isOnchange,css_col}:{parent:HTMLElement,isOnchange:boolean,css_col:string}){ 
+        const time=7500;
+        parent.style.position="relative";
+        const popup=document.createElement("div");
+        popup.id="rateMsg";
+        popup.style.cssText=css_col + "position:absolute;inset:0% auto auto auto;border-radius:8px;box-shadow:1px 1px 12px 1px black;background-color:white;color:black;padding:1rem;gap:1rem;z-index:200;";
+        popup.style.width="clamp(200px,300px,400px)";
+        const img=document.createElement("img");
+        img.src=this.happy;
+        img.alt="www.ablogroom.com";
+        img.style.cssText="border:none;width:36px;aspect-ratio:1/1;border-radius:50%;";
+        const text=document.createElement("p");
+        if(!isOnchange){
+            text.textContent="Give this blog a rating, so we can improve on serving the public needs.";
+        }else{
+            text.textContent="Thank-you!";
+        };
+        text.style.cssText="font-family:'Playwrite',sans serif;line-height:1.75rem;margin:auto;";
+        popup.appendChild(text);
+        parent.appendChild(popup);
+        setTimeout(()=>{
+            popup.appendChild(img);
+            Misc.rotateIn({anchor:img,rotate:180,direction:"x",time:1000});
+        },1200);
+        if(!isOnchange){
+            popup.animate([
+                {transform:"translateY(0%) scale(0)",opacity:"0"},
+                {transform:"translateY(-50%) scale(1)",opacity:"1"},
+                {transform:"translateY(-100%) scale(1)",opacity:"1"},
+                {transform:"translateY(-150%) scale(1)",opacity:"1"},
+                {transform:"translateY(-150%) scale(0)",opacity:"0"},
+                // {opacity:"0"},
+            ],{duration:time,iterations:1});
+            setTimeout(()=>{
+                parent.removeChild(popup)
+            },time-35);
+        }else{
+           setTimeout(()=>{
+                parent.removeChild(popup)
+            },time-2400);
+        }
+
+
+    };
+
 
 
     sendPostAnswerRequest(item:{parent:HTMLElement,pathname:string|null}):{form:HTMLFormElement,btn:HTMLButtonElement,popup:HTMLElement,retParent:HTMLElement}{
@@ -285,7 +340,7 @@ class MessageSetup{
         img.alt="www.ablogroom.com";
         const para=document.createElement("p");
         para.appendChild(img);
-        para.innerHTML+="The author will send you the answers to your email.It should arrive within the next 2-3mins. Thank you for sending this request.";
+        para.innerHTML+="The author will respond to you. An email was sent to you.<pre> Thank you for sending this request.</pre>";
         para.style.cssText="font-family:Poppins-Regular;padding-right:1rem;margin-bottom:1rem;border-bottom:1px solid blue;";
         popup.appendChild(para);
         const form=document.createElement("form");
@@ -440,7 +495,7 @@ class Message{
         if(blog){
             this._blog=blog;
             this._message={} as messageType;
-            this._messages=[] as messageType[];
+            this._messages=blog.messages;
             Message.bgColor=this._modSelector._bgColor;
             Message.btnColor=this._modSelector.btnColor;
            
@@ -495,14 +550,14 @@ class Message{
     }
     /////----------------SETTER/GETTERS------------------///////
 
-    contact(parent:HTMLElement,blog:blogType|null){
+   async contact({parent,commentCont,blog,func}:{parent:HTMLElement,commentCont:HTMLElement,blog:blogType|null,func:({msgs}:{msgs:messageType[]})=>Promise<void>|void}){
         const  {form,popup,useParent} =this.msgSetup.contact2(parent);
         const less900=window.innerWidth < 900;
         const less400=window.innerWidth < 400;
-       form.addEventListener("submit",(e:SubmitEvent) =>{
+       form.addEventListener("submit",async(e:SubmitEvent) =>{
         if(e){
             e.preventDefault();
-                const getParent=([...parent.children as any] as HTMLElement[]).find(child=>(child.id==="display-main"));
+              
                 const formdata=new FormData(e.currentTarget as HTMLFormElement);
                 const email:string | null=formdata.get("email") as string;
                 const name:string | null=formdata.get("name") as string;
@@ -510,25 +565,17 @@ class Message{
                 const rate:number | null=parseInt(formdata.get("rate") as string);
                 const secret:boolean | null=Boolean(formdata.get("secret") as string);
                 if(email && name && msg){
-                    const blog_id=blog ? blog.id : undefined;
+                    const blog_id=blog?.id || undefined;
                     const user_id=blog?.user_id !=="" ? blog?.user_id : undefined;
                     const Msg:messageType={name,email,msg,user_id,rate,blog_id:blog_id,secret:secret,sent:false};
-                    this.message=Msg;
-                    this._service.sendClientMessage(Msg).then(async(res:messageType)=>{
+                    this.message=Msg;//pushing to messages
+                    await this._service.sendClientMessage(Msg).then(async(res:messageType)=>{
                         if(res){
                             Misc.fadeOut({anchor:popup,xpos:75,ypos:100,time:400});
                             setTimeout(()=>{useParent.removeChild(popup);},380);
                             const cssStyle={boxShadow:"1px 1px 10px 1px #0CAFFF",display:"flex",flexDirection:"column",alignItems:"center",justifyContent:"center"}
                             Message.thankMsg({parent,thanks:this.thanksMsg,cssStyle,useParent:false,less400,less900});
-                            //GETTING CONTAINER
-                            if(getParent && blog){
-                                this.getBlogMsgs(getParent,blog.id).then(async(res1)=>{
-                                    if(res1){
-                                        this.contactCards(res1.container,res1.messages);
-                                    }
-                                });
-                            }
-                            //GETTING CONTAINER
+                            func({msgs:this.messages});
                         }
                     }).catch((err)=>{
                         const msg=getErrorMessage(err);
@@ -606,34 +653,44 @@ class Message{
                 newParent.removeChild(cont);
                },790);
         },6600);
-    }
+    };
+
+
     async getBlogMsgs(parent:HTMLElement,blog_id:number):Promise<{container: HTMLDivElement,messages: messageType[]} | undefined>{
         Message.cleanUpID(parent,"msgs-main-container");
+        parent.style.width="100%";
         const container=document.createElement("div");
         container.id="msgs-main-container";
         container.style.cssText="width:100%;max-width:900px;position:relative;background-color:white;box-shadow:1pa 1px 10px 1px #0CAFFF;border-radius:8px;margin-top:4rem;margin-bottom:2rem;min-height:5vh;display:flex;justify-content:center;align-items:center;flex-direction:column;margin-inline:auto;box-shadow:1px 1px 10px 1px #00BFFF";
+        this.messageTitle({parent:container,msgs:this.messages});
         parent.appendChild(container);
-        return this._service.getBlogMessages(blog_id).then(async(msgs)=>{
-            if(msgs && msgs.length>0){
-                const avg=Message.calcAverage(msgs);
-                const divAvg=document.createElement("div");
-                divAvg.classList.add("showAnchor");
-                divAvg.setAttribute("data-link","Average rating");
-                divAvg.style.cssText="margin-block:1rem;margin-inline:auto;"
-                const cssStyle={fontSize:"22px",color:"yellow",backgroundColor:"black",padding:"3px",borderRadius:"50%"};
-                const rowCssStyle={backgroundColor:"black",padding:"3px",borderRadius:"8px"};
-                Misc.starRating({parent:divAvg,rating:avg,cssStyle,rowCssStyle});
-                this.messages=msgs;
-                const hr=document.createElement("hr");
-                hr.style.cssText="width:75%;margin-inline:auto;color:#00BFFF;background:#00BFFF;margin-top:0rem;"
-                container.appendChild(divAvg);
-                container.appendChild(hr);
-                return {container:container,messages:this.messages};
-            }else{
-                container.style.display="none";
-            }
-        });
-    }
+        const msgs=this.messages;
+        if(msgs && msgs.length>0){
+            return {container:container,messages:this.messages};
+        }else{
+            container.style.display="none";
+        }
+       
+    };
+
+
+    messageTitle({parent,msgs}:{parent:HTMLElement,msgs:messageType[]}){
+        
+        const avg=Message.calcAverage(msgs);
+        const divAvg=document.createElement("div");
+        divAvg.classList.add("showAnchor");
+        divAvg.setAttribute("data-link","Average rating");
+        divAvg.style.cssText="margin-block:1rem;margin-inline:auto;"
+        const cssStyle={fontSize:"22px",color:"yellow",backgroundColor:"black",padding:"3px",borderRadius:"50%"};
+        const rowCssStyle={backgroundColor:"black",padding:"3px",borderRadius:"8px"};
+        Misc.starRating({parent:divAvg,rating:avg,cssStyle,rowCssStyle});
+        this.messages=msgs;
+        const hr=document.createElement("hr");
+        hr.style.cssText="width:75%;margin-inline:auto;color:#00BFFF;background:#00BFFF;margin-top:0rem;"
+        parent.appendChild(divAvg);
+        parent.appendChild(hr);
+    };
+
     //PARENT getBlogMsgs
     contactCards(container:HTMLElement,msgs:messageType[]){
         const len= msgs && msgs.length>0 ? msgs.length : null;
@@ -653,7 +710,9 @@ class Message{
                 }
             });
         }
-    }
+    };
+
+
     contactCard(item:{container:HTMLElement,box:HTMLElement,msg:messageType,index:number}){
         const {container,box,msg,index}=item;
         Header.cleanUpByID(box,`msg-card-${index}`);
@@ -703,10 +762,11 @@ class Message{
                 
             }
         });
-    }
+    };
+
+
     viewCard(item:{parent:HTMLElement,msg:messageType}){
-        const less900=window.innerWidth < 900;
-        const less400=window.innerWidth < 400;
+       
         const {parent,msg}=item;
         const isHome=parent.id==="home-index";
         const container=document.createElement("div");
@@ -719,8 +779,8 @@ class Message{
             // window.scrollTo(0,5)
         }else{
             container.style.top="-100%";
-            container.style.left=less900 ? (less400 ? "0%" : "10%") :"20%";
-            container.style.right=less900 ? (less400 ? "0%" : "10%") :"20%";
+            container.style.left="0%";
+            container.style.right="0%";
             
         };
         

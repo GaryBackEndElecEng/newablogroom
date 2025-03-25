@@ -31,22 +31,21 @@ export type btnType={
 export function button(btnparams:btnType){
     const {parent,text,bg,color,type}=btnparams;
     const btn=document.createElement("button");
-    btn.type=type ? type : "button";
+    btn.type=type || "button";
     btn.style.cssText=`margin-inline:auto;margin-block:1.5rem;padding-inline:2rem;padding-block:0.5rem;border-radius:20px;color:${color};background:${bg};font-size:10px;`;
     btn.style.color=color;
     btn.textContent=text;
     btn.style.backgroundColor=bg;
     btn.style.border=`1px solid ${color}`;
     parent.appendChild(btn);
-    return
+    
 }
 
 export function buttonReturn(message:btnReturnType):HTMLButtonElement{
     const {parent,text,bg,color,type}=message;
-    // const types=["button","submit","reset"];
     const btn=document.createElement("button");
     parent.style.textAlign="center";
-    btn.type=type ? type : "button";
+    btn.type=type || "button";
     btn.style.cssText=`margin-inline:auto;margin-block:1.5rem;padding-inline:1.5rem;padding-block:5px;border-radius:20px;color:${color};background:${bg};font-size:12px;box-shadow:1px 1px 3px 1px white,-1px -1px 3px 1px white;`;
     btn.setAttribute("contenteditable","false");
     btn.style.color=color;
@@ -65,10 +64,10 @@ export function buttonReturn(message:btnReturnType):HTMLButtonElement{
 }
 export function buttonRetDisable(message:btnReturnDisableType):HTMLButtonElement{
     const {parent,text,bg,color,type,disable}=message;
-    // const types=["button","submit","reset"];
+   
     const btn=document.createElement("button");
     parent.style.textAlign="center";
-    btn.type=type ? type : "button";
+    btn.type=type || "button";
     btn.style.cssText=`margin-inline:auto;margin-block:1.5rem;padding-inline:1.5rem;padding-block:5px;border-radius:20px;color:${color};background:${bg};font-size:12px;box-shadow:1px 1px 3px 1px ${bg},-1px -1px 3px 1px ${bg};`;
     btn.style.color=color;
     btn.textContent=text;
@@ -94,9 +93,8 @@ export function buttonRetDisable(message:btnReturnDisableType):HTMLButtonElement
 }
 export function smallbtnReturn(message:btnReturnType):HTMLButtonElement{
     const {parent,text,bg,color,type}=message;
-    // const types=["button","submit","reset"];
     const btn=document.createElement("button");
-    btn.type=type ? type : "button";
+    btn.type=type || "button";
     btn.style.cssText=`margin-inline:auto;margin-block:3px;padding-inline:1.5rem;padding-block:5px;border-radius:20px;color:${color};background:${bg};font-size:12px;box-shadow:1px 1px 3px 1px ${bg},-1px -1px 3px 1px ${bg};`;
     btn.style.color=color;
     btn.textContent=text;
@@ -117,39 +115,46 @@ export function smallbtnReturn(message:btnReturnType):HTMLButtonElement{
     return btn;
 }
 export  function imageLoader({ src, width, quality }) {
-    const httpTest:RegExp=/(http\:\/\/)|(https\:\/\/)/
-    const test_1:RegExp=/(\/images\/[a-zA-Z0-9\.]+)/;
-    const test_2:RegExp=/(https\:\/\/masterultils)[a-zA-Z0-9\.\-\?\&]+/;
-    const test_3:RegExp=/[a-zA-Z0-9\.]{3,}[a-z]{1,3}/;
-    const test_4:RegExp=/(https\:\/\/)[a-zA-Z0-9\.\-\?\&]+/;
-    const test_aws:RegExp=/(https\:\/\/newablogroom)[a-zA-Z0-9\.\-\?\&]+/;
-    let append:string=''
-    if(test_1.test(src) && !httpTest.test(src)){
-        append=src;
-    }else if(test_2.test(src) && test_4.test(src)){
-        append=src;
-    }else if(test_3.test(src) && !httpTest.test(src)){
-        append=`/images/${src}`;
-    }else if(test_aws.test(src)){
-        append=src;
-    }
-    if(!test_2.test(src) || !test_aws.test(src) || !test_4.test(src)){
-
-        const url=new URL(window.location.href);
-        const newUrl=new URL(append,url.origin);
-        newUrl.searchParams.set("w",width.toString());
-        newUrl.searchParams.set("q",(quality || 75).toString());
-        return newUrl.href;
-    }else if( test_aws.test(src)){
-        const url= new URL(append);
-        url.searchParams.set('format', 'auto')
-        url.searchParams.set('width', width.toString())
-        url.searchParams.set('quality', (quality || 75).toString());
-        return url.href;
+    const test_1:RegExp=/(\/(images)\/[a-zA-Z0-9/_-]+.(png)|(jpg)|(JPG))/;
+    const test_2:RegExp=/(https:\/\/)\w+^(?!.amazonaws)/;
+    const test_3:RegExp=/(https:\/\/newablogroom-free-bucket)/;
+    const test_4:RegExp=/[a-zA-Z0-9/_-]+.(png)|(jpg)|(JPG)^(?!.amazonaws)/;
+    const check=[
+        {name:"local",test:test_1.test(src)},
+        {name:"general",test:test_2.test(src)},
+        {name:"free",test:test_3.test(src)},
+        {name:"src",test:test_4.test(src)},
+    ].find(kv=>(kv.test));
+    if(check){
+        if((check.name ==="general")){
+            const url=new URL(src);
+            url.searchParams.set("w",width.toString());
+            url.searchParams.set("q",(quality || 75).toString());
+            return url.href;
+        }else if(check.name==="free"){
+            const url= new URL(src);
+            url.searchParams.set('format', 'auto')
+            url.searchParams.set('width', width.toString())
+            url.searchParams.set('quality', (quality || 75).toString());
+            return url.href;
+        }else if(check.name==="src"){
+            const append=`/images/${src}`;
+            const url=new URL(append,window.location.origin);
+            url.searchParams.set("w",width.toString());
+            url.searchParams.set("q",(quality || 75).toString());
+            return url.href;
+        }else{
+            //local
+            const url=new URL(src,window.location.origin);
+            url.searchParams.set("w",width.toString());
+            url.searchParams.set("q",(quality || 75).toString());
+            return url.href;
+        };
     }else{
-        return append;
-    }
-  }
+        return src;
+    };
+  };
+
 export  function httpImageLoader(item:{ src:string, width:number, quality:number }) {
     const {src,width,quality}=item;
     const url=new URL(src);

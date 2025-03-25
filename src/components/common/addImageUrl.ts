@@ -105,6 +105,8 @@ class AddImageUrl {
             {key:"handshake.png",name:"hand shake",url:this.freepicurl +"/handshake.png"},
             {key:"internet_purchase_process.png",name:"internet purchase flow",url:this.freepicurl +"/internet_purchase_process.png"},
             {key:"mountain.png",name:"Great Mountain",url:this.freepicurl +"/mountain.png"},
+            {key:"spainCountry.png",name:"spain",url:this.freepicurl +"/spainCountry.png"},
+            {key:"coupon.png",name:"special",url:this.freepicurl +"/coupon.png"},
             {key:"signInProcess.png",name:"signin process",url:this.freepicurl +"/signInProcess.png"},
             {key:"specials.png",name:"specials",url:this.freepicurl +"/specials.png"},
             {key:"solarWorks.png",name:"solar works",url:this.freepicurl +"/solarWorks.png"},

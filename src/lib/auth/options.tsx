@@ -24,8 +24,13 @@ const authOptions: NextAuthOptions = {
 
         },
         redirect: async ({ url, baseUrl }) => {
-            if (new URL(url).origin === baseUrl) return url
-            return baseUrl
+            const newUrl = new URL(url);
+            if (newUrl.href === baseUrl) {
+                return baseUrl;
+            } else {
+                return newUrl.href;
+
+            };
         },
 
         jwt: async ({ token, user, account }) => {

@@ -218,7 +218,7 @@ class SignInAndUp{
         const section=document.createElement("section");
         section.id="regBtn-register-section";
         section.style.cssText="position:absolute;transform:translateY(100%);display:flex";
-        section.style.inset=less900 ? "0% 0% auto 0%":"0% 20% auto 20%";
+        section.style.inset=less900 ? "150% 0% auto 0%":"150% 20% auto 20%";
         if(!getNav) return;
         getNav.appendChild(section);
         this.isOn=isOn
@@ -276,7 +276,7 @@ class SignInAndUp{
         section.style.cssText=css_col + "margin:auto;position:absolute;background-color:rgb(8 244 231 / 26%);filter:drop-shadow(0 0 0.75rem crimson);border-radius:7px;padding:1rem;z-index:100;padding:1.5rem;z-index:20;backdrop-filter:blur(20px);gap:1rem;";
         section.style.inset=less900 ? (less400 ? "-100% 0% auto 0%":"0% 20% auto 20%") :"0% 30% auto 30%";
         section.style.transform=less900 ? (less400 ? "translateY(100px)":"translateY(90px)"):"translateY(90px)";
-        section.style.height=less900 ? (less400 ? "60vh":"55vh"):"65vh";
+        section.style.height=less900 ? (less400 ? "65vh":"55vh"):"65vh";
         section.style.maxWidth=less900 ? (less400 ? (less380 ? "390px" :"490px"):"500px") :"600px";
         section.style.minWidth=less900 ? (less400 ? (less380 ? "370px" :"320px"):"400px") :"400px";
         section.style.width="100%";
@@ -367,12 +367,9 @@ class SignInAndUp{
 
     signUpImgBlock({parent,css_col}:{parent:HTMLElement,css_col:string}){
         const time=120;
-        const less900=window.innerWidth <900;
-        const less400=window.innerWidth <400;
         const container=document.createElement("div");
         container.id="signUpImgBlock-container";
         container.style.cssText=css_col +"margin-inline:auto;height:auto;background-color:#ffffff47;border-radius:inherit;padding-block:0.5rem;padding-inline:1rem;color:white;width:100%;";
-        container.style.minHeight=less900 ? (less400 ? "38vh":"35vh"):"30vh";
         const para=document.createElement("p");
         para.id="signUpImgBlock-text";
         this.messageEffect({para,str:this.signUpMsg,time});
@@ -505,7 +502,7 @@ class SignInAndUp{
             const small=document.createElement("small");
             small.id="container-para";
             const name=user?.name ? user?.name : "blogger";
-            small.innerHTML=Nav.splitWord({parent:small,str:name,splitCount:10});
+            small.innerHTML=name;
             container.appendChild(img);
             container.appendChild(small);
             container.onclick=(e:MouseEvent)=>{

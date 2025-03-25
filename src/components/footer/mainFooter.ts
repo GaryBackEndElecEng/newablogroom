@@ -10,7 +10,6 @@ import MainHeader from "../nav/mainHeader";
 import Dataflow from "../common/dataflow";
 import Header from "../editor/header";
 import RegSignIn from "../nav/regSignin";
-import User from "../user/userMain";
 import Features from "../home/feature";
 import { userType } from "../editor/Types";
 import AllMsgs from "../home/allMsgs";
@@ -19,6 +18,7 @@ import styles from "./footer.module.css";
 import AuthService from "../common/auth";
 import CommonInfo from "../common/commonInfo";
 import BrowserType from "../common/browserType";
+import FirstTimeIntro from "../common/firstTimeIntro";
 
 
 
@@ -41,7 +41,11 @@ class MainFooter{
     termsOfServiceUrl:string="/termsOfService";
     masterultilsUrl:string="https://www.masterultils.com";
     arrUrl:{name:string,link:string}[];
-    public injector_:HTMLElement
+    public injector_:HTMLElement;
+    public firstTimeIntro:FirstTimeIntro;
+
+
+
     constructor(private _modSelector:ModSelector,private _service:Service,injector:HTMLElement,private auth:AuthService,private _user:userType|null,public dataflow:Dataflow,public feature:Features,public allMsgs:AllMsgs,public commonInfo:CommonInfo,private browser:BrowserType){
         this.btnColor=Nav.btnColor
         this.injector_=injector;
@@ -49,6 +53,7 @@ class MainFooter{
         this.arrUrl=[{name:"masterconnect",link:"https://www.masterconnect.ca"},{name:"masterultils",link:this.masterultilsUrl},{name:"policy",link:"/policy"},{name:"privacy",link:"/termsOfService"},];
         this.noteAddUrl="https://chromewebstore.google.com/detail/note-adder/ipdhlngobmbmoaoheaiflbdmgjmeeoad?hl=en-US&utm_source=ext_sidebar";
         this._regSignin= new RegSignIn(this._modSelector,this._service,this._user,this.auth.status);
+        this.firstTimeIntro=new FirstTimeIntro();
         this.closeInfoMsg=false;
         this.centerBtnsParent=document.querySelector("div#footer-centerBtns-container");
         this._status="unauthenticated";
@@ -56,10 +61,6 @@ class MainFooter{
         this.baseUrl=new URL(window.location.href);
         this.bioPhrase=`I am an ex Military Officer /Engineer turned developer who enjoys providing you with the best means of creating a great web-page and or a poster or advertising with the tools of exporting your work to suit your purpose. If you desire additional tools, then please don't hesitate on contacting us with your request.
         <hr style="width:80%;margin-inline:auto;margin-block:1rem;">
-        <pre style="color:#0a2351"><span class="small-left-triangle"></span> Sincerely,<span class="small-right-triangle"></span></pre>
-        <div style="display:flex;margin-left:2rem;">
-        <div style="width:4px;height:3rem;margin-right:10px;background-color:red;"></div><span style="font-style:italic;"> Gary Wallace <pre>c:416-917-5768</pre></span>
-        </div>
         `;
         this.thankYouImg="/images/thankYou.png";
         this.btnColor=Misc.btnColor
@@ -130,7 +131,7 @@ class MainFooter{
             }
             
             
-            this.addElement({col,str,isAuthenticated,less400,less900,user});
+            this.addElement({col,main:container,str,isAuthenticated,less400,less900,user});
             row.appendChild(col);
         });
       
@@ -140,28 +141,28 @@ class MainFooter{
 
    
 
-    async addElement(item:{col:HTMLElement,str:string,isAuthenticated:boolean,less400:boolean,less900:boolean,user:userType}){
-        const {col,str,isAuthenticated,less400,less900,user}=item;
+    async addElement(item:{col:HTMLElement,main:HTMLElement,str:string,isAuthenticated:boolean,less400:boolean,less900:boolean,user:userType}){
+        const {col,main,str,isAuthenticated,less400,less900,user}=item;
         const size:{width:string,height:string}= window.innerWidth <1000 ? {width:"60px",height:"60px"} : {width:"80px",height:"80px"};
         const container=document.createElement("div");
         container.id="addElement";
         container.style.cssText="margin:0px;padding:0px;position:relative;width:100%;height:100%;";
         switch(true){
             case str==="col-md-4 left-side":
-            this.leftSide({col:container,size}).then(async(res)=>{
+            this.leftSide({col:container,main,size}).then(async(res)=>{
                 if(res){
                     // DESCRIPTION
-                    this.description(res.container);
+                    this.description(res.container,main);
                 }
             });
             col.appendChild(container);
             return;
             case str==="col-md-5 center":
-             this.centerSide({col:container,isAuthenticated,less400,less900,user});
+             this.centerSide({col:container,main,isAuthenticated,less400,less900,user});
             col.appendChild(container);
             return;
             case str==="col-md-3 right-side":
-            this.rightSide({col:container,isAuthenticated});
+            this.rightSide({col:container,main,isAuthenticated});
             col.appendChild(container);
             return;
         }
@@ -169,8 +170,8 @@ class MainFooter{
 
 
 
-    leftSide(item:{col:HTMLElement,size:{width:string,height:string}}):Promise<{container:HTMLElement}>{
-        const {col,size,}=item;
+    leftSide(item:{col:HTMLElement,main:HTMLElement,size:{width:string,height:string}}):Promise<{container:HTMLElement}>{
+        const {col,main,size}=item;
         const {width,height}=size;
         this.scrollToTop({parent:col});
         const container=document.createElement("div");
@@ -216,7 +217,7 @@ class MainFooter{
         col.appendChild(container);
         imgWrapper.onclick=(e:MouseEvent)=>{
             if(e){
-                this.allMsgs.advertise({col});
+                this.allMsgs.advertise({col,main});
             }
         };
         return Promise.resolve({container}) as Promise<{container:HTMLElement}>;
@@ -224,21 +225,21 @@ class MainFooter{
 
 
 
-    centerSide(item:{col:HTMLElement,isAuthenticated:boolean,less400:boolean,less900:boolean,user:userType}){
-        const {col,isAuthenticated,less400,less900,user}=item;
+    centerSide(item:{col:HTMLElement,main:HTMLElement,isAuthenticated:boolean,less400:boolean,less900:boolean,user:userType}){
+        const {col,main,isAuthenticated,less400,less900,user}=item;
         const container=document.createElement("div");
         container.style.cssText="margin:0px;padding:0px;position:relative;width:100%;min-height:10vh;height:100%;display:flex;flex-direction:column;justify-content:center;align-items:center";
         container.id="center";
-        this.centerBtns({parent:container,isAuthenticated,user});//BUTTONS
-        this.centerSideContent({parent:container,less400});
-        this.copyRight({parent:container,less400,less900});
+        this.centerBtns({parent:container,main,isAuthenticated,user});//BUTTONS
+        this.centerSideContent({parent:container,main,less400});
+        this.copyRight({parent:container,main,less400,less900});
         col.appendChild(container);
     };
 
 
 
-    rightSide(item:{col:HTMLElement,isAuthenticated:boolean}){
-        const {col,isAuthenticated}=item;
+    rightSide(item:{col:HTMLElement,main:HTMLElement,isAuthenticated:boolean}){
+        const {col,main,isAuthenticated}=item;
         const less900=window.innerWidth < 900;
         const less400=window.innerWidth < 400;
         const container=document.createElement("div");
@@ -246,9 +247,9 @@ class MainFooter{
         container.style.cssText="margin:0px;padding:0px;position:relative;";
         const innerContainer=document.createElement("div");
         innerContainer.id="innerContainer-rightSide";
-        innerContainer.style.cssText="position:absolute; inset:0% 0% 0% 20%;box-shadow:1px 1px 6px 1px white;min-height:10vh;margin-right:0.25rem;min-height:15vh;display:flex;flex-direction:column;justify-content:center;align-items:center;padding-inline:1rem;";
+        innerContainer.style.cssText="position:absolute; inset:0% 0% 0% 20%;min-height:10vh;margin-right:0.25rem;min-height:15vh;display:flex;flex-direction:column;justify-content:center;align-items:center;padding-inline:1rem;";
         innerContainer.style.minHeight=less900 ? (less400 ? "18vh" :"16vh") :"16vh";
-        this.rightSideContent({innerContainer,isAuthenticated});
+        this.rightSideContent({innerContainer,main,isAuthenticated});
         container.appendChild(innerContainer);
         Misc.matchMedia({parent:innerContainer,maxWidth:900,cssStyle:{"position":"absolute","inset":"1.5rem 0% 0% 10%","width":"auto"}});
         Misc.matchMedia({parent:container,maxWidth:900,cssStyle:{"position":"relative","width":"100%","flexDirection":"column"}});
@@ -399,11 +400,15 @@ class MainFooter{
 
 
     //LEFT SIDE
-    description(row:HTMLElement){
+    description(row:HTMLElement,main:HTMLElement){
+        const css_row="display:flex;justify-content:center;align-items:center;";
+        const css_col="display:flex;justify-content:center;align-items:center;flex-direction:column;";
+        const email_=this.allMsgs.Email;
+        const phoneNum=this.allMsgs.telephone;
         const column=document.createElement("div");
         column.style.background="#34282C";
         column.style.color="white";
-        column.style.cssText="box-shadow:1px 1px 7px white;padding:1rem;display:flex;justify-content:center;align-items:center;gap:1rem;flex-direction:column;order:1;";
+        column.style.cssText="padding:1rem;display:flex;justify-content:center;align-items:center;gap:1rem;flex-direction:column;order:1;";
         column.style.width="auto";
         column.style.maxHeight="15vh";
         column.style.flex=window.innerWidth <900 ? (window.innerWidth<400 ? "0 0 40%" : "0 0 35%") :"0 0 50%" ;
@@ -417,7 +422,7 @@ class MainFooter{
         text.addEventListener("click",(e:MouseEvent)=>{
             if(e){
                 window.scroll(0,0);
-                this.bio();
+                this.bio({css_row,css_col,email:email_,phoneNum});
             }
         });
         Misc.btnHover({parent:text,bg:"white",color:"black",bRadius1:"23px",bRadius2:"13px",time:500});
@@ -428,20 +433,20 @@ class MainFooter{
         const mail="mail"
         email.textContent=`${mail.slice(0,15)}...`;
         //PHONE
-        const phone=document.createElement("a");
-        phone.style.cssText="padding-inline:0.5rem;color:white;text-decoration:none;text-underline-offset:0.5rem;";
-        phone.href="tel:416-917-5768";
-        phone.textContent="phone";
         
         column.append(text);
-        column.append(email);
-        column.append(phone);
+        const mailPhoneWrapper=document.createElement("div");
+        mailPhoneWrapper.id="mailPhoneWrapper";
+        mailPhoneWrapper.style.cssText="display:inline-flex;justify-content:center;align-items:center;gap:0.5rem;"
+        this.allMsgs.mailWrapper({parent:mailPhoneWrapper,css_row,email:email_});
+        this.allMsgs.phoneWrapper({parent:mailPhoneWrapper,css_row,phoneNum});
+        column.appendChild(mailPhoneWrapper);
         row.appendChild(column); 
     };
 
 
     //CENTER
-    copyRight({parent,less400,less900}:{parent:HTMLElement,less400:boolean,less900:boolean}){
+    copyRight({parent,main,less400,less900}:{parent:HTMLElement,main:HTMLElement,less400:boolean,less900:boolean}){
         const container=document.createElement("div");
         container.style.cssText="position:absolute;left:0%;width:130px;display:grid;place-items:center;font-size:12px;";
         container.style.top=less900 ? less400 ? "95%":"75%":"90%";
@@ -451,6 +456,7 @@ class MainFooter{
         copyright.style.top="20%";
         copyright.textContent=`@copyright ${year}`;
         container.appendChild(copyright);
+        main.appendChild(copyright);
         parent.appendChild(container);
         Misc.matchMedia({parent:container,maxWidth:500,cssStyle:{"top":"95%"}});
         Misc.matchMedia({parent:container,maxWidth:900,cssStyle:{"top":"98%"}});
@@ -458,22 +464,22 @@ class MainFooter{
 
 
 
-    async centerBtns(item:{parent:HTMLElement,isAuthenticated:boolean,user:userType}){
-        const {parent,isAuthenticated,user}=item;
+    async centerBtns(item:{parent:HTMLElement,main:HTMLElement,isAuthenticated:boolean,user:userType}){
+        const {parent,main,isAuthenticated,user}=item;
         const container=document.createElement("div");
         container.id="footer-centerBtns-container";
         const css_row="display:flex;justify-content:center;align-items:center;width:100%;margin-inline:auto;";
         container.style.cssText=css_row;
         container.style.maxHeight=window.innerWidth <900 ? "8vh":"6vh";
-        this.centerBtnsRow({container,isAuthenticated,user});
+        this.centerBtnsRow({container,main,isAuthenticated,user});
         parent.appendChild(container);
     };
 
 
 
-    centerBtnsRow(item:{container:HTMLElement,isAuthenticated:boolean,user:userType}){
+    centerBtnsRow(item:{container:HTMLElement,main:HTMLElement,isAuthenticated:boolean,user:userType}){
         //!!! NOTE:THIS GETS TOGGLED TO LOGOUT FROM auth.getUser() AND A DUPLICATE FUNCTION IS ATTACHED TO NAVARROW.CENTERBTNSROW() FOR LOGOUT
-        const {container,isAuthenticated,user}=item;
+        const {container,main,isAuthenticated,user}=item;
         Header.cleanUpByID(container,"footer-centerBtns-row")
         const row=document.createElement("div");
         row.id="footer-centerBtns-row";
@@ -500,7 +506,7 @@ class MainFooter{
 
                                    window.scroll(0,0);
                                    this.auth.logout({
-                                    func:()=>{this.centerBtnsRow({container,isAuthenticated,user})},
+                                    func:()=>{this.centerBtnsRow({container,main,isAuthenticated,user})},
                                     redirect:true
 
                                    }).then(()=>{
@@ -535,8 +541,8 @@ class MainFooter{
     };
 
 
-    centerSideContent(item:{parent:HTMLElement,less400:boolean}){
-        const {parent,less400}=item;
+    centerSideContent(item:{parent:HTMLElement,main:HTMLElement,less400:boolean}){
+        const {parent,main,less400}=item;
        
         const container=document.createElement("div");
         container.id="centerSideContent";
@@ -563,18 +569,22 @@ class MainFooter{
     };
 
 
-    rightSideContent(item:{innerContainer:HTMLElement,isAuthenticated:boolean}){
-        const {innerContainer}=item;
+    rightSideContent(item:{innerContainer:HTMLElement,main:HTMLElement,isAuthenticated:boolean}){
+        const {innerContainer,main,isAuthenticated}=item;
+        const less900=window.innerWidth < 900;
+        const less400=window.innerWidth < 400;
         const container=document.createElement("div");
         container.id="rightSideContent";
         container.style.cssText="display:flex;height:inherit;overflow-y:scroll;align-items:center;width:100%;justify-content:flex-start;flex-direction:column;";
-        container.style.gap=window.innerWidth <900 ? (window.innerWidth<400 ? "0.5rem":"0.65rem") : "1.25rem";
+        container.style.gap=less900 ? (less400 ? "5px":"6px") : "8px";
         const text=document.createElement("h6");
         text.textContent="items";
         text.className="text-center text-primary text-decoration-underline text-underline-offset-3 mb-3 ms-auto";
         text.style.cssText="margin-inline:auto;"
         
         const {button}=Misc.simpleButton({anchor:container,text:"data-flow",bg:this.btnColor,color:"white",type:"button",time:400});
+        button.style.transform="scale(0.8)";
+     
        
         button.onclick=(e:MouseEvent)=>{
             if(e){
@@ -585,6 +595,8 @@ class MainFooter{
             }
         };
         const {button:btnStorage}=Misc.simpleButton({anchor:container,text:"storage message",bg:this.btnColor,color:"white",type:"button",time:600});
+        btnStorage.style.transform="scale(0.8)";
+  
         
         btnStorage.onclick=(e:MouseEvent)=>{
             if(e){
@@ -594,20 +606,29 @@ class MainFooter{
             }
         };
         const {button:btnFeature}=Misc.simpleButton({anchor:container,text:"features",bg:this.btnColor,color:"white",type:"button",time:600});
+        btnFeature.style.transform="scale(0.8)";
         btnFeature.onclick=(e:MouseEvent)=>{
             if(e){
                 const body=document.body;
                 this.feature.feature(body)
             }
         };
+        const {button:btnFirstTimeIntro}=Misc.simpleButton({anchor:container,text:"Editor Features",bg:this.btnColor,color:"white",type:"button",time:600});
+        btnFirstTimeIntro.style.transform="scale(0.8)";
+        btnFirstTimeIntro.onclick=(e:MouseEvent)=>{
+            if(e){
+                const body=document.body;
+                this.firstTimeIntro.main({parent:body});
+            }
+        };
         innerContainer.appendChild(container);
         Misc.matchMedia({parent:container,maxWidth:900,cssStyle:{paddingInline:"1rem",overflowX:"scroll",overflowY:"hidden",alignItems:"center",flexDirection:"row",flexWrap:"wrap",justifyContent:"space-around",paddingBottom:"1.5rem"}});
-        Misc.matchMedia({parent:container,maxWidth:400,cssStyle:{paddingInline:"0.5rem",overflowY:"scroll",alignItems:"center",flexDirection:"column",gap:"0.5rem",overflowX:"hidden"}});
+        Misc.matchMedia({parent:container,maxWidth:400,cssStyle:{paddingInline:"0.5rem",overflowY:"scroll",alignItems:"center",flexDirection:"column",overflowX:"hidden"}});
     };
 
 
 
-    bio(){
+    bio({css_row,css_col,email,phoneNum}:{css_row:string,css_col:string,email:string,phoneNum:string}){
        
         const parent=document.querySelector("header#navHeader") as HTMLElement;
         if(parent){
@@ -618,12 +639,7 @@ class MainFooter{
             const container=document.createElement("div");
             container.id="mainFooter-bio-container";
             container.style.cssText="width:100%; max-width:600px;box-shadow:1px 1px 10px black;border-radius:16px;position:absolute;box-shadow:1px 1px 10px 1px black;border-radius:16px;z-index:1000;";
-            Misc.matchMedia({parent:container,maxWidth:900,cssStyle:{"top":"120%","left":"13%","right":"13%","width":"100%"}});
-            Misc.matchMedia({parent:container,maxWidth:800,cssStyle:{"top":"120%","left":"9%","right":"9%"}});
-            Misc.matchMedia({parent:container,maxWidth:420,cssStyle:{"top":"120%","left":"0%","right":"0%"}});
-            container.style.top="160%";
-            container.style.left=less900 ? less400 ? "0%" :"16%" :"34%";
-            container.style.right=less900 ? less400 ? "0%" :"16%" :"34%";
+            container.style.inset="160% 0% auto 0%";
             const card=document.createElement("div");
             card.className="card";
             card.style.cssText="width:100%;border-radius:inherit;";
@@ -643,6 +659,7 @@ class MainFooter{
             para.style.cssText="margin-inline:auto;padding-inline:1rem;padding-block:1rem;font-family:Roboto-Regular;font-size:110%;letter-spacing:0.18rem;";
             para.innerHTML=this.bioPhrase;
             cardBody.appendChild(para);
+            this.signature({parent:cardBody,css_row,css_col,email,phoneNum,less400})
             Misc.matchMinMedia({parent:para,minWidth:720,cssStyle:{"fontSize":"120%"}});
             const btnGrp=document.createElement("div");
             btnGrp.style.cssText="padding-inline:1rem;margin-inline:auto;display:flex;flex-direction:row;justify-content:center;aligns-item:center;margin-block:1rem;";
@@ -663,6 +680,57 @@ class MainFooter{
             });
         }
     };
+    
+
+    signature({parent,css_col,css_row,less400,email,phoneNum}:{
+        parent:HTMLElement,
+        css_col:string,
+        css_row:string,
+        less400:boolean,
+        email:string,
+        phoneNum:string
+    }){
+        const container=document.createElement("div");
+        container.id="signature-main";
+        container.style.cssText=css_col + "width:100%,align-items:stretch";
+        //horizontal block
+        const horizontalRow=document.createElement("div");
+        horizontalRow.id="horizontal-block";
+        horizontalRow.style.cssText=css_row + "width:100%;gap:1rem;margin-block:1rem;";
+        const horizontalDivide=document.createElement("div");
+        horizontalDivide.id="signature-horizontalDivide";
+        horizontalDivide.style.cssText="width:4px;height:6rem;background-color:red;";
+        const innerHorizontal=document.createElement("div");
+        innerHorizontal.id="innerHorizontal";
+        innerHorizontal.style.cssText=css_col + "gap:1rem;";
+        const name=document.createElement("span");
+        name.style.cssText="font-style:italic;font-family:'Playwrite',sans serif;font-size:20px;"
+        name.textContent="Gary Wallace";
+        innerHorizontal.appendChild(name);
+        const telEmailWrapper=document.createElement("div");
+        telEmailWrapper.id="telEmailWrapper";
+        telEmailWrapper.style.cssText=css_row + "flex-wrap:nowrap;gap:1.5rem";
+        this.allMsgs.mailWrapper({parent:telEmailWrapper,css_row,email});
+        this.allMsgs.phoneWrapper({parent:telEmailWrapper,css_row,phoneNum});
+        innerHorizontal.appendChild(telEmailWrapper);
+        //Main horizontale Block Append
+        horizontalRow.appendChild(horizontalDivide);
+        horizontalRow.appendChild(innerHorizontal)
+        //Main horizontale Block Append
+        //horizontal block
+        const span=document.createElement("span");
+        span.textContent="Sincerely,";
+        span.style.cssText="font-family:'Playwrite',sans serif;margin-bottom:1rem;font-style:italic;font-size:21px;";
+        const pre=document.createElement("pre");
+        pre.id="cont-pre";
+        pre.style.cssText="color:#0a2351;font-size:20px;width:350px;overflow:hidden;";
+        pre.appendChild(span);
+        pre.appendChild(horizontalRow);
+        container.appendChild(pre);
+        parent.appendChild(container);
+       
+
+    }
 
     
   

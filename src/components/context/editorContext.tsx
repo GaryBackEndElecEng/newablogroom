@@ -1,6 +1,6 @@
 "use client"
 import React from "react";
-import { elementType, colType, rowType, selectorType, element_selType, blogType } from "@/components/editor/Types";
+import { elementType, colType, rowType, selectorType, element_selType, blogType, userType } from "@/components/editor/Types";
 
 
 type editorContextType = {
@@ -24,6 +24,10 @@ type editorContextType = {
     setBlog_: React.Dispatch<React.SetStateAction<blogType>>,
     blogs: blogType[] | null,
     setBlogs: React.Dispatch<React.SetStateAction<blogType[] | null>>,
+    user: userType | null,
+    setUser: React.Dispatch<React.SetStateAction<userType | null>>,
+    users: userType[],
+    setUsers: React.Dispatch<React.SetStateAction<userType[]>>,
 }
 const EditorContext = React.createContext<editorContextType>({} as editorContextType)
 
@@ -39,8 +43,10 @@ const EditorContextProvider = (props: any) => {
     const [selectors_, setSelectors_] = React.useState<selectorType[]>([]);
     const [blog_, setBlog_] = React.useState<blogType>({} as blogType);
     const [blogs, setBlogs] = React.useState<blogType[] | null>(null);
+    const [user, setUser] = React.useState<userType | null>(null);
+    const [users, setUsers] = React.useState<userType[]>([] as userType[]);
     return (
-        <EditorContext.Provider value={{ element, setElement, elements, setElements, element_sel, setElement_sel, element_sels, setElement_sels, row, setRow, col, setCol, rows, setRows, selectors_, setSelectors_, blog_, setBlog_, blogs, setBlogs, }} >{props.children}</EditorContext.Provider>
+        <EditorContext.Provider value={{ element, setElement, elements, setElements, element_sel, setElement_sel, element_sels, setElement_sels, row, setRow, col, setCol, rows, setRows, selectors_, setSelectors_, blog_, setBlog_, blogs, setBlogs, user, setUser, users, setUsers }} >{props.children}</EditorContext.Provider>
     )
 }
 export default EditorContextProvider;

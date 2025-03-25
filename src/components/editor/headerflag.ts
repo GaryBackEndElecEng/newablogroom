@@ -133,6 +133,7 @@ showCleanHeaderflag({parent,element,idValues}:{parent:HTMLElement,element:elemen
     idValues.push({eleId,id:"ID",attValue:eleId});
     target.style.cssText=element.cssText;
     target.className=element.class;
+    target.innerHTML=element.inner_html;
     if(less900){
         target.classList.remove("d-flex");
         target.style.flexDirection="column";
@@ -140,12 +141,13 @@ showCleanHeaderflag({parent,element,idValues}:{parent:HTMLElement,element:elemen
         target.style.paddingBlock="1rem";
         target.style.gap="1rem";
     }
-    target.innerHTML=element.inner_html;
+  
+    const middlePara=target.querySelector("p#cardBody-middlePara") as HTMLElement;
+    const imgCont=target.querySelector("div#imgCont-container") as HTMLElement;
+    const img=target.querySelector("img") as HTMLImageElement;
     idValues.push({eleId,id:"eleType",attValue:element.type as string});
     idValues.push({eleId,id:"isHeaderflag",attValue:String(element.attr)});
     //LARGE TEXT-ADJUSMENTS:CARDBODY>cardBody-middlePara 
-    const middlePara=target.querySelector("p#cardBody-middlePara") as HTMLElement;
-    const imgCont=target.querySelector("div#imgCont-container") as HTMLElement;
     if(less400){
         if(middlePara){
             target.style.flexDirection="";
@@ -154,21 +156,23 @@ showCleanHeaderflag({parent,element,idValues}:{parent:HTMLElement,element:elemen
             target.style.maxHeight="";
             middlePara.style.fontSize="";
             middlePara.style.fontSize="auto";
-        }
+        };
+        if(img){
+            img.style.width="100%";
+        };
         if(imgCont){
-            console.log("maxHeight",imgCont.style.maxHeight);
+           
             imgCont.style.maxHeight="";
             imgCont.style.maxHeight="none";
             const getImg=imgCont.querySelector("img") as HTMLElement;
             getImg.style.maxHeight="";
             getImg.style.maxHeight="355px";
         };
-        console.log("maxHeight",imgCont.style.maxHeight);
+
     }else{
         this.screenSizeAdjust({target:target,less900,less400});
     }
     //LARGE TEXT-ADJUSMENTS:CARDBODY>cardBody-middlePara 
-    const img=target.querySelector("img") as HTMLImageElement;
     img.src=element.img || this.headerPic;
     if(element.imgKey){
         const src=`${this.freepicurl}/${element.imgKey}`;
