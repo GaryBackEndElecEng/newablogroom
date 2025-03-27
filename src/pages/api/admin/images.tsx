@@ -33,10 +33,10 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
                             del: true
                         }
                     });
-                    console.log(images)
+
                     const arr = await Promise.all(images.map(async (img) => {
                         if (img.imgKey) {
-                            console.log(img.imgKey)
+
                             const hasFree = checkFreeImgKey({ imgKey: img.imgKey });
                             if (hasFree) {
                                 const getImg = getFreeBgImageUrl({ imgKey: img.imgKey });
@@ -85,23 +85,25 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
 
     } else if (req.method === "PUT") {
-        const { imgKey } = req.query;
+        const { imgKey, del } = req.query;
+
         if (imgKey) {
             try {
-                const getImg = await prisma.deletedImg.findUnique({
-                    where: { imgKey: imgKey as string }
-                });
-                if (getImg) {
-                    const getImage = await prisma.deletedImg.update({
-                        where: { id: getImg.id },
-                        data: {
-                            del: true
-                        }
-                    }) as unknown as adminImageType;
-                    res.status(200).json(getImage)
-                } else {
-                    res.status(400).json({ msg: `image not found:${imgKey}` });
-                }
+
+                const getImage = await prisma.deletedImg.upsert({
+                    where: { imgKey: imgKey as string },
+                    create: {
+                        count: 1,
+                        imgKey: imgKey as string,
+                        del: false
+                    },
+                    update: {
+                        del: Boolean(del)
+                    }
+                }) as unknown as adminImageType;
+                await prisma.$disconnect()
+                res.status(200).json(getImage)
+
             } catch (error) {
                 const msg = getErrorMessage(error);
                 console.error(msg);
@@ -150,6 +152,8 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
             res.status(308).json(noImage)
         }
         await prisma.$disconnect();
+    } else {
+        res.status(400).json({ msg: "unauthorized" })
     };
 
 };

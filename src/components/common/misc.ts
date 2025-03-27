@@ -711,20 +711,8 @@ class Misc{
         //APPENDING POPUP TO PARENT
         useParent.appendChild(popup);
         //creating cancel
-        const xDivIcon=document.createElement("div");
-        xDivIcon.id="delete-fliiBlogForm";
-        xDivIcon.className="delete";
-        xDivIcon.style.cssText="position:absolute;top:0%;left:100%;transform:translate(-15px,2px);";
-        FaCreate({parent:xDivIcon,name:FaCrosshairs,cssStyle:{color:"blue",fontSize:"1rem"}});
-        //creating cancel
-        //APPENDING CANCEL TO FORM
-        form.appendChild(xDivIcon);
-        xDivIcon.onclick=(e:MouseEvent)=>{
-            if(e){
-                Misc.growOut({anchor:popup,scale:0,opacity:0,time:400});
-                setTimeout(()=>{Header.cleanUpByID(parent,"popup-blogNameDesc")},398);
-            }
-        };
+        Misc.removePopup({parent:useParent,target:popup,position:"right"})
+       
         Misc.matchMedia({parent:popup,maxWidth:900,cssStyle:{left:"10%",right:"10%"}});
         Misc.matchMedia({parent:popup,maxWidth:420,cssStyle:{left:"5%",right:"5%"}});
         return {btn,popup,form,input,tinput,textarea,retParent:useParent};

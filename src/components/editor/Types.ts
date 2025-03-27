@@ -385,7 +385,7 @@ export type sessionType={
 export type accountType={
     id:string,
   userId:string,
-  providerType:string,
+  type:string,
   providerId:string,
   providerAccountId:string,
   refreshToken?:string,

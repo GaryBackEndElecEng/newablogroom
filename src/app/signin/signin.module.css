@@ -1,0 +1,33 @@
+.layout {
+  display: flex;
+  justify-content: center;
+  flex-direction: column;
+  align-items: center;
+  max-width: 1000px;
+  width: 100%;
+  position: relative;
+  margin-inline: auto;
+}
+
+.indexPage {
+  margin-inline: auto;
+  display: flex;
+  justify-content: center;
+  flex-direction: column;
+  align-items: center;
+  width: 100%;
+  padding-inline: 2rem;
+  margin-bottom: 1rem;
+}
+
+@media screen and (max-width: 900px) {
+  .indexPage {
+    padding-inline: 0.5rem;
+  }
+}
+@media screen and (max-width: 400px) {
+  .indexPage {
+    padding-inline: 0px !important;
+    padding-block: 0px !important;
+  }
+}

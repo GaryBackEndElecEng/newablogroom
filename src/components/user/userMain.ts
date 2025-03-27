@@ -1006,6 +1006,7 @@ class User{
     }){
        
         const user=this.user;
+      
         if( img){
             const eleId=img.id;
             
@@ -1228,6 +1229,8 @@ class User{
                         Misc.message({parent,msg:`the parent element is not a row or column`,type_:"error",time:2500});
 
                     }
+                }else{
+                    Misc.message({parent,msg:"sorry image was not saved",type_:"error",time:1500});
                 }
             }
         });
@@ -1429,7 +1432,7 @@ class User{
         switch(true){
             case res.blog_id && !res.header:
                 if(res.imgkey){
-                    return this._service.adminImagemark(res.imgKey).then(async(adminRes)=>{
+                    return this._service.adminImagemark(res.imgKey,true).then(async(adminRes)=>{
                         if(adminRes){
                             return res as elementType;
                         }
@@ -1439,7 +1442,7 @@ class User{
                 }
             case res.blog_id && res.header:
                 if(res.imgkey){
-                    return this._service.adminImagemark(res.imgKey).then(async(adminRes)=>{
+                    return this._service.adminImagemark(res.imgKey,true).then(async(adminRes)=>{
                         if(adminRes){
                             return res as selectorType;
                         }
@@ -1450,7 +1453,7 @@ class User{
 
             case res.order:
                 if(res.imgkey){
-                    return this._service.adminImagemark(res.imgKey).then(async(adminRes)=>{
+                    return this._service.adminImagemark(res.imgKey,true).then(async(adminRes)=>{
                         if(adminRes){
                             return res as element_selType;
                         }
@@ -1460,7 +1463,7 @@ class User{
                 }
             case res.row_id:
                 if(res.imgkey){
-                    return this._service.adminImagemark(res.imgKey).then(async(adminRes)=>{
+                    return this._service.adminImagemark(res.imgKey,true).then(async(adminRes)=>{
                         if(adminRes){
                             return res as colType;
                         }
@@ -1470,7 +1473,7 @@ class User{
                 }
             case res.selector_id:
                 if(res.imgkey){
-                    return this._service.adminImagemark(res.imgKey).then(async(adminRes)=>{
+                    return this._service.adminImagemark(res.imgKey,true).then(async(adminRes)=>{
                         if(adminRes){
                             return res as rowType;
                         }
@@ -1480,7 +1483,7 @@ class User{
                 }
             case res.elements && res.selectors:
                 if(res.imgkey){
-                    return this._service.adminImagemark(res.imgKey).then(async(adminRes)=>{
+                    return this._service.adminImagemark(res.imgKey,true).then(async(adminRes)=>{
                         if(adminRes){
                             return res as blogType;
                         }

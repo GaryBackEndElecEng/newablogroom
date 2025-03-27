@@ -1,4 +1,4 @@
-import {  blogType, firstTimeType, navLinkBtnType, pointType, userType, } from "./Types";
+import {  blogType, navLinkBtnType, userType, } from "./Types";
 import Header from "./header";
 import ModSelector from "./modSelector";
 import { FaHome, FaBlog, FaSign, FaComment, FaArrowCircleDown } from "react-icons/fa";
@@ -135,15 +135,14 @@ class Main {
     public static  main_class: string;
     public static  mainRowBtns: HTMLElement|null;
     private _regSignin: RegSignIn;
-    private _blog:blogType;
     public mainCont:HTMLElement;
     public textarea:HTMLElement;
     public topMain:HTMLElement;
     public toolbar:HTMLElement;
     public browser:BrowserType;
     public firstTimeIntro:FirstTimeIntro;
-    constructor(private _modSelector: ModSelector, private _service: Service,private auth:AuthService, mainInject: HTMLElement,public _toolbar:Toolbar, public edit: Edit, private _user: userType, blog:blogType, header: Header, public customHeader: CustomHeader, public shapeOutside: ShapeOutside, public commonInfo: CommonInfo) {
-        this._blog=blog;
+    constructor(private _modSelector: ModSelector, private _service: Service,private auth:AuthService, mainInject: HTMLElement,public _toolbar:Toolbar, public edit: Edit, private _user: userType,private _blog:blogType, header: Header, public customHeader: CustomHeader, public shapeOutside: ShapeOutside, public commonInfo: CommonInfo) {
+     
         this._regSignin = new RegSignIn(this._modSelector, this._service, this._user,this.auth._status);
         this.mainInjection = mainInject;
         Main.mainEntry=mainInject;
@@ -151,10 +150,11 @@ class Main {
         this.btnColor = this._modSelector.btnColor;
         this._edit = edit
         this.mainSetup = new MainSetup(this._modSelector);
-        Main.main_css=blog?.cssText || ModSelector.main_css + "width:100%";
-        Main.main_class= blog.class || ModSelector.main_class;
+        Main.main_css=this._blog?.cssText || ModSelector.main_css + "width:100%";
+        Main.main_class= this._blog.class || ModSelector.main_class;
         this.browser=new BrowserType(this._user.id);
         this.firstTimeIntro=new FirstTimeIntro();
+        
     }
     //--------------SETTER GETTERS----------////////
    
@@ -171,7 +171,7 @@ class Main {
     }
 
     get blog(){
-        return this._blog;
+        return this._modSelector.blog;
     };
     set blog(blog:blogType){
        
@@ -367,7 +367,7 @@ class Main {
           
             const {mainHeader}= await this.header(this.mainCont);
             const {textarea}= await this.textArea(this.mainCont);
-            this._toolbar.mainRowBtn({parent:this.toolbar,mainContainer:this.mainCont,textarea:this.textarea});
+            this._toolbar.mainRowBtn({parent:this.toolbar,mainContainer:this.mainCont,textarea:this.textarea,blog:this._blog});
             
             this.topMain.appendChild(this.mainCont);
             this.mainCont.style.width = "100% !important";
@@ -492,7 +492,7 @@ class Main {
         Main.textarea=this.textarea as HTMLElement;
         //ADD WORK DONE _edit.selEleGenerator(Main.textarea,blog)
         //ADD WORK DONE
-        this._toolbar.mainColBtn({parent:this.textarea,mainContainer:parent,textarea:this.textarea})
+        this._toolbar.mainColBtn({parent:this.textarea,mainContainer:parent,textarea:this.textarea,blog:this.blog})
         parent.appendChild(this.textarea);
        
         return Promise.resolve({textarea:this.textarea}) as Promise<{textarea:HTMLElement}>;

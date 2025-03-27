@@ -1249,6 +1249,8 @@ set rows(rows:rowType[]){
                         return selector_;
                     });
                     this.selectors=this._selectors;
+                    const blog={...this.blog,selectors:this.selectors};
+                    this.blog=blog;
                     this.localStore({blog:this.blog});
                     // console.log("953:modSelector:editElement",this.selectors)//works
                         
@@ -1263,6 +1265,7 @@ set rows(rows:rowType[]){
                         return ele;
                     });
                         this.elements=this._elements;
+                        this.blog={...this.blog,elements:this.elements};
                         this.localStore({blog:this.blog});
                         // console.log("953:modSelector:editElement",this.selectors)//works
                         
@@ -1441,10 +1444,7 @@ set rows(rows:rowType[]){
                 if(value){
                     ele.imgKey=value
                     removeAddIdValues.push({eleId,id:key,attValue:value});
-                }else{
-                    ele.imgKey=undefined
-                    removeAddIdValues.push({eleId,id:key,attValue:"remove"});
-                }
+                };
             }
         };
         removeAddIdValues.map(kv=>{
@@ -1560,14 +1560,13 @@ set rows(rows:rowType[]){
 removeHeader({parent,target,idValues}:{parent:HTMLElement,target:HTMLElement,idValues:idValueType[]}){
     target.style.position="relative";
     const blog=this.blog;
-    const cssStyle={color:"red"}
+    const cssStyle={color:"white",fontSize:"12px",borderRadius:"50%"};
     const xIcon=document.createElement("div");
     xIcon.id="modSelector-remove-header";
     xIcon.setAttribute("is-icon","true");
-    xIcon.setAttribute("data-delete","selector")
-    xIcon.classList.add("delete");
-    xIcon.style.cssText="position:absolute;top:0;right:0;transform:translate(-18px,0px);border-radius:50%;"
-    FaCreate({parent:xIcon,name:FaTrash,cssStyle:cssStyle});
+    xIcon.setAttribute("data-delete","selector");
+    xIcon.style.cssText="position:absolute;top:0;right:0;transform:translate(-18px,0px);border-radius:50%;background-color:black;color:white;border-radius:50%;padding:2px;"
+    FaCreate({parent:xIcon,name:FaCrosshairs,cssStyle:cssStyle});
     target.appendChild(xIcon);
     xIcon.addEventListener("click",(e:MouseEvent)=>{
         if(e){

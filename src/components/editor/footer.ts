@@ -164,6 +164,7 @@ class Footer{
                });
             const {rows}=this._modSelector.checkGetRows({select:selector});
                 await Promise.all(rows.toSorted((a,b)=>{if(a.order < b.order) return -1 ; return 1}).map(async(row_)=>{
+                    const selRow={selectorId:selector.eleId,rowId:row_.eleId} as selRowType;
                     const row=document.createElement("div");
                     row.id=row_.eleId;
                     const eleId=row.id;
@@ -173,12 +174,13 @@ class Footer{
                     row.style.cssText=row_.cssText;
                     // console.log("ROW STYLES INCOMMING",row_.cssText)//works
                    idValues.push({eleId,id:"rowId",attValue:eleId});
+                   idValues.push({eleId,id:"selRow",attValue:JSON.stringify(selRow)});
                    idValues.push({eleId,id:"ID",attValue:eleId});
                    idValues.push({eleId,id:"row_id",attValue:String(row_.id)});
                    idValues.push({eleId,id:"name",attValue:row_.name});
                    idValues.push({eleId,id:"selectorId",attValue:innerCont.id});
                   
-                   const _row_=await this._modSelector.removeBlob({target:row,rowColEle:row_,loc:"flexbox",level:"row",idValues});
+                   const _row_=await this._modSelector.removeBlob({target:row,rowColEle:row_,loc:"flexbox",level:"row",idValues,selRowCol:null,selRow});
                    if(_row_.imgKey){
                        idValues.push({eleId,id:"imgKey",attValue:_row_.imgKey});
                        row.setAttribute("data-backgroundImg","true");
@@ -217,7 +219,9 @@ class Footer{
                     await Promise.all(row_?.cols.toSorted((a,b)=>{if(a.order < b.order) return -1 ; return 1}).map(async(col_)=>{
 
                         const selRow:selRowType={selectorId:selector.eleId,rowId:row_.eleId}
+                        const selRowCol={selectorId:selector.eleId,rowId:row_.eleId,colId:col_.eleId} as selRowColType
                         idValues.push({eleId:col_.eleId,id:"selRow",attValue:JSON.stringify(selRow)});
+                        idValues.push({eleId:col_.eleId,id:"selRowCol",attValue:JSON.stringify(selRowCol)});
 
                         this.generateColumn({sel:selector,rowEle:row_,row,col_,idValues}).then(async(cRes)=>{
                             if(cRes){
@@ -254,7 +258,7 @@ class Footer{
                                             })
                                         }
 
-                                        await this.generateElement({sel:selector,col:cRes.col,element,rowEle:row_,colEle:col_,idValues}).then(async(eRes)=>{
+                                        await this.generateElement({sel:selector,col:cRes.col,element,rowEle:row_,colEle:col_,idValues,selRowCol:cRes.selRowCol}).then(async(eRes)=>{
                                              if(eRes){
                                                 if(eRes.isEdit){
 
@@ -322,13 +326,13 @@ class Footer{
         col_:colType,
         idValues:idValueType[]
 
-    }): Promise<{sel:selectorType,rowEle:rowType,colEle:colType,col:HTMLElement,row:HTMLElement,idValues:idValueType[]}>{
+    }): Promise<{sel:selectorType,rowEle:rowType,selRowCol:selRowColType,colEle:colType,col:HTMLElement,row:HTMLElement,idValues:idValueType[]}>{
        
         
         const col=document.createElement("div");
         col.id=col_.eleId;
         const eleId=col.id;
-        
+        const selRowCol={selectorId:sel.eleId,rowId:rowEle.eleId,colId:col_.eleId} as selRowColType;
         idValues.push({eleId,id:"colId",attValue:eleId});
         idValues.push({eleId,id:"ID",attValue:eleId});
         idValues.push({eleId,id:"colOrder",attValue:String(col_.order)});
@@ -337,10 +341,11 @@ class Footer{
         idValues.push({eleId,id:"col_id",attValue:String(col_.id)});
         idValues.push({eleId,id:"rowId",attValue:row.id});
         idValues.push({eleId,id:"name",attValue:"div"});
+        idValues.push({eleId,id:"selRowCol",attValue:JSON.stringify(selRowCol)});
         col.style.cssText=col_.cssText;
         col.className=col_.class;
         
-        const _col_=await this._modSelector.removeBlob({target:col,rowColEle:col_,loc:"flexbox",level:"col",idValues});
+        const _col_=await this._modSelector.removeBlob({target:col,rowColEle:col_,loc:"flexbox",level:"col",idValues,selRow:null,selRowCol});
         if(_col_.imgKey){
             idValues.push({eleId,id:"imgKey",attValue:_col_.imgKey});
             col.setAttribute("data-backgroundImg","true");
@@ -373,18 +378,19 @@ class Footer{
             idValues,
             clean:false
            });
-        return Promise.resolve({sel,rowEle,colEle:col_,col,row,idValues}) as Promise<{sel:selectorType,rowEle:rowType,colEle:colType,col:HTMLElement,row:HTMLElement,idValues:idValueType[]}>;
+        return Promise.resolve({sel,rowEle,colEle:col_,col,row,idValues,selRowCol}) as Promise<{sel:selectorType,rowEle:rowType,colEle:colType,col:HTMLElement,row:HTMLElement,idValues:idValueType[],selRowCol:selRowColType}>;
     };
 
     //GENERATE ELEMENT
    
-    async generateElement({sel,rowEle,colEle,col,element,idValues}:{
+    async generateElement({sel,rowEle,colEle,col,element,idValues,selRowCol}:{
         sel:selectorType,
         rowEle:rowType,
         colEle:colType,
         col:HTMLElement,
         element:element_selType,
-        idValues:idValueType[]
+        idValues:idValueType[],
+        selRowCol:selRowColType,
 
     }): Promise<{
         target: HTMLElement;
@@ -394,6 +400,7 @@ class Footer{
         rowEle:rowType;
         colEle:colType;
         isEdit:boolean;
+        selRowCol:selRowColType;
     } | undefined>{
         const node=element.name;
         const eleId=element.eleId;
@@ -409,12 +416,11 @@ class Footer{
         target.id=eleId
         
         const eleAttr=attrEnumArrTest(element)
-        const selRowCol={selectorId:sel.eleId,rowId:rowEle.eleId,colId:colEle.eleId};
         const eleType=typeEnumArrTest(element);//finds if type exists on element
         if(eleType && eleType.id==="reference"){
             //INSERT CLASS REFERENCE
         }else if(element.attr==="backgroundImg"){
-            const _ele_=await this._modSelector.removeBlob({target,rowColEle:element,loc:"flexbox",level:"element",idValues});
+            const _ele_=await this._modSelector.removeBlob({target,rowColEle:element,loc:"flexbox",level:"element",idValues,selRowCol,selRow:null});
             if(_ele_.imgKey){
                 target.setAttribute("data-backgroundImg","true");
                 idValues.push({eleId,id:"imgKey",attValue:_ele_.imgKey})
@@ -465,7 +471,7 @@ class Footer{
             Main.toggleActiveIcon(target);
            
             
-            return {target,divCont,idValues,rowEle,sel,colEle,isEdit:true};
+            return {target,divCont,idValues,rowEle,sel,colEle,isEdit:true,selRowCol};
             
         }else if(node==="ul"){
             const ele=target as HTMLUListElement;
@@ -477,7 +483,7 @@ class Footer{
             col.appendChild(divCont);
             Main.toggleActiveIcon(ele);
            
-            return {target:ele,divCont,rowEle,sel,colEle,idValues,isEdit:true};
+            return {target:ele,divCont,rowEle,sel,colEle,idValues,isEdit:true,selRowCol};
         }else if(node==="blockquote"){
             const ele=target as HTMLQuoteElement;
             ele.classList.remove("isActive");
@@ -485,7 +491,7 @@ class Footer{
             col.appendChild(divCont);
             Main.toggleActiveIcon(ele);
            
-            return {target:ele,divCont,rowEle,sel,colEle,idValues,isEdit:true};
+            return {target:ele,divCont,rowEle,sel,colEle,idValues,isEdit:true,selRowCol};
         }else if(node==="a"){
             const anchor=target as HTMLAnchorElement;
             const content= anchor.textContent ? anchor.textContent:"name";
@@ -524,7 +530,7 @@ class Footer{
             divCont.appendChild(anchor);
             col.appendChild(divCont);
 
-            return {target:anchor,divCont,rowEle,sel,colEle,idValues,isEdit:false};
+            return {target:anchor,divCont,rowEle,sel,colEle,idValues,isEdit:false,selRowCol};
 
         }else if(node==="logo"){
             const eleId=element.eleId
@@ -548,7 +554,7 @@ class Footer{
             divCont.appendChild(ele);
             col.appendChild(divCont);
 
-            return {target:ele,divCont,rowEle,sel,colEle,idValues,isEdit:false};
+            return {target:ele,divCont,rowEle,sel,colEle,idValues,isEdit:false,selRowCol};
 
         }else if(node==="img" ){
             const eleId=element.eleId;
@@ -575,7 +581,7 @@ class Footer{
             divCont.appendChild(ele);
             col.appendChild(divCont);
            
-            return {target:ele,divCont,rowEle,sel,colEle,idValues,isEdit:false};
+            return {target:ele,divCont,rowEle,sel,colEle,idValues,isEdit:false,selRowCol};
         }
     };
 
@@ -1183,7 +1189,7 @@ class Footer{
         if( imgKey){
             const check=this._service.checkFreeImgKey({imgKey});
                 if(check) return;
-                this._service.adminImagemark(imgKey as string).then(async(res)=>{
+                this._service.adminImagemark(imgKey as string,true).then(async(res)=>{
                     if(res){
                         Misc.message({parent:column,msg:`${imgKey} is removed`,type_:"success",time:700});
                         this._modSelector.updateColumn({target:column,idValues,selRowCol});
@@ -1677,7 +1683,7 @@ class Footer{
                                 if(key){
                                     const check=this._service.checkFreeImgKey({imgKey:key});
                                     if(check) return;
-                                    this._service.adminImagemark(key);
+                                    this._service.adminImagemark(key,true);
                                 }
                             });
                             this._modSelector.selectors.splice(index,1);
@@ -2196,7 +2202,7 @@ class Footer{
                        if(imgKey){
                         const check=this._service.checkFreeImgKey({imgKey});
                             if(check) return;
-                           this._service.adminImagemark(imgKey).then(async(res)=>{
+                           this._service.adminImagemark(imgKey,true).then(async(res)=>{
                                if(res){
                                    Misc.message({parent:parent,msg:`${imgKey} was deleted`,type_:"success",time:700});
                                }

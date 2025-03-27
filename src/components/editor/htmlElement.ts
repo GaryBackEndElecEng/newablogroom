@@ -324,10 +324,13 @@ class HtmlElement {
             divCont.style.paddingInline=less400 ? "0.25rem":"1.5rem";
             this._modSelector.dataset.insertcssClassIntoComponents({target:divCont,loc:"htmlElement",type:"htmlElement",headerType:undefined,id:"divContId",level:"element"});
             target.classList.remove("isActive");
+            divCont.classList.remove("isActive");
             target.id=eleId;
             target.className=element.class;
             const {cleaned:cleanClasses}=this._modSelector.removeClasses({target,classes:["isActive"]});
+            const {cleaned:cleanClassesDiv}=this._modSelector.removeClasses({target:divCont,classes:["isActive"]});
             target.className=cleanClasses.join(" ");
+            divCont.className=cleanClassesDiv.join(" ");
             target.innerHTML=element.inner_html;
             target.style.cssText=`${element.cssText}`;
             idValues.push({eleId,id:"divContId",attValue:divCont.id});
@@ -1178,7 +1181,7 @@ class HtmlElement {
                                 if(imgKey){
                                     const check=this._service.checkFreeImgKey({imgKey});
                                     if(check) return;
-                                    this._service.adminImagemark(imgKey).then(async(res)=>{
+                                    this._service.adminImagemark(imgKey,true).then(async(res)=>{
                                         if(res){
                                             Misc.message({parent:parent,msg:`${imgKey}`,type_:"success",time:700});
                                         }
@@ -1391,7 +1394,9 @@ class HtmlElement {
                     }
                 return ele;
             });
-            this._modSelector.localStore({blog:this._modSelector.blog});
+            const blog={...this._modSelector.blog,elements:this.elements};
+            this._modSelector.blog=blog
+            this._modSelector.localStore({blog});
         };
     });
 
@@ -1500,6 +1505,7 @@ class HtmlElement {
    async fontAction(btn:HTMLButtonElement,idValues:idValueType[]){
         //THIS IS THE MAIN CONTROLLER FOR ALL NONFLEX AND FLEX ITEMS
         const isActives=(Main.container as HTMLElement).querySelectorAll("[data-is-element='true']");
+     
         // console.log("isActives",[...isActives])
         if(isActives){
            await Promise.all([...isActives as any as HTMLElement[]].map(async(activeEle)=>{

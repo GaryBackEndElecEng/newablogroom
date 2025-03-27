@@ -1,4 +1,4 @@
-import { PrismaClient } from "@prisma/client";
+
 import { NextApiRequest, NextApiResponse } from "next";
 import { userType } from "@/components/editor/Types";
 import { getErrorMessage } from "@/lib/errorBoundaries";
@@ -9,7 +9,7 @@ import prisma from "@/prisma/prismaclient";
 
 const EMAIL = process.env.EMAIL as string;
 const EMAIL2 = process.env.EMAIL2 as string;
-// const PASSWORD = process.env.PASSWORD as string;
+
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
     const { user_, adminEmail, adminId } = req.body as { user_: userType, adminEmail: string, adminId: string };
     const { email, password, name, image, imgKey, bio, id, showinfo, username } = user_;
@@ -62,7 +62,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
             console.log(msg);
             return await prisma.$disconnect();
         } finally {
-            return await prisma.$disconnect();
+            await prisma.$disconnect();
         }
     }
     if (req.method === "PUT" && admin) {
@@ -71,12 +71,12 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
             const user = await prisma.user.update({
                 where: { id: id },
                 data: {
-                    name: name ? name : null,
-                    image: image ? image : null,
-                    imgKey: imgKey ? imgKey : null,
-                    bio: bio ? bio : null,
+                    name: name || null,
+                    image: image || null,
+                    imgKey: imgKey || null,
+                    bio: bio || null,
                     showinfo: showinfo,
-                    username: username ? username : null
+                    username: username || null
                 },
                 select: {
                     name: true,
@@ -98,7 +98,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
             console.log(msg);
             return await prisma.$disconnect()
         } finally {
-            return await prisma.$disconnect();
+            await prisma.$disconnect();
         }
     }
     if (req.method === "DELETE") {
@@ -116,7 +116,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
             console.log(msg);
             return await prisma.$disconnect()
         } finally {
-            return await prisma.$disconnect();
+            await prisma.$disconnect();
         }
     }
     if (req.method === "GET") {
@@ -125,6 +125,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
             const user = await prisma.user.findUnique({
                 where: { id: id },
                 select: {
+                    id: true,
                     email: true,
                     name: true,
                     image: true,
@@ -145,7 +146,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
             res.status(400).json(msg);
             return await prisma.$disconnect()
         } finally {
-            return await prisma.$disconnect();
+            await prisma.$disconnect();
         }
     }
 }

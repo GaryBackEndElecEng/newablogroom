@@ -1,4 +1,4 @@
-import {flexType,element_selType,colType,rowType,selectorType,columnAttrType,colAttrType, blogType} from "./Types";
+import {flexType,element_selType,colType,rowType,selectorType,columnAttrType,colAttrType, blogType, elementType} from "./Types";
 import ModSelector from "./modSelector";
 import {FaTrash,FaCrosshairs} from "react-icons/fa";
 import {FaCreate} from "@/components/common/ReactIcons";
@@ -151,7 +151,7 @@ class CustomHeader {
     _selector:selectorType;
    
     static nameValueAttrs:columnAttrType[]=[
-        {id:0,name:"select",value:"#"},
+        {id:0,name:"select",value:undefined,attr:undefined,remove:undefined,level:undefined},
         {id:1,name:"image",value:"img",level:"element"},
         {id:1,name:"h1",value:"h1",level:"element"},
         {id:2,name:"h2",value:"h2",level:"element"},
@@ -667,7 +667,7 @@ set selector(selector:selectorType){
         });
         idValues=retIdValues;
        this._modSelector.dataset.populateElement({target,selRowColEle:selector,idValues,level:"selector",loc:"flexbox",clean:false});
-       console.log("selectorAdder",selector)
+      
         //----------//---POPULATING ATTRIBUTES TO TARGET------\\-----///
         parent.appendChild(target);//appending/or re-apending target
         return Promise.resolve({selector,target,idValues,colsTop,colsBot})as Promise<{selector:selectorType,target:HTMLElement,idValues:idValueType[],colsTop:number,colsBot:number}>;
@@ -761,7 +761,7 @@ set selector(selector:selectorType){
         divFormGrp.setAttribute("is-popup","true");
         divFormGrp.className="popup-customheader-elementchoices";
         divFormGrp.setAttribute("data-form-group","true");
-        divFormGrp.style.cssText="line-height:10px;margin:0px;z-index:2;width:fit-content;height:18px;font-size:12px;top:100%;box-shadow:1px 1px 3px lightgrey;transform:translateY(50%);";
+        divFormGrp.style.cssText="line-height:10px;margin:0px;z-index:2;width:fit-content;height:18px;font-size:12px;top:100%;box-shadow:1px 1px 3px lightgrey;transform:translateY(50%) scale(0.5);";
         
         divFormGrp.classList.add("position-absolute");
         divFormGrp.classList.add("top-100");
@@ -1407,6 +1407,7 @@ set selector(selector:selectorType){
                     column.appendChild(divCont);
                     Misc.matchMedia({parent:divCont,maxWidth:820,cssStyle:{marginInline:"1.5rem"}});
                     Misc.matchMedia({parent:divCont,maxWidth:420,cssStyle:{marginInline:"10px"}});
+                    target.removeAttribute("contenteditable");
                     divCont.addEventListener("click",(e:MouseEvent)=>{
                         if(e){
                             target.classList.toggle("isActive");
@@ -1443,23 +1444,26 @@ set selector(selector:selectorType){
             
                     Header.cleanUp(target);
                     
+                    target.innerHTML=element.inner_html;
                     if(link?.test){
                         target.setAttribute("data-link",link.value);
+                        target.removeAttribute("contenteditable");
                         //PHONE IMAGE
-                    this.addLinkEmailTelImg({target:target as HTMLAnchorElement,image:this.link,href:link.value,type:"link",name:target.textContent||"link"});
-                    //PHONE IMAGE
-                        target.onclick=()=>{
-                        window.open(link.value,"_blank");
-                    }
+                    this.showLinkEmailTelImg({target:target as HTMLAnchorElement,element,type:"link",isClean:false});
+                  
 
                     };
                     if(email?.test){
+                        console.log("TARGET",target.textContent,"ELEMENT",element.inner_html)
+                        target.innerHTML=element.inner_html;
                         target.setAttribute("data-email",email.value)
-                        this.addLinkEmailTelImg({target:target as HTMLAnchorElement,image:this.mail,href:email.value,type:"email",name:target.textContent||"link"});
+                        this.showLinkEmailTelImg({target:target as HTMLAnchorElement,element,type:"email",isClean:false});
+                        target.removeAttribute("contenteditable");
                     };
                     if(tel?.test){
                         target.setAttribute("data-tel",tel.value)
-                        this.addLinkEmailTelImg({target:target as HTMLAnchorElement,image:this.phone,href:tel.value,type:"tel",name:target.textContent||"link"});
+                        this.showLinkEmailTelImg({target:target as HTMLAnchorElement,element,type:"tel",isClean:false});
+                        target.removeAttribute("contenteditable");
                     };
                     
                     divCont.appendChild(target);
@@ -1529,6 +1533,7 @@ set selector(selector:selectorType){
                     this.elementAdder({target:img,idValues,sel:selector,rowEle:row,colEle:col}).then(async(res)=>{
                         if(res){
                             const ele=res.ele as element_selType;
+                            res.target.removeAttribute("contenteditable");
                             divCont.setAttribute("data-placement",`${ele.order}-A`);
                             divCont.addEventListener("click",(e:MouseEvent)=>{
                                 if(e){
@@ -1561,7 +1566,8 @@ set selector(selector:selectorType){
 
 
         
-     }
+     };
+
   
      getBgImage({target,blog,idValues,selRowCol}:{target:HTMLElement,blog:blogType,idValues:idValueType[],selRowCol:selRowColType}){
        //target====column
@@ -1612,6 +1618,7 @@ set selector(selector:selectorType){
                 target.style.backgroundImage=`url(${image})`;
                 target.style.backgroundPosition=`50% 50%`;
                 target.style.backgroundSize=`100% 100%`;
+                target.removeAttribute("contenteditable");
                 const {Key}=this._service.generateFreeImgKey({formdata,user}) as {Key:string};
                 const idValue:idValueType={eleId:target.id,id:"imgKey",attValue:Key};
                 this._modSelector.dataset.upDateIdValue({target,idValues,idValue});
@@ -1648,6 +1655,7 @@ set selector(selector:selectorType){
         const oldKey=getOld ? getOld.attValue : null;
         const {form:form2,reParent:mainTextarea}=Misc.imageForm(column);
         Header.removePopup({parent:column,target:form2,position:"right"});
+        target.removeAttribute("contenteditable");
         form2.addEventListener("submit",async(e:SubmitEvent)=>{
             if(e){
                 e.preventDefault();
@@ -1715,6 +1723,7 @@ set selector(selector:selectorType){
         };
      };
 
+
      //PARENT:CUSTOMELEMENTCHOICES(){}
      changeImgSize({column,idValues,selRowCol}:{column:HTMLElement,idValues:idValueType[],selRowCol:selRowColType}){
 
@@ -1724,7 +1733,9 @@ set selector(selector:selectorType){
                 this.changeSize({column,img,idValues,selRowCol});
             }
         });
-     }
+     };
+
+
      //PARENT: changeImgSize()
      changeSize({column,img,idValues,selRowCol}:{column:HTMLElement,img:HTMLImageElement,idValues:idValueType[],selRowCol:selRowColType}){
         column.style.zIndex="";
@@ -1764,7 +1775,9 @@ set selector(selector:selectorType){
         });
         
 
-    }
+    };
+
+
     
       //PARENT columnFlexChoices()
       rowColor({row,idValues,selRow}:{row:HTMLElement,idValues:idValueType[],selRow:selRowType}){
@@ -1789,7 +1802,11 @@ set selector(selector:selectorType){
             }
         }
        
-     }
+     };
+
+
+
+
      rowHeight({column,idValues,selRowCol}:{column:HTMLElement,idValues:idValueType[],selRowCol:selRowColType}){
         if(!column) return;
         const {selectorId,rowId}=selRowCol as selRowColType;
@@ -1868,7 +1885,9 @@ set selector(selector:selectorType){
             });
         }
        
-     }
+     };
+
+
      
      getEmail({parent,target,divCont,idValues,selector,row,col}:{
         parent:HTMLElement,
@@ -1917,17 +1936,21 @@ set selector(selector:selectorType){
                 const anchor=target as HTMLAnchorElement;
                 const eleId=target.id;
                 anchor.href=`mailto:${email}`;
+               
                 //INSERT MAIL IMAGE
                 const selRowCol={selectorId:selector.eleId,rowId:row.eleId,colId:col.eleId} as selRowColType;
-                this.addLinkEmailTelImg({target:anchor,image:this.mail,href:`mailto:${email}`,type:"email",name});
+                this.addLinkEmailTelImg({target:anchor,name,image:this.mail,href:`mailto:${email}`,type:"email",isClean:false});
                 //INSERT MAIL IMAGE
                 anchor.setAttribute("data-email",email);
                 idValues.push({eleId,id:"email",attValue:anchor.href});
+                idValues.push({eleId,id:"editableFalse",attValue:"false"});
+                anchor.removeAttribute("contenteditable");
                 divCont.appendChild(anchor);
                 parent.appendChild(divCont);
                 this.elementAdder({target:anchor,idValues,sel:selector,rowEle:row,colEle:col}).then(async(res)=>{
                     if(res){
                         const ele=res.ele as element_selType;
+                        res.target.removeAttribute("contenteditable");
                         divCont.setAttribute("data-placement",`${ele.order}-A`);
                         divCont.onclick=(e:MouseEvent)=>{
                             if(e){
@@ -1944,7 +1967,9 @@ set selector(selector:selectorType){
                 },398);
             }
         };
-     }
+     };
+
+
      insertTel({parent,target,divCont,idValues,selector,row,col}:{parent:HTMLElement,
         target:HTMLElement,
         divCont:HTMLElement,
@@ -1990,17 +2015,21 @@ set selector(selector:selectorType){
                 const tel=formdata.get("tel") as string;
                 const name=formdata.get("name") as string;
                 const anchor=target as HTMLAnchorElement;
+               
                 const eleId=target.id;
                 anchor.href=`tel:${tel}`;
                 //PHONE IMAGE
-                this.addLinkEmailTelImg({target:anchor,image:this.phone,href:`tel:${tel}`,type:"tel",name});
+                this.addLinkEmailTelImg({target:anchor,name,image:this.phone,href:`tel:${tel}`,type:"tel",isClean:false});
                 //PHONE IMAGE
                 idValues.push({eleId,id:"tel",attValue:anchor.href});
+                idValues.push({eleId,id:"editableFalse",attValue:"false"});
+                anchor.removeAttribute("contenteditable");
                 divCont.appendChild(anchor);
                 parent.appendChild(divCont);
                 this.elementAdder({target:anchor,idValues,sel:selector,rowEle:row,colEle:col}).then(async(res)=>{
                     if(res){
                         const ele=res.ele as element_selType;
+                        res.target.removeAttribute("contenteditable");
                         divCont.setAttribute("data-placement",`${ele.order}-A`)
                         divCont.onclick=(e:MouseEvent)=>{
                             if(e){
@@ -2009,7 +2038,7 @@ set selector(selector:selectorType){
                               this.removeMainElement({parent,divCont,target:res.target,idValues,selRowCol});
                             }
                         };
-                        this.editElement({target:res.target,idValues:res.idValues,selRowCol});//ADDS A LISTENER TO HEADER LABELS
+                      
                     }
                 });
                 Misc.fadeOut({anchor:form,xpos:100,ypos:100,time:400});
@@ -2075,7 +2104,10 @@ set selector(selector:selectorType){
                 }
             });
         }
-     }
+     };
+
+
+
      removeMainElement({parent,target,divCont,idValues,selRowCol}:{
         parent:HTMLElement,
         divCont:HTMLElement,
@@ -2106,7 +2138,7 @@ set selector(selector:selectorType){
                         if(idValue){
                             const check=this._service.checkFreeImgKey({imgKey:idValue.attValue});
                             if(check) return;
-                            this._service.adminImagemark(idValue.attValue).then(async(res)=>{
+                            this._service.adminImagemark(idValue.attValue,true).then(async(res)=>{
                                 if(res){
                                     Misc.message({parent,msg:`${idValue.attValue} is removed`,type_:"success",time:700});
                                 }
@@ -2136,7 +2168,11 @@ set selector(selector:selectorType){
                         if(row.eleId===rowId){
                             row.cols.map(col=>{
                                 if(col.eleId===colId){
-                                    col.elements = col.elements.filter(ele=>(ele.eleId !==eleId))
+                                   col.elements.map((ele,index)=>{
+                                    if(ele.eleId ===eleId){
+                                        col.elements.splice(index,1);
+                                    }
+                                   });
                                 }
                                 return col;
                             });
@@ -2147,6 +2183,8 @@ set selector(selector:selectorType){
                 }
             return sel;
         });
+        this._modSelector.blog={...this._modSelector.blog,selectors:this._modSelector.selectors};
+        this._modSelector.localStore({blog:this._modSelector.blog});
         idValues = idValues.filter(kat=>(kat.eleId !==eleId));
         idValues=Dataset.removeIdValueDuplicates({arr:idValues,eleId});
         this._modSelector.dataset.upDateIdValues({idValues})
@@ -2213,7 +2251,9 @@ set selector(selector:selectorType){
 
                 // LINK IMAGE
                 //PHONE IMAGE
-                this.addLinkEmailTelImg({target:anchor,image:this.link,href:link,type:"link",name});
+                this.addLinkEmailTelImg({target:anchor,name,image:this.link,href:link,type:"link",isClean:false});
+                idValues.push({eleId,id:"editableFalse",attValue:String("false")});
+                anchor.removeAttribute("contenteditable");
                 //PHONE IMAGE
                 // LINK IMAGE
 
@@ -2226,7 +2266,8 @@ set selector(selector:selectorType){
                 this.elementAdder({target:anchor,idValues,sel:selector,rowEle:row,colEle:col}).then(async(res)=>{
                     if(res ){
                         const ele=res.ele as element_selType;
-                        divCont.setAttribute("data-placement",`${ele.order}-A`)
+                        divCont.setAttribute("data-placement",`${ele.order}-A`);
+                        res.target.removeAttribute("contenteditable");
                     divCont.addEventListener("click",(e:MouseEvent)=>{
                         if(e){
                             res.target.classList.toggle("isActive");
@@ -2254,13 +2295,13 @@ set selector(selector:selectorType){
 
     removeHeader({target,parent,idValues}:{parent:HTMLElement,target:HTMLElement,idValues:idValueType[]}){
         target.style.position="relative";
-        const cssStyle={color:"red"}
+        const cssStyle={color:"white",fontSize:"12px",borderRadius:"50%"};
         const xIconDiv=document.createElement("div");
         xIconDiv.setAttribute("is-icon","true");
         xIconDiv.setAttribute("data-delete","selector")
         let idValRms:idValueType[]=[]
-        xIconDiv.style.cssText="position:absolute;top:0;right:0;transform:translate(-2px,0px);border-radius:50%;z-index:200;"
-        FaCreate({parent:xIconDiv,name:FaTrash,cssStyle:cssStyle});
+        xIconDiv.style.cssText="position:absolute;top:0;right:0;transform:translate(-2px,0px);border-radius:50%;z-index:200;padding:3px;background-color:black;color:white;"
+        FaCreate({parent:xIconDiv,name:FaCrosshairs,cssStyle:cssStyle});
         target.appendChild(xIconDiv);
         xIconDiv.addEventListener("click",(e:MouseEvent)=>{
             if(e){
@@ -2311,7 +2352,7 @@ set selector(selector:selectorType){
                     if(item){
                         const check=this._service.checkFreeImgKey({imgKey:item.imgKey});
                             if(check) return;
-                        this._service.adminImagemark(item.imgKey).then(async(res)=>{
+                        this._service.adminImagemark(item.imgKey,true).then(async(res)=>{
                             if(res){
                                 Misc.message({parent:parent,msg:`${item.imgKey}`,type_:"success",time:400});
                             }
@@ -2517,7 +2558,7 @@ set selector(selector:selectorType){
                         ele.attr=kat.attValue;
                     }else if(typeTest ){
                         ele.type=kat.attValue;
-                        console.log("attr",kat.attValue)
+                      
                     }else if(kat.id==="imgKey"){
                         ele.imgKey=kat.attValue;
                     }
@@ -2581,22 +2622,38 @@ set selector(selector:selectorType){
     };
    
    
-    addLinkEmailTelImg({target,image,href,name,type}:{target:HTMLAnchorElement,image:string,href:string,name:string,type:"link"|"email"|"tel"}){
-        target.textContent="";
+    addLinkEmailTelImg({target,name,image,href,type,isClean}:{target:HTMLAnchorElement,name:string,image:string,href:string,type:"link"|"email"|"tel",isClean:boolean}){
         const text=new Text(name);
-        const span=document.createElement("span");
-        span.style.cssText="display:inline-flex;align-items:center;gap:4px;";
         const img=document.createElement("img");
         img.src=image;
         img.alt="www.ablogroom.com";
         this._modSelector.dataset.insertcssClassIntoComponents({target:img,level:"element",loc:"flexbox",type:"customHeader",id:"linkImgs",headerType:"custom"});
-        span.appendChild(img);
-        span.appendChild(text);
-        target.appendChild(span);
-        if(type==="link") window.open(href,"_blank");
-        if(type==="email") target.href=href;
-        if(type==="tel") target.href=href;
-    }
+        target.style.display="inline-flex";
+        target.style.alignItems="center";
+        target.style.gap="4px";
+        target.appendChild(img);
+        target.appendChild(text);
+        target.href=href;
+        if(type==="link" && isClean){
+             window.open(href,"_blank");target.setAttribute("data-link",href)
+
+        };
+        if(type==="email") {target.setAttribute("data-email",href)};
+        if(type==="tel"){ target.setAttribute("data-tel",href)}
+       
+    };
+
+
+    showLinkEmailTelImg({target,element,type,isClean}:{target:HTMLAnchorElement,element:elementType|element_selType,type:"link"|"email"|"tel",isClean:boolean}){
+       target.innerHTML=element.inner_html;
+       const href=element.attr as string;
+       target.href=href;
+       if(type==="link" && isClean){ window.open(href,"_blank");target.setAttribute("data-link",href)};
+       if(type==="email") {target.setAttribute("data-email",href)};
+       if(type==="tel"){ target.setAttribute("data-tel",href)}
+        
+       
+    };
    
    static insertBgImage(target:HTMLElement,urlImg:string){
     const cssArr=target.style.cssText.split(";");

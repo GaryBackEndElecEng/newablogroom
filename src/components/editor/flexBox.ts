@@ -4,7 +4,7 @@ import Service from "@/components/common/services";
 import Misc from "@/components/common/misc";
 import Main from "./main";
 import { FaCreate } from "../common/ReactIcons";
-import { FaCrosshairs, FaTrash } from "react-icons/fa";
+import { FaCrosshairs } from "react-icons/fa";
 import Edit from "./edit";
 import User from "../user/userMain";
 import { btnReturnDisableType, buttonRetDisable} from "../common/tsFunctions";
@@ -482,9 +482,6 @@ colAttrs=["col-start","col-end","col-center"];
         const node=element.name;
         const attrTest=attrEnumArrTest(element);
         const typeTest=typeEnumArrTest(element);
-        const link = attrTest && attrTest.id==="link" ? attrTest.value:undefined;
-        const email = attrTest && attrTest.id==="email" ? attrTest.value:undefined;
-        const tel = attrTest && attrTest.id==="tel" ? attrTest.value:undefined;
         const time = attrTest && attrTest.id==="time" ? attrTest.value:undefined;
         const isCircle = attrTest && attrTest.id==="shapeOutsideCircle" ? attrTest.value:undefined;
         const isSquare = attrTest && attrTest.id==="shapeOutsideSquare" ? attrTest.value:undefined;
@@ -536,7 +533,7 @@ colAttrs=["col-start","col-end","col-center"];
         
         const checkArr=["img","ul","ol","blockquote","a","span","logo","image","time"].includes(element.name);
         const checkUlType=["ol","ul","blockquote"].includes(element.name);
-
+        console.log("anachor",element.name)
         if(!checkArr && !shapeOutside ){
             
             if(element.attr==="data-backgroundImg" && element.imgKey){
@@ -577,17 +574,15 @@ colAttrs=["col-start","col-end","col-center"];
             return {ele:target,divCont,element,col,isEdit:true,idValues}
 
         }else if(checkArr && element.name==="a"){
+            
             target.className=element.class;
             target.id=element.eleId;
             target.style.cssText=element.cssText;
             Misc.matchMedia({parent:divCont,maxWidth:820,cssStyle:{paddingInline:"1.5rem"}});
             Misc.matchMedia({parent:divCont,maxWidth:420,cssStyle:{paddingInline:"10px"}});
+            this.showLinkEmailTelImg({target:target as HTMLAnchorElement,element,type:"link"})
     
             divCont.appendChild(target);
-
-            if(link) target.onclick=()=>{window.open(link,"_blank")};
-            if(email) (target as HTMLAnchorElement).href=email;
-            if(tel) (target as HTMLAnchorElement).href=tel;
 
             return {ele:target,divCont,element,col,isEdit:true,idValues};
 
@@ -804,7 +799,7 @@ colAttrs=["col-start","col-end","col-center"];
         small.textContent="select";
         column.classList.add("position-relative");
         popup.className="popup text-center p-1 d-flex flex-column";
-        popup.style.cssText="position:absolute;top:0;right:0;transform:translate(12px,-12px);background:white; color:darkblue;z-index:200;";
+        popup.style.cssText="position:absolute;top:0;right:0;background:white; color:darkblue;z-index:200;transform:scale(0.4) translate(120px,-40px);";
         const select=document.createElement("select") as HTMLSelectElement;
         select.setAttribute("name","default");
         select.setAttribute("isPopup","true");
@@ -839,141 +834,139 @@ colAttrs=["col-start","col-end","col-center"];
                 let icon:iconType | undefined;
                 let btn:HTMLButtonElement | null;
                 
-              
-                
                 if(isEle && ele){
-                        const checkEle=["p","h1","h2","h3","h4","h5","h6","span","img","time","blockquote","a","ul","ol"].includes(ele);
-                        const checkText=["p","h1","h2","h3","h4","h5","h6","span"].includes(ele);
-                        //GOES TO MAIN FOR ELEMENT CREATION
-                        if(checkEle){
-                            const rand=Math.floor(Math.random()*1000);
-                            const divCont=document.createElement("div");
-                            this._modSelector.dataset.insertcssClassIntoComponents({target:divCont,level:"element",loc:"flexbox",type:"flexbox",id:"divContId",headerType:undefined});
-                            divCont.id=`flexbox-divCont-${rand}`;
-                            const target=document.createElement(ele);
-                            target.id=`flexbox-${ele}-${rand}`;
-                            target.style.cssText="padding-inline:1rem;width:100% !important;position:relative;border-radius:6px;"
-                            const eleId=target.id;
-                            const selRowCol={selectorId:selector.eleId,rowId:row.eleId,colId:column.id};
-                            const strSelRowCol=JSON.stringify(selRowCol);
-                            idValues.push({eleId,id:"selRowCol",attValue:strSelRowCol});
-                            
-                            switch(true){
-                                case ele==="img":
-                                    icon=Toolbar.icons.find(ico=>(ico.name==="img")) as iconType;
-                                    btn=document.querySelector(`button#${icon.name}`) as HTMLButtonElement;
-                                    //ADDING IMAGE
-                                    this.addImage({
-                                        parent:column,
-                                        target,
-                                        divCont,
-                                        btn,
-                                        icon,
-                                        idValues,
-                                        selector,
-                                        row,
-                                        col
+                    const checkEle=["p","h1","h2","h3","h4","h5","h6","span","img","time","blockquote","a","ul","ol"].includes(ele);
+                    const checkText=["p","h1","h2","h3","h4","h5","h6","span"].includes(ele);
+                    //GOES TO MAIN FOR ELEMENT CREATION
+                    if(checkEle){
+                        const rand=Math.floor(Math.random()*1000);
+                        const divCont=document.createElement("div");
+                        this._modSelector.dataset.insertcssClassIntoComponents({target:divCont,level:"element",loc:"flexbox",type:"flexbox",id:"divContId",headerType:undefined});
+                        divCont.id=`flexbox-divCont-${rand}`;
+                        const target=document.createElement(ele);
+                        target.id=`flexbox-${ele}-${rand}`;
+                        target.style.cssText="padding-inline:1rem;width:100% !important;position:relative;border-radius:6px;"
+                        const eleId=target.id;
+                        const selRowCol={selectorId:selector.eleId,rowId:row.eleId,colId:column.id};
+                        const strSelRowCol=JSON.stringify(selRowCol);
+                        idValues.push({eleId,id:"selRowCol",attValue:strSelRowCol});
+                        
+                        switch(true){
+                            case ele==="img":
+                                icon=Toolbar.icons.find(ico=>(ico.name==="img")) as iconType;
+                                btn=document.querySelector(`button#${icon.name}`) as HTMLButtonElement;
+                                //ADDING IMAGE
+                                this.addImage({
+                                    parent:column,
+                                    target,
+                                    divCont,
+                                    btn,
+                                    icon,
+                                    idValues,
+                                    selector,
+                                    row,
+                                    col
 
-                                    })
-                                    
-                                return;
+                                })
                                 
-                                case checkText :
-                                     icon=Toolbar.icons.filter(ico=>(ico.isElement===true)).find(ico=>(ico.name===ele)) as iconType;
-                                     btn=document.querySelector(`button#${icon.name}`) as HTMLButtonElement;
-                                    this._modSelector.dataset.insertcssClassIntoComponents({
-                                        target,level:"element",
-                                        headerType:undefined,
-                                        id:"para",
-                                        loc:"flexbox",
-                                        type:"flexbox"
+                            return;
+                            
+                            case checkText :
+                                    icon=Toolbar.icons.filter(ico=>(ico.isElement===true)).find(ico=>(ico.name===ele)) as iconType;
+                                    btn=document.querySelector(`button#${icon.name}`) as HTMLButtonElement;
+                                this._modSelector.dataset.insertcssClassIntoComponents({
+                                    target,level:"element",
+                                    headerType:undefined,
+                                    id:"para",
+                                    loc:"flexbox",
+                                    type:"flexbox"
 
-                                    });
-                                     if(icon){
-                                       await this.appElement({
-                                            parent:column,
-                                            target,
-                                            divCont,
-                                            btn,
-                                            icon,
-                                            idValues,
-                                            selector,
-                                            row,
-                                            col
-
-                                        });
-                                        
-                                     }
-                                return;
-                                case ele ==="blockquote":
-                                    icon=Toolbar.icons.find(ico=>(ico.name==="blockquote")) as iconType;
-                                    
-                                     this.createQuote({
-                                        parent:column,
-                                        target,
-                                        divCont,
-                                        icon,
-                                        idValues,
-                                        selector,
-                                        row,
-                                        col
-
-                                     });
-                                     
-                                return;
-                                case ele ==="a":
-                                    icon=Toolbar.icons.find(ico=>(ico.name==="a")) as iconType;
-                                    
-                                     this.createAnchor({
-                                        parent:column,
-                                        target,
-                                        divCont,
-                                        icon,
-                                        idValues,
-                                        selector,
-                                        row,
-                                        col
-
-                                     });
-                                     
-                                return;
-                                case ele ==="ul" || ele==="ol":
-                                    
-                                    btn=document.querySelector(`button#ul`) as HTMLButtonElement;
-                                    this.createList({
+                                });
+                                    if(icon){
+                                    await this.appElement({
                                         parent:column,
                                         target,
                                         divCont,
                                         btn,
-                                        idValues,
-                                       selector,
-                                       row,
-                                       col
-
-                                    });
-                                    
-                                return;
-                                case ele ==="time":
-                                    icon=Toolbar.icons.find(ico=>(ico.name==="time")) as iconType;
-                                   
-                                    this.insertDateTime({
-                                        parent:column,
-                                        target,
-                                        divCont,
                                         icon,
                                         idValues,
-                                       selector,
-                                       row,
-                                       col
+                                        selector,
+                                        row,
+                                        col
 
                                     });
                                     
-                                return;
-                                default:
-                                    return;
-                            }
+                                    }
+                            return;
+                            case ele ==="blockquote":
+                                icon=Toolbar.icons.find(ico=>(ico.name==="blockquote")) as iconType;
+                                
+                                    this.createQuote({
+                                    parent:column,
+                                    target,
+                                    divCont,
+                                    icon,
+                                    idValues,
+                                    selector,
+                                    row,
+                                    col
 
+                                    });
+                                    
+                            return;
+                            case ele ==="a":
+                                icon=Toolbar.icons.find(ico=>(ico.name==="a")) as iconType;
+                                
+                                    this.createAnchor({
+                                    parent:column,
+                                    target,
+                                    divCont,
+                                    icon,
+                                    idValues,
+                                    selector,
+                                    row,
+                                    col
+
+                                    });
+                                    
+                            return;
+                            case ele ==="ul" || ele==="ol":
+                                
+                                btn=document.querySelector(`button#ul`) as HTMLButtonElement;
+                                this.createList({
+                                    parent:column,
+                                    target,
+                                    divCont,
+                                    btn,
+                                    idValues,
+                                    selector,
+                                    row,
+                                    col
+
+                                });
+                                
+                            return;
+                            case ele ==="time":
+                                icon=Toolbar.icons.find(ico=>(ico.name==="time")) as iconType;
+                                
+                                this.insertDateTime({
+                                    parent:column,
+                                    target,
+                                    divCont,
+                                    icon,
+                                    idValues,
+                                    selector,
+                                    row,
+                                    col
+
+                                });
+                                
+                            return;
+                            default:
+                                return;
                         }
+
+                    }
 
                 }else if(!ele){
                     if(level==="col"){
@@ -1026,8 +1019,8 @@ colAttrs=["col-start","col-end","col-center"];
                        }
                       });
                    }
-               }
                 }
+            };
         });
         
     }
@@ -1122,7 +1115,8 @@ colAttrs=["col-start","col-end","col-center"];
         });//CRITICAL: needs flexTracker!!,this adds elements to selector and/or elements
           
         
-    }
+    };
+
     //PARENT ADDELEMENT()
     async addImage({parent,selector,target,divCont,row,col,icon,btn,idValues}:{
         parent:HTMLElement,
@@ -1222,7 +1216,9 @@ colAttrs=["col-start","col-end","col-center"];
             }
         });
 
-    }
+    };
+
+
 
     async bgImage({column,sel,row,col,idValues}:{
         column:HTMLElement,
@@ -1393,10 +1389,10 @@ colAttrs=["col-start","col-end","col-center"];
                     const anchor=target as HTMLAnchorElement;
                     anchor.style.cssText="margin-inline:auto;padding:1rem;font-size:18px;";
                     anchor.className="text-primary"
-                    anchor.textContent=inName.value;
                     anchor.href="#";
                     anchor.setAttribute("data-link",link);
-                    this.addLinkEmailTelImg({target:anchor,image:this.link,href:link,name,type:"link"});
+                    this.addLinkEmailTelImg({target:anchor,image:this.link,href:link,name,type:"link",isClean:false});
+                    idValues.push({eleId,id:"editableFalse",attValue:String(false)});
                     divCont.appendChild(anchor);
                     parent.appendChild(divCont);
                     idValues.push({eleId,id:"link",attValue:link});
@@ -1412,18 +1408,18 @@ colAttrs=["col-start","col-end","col-center"];
                     }).then(async(res)=>{
                         if(res ){
                             idValues=res.idValues;
-                             const selRowCol={selectorId:res.selector.eleId,rowId:res.row.eleId,colId:res.col.eleId} as selRowColType;
                             const ele=res.ele as unknown as element_selType;
                             divCont.setAttribute("data-placement",`${ele.order}-A`);
                             divCont.onclick=(e:MouseEvent)=>{
                                 if(e){
                                     res.target.classList.toggle("isActive");
                                     divCont.classList.toggle("isActive");
+                                    this.removeElement({target:res.target,idValues:res.idValues,selRowCol:res.selRowCol});
                                 }
                             };
                             Misc.matchMedia({parent:divCont,maxWidth:820,cssStyle:{paddingInline:"1.5rem"}});
                             Misc.matchMedia({parent:divCont,maxWidth:420,cssStyle:{paddingInline:"10px"}});
-                           idValues=this.removeMainElement({parent,divCont,target:res.target,idValues,selRowCol});
+                           idValues=this.removeMainElement({parent,divCont,target:res.target,idValues,selRowCol:res.selRowCol});
                             Misc.growOut({anchor:form,scale:0,opacity:0,time:400});
                            setTimeout(()=>{parent.removeChild(form);},400); 
                            
@@ -1451,7 +1447,6 @@ colAttrs=["col-start","col-end","col-center"];
 
     }){
         btn.classList.add("active");
-        const selRowCol:selRowColType={selectorId:selector.eleId,rowId:row.eleId,colId:col.eleId}
         Main.textarea=document.querySelector("div#textarea");
         const node=target.nodeName.toLowerCase()
         let list:HTMLOListElement|HTMLUListElement;
@@ -1491,17 +1486,16 @@ colAttrs=["col-start","col-end","col-center"];
                 const ele=res.ele as element_selType;
                 divCont.setAttribute("data-placement",`${ele.order}-A`);
                 
-                this.editElement({target:res.target,idValues,selRowCol})//pulls flex if exist from target attrubutes
+                this.editElement({target:res.target,idValues,selRowCol:res.selRowCol})//pulls flex if exist from target attrubutes
                 divCont.onclick=(e:MouseEvent)=>{
                     if(e){
-                         const selRowCol={selectorId:res.selector.eleId,rowId:res.row.eleId,colId:res.col.eleId} as selRowColType;
                         if(!(([...res.target.children as any] as HTMLElement[]).map(li=>(li.nodeName)).includes("LI"))){
                             list.appendChild(li);
                         }
                         divCont.classList.toggle("isActive");
                         res.target.classList.toggle("isActive");
                         btn.classList.remove("active");
-                      this.removeMainElement({parent,divCont,target:res.target,idValues:res.idValues,selRowCol});
+                      this.removeMainElement({parent,divCont,target:res.target,idValues:res.idValues,selRowCol:res.selRowCol});
                     }
                 };
             }
@@ -1648,7 +1642,7 @@ colAttrs=["col-start","col-end","col-center"];
                     idValues
                 }).then(async(res)=>{
                     if(res){
-                        const selRowCol={selectorId:res.selector.eleId,rowId:res.row.eleId,colId:res.col.eleId} as selRowColType;
+                        const selRowCol=res.selRowCol as selRowColType;
                         const ele=res.ele as unknown as element_selType;
                         idValues=res.idValues;
                         divCont.setAttribute("data-placement",`${ele.order}`);
@@ -1707,11 +1701,11 @@ colAttrs=["col-start","col-end","col-center"];
     removeFlexBox({parent,target,idValues}:{parent:HTMLElement,target:HTMLElement,idValues:idValueType[]}){
         //--------------DELETE ICON----------------//
         const delDiv=document.createElement("div");
-        delDiv.style.cssText="position:absolute;top:0;left:0;transform:translate(-12px,0px);background:black;color:white;border-radius:50%;font-size:26px;";
+        delDiv.style.cssText="position:absolute;top:0;left:0;transform:translate(-12px,0px);background:black;color:white;border-radius:50%;border-radius:50%;background-color:black;border:none;";
         delDiv.setAttribute("is-icon","true");
         delDiv.className="fa-solid fa-circle-xmark";
-        const cssStyle={background:"inherit",color:"red"};
-        FaCreate({parent:delDiv,name:FaTrash,cssStyle});
+        const cssStyle={background:"inherit",color:"white",fontSize:"18px",borderRadius:"50%"};
+        FaCreate({parent:delDiv,name:FaCrosshairs,cssStyle});
         target.appendChild(delDiv);
         delDiv.addEventListener("click",(e:MouseEvent)=>{
             if(e){
@@ -1742,7 +1736,7 @@ colAttrs=["col-start","col-end","col-center"];
                                 if(item){
                                     const check=this._service.checkFreeImgKey({imgKey:item.imgKey});
                                     if(check) return;
-                                    this._service.adminImagemark(item.imgKey).then(async(res)=>{
+                                    this._service.adminImagemark(item.imgKey,true).then(async(res)=>{
                                         if(res){
                                             Misc.message({parent,msg:`${item.imgKey}`,type_:"success",time:400});
                                         }
@@ -1910,7 +1904,7 @@ colAttrs=["col-start","col-end","col-center"];
         });
         
         //then remove "active" on btn
-    }
+    };
 
    async selectorAdder({target,selector,idValues}:{target:HTMLElement,selector:selectorType,idValues:idValueType[]}):
    Promise<{
@@ -1947,7 +1941,7 @@ colAttrs=["col-start","col-end","col-center"];
        this._modSelector.dataset.upDateIdValues({idValues});
        return Promise.resolve({selector,target,idValues}) as Promise<{selector:selectorType,target:HTMLElement,idValues:idValueType[]}>; 
        
-   }
+   };
   
    
    async elementAdder({target,selector,row,idValues,col}:{
@@ -1958,16 +1952,18 @@ colAttrs=["col-start","col-end","col-center"];
     col:colType,
     idValues:idValueType[]
    }):Promise<{
-    target:HTMLElement,
-    ele:element_selType|undefined
-    selector:selectorType,
-    row:rowType,
-    col:colType,
-    idValues:idValueType[]
+    target:HTMLElement;
+    ele:element_selType|undefined;
+    selector:selectorType;
+    row:rowType;
+    col:colType;
+    idValues:idValueType[];
+    selRowCol:selRowColType;
    }>{
        const eleId=target.id;
         const node=target.nodeName.toLowerCase();
         let ele:element_selType|undefined={} as element_selType;
+        const anchor=target.getAttribute("data-link");
         const selRowCol:selRowColType={selectorId:selector.eleId,rowId:row.eleId,colId:col.eleId};
         idValues.push({eleId,id:"selRowCol",attValue:JSON.stringify(selRowCol)});
         const {cleaned}=this._modSelector.removeClasses({target,classes:["isActive"]});
@@ -1985,7 +1981,7 @@ colAttrs=["col-start","col-end","col-center"];
                 inner_html:target.innerHTML,
                 placement:ID ? ID as number : undefined,
                 cssText:target.style.cssText,
-                attr:target.getAttribute("attr") ? target.getAttribute("attr") as string :undefined,
+                attr:anchor || undefined,
                 col_id:col.id,
                 order:ID,
                 // imgKey: imgKey ? imgKey : undefined
@@ -2005,6 +2001,7 @@ colAttrs=["col-start","col-end","col-center"];
             idValues=retIdValues
             idValues=Dataset.removeIdValueDuplicates({arr:idValues,eleId});
             const getEleIds=idValues.filter(kat=>(kat.eleId===eleId));
+            this._modSelector.dataset.idValues=this._modSelector.dataset.idValues.concat(getEleIds);
             getEleIds.map(kat=>{
                 if(ele && kat.attValue){
                     const attrTest=attrEnumArrTest(ele);
@@ -2067,7 +2064,8 @@ colAttrs=["col-start","col-end","col-center"];
             }
             return selector_;
         }); //saving it to blog
-        
+        this._modSelector.blog={...this._modSelector.blog,selectors:this.selectors};
+        this._modSelector.localStore({blog:this._modSelector.blog});
         //POPULATING ATTRIBUTE
         this._modSelector.dataset.populateElement({
             target,
@@ -2081,13 +2079,15 @@ colAttrs=["col-start","col-end","col-center"];
         idValues=Dataset.removeIdValueDuplicates({arr:idValues,eleId});
         this._modSelector.dataset.upDateIdValues({idValues});
         //ADDING SELECTOR TO SELECTORS
-        return Promise.resolve({target:target,ele:ele as element_selType|undefined,selector,idValues,row,col}) as Promise<{ 
-            target:HTMLElement,
-            ele:element_selType|undefined
-            selector:selectorType,
-            row:rowType,
-            col:colType,
-            idValues:idValueType[]}>;
+        return Promise.resolve({target:target,ele:ele as element_selType|undefined,selector,idValues,row,col,selRowCol}) as Promise<{ 
+            target:HTMLElement;
+            ele:element_selType|undefined;
+            selector:selectorType;
+            row:rowType;
+            col:colType;
+            idValues:idValueType[];
+            selRowCol:selRowColType;
+        }>
 
     };
 
@@ -2175,6 +2175,7 @@ colAttrs=["col-start","col-end","col-center"];
                                         
                                         if(element.eleId===target.id){
                                             element.inner_html=target.innerHTML;
+                                            
                                         };
                                         return element;
                                     });
@@ -2189,7 +2190,9 @@ colAttrs=["col-start","col-end","col-center"];
                 };
                 return selector_;
             });
-            
+            const blog={...this._modSelector.blog,selectors:this.selectors};
+            this._modSelector.blog=blog
+            this._modSelector.localStore({blog});
         };
       
     };
@@ -2248,6 +2251,8 @@ colAttrs=["col-start","col-end","col-center"];
           
       }
       this._modSelector.dataset.upDateIdValues({idValues});
+      this._modSelector.blog={...this._modSelector.blog,selectors:this.selectors};
+        this._modSelector.localStore({blog:this._modSelector.blog});
         return Promise.resolve({col:col_,target}) as Promise<{col:colType|undefined,target:HTMLElement}|undefined>;
 
     };
@@ -2284,7 +2289,8 @@ colAttrs=["col-start","col-end","col-center"];
                 }
                 return select;
             });
-           
+            this._modSelector.blog={...this._modSelector.blog,selectors:this._modSelector.selectors};
+            this._modSelector.localStore({blog:this._modSelector.blog});
             this._modSelector.dataset.populateElement({target,selRowColEle:row_,idValues,level:"row",loc:"flexbox",clean:false});
             this._modSelector.dataset.upDateIdValues({idValues});
         };
@@ -2325,7 +2331,7 @@ colAttrs=["col-start","col-end","col-center"];
                                 if(idValue){
                                     const check=this._service.checkFreeImgKey({imgKey:idValue.attValue});
                                     if(check) return;
-                                    this._service.adminImagemark(idValue.attValue).then(async(res)=>{
+                                    this._service.adminImagemark(idValue.attValue,true).then(async(res)=>{
                                         if(res){
                                             Misc.message({parent:parent,msg:`${idValue.attValue} is deleted`,type_:"success",time:700});
                                         }
@@ -2395,23 +2401,36 @@ colAttrs=["col-start","col-end","col-center"];
 
 
 
-    addLinkEmailTelImg({target,image,href,name,type}:{target:HTMLAnchorElement,image:string,href:string,name:string,type:"link"|"email"|"tel"}){
-        target.textContent="";
+    addLinkEmailTelImg({target,name,image,href,type,isClean}:{target:HTMLAnchorElement,name:string,image:string,href:string,type:"link"|"email"|"tel",isClean:boolean}){
         const text=new Text(name);
-        const span=document.createElement("span");
-        span.style.cssText="display:inline-flex;align-items:center;gap:4px;";
         const img=document.createElement("img");
         img.src=image;
         img.alt="www.ablogroom.com";
         this._modSelector.dataset.insertcssClassIntoComponents({target:img,level:"element",loc:"flexbox",type:"customHeader",id:"linkImgs",headerType:"custom"});
-        span.appendChild(img);
-        span.appendChild(text);
-        target.appendChild(span);
-        if(type==="link") window.open(href,"_blank");
-        if(type==="email") target.href=href;
-        if(type==="tel") target.href=href;
+        target.style.display="inline-flex";
+        target.style.alignItems="center";
+        target.style.gap="4px";
+        target.appendChild(img);
+        target.appendChild(text);
+        target.removeAttribute("contenteditable");
+        target.href=href;
+        if(type==="link" && isClean){ window.open(href,"_blank");target.setAttribute("data-link",href)};
+        if(type==="email") {target.setAttribute("data-email",href)};
+        if(type==="tel"){ target.setAttribute("data-tel",href)}
+       
     };
 
+    showLinkEmailTelImg({target,element,type}:{target:HTMLAnchorElement,element:elementType|element_selType,type:"link"|"email"|"tel"}){
+                target.innerHTML=element.inner_html;
+                const href=element.attr as string;
+                target.href=href;
+                console.log(target)
+                if(type==="link"){ window.open(href,"_blank");target.setAttribute("data-link",href)};
+                if(type==="email") {target.setAttribute("data-email",href)};
+                if(type==="tel"){ target.setAttribute("data-tel",href)}
+                 
+                
+             };
    
 
 static cleanUpByClass(parent:HTMLElement,class_:string){

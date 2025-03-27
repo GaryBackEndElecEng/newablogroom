@@ -28,16 +28,17 @@ import AuthService from '../common/auth';
 import CommonInfo from '../common/commonInfo';
 import Toolbar from '../common/toolbar';
 import { useEditor } from '../context/editorContext';
+import { userType } from './Types';
 
 
 
-function Index() {
+function Index({ user }: { user: userType | null }) {
     const countRef = React.useRef(0);
-    const { user } = useEditor();
+    const { setUser } = useEditor();
     const styleOne = { Background: "white", color: "black", width: "100%", minHeight: "100vh", marginInline: "0px" }
 
     React.useEffect(() => {
-
+        setUser(user);
         if (typeof window !== "undefined" && countRef.current === 0) {
             const mainInjection = document.querySelector("section#mainInjection") as HTMLElement;
             const side_bar = document.querySelector("aside#sidebar") as HTMLElement;
@@ -99,7 +100,7 @@ function Index() {
 
         }
 
-    }, [user]);
+    }, [user, setUser]);
 
     return (
 

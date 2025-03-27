@@ -123,7 +123,7 @@ class DisplayBlog{
         const css_col="display:flex;flex-direction:column;align-items:center;justify-content:center";
         this._arrDivPlaces=[];
         if(blog ){
-            console.log("MESSAGES",blog.messages)
+           
             const less400=window.innerWidth < 420;
             const less900=window.innerWidth < 900;
             const paddingInline=less900 ? (less400 ? "0rem" : "2px") :"1rem";
@@ -425,7 +425,6 @@ class DisplayBlog{
     
     async showFinal({parent,blog,idValues,less400,less900}:{parent:HTMLElement,blog:blogType,idValues:idValueType[],less400:boolean,less900:boolean}):Promise<HTMLElement|undefined>{
         this._arrDivPlaces=[];
-        this.cleanAttributes(parent,true);
         const checkBlog=(( blog?.elements.length>0 || blog?.selectors.length>0) || blog?.charts.length>0);
         blog={...blog,name:"blog one"};
         if(checkBlog){
@@ -696,8 +695,11 @@ class DisplayBlog{
         
                                                 }).then(async(res)=>{
                                                      if(res){
+                                                        res.target.removeAttribute("contenteditable");
+                                                        res.divCont.removeAttribute("contenteditable");
                                                         res.parent.appendChild(res.divCont);
                                                         Misc.blurIn({anchor:res.divCont,blur:"20px",time:600});
+
                                                      };
                                                  });
                                             }
@@ -866,6 +868,7 @@ class DisplayBlog{
             target.setAttribute("aria-selected","true");
             target.setAttribute("order",String(element.order));
             target.setAttribute("name",element.name);
+            target.removeAttribute("contenteditable");
             target.className=element.class;
             const {cleaned}=this._modSelector.removeClasses({target,classes:["isActive","box-shadow"]});
             target.className=cleaned.join(" ")
@@ -885,9 +888,7 @@ class DisplayBlog{
                 //p,hs
                 if(less400){
                     target.style.paddingInline="0.5rem";
-                }
-               
-                target.innerHTML=element.inner_html;
+                };
                 
                 if(isBg || isImgkey){
                     ShapeOutside.cleanUpByID(col,"popup");
@@ -927,31 +928,27 @@ class DisplayBlog{
                 divCont.style.alignSelf="flex-start";
                 divCont.style.justifySelf="flex-start";
                 divCont.style.marginLeft="2rem";
-                const name=target.textContent ||"name";
                     Header.cleanUp(target);
                     if(isLink){
-                        this.addLinkEmailTelImg({
+                        this.showLinkEmailTelImg({
                             target:(target as HTMLAnchorElement),
-                            image:this.link,
-                            href:isLink.value,
-                            name,
-                            type:"link"
+                            type:"link",
+                            element,
+                            isClean:true
                         });
                     }else if(isEmail){
-                        this.addLinkEmailTelImg({
+                        this.showLinkEmailTelImg({
                             target:(target as HTMLAnchorElement),
-                            image:this.mail,
-                            href:isEmail.value,
-                            name,
-                            type:"email"
+                            type:"email",
+                            element,
+                            isClean:true
                         });
                     }else if(isTel){
-                        this.addLinkEmailTelImg({
+                        this.showLinkEmailTelImg({
                             target:(target as HTMLAnchorElement),
-                            image:this.phone,
-                            href:isTel.value,
-                            name,
-                            type:"tel"
+                            type:"tel",
+                            element,
+                            isClean:true
                         });
                     };
                     divCont.appendChild(target);
@@ -1092,159 +1089,18 @@ class DisplayBlog{
 
 
     //PARENT MAIN: INJECTOR ON show button
-    cleanAttributes(parent:HTMLElement,showOn:boolean){
-       
-        //OBJECT IS TO HAVE CONTROL ON THE TEXTAREA'S CONTAINER AND TURNON AND OFF ALL ATTRIBUTES ASSOCIATED TO EDITING
-        const elements=document.querySelectorAll("[is-element=true]") as any as HTMLElement[];//this covers all selector's eles and eles
-        const cols = parent.querySelectorAll("[is-column=true]") as any as HTMLElement[];
-        const popups1=parent.querySelectorAll("[isPopup='true']") as any as HTMLElement[];
-        const popups3=parent.querySelectorAll("[is-popup='true']") as any as HTMLElement[];
-        const popups2=parent.querySelectorAll("div#popup") as any as HTMLElement[];
-        const deleteIcons=parent.getElementsByTagName("I") as any as HTMLElement[];
-        const contentEdits=parent.querySelectorAll("[contenteditable='true']");
-        const contentEditsFalse=parent.querySelectorAll("[contenteditable='false']");
-        const IconHeaders=document.querySelectorAll("[is-icon='true']") as any as HTMLElement[];
-        const formGroups=document.querySelectorAll("[data-form-group ='true']");
-       
-        const flexchoices=document.querySelectorAll("div.flex-choices");
-        const removeDesignSelectArrows=document.querySelectorAll("select.select-arrow") as unknown as HTMLElement[];
-
-            if(flexchoices && showOn){
-                ([...flexchoices as any]as HTMLElement[]).forEach(flex=>{
-                    flex.style.opacity="0";
-                    
-                });
-            }else{
-                ([...flexchoices as any]as HTMLElement[]).forEach(flex=>{
-                    flex.style.opacity="1";
-                });
-            }
-                    //ALL COMPONENTS
-                    //DESIGN REMOVE ARROW COLOR
-                    if(removeDesignSelectArrows){
-                        removeDesignSelectArrows.forEach(arrow=>{
-                            arrow.remove();
-                        })
-                    }
-                    IconHeaders.forEach((icon)=>{
-                        if(icon as HTMLElement){
-                            // console.log(icon)
-                            if((icon as HTMLElement).style.display==="none"){
-                                (icon as HTMLElement).style.display="block";
-                            }else{
-                                (icon as HTMLElement).style.display="none";
-                            }
-                            
-                        }
-                    });
-                    ([...elements as any] as HTMLElement[]).forEach((element)=>{
-                        
-                            if(element && showOn){
-                            element.classList.remove("box-shadow");
-                            element.classList.remove("isActive");
-                            ([...element.children as any] as HTMLElement[]).map(ele=>{
-                                // console.log("displayBlog:847",ele)
-                                const check1=ele.nodeName==="SVG";
-                                const check2=([...ele.classList as any] as string[]).includes("isActive")
-                                if(ele && check1 && check2){
-                                    ele.classList.remove("isActive")
-                                }
-                            });
-                            }
-                            //within elements
-                            const getIcons=element.getElementsByTagName("I");
-                            if(showOn){
-                                ([...getIcons as any] as HTMLElement[]).map(icon=>((icon as HTMLElement).style.display="none"));
-                                }else{
-                                    ([...getIcons as any] as HTMLElement[]).map(icon=>((icon as HTMLElement).style.display="block"));
-                                }
-                    });
-                    //colums
-                    ([...cols as any] as HTMLElement[]).map(col=>{
-                        if(col as HTMLElement && showOn){
-                            (col as HTMLElement).classList.remove("box-shadow");
-                            (col as HTMLElement).classList.remove("coliIsActive");
-                        }
-                    });
-                    //Parent=textarea
-                    ([...deleteIcons as any] as HTMLElement[]).map(icon=>{
-                        if(icon as HTMLElement && showOn){
-                            icon.classList.add("hide");
-                        }else{
-                            icon.classList.remove("hide");
-                        }
-                    });
-                    ([...popups1 as any] as HTMLElement[]).map(popup=>{
-                        if(popup as HTMLElement){
-                            if(showOn){
-                            popup.style.opacity="0";
-                            }else{
-                                popup.style.opacity="1";
-                            }
-                        }
-                    });
-                    ([...popups2 as any] as HTMLElement[]).map(popup=>{
-                        if(popup as HTMLElement){
-                            if(showOn){
-                                popup.style.opacity="0";
-                                }else{
-                                    popup.style.opacity="1";
-                                }
-                        }
-                    });
-                    ([...popups3 as any] as HTMLElement[]).map(popup=>{
-                        if(popup as HTMLElement){
-                            if(showOn){
-                                popup.style.opacity="0";
-                                }else{
-                                    popup.style.opacity="1";
-                                }
-                        }
-                    });
-
-                    if(contentEdits.length && contentEdits.length>0){
-                        contentEdits.forEach((element)=>{
-                            if(element && showOn){
-                                element.setAttribute("contenteditable","false");
-                            }
-                        });
-                    }else if( contentEditsFalse.length){
-                            contentEditsFalse.forEach((element)=>{
-                                if(element && element.nodeName!=="I"){
-                                    element.setAttribute("contenteditable","true");
-                                    
-                                }
-                            });
-                    };
-
-                    ([...formGroups as any] as HTMLElement[]).map(formGrp=>{
-                        if(formGrp as HTMLElement){
-                            if( showOn){
-                                (formGrp as HTMLElement).style.zIndex="-200";
-                            }else{
-                                (formGrp as HTMLElement).style.zIndex="1";
-                            }
-                        }
-                    });
-    };
 
 
-    addLinkEmailTelImg({target,image,href,name,type}:{target:HTMLAnchorElement,image:string,href:string,name:string,type:"link"|"email"|"tel"}){
-        target.textContent="";
-        const text=new Text(name);
-        const span=document.createElement("span");
-        span.style.cssText="display:inline-flex;align-items:center;gap:4px;";
-        const img=document.createElement("img");
-        img.src=image;
-        img.alt="www.ablogroom.com";
-        this._modSelector.dataset.insertcssClassIntoComponents({target:img,level:"element",loc:"flexbox",type:"customHeader",id:"linkImgs",headerType:"custom"});
-        span.appendChild(img);
-        span.appendChild(text);
-        target.appendChild(span);
-        if(type==="link") window.open(href,"_blank");
-        if(type==="email") target.href=href;
-        if(type==="tel") target.href=href;
-    };
+    showLinkEmailTelImg({target,element,type,isClean}:{target:HTMLAnchorElement,element:elementType|element_selType,type:"link"|"email"|"tel",isClean:boolean}){
+        target.innerHTML=element.inner_html;
+        const href=element.attr as string;
+        target.href=href;
+        if(type==="link" && isClean){ window.open(href,"_blank");target.setAttribute("data-link",href)};
+        if(type==="email") {target.setAttribute("data-email",href)};
+        if(type==="tel"){ target.setAttribute("data-tel",href)}
+         
+        
+     };
 
     //NOT USED
      async onlyMeta(parent:HTMLElement,blog:blogType){

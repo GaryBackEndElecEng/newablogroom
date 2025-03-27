@@ -50,7 +50,13 @@ class MainFooter{
         this.btnColor=Nav.btnColor
         this.injector_=injector;
         MainFooter.entry=injector;
-        this.arrUrl=[{name:"masterconnect",link:"https://www.masterconnect.ca"},{name:"masterultils",link:this.masterultilsUrl},{name:"policy",link:"/policy"},{name:"privacy",link:"/termsOfService"},];
+        this.arrUrl=[
+            {name:"masterconnect",link:"https://www.masterconnect.ca"},
+            {name:"masterultils",link:this.masterultilsUrl},
+            {name:"policy",link:"/policy"},
+            {name:"privacy",link:"/termsOfService"},
+
+        ];
         this.noteAddUrl="https://chromewebstore.google.com/detail/note-adder/ipdhlngobmbmoaoheaiflbdmgjmeeoad?hl=en-US&utm_source=ext_sidebar";
         this._regSignin= new RegSignIn(this._modSelector,this._service,this._user,this.auth.status);
         this.firstTimeIntro=new FirstTimeIntro();
@@ -102,8 +108,7 @@ class MainFooter{
         row.id="row-mainFooter";
         const arr:string[]=["col-md-4 left-side","col-md-5 center","col-md-3 right-side"];
         Misc.matchMedia({parent:row,maxWidth:900,cssStyle:{flexDirection:"column",justifyContent:"center",alignItems:"center"}})
-        const getmsgCont=container.querySelector("div#msgCont-popup-container")
-        console.log("GETMSGcONT",getmsgCont);
+      
         arr.map((str,index)=>{
             const col=document.createElement("div");
             col.id=`col-mainFooter-${index}`;

@@ -37,9 +37,13 @@ export async function PUT(request: NextRequest) {
             const bytes = await file.arrayBuffer();
             const buffer = Buffer.from(bytes);
             const filename = await uploadFileToS3({ buffer, fileType: file.type, Key });
-            // const reSizeBuffer = await sharp(buffer).resize({ width: 600, height: 400 }).toBuffer()
-            const msg = await registerImage({ Key });
-            return NextResponse.json({ success: msg, filename }, { status: 200 })
+
+            const isTrue = await registerImage({ Key });
+            if (isTrue) {
+                return NextResponse.json({ success: "success", filename }, { status: 200 })
+            } else {
+                return NextResponse.json({ success: "failed", filename }, { status: 200 })
+            }
             // console.log("NAME", file.name, "Key", Key);//worked
 
 
@@ -49,10 +53,10 @@ export async function PUT(request: NextRequest) {
     } catch (error) {
         const msg = getErrorMessage(error);
         NextResponse.json({ msg }, { status: 500 })
-        // console.log(msg);
+
     }
 
-}
+};
 
 async function uploadFileToS3(item: { buffer: Buffer, fileType: string, Key: string }) {
     const { buffer, fileType, Key } = item;
@@ -66,7 +70,8 @@ async function uploadFileToS3(item: { buffer: Buffer, fileType: string, Key: str
     await s3.send(command);
     return Key
 
-}
+};
+
 async function registerImage(item: { Key: string }) {
     const { Key } = item;
     let msg: string = '';
@@ -78,13 +83,13 @@ async function registerImage(item: { Key: string }) {
                 del: false
             }
         });
-        if (create) {
-            msg = "success";
-        }
+        await prisma.$disconnect();
+        if (!create) return false;
+        return true
     } catch (error) {
         msg = getErrorMessage(error);
-    } finally {
+        console.log(msg)
         await prisma.$disconnect();
-        return msg
+        return false;
     }
 }

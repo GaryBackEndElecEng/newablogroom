@@ -78,7 +78,7 @@ class Toolbar{
     };
 
 
-     mainRowBtn({parent,mainContainer,textarea}:{parent: HTMLElement | null,mainContainer:HTMLElement,textarea:HTMLElement}): void {
+     mainRowBtn({parent,mainContainer,textarea,blog}:{parent: HTMLElement | null,mainContainer:HTMLElement,textarea:HTMLElement,blog:blogType}): void {
         this.mainCont=mainContainer;
         this.textarea=textarea;
         const idValues=this._modSelector.dataset.idValues
@@ -109,7 +109,7 @@ class Toolbar{
         Main.btnInitialize();
         //{ id: "1", attr: true, name: "fontSize", display: "f-size", class_: "fa fa-font", faIcon: FaFont, isIcon: true, isElement: false },
         Toolbar.icons.toSorted((a,b)=>{if(a.id<b.id) return -1;return 1}).forEach((icon) => {
-            this.toolbarBtn({rowCol:row,icon,idValues,textarea,less400,less900,isRow:true});
+            this.toolbarBtn({rowCol:row,icon,idValues,textarea,less400,less900,isRow:true,blog});
         });
         row.style.height="26px";
         Main.initMainBtns(); //clears active btns
@@ -118,7 +118,7 @@ class Toolbar{
 
 
 
-     mainColBtn({parent,mainContainer,textarea}:{parent: HTMLElement | null,mainContainer:HTMLElement,textarea:HTMLElement}): void {
+     mainColBtn({parent,mainContainer,textarea,blog}:{parent: HTMLElement | null,mainContainer:HTMLElement,textarea:HTMLElement,blog:blogType}): void {
         const time=600;
         const idValues=this._modSelector.dataset.idValues
         if (!parent) return;
@@ -137,7 +137,7 @@ class Toolbar{
         Main.btnInitialize();
 
         //{ id: "1", attr: true, name: "fontSize", display: "f-size", class_: "fa fa-font", faIcon: FaFont, isIcon: true, isElement: false },
-        this.openCloseBtn({parent:col,idValues,textarea,openClose:this.openClose,time});
+        this.openCloseBtn({parent:col,idValues,textarea,openClose:this.openClose,time,blog});
         Main.initMainBtns(); //clears active btns
      
 
@@ -145,7 +145,7 @@ class Toolbar{
 
 
 
-    openCloseBtn({parent,idValues,textarea,openClose,time}:{parent:HTMLElement,idValues:idValueType[],textarea:HTMLElement,openClose:boolean,time:number}){
+    openCloseBtn({parent,idValues,textarea,openClose,time,blog}:{parent:HTMLElement,idValues:idValueType[],textarea:HTMLElement,openClose:boolean,time:number,blog:blogType}){
         this.openClose=openClose;
         //add button to open left(from-4%=>0%)
         this.openCloseBtnAction({parent}).then(async(res)=>{
@@ -157,14 +157,14 @@ class Toolbar{
                     res.closeIcon.hidden=true;
                     this.openClose=false;
                  
-                    this.showCloseToolbar({parent:res.parent,openClose:false,idValues,textarea,time});
+                    this.showCloseToolbar({parent:res.parent,openClose:false,idValues,textarea,time,blog});
                 };
                 res.openIcon.onclick=(e:MouseEvent)=>{
                     if(!e) return;
                     res.openIcon.hidden=true;
                     res.closeIcon.hidden=false;
                     this.openClose=true;
-                    this.showCloseToolbar({parent:res.parent,openClose:true,idValues,textarea,time});
+                    this.showCloseToolbar({parent:res.parent,openClose:true,idValues,textarea,time,blog});
                 };
             }
         });
@@ -196,7 +196,7 @@ class Toolbar{
     };
     
 
-    showCloseToolbar({parent,openClose,idValues,textarea,time}:{parent:HTMLElement,openClose:boolean,idValues:idValueType[],textarea:HTMLElement,time:number}){
+    showCloseToolbar({parent,openClose,idValues,textarea,time,blog}:{parent:HTMLElement,openClose:boolean,idValues:idValueType[],textarea:HTMLElement,time:number,blog:blogType}){
         const less400= window.innerWidth <400;
         const less900= window.innerWidth <900;
         const check=([...parent.children as any] as HTMLElement[]).find(ch=>(ch.id==="showCloseToolbar-icons-container"));
@@ -207,7 +207,7 @@ class Toolbar{
         if(!check){
             parent.appendChild(colCont);
             Toolbar.icons.toSorted((a,b)=>{if(a.id<b.id) return -1;return 1}).forEach((icon) => {
-                this.toolbarBtn({rowCol:colCont,icon,idValues,textarea,less400,less900,isRow:false});
+                this.toolbarBtn({rowCol:colCont,icon,idValues,textarea,less400,less900,isRow:false,blog});
             });
             colCont.style.transform="translate(0%,10%)";
             colCont.style.opacity="1";
@@ -237,14 +237,15 @@ class Toolbar{
 
 
 
-    toolbarBtn({rowCol,icon,idValues,textarea,less400,less900,isRow}:{
+    toolbarBtn({rowCol,icon,idValues,textarea,less400,less900,isRow,blog}:{
         rowCol:HTMLElement,
         icon:iconType,
         idValues:idValueType[],
         textarea:HTMLElement,
         less400:boolean,
         less900:boolean,
-        isRow:boolean
+        isRow:boolean,
+        blog:blogType
         
     }){
 
@@ -274,11 +275,11 @@ class Toolbar{
             }
             btn.setAttribute("data-btnName", icon.display);
             rowCol.appendChild(btn)
-            this.btnAction({row:rowCol,btn,icon,idValues,textarea,less400,less900,isRow})
+            this.btnAction({row:rowCol,btn,icon,idValues,textarea,less400,less900,isRow,blog})
     };
 
 
-    btnAction({row,btn,icon,idValues,textarea,less400,less900,isRow}:{
+    btnAction({row,btn,icon,idValues,textarea,less400,less900,isRow,blog}:{
         row:HTMLElement,
         btn:HTMLButtonElement,
         icon:iconType,
@@ -286,7 +287,8 @@ class Toolbar{
         textarea:HTMLElement,
         less400:boolean,
         less900:boolean,
-        isRow:boolean
+        isRow:boolean,
+        blog:blogType
 
     }){
        
@@ -345,32 +347,45 @@ class Toolbar{
                 });
                 break;
             case icon.name === "show":
-                Main.show = false;
+               
                 btn.addEventListener("click", (e: MouseEvent) => {
                     if (e) {
 
                         const sectionMain = document.querySelector("section#main") as HTMLElement;
                         btn.classList.toggle("showOn");
                         const check = ([...btn.classList as any] as string[]).includes("showOn");
-                        if (check) {
-                            Main.show = true;
-                            btn.style.borderRadius = "10px"
-                        } else {
-                            Main.show = false;
-                            btn.style.borderRadius = "0px";
-                        };
-                     
-                        if (sectionMain) {
-                            this.displayBlog.cleanAttributes(sectionMain, Main.show);
+                        if(sectionMain){
+
+                            if (check) {
+                               
+                                btn.style.border = "1px solid red";
+                                this.cleanAttributes(sectionMain, true);
+                            } else {
+                               
+                                btn.style.border= "none";
+                                this.cleanAttributes(sectionMain, false);
+                            };
                         }
+                     
+                      
                     }
                 });
                 break;
             case icon.name === "final":
                 btn.addEventListener("click", (e: MouseEvent) => {
                     if (e) {
-                        const blog=this._modSelector.blog;
-                        this.showFinale({mainContainer:textarea,btn,blog:blog,idValues,less400,less900})
+                        
+                        this.showFinale({
+                            mainContainer:textarea,
+                            btn,
+                            blog:blog,
+                            idValues,
+                            less400,
+                            less900,
+                            func:({showOn})=>{
+                               this.cleanAttributes(textarea,showOn)
+                            }
+                        })
                     }
                 });
                 break;
@@ -380,27 +395,51 @@ class Toolbar{
     };
 
 
-     showFinale({mainContainer,btn,blog,idValues,less400,less900}:{
+     showFinale({mainContainer
+        ,
+        btn,
+        blog,
+        idValues,
+        less400,
+        less900,
+        func
+     }:{
             mainContainer:HTMLElement,
             btn:HTMLButtonElement,
             blog:blogType,
             idValues:idValueType[],
             less400:boolean,
-            less900:boolean
+            less900:boolean,
+            func:({showOn}:{showOn:boolean})=>Promise<void>|void,
     
         }){
             btn.classList.toggle("showFinal");
-            const maxCount=ModSelector.maxCount(blog)
-            if (maxCount>0) {
-                const css_col="display:flex;align-items:center;flex-direction:column;gap:2rem;width:100%";
-                mainContainer.style.position="relative";
-                const popup=document.createElement("div");
-                popup.id="main-show-finale-popup";
-                popup.style.cssText=css_col + "position:absolute;inset:0% 0% 100vh 0%;height:100vh;overflow-y:scroll;padding-block:1.5rem;z-index:200;";
-                this.displayBlog.showFinal({parent:mainContainer, blog,idValues,less400,less900});
-            } else {
-                this.noBlogMsg(btn);
-            }
+            this._modSelector.loadFromLocal().then(async(res)=>{
+                const getBlog=res.getBlog();
+                const {blog}=getBlog;
+                if(blog){
+                    const maxCount=ModSelector.maxCount(blog)
+                    if (maxCount>0) {
+                        this.cleanAttributes(mainContainer,true);
+                        mainContainer.style.position="relative";
+                        this.displayBlog.showFinal({
+                            parent:mainContainer,
+                             blog:blog,
+                            idValues,
+                            less400,
+                            less900
+                        }).then(async(res)=>{
+                            if(res){
+                                const showOn=false
+                                btn.classList.toggle("showFinal");
+                                func({showOn})
+                            }
+                        });
+                    } else {
+                        this.noBlogMsg(btn);
+                    };
+                }
+            });
     };
 
 
@@ -870,6 +909,171 @@ class Toolbar{
                 });
             });
         }
+    };
+
+
+    cleanAttributes(parent:HTMLElement,showOn:boolean){
+       
+        //OBJECT IS TO HAVE CONTROL ON THE TEXTAREA'S CONTAINER AND TURNON AND OFF ALL ATTRIBUTES ASSOCIATED TO EDITING
+        const elements=document.querySelectorAll("[data-is-element='true']") as any as HTMLElement[];//this covers all selector's eles and eles
+        const divConts=document.querySelectorAll("div.eleContainer");
+        const popups=document.querySelectorAll("div.popup");
+        const btnConts=document.querySelectorAll("div#btn-container");
+        const cols = parent.querySelectorAll("[data-is-column=true]") as any as HTMLElement[];
+        const popups1=parent.querySelectorAll("[isPopup='true']") as any as HTMLElement[];
+        const popups3=parent.querySelectorAll("[is-popup='true']") as any as HTMLElement[];
+        const popups2=parent.querySelectorAll("div#popup") as any as HTMLElement[];
+        const deleteIcons=parent.getElementsByTagName("I") as any as HTMLElement[];
+        const contentEdits=parent.querySelectorAll("[contenteditable='true']");
+        const contentEditsFalse=parent.querySelectorAll("[contenteditable='false']");
+        const IconHeaders=document.querySelectorAll("[is-icon='true']") as any as HTMLElement[];
+        const formGroups=document.querySelectorAll("[data-form-group ='true']");
+       
+        const flexchoices=document.querySelectorAll("div.flex-choices");
+        const removeDesignSelectArrows=document.querySelectorAll("select.select-arrow") as unknown as HTMLElement[];
+
+            if(flexchoices && showOn){
+                ([...flexchoices as any]as HTMLElement[]).forEach(flex=>{
+                    flex.style.opacity="0";
+                    
+                });
+            }else{
+                ([...flexchoices as any]as HTMLElement[]).forEach(flex=>{
+                    flex.style.opacity="1";
+                });
+            }
+                    //ALL COMPONENTS
+                    //DESIGN REMOVE ARROW COLOR
+                    if(removeDesignSelectArrows){
+                        removeDesignSelectArrows.forEach(arrow=>{
+                            arrow.remove();
+                        })
+                    }
+                    IconHeaders.forEach((icon)=>{
+                        if(icon as HTMLElement){
+                            // console.log(icon)
+                            if(showOn){
+                                (icon as HTMLElement).style.display="none";
+                            }else{
+                                (icon as HTMLElement).style.display="block";
+                            }
+                            
+                        }
+                    });
+                    ([...divConts as any] as HTMLElement[]).forEach((divCont)=>{
+                    if(divCont && showOn){
+                        divCont.classList.remove("box-shadow");
+                        divCont.classList.remove("isActive");
+                        ([...divCont.children as any] as HTMLElement[]).map(ele=>{
+                            if(ele){
+                                ele.classList.remove("isActive");
+                                ele.classList.remove("box-shadow");
+                                const getIcons=ele.getElementsByTagName("I");
+                                //within elements
+                                if( getIcons){
+                                    
+                                    ([...getIcons as any] as HTMLElement[]).map(icon=>((icon as HTMLElement).style.display="none"));
+                                }
+                            }
+                            
+                        });
+                    }else{
+                        ([...elements as any] as HTMLElement[]).forEach(ele=>{
+                                if(ele){
+                                    const getIcons=ele.getElementsByTagName("I");
+                                   //within elements
+                                   if( getIcons){
+                                       ([...getIcons as any] as HTMLElement[]).map(icon=>((icon as HTMLElement).style.display="block"));
+                                    }
+                                }
+                        });
+                    }
+                    });
+                    //colums
+                    ([...cols as any] as HTMLElement[]).map(col=>{
+                        if(col as HTMLElement && showOn){
+                            (col as HTMLElement).classList.remove("box-shadow");
+                            (col as HTMLElement).classList.remove("coliIsActive");
+                        }
+                    });
+                    //Parent=textarea
+                    ([...deleteIcons as any] as HTMLElement[]).map(icon=>{
+                        if(icon as HTMLElement && showOn){
+                            icon.classList.add("hide");
+                        }else{
+                            icon.classList.remove("hide");
+                        }
+                    });
+                    ([...popups1 as any] as HTMLElement[]).map(popup=>{
+                        if(popup as HTMLElement){
+                            if(showOn){
+                            popup.style.opacity="0";
+                            }else{
+                                popup.style.opacity="1";
+                            }
+                        }
+                    });
+                    ([...popups2 as any] as HTMLElement[]).map(popup=>{
+                        if(popup as HTMLElement){
+                            if(showOn){
+                                popup.style.opacity="0";
+                                }else{
+                                    popup.style.opacity="1";
+                                }
+                        }
+                    });
+                    ([...popups3 as any] as HTMLElement[]).map(popup=>{
+                        if(popup as HTMLElement){
+                            if(showOn){
+                                popup.style.opacity="0";
+                                }else{
+                                    popup.style.opacity="1";
+                                }
+                        }
+                    });
+                    ([...popups as any] as HTMLElement[]).map(popup=>{
+                        if(popup as HTMLElement){
+                            if(showOn){
+                                popup.style.opacity="0";
+                                }else{
+                                    popup.style.opacity="1";
+                                }
+                        }
+                    });
+
+                    if(contentEdits.length && contentEdits.length>0 && showOn){
+                        contentEdits.forEach((element)=>{
+                            if(element){
+                                element.setAttribute("contenteditable","false");
+                            }
+                        });
+                    }else if( contentEditsFalse.length && !showOn){
+                            contentEditsFalse.forEach((element)=>{
+                                if(element && element.nodeName!=="I"){
+                                    element.setAttribute("contenteditable","true");
+                                    
+                                }
+                            });
+                    };
+
+                    ([...formGroups as any] as HTMLElement[]).map(formGrp=>{
+                        if(formGrp as HTMLElement){
+                            if( showOn){
+                                (formGrp as HTMLElement).style.zIndex="-200";
+                            }else{
+                                (formGrp as HTMLElement).style.zIndex="1";
+                            }
+                        }
+                    });
+                    ([...btnConts as any] as HTMLElement[]).forEach(btnCont=>{
+                        if(btnCont){
+                            if(showOn){
+                                btnCont.hidden=true;
+                            }else{
+                                btnCont.hidden=false;
+                            }
+                        }
+                    });
     };
     
 };

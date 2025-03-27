@@ -1140,7 +1140,7 @@ getKey({imgUrl}:{imgUrl:string}):string|null{
            const retRows=await Promise.all( rows.map(async(row)=>{
                 if(row){
                     if(row.imgKey){
-                        return await this.adminImagemark(row.imgKey).then(async(res)=>{
+                        return await this.adminImagemark(row.imgKey,false).then(async(res)=>{
                             if(res){
                               return res
                             }
@@ -1149,7 +1149,7 @@ getKey({imgUrl}:{imgUrl:string}):string|null{
                     row.cols.map(async(col)=>{
                         if(col){
                             if(col.imgKey){
-                                return await this.adminImagemark(col.imgKey).then(async(res)=>{
+                                return await this.adminImagemark(col.imgKey,false).then(async(res)=>{
                                     if(res){
                                       return res
                                     }
@@ -1158,7 +1158,7 @@ getKey({imgUrl}:{imgUrl:string}):string|null{
                             col.elements.map(async(ele)=>{
                                 if(ele){
                                     if(ele.imgKey){
-                                        return await this.adminImagemark(ele.imgKey).then(async(res)=>{
+                                        return await this.adminImagemark(ele.imgKey,false).then(async(res)=>{
                                             if(res){
                                                 return res
                                             }
@@ -1176,7 +1176,7 @@ getKey({imgUrl}:{imgUrl:string}):string|null{
     };
 
 
-    async adminImagemark(imgKey:string):Promise<adminImageType | undefined>{
+    async adminImagemark(imgKey:string,del:boolean):Promise<adminImageType | undefined>{
         const option={
             headers:{
                 "Content-Type":"application/json"
@@ -1185,7 +1185,7 @@ getKey({imgUrl}:{imgUrl:string}):string|null{
             method:"PUT",
         };
        
-            return fetch(`${this.adminimages}?imgKey=${imgKey}`,option).then(async(res)=>{
+            return fetch(`${this.adminimages}?imgKey=${imgKey}&del=${String(del)}`,option).then(async(res)=>{
                 //api/admin/images
                 if(res){
                     return await res.json() as adminImageType

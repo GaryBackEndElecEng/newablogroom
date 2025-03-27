@@ -370,7 +370,7 @@ listThemeTypes:{name:string}[]=[{name:"background"},{name:"fonts"},{name:"colors
         this._modSelector.blog={...this._modSelector.blog,attr:""};
         const blog=this._modSelector.blog;
         if(blog.imgBgKey){
-         await  this._service.adminImagemark(blog.imgBgKey).then(async(res)=>{
+         await  this._service.adminImagemark(blog.imgBgKey,true).then(async(res)=>{
             if(res){
                 Misc.message({parent:mainCont,msg:`${blog.imgBgKey}`,type_:"success",time:700});
                 this._modSelector.blog={...blog,imgBgKey:undefined};
@@ -1293,7 +1293,7 @@ class Sidebar{
         sidebarMain.className="flexCol";
         this.introduction(sidebarMain,mainCont);
         this.initializeTheme({parent:sidebarMain,mainCont,idValues,textarea,mainHeader,footer});
-        this.addToolbar({parent:sidebarMain,mainCont,idValues,textarea,mainHeader,footer});
+        this.addToolbar({parent:sidebarMain,mainCont,idValues,textarea,mainHeader,footer,blog});
         this.initiatesAddNewBlog(sidebarMain,mainCont);
         this.addAGraph(sidebarMain,textarea,idValues);
         this.initiateEdit({parent:sidebarMain,mainCont,textarea,mainHeader,footer,idValues,less400,less900});
@@ -1419,13 +1419,14 @@ class Sidebar{
 
 
 
-    addToolbar({parent,idValues,mainCont,textarea,mainHeader,footer}:{
+    addToolbar({parent,idValues,mainCont,textarea,mainHeader,footer,blog}:{
         parent: HTMLElement,
         idValues:idValueType[],
         mainCont:HTMLElement,
         textarea:HTMLElement,
         mainHeader:HTMLElement,
-        footer:HTMLElement
+        footer:HTMLElement,
+        blog:blogType
 
     }){
         const btnContainer=document.createElement("div");
@@ -1466,7 +1467,7 @@ class Sidebar{
                 setTimeout(()=>{
                     btn.disabled=false;
                 },1000);
-                this.toolbar.mainColBtn({parent:textarea,mainContainer:mainCont,textarea});
+                this.toolbar.mainColBtn({parent:textarea,mainContainer:mainCont,textarea,blog});
             }
         });
      };
@@ -2527,11 +2528,11 @@ class Sidebar{
         parent.style.position="relative";
         const css_col="display:flex;justify-content:center;align-items:center;flex-direction:column;";
         const css_row="display:flex;justify-content:space-around;align-items:center;flex-wrap:nowrap;";
-        const css_inline="display:inline-flex;justify-content:space-around;align-items:center;flex-wrap:nowrap;";
+        const css_inline="display:inline-flex;justify-content:space-around;align-items:center;flex-wrap:nowrap;gap:3rem;";
         const popup=document.createElement("div");
         popup.id="foundCustom header-popup";
         popup.className="popup";
-        popup.style.cssText= css_col + "position:absolute;inset:0% 0% -20%;width:clamp(350px,500px,575px);background-color:white;color:blue;border-radius:12px;box-shadow:1px 1px 12px 1px black; padding-inline:1rem; padding-block:0.5rem;gap:1rem;z-index:100;transform:translateY(20%);";
+        popup.style.cssText= css_col + "position:absolute;inset:0% 0% -20%;width:clamp(350px,500px,575px);background-color:#00020875;color:blue;border-radius:12px;box-shadow:1px 1px 12px 1px black; padding-inline:1rem; padding-block:0.5rem;gap:1rem;z-index:100;transform:translateY(20%);backdrop-filter:blur(10px);color:white;";
         popup.style.transform="translateY(20%);";
         const emoji=document.createElement("img");
         emoji.src=this.emojiSmile;
@@ -2547,7 +2548,10 @@ class Sidebar{
         btnDiv.style.cssText=css_inline
         const {button:cancel}=Misc.simpleButton({anchor:btnDiv,text:"cancel",type:"button",bg:Nav.btnColor,color:"white",time:400});
         const {button:remove}=Misc.simpleButton({anchor:btnDiv,text:"change",type:"button",bg:Nav.btnColor,color:"white",time:400});
+        cancel.style.transform="scale(0.8)";
+        remove.style.transform="scale(0.8)";
         msgCont.appendChild(emoji);
+        Misc.rotateIn({anchor:emoji,rotate:360,direction:"x",time:1200});
         msgCont.appendChild(msg);
         popup.appendChild(msgCont);
         popup.appendChild(btnDiv);

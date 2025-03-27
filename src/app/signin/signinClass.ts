@@ -6,6 +6,8 @@ import RegSignIn from "@/components/nav/regSignin";
 import User from "@/components/user/userMain";
 import { getCsrfToken, getProviders } from "next-auth/react";
 import Register from "../register/register";
+import Misc from "@/components/common/misc";
+import Header from "@/components/editor/header";
 
 
 class SigninClass{
@@ -32,6 +34,7 @@ class SigninClass{
     container.id="signIn-container";
     container.style.cssText="margin:auto;border-radius:inherit;padding-block:1rem;position:relative";
     container.style.paddingInline=less900 ? (less400 ? "0rem":"7rem"):"10rem";
+    container.style.width=less400 ? "100%":"auto";
     container.style.backgroundColor="black";
     parent.appendChild(container);
     const csrfToken= await getCsrfToken();
@@ -51,11 +54,13 @@ class SigninClass{
         const container=document.createElement("div");
         const imgWidth=less900 ? (less400 ? "200px":"150px"): "175px";
         container.id="logoContainer";
-        container.style.cssText=css_row + "width:auto;background-color:black;color:white;min-height:20vh;border-radius:inherit;margin-inline:auto;";
+        container.style.cssText=css_row + "width:100%;background-color:black;color:white;min-height:20vh;border-radius:inherit;margin-inline:auto;justify-content:stretch;";
         container.style.paddingInline=less900 ? (less400 ? "0rem":"3rem"):"5rem";
         container.style.paddingBlock=less900 ? (less400 ? "1rem":"1.5rem"):"2rem";
-        container.style.gap=less900 ? (less400 ? "3rem":"2rem"):"3rem";
+        container.style.gap=less400 ? "3rem":"0rem";
         container.style.flexDirection=less400 ? "column":"row";
+        container.style.flexWrap="nowrap";
+        container.style.height=less900 ? (less400 ? "50vh":"30vh"):"23vh";
         parent.appendChild(container);
         const img=document.createElement("img");
         img.src=this.logo;
@@ -65,15 +70,49 @@ class SigninClass{
         text.style.cssText="text-wrap:pretty;color:white;";
         text.style.flex=less900 ? (less400 ? "1 0 100%":"1 0 50%"):"1 0 70%";
         text.style.paddingInline=less900 ? (less400 ? "1rem":"0.5rem"):"1.5rem";
-        text.textContent=this.msg;
-        container.appendChild(text);
         parent.appendChild(container);
         container.animate([
-            {transform:"rotateY(-90deg)",opacity:"0"},
-            {transform:"rotateY(0deg)",opacity:"1"},
-        ],{duration:2000,iterations:1,"easing":"ease-in-out"});
+            {transform:"rotateX(-180deg)",opacity:"0"},
+            {transform:"rotateX(0deg)",opacity:"1"},
+        ],{duration:3000,iterations:1,"easing":"ease-in-out"});
+        setTimeout(()=>{
+            text.textContent=this.msg;
+            container.appendChild(text);
+            text.animate([
+                {lineHeight:"0",opacity:"0"},
+                {lineHeight:"auto",opacity:"1"},
+            ],{duration:1600,iterations:1,"easing":"ease-in-out"});
+        },3000);
 
     };
+
+    textEffect({target,str,time}:{target:HTMLElement,str:string,time:number}){
+        let count=0;
+        target.style.position="relative";
+        const arr=str.split(" ");
+        const len=arr.length;
+        const clear=setInterval(()=>{
+            if(count<=len-1){
+                Header.cleanUp(target);
+                const phrase=arr.slice(0,count-1).join(" ");
+                const word=arr[count];
+                const span=document.createElement("span");
+                span.textContent=` ${word}`;
+                const spanMain=document.createElement("span");
+                spanMain.textContent=phrase;
+                target.appendChild(spanMain);
+                span.animate([
+                    {letterSpacing:"0.5rem"},
+                    {letterSpacing:"auto"},
+                ],{duration:time*0.75,iterations:1,"easing":"ease-in-out"})
+                target.appendChild(span);
+                count++;
+            }else{
+                clearInterval(clear);
+                target.textContent=str;
+            }
+        },time);
+    }
 
 }
 export default SigninClass;

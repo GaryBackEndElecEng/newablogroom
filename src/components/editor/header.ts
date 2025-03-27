@@ -1,4 +1,4 @@
-import { element_selType, colType, rowType, selectorType, headerType, columnAttrType, classAttType, blogType } from './Types';
+import { element_selType, colType, rowType, selectorType, headerType, columnAttrType, classAttType, blogType, elementType } from './Types';
 import ModSelector from "./modSelector";
 import {FaCrosshairs} from "react-icons/fa";
 import {FaCreate} from "@/components/common/ReactIcons";
@@ -429,10 +429,13 @@ class Header{
                         await this.generateElement({column:col,selector,row:row_,col:col_,element,idValues}).then(async(res)=>{
                              if(res){
                                 const node=res.target.nodeName.toLowerCase();
+                                const {cleaned}=this._modSelector.removeClasses({target:res.target,classes:["isActive"]});
+                                const {cleaned:divCleaned}=this._modSelector.removeClasses({target:res.divCont,classes:["isActive"]});
+                                res.target.className=cleaned.join(" ");
+                                res.divCont.className=divCleaned.join(" ");
                                 res.column.appendChild(res.divCont);//appending elements
                                 idValues=Dataset.removeIdValueDuplicates({arr:res.idValues,eleId:res.target.id});
-                                const getEleIds=idValues.filter(kat=>(kat.eleId===res.target.id));
-                                this._modSelector.dataset.idValues=this._modSelector.dataset.idValues.concat(getEleIds);
+                                this._modSelector.dataset.upDateIdValues({idValues});
                                 if(res.selRowCol && res.isEdit===true){
                                     this.editElement({target:res.target,idValues:res.idValues,selRowCol:res.selRowCol});
                                 };
@@ -474,7 +477,7 @@ class Header{
                     // console.log(innerCont)//works
                    
                 }));
-                this._modSelector.removeHeader({parent,target:innerCont,idValues});
+                this.deleteSelector({mainHeader:parent,target:innerCont,idValues});
             parent.appendChild(innerCont);
         }
     };
@@ -558,21 +561,21 @@ class Header{
                 divCont.appendChild(target);
             return Promise.resolve({column,divCont,target,idValues,selRowCol,isEdit:true}) as Promise<{column:HTMLElement,divCont:HTMLElement,target:HTMLElement,idValues:idValueType[],selRowCol:selRowColType,isEdit:boolean}>;
 
-            case element.name==="a" :
+            case element.name==="a":
                 
                     if(link){
-                        this.addLinkEmailTelImg({target:target as HTMLAnchorElement,image:this.link,href:link,name:target.textContent||"name",type:"link"});
+                        this.showLinkEmailTelImg({target:target as HTMLAnchorElement,element,type:"link"});
                         divCont.id +="anchor";
                         divCont.appendChild(target);
 
                     }else if(email){
-                        this.addLinkEmailTelImg({target:target as HTMLAnchorElement,image:this.link,href:email,name:target.textContent||"name",type:"email"});
+                        this.showLinkEmailTelImg({target:target as HTMLAnchorElement,element,type:"email"});
                         (target as HTMLAnchorElement).href=email ;
                         target.setAttribute("data-email",(target as HTMLAnchorElement).href);
                         divCont.appendChild(target);
                     }else if(tel){
                         // console.log("element.attr",element.attr && JSON.parse(element.attr))
-                        this.addLinkEmailTelImg({target:target as HTMLAnchorElement,image:this.link,href:tel,name:target.textContent||"name",type:"tel"});
+                        this.showLinkEmailTelImg({target:target as HTMLAnchorElement,element,type:"tel"});
                         target.setAttribute("data-tel",(target as HTMLAnchorElement).href);
                         divCont.appendChild(target);
                     };
@@ -613,6 +616,8 @@ class Header{
                 return;
         }
     };
+
+
 
      //INJECTOR:Main.container: THIS FEEDS Main._mainHeader the DOC
     editorHeader({parent}:{parent:HTMLElement}){
@@ -667,7 +672,7 @@ class Header{
                     
                     //APPENDING SELECTOR TARGET
                    Misc.fadeIn({anchor:resSel.target,xpos:100,ypos:0,time:500});
-                    this.deleteSelector({mainHeader,target:resSel.target});
+                    this.deleteSelector({mainHeader,target:resSel.target,idValues});
                 }
             });
         }
@@ -827,7 +832,7 @@ class Header{
         popup.classList.add("popup");
         popup.style.cssText="margin:auto;position:absolute;height:auto;width:fit-content;z-index:2000;";
         popup.style.top="100%";
-        popup.style.transform="translate(5px,-15px)";
+        popup.style.transform="translate(5px,-15px) scale(0.5)";
         popup.style.position="absolute";
         const text=document.createElement("p");
         text.className="text-center text-primary";
@@ -935,7 +940,10 @@ class Header{
         // }
 
         //nameValueAttrs:columnAttrType[]
-    }
+    };
+
+
+
     //PARENT: selectElementAttribute
     toggleAttributeElement({col,attr,idValues,selRowCol}:{col:HTMLElement,attr:string,idValues:idValueType[],selRowCol:selRowColType}){
         const {isJSON}=Header.checkJson(col.getAttribute("flex"));
@@ -1014,7 +1022,7 @@ class Header{
                                         this.updateElement({target:res.target,idValues,selRowCol});
                                 }
                             });
-                           
+                           this.editElement({target:res.target,idValues:res.idValues,selRowCol:res.selRowCol})
                         }
                     });//CRITICAL: needs flexTracker!!,this adds elements to selector and/or elements
                     divCont.appendChild(target);
@@ -1062,6 +1070,7 @@ class Header{
                                     this.showRemoveItem({parent,divCont,target:res.target,idValues,selRowCol});
                                 }
                             });
+                            this.editElement({target:res.target,idValues,selRowCol:res.selRowCol});
                         }
                     });
                 
@@ -1090,7 +1099,7 @@ class Header{
                                     {boxShadow:`1px 1px 4px 1px ${shade}`},
                                 ],{duration:1000,iterations:1});
                             };
-                          
+                          this.editElement({target:res.target,idValues,selRowCol:res.selRowCol});
                         }
                     });//CRITICAL: needs flexTracker!!,this adds elements to selector and/or elements
 
@@ -1137,7 +1146,7 @@ class Header{
                                     this.showRemoveItem({parent,target:res.target,divCont,idValues,selRowCol});
                                 }
                             });
-                            
+                            this.editElement({target:res.target,idValues,selRowCol:res.selRowCol});
                         }
                     });;
                     divCont.appendChild(target);
@@ -1209,6 +1218,7 @@ class Header{
                         this.updateElement({target:res.target,idValues,selRowCol});
                     }
                 });
+                this.editElement({target:res.target,idValues,selRowCol:res.selRowCol});
             }
 
         });//CRITICAL: needs flexTracker!!,this adds elements to selector and/or elements
@@ -1240,7 +1250,8 @@ class Header{
                 const name_=n_input.name ;
                 const link=newFormdata.get(link_) as string;
                 const name=newFormdata.get(name_) as string;
-                this.addLinkEmailTelImg({target:anchor,image:this.link,href:link,name,type:"link"});
+                this.addLinkEmailTelImg({target:anchor,image:this.link,href:link,name,type:"link",isClean:false});
+                idValues.push({eleId,id:"editableFalse",attValue:String(false)});
                 idValues.push({eleId:target.id,id:"link",attValue:link})
                 target.setAttribute("data-link",link);
                 idValues.push({eleId,id:"link",attValue:link});
@@ -1269,22 +1280,35 @@ class Header{
     };
 
 
-    addLinkEmailTelImg({target,image,href,name,type}:{target:HTMLAnchorElement,image:string,href:string,name:string,type:"link"|"email"|"tel"}){
+    addLinkEmailTelImg({target,name,image,href,type,isClean}:{target:HTMLAnchorElement,name:string,image:string,href:string,type:"link"|"email"|"tel",isClean:boolean}){
         target.textContent="";
         const text=new Text(name);
-        const span=document.createElement("span");
-        span.style.cssText="display:inline-flex;align-items:center;gap:4px;";
         const img=document.createElement("img");
         img.src=image;
         img.alt="www.ablogroom.com";
         this._modSelector.dataset.insertcssClassIntoComponents({target:img,level:"element",loc:"flexbox",type:"customHeader",id:"linkImgs",headerType:"custom"});
-        span.appendChild(img);
-        span.appendChild(text);
-        target.appendChild(span);
-        if(type==="link") window.open(href,"_blank");
-        if(type==="email") target.href=href;
-        if(type==="tel") target.href=href;
+        target.style.display="inline-flex";
+        target.style.alignItems="center";
+        target.style.gap="4px";
+        target.appendChild(img);
+        target.appendChild(text);
+        target.href=href;
+        if(type==="link" && isClean){ window.open(href,"_blank");target.setAttribute("data-link",href)};
+        if(type==="email") {target.setAttribute("data-email",href)};
+        if(type==="tel"){ target.setAttribute("data-tel",href)}
+       
     };
+
+    showLinkEmailTelImg({target,element,type}:{target:HTMLAnchorElement,element:elementType|element_selType,type:"link"|"email"|"tel"}){
+            target.innerHTML=element.inner_html;
+            const href=element.attr as string;
+            target.href=href;
+            if(type==="link"){ window.open(href,"_blank");target.setAttribute("data-link",href)};
+            if(type==="email") {target.setAttribute("data-email",href)};
+            if(type==="tel"){ target.setAttribute("data-tel",href)}
+             
+            
+         };
     
 
      getEmail({parent,target,divCont,idValues,selector,row,col}:{
@@ -1338,7 +1362,8 @@ class Header{
                 const email=formdata.get("email") as string;
                 const name=formdata.get("name") as string;
                 const eleId=target.id
-                this.addLinkEmailTelImg({target:email_,image:this.mail,href:`mailto:${email}`,name,type:"email"});
+                this.addLinkEmailTelImg({target:email_,image:this.mail,href:`mailto:${email}`,name,type:"email",isClean:false});
+                idValues.push({eleId,id:"editableFalse",attValue:String(false)});
                 idValues.push({eleId,id:"email",attValue:`mailto:${email}`});
                 //ADDS ATTRIBUTES AND ID TO NEW ELEMENT
                
@@ -1415,7 +1440,8 @@ class Header{
                 const name=formdata.get("name") as string;
                 const eleId=target.id;
                 idValues.push({eleId,id:"tel",attValue:`tel:${tel}`})
-                this.addLinkEmailTelImg({target:tel_,image:this.phone,href:`tel:${tel}`,name,type:"tel"});
+                this.addLinkEmailTelImg({target:tel_,image:this.phone,href:`tel:${tel}`,name,type:"tel",isClean:false});
+                idValues.push({eleId,id:"editableFalse",attValue:String(false)});
                 divCont.appendChild(target);
                 parent.appendChild(divCont);
                 this.elementAdder({target,selector,row,col,idValues}).then(async(res)=>{
@@ -1762,9 +1788,12 @@ class Header{
                         }
                         return selector_;
                     });
-                    this._modSelector.localStore({blog:this._modSelector.blog});
+                    const blog={...this._modSelector.blog,selectors:this._modSelector.selectors};
+                    this._modSelector.blog=blog;
+                    this._modSelector.localStore({blog});
                 };
             };
+
             target.onchange=(e:MouseEvent)=>{
                 if(e){
                     const idValue:idValueType={eleId,id:"update",attValue:"true"};
@@ -1870,9 +1899,11 @@ class Header{
         idValues:idValueType[];
         selector:selectorType;
         row:rowType;
-        col:colType
+        col:colType;
+        selRowCol:selRowColType;
     } | undefined>{
         const eleId=target.id;
+        const selRowCol={selectorId:selector.eleId,rowId:row.eleId,colId:col.eleId} as selRowColType;
         const node=target.nodeName.toLowerCase();
         const parent= target.parentElement;
         const parent_id=parent ? parent.id : null;
@@ -1912,6 +1943,7 @@ class Header{
             }
             //LOADING ATTRIBUTES INTO ELEMENT, BELOW
             idValues.push({eleId,id:"eleOrder",attValue:String(ID)});
+            idValues.push({eleId,id:"selRowCol",attValue:eleId});
             const getEleIds=idValues.filter(kat=>(kat.eleId===eleId));
                 const attrTest=attrEnumArrTest(ele);
                 const typeTest=typeEnumArrTest(ele);
@@ -1969,6 +2001,7 @@ class Header{
                     }
                     return select;
                 }); 
+                this._modSelector.blog={...this._modSelector.blog,selectors:this._modSelector.selectors};
                 this._modSelector.localStore({blog:this._modSelector.blog});
                 //ADDING SELECTOR TO SELECTORS AND SAVING IT TO LOCAL
                 //UPDATING IDVALUES
@@ -1977,7 +2010,7 @@ class Header{
                 this._modSelector.dataset.idValues=this._modSelector.dataset.idValues.concat(getEleIds_);
         };
         //UPDATING IDVALUES
-        return {target,ele:ele as element_selType,idValues,selector,row,col};
+        return {target,ele:ele as element_selType,idValues,selector,row,col,selRowCol};
        
     };
     
@@ -2012,7 +2045,7 @@ class Header{
                     if(item){
                         const check=this._service.checkFreeImgKey({imgKey:item.imgKey});
                             if(check) return;
-                        this._service.adminImagemark(item.imgKey).then(async(res)=>{
+                        this._service.adminImagemark(item.imgKey,true).then(async(res)=>{
                             if(res && parent){
                                 Misc.message({parent:parent,msg:`${item.imgKey} is deleted`,type_:"success",time:400});
                             }
@@ -2083,7 +2116,9 @@ class Header{
                     }
                 return select;
             });
-            this._modSelector.localStore({blog:this._modSelector.blog});
+            const blog={...this._modSelector.blog,selectors:this._modSelector.selectors};
+            this._modSelector.blog=blog;
+            this._modSelector.localStore({blog});
          
         }
         return Promise.resolve({element,selRowCol,idValues}) as Promise<{element:element_selType|undefined,selRowCol:selRowColType,idValues:idValueType[]}>;
@@ -2192,12 +2227,12 @@ class Header{
                     setTimeout(()=>{divCont.remove()},398);
                     this.removeElement({target,idValues,selRowCol}).then(async(res)=>{
                         if(res){
-                                console.log(res.ele,res.getEleIds)
+                              
                                 const idValue=res.getEleIds.find(kat=>(kat.id==="imgKey"));
                                 if(idValue){
                                     const check=this._service.checkFreeImgKey({imgKey:idValue.attValue});
                                     if(check) return;
-                                    this._service.adminImagemark(idValue.attValue).then(async(res)=>{
+                                    this._service.adminImagemark(idValue.attValue,true).then(async(res)=>{
                                         if(res){
                                             Misc.message({parent,msg:`${idValue.attValue} is removed`,type_:"success",time:700});
                                         }
@@ -2392,7 +2427,9 @@ class Header{
                 }
                 return select;
             });
-            this._modSelector.localStore({blog:this._modSelector.blog});
+            const blog={...this._modSelector.blog,selectors:this._modSelector.selectors};
+            this._modSelector.blog=blog;
+            this._modSelector.localStore({blog});
         }
         //RE-POPULATING TARGET WITH NEW COLLECTED ATTRIBUTES
         idValues=Dataset.removeIdValueDuplicates({arr:idValues,eleId});
@@ -2497,25 +2534,51 @@ class Header{
     
     
 
-     deleteSelector({mainHeader,target}:{mainHeader:HTMLElement,target:HTMLElement}){
+     deleteSelector({mainHeader,target,idValues}:{mainHeader:HTMLElement,target:HTMLElement,idValues:idValueType[]}){
         //TARGET TO BE REMOVED!!
+        const eleId=target.id;
+        const getEleIds=idValues.filter(kat=>(kat.eleId===eleId));
+        getEleIds.map((kat,index)=>{
+            if(kat){
+                idValues.splice(index,1);
+            }
+        });
         const iconDiv=document.createElement("div");
         iconDiv.id="header-delete-effect";
         iconDiv.className="";
         iconDiv.setAttribute("is-icon","true");
-        iconDiv.style.cssText="position:absolute;top:0px;right:10px;font-size:26px;transform.translate(0px,-13px);background:black;color:white;border-radius:50%;z-index:400;";
-        const cssStyle={background:"inherit",fontSize:"inherit"}
+        iconDiv.style.cssText="position:absolute;top:0px;right:10px;padding:2px;transform.translate(0px,-13px);background:black;color:white;border-radius:50%;z-index:400;";
+        const cssStyle={background:"inherit",fontSize:"12px",borderRadius:"50%",color:"white"};
         FaCreate({parent:iconDiv,name:FaCrosshairs,cssStyle});
         target.appendChild(iconDiv);
-       
+        
         iconDiv.addEventListener("click",(e:MouseEvent)=>{
             if(e){
                 const sel=this._modSelector.selectors.find(sel=>(sel.eleId===target.id));
                 if(sel){
+                    const {rows}=this._modSelector.checkGetRows({select:sel});
+                    rows.map(row=>{
+                        if(row){
+                            row.cols.map(col=>{
+                                if(col){
+                                    col.elements.map(ele=>{
+                                        if(ele){
+                                            idValues.map((kat,index)=>{
+                                                const check=[ele.eleId,col.eleId,row.eleId].includes(kat.eleId);
+                                                if(check){
+                                                    idValues.splice(index,1);
+                                                }
+                                            });
+                                        }
+                                    });
+                                }
+                            });
+                        }
+                    });
                     const arr= Header.getImgKeys({selector:sel});
                        arr.map(item=>{
                         if(item){
-                            this._service.adminImagemark(item.imgKey).then(async(res)=>{
+                            this._service.adminImagemark(item.imgKey,true).then(async(res)=>{
                                 if(res && parent){
                                     Misc.message({parent:mainHeader,msg:`${item.imgKey} is deleted`,type_:"success",time:400});
                                 }

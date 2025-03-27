@@ -4,6 +4,7 @@ import GoogleProvider from "next-auth/providers/google";
 import prisma from "@/prisma/prismaclient";
 import { PrismaAdapter } from "@auth/prisma-adapter";
 import { hashComp } from "@/lib/ultils/bcrypt";
+import { accountType } from "@/components/editor/Types";
 const EMAIL = process.env.EMAIL as string;
 const EMAIL2 = process.env.EMAIL2 as string;
 
@@ -25,6 +26,7 @@ const authOptions: NextAuthOptions = {
         },
         redirect: async ({ url, baseUrl }) => {
             const newUrl = new URL(url);
+
             if (newUrl.href === baseUrl) {
                 return baseUrl;
             } else {
@@ -49,7 +51,7 @@ const authOptions: NextAuthOptions = {
                     token.id = TUser.id;
                     token.username = TUser.name ? TUser.name : "";
                     if (account) {
-                        //can create account id db
+                        //
                     }
                 }
                 await prisma.$disconnect();

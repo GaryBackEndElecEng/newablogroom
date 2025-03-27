@@ -33,7 +33,7 @@ class SignInAndUp{
         this.barIcon="/images/barIcon.png";
         this._isSignedIn=isSignedIn;
         this.isOn=false;
-        this.signUpMsg="This will only give you informed messaging on Ablogroom updates. again we thank you for trusting us. "
+        this.signUpMsg="Thank you for signing-in. We will secure your email.You will recieve messaging on Ablogroom updates only. Again we thank you for trusting us. "
     };
 
     //----------------SETTERS/GETTERS----------------------//
@@ -273,16 +273,16 @@ class SignInAndUp{
       
         const section=document.createElement("section");
         section.id="signInUp-signIn-section-popup";
-        section.style.cssText=css_col + "margin:auto;position:absolute;background-color:rgb(8 244 231 / 26%);filter:drop-shadow(0 0 0.75rem crimson);border-radius:7px;padding:1rem;z-index:100;padding:1.5rem;z-index:20;backdrop-filter:blur(20px);gap:1rem;";
+        section.style.cssText=css_col + "margin:auto;position:absolute;background-color:rgb(8 244 231 / 26%);filter:drop-shadow(0 0 0.75rem crimson);border-radius:7px;padding:1rem;z-index:100;padding:1.5rem;z-index:200;backdrop-filter:blur(20px);gap:1rem;";
         section.style.inset=less900 ? (less400 ? "-100% 0% auto 0%":"0% 20% auto 20%") :"0% 30% auto 30%";
         section.style.transform=less900 ? (less400 ? "translateY(100px)":"translateY(90px)"):"translateY(90px)";
-        section.style.height=less900 ? (less400 ? "65vh":"55vh"):"65vh";
+        section.style.height=less900 ? (less400 ? "76vh":"55vh"):"65vh";
         section.style.maxWidth=less900 ? (less400 ? (less380 ? "390px" :"490px"):"500px") :"600px";
         section.style.minWidth=less900 ? (less400 ? (less380 ? "370px" :"320px"):"400px") :"400px";
         section.style.width="100%";
         section.style.position="absolute";
         //SIGNUP IMG BLOCK
-        this.signUpImgBlock({parent:section,css_col});
+        this.signUpImgBlock({parent:section,css_col,less400,less900});
         //SIGNUP IMG BLOCK
         //FORM => NAME && EMAIL
         const form=document.createElement("form");
@@ -365,11 +365,12 @@ class SignInAndUp{
 
 
 
-    signUpImgBlock({parent,css_col}:{parent:HTMLElement,css_col:string}){
-        const time=120;
+    signUpImgBlock({parent,css_col,less400,less900}:{parent:HTMLElement,css_col:string,less400:boolean,less900:boolean}){
+        const time=80;
         const container=document.createElement("div");
         container.id="signUpImgBlock-container";
-        container.style.cssText=css_col +"margin-inline:auto;height:auto;background-color:#ffffff47;border-radius:inherit;padding-block:0.5rem;padding-inline:1rem;color:white;width:100%;";
+        container.style.cssText=css_col +"margin-inline:auto;background-color:#ffffff47;border-radius:inherit;padding-block:0.5rem;padding-inline:1rem;color:white;width:100%;";
+        container.style.height=less400? "66vh":"36vh";
         const para=document.createElement("p");
         para.id="signUpImgBlock-text";
         this.messageEffect({para,str:this.signUpMsg,time});
