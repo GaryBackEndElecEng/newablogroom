@@ -5,7 +5,6 @@ import ModSelector from "@/components/editor/modSelector";
 import { messageType, userType } from "@/components/editor/Types";
 import Nav from "@/components/nav/headerNav";
 import RegSignIn from "@/components/nav/regSignin";
-import User from "@/components/user/userMain";
 import { getErrorMessage } from "@/lib/errorBoundaries";
 import { getCsrfToken, getProviders } from "next-auth/react";
 import { onChangeVerifyType } from '../../components/editor/Types';
@@ -16,16 +15,14 @@ import styles from "./register.module.css";
 class Register {
     public static readonly msg:string="When Registering, we Keep Your Information Secret and Provide the Means Allowing You the Option on keeping your Information hiding with the highest regard to safeguard your email.";
    public readonly btnColor:string="#05099c";
-    regSignin:RegSignIn;
     onchangeparams:onChangeVerifyType;
-    constructor(private _modSelector:ModSelector,private _service:Service,private _user:User){
-        this.regSignin=new RegSignIn(this._modSelector,this._service,this._user);
+    constructor(private _modSelector:ModSelector,private _service:Service,private regSignin:RegSignIn,private _user:userType){
         this.onchangeparams={name:null,email:null,tel:null};
         this.btnColor="#05099c";
     };
 
 
-
+//INJECTION
     main(item:{parent:HTMLElement,count:number}):Promise<number>{
         const {parent,count}=item;
         const less400=window.innerWidth < 400;
@@ -123,6 +120,7 @@ class Register {
         const {mainContainer,section,less400}=item;
         //ADD LOG AND ENSURE SECRETLEY
         //REMOVING SIGNIN AND BUILDING REGISTER
+        const width=less400 ? 300:125;
         const css_col="display:flex;flex-direction:column;align-items:center;";
         const css_row="display:flex;align-items:center;justify-content:center;";
         Header.cleanUpByID(section,"signIn-main");
@@ -133,18 +131,7 @@ class Register {
         container.id="register-container";
         section.className=styles.regPageMainContainer;
         section.style.cssText=css_col;
-        const paraLogo=document.createElement("p");
-        paraLogo.id="paraLogo";
-        paraLogo.style.cssText=css_row + "margin-inline;auto;font-family:LobsterTwo-Regular;color:white;font-size:18px;padding-inline:1rem;line-height:2.75rem;border-radius:15px;background-color:#0C090A";
-        paraLogo.style.flexDirection=less400 ? "column":"row";
-        const img=document.createElement("img");
-        img.src=Misc.sourceImage({src:this.regSignin.logo,width:125,quality:75});
-        img.alt="www.ablogroom.com";
-        img.style.cssText="shape-outside:circle(50%);border-radius:50%;aspect-ratio: 1 / 1;filter:drop-shadow(0 0 0 0.5rem white);float:left;line-height:2.54rem;margin-right:1rem;margin-block:1.5rem;box-shadow:1px 1px 12px 1px white;";
-        img.style.width=less400 ? "100%":"155px";
-        paraLogo.appendChild(img);
-        paraLogo.innerHTML+=Register.msg;
-        container.appendChild(paraLogo);
+        this.titleImg({parent:container,str:Register.msg,css_row,width,less400});
         //LOGO
        
         const form=document.createElement("form");
@@ -252,15 +239,15 @@ class Register {
                 if(verifyPassword !==password){
                     this.regSignin.showPasswordMatch({formPass:fpass,pass:password,vpass:verifyPassword,change:false,btn:submit})
                 }
-                const user={...this._user.user,email,name,password,bio:bio,showinfo:showinfo};
+                const user={...this._user,email,name,password,bio:bio,showinfo:showinfo};
                 this._service.registerUser(user).then(async(user_)=>{
                     if(user_){
-                            this._user.user={...user_,password:user.password};
+                            this._user={...user_,password:user.password};
                             container.removeChild(form);
                             //ADD IMAGE DISPLAY ON CONTAINER FROM HERE
                             const image=document.createElement("img");
                             image.style.cssText="width:150px;border-radius:50%;box-shadow:1px 1px 12px 1px black;position:absolute;inset:0%;filter:drop-shadow(0 0 0.5rem black);margin:auto;";
-                            const user_id=this._user.user.id as string;
+                            const user_id=this._user.id as string;
                             // console.log("returned from register account:",this._user.user)//works
                            await this._service.newUserEMailTo(user_id)
                             this.regSignin.wantProfileImage(mainContainer,section,container,image,user_);
@@ -273,6 +260,22 @@ class Register {
         };
     };
 
+        titleImg({parent,str,css_row,less400,width}:{parent:HTMLElement,str:string,css_row:string,less400:boolean,width:number}){
+            const paraLogo=document.createElement("p");
+            paraLogo.id="paraLogo";
+            paraLogo.style.cssText=css_row + "margin-inline;auto;font-family:LobsterTwo-Regular;color:white;font-size:18px;padding-inline:1rem;line-height:2.75rem;border-radius:15px;background-color:#0C090A";
+            paraLogo.style.flexDirection=less400 ? "column":"row";
+            const img=document.createElement("img");
+            img.src=Misc.sourceImage({src:this.regSignin.logo,width:width,quality:75});
+            img.alt="www.ablogroom.com";
+            img.style.cssText="shape-outside:circle(50%);border-radius:50%;aspect-ratio: 1 / 1;filter:drop-shadow(0 0 0 0.5rem white);float:left;line-height:2.54rem;margin-right:1rem;margin-block:1.5rem;box-shadow:1px 1px 12px 1px white;";
+            img.style.width=less400 ? "100%":"155px";
+            const text= new Text(str);
+            paraLogo.appendChild(img);
+            paraLogo.appendChild(text);
+            parent.appendChild(paraLogo);
+            Misc.rotateIn({anchor:paraLogo,rotate:90,direction:"x",time:2200});
+        }
 
 
     showPasswordMatch(item:{formPass:HTMLElement,pass:string,vpass:string|null,change:boolean,btn:HTMLButtonElement}){

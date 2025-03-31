@@ -7,10 +7,13 @@ import User from '@/components/user/userMain';
 import Register from './register';
 import Dataset from '@/components/common/dataset';
 import styles from './register.module.css';
+import { useEditor } from '@/components/context/editorContext';
+import RegSignIn from '@/components/nav/regSignin';
 
 export default function Index() {
     const readyRef = React.useRef(null);
     const countRef = React.useRef(0);
+    const { user } = useEditor();
     React.useEffect(() => {
         if (readyRef.current && countRef.current === 0) {
             if (typeof window !== "undefined") {
@@ -20,19 +23,23 @@ export default function Index() {
                     const modSelector = new ModSelector(dataset);
                     const service = new Service(modSelector);
                     const auth = new AuthService(modSelector, service);
-                    const user = new User(modSelector, service, auth);
-                    const register = new Register(modSelector, service, user);
-                    register.main({ parent, count: countRef.current }).then(async (res) => {
+                    auth.getSessionUser({ user }).then(async (res) => {
                         if (res) {
-                            countRef.current++;
+                            const regSignin = new RegSignIn(modSelector, service, res.user, res.status);
+                            const register = new Register(modSelector, service, regSignin, res.user);
+                            register.main({ parent, count: countRef.current }).then(async (res) => {
+                                if (res) {
+                                    countRef.current++;
 
-                        };
+                                };
+                            });
+                        }
                     });
                 };
             };
         };
 
-    }, []);
+    }, [user]);
 
     return (
         <div id="register_page" className={styles.registerIndex} ref={readyRef}></div>

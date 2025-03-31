@@ -369,9 +369,14 @@ class SignInAndUp{
         const time=80;
         const container=document.createElement("div");
         container.id="signUpImgBlock-container";
-        container.style.cssText=css_col +"margin-inline:auto;background-color:#ffffff47;border-radius:inherit;padding-block:0.5rem;padding-inline:1rem;color:white;width:100%;";
+        container.style.cssText=css_col +"margin-inline:auto;background-color:rgb(111 107 107 / 28%);border-radius:inherit;padding-block:0.5rem;padding-inline:1rem;color:white;width:100%;";
         container.style.height=less400? "66vh":"36vh";
         const para=document.createElement("p");
+        para.style.marginInline="auto";
+        para.style.paddingInline="10px";
+        para.style.fontSize="150%";
+        para.style.fontFamily="Playwrite";
+        para.style.fontStyle="italic";
         para.id="signUpImgBlock-text";
         this.messageEffect({para,str:this.signUpMsg,time});
         const img=document.createElement("img");

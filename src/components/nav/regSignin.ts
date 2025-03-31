@@ -633,7 +633,7 @@ class RegSignIn {
                         await signIn("credentials",{formdata});
                     } catch (error) {
                         const msg=getErrorMessage(error);
-                        console.log(msg)
+                       
                         if(error instanceof AuthenticatorAssertionResponse){
                             window.history.go(-1);
                         }

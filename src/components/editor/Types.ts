@@ -90,13 +90,13 @@ export type colAttrType={
     B:number,
     selector_id?:number,
 }
-export type columnAttrType={
+export type nameValueAttrType={
     id:number
     name:string,
     attr?:string,
     value?:string,
     remove?:boolean,
-    level?:"col"|"row"|"element"
+    level?:"col"|"row"|"element"|"selector"
 }
 export type flexType={
     name?:string,
@@ -133,7 +133,7 @@ export type selectelementType={
     name:string,
    
 }
-export type choiceType={
+export type flexChoiceType={
     name:string,
     ele?:eleEnumType,
     isEle:boolean,

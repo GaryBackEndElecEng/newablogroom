@@ -993,17 +993,17 @@ class Misc{
 
     static imageForm(parent:HTMLElement): {form:HTMLFormElement,reParent:HTMLElement,label:HTMLElement,btn:HTMLButtonElement}{
         
-       
+       const css_col="display:flex;flex-direction:column;align-items:center;justify-content:center;"
         parent.style.position="relative";
         parent.style.zIndex="0";
-        const css="border-radius:12px; box-shadow:1px 1px 4px 1px black;margin:auto;background:white;position:absolute;z-index:20;padding:2px;inset:0%;";
+        const css="border-radius:12px; box-shadow:1px 1px 4px 1px black;margin:auto;background:white;position:absolute;z-index:200;padding:2px;inset:0% 0% auto 0%;width:clamp(150px,200px,250px);";
         const form=document.createElement("form");
         form.id="Misc-image-form"
         form.className="form-group d-flex flex-column align-items-center justify-content-center";
         form.setAttribute("data-form-group","true");
-        form.style.cssText=css;
+        form.style.cssText=css + css_col;
+        form.style.inset="0% 0% auto 0%";
         form.style.height="auto";
-        form.style.inset="0% 0% 10% 0%";
         form.style.width="clamp(200px,250px,300px)";
         
         const formGrp=document.createElement("div");

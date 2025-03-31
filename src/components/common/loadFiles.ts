@@ -196,7 +196,7 @@ class LoadMisc {
                             (imgFound.html as HTMLImageElement).alt=item.name;//Changing image
                           
                             if(imgFound.imgKey){
-                                this._service.adminImagemark(imgFound.imgKey).then(async(res)=>{
+                                this._service.adminImagemark(imgFound.imgKey,true).then(async(res)=>{
                                     if(res){
                                         this._modSelector.updateElement({target:imgFound.html,idValues,selRowCol});
                                         this._arrLoadImgs=[];
@@ -215,7 +215,7 @@ class LoadMisc {
                                 (imgFound.html as HTMLImageElement).alt=item.name;//Changing image
                                  if(imgFound.imgKey){
                                     para.setAttribute("imgKey","");
-                                    this._service.adminImagemark(imgFound.imgKey).then(async(res)=>{
+                                    this._service.adminImagemark(imgFound.imgKey,true).then(async(res)=>{
                                         if(res){
                                             this._modSelector.updateElement({target:para,idValues,selRowCol});
                                             this._arrLoadImgs=[];
@@ -235,7 +235,7 @@ class LoadMisc {
                                 (imgFound.html as HTMLImageElement).alt=item.name;//Changing image
                                 if(imgFound.imgKey){
                                     para.setAttribute("imgKey","");
-                                    this._service.adminImagemark(imgFound.imgKey).then(async(res)=>{
+                                    this._service.adminImagemark(imgFound.imgKey,true).then(async(res)=>{
                                         if(res){
                                             this._modSelector.updateElement({target:para,idValues,selRowCol});
                                             this._arrLoadImgs=[];
@@ -253,7 +253,7 @@ class LoadMisc {
                             if(!isShape){
                                 imgFound.html.style.backgroundImage="url(" + item.image + ")";
                                     if(imgFound.imgKey){
-                                        this._service.adminImagemark(imgFound.imgKey).then(async(res)=>{
+                                        this._service.adminImagemark(imgFound.imgKey,true).then(async(res)=>{
                                             if(res){
                                                 const selRowCol:selRowColType={...imgFound.selRowCol} as selRowColType;
                                                 this._modSelector.updateColumn({target:imgFound.html,idValues,selRowCol});
@@ -271,7 +271,7 @@ class LoadMisc {
                                     (imgFound.html as HTMLImageElement).alt=item.name;//Changing image
                                      if(imgFound.imgKey){
                                         para.setAttribute("imgKey","");
-                                        this._service.adminImagemark(imgFound.imgKey).then(async(res)=>{
+                                        this._service.adminImagemark(imgFound.imgKey,true).then(async(res)=>{
                                             if(res){
                                                 const selRowCol={...imgFound.selRowCol} as selRowColType;
                                                 this._modSelector.updateElement({target:para,idValues,selRowCol});
@@ -293,7 +293,7 @@ class LoadMisc {
                                     (imgFound.html as HTMLImageElement).alt=item.name;//Changing image
                                     if(imgFound.imgKey){
                                         para.setAttribute("imgKey","");
-                                        this._service.adminImagemark(imgFound.imgKey).then(async(res)=>{
+                                        this._service.adminImagemark(imgFound.imgKey,true).then(async(res)=>{
                                             if(res){
                                                 this._modSelector.updateElement({target:para,idValues,selRowCol});
                                                 this._arrLoadImgs=[];
@@ -312,7 +312,7 @@ class LoadMisc {
                           
                             
                                 if(imgFound.imgKey){
-                                    this._service.adminImagemark(imgFound.imgKey).then(async(res)=>{
+                                    this._service.adminImagemark(imgFound.imgKey,true).then(async(res)=>{
                                         if(res){
                                             this._modSelector.updateRow({target:imgFound.html,idValues,selRow});
                                             this._arrLoadImgs=[];
@@ -342,7 +342,10 @@ class LoadMisc {
         };
 
 
-    }
+    };
+
+
+
     gettingAllimages(item:{elements:HTMLElement[]|null,columns:HTMLElement[]|null,rows:HTMLElement[]|null,idValues:idValueType[]}):arrImgType3[]{
         const {elements,columns,rows,idValues}=item;
         const getElements:{html:HTMLElement,selRowCol:selRowColType|null}[]=[];
@@ -431,7 +434,7 @@ class LoadMisc {
         if(rows && rows.length>0){
             const getRows=[...rows as any] as HTMLElement[]
             getRows.map(row=>{
-                const idValue:idValueType|undefined=this._modSelector.dataset.getIdValue({target:row,idValues,id:"imgKey"});
+                const idValue:idValueType|null=this._modSelector.dataset.getIdValue({target:row,idValues,id:"imgKey"});
                 const imgKey=idValue?.attValue || null;
                 const idValueSel=this._modSelector.dataset.getIdValue({target:row,id:"selRow",idValues});
                 const selRow_=idValueSel ? JSON.parse(idValueSel.attValue) as selRowType : null;

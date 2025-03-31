@@ -110,7 +110,11 @@ class DisplayBlog{
     };
     set blog(blog:blogType){
         this._blog=blog;
-    }
+    };
+    get user(){
+        return this._user;
+    };
+
    
      //GETTERS SETTERS
      
@@ -232,8 +236,18 @@ class DisplayBlog{
                             btn.addEventListener("click",(e:MouseEvent)=>{
                                 if(e){
                                     this.baseUrl=new URL(window.location.href);
-                                    const blogsUrl=new URL(`/printblog/${blog.id}`,this.baseUrl.origin);
-                                    window.location.href=blogsUrl.href;
+                                    const check=!!(user && user.id!=="" && user.email!=="")
+                                    if(check ){
+                                       
+                                        if(this.baseUrl.pathname ==="/editor"){
+                                           this.printMessage({parent,toPrint:container,css_col})
+                                        }else{
+                                            const blogsUrl=new URL(`/printblog/${blog.id}`,this.baseUrl.origin);
+                                            window.location.href=blogsUrl.href;
+                                        }
+                                    }else{
+                                        Misc.message({parent,type_:"error",msg:"You need to sign in before printing this",time:2500});
+                                    }
                                 }
                                 });
                         }
@@ -282,6 +296,18 @@ class DisplayBlog{
             
         }
      };
+
+
+
+     printMessage({parent,toPrint,css_col}:{parent:HTMLElement,css_col:string,toPrint:HTMLElement}){
+        const popup=document.createElement("div");
+        popup.id="display-main-print";
+        popup.style.cssText=css_col +"position:absolute;inset:0% 0% auto 0%;z-index:100;";
+        popup.appendChild(toPrint);
+        parent.appendChild(popup);
+     };
+
+
 
 
      metaDisplay({parent,blog,user,css_col,less900,less400}:{parent:HTMLElement,blog:blogType,user:userType|null,css_col:string,less900:boolean,less400:boolean}){
@@ -424,6 +450,7 @@ class DisplayBlog{
      //INJECTED IN MAIN (BUTTON => final)
     
     async showFinal({parent,blog,idValues,less400,less900}:{parent:HTMLElement,blog:blogType,idValues:idValueType[],less400:boolean,less900:boolean}):Promise<HTMLElement|undefined>{
+        const css_col="display:flex;flex-direction:column;justify-content:center;align-items:center;";
         this._arrDivPlaces=[];
         const checkBlog=(( blog?.elements.length>0 || blog?.selectors.length>0) || blog?.charts.length>0);
         blog={...blog,name:"blog one"};
@@ -442,13 +469,13 @@ class DisplayBlog{
             parent.classList.add("my-4");
             parent.style.zIndex="0";
             const mainContainer=document.createElement("section");
-            mainContainer.style.cssText="position:absolute;width:100%;min-height:100vh; padding:1rem;padding-inline:1.75rem;background:white;z-index:200;top:-5%;width:100%;display:flex;flex-direction:column;justify-content:center;align-items:center;";
+            mainContainer.style.cssText=css_col + "position:absolute;width:100%;min-height:100vh; padding:1rem;padding-inline:1.75rem;background:white;z-index:200;top:-5%;width:100%;";
             mainContainer.className="flexCol align-stretch justify-start";
             mainContainer.id="showFinalMain";
             
             const innerContainer=document.createElement("div");
             innerContainer.id="PDFPrint";
-            innerContainer.style.cssText="width:100%; padding:1rem;margin:1rem;border-radius:10px;margin-inline:auto;padding-inline:1rem;display:flex;flex-direction:column;justify-content:center;align-items:center;";
+            innerContainer.style.cssText=css_col + "width:100%; padding:1rem;margin:1rem;border-radius:10px;margin-inline:auto;padding-inline:1rem;";
             innerContainer.className="mx-auto";
             mainContainer.appendChild(innerContainer);
            await this.saveFinalWork({innerContainer,blog,idValues,arrDivPlaces:this._arrDivPlaces,less900,less400}).then(async(res)=>{
@@ -480,8 +507,19 @@ class DisplayBlog{
                                 setTimeout(()=>{parent.removeChild(mainContainer);},398);
      
                             }else if(str==="print"){
-                                const newUrl=new URL(`/printblog/${blog.id}`,window.location.origin)
-                                window.location.href=newUrl.href;
+                                this.baseUrl=new URL(window.location.href);
+                                const user=this._user.user;
+                                    const check=!!(user && user.id!=="" && user.email!=="")
+                                    if(check ){
+                                        if(this.baseUrl.pathname ==="/editor"){
+                                           this.printMessage({parent,toPrint:innerContainer,css_col})
+                                        }else{
+                                            const blogsUrl=new URL(`/printblog/${blog.id}`,this.baseUrl.origin);
+                                            window.location.href=blogsUrl.href;
+                                        }
+                                    }else{
+                                        Misc.message({parent,type_:"error",msg:"You need to sign in before printing this",time:2500});
+                                    }
                                 Misc.growOut({anchor:mainContainer,scale:0,opacity:0,time:400});
                                 setTimeout(()=>{parent.removeChild(mainContainer);},398);
                             }
@@ -543,7 +581,7 @@ class DisplayBlog{
             head.id=Main._mainHeader? Main._mainHeader.id as string :"mainHeader";
          
        
-           const _header= await this.showCleanSelector({parent:head,selector:header,idValues,less900,less400});
+           const _header= await this.showCleanSelector({selector:header,idValues,less900,less400});
             container.appendChild(_header);
         }
         if(maxCount>0){
@@ -556,7 +594,7 @@ class DisplayBlog{
 
                     const select =sels.find(sel=>(sel.placement===num));
                     if(select){
-                      const divCont= await this.showCleanSelector({parent:main,selector:select,idValues,less900,less400});
+                      const divCont= await this.showCleanSelector({selector:select,idValues,less900,less400});
                         arrDivPlaces.push({id:num,divCont,displayClean:true,parent:main,type:"selector",selector:select,element:null,chart:null,target:divCont})
     
                     }
@@ -610,7 +648,7 @@ class DisplayBlog{
             const foot=document.createElement(footer.name);
             foot.className=ModSelector.mainFooter_class;
             foot.style.cssText=ModSelector.mainFooter_css;
-           const _footer=await this.showCleanSelector({parent:foot,selector:footer,idValues,less400,less900});
+           const _footer=await this.showCleanSelector({selector:footer,idValues,less400,less900});
             container.appendChild(_footer);
         }
         innerContainer.appendChild(container);
@@ -620,7 +658,7 @@ class DisplayBlog{
 
 
 
-   async showCleanSelector({parent,selector,idValues,less900,less400}:{parent:HTMLElement,selector:selectorType,idValues:idValueType[],less400:boolean,less900:boolean}):Promise<HTMLElement>{
+   async showCleanSelector({selector,idValues,less900,less400}:{selector:selectorType,idValues:idValueType[],less400:boolean,less900:boolean}):Promise<HTMLElement>{
    
        
         const innerCont=document.createElement(selector.name);
@@ -657,8 +695,11 @@ class DisplayBlog{
                         row.style.cssText=row_.cssText;
                         row.id=eleId;
                         if(less400){
+                            const height=row.style.height;
+                            row.style.height="auto";
                             row.style.flexDirection="column";
                             row.style.maxHeight="";
+                            row.style.minHeight=height;
                         };
                         
                         innerCont.appendChild(row);
@@ -716,6 +757,7 @@ class DisplayBlog{
             };
             
             };
+            // parent.appendChild(innerCont)
             return innerCont
     };
 

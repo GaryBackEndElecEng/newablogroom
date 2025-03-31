@@ -20,6 +20,7 @@ import ChartJS from "../chart/chartJS";
 import PasteCode from "../common/pasteCode";
 
 import { idValueType, locationEnumType } from "@/lib/attributeTypes";
+import Toolbar from "../common/toolbar";
 
 class EditSetups{
     bgColor:string;
@@ -27,7 +28,7 @@ class EditSetups{
     displayBlog:DisplayBlog;
     flexbox:Flexbox;
 
-    constructor(private _modSelector:ModSelector,private _service:Service,public _displayBlog:DisplayBlog,public flexBox:Flexbox){
+    constructor(private _modSelector:ModSelector,private _service:Service,public _displayBlog:DisplayBlog,public flexBox:Flexbox,private _blog:blogType){
         this.bgColor=this._modSelector._bgColor;
         this.btnColor=this._modSelector.btnColor;
         this.displayBlog=_displayBlog;
@@ -35,9 +36,22 @@ class EditSetups{
       
     };
     /////-----\\ GETTERS SETTERS----//-----\\\\
-    
+    get blog(){
+        const strBlog=localStorage.getItem("blog");
+        if(strBlog){
+            const blog=JSON.parse(strBlog) as blogType
+            return blog
+        }else{
+            return this._blog
+        }
+    };
+    set blog(blog:blogType){
+        this._blog=blog
+        localStorage.setItem("blog",JSON.stringify(blog));
+    };
     /////-----\\ GETTERS SETTERS----//-----\\\\
     blogDescSetup(parent:HTMLElement,blog:blogType,idValues:idValueType[]): {cont:HTMLElement,image:HTMLImageElement,desc:HTMLElement,title:HTMLElement,idValues:idValueType[]}{
+        this.blog=blog;
         const blogDesc=blog.desc || "";
         const blogImg= blog?.img || "/images/gb_logo.png";
         const cont=document.createElement("div");
@@ -66,8 +80,8 @@ class EditSetups{
             if(!e) return;
             const value=(e.currentTarget as HTMLParagraphElement).textContent;
             if(value){
-                this._modSelector.blog={...this._modSelector.blog,desc:value};
-                this._modSelector.localStore({blog:this._modSelector.blog});
+                this.blog={...this.blog,desc:value};
+                
             }
         };
         parent.appendChild(cont);
@@ -121,7 +135,9 @@ class EditSetups{
             container.appendChild(retBtn);
             parent.removeChild(container);
         return {retParent:parent,retBtn,container}
-    }
+    };
+
+
     signInPopupSetup(parent:HTMLElement):{form:HTMLFormElement,retParent:HTMLElement,popup:HTMLElement} {
         const popup=document.createElement("section");
         popup.id="signin-popup";
@@ -171,7 +187,9 @@ class EditSetups{
             {transform:"scale(1)",opacity:"1"}
         ],{duration:600,iterations:1});
         return {form,retParent:parent,popup};
-    }
+    };
+
+
     saveOption(parent:HTMLElement,loc:locationEnumType):{cancelBtn:HTMLButtonElement,saveBtn:HTMLButtonElement,container:HTMLElement}{
         parent.style.position="relative";
         parent.style.zIndex="0";
@@ -220,19 +238,20 @@ class Edit {
     flexbox:Flexbox;
    private  _regSignin:RegSignIn;
    private  _pasteCode:PasteCode;
+   private _blog:blogType;
     css:string="min-height:100vh;height:auto;box-shadow:1px 1px 12px 2px black;border-radius:10px;padding-inline:0px;padding-block:0px;margin:0px;z-index:0;position:relative;width:100%;display:flex;flex-direction:column;justify-content:flex-start;align-items:center;gap:1rem;";
   
-    constructor(private _modSelector:ModSelector,private _service:Service,public _mainInjection:HTMLElement | null,private _user:userType,public _flexbox:Flexbox,public _htmlElement:HtmlElement,public header:Header, public customHeader:CustomHeader,public footer:Footer,public displayBlog:DisplayBlog,public chart:ChartJS,private _regSignIn:RegSignIn){
+    constructor(private _modSelector:ModSelector,private _service:Service,public _mainInjection:HTMLElement | null,private _user:userType,public _flexbox:Flexbox,public _htmlElement:HtmlElement,public header:Header, public customHeader:CustomHeader,public footer:Footer,public displayBlog:DisplayBlog,public chart:ChartJS,private toolbar:Toolbar){
         this.flexbox=_flexbox;
         this._footer=footer;
         this._header=header;
         this.bgColor=this._modSelector._bgColor;
         this.showMeta=false;
         this.btnColor=this._modSelector.btnColor;
-        
+        this._blog=this._modSelector.blog;
        
         this.mainInjection=_mainInjection;
-        this.editSetup=new EditSetups(this._modSelector,this._service,this.displayBlog,this.flexbox)
+        this.editSetup=new EditSetups(this._modSelector,this._service,this.displayBlog,this.flexbox,this._blog)
         this._pasteCode=new PasteCode(this._modSelector,this._service)
        
         
@@ -245,8 +264,12 @@ class Edit {
      };
      set user(user:userType){
          this._user=user;
-     }
-    //GETTER SETTERS
+     };
+
+     get blog(){
+        return this._modSelector.blog
+    };
+   
     //INJECTION : MainContainer
    async main({parent,textarea,mainHeader,footer,blog,user}:{
     parent:HTMLElement,
@@ -257,19 +280,18 @@ class Edit {
     user:userType|null
 
    }){
- 
+   
     let idValues=this._modSelector.dataset.idValues;
     const less900= window.innerWidth < 900;
     const less400= window.innerWidth < 400;
 
             parent.style.cssText=blog.cssText ? blog.cssText :this.css;
-            // console.log(blog)
+            
            
             if(blog){
                 parent.id=blog.eleId as string;
                 const eleId=blog.eleId as string;
                 idValues.push({eleId,id:"blogId",attValue:eleId});
-                this._modSelector.blog={...blog};
                 Main.btnInitialize();
                 //   console.log("parent",parent.style.cssText,parent.className) //works 
                 parent.style.position="relative";
@@ -282,7 +304,8 @@ class Edit {
                     idValues.push({eleId,id:"backgroundImg",attValue:"backgroundImg"});
                    const {idValues:idVals,blog:retBlog}=this.appendBlogBgImgUrl({target:parent,blog,idValues});
                    idValues=[...idVals];
-                   blog={...retBlog}
+                   blog={...retBlog};
+                //    this.blog=blog;
                     //THIS INSERTS URL INTO BACKGROUND FOR LINEAR-GRAD AND SIMPLE BG STYLES
                 };
                 const getEleIds=idValues.filter(kat=>(kat.eleId===eleId));
@@ -683,14 +706,13 @@ class Edit {
 
     }){
        
-        this._modSelector.blog={...blog};
         const arrDivPlaces:arrDivPlaceType[]=[];
         //ADDING BACKGROUND////
         if(blog){
             const header:selectorType|undefined=blog?.selectors?.find(sel=>(sel.header===true));
             const footerSelect:selectorType|undefined=blog?.selectors?.find(sel=>(sel.footer===true));
-            if(header) this._modSelector.header=header;
-            if(footerSelect) this._modSelector.footer=footerSelect;
+            if(header) this._modSelector._header=header;
+            if(footerSelect) this._modSelector._footer=footerSelect;
 
             //title description section
 
@@ -949,7 +971,7 @@ class Edit {
         const less900=window.innerWidth <900;
         const less400=window.innerWidth <400;
         const sectionMain=document.querySelector("section#main") as HTMLElement;
-        this.displayBlog.cleanAttributes(sectionMain,true);
+        this.toolbar.cleanAttributes(sectionMain,true);
         const arrDivPlaces:arrDivPlaceType[]=[];
         //CLEANING ATTRIBUTES
         const maxCount=ModSelector.maxCount(blog);

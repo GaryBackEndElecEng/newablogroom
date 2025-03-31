@@ -180,36 +180,41 @@ class Dataflow {
         Misc.matchMedia({parent:popup,maxWidth:400,cssStyle:{padding:"1rem"}});
         Misc.growIn({anchor:popup,scale:2,opacity:0,time:600});
         window.scroll(0,0);
-    }
-     promStoragMessage(parent:HTMLElement){
+    };
+
+
+     promStoragMessage({parent,less400,less900}:{parent:HTMLElement,less400:boolean,less900:boolean}){
         return Promise.resolve({message:()=>{
                    
                     if(parent){
-                    this.storageMessage(parent)
+                    this.storageMessage({parent,less400,less900})
                     }
                 }}) as Promise<{message:()=>void}>;
     }
     
-    storageMessage(parent:HTMLElement):void{
+    storageMessage({parent,less400,less900}:{parent:HTMLElement,less400:boolean,less900:boolean}):void{
         parent.style.zIndex='';
+        const css_col="display:flex;flex-direction:column;align-items:center;justify-content:center;";
         window.scroll(0,0);
         Header.cleanUpByID(parent,"storage-message-popup");
-        const liCss="list-style-type:disc;margin-left:1rem;"
+        const liCss="list-style-type:disc;margin-left:0.5rem;"
         const popup=document.createElement("div");
         popup.className="storage-message-popup";
-        popup.style.cssText=`color:white;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:1rem;box-shadow:1px 1px 12px 1px black; border-radius:12px;font-family:Poppins-Regular;background-color:#030c31fa;z-index:200;color:white;`;
+        popup.style.cssText=css_col + `color:white;padding:1rem;box-shadow:1px 1px 12px 1px black; border-radius:12px;font-family:Poppins-Regular;background-color:#030c31fa;z-index:200;color:white;width:100%;`;
         popup.id="storage-message-popup";
         popup.style.position="absolute";
-        popup.style.top="30%";
-        popup.style.left="30%";
-        popup.style.right="30%";
+        popup.style.inset="30% 0% auto 0%";
+        popup.style.maxWidth=less900 ? (less400 ? "360px":"720px"):"1000px";
+        popup.style.paddingInline=less900 ? (less400 ? "0":"0.5rem"):"1rem";
         const title=document.createElement("h6");
         title.textContent="message";
         title.className="text-center text-primary lean display-6 my-2 mb-3 text-decoration-underline text-underline-offset-4";
         popup.appendChild(title);
        
         const text=document.createElement("p");
-        text.style.cssText="margin-block:2rem;margin-inline:1rem;padding-inline:3rem";
+        text.style.cssText="margin-block:2rem;";
+        text.style.marginInline=less900 ? (less400 ? "0":"5px"):"10px";
+        text.style.paddingInline=less900 ? (less400 ? "3px":"5px"):"1rem";
         const intro=document.createElement("span");
         intro.innerHTML=`The site uses Editor uses local storage to ensure that your work is saved and secure.<br/> We believe in securing your interests. <br/>For more info: we use the browser's storage to assist with the following:`;
         text.appendChild(intro);
@@ -251,13 +256,13 @@ class Dataflow {
         <br/>
         <span>Gary Wallace</span>
         <br/>
-        <pre style=color:#0CAFFF;font-size:120%;margin-block:1rem>
-            <span> Developer, </span>
+        <span style=color:#0CAFFF;font-size:120%;margin-block:1rem>
+            <span> Developer, </span><br/>
             <span>
             <a style=color:inherit;text-decoration:none; href='tel:4169175768'>
             cell</a>
             </span>
-        </pre>`;
+        </span>`;
         popup.appendChild(text);
         const {button}=Misc.simpleButton({anchor:popup,bg:Nav.btnColor,color:"white",type:"button",time:400,text:"close"});
         parent.appendChild(popup);
@@ -269,14 +274,8 @@ class Dataflow {
                 },390);
             }
         };
-        popup.style.top=window.innerWidth <900 ? (window.innerWidth <400 ? "35%" : "30%") : "30%";
-        popup.style.left=window.innerWidth <900 ? (window.innerWidth <400 ? "0%" : "10%") : "30%";
-        popup.style.right=window.innerWidth <900 ? (window.innerWidth <400 ? "0%" : "10%") : "30%";
         Misc.fadeIn({anchor:popup,xpos:50,ypos:100,time:400});
-        Misc.matchMedia({parent:popup,maxWidth:900,cssStyle:{top:"30%",left:"10%",right:"10%"}});
-        Misc.matchMedia({parent:popup,maxWidth:400,cssStyle:{top:"35%",left:"0%",right:"0%"}});
-        Misc.matchMedia({parent:text,maxWidth:900,cssStyle:{paddingInline:"2rem"}});
-        Misc.matchMedia({parent:text,maxWidth:400,cssStyle:{paddingInline:"1rem"}});
+        
 
     }
 }

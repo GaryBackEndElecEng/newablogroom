@@ -1078,7 +1078,7 @@ class Sidebar{
     
     //---------------------INITIALIZE------------------------///
 
-    constructor(private _modSelector:ModSelector,private _service:Service,private auth:AuthService,main:Main, private _flexbox:Flexbox,private _code:NewCode,header:Header,public customHeader:CustomHeader,footer:Footer,edit:Edit,private _user:User,private _regSignin:RegSignIn,displayBlog:DisplayBlog,public chart:ChartJS,public shapeOutside:ShapeOutside,private _metablog:MetaBlog,private _headerFlag:Headerflag,public toolbar:Toolbar){
+    constructor(private _modSelector:ModSelector,private _service:Service,private auth:AuthService,main:Main, private _flexbox:Flexbox,private _code:NewCode,header:Header,public customHeader:CustomHeader,footer:Footer,edit:Edit,private _user:User,private _regSignin:RegSignIn,displayBlog:DisplayBlog,public chart:ChartJS,public shapeOutside:ShapeOutside,private _metablog:MetaBlog,private _headerFlag:Headerflag,public toolbar:Toolbar,private _blog:blogType){
         this.emojiSmile="./images/emojiSmile.png";
         this.logo="/images/logo.png";
         this._selectors_=Flexbox.selectors_;
@@ -1102,6 +1102,19 @@ class Sidebar{
         
     }
     //------GETTER SETTERS-----/////
+    get blog(){
+        const strBlog=localStorage.getItem("blog");
+        if(strBlog){
+            const blog=JSON.parse(strBlog) as blogType
+            return blog
+        }else{
+            return this._blog
+        }
+    };
+    set blog(blog:blogType){
+        this._blog=blog
+        localStorage.setItem("blog",JSON.stringify(blog));
+    };
     
     get elements(){
         return this._modSelector.elements
@@ -1120,15 +1133,17 @@ class Sidebar{
    
     //------GETTER SETTERS-----/////
     // MAIN INJECTION FOR SIDEBAR
-    onclickHideShowSideBar({injector,mainContainer,textarea,footer,mainHeader}:{
+    onclickHideShowSideBar({injector,mainContainer,textarea,footer,mainHeader,blog}:{
         injector:HTMLElement,
         mainContainer:HTMLElement,
         textarea:HTMLElement,
         footer:HTMLElement,
-        mainHeader:HTMLElement
+        mainHeader:HTMLElement,
+        blog:blogType|null
 
     }){
         mainContainer.id="main";
+        this.blog=blog || {} as blogType;
         Main.container=mainContainer;
         Main.textarea=textarea;
         const less1000=window.innerWidth <988 ;
@@ -1141,9 +1156,9 @@ class Sidebar{
         arrDiv.style.transform="translate(-10px,0px)";
         FaCreate({parent:arrDiv,name:FaArrowAltCircleLeft,cssStyle:{color:"white",width:"35px",height:"35px",margin:"auto",backgroundColor:"transparent"}});
         if(less1000){
-            this.onclickHideShowSidebarLt1000({injector,arrDiv,mainCont:mainContainer,less1000,textarea,footer,mainHeader});
+            this.onclickHideShowSidebarLt1000({injector,arrDiv,mainCont:mainContainer,less1000,textarea,footer,mainHeader,blog});
         }else{
-            this.onclickHideShowSideBarGt100({injector,arrDiv,mainCont:mainContainer,less1000,textarea,footer,mainHeader});
+            this.onclickHideShowSideBarGt100({injector,arrDiv,mainCont:mainContainer,less1000,textarea,footer,mainHeader,blog});
         };
         
     };
@@ -1151,9 +1166,9 @@ class Sidebar{
 
 
    //PARENT onClickHideShowSidebar()
-    onclickHideShowSideBarGt100({injector,arrDiv,mainCont,less1000,textarea,footer,mainHeader}:{injector:HTMLElement,arrDiv:HTMLElement,mainCont:HTMLElement,less1000:boolean,textarea:HTMLElement,footer:HTMLElement,mainHeader:HTMLElement}){
+    onclickHideShowSideBarGt100({injector,arrDiv,mainCont,less1000,textarea,footer,mainHeader,blog}:{injector:HTMLElement,arrDiv:HTMLElement,mainCont:HTMLElement,less1000:boolean,textarea:HTMLElement,footer:HTMLElement,mainHeader:HTMLElement,blog:blogType|null}){
         const maxHeight=130
-        this.sidebarMain({parent:injector,maxHeight,mainCont,less1000,textarea,footer,mainHeader});
+        this.sidebarMain({parent:injector,maxHeight,mainCont,less1000,textarea,footer,mainHeader,blog});
         injector.appendChild(arrDiv);
         arrDiv.addEventListener("click",(e:MouseEvent)=>{
             if(e){
@@ -1216,9 +1231,10 @@ class Sidebar{
 
 
     //PARENT onClickHideShowSidebar()
-    onclickHideShowSidebarLt1000({injector,arrDiv,mainCont,less1000,textarea,footer,mainHeader}:{injector:HTMLElement,arrDiv:HTMLElement,mainCont:HTMLElement,less1000:boolean,textarea:HTMLElement,footer:HTMLElement,mainHeader:HTMLElement}){
+    onclickHideShowSidebarLt1000({injector,arrDiv,mainCont,less1000,textarea,footer,mainHeader,blog}:{injector:HTMLElement,arrDiv:HTMLElement,mainCont:HTMLElement,less1000:boolean,textarea:HTMLElement,footer:HTMLElement,mainHeader:HTMLElement,blog:blogType|null}){
         const maxHeight=60;
-        this.sidebarMain({parent:injector,maxHeight,mainCont,less1000,textarea,footer,mainHeader});
+      
+        this.sidebarMain({parent:injector,maxHeight,mainCont,less1000,textarea,footer,mainHeader,blog});
         injector.appendChild(arrDiv);
         arrDiv.addEventListener("click",(e:MouseEvent)=>{
             if(e){
@@ -1263,21 +1279,21 @@ class Sidebar{
 
     
     // PARENT onclickHideShowSideBarGt100 && onClickHideShowSidebar
-    sidebarMain({parent,maxHeight,mainCont,less1000,textarea,footer,mainHeader}:{
+   async sidebarMain({parent,maxHeight,mainCont,less1000,textarea,footer,mainHeader,blog}:{
         parent:HTMLElement,
         maxHeight:number,
         mainCont:HTMLElement,
         less1000:boolean,
         textarea:HTMLElement,
         footer:HTMLElement,
-        mainHeader:HTMLElement
+        mainHeader:HTMLElement,
+        blog:blogType|null
 
     }){
         const less400= window.innerWidth <400;
         const less900= window.innerWidth <900;
         const height=less1000 ? "60vh":"140vh";
         const user=this._user.user;
-        const blog=this._modSelector.blog;
         const idValues=this._modSelector.dataset.idValues
         Main.textarea=document.querySelector("div#textarea");
         parent.style.paddingBottom="2rem";
@@ -1302,10 +1318,10 @@ class Sidebar{
         // this.initiateEdit(sidebarMain);
         this.saveBlog(sidebarMain,mainCont);
         this.reOrder({parent:sidebarMain,idValues,user,textarea,mainCont,mainHeader,footer});
-        this.initiateHeaderTemplate(sidebarMain,idValues,mainHeader);
+        this.initiateHeaderTemplate(sidebarMain,idValues,mainHeader,this._modSelector.blog);
         this.initiateHeaderFlag(sidebarMain,idValues,textarea);
         this.ultility(sidebarMain,idValues,null,textarea);
-        this.initiateCustomHeaderBtn(sidebarMain,mainHeader);
+        this.initiateCustomHeaderBtn(sidebarMain,mainHeader,this._modSelector.blog);
         this.addimageClass(sidebarMain,idValues,textarea);
         this.initiateShapOutsideBtn(sidebarMain,idValues,textarea);
         this.initiatePasteCode(sidebarMain,idValues,textarea);
@@ -1426,7 +1442,7 @@ class Sidebar{
         textarea:HTMLElement,
         mainHeader:HTMLElement,
         footer:HTMLElement,
-        blog:blogType
+        blog:blogType|null
 
     }){
         const btnContainer=document.createElement("div");
@@ -1703,7 +1719,7 @@ class Sidebar{
         mainHeader:HTMLElement,
         textarea:HTMLElement,
         footer:HTMLElement,
-        blog:blogType,
+        blog:blogType |null,
         user:userType
 
      }){
@@ -1745,7 +1761,12 @@ class Sidebar{
                 setTimeout(()=>{
                     btn.disabled=false;
                 },1000);
-                
+                if(!blog){
+                  const getBlog=await this._modSelector.loadFromLocal()
+                  const {blog:_blog}=getBlog.getBlog();
+                  blog=_blog
+                  this._modSelector.loadBlog({blog,user});
+                }
                 
                 await this._edit.main({parent:mainCont,textarea,mainHeader,footer,blog,user});
                 // this._edit.selEleGenerator(Main.textarea as HTMLElement,blog)
@@ -1877,7 +1898,7 @@ class Sidebar{
      
    
      //PARENT MAIN()-onTop
-     initiateHeaderTemplate(parent:HTMLElement,idValues:idValueType[],mainHeader:HTMLElement){
+     initiateHeaderTemplate(parent:HTMLElement,idValues:idValueType[],mainHeader:HTMLElement,blog:blogType|null){
         Sidebar.headerType={normal:true,custom:false};
         const outerContainer=document.createElement("div");
         outerContainer.style.cssText="box-shadow:1px 1px 12px 1px white;border-radius:10px;padding-inline:0.5rem;padding-block:1rem;text-align:center;align-items:center;width:100%;";
@@ -1916,14 +1937,16 @@ class Sidebar{
             headerCol.appendChild(img);
             containerFlex.appendChild(headerCol);
            
-            img.addEventListener("click",(e:MouseEvent)=>{
+            img.addEventListener("click",async(e:MouseEvent)=>{
                 if(e){
-                    const blog=this._modSelector.blog;
                     header.isOn=true;
                     this._header._HeaderDataMain=header;
                     this._header.getHeader=header;
-                   
-                    this.checkHeaderThenCreate({mainHeader,blog,
+                    const res=await this._modSelector.loadFromLocal();
+                    const {blog:_blog,user:_user}=res.getBlog();
+                    const blog_=_blog || null;
+                    const user=_user || null;
+                    this.checkHeaderThenCreate({mainHeader,blog:blog_,user,
                         func:()=>this._header.headerSidebar({mainHeader,style:header.headerStyle,id:header.id,idValues})
                     });
                     
@@ -2070,9 +2093,8 @@ class Sidebar{
 
 
      //PARENT MAIN CUSTOM HEADER
-     initiateCustomHeaderBtn(parent:HTMLElement,mainHeader:HTMLElement){
+    async initiateCustomHeaderBtn(parent:HTMLElement,mainHeader:HTMLElement,blog:blogType){
         Sidebar.headerType={normal:false,custom:true};
-        this.customHeader.isRefreshed=false;
         const btnContainer=document.createElement("div");
         btnContainer.className="flexCol text-center";
         btnContainer.style.cssText="box-shadow:1px 1px 12px 1px white;border-radius:10px;padding-inline:0.5rem;padding-block:1rem;text-align:center;align-items:center;width:100%;";
@@ -2104,15 +2126,18 @@ class Sidebar{
             {transform:"translateY(-100%) skew(45deg,0deg)",opacity:"0.3"},
             {transform:"translateY(0%) skew(0deg,0deg)",opacity:"1"}
         ],{duration:1000,iterations:1})
-        btn.addEventListener("click",(e:MouseEvent)=>{
+        btn.addEventListener("click",async(e:MouseEvent)=>{
             if(e){
                 btn.disabled=true;
                 setTimeout(()=>{
                     btn.disabled=false;
                 },1000);
+                const res=await this._modSelector.loadFromLocal();
+                const {blog:_blog,user:_user}=res.getBlog();
+                const blog_=_blog || null;
+                const user=_user || null;
                
-                    const blog=this._modSelector.blog;
-                    this.checkHeaderThenCreate({mainHeader:Main._mainHeader,blog,
+                    this.checkHeaderThenCreate({mainHeader:Main._mainHeader,blog:blog_,user,
                         func:()=>this.customHeader.customHeader(mainHeader,false)
                     });
             }
@@ -2502,22 +2527,30 @@ class Sidebar{
     };
 
 
-    checkHeaderThenCreate({mainHeader,blog,func}:{
+    async checkHeaderThenCreate({mainHeader,blog,user,func}:{
         mainHeader:HTMLElement|null,
-        blog:blogType,
+        blog:blogType|null,
+        user:userType|null,
         func:()=>Promise<void>|void
 }){
     const _mainHeader_=document.querySelector("section#sectionHeader") as HTMLElement;
     mainHeader=mainHeader ||_mainHeader_;
+    if(!blog){
+        const getBlog=await this._modSelector.loadFromLocal()
+        const {blog:_blog,user:_user}=getBlog.getBlog();
+        blog=_blog;
+        user=_user || null;
+        this._modSelector.loadBlog({blog,user});
+      }
     const foundHeader=blog.selectors.find(select=>(select.header));
-    
-        if(foundHeader){
-            //message
-            this.foundHeaderMsg({parent:mainHeader,blog,func});
-        }else{
-            func();
-        }
-    };
+            
+                if(foundHeader){
+                    //message
+                    this.foundHeaderMsg({parent:mainHeader,blog,func});
+                }else{
+                    func();
+                }
+    }
 
     foundHeaderMsg({parent,blog,func}:{
         parent:HTMLElement,

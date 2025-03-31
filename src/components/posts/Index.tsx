@@ -23,9 +23,9 @@ export default function Index({ posts, usersinfo, user }: { posts: postType[], u
             const modSelector = new ModSelector(dataset);
             const service = new Service(modSelector);
             const auth = new AuthService(modSelector, service);
-            auth.getSessionUser({ user }).then(async (res) => {
+            auth.confirmUser({ user, count: countRef.current }).then(async (res) => {
                 if (res) {
-                    const regSignIn = new RegSignIn(modSelector, service, res.user)
+                    const regSignIn = new RegSignIn(modSelector, service, res.user, res.status)
                     const _user = new User(modSelector, service, res.status, regSignIn, res.user);
                     const _posts = new Post(modSelector, service, res.status, res.user);
                     _posts.loadPosts({ posts }).then(async (retPosts) => {

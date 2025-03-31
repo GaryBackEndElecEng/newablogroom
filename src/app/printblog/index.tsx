@@ -17,6 +17,7 @@ import Reference from '@/components/editor/reference';
 import PasteCode from '@/components/common/pasteCode';
 import HtmlElement from '@/components/editor/htmlElement';
 import AuthService from '@/components/common/auth';
+import RegSignIn from '@/components/nav/regSignin';
 
 export default function Index({ blog, owner }: { blog: blogType, owner: userType | null }) {
     const clientRef = React.useRef(null);
@@ -29,23 +30,28 @@ export default function Index({ blog, owner }: { blog: blogType, owner: userType
                 const _modSelector = new ModSelector(dataset);
                 const _service = new Service(_modSelector);
                 const auth = new AuthService(_modSelector, _service);
-                const _user = new User(_modSelector, _service, auth);
                 _modSelector.awaitLoadBlog(blog).then(async (res) => {
                     const _blog = res.blog();
                     if (_blog) {
+                        await auth.getSessionUser({ user: owner }).then(async (_res) => {
+                            if (_res) {
+                                const design = new Design(_modSelector);
+                                const regSignIn = new RegSignIn(_modSelector, _service, _res.user, _res.status)
+                                const _user = new User(_modSelector, _service, _res.status, regSignIn, _res.user);
+                                const ven = new Ven(_modSelector);
+                                const reference = new Reference(_modSelector);
+                                const pasteCode = new PasteCode(_modSelector, _service);
+                                const headerFlag = new Headerflag(_modSelector, _service, _user);
+                                const shapeOutside = new ShapeOutside(_modSelector, _service, _user);
+                                const message = new Message(_modSelector, _service, _blog, null, null);
+                                const chart = new ChartJS(_modSelector, _service, _user, message);
+                                const htmlElement = new HtmlElement(_modSelector, _service, _user, shapeOutside, design, ven, reference, headerFlag, pasteCode);
+                                const displayBlog = new DisplayBlog(_modSelector, _service, _user, blog, chart, message, htmlElement);
+                                const printpdf = new PrintPdf(_modSelector, _service, displayBlog, _blog, _res.user);
+                                printpdf.main({ parent: target });
 
-                        const design = new Design(_modSelector);
-                        const ven = new Ven(_modSelector);
-                        const reference = new Reference(_modSelector);
-                        const pasteCode = new PasteCode(_modSelector, _service);
-                        const headerFlag = new Headerflag(_modSelector, _service, _user);
-                        const shapeOutside = new ShapeOutside(_modSelector, _service, _user);
-                        const message = new Message(_modSelector, _service, _blog, null);
-                        const chart = new ChartJS(_modSelector, _service, _user, message);
-                        const htmlElement = new HtmlElement(_modSelector, _service, _user, shapeOutside, design, ven, reference, headerFlag, pasteCode);
-                        const displayBlog = new DisplayBlog(_modSelector, _service, _user, blog, chart, message, htmlElement);
-                        const printpdf = new PrintPdf(_modSelector, _service, displayBlog, _blog, owner);
-                        printpdf.main({ parent: target });
+                            }
+                        });
                     }
                 });
             }

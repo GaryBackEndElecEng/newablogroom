@@ -60,7 +60,7 @@ class SigninClass{
         container.style.gap=less400 ? "3rem":"0rem";
         container.style.flexDirection=less400 ? "column":"row";
         container.style.flexWrap="nowrap";
-        container.style.height=less900 ? (less400 ? "50vh":"30vh"):"23vh";
+        container.style.height=less900 ? (less400 ? "55vh":"30vh"):"23vh";
         parent.appendChild(container);
         const img=document.createElement("img");
         img.src=this.logo;

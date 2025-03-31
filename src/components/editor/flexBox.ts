@@ -1,4 +1,4 @@
-import {flexType,elementType,colType,rowType,selectorType,element_selType, choiceType, iconType, focusOptions, deletedImgType,flexSelectorType, arrDivContType} from "./Types";
+import {flexType,elementType,colType,rowType,selectorType,element_selType, iconType, focusOptions, deletedImgType,flexSelectorType, arrDivContType, flexChoiceType, blogType} from "./Types";
 import ModSelector from "./modSelector";
 import Service from "@/components/common/services";
 import Misc from "@/components/common/misc";
@@ -17,25 +17,23 @@ import { attrEnumArr, attrEnumArrTest, typeEnumArr, typeEnumArrTest } from "../c
 
 import Nav from "../nav/headerNav";
 import Toolbar from "../common/toolbar";
+import CommonUltils from "../common/commonUltils";
 
-
-
-const baseUrl="http://localhost:3000";
 
 class Flexbox {
 
-phone:string="./images/phone.png";
-link:string="./images/link.png";
-mail:string="./images/mail.png";
-bgColor:string;
-btnColor:string;
-logo:string=baseUrl + "/images/gb_logo.png";
+public readonly phone:string="./images/phone.png";
+public readonly link:string="./images/link.png";
+public readonly mail:string="./images/mail.png";
+public readonly bgColor:string;
+public readonly btnColor:string;
+public readonly logo:string="/images/gb_logo.png";
 _elements:elementType[]=[];
 _selectors:selectorType[]=[];
 _cols:colType[]=[];
 _col:colType={} as colType;
-_row:rowType={} as rowType;
 _rows:rowType[]=[];
+
 flex:flexType;
 _element_sel:element_selType;
 divCont_css:string;
@@ -161,83 +159,71 @@ static selectors_:flexSelectorType[]=[
         footer:false
     },
     ]
-static choice:choiceType[]=[
-    {name:"select",isEle:false,level:"element"},
-    {name:"image",ele:"img",isEle:true,level:"element"},
-    {name:"bg-image",isEle:false,level:"col",class_:undefined},
-    {name:"bg-row-image",isEle:false,level:"col",class_:undefined},
-    {name:"title",ele:"h1",isEle:true,level:"element",class_:undefined},
-    {name:"sub title",ele:"h2",isEle:true,level:"element",class_:undefined},
-    {name:"inner title",ele:"h3",isEle:true,level:"element",class_:undefined},
-    {name:"inner sub title",ele:"h4",isEle:true,level:"element",class_:undefined},
-    {name:"h5-small",ele:"h5",isEle:true,level:"element",class_:undefined},
-    {name:"h6-small",ele:"h6",isEle:true,level:"element",class_:undefined},
-    {name:"text",ele:"p",isEle:true,level:"element",class_:undefined},
-    {name:"unorder-list",ele:"ul",isEle:true,level:"element",class_:undefined},
-    {name:"order-list",ele:"ol",isEle:true,level:"element",class_:undefined},
-    {name:"link",ele:"a",isEle:true,level:"element",class_:undefined},
-    {name:"time",ele:"time",isEle:true,level:"element",class_:undefined},
-    {name:"quote",ele:"blockquote",isEle:true,level:"element",class_:undefined},
-    {name:"shapeOutside",isEle:false,level:"element",class_:undefined},
-    {name:"flex-center",isEle:false,class_:"col-center",level:"col"},
-    {name:"shadow",isEle:false,class_:"box-shadow-md",level:"col"},
-    {name:"bg-shade",isEle:true,level:"col",class_:undefined},
-    {name:"flex-end",isEle:false,class_:"col-end",level:"col"},
-    {name:"flex-start",isEle:false,class_:"col-start",level:"col"},
-    {name:"img-round",isEle:false,class_:"round",level:"element"},
-    {name:"set-even-height",isEle:false,class_:"set-even-height",level:"col"},
-    {name:"remove-even-height",isEle:false,level:"col"},
-    {name:"cleanUp",isEle:true,level:"none"},
-    {name:"remove",isEle:true,level:"none"},
 
-];
 eleAttrs=["round",];
 colAttrs=["col-start","col-end","col-center"];
 
-    constructor(private _modSelector:ModSelector,private _service:Service, private _user:User,public _shapeOutside:ShapeOutside){
+    constructor(private _modSelector:ModSelector,private _service:Service, private _user:User,public _shapeOutside:ShapeOutside,public commonUltils:CommonUltils,private _blog:blogType){
         this._element_sel=this._modSelector.initElement_sel
         this.phone="./images/phone.png";
         this.link="./images/link.png";
         this.mail="./images/mail.png";
         this.bgColor=this._modSelector._bgColor;
         this.btnColor=this._modSelector.btnColor;
-        this._selectors=this._modSelector.selectors;
+        this._selectors=[] as selectorType[];
         this.flex={} as flexType;
-        Flexbox.getPlacement().then(async(value)=>{
-            if(value){
-                this.placement=parseInt(value);
-            }
-        });
+        this._rows=[] as rowType[];
         this.divCont_css="display:flex;align-items:center;justify-content:center;flex-direction:column;padding:0.5rem;border-radius:12px;margin-inline:3rem;padding-inline:1rem;width:100%";
         this.divCont_class="eleContainer";
     }
 
     //GETTER SETTERS---////////
-    get placement(){
-        const getPlace=localStorage.getItem("placement");
-        if(getPlace){
-            return parseInt(getPlace);
+
+    get blog(){
+        const strBlog=localStorage.getItem("blog");
+        if(strBlog){
+            const blog=JSON.parse(strBlog) as blogType
+            return blog
         }else{
-            localStorage.setItem("placement",String(1));
-            return 1;
+            return this._blog
         }
+    };
+    set blog(blog:blogType){
+        this._blog=blog
+        this._modSelector.blog=blog;
+    };
+
+    get placement(){
+        return this._modSelector.placement
     }
     set placement(placement:number){
-        localStorage.setItem("placement",String(placement));
         this._modSelector.placement=placement;
     }
     get selectors(){
         return this._modSelector.selectors;
-    }
-    set selectors(selectors:selectorType[]){
-        this._modSelector.selectors=selectors;
-        this._modSelector.localStore({blog:this._modSelector.blog});
+    };
 
-    }
+    set selectors(selectors:selectorType[]){
+        this._selectors=selectors
+        this._modSelector.selectors=selectors
+    };
+    get rows(){
+        return this._rows;
+    };
+    set rows(rows:rowType[]){
+        this._rows=rows;
+    };
+    get groupRows(){
+        return this._modSelector.groupRows;
+    };
+    set groupRows(groupRows:{selectorId:string,rows:rowType[]}[]){
+        this._modSelector.groupRows=groupRows;
+    };
     //GETTER SETTERS---////////
     ///--------------INJECTION INTO EDIT-----WORK DONE DURING REFRESH AND EDIT-------///////////////
    async showSelector(parent:HTMLElement,selector:selectorType,idValues:idValueType[]){
         //THIS IS USED FOR REFRESH 
+        this.selectors=[...this.selectors,selector];
         const selNode=selector.name
         const innerCont=document.createElement(selNode);
         Header.cleanUpByID(parent,"section#main");
@@ -290,12 +276,15 @@ colAttrs=["col-start","col-end","col-center"];
           
             const {rows}=this._modSelector.checkGetRows({select:selector});
             if(rows){
-
-                await  Promise.all(rows.toSorted((a,b)=>{if(a.order < b.order) return -1;return 1}).map(async(row_,index)=>{
+                this.groupRows=[...this.groupRows,{selectorId:selector.eleId,rows:rows}];
+                this.rows=rows
+                console.log("SEL.ID",selector.id,"ROWS",this.rows)
+                await  Promise.all(this.rows.toSorted((a,b)=>{if(a.order < b.order) return -1;return 1}).map(async(row_,index)=>{
                     const eleId=row_.eleId
                     const selRow={selectorId:selector.eleId,rowId:eleId} as selRowType;
                     idValues.push({eleId:row_.eleId,id:"rowId",attValue:row_.eleId});
                     idValues.push({eleId:row_.eleId,id:"name",attValue:row_.name});
+                    idValues.push({eleId:row_.eleId,id:"selector_id",attValue:String(row_.selector_id)});
                     idValues.push({eleId:row_.eleId,id:"row_id",attValue:String(row_.id)});
                     idValues.push({eleId:row_.eleId,id:"rowOrder",attValue:String(row_.order)});
                     idValues.push({eleId:row_.eleId,id:"placement",attValue:String(selector.placement)});
@@ -360,6 +349,8 @@ colAttrs=["col-start","col-end","col-center"];
                                             if(eres.isEdit){
                                                 this.editElement({target:eres.ele,idValues:eres.idValues,selRowCol})
                                             };
+                                            eres.divCont.classList.remove("isActive");
+                                            eres.ele.classList.remove("isActive");
                                             eres.divCont.onclick=(e:MouseEvent)=>{
                                                 if(e){
                                                     eres.divCont.classList.toggle("isActive");
@@ -383,7 +374,7 @@ colAttrs=["col-start","col-end","col-center"];
                 }));
             };
 
-            this.removeFlexBox({parent,target:innerCont,idValues});
+            this.removeFlexBox({parent,target:innerCont,select:selector,idValues});
         };
         return innerCont
     };
@@ -533,7 +524,7 @@ colAttrs=["col-start","col-end","col-center"];
         
         const checkArr=["img","ul","ol","blockquote","a","span","logo","image","time"].includes(element.name);
         const checkUlType=["ol","ul","blockquote"].includes(element.name);
-        console.log("anachor",element.name)
+     
         if(!checkArr && !shapeOutside ){
             
             if(element.attr==="data-backgroundImg" && element.imgKey){
@@ -647,8 +638,10 @@ colAttrs=["col-start","col-end","col-center"];
         const arrRow=Array.from(Array(selector.rowNum).keys());
         const arrColT=Array.from(Array(selector.colAttr[0].T).keys());
         const arrColB=Array.from(Array(selector.colAttr[0].B).keys());
-        const numTop=this.colGenerator(arrColT.length);
-        const numBot=this.colGenerator(arrColB.length);
+        const numTop=this.colGenerator(arrColT.length)?.flex;
+        const numBot=this.colGenerator(arrColB.length)?.flex;
+        const topPerc=this.colGenerator(arrColT.length)?.perc;
+        const botPerc=this.colGenerator(arrColB.length)?.perc;
       
         //FOR COLUMNS CLASS (col-container),attribute: data-cols
         const bottom_data_cols=(less900 && arrColB.length && arrColB.length >0) ? `1 0 100%`:`1 0 ${100/(arrColB.length as number)}%`;
@@ -681,10 +674,10 @@ colAttrs=["col-start","col-end","col-center"];
                    idValues.push({eleId,id:"rowId",attValue:eleId});
                    
                   
-                   await this._modSelector.rowAdder({target:row,selector:sel.selector as selectorType,selectEle:sel.target,idValues}).then(async(resRow)=>{
+                   await this.rowAdder({target:row,selector:sel.selector as selectorType,selectEle:sel.target,idValues}).then(async(resRow)=>{
                         if(resRow){
                             idValues=resRow.idValues;
-                           
+                            
                             if(orderRow===0){
                                await Promise.all(arrColT.map(async(orderCol)=>{
                                     const rand=Math.round(Math.random()*1000);
@@ -694,7 +687,7 @@ colAttrs=["col-start","col-end","col-center"];
                                     col.classList.add("box-shadow");
                                     col.classList.add("col-container");//for attr(data-cols)
                                     // col.setAttribute("data-cols",top_data_cols);//for class:col-container: attr(data-cols)
-                                    col.style.cssText="align-items:stretch;";
+                                    col.style.cssText=`align-items:stretch;flex:1 0 ${topPerc}%`;
                                     const eleId=col.id;
                                     idValues.push({eleId,id:"numCols",attValue:`${top_data_cols}`});
                                     idValues.push({eleId,id:"colOrder",attValue:`${orderCol}`});
@@ -702,11 +695,10 @@ colAttrs=["col-start","col-end","col-center"];
                                     row.appendChild(col);
                                     // console.log("ROWGENERTOR:AFTER FLEXCOLTRACKER:","flex",flexCol,"COL::",newCol)
                                 
-                                   await this._modSelector.colAdder({parent:resRow.target,target:col,selector:resRow.sel,row:resRow.rowEle as rowType,idValues}).then(async(resCol)=>{
+                                   await this.colAdder({parent:resRow.target,target:col,selector:resRow.sel,row:resRow.rowEle as rowType,idValues}).then(async(resCol)=>{
                                         if(resCol){
                                             idValues=resCol.idValues;
-                                           
-                                           
+
                                             this.genChoice({
                                                 column:resCol.target,
                                                 idValues,
@@ -714,6 +706,7 @@ colAttrs=["col-start","col-end","col-center"];
                                                 selector:resCol.selector,
                                                 col:resCol.col
                                             });
+
                                             resCol.target.addEventListener("click",(e:MouseEvent)=>{
                                                 if(e){
                                                     
@@ -733,14 +726,14 @@ colAttrs=["col-start","col-end","col-center"];
                                     const eleId=col1.id;
                                     col1.className=`col-lg-${numBot} col-container flexbox-column`;
                                     col1.classList.add("col-container");//for attr(data-cols)
+                                    col1.style.cssText=`align-items:stretch;flex:1 0 ${botPerc}%`;
                                     col1.setAttribute("data-cols",bottom_data_cols);
                                     idValues.push({eleId,id:"rowId",attValue:`${resRow.target.id}`});
                                     idValues.push({eleId:col1.id,id:"numCols",attValue:`${bottom_data_cols}`});
                                     resRow.target.appendChild(col1);
-                                   await this._modSelector.colAdder({parent:resRow.target,target:col1,selector:resRow.sel,row:resRow.rowEle as rowType,idValues}).then(async(resCol1)=>{
+                                   await this.colAdder({parent:resRow.target,target:col1,selector:resRow.sel,row:resRow.rowEle as rowType,idValues}).then(async(resCol1)=>{
                                     if(resCol1 ){
                                         idValues=resCol1.idValues;
-                                     
                                         this.genChoice({
                                             column:resCol1.target,
                                             row:resCol1.row,
@@ -772,13 +765,229 @@ colAttrs=["col-start","col-end","col-center"];
                 Misc.fadeIn({anchor:container,xpos:50,ypos:100,time:700});
             };
             //--------------DELETE ICON----------------//
-            this.removeFlexBox({parent,target:sel.target,idValues});
+            this.removeFlexBox({parent,target:sel.target,select:selector,idValues});
             this._modSelector.dataset.idValues=idValues;
             //--------------DELETE ICON--------------//
         }).catch((err)=>{console.error(getErrorMessage(err));});
-    }
-    //PARENT ROWCOLGENERATOR()=> feeds to Main() appElement +++ others() on Main()
+    };
+    
+
+    async rowAdder({target,selectEle,idValues,selector}:{target:HTMLElement,selectEle:HTMLElement,idValues:idValueType[],selector:selectorType}):Promise<{rowEle:rowType | undefined,target:HTMLElement,selectEle:HTMLElement,idValues:idValueType[],sel:selectorType}>{
+       
+        const node=target.nodeName.toLowerCase();
+        const colAttr=selector.colAttr[0];
+        const topNum=colAttr.T;
+        const botNum=colAttr.B;
+        let row_:rowType={} as rowType;
+        const parent=target.parentElement;
+        const eleId=target.id;
+        const parent_id= parent ? parent.id:null;
+        if(parent_id) idValues.push({eleId,id:"parent_id",attValue:parent_id});
+        idValues=Dataset.removeIdValueDuplicates({arr:idValues,eleId});
+        const check1=!!(this.groupRows.find(rw=>(rw.selectorId === selector.eleId)))
+        if(this.groupRows.length<=0 || !check1){
+            this.rows=[] as rowType[]
+        }else{
+            this.rows=this.groupRows.filter(rw=>(rw.selectorId === selector.eleId))[0].rows;
+        }
+        const ID=this.rows?.length ? this.rows.length :0;
+        const check=!!(this.rows?.find(row=>(row.eleId===eleId))) ;
+        idValues.push({eleId,id:"rowId",attValue:eleId});
+        const selRow:selRowType={selectorId:selector.eleId,rowId:eleId};
+        idValues.push({eleId,id:"selRow",attValue:JSON.stringify(selRow)});
+        idValues.push({eleId,id:"rowNum",attValue:String(topNum+botNum)});
+        idValues.push({eleId,id:"selectorId",attValue:selector.eleId});
+        idValues.push({eleId,id:"selector_id",attValue:String(selector.id)});
+        idValues.push({eleId,id:"ID",attValue:eleId});
+        idValues.push({eleId,id:"isRow",attValue:"true"});
+        idValues.push({eleId,id:"rowOrder",attValue:String(ID)});
+        const getEleIds=idValues.filter(kat=>(kat.eleId===eleId));
+        idValues.push({eleId:target.id,id:"selectorId",attValue:selector.eleId});
+        if(!check){
+            row_={
+                id: ID,
+                name:node,
+                class:target.className,
+                eleId,
+                inner_html:target.innerHTML ? target.innerHTML : "",
+                cssText:target.style.cssText,
+                cols:[] as colType[],
+                selector_id:selector.id,
+                order:ID,
+                attr:undefined,
+                type:undefined
+            } as rowType;
+            //----------//---POPULATING ATTRIBUTES TO TARGET------\\-----///
+            const {idValues:retIdValues}=this._modSelector.dataset.coreDefaultIdValues({
+                target,loc:"flexbox",
+                level:"row",
+                clean:false,
+                sel:selector,
+                row:row_,
+                col:null,
+                ele:null,
+                idValues
+
+            });
+                
+            idValues=retIdValues;
+            idValues=Dataset.removeIdValueDuplicates({arr:idValues,eleId});
+            this._modSelector.dataset.populateElement({
+                target,
+                selRowColEle:row_,
+                level:"row",
+                loc:"flexbox",
+                idValues,
+                clean:false
+                });
+            getEleIds.map(kat=>{
+                const attrTest=attrEnumArrTest(row_);
+                const typeTest=typeEnumArrTest(row_);
+                const hasAttr=attrEnumArr.includes(kat.id);
+                const hasType=typeEnumArr.includes(kat.id as typeEnumType);
+                if(hasAttr && !attrTest){
+                    row_.attr=kat.attValue;
+                }else if(hasType && !typeTest){
+                    row_.type=kat.attValue;
+                }else if(kat.id==="imgKey"){
+                    row_.imgKey=kat.attValue;
+                }
+            });
+                //THIS LOADS THE DEFAULTS AND POPULATES THE ELEMENT BASED ON IDVALUE INPUTS
+            this.rows=[...this.rows,row_];//WORKS
+            // RE-ASSIGNMENT
+            selector.rows=JSON.stringify(this.rows);
+            if(this.groupRows.length>0){
+                const check=this.groupRows.find(kv=>(kv.selectorId===selector.eleId));
+                if(check){
+                    this.groupRows=this.groupRows.map(grpRows=>{
+                        if(grpRows.selectorId===selector.eleId){
+                            grpRows.rows=this.rows;
+                        }
+                        return grpRows;
+                    });
+                }else{
+                    this.groupRows=[...this.groupRows,{selectorId:selector.eleId,rows:this.rows}];
+                }
+            }else{
+                this.groupRows=[{selectorId:selector.eleId,rows:this.rows}]
+            }
+            //ADDING NEW SELECTOR TO SELECTORS && PUSHING IT TO LOCAL
+            this.selectors=this.selectors.map(select=>{
+                    if(select.eleId===selector.eleId){
+                        select=selector
+                    }
+                return select
+            });
+            
+            //ADDING NEW SELECTOR TO SELECTORS && PUSHING IT TO LOCAL
+            
+            idValues=Dataset.removeIdValueDuplicates({arr:idValues,eleId});
+            this._modSelector.dataset.idValues=idValues;
+        }
+        //----------//---POPULATING ATTRIBUTES TO TARGET------\\-----///
+        return Promise.resolve({rowEle:row_ as rowType,target,selectEle,idValues,sel:selector}) as Promise<{rowEle:rowType | undefined,target:HTMLElement,selectEle:HTMLElement,idValues:idValueType[],sel:selectorType}>;
+        
+    };
    
+
+    async colAdder({parent,target,idValues,selector,row}:{parent:HTMLElement,target:HTMLElement,idValues:idValueType[],selector:selectorType,row:rowType}):Promise<{target:HTMLElement,col:colType,idValues:idValueType[],parent:HTMLElement,selector:selectorType,row:rowType}>{
+       
+        const eleId=target.id;
+        const node=target.nodeName.toLowerCase();
+        let col:colType={} as colType;
+        row.cols=row.cols as colType[] 
+        const check=row.cols.map(col=>(col.eleId)).includes(target.id as string);
+        // console.log("277:check:determines if COL extis",check,"target.id",target.id,)//works
+        if(!check){
+            const ID1=row.cols?.length ? row.cols.length : 0;
+            col={
+                id:ID1,
+                name:node ,
+                class:target.className.split(" ").filter(cl=>(cl !=="box-shadow")).join(" "),
+                eleId:target.id,
+                inner_html:target.textContent ? target.textContent : "",
+                cssText:target.style.cssText,
+                elements:[] as element_selType[],
+                row_id:row.id,
+                order:ID1,
+                attr:""
+                }as colType;
+
+            //LOADING ATTRIBUTES INTO ELEMENT, BELOW
+            idValues.push({eleId,id:"colOrder",attValue:String(ID1)});
+            idValues.push({eleId,id:"colId",attValue:eleId});
+            idValues.push({eleId,id:"ID",attValue:eleId});
+            const selRowCol:selRowColType={selectorId:selector.eleId,rowId:eleId,colId:eleId};
+            idValues.push({eleId,id:"selRowCol",attValue:JSON.stringify(selRowCol)});
+            idValues.push({eleId,id:"rowNum",attValue:String(row.order)});
+            const selRow={selectorId:selector.id,rowId:row.id};
+            idValues.push({eleId,id:"selRow",attValue:JSON.stringify(selRow)});
+            //-------////// ----GETTING COMPONENT ATTRIBUTES-------\\\\\\---/////
+            const {idValues:retIdValues}=this._modSelector.dataset.coreDefaultIdValues({
+                target,
+                sel:selector,
+                row,
+                col:col,
+                ele:null,
+                idValues,
+                loc:"flexbox",
+                level:"col",
+                clean:false
+            });
+            idValues=retIdValues
+            const getEleIds=idValues.filter(kat=>(kat.id===eleId));
+            getEleIds.map(kat=>{
+                const hasAttr=attrEnumArr.includes(kat.id);
+                const hasType=typeEnumArr.includes(kat.id as typeEnumType);
+                if(hasAttr){
+                    col.attr=kat.attValue;
+                }else if(hasType){
+                    col.type=kat.attValue;
+                }else if(kat.id==="imgKey"){
+                    col.imgKey=kat.attValue;
+                }
+            });
+            idValues=Dataset.removeIdValueDuplicates({arr:idValues,eleId:eleId});
+            this._modSelector.dataset.populateElement({target,selRowColEle:col,loc:"flexbox",level:"col",idValues,clean:false});
+            this._modSelector.dataset.idValues=this._modSelector.dataset.idValues.concat(getEleIds);
+            //-------////// ----GETTING COMPONENT ATTRIBUTES-------\\\\\\---/////
+            
+            row.cols=[...row.cols,col];
+            
+            //ADDING MODIFIED ROW TO SELECTOR
+            this.rows=this.groupRows.filter(rw=>(rw.selectorId===selector.eleId))[0]?.rows;
+            this.rows=this.rows.map(row_=>{
+                if(row_.eleId===row.eleId){
+                    row_=row;
+                }
+                return row_;
+            });
+            //ADDING NEW ROWS TO SELECTOR
+            selector.rows=JSON.stringify(this.rows);
+            this.groupRows= this.groupRows.map(grpRows=>{
+                if(grpRows.selectorId===selector.eleId){
+                    grpRows.rows=this.rows;
+                };
+                return grpRows;
+            });
+            //ADDING SELECTOR TO TO SELECTORS
+            this.selectors=this.selectors.map(select=>{
+                    if(select.eleId===selector.eleId){
+                        select=selector;
+                    }
+                return select;
+            });
+        };
+
+        idValues=Dataset.removeIdValueDuplicates({arr:idValues,eleId});
+        const getEleIds_=idValues.filter(kat=>(kat.eleId===eleId));
+        this._modSelector.dataset.idValues=this._modSelector.dataset.idValues.concat(getEleIds_);
+
+           return Promise.resolve({target,col,idValues,parent,selector,row}) as Promise<{target:HTMLElement,col:colType,idValues:idValueType[],parent:HTMLElement,selector:selectorType,row:rowType}>;
+            
+    };
+
    
     
     genChoice({column,idValues,selector,row,col}:{
@@ -803,10 +1012,10 @@ colAttrs=["col-start","col-end","col-center"];
         const select=document.createElement("select") as HTMLSelectElement;
         select.setAttribute("name","default");
         select.setAttribute("isPopup","true");
-        Flexbox.choice.forEach((choice)=>{
+        this.commonUltils.flexChoices.forEach((choice)=>{
             if(choice){
                 const option=document.createElement("option") as HTMLOptionElement;
-                const choice_:choiceType={ele:choice.ele,isEle:choice.isEle,name:String(choice.name),class_:String(choice.class_),level:choice.level}
+                const choice_:flexChoiceType={ele:choice.ele,isEle:choice.isEle,name:String(choice.name),class_:String(choice.class_),level:choice.level}
                 option.value=JSON.stringify(choice_);
                 option.textContent=choice.name;
                 option.setAttribute("name",choice.name);
@@ -827,10 +1036,11 @@ colAttrs=["col-start","col-end","col-center"];
                
                 const value_=(e.currentTarget as HTMLSelectElement).value
                 const {parsed,isJSON}=Header.checkJson(value_)
-                const value:choiceType|null=isJSON ? parsed as choiceType : null;
+                const value:flexChoiceType|null=isJSON ? parsed as flexChoiceType : null;
                 if(!value) return
                 const {ele,isEle,level,class_,name}=value;
                 const checkColAttrs=class_ ? this.colAttrs.includes(class_ as string) : false;
+                const innerSelector=document.querySelector(`${selector.name}#${selector.eleId}`) as HTMLElement;
                 let icon:iconType | undefined;
                 let btn:HTMLButtonElement | null;
                 
@@ -991,9 +1201,21 @@ colAttrs=["col-start","col-end","col-center"];
                         
                            this.setEvenHeight({target:column,idValues,selRowCol});
                        return
+                       case name==="set-column-height":
+                        
+                           this.setColumnHeight({parent:column,target:column,idValues,selRowCol});
+                       return
                        case name==="remove-even-height":
                            
                            this.removeEvenHeight({target:column,idValues,selRowCol});
+                       return
+                       case name==="bg-color":
+                           
+                           this.bgColumnColor({column,idValues,selRowCol});
+                       return
+                       case name==="rm-bg-color":
+                           
+                           this.rmColumnColor({column,idValues,selRowCol});
                        return
                        
                        default:
@@ -1018,6 +1240,27 @@ colAttrs=["col-start","col-end","col-center"];
                            Misc.message({parent:column,msg:`HERE updated ${col?.eleId}`,type_:"success",time:800});
                        }
                       });
+                   }else if(level==="selector"){
+                    if(innerSelector){
+
+                        if(name==="add-flex-image"){
+                           await this.commonUltils.selectorBgImage({target:innerSelector,idValues});
+                        }else if(name==="remove-flex-image"){
+                           await this.commonUltils.selRemoveBgImage({target:innerSelector,idValues});
+                        }else if(name==="add-flex-bg"){
+                            this.commonUltils.addSelectorColor({target:innerSelector,select:selector});
+                        }else if(name==="remove-flex-bg"){
+                            this.commonUltils.removeSelectorColor({target:innerSelector,select:selector});
+                        };
+
+                    }
+                   }else if(level==="row"){
+                    if(name==="bg-row-color"){
+                        this.rowBgColor({column,idValues,selRowCol});
+                    }else if(name==="rm-bg-row-color"){
+                        this.rmRowBgColor({column,idValues,selRowCol});
+
+                    }
                    }
                 }
             };
@@ -1026,44 +1269,7 @@ colAttrs=["col-start","col-end","col-center"];
     }
     //PARENT genChoice
 
-   async addClass({column,class_,idValues,selRowCol}:{column:HTMLElement,class_:string,idValues:idValueType[],selRowCol:selRowColType}){
-        const eles=column.querySelectorAll(`[is-element].isActive`) as any as HTMLElement[];
-        
-           await Promise.all(([...eles] as HTMLElement[]).map(async(ele)=>{
-                if(ele ){
-                    ele.classList.toggle(class_);
-                   await this.updateElement({target:ele,idValues,selRowCol}).then(async(res)=>{
-                    if(res){
-                        const ele=res.ele;
-                        console.log("retEle",ele);
-                        console.log("target",res.target);
-                    }
-                });
-                }
-            }));
-        
-    }
-    fontAction(btn:HTMLButtonElement){
-        const getColumns=document.querySelectorAll("[is-column='true']") as any as HTMLElement[];
-        ([...getColumns]).map(col=>{
-            if(col){
-                ([...col.children as any] as HTMLElement[]).map(ele=>{
-                    if(ele){
-                        const isActive=([...ele.classList as any] as string[]).includes("isActive");
-                        if(isActive){
-                            ele.classList.toggle(btn.id);
-                           
-                        }
-                    }
-                });
-            }
-        });
-    }
-  
-    checkIsActive(parent:HTMLElement):boolean{
-        const check=([...parent.classList as any] as string[]).includes("coliIsActive");
-        return check
-    }
+
     //PARENT ADDELEMENT()
     async appElement({parent,target,divCont,btn,icon,idValues,selector,row,col}:{
         parent: HTMLElement,
@@ -1097,8 +1303,9 @@ colAttrs=["col-start","col-end","col-center"];
             idValues
         }).then(async(res)=>{
             if(res){
-                const selRowCol={selectorId:res.selector.eleId,rowId:res.row.eleId,colId:res.col.eleId} as selRowColType;
+                const selRowCol=res.selRowCol as selRowColType;
                 const ele=res.ele as unknown as element_selType;
+                
                 divCont.setAttribute("data-placement",`${ele.order}-A`);
                 
                 divCont.onclick=(e: MouseEvent) => {
@@ -1116,6 +1323,7 @@ colAttrs=["col-start","col-end","col-center"];
           
         
     };
+
 
     //PARENT ADDELEMENT()
     async addImage({parent,selector,target,divCont,row,col,icon,btn,idValues}:{
@@ -1189,7 +1397,7 @@ colAttrs=["col-start","col-end","col-center"];
 
                 }).then(async(res)=>{
                     if(res){
-                        const selRowCol={selectorId:selector.eleId,rowId:row.eleId,colId:col.eleId} as selRowColType
+                        const selRowCol=res.selRowCol as selRowColType
                         const ele=res.ele as unknown as element_selType;
                         divCont.setAttribute("data-placement",`${ele.order}-A`)
                         const blog=this._modSelector.blog;
@@ -1216,6 +1424,78 @@ colAttrs=["col-start","col-end","col-center"];
             }
         });
 
+    };
+
+
+    rowBgColor({column,idValues,selRowCol}:{column:HTMLElement,idValues:idValueType[],selRowCol:selRowColType}){
+        const row=column.parentElement as HTMLElement;
+        const {selectorId,rowId}=selRowCol;
+        const selRow={selectorId,rowId} as selRowType
+        this.commonUltils.rowColor({row,column,selRow,idValues}).then(async(res)=>{
+            if(res){
+                res.input.onchange=(e:Event)=>{
+                    if(!e) return;
+                    const color=(e.currentTarget as HTMLInputElement).value;
+                    res.row.style.backgroundColor=color;
+                    this.updateRow({target:row,idValues,selRow}).then(async(_res)=>{
+                        if(_res){
+                            Misc.message({parent:res.row,msg:"added",type_:"success",time:800});
+                            Misc.growOut({anchor:res.popup,scale:0,opacity:0,time:400});
+                            setTimeout(()=>{
+                                res.row.removeChild(res.popup);
+                            },390);
+                        }
+                    });
+                };
+            }
+        });
+    };
+
+
+
+    rmRowBgColor({column,idValues,selRowCol}:{column:HTMLElement,idValues:idValueType[],selRowCol:selRowColType}){
+        const row=column.parentElement as HTMLElement;
+        row.style.backgroundColor="";
+        const {selectorId,rowId}=selRowCol as selRowColType;
+        const selRow={selectorId,rowId} as selRowType;
+        this.updateRow({target:row,idValues,selRow}).then(async(res)=>{
+            if(res){
+                Misc.message({parent:row,msg:"removed",type_:"success",time:800});
+            }
+        });
+    };
+
+
+
+    bgColumnColor({column,idValues,selRowCol}:{column:HTMLElement,idValues:idValueType[],selRowCol:selRowColType}){
+        this.commonUltils.bgColor({column,idValues,selRowCol}).then(async(res)=>{
+            if(res){
+                res.input.onchange=(e:Event)=>{
+                    if(!e) return;
+                    const color=(e.currentTarget as HTMLInputElement).value;
+                    res.column.style.backgroundColor=color;
+                    this.updateColumn({target:column,idValues,selRowCol}).then(async(_res)=>{
+                        if(_res){
+                            Misc.message({parent:res.column,msg:"added",type_:"success",time:800});
+                            Misc.growOut({anchor:res.popup,scale:0,opacity:0,time:400});
+                            setTimeout(()=>{
+                                res.column.removeChild(res.popup);
+                            },390);
+                        }
+                    });
+                };
+            };
+        });
+    };
+
+
+    rmColumnColor({column,idValues,selRowCol}:{column:HTMLElement,idValues:idValueType[],selRowCol:selRowColType}){
+        column.style.backgroundColor="";
+        this.updateColumn({target:column,idValues,selRowCol}).then(async(res)=>{
+            if(res){
+                Misc.message({parent:column,msg:"removed",type_:"success",time:800});
+            }
+        });
     };
 
 
@@ -1319,6 +1599,24 @@ colAttrs=["col-start","col-end","col-center"];
                 }
             }
         };
+    };
+
+
+
+
+    updateSelector({target,idValues}:{target:HTMLElement,idValues:idValueType[]}):Promise<{target:HTMLElement,select:selectorType|undefined}>{
+        const eleId=target.id;
+        let select:selectorType|undefined={} as selectorType;
+        this.selectors=this.selectors.map(sel=>{
+            if(sel.eleId===eleId){
+                sel.cssText=target.style.cssText;
+                sel.class=target.className;
+                sel.inner_html=target.innerHTML;
+                select=sel;
+            };
+            return sel;
+        });
+        return Promise.resolve({target,select}) as Promise<{target:HTMLElement,select:selectorType|undefined}>
     };
 
 
@@ -1433,7 +1731,6 @@ colAttrs=["col-start","col-end","col-center"];
 
 
 
- 
     //PARENT SELECTULTYPE()
     createList({parent,target,divCont,btn,selector,row,col,idValues}:{
         parent:HTMLElement,
@@ -1675,7 +1972,6 @@ colAttrs=["col-start","col-end","col-center"];
         const getRow=target.parentElement;
         if(!( getRow)) return;
         const rowHeight=window.getComputedStyle(getRow).getPropertyValue("height");
-        console.log("rowHeight",rowHeight)
         target.style.height=rowHeight;
         const idValue:idValueType={eleId,id:"height",attValue:rowHeight};
         this._modSelector.dataset.upDateIdValue({target,idValues,idValue});
@@ -1685,6 +1981,26 @@ colAttrs=["col-start","col-end","col-center"];
             }
         });
     };
+
+
+    setColumnHeight({parent,target,idValues,selRowCol}:{parent:HTMLElement,target:HTMLElement,idValues:idValueType[],selRowCol:selRowColType}){
+        this.commonUltils.setColumnHeight({parent,target,idValues,selRowCol}).then(async(res)=>{
+            res.popup.onsubmit=(e:SubmitEvent)=>{
+                if(!e) return;
+                e.preventDefault();
+                const formdata=new FormData(e.currentTarget as HTMLFormElement);
+                const value=formdata.get("height") as string;
+                target.style.height=`${value}vh`;
+                this.updateColumn({target,idValues,selRowCol}).then(async(_res)=>{
+                    if(_res){
+                        Misc.growOut({anchor:res.popup,scale:0,opacity:0,time:400});
+                        setTimeout(()=>{parent.removeChild(res.popup)},390);
+                    }
+                });
+            };
+
+        });
+    }
 
 
     removeEvenHeight({target,idValues,selRowCol}:{target:HTMLElement,idValues:idValueType[],selRowCol:selRowColType}){
@@ -1698,21 +2014,21 @@ colAttrs=["col-start","col-end","col-center"];
     };
 
 
-    removeFlexBox({parent,target,idValues}:{parent:HTMLElement,target:HTMLElement,idValues:idValueType[]}){
+    removeFlexBox({parent,target,select,idValues}:{parent:HTMLElement,target:HTMLElement,select:selectorType,idValues:idValueType[]}){
         //--------------DELETE ICON----------------//
         const delDiv=document.createElement("div");
         delDiv.style.cssText="position:absolute;top:0;left:0;transform:translate(-12px,0px);background:black;color:white;border-radius:50%;border-radius:50%;background-color:black;border:none;";
         delDiv.setAttribute("is-icon","true");
         delDiv.className="fa-solid fa-circle-xmark";
-        const cssStyle={background:"inherit",color:"white",fontSize:"18px",borderRadius:"50%"};
+        const cssStyle={background:"inherit",color:"white",fontSize:"12px",borderRadius:"50%"};
         FaCreate({parent:delDiv,name:FaCrosshairs,cssStyle});
         target.appendChild(delDiv);
         delDiv.addEventListener("click",(e:MouseEvent)=>{
             if(e){
-                this._modSelector.selectors.map((sel,index)=>{
-                    if(sel && sel.eleId===target.id){
-                        const {rows}=this._modSelector.checkGetRows({select:sel});
-                        rows.map(row=>{
+                this.rows=this.groupRows.filter(rw=>(rw.selectorId===select.eleId))[0]?.rows;
+                this.selectors.map((sel,index)=>{
+                    if(sel?.eleId===select.eleId){
+                       this.rows.map(row=>{
                             if(row){
                                 row.cols.map(col=>{
                                     if(col){
@@ -1747,14 +2063,8 @@ colAttrs=["col-start","col-end","col-center"];
                         
                     }
                 });
-                this._modSelector.selectors.forEach((sel,index)=>{
-                    if(sel.eleId===target.id){
-                        this._modSelector.selectors.splice(index,1);
-                        this._modSelector.shiftPlace(sel.placement);
-                    }
-                });
-                this._modSelector.blog={...this._modSelector.blog,selectors:this._modSelector.selectors}
-                this._modSelector.localStore({blog:this._modSelector.blog});
+                this.groupRows=this.groupRows.filter(kv=>(kv.selectorId !==select.eleId));
+                this.selectors=this.selectors.filter(sel=>(sel.eleId!==select.eleId));
                 Misc.fadeOut({anchor:target,xpos:100,ypos:100,time:400});
                 setTimeout(()=>{
                     parent.removeChild(target);
@@ -1775,14 +2085,14 @@ colAttrs=["col-start","col-end","col-center"];
 
 
    //PARENT: ROWCOLGENERATOR()- GENERATES COLUMNS
-   colGenerator(cols:number){
+   colGenerator(cols:number):{flex:number,perc:number}|undefined{
      //Column GENERATOR PRODUCES FLEX NUMS MAX=COLUMNS:4 MIN=COLUMNS:1, the input is the #of columns
      //OUTPUT:NUM:=> FOR 12/NUM
     const arrCol=[{col:1,num:12},{col:2,num:6},{col:3,num:4},{col:4,num:3},{col:6,num:2}]
     const result=arrCol.find(col_=>(col_.col===cols));
     if(!result)return
-    return result.num;
-    }
+    return {flex:result.num,perc:100/cols};
+    };
 
 
     bgShade({parent,sel,row,col,btn,idValues}:{
@@ -1912,12 +2222,16 @@ colAttrs=["col-start","col-end","col-center"];
     target:HTMLElement,
     idValues:idValueType[]
    }>{
+
+    const blog=this._modSelector.blog;
+    const len=this.selectors.length;
     const eleId=target.id;
         
         const node=target.nodeName.toLowerCase();
             selector={
                ...selector as selectorType,
-               id:this.placement,
+               blog_id:blog.id,
+               id:len,
                name:node,
                eleId:eleId,
                class:target.className,
@@ -1925,7 +2239,7 @@ colAttrs=["col-start","col-end","col-center"];
                rows:"",
                header:false,
                placement:this.placement,
-               footer:false
+               footer:false,
            } as selectorType;
            
         
@@ -1935,7 +2249,8 @@ colAttrs=["col-start","col-end","col-center"];
            const {idValues:retIdValues}=this._modSelector.dataset.coreDefaultIdValues({target,sel:selector,row:null,col:null,ele:null,idValues,loc:"flexbox",level:"selector",clean:false});
            idValues=retIdValues;
            this.placement=this.placement + 1;
-           this._modSelector.selectors.push(selector);
+           this.selectors=[...this.selectors,selector];
+           this.groupRows=[...this.groupRows,{selectorId:selector.eleId,rows:[] as rowType[]}];
         this._modSelector.dataset.populateElement({target,selRowColEle:selector,idValues,level:"selector",loc:'flexbox',clean:false});
        this._modSelector.footerPlacement();
        this._modSelector.dataset.upDateIdValues({idValues});
@@ -1964,7 +2279,12 @@ colAttrs=["col-start","col-end","col-center"];
         const node=target.nodeName.toLowerCase();
         let ele:element_selType|undefined={} as element_selType;
         const anchor=target.getAttribute("data-link");
+        const time=target.getAttribute("data-time");
+        const email=target.getAttribute("data-email");
+        const tel=target.getAttribute("data-tel");
+        const link=[anchor,time,email,tel].find(lk=>(lk !==null));
         const selRowCol:selRowColType={selectorId:selector.eleId,rowId:row.eleId,colId:col.eleId};
+        this.rows=this.groupRows.filter(grpRows=>(grpRows.selectorId===selector.eleId))[0]?.rows;
         idValues.push({eleId,id:"selRowCol",attValue:JSON.stringify(selRowCol)});
         const {cleaned}=this._modSelector.removeClasses({target,classes:["isActive"]});
         //COL
@@ -1981,7 +2301,7 @@ colAttrs=["col-start","col-end","col-center"];
                 inner_html:target.innerHTML,
                 placement:ID ? ID as number : undefined,
                 cssText:target.style.cssText,
-                attr:anchor || undefined,
+                attr:link || undefined,
                 col_id:col.id,
                 order:ID,
                 // imgKey: imgKey ? imgKey : undefined
@@ -2033,52 +2353,57 @@ colAttrs=["col-start","col-end","col-center"];
                 ele.inner_html=target_.alt;
             }
             col.elements.push(ele as element_selType);
-                      
-                    }
-        //COL
-        //APPENDING COL
-       row.cols= row.cols.map((col_)=>{
-            if(col_.eleId===col.eleId){
-                col_=col;
-            }
-            return col_;
-        });
-        //APPENDING COL
-        //APPENDING ROW
-        const {rows}=this._modSelector.checkGetRows({select:selector});
-        const newRows= rows.map((row_)=>{
-               if(row_.eleId===row.eleId){
-                   row_=row;
-               }
-               return row_;
-           });
-        //APPENDING ROW
-        //ADDING IT TO SELECTOR
-        selector={...selector,rows:JSON.stringify(newRows)}
-        //ADDING IT TO SELECTOR
-        //ADDING SELECTOR TO SELECTORS
-        this.selectors = this._modSelector.selectors.map((selector_)=>{
+            //COL
+            //APPENDING COL
+           row.cols= row.cols.map((col_)=>{
+                if(col_.eleId===col.eleId){
+                    col_=col;
+                }
+                return col_;
+            });
            
-            if(selector_.eleId===selector.eleId ){
-                selector_=selector;
+            //APPENDING COL
+            //APPENDING ROW
+            const isRow=this.rows.find(rw=>(rw.eleId===row.eleId));
+            const remains=this.rows.filter(rw=>(rw.eleId !==row.eleId));
+            if(isRow){
+                this.rows=[...remains,isRow]
+                //APPENDING ROW
+               
+                //ADDING IT TO SELECTOR
+                selector={...selector,rows:JSON.stringify(this.rows)};
+                this.groupRows=this.groupRows.map(grpRows=>{
+                    if(grpRows.selectorId===selector.eleId){
+                        grpRows.rows=this.rows;
+                    }
+                    return grpRows;
+                });
+                //ADDING IT TO SELECTOR
+                //ADDING SELECTOR TO SELECTORS
+                this.selectors = this.selectors.map((selector_)=>{
+                   
+                    if(selector_.eleId===selector.eleId ){
+                        selector_=selector;
+                    }
+                    return selector_;
+                }); //saving it to blog
+                
+                //POPULATING ATTRIBUTE
+                this._modSelector.dataset.populateElement({
+                    target,
+                    loc:"flexbox",
+                    level:"element",
+                    selRowColEle:ele,
+                    idValues,
+                    clean:false
+                });
+                //POPULATING ATTRIBUTE
+                idValues=Dataset.removeIdValueDuplicates({arr:idValues,eleId});
+                this._modSelector.dataset.upDateIdValues({idValues});
+                //ADDING SELECTOR TO SELECTORS
             }
-            return selector_;
-        }); //saving it to blog
-        this._modSelector.blog={...this._modSelector.blog,selectors:this.selectors};
-        this._modSelector.localStore({blog:this._modSelector.blog});
-        //POPULATING ATTRIBUTE
-        this._modSelector.dataset.populateElement({
-            target,
-            loc:"flexbox",
-            level:"element",
-            selRowColEle:ele,
-            idValues,
-            clean:false
-        });
-        //POPULATING ATTRIBUTE
-        idValues=Dataset.removeIdValueDuplicates({arr:idValues,eleId});
-        this._modSelector.dataset.upDateIdValues({idValues});
-        //ADDING SELECTOR TO SELECTORS
+    
+        };//END
         return Promise.resolve({target:target,ele:ele as element_selType|undefined,selector,idValues,row,col,selRowCol}) as Promise<{ 
             target:HTMLElement;
             ele:element_selType|undefined;
@@ -2106,10 +2431,10 @@ colAttrs=["col-start","col-end","col-center"];
         let retEle:element_selType|undefined={} as element_selType;
     
         const {selectorId,rowId,colId}=selRowCol as selRowColType;
-        this._selectors=this._modSelector.selectors.map(select=>{
+        this.rows=this.groupRows.filter(rw=>(rw.selectorId===selectorId))[0]?.rows;
+        this._selectors=this.selectors.map(select=>{
             if(select.eleId===selectorId){
-                const {rows}=this._modSelector.checkGetRows({select});
-                const newRows= rows.map(row=>{
+                this.rows= this.rows.map(row=>{
                     if(row.eleId===rowId){
                         row.cols.map(col=>{
                             if(col.eleId===colId){
@@ -2144,11 +2469,16 @@ colAttrs=["col-start","col-end","col-center"];
                     }
                     return row;
                 });
-                select.rows=JSON.stringify(newRows);
+                select.rows=JSON.stringify(this.rows);
+                this.groupRows=this.groupRows.map(grpRows=>{
+                        if(grpRows.selectorId===select.eleId){
+                            grpRows.rows=this.rows;
+                        }
+                    return grpRows;
+                });
             }
         return select;
         });
-        this._modSelector.selectors=this._selectors;
         this._modSelector.dataset.upDateIdValues({idValues});
         
         return Promise.resolve({ele:retEle,target,selRowCol}) as Promise<{ele:element_selType|undefined,target:HTMLElement,selRowCol:selRowColType}>;
@@ -2162,12 +2492,13 @@ colAttrs=["col-start","col-end","col-center"];
         const idValue={eleId,id:"update",attValue:"edit"} as idValueType;
         this._modSelector.dataset.upDateIdValue({target,idValue,idValues});
         const {selectorId,rowId,colId} = selRowCol as selRowColType;
+        const select=this.selectors.find(sel=>(sel.eleId===selectorId));
+        if(!select) return console.log("could not rnd",select);
+        this.rows=this.groupRows.filter(rw=>(rw.selectorId===select.eleId))[0]?.rows;
+        
         target.oninput=(e:Event)=>{
-            if(!e) return;
-            this.selectors=this._modSelector.selectors.map(selector_=>{
-                if(selector_.eleId===selectorId){
-                    const {rows}=this._modSelector.checkGetRows({select:selector_});
-                    const newRows=rows.map(row=>{
+            if(!e) return console.log("NO INPUT");
+                    this.rows=this.rows.map(row=>{
                         if(row.eleId===rowId){
                             row.cols.map(col=>{
                                 if(col.eleId===colId){
@@ -2175,7 +2506,7 @@ colAttrs=["col-start","col-end","col-center"];
                                         
                                         if(element.eleId===target.id){
                                             element.inner_html=target.innerHTML;
-                                            
+                                            console.log(element.inner_html);
                                         };
                                         return element;
                                     });
@@ -2186,13 +2517,24 @@ colAttrs=["col-start","col-end","col-center"];
                         };
                         return row;
                     });
-                    selector_.rows=JSON.stringify(newRows);
-                };
-                return selector_;
+                    
+                    select.rows=JSON.stringify(this.rows);
+                this.selectors=this.selectors.map(sel=>{
+                        if(sel.eleId===select.eleId){
+                            sel=select;
+                        }
+                    return sel;
+                });
+            this.groupRows=this.groupRows.map(grpRows=>{
+                    if(grpRows.selectorId===selectorId){
+                        grpRows.rows=this.rows;
+                    }
+                return grpRows;
             });
-            const blog={...this._modSelector.blog,selectors:this.selectors};
-            this._modSelector.blog=blog
-            this._modSelector.localStore({blog});
+        };
+        target.onclick=(e:MouseEvent)=>{
+            if(!e) return console.log("no update");
+            this.updateElement({target,idValues,selRowCol});
         };
       
     };
@@ -2208,14 +2550,15 @@ colAttrs=["col-start","col-end","col-center"];
         const idValue:idValueType={eleId,id:"selRowCol",attValue:JSON.stringify(selRowCol)};
         this._modSelector.dataset.upDateIdValue({target,idValues,idValue});
         const {cleaned}=this._modSelector.removeClasses({target,classes:["isActive","box-shadow"]});
+        this.rows=this.groupRows.filter(rw=>(rw.selectorId===selectorId))[0]?.rows;
       if(!isCol){
         Misc.message({parent:target,msg:"!!TARGET IS NOT COLID,,- canceling upgrade",type_:"error",time:1200});
         return
       }else{
           this.selectors=this.selectors.map(select=>{
               if(select.eleId===selectorId){
-                  const {rows}=this._modSelector.checkGetRows({select});
-                  const newRows= rows.map(row=>{
+                  
+                  this.rows= this.rows.map(row=>{
                       if(row.eleId===rowId){
                           row.cols.map(col=>{
                               if(col.eleId===eleId){
@@ -2244,18 +2587,24 @@ colAttrs=["col-start","col-end","col-center"];
                       }
                       return row;
                   });
-                  select.rows=JSON.stringify(newRows);
+                  this.groupRows=this.groupRows.map(grpRows=>{
+                    if(grpRows.selectorId===select.eleId){
+                        grpRows.rows=this.rows;
+                    }
+                    return grpRows;
+                  });
+                  select.rows=JSON.stringify(this.rows);
               }
               return select;
           });
           
       }
       this._modSelector.dataset.upDateIdValues({idValues});
-      this._modSelector.blog={...this._modSelector.blog,selectors:this.selectors};
-        this._modSelector.localStore({blog:this._modSelector.blog});
         return Promise.resolve({col:col_,target}) as Promise<{col:colType|undefined,target:HTMLElement}|undefined>;
 
     };
+
+
 
 
    async updateRow({target,idValues,selRow}:{target:HTMLElement,idValues:idValueType[],selRow:selRowType}):Promise<{target:HTMLElement,row:rowType|undefined}|undefined>{
@@ -2264,17 +2613,16 @@ colAttrs=["col-start","col-end","col-center"];
         const getImgKey=this._modSelector.dataset.getIdValue({target,idValues,id:"imgKey"});
         const imgKey=getImgKey?.attValue ||undefined;
         const {selectorId,rowId}=selRow as selRowType;
+        this.rows=this.groupRows.filter(rw=>(rw.selectorId === selectorId))[0]?.rows;
         const isRow=eleId===rowId;
         let row_:rowType|undefined={} as rowType
         if(!isRow){
             Misc.message({parent:target,msg:"ERROR-TARGET ID NOT ROW!!- update canceled",type_:"error",time:1200});
             return;
         }else{
-            this._modSelector.selectors=this._modSelector.selectors.map(select=>{
+            this.selectors=this.selectors.map(select=>{
                 if(select.eleId===selectorId){
-                  
-                    const {rows}=this._modSelector.checkGetRows({select});
-                  const newRows=rows.map(row=>{
+                  this.rows=this.rows.map(row=>{
                   
                         if(row.eleId===target.id){
                             row.class=cleaned.join(" ");
@@ -2285,12 +2633,17 @@ colAttrs=["col-start","col-end","col-center"];
                         row_=row;
                         return row;
                     });
-                    select.rows=JSON.stringify(newRows);
+                    select.rows=JSON.stringify(this.rows);
+                    this.groupRows=this.groupRows.map(grpRows=>{
+                        if(grpRows.selectorId===select.eleId){
+                            grpRows.rows=this.rows;
+                        }
+                        return grpRows;
+                      });
                 }
                 return select;
             });
-            this._modSelector.blog={...this._modSelector.blog,selectors:this._modSelector.selectors};
-            this._modSelector.localStore({blog:this._modSelector.blog});
+           
             this._modSelector.dataset.populateElement({target,selRowColEle:row_,idValues,level:"row",loc:"flexbox",clean:false});
             this._modSelector.dataset.upDateIdValues({idValues});
         };
@@ -2355,22 +2708,22 @@ colAttrs=["col-start","col-end","col-center"];
             Header.cleanUpByID(divCont,"flexbox-delete-element");
         }
         return idValues
-    }
+    };
     
     //REMOVES ELEMENT FROM BLOG AND REINDEXES!!!!!!!!
     removeElement({target,idValues,selRowCol}:{
         target:HTMLElement,
         idValues:idValueType[],
-        selRowCol:selRowColType
+        selRowCol:selRowColType,
 
     }){
         //DELETES TARGET FROM IDVALUES AND REMOVES TARGET FROM COLUMN
         const eleId=target.id;
             const {colId,rowId,selectorId}=selRowCol as selRowColType;
             this.selectors=this.selectors.map(sel=>{
-                    if(sel.eleId===selectorId){
-                        const {rows}=this._modSelector.checkGetRows({select:sel});
-                       const newRows= rows.map(row=>{
+                if(sel.eleId===selectorId){
+                        this.rows=this.groupRows.filter(rw=>(rw.selectorId===sel.eleId))[0]?.rows;
+                       this.rows= this.rows.map(row=>{
                             if(row.eleId===rowId){
                                 row.cols.map(col=>{
                                     if(col.eleId===colId){
@@ -2385,7 +2738,14 @@ colAttrs=["col-start","col-end","col-center"];
                             };
                             return row;
                         });
-                        sel.rows=JSON.stringify(newRows);
+
+                        sel.rows=JSON.stringify(this.rows);
+                        this.groupRows=this.groupRows.map(grpRows=>{
+                            if(grpRows.selectorId===sel.eleId){
+                                grpRows.rows=this.rows;
+                            }
+                            return grpRows;
+                          });
                     };
                 return sel;
             });//SAVING IT TO LOCAL
@@ -2419,6 +2779,8 @@ colAttrs=["col-start","col-end","col-center"];
         if(type==="tel"){ target.setAttribute("data-tel",href)}
        
     };
+
+    
 
     showLinkEmailTelImg({target,element,type}:{target:HTMLAnchorElement,element:elementType|element_selType,type:"link"|"email"|"tel"}){
                 target.innerHTML=element.inner_html;

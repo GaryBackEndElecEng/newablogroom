@@ -996,7 +996,6 @@ class PostDetail{
                     targetImg.src=urlImg;
                     targetImg.alt="www.ablogroom.com";
                    const {Key} = this._service.generatePostImgKey(formdata,this.post) as {Key:string};
-                    // console.log("file",file)
                     await this._service.simpleImgUpload(editPopup,formdata).then(async(res)=>{
                         if(res){
                             submitBtn.disabled=true;

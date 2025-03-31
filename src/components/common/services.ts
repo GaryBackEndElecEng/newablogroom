@@ -31,6 +31,7 @@ class Service {
   private readonly  adminUserUrl:string="/api/admin/user";
   private readonly  userUrlUpdate:string="/api/user_update";
   private readonly  getuserinfo_url:string="/api/getuserinfo";
+  private readonly  getuser:string="/api/getuser";
   private readonly  emailUrl:string="/api/email";
   private readonly  signupemailUrl:string="/api/signupemail";
   private readonly  sendEmailUrl:string="/api/sendemail";
@@ -77,7 +78,8 @@ class Service {
         this.imgLoad="/api/imgload";
         this.urlGetImg="/api/blog/getimg";
         this.urlMsg="/api/message";
-        this.urlAllmsgs="/api/allmsgs"
+        this.urlAllmsgs="/api/allmsgs";
+        this.getuser="/api/getuser";
         this.urlToken="api/token;";
         this.uploadfreeimageUrl="/api/uploadfreeimage";
         this.freeurl="https://newablogroom-free-bucket.s3.us-east-1.amazonaws.com";
@@ -178,10 +180,10 @@ getKey({imgUrl}:{imgUrl:string}):string|null{
         this._modSelector.blog={...blog,cssText:css,class:class_,show:show,username:username};
         
         if(findHeader){
-            this._modSelector.header=findHeader;
+            this._modSelector._header=findHeader;
         }
         if(findFooter){
-            this._modSelector.footer=findFooter;
+            this._modSelector._footer=findFooter;
         }
         if(user && user.id!==""){
             this._modSelector.blog={...this._modSelector.blog,user_id:user.id};
@@ -271,6 +273,8 @@ getKey({imgUrl}:{imgUrl:string}):string|null{
         }
         
     };
+
+
     initializeBlog(){
         this._modSelector.pageCounts=[] as pageCountType[];
         this._modSelector.elements=[] as elementType[];
@@ -280,10 +284,12 @@ getKey({imgUrl}:{imgUrl:string}):string|null{
         const blog:blogType={id:0,name:undefined,desc:undefined,user_id:"",class:ModSelector.main_class,inner_html:undefined,cssText:ModSelector.main_css,img:undefined,imgKey:undefined,show:false,username:undefined,rating:0,selectors:[] as selectorType[],elements:[] as elementType[],codes:[] as codeType[],pageCounts:[] as pageCountType[],messages:[] as messageType[],charts:[] as chartType[],date:new Date(),update:new Date(),attr:"circle",barOptions:[]};
         this._modSelector.blog=blog;
        
-    }
+    };
+
+
     async get_csrfToken(){
         return await getCsrfToken();
-    }
+    };
 
 ///GETTERS SETTERS///////////////////
 
@@ -297,7 +303,7 @@ getKey({imgUrl}:{imgUrl:string}):string|null{
             }
         }).catch(err=>{const msg=getErrorMessage(err);console.error(msg)});
        
-    }
+    };
 
     //---------------------THIS MARKS DELETE MAIN:ADDS:TO BE DELETED--------------------------------------///
 
@@ -1360,6 +1366,15 @@ getKey({imgUrl}:{imgUrl:string}):string|null{
             }
         }).catch((err)=>{console.error(err)})
     };
+
+    async getUser({email}:{email:string}):Promise<userType|undefined>{
+        if(!email) return;
+       return fetch(`${this.getuser}?email=${email}`).then(async(res)=>{
+            if(res.ok){
+                return await res.json() as userType;
+            }
+        });
+    }
 
 
     async updateBlogMeta(blogmeta:blogType){

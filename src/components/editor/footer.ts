@@ -1,4 +1,4 @@
-import {flexType,colType,rowType,selectorType,elementChoiceType, userType,} from "./Types";
+import {flexType,colType,rowType,selectorType,elementChoiceType, userType, blogType,} from "./Types";
 import ModSelector from "@/components/editor/modSelector";
 import { separator } from "../blog/displayBlog";
 import {FaCrosshairs,FaTrash,} from "react-icons/fa";
@@ -15,6 +15,7 @@ import { element_selType } from '@/components/editor/Types';
 import { attrEnumArr, attrEnumArrTest, typeEnumArr, typeEnumArrTest } from "../common/lists";
 import Reference from "./reference";
 import Dataset from "../common/dataset";
+
 
 
 
@@ -42,28 +43,32 @@ class Footer{
         {id:5,name:"set-image-height",ele:"null",isEle:false,attr:"set-image-height"},
         {id:6,name:"bg-row-image",ele:null,isEle:false,attr:"bg-row-image"},
         {id:7,name:"rm-bg-image",ele:null,isEle:false,attr:"rm-bg-image"},
-        {id:8,name:"text",ele:"p",isEle:true,attr:null},
-        {id:9,name:"small",ele:"small",isEle:true,attr:null},
-        {id:10,name:"insert-email",ele:"insert-email",isEle:false,attr:"insert-email"},
-        {id:11,name:"insert-tel",ele:"insert-tel",isEle:false,attr:"insert-tel"},
-        {id:12,name:"insert-link",ele:"insert-link",isEle:false,attr:"insert-link"},
-        {id:13,name:"reference-links",ele:null,isEle:false,attr:"reference-links"},
-        {id:14,name:"quote",ele:"blockquote",isEle:true,attr:null},
-        {id:15,name:"image rounded",ele:null,isEle:false,attr:"imgRound"},
-        {id:16,name:"flex-col",ele:null,isEle:false,attr:"flexCol"},
-        {id:17,name:"flex-row",ele:null,isEle:false,attr:"flexRow"},
-        {id:18,name:"flex-between",ele:null,isEle:false,attr:"flex-between"},
-        {id:19,name:"flex-center",ele:null,isEle:false,attr:"flex-center"},
-        {id:20,name:"flex-remove",ele:null,isEle:false,attr:"flex-remove"},
-        {id:21,name:"bg-row-color",ele:null,isEle:false,attr:"bgColor"},
-        {id:22,name:"bg-ele-color",ele:null,isEle:false,attr:"bgEleColor"},
-        {id:23,name:"box-shadow",ele:null,isEle:false,attr:"box-shadow"},
-        {id:24,name:"font-color",ele:null,isEle:false,attr:"font-color"},
-        {id:25,name:"font-size",ele:null,isEle:false,attr:"font-size"},
-        {id:26,name:"text-center",ele:null,isEle:false,attr:"text-center"},
+        {id:8,name:"set-column-height",ele:null,isEle:false,attr:"set-column-height"},
+        {id:9,name:"text",ele:"p",isEle:true,attr:null},
+        {id:10,name:"small",ele:"small",isEle:true,attr:null},
+        {id:11,name:"insert-email",ele:"insert-email",isEle:false,attr:"insert-email"},
+        {id:12,name:"insert-tel",ele:"insert-tel",isEle:false,attr:"insert-tel"},
+        {id:13,name:"insert-link",ele:"insert-link",isEle:false,attr:"insert-link"},
+        {id:14,name:"reference-links",ele:null,isEle:false,attr:"reference-links"},
+        {id:15,name:"quote",ele:"blockquote",isEle:true,attr:null},
+        {id:16,name:"image rounded",ele:null,isEle:false,attr:"imgRound"},
+        {id:17,name:"flex-col",ele:null,isEle:false,attr:"flexCol"},
+        {id:18,name:"flex-row",ele:null,isEle:false,attr:"flexRow"},
+        {id:19,name:"flex-between",ele:null,isEle:false,attr:"flex-between"},
+        {id:20,name:"flex-center",ele:null,isEle:false,attr:"flex-center"},
+        {id:21,name:"flex-remove",ele:null,isEle:false,attr:"flex-remove"},
+        {id:22,name:"bg-row-color",ele:null,isEle:false,attr:"bgColor"},
+        {id:23,name:"bg-ele-color",ele:null,isEle:false,attr:"bgEleColor"},
+        {id:24,name:"box-shadow",ele:null,isEle:false,attr:"box-shadow"},
+        {id:25,name:"font-color",ele:null,isEle:false,attr:"font-color"},
+        {id:26,name:"font-size",ele:null,isEle:false,attr:"font-size"},
+        {id:27,name:"text-center",ele:null,isEle:false,attr:"text-center"},
 
-    ]
-    constructor(private _modSelector:ModSelector,private _service:Service,private _user:User,public reference: Reference){
+    ];
+
+    private _rows:rowType[];
+
+    constructor(private _modSelector:ModSelector,private _service:Service,private _user:User,public reference: Reference,private _blog:blogType){
         this.mail="/images/mail.png";
         this.phone="/images/phone.png";
         this.link="/images/link.png";
@@ -88,7 +93,23 @@ class Footer{
             header:false,
             footer:true
         };
-        this._element_sel=this._modSelector.initElement_sel
+        this._element_sel=this._modSelector.initElement_sel;
+        this._rows=[] as rowType[];
+        
+    };
+
+    get blog(){
+        const strBlog=localStorage.getItem("blog");
+        if(strBlog){
+            const blog=JSON.parse(strBlog) as blogType
+            return blog
+        }else{
+            return this._blog
+        }
+    };
+    set blog(blog:blogType){
+        this._blog=blog;
+        this._modSelector.blog=blog;
     };
     //SETTER GETTERS
     get selector(){
@@ -99,14 +120,16 @@ class Footer{
         this._selector=selector;
     };
     get selectors(){
-        return this._modSelector.selectors
+        return this._modSelector.selectors;
     };
 
     set selectors(selectors:selectorType[]){
-        this._modSelector.selectors=selectors;
+        this._selectors=selectors
+        this._modSelector.selectors=selectors
     };
     get placement(){
-        return this._modSelector.placement;
+        const maxCount=ModSelector.maxCount(this._modSelector.blog)
+        return maxCount + 1;
     };
 
     set placement(placement:number){
@@ -119,6 +142,20 @@ class Footer{
     set user(user:userType){
         this._user.user=user;
     };
+
+    get rows(){
+        return this._rows;
+    };
+    set rows(rows:rowType[]){
+        this._rows=rows;
+    };
+    get groupRows(){
+        return this._modSelector.groupRows;
+    };
+    set groupRows(groupRows:{selectorId:string,rows:rowType[]}[]){
+        this._modSelector.groupRows=groupRows;
+    };
+   
 
     //SETTER GETTERS
     //INJECTION FROM LOCALSTORAGE
@@ -163,7 +200,8 @@ class Footer{
                 clean:false
                });
             const {rows}=this._modSelector.checkGetRows({select:selector});
-                await Promise.all(rows.toSorted((a,b)=>{if(a.order < b.order) return -1 ; return 1}).map(async(row_)=>{
+            this.rows=rows;
+                await Promise.all(this.rows.toSorted((a,b)=>{if(a.order < b.order) return -1 ; return 1}).map(async(row_)=>{
                     const selRow={selectorId:selector.eleId,rowId:row_.eleId} as selRowType;
                     const row=document.createElement("div");
                     row.id=row_.eleId;
@@ -665,11 +703,11 @@ class Footer{
         const check=this.selectors.find(select=>(select.footer===true)) || false;
         // console.log(check);//works
         if(!check){
-        
+            const css_col="display:flex;justify-content:center;align-items:center;flex-direction:column;"
             const selectID=`footer-${Math.round(Math.random()*1000)}`;
             const main=document.createElement("footer");
             main.setAttribute("name","footer");
-            main.style.cssText="position:relative;width:100%; margin-inline:0px;padding:0px;margin-top:2.5rem;margin-bottom:0;border-top:1px solid grey;";
+            main.style.cssText=css_col + "position:relative;width:100%; margin-inline:0px;padding:0px;margin-top:2.5rem;margin-bottom:0;border-top:1px solid grey;gap:0.25rem;";
             main.id=selectID;
             const eleId=main.id;
             main.className="footerContainer";
@@ -695,7 +733,7 @@ class Footer{
                        idValues.push({eleId,id:"rowNum",attValue:String(rowNums)});
                        idValues.push({eleId,id:"numCols",attValue:String(sel.select?.colNum)});
                        const selector=sel.select as selectorType;
-                        this._modSelector.rowAdder({target:row,selectEle:main,idValues,selector}).then(async(res)=>{
+                        this.rowAdder({target:row,selectEle:main,idValues,selector}).then(async(res)=>{
                             if(res ){
                                 const numCols=res.sel.colNum
                                 Array.from(Array(numCols).keys()).map((numCol)=>{
@@ -747,7 +785,10 @@ class Footer{
             Misc.message({parent,type_:"error",time:2000,msg:"you must delete the original footer before creating another!!"})
         }
         
-    }
+    };
+
+
+
     //----------DROP-DOWN ATTRIBUTES FOR ELEMENT && ATT(S) SELECTION------////
     selectElements({column,idValues,sel,rowEle,colEle,user}:{
         column: HTMLElement,
@@ -818,7 +859,7 @@ class Footer{
                }
            });
       
-   }
+   };
     //----------DROP-DOWN ATTRIBUTES FOR ELEMENT && ATT(S) SELECTION------////
    
     
@@ -994,6 +1035,9 @@ class Footer{
                   
                 await this.insertTel({column,sel,rowEle,colEle,idValues});
             return 
+            case name==="set-column-height" :
+                this.setColumnHeight({parent:column,target:column,sel,row:rowEle,col:colEle,idValues});
+            return 
             case name==="insert-link" :
                 await this.insertLink({column,sel,rowEle,colEle,idValues});
             return 
@@ -1102,6 +1146,7 @@ class Footer{
         };
     };
 
+
     setRowHeight({target,idValues,sel,rowEle,colEle}:{
         target:HTMLElement,
         idValues:idValueType[],
@@ -1168,6 +1213,7 @@ class Footer{
         };
     };
 
+
     removeBgImage({column,idValues,selRowCol}:{
         column:HTMLElement,
         idValues:idValueType[],
@@ -1198,6 +1244,10 @@ class Footer{
             
         }
     };
+
+
+
+
     bgRowImage({target,idValues,user,sel,rowEle,colEle}:{
         target:HTMLElement,
         idValues:idValueType[],
@@ -1271,6 +1321,9 @@ class Footer{
 
 
     };
+
+
+
 
     insertImage({column,sel,rowEle,colEle,idValues}:{
         column:HTMLElement,
@@ -1368,12 +1421,11 @@ class Footer{
                     idValues.push({eleId,id:"ID",attValue:eleId});
                     flex={...flex,imgKey:Key};
                     image.setAttribute("flex",JSON.stringify(flex));
-                    this.removeMainElement({parent:column,divCont,target:image,sel,rowEle,colEle,idValues});
                
                     this.elementAdder({target:image,sel,rowEle,colEle,idValues}).then(async(res)=>{
                         if(res){
                             const ele=res.ele
-
+                            this.removeMainElement({parent:column,divCont,target:image,sel,rowEle,colEle,idValues});
                             divCont.setAttribute("data-placement",`${ele.order}-A`);
                             divCont.onclick=(e:MouseEvent)=>{
                                 if(!e) return;
@@ -1391,6 +1443,9 @@ class Footer{
         });
         return Promise.resolve({idValues,sel,colEle,rowEle}) as Promise<{idValues:idValueType[],sel:selectorType,rowEle:rowType,colEle:colType}>;
     };
+
+
+
 
     insertBgImage({target,sel,rowEle,colEle,idValues}:{target:HTMLElement,sel:selectorType,colEle:colType,rowEle:rowType,idValues:idValueType[]}){
         const selRowCol={selectorId:sel.eleId,rowId:rowEle.eleId,colId:colEle.eleId} as selRowColType;
@@ -1462,6 +1517,8 @@ class Footer{
             }
         });
     };
+
+
 
     fontSize({column,divConts,sel,rowEle,colEle,idValues}:{
         column:HTMLElement,
@@ -1537,6 +1594,8 @@ class Footer{
         };
 
     };
+
+
     
     setImageHeight({column,sel,rowEle,colEle,idValues}:{column:HTMLElement,sel:selectorType,rowEle:rowType,colEle:colType,idValues:idValueType[]}){
         
@@ -1603,18 +1662,23 @@ class Footer{
 
     };
 
+
+
     selectorAdder({target,selector,idValues}:{target:HTMLElement,selector:selectorType,idValues:idValueType[]}):Promise<{target:HTMLElement,select:selectorType|undefined,idValues:idValueType[]}>{
         this.selector=selector;
         const node=target.nodeName.toLowerCase();
         const check=this._modSelector.selectors.find(sel=>(sel.footer===true));
-     
+        if(check){
+            this.groupRows= this.groupRows.filter(kv=>(kv.selectorId !==check.eleId));
+        }
+        const len=this.selectors.length;
         if(!check){
             const rowNum=selector.rowNum;
             const colNum=selector.colNum;
             const eleId=target.id;
             this.selector={
                 ...selector as selectorType,
-                id:this._modSelector.placement,
+                id:len,
                 name:node,
                 eleId:target.id,
                 class:target.className,
@@ -1628,6 +1692,7 @@ class Footer{
             idValues.push({eleId,id:"rowNum",attValue:String(rowNum)});
             idValues.push({eleId,id:"numCols",attValue:String(colNum)});
             idValues.push({eleId,id:"selectorId",attValue:eleId});
+            idValues.push({eleId,id:"selector_id",attValue:String(len)});
             idValues.push({eleId,id:"ID",attValue:eleId});
             idValues.push({eleId,id:"isFooter",attValue:"true"});
             idValues=Dataset.removeIdValueDuplicates({arr:idValues,eleId});
@@ -1640,20 +1705,120 @@ class Footer{
                 clean:false
                });
             
-            this._modSelector.selectors=[...this._modSelector.selectors,this.selector];
-         
+            this.selectors=[...this.selectors,this.selector];
+            this.groupRows=[...this.groupRows,{selectorId:this.selector.eleId,rows:[] as rowType[]}];
             
             this._modSelector.footerPlacement();
             this._modSelector.placement=this._modSelector.placement + 1;
-                this._modSelector.footer=this.selector;
+                this._modSelector._footer=this.selector;
            
             //addAttributes
             target.setAttribute("is-selector","true");
-            this._modSelector.blog={...this._modSelector.blog,selectors:this._modSelector.selectors};
-            this._modSelector.localStore({blog:this._modSelector.blog});
-        }
+           
+        };
         return Promise.resolve({target,select:this.selector,idValues}) as Promise<{target:HTMLElement,select:selectorType|undefined,idValues:idValueType[]}>;
     };
+
+
+    async rowAdder({target,selectEle,idValues,selector}:{target:HTMLElement,selectEle:HTMLElement,idValues:idValueType[],selector:selectorType}):Promise<{rowEle:rowType | undefined,target:HTMLElement,selectEle:HTMLElement,idValues:idValueType[],sel:selectorType}>{
+       
+        const node=target.nodeName.toLowerCase();
+        const colAttr=selector.colAttr[0];
+        const topNum=colAttr.T;
+        const botNum=colAttr.B;
+        let row_:rowType={} as rowType;
+        const parent=target.parentElement;
+        const eleId=target.id;
+        const parent_id= parent ? parent.id:null;
+        if(parent_id) idValues.push({eleId,id:"parent_id",attValue:parent_id});
+        idValues=Dataset.removeIdValueDuplicates({arr:idValues,eleId});
+           
+                const ID=this.rows ? this.rows.length :0;
+                const check=!!(this.rows.find(row=>(row.eleId===eleId))) ;
+                idValues.push({eleId,id:"rowId",attValue:eleId});
+                const selRow:selRowType={selectorId:selector.eleId,rowId:eleId};
+                idValues.push({eleId,id:"selRow",attValue:JSON.stringify(selRow)});
+                idValues.push({eleId,id:"rowNum",attValue:String(topNum+botNum)});
+                idValues.push({eleId,id:"selectorId",attValue:selector.eleId});
+                idValues.push({eleId,id:"ID",attValue:eleId});
+                idValues.push({eleId,id:"isRow",attValue:"true"});
+                idValues.push({eleId,id:"rowOrder",attValue:String(ID)});
+                const getEleIds=idValues.filter(kat=>(kat.eleId===eleId));
+                idValues.push({eleId:target.id,id:"selectorId",attValue:selector.eleId});
+                if(!check){
+                    row_={
+                        id: ID,
+                        name:node,
+                        class:target.className,
+                        eleId,
+                        inner_html:target.innerHTML ? target.innerHTML : "",
+                        cssText:target.style.cssText,
+                        cols:[] as colType[],
+                        selector_id:selector.id,
+                        order:ID,
+                        attr:undefined,
+                        type:undefined
+                    } as rowType;
+                    //----------//---POPULATING ATTRIBUTES TO TARGET------\\-----///
+                    const {idValues:retIdValues}=this._modSelector.dataset.coreDefaultIdValues({
+                        target,loc:"flexbox",
+                        level:"row",
+                        clean:false,
+                        sel:selector,
+                        row:row_,
+                        col:null,
+                        ele:null,
+                        idValues
+
+                    });
+                       
+                    idValues=retIdValues;
+                    idValues=Dataset.removeIdValueDuplicates({arr:idValues,eleId});
+                    this._modSelector.dataset.populateElement({
+                        target,
+                        selRowColEle:row_,
+                        level:"row",
+                        loc:"flexbox",
+                        idValues,
+                        clean:false
+                       });
+                    getEleIds.map(kat=>{
+                        const attrTest=attrEnumArrTest(row_);
+                        const typeTest=typeEnumArrTest(row_);
+                        const hasAttr=attrEnumArr.includes(kat.id);
+                        const hasType=typeEnumArr.includes(kat.id as typeEnumType);
+                        if(hasAttr && !attrTest){
+                            row_.attr=kat.attValue;
+                        }else if(hasType && !typeTest){
+                            row_.type=kat.attValue;
+                        }else if(kat.id==="imgKey"){
+                            row_.imgKey=kat.attValue;
+                        }
+                    });
+                     //THIS LOADS THE DEFAULTS AND POPULATES THE ELEMENT BASED ON IDVALUE INPUTS
+                    this.rows=[...this.rows,row_];//WORKS
+                    // RE-ASSIGNMENT
+                  
+                    selector.rows=JSON.stringify(this.rows);
+                }
+            //ADDING NEW SELECTOR TO SELECTORS && PUSHING IT TO LOCAL
+            this.selectors=this._selectors.map(select=>{
+                    if(select.eleId===selector.eleId){
+                        select=selector
+                    }
+                return select
+            });
+           
+            //ADDING NEW SELECTOR TO SELECTORS && PUSHING IT TO LOCAL
+            
+            idValues=Dataset.removeIdValueDuplicates({arr:idValues,eleId});
+            this._modSelector.dataset.idValues=idValues;
+        //----------//---POPULATING ATTRIBUTES TO TARGET------\\-----///
+        return Promise.resolve({rowEle:row_ as rowType,target,selectEle,idValues,sel:selector}) as Promise<{rowEle:rowType | undefined,target:HTMLElement,selectEle:HTMLElement,idValues:idValueType[],sel:selectorType}>;
+        
+    };
+
+
 
     removeFooter(parent:HTMLElement,target:HTMLElement,idValues:idValueType[]){
         const check=([...target.classList as any] as string[]).includes("isActive");
@@ -1688,6 +1853,7 @@ class Footer{
                             });
                             this._modSelector.selectors.splice(index,1);
                             this.placement = this.placement -1;
+                            this.rows=[] as rowType[];
                         }
                     });
 
@@ -1703,6 +1869,8 @@ class Footer{
        
     };
 
+
+   
     setColAttributes({parent,idValues,user,sel,rowEle,colEle,name,attr}:{
         parent:HTMLElement,
         idValues:idValueType[],
@@ -1776,6 +1944,60 @@ class Footer{
                 return; 
         }
     };
+
+
+
+    setColumnHeight({parent,target,idValues,sel,row,col}:{parent:HTMLElement,
+        target:HTMLElement,
+        idValues:idValueType[],
+        sel:selectorType,
+        row:rowType,
+        col:colType
+
+    }){
+        const css_col="display:flex;flex-direction:column;align-items:center;justify-content:center;"
+        const popup=document.createElement("form");
+        popup.id="setColumnHeight-popup";
+        popup.style.cssText=css_col +"position:absolute;inset:0% 0% auto 0%;width:clamp(150px,200px,250px);border-radius:12px;border:none;box-shadow:1px 1px 12px 1px black;background-color:white;color:black;";
+        const {input,label,formGrp}=Nav.inputComponent(popup);
+        formGrp.style.cssText=css_col + "padding:1rem";
+        input.id="height";
+        input.name="height";
+        input.type="number";
+        input.min="10";
+        input.max="100";
+        input.placeholder="";
+        input.value="10";
+        label.setAttribute("for",input.id);
+        label.textContent="set column height";
+        input.oninput=(e:Event)=>{
+            if(!e) return;
+            const value=(e.currentTarget as HTMLInputElement).value;
+            target.style.height=`${value}vh`;
+        };
+        const {button}=Misc.simpleButton({anchor:popup,type:"submit",bg:this.btnColor,color:"white",text:"okay",time:400});
+        button.disabled=true;
+        button.textContent="?";
+        input.onchange=(e:Event)=>{
+            if(!e) return;
+            button.disabled=false;
+            button.textContent="okay";
+        };
+        parent.appendChild(popup)
+        popup.onsubmit=(e:SubmitEvent)=>{
+            if(!e) return;
+            e.preventDefault();
+            const formdata=new FormData(e.currentTarget as HTMLFormElement);
+            const value=formdata.get("height") as string;
+            target.style.height=`${value}vh`;
+            this.updateColumn({target,idValues,sel,rowEle:row,colEle:col}).then(async(res)=>{
+                if(res){
+                    Misc.growOut({anchor:popup,scale:0,opacity:0,time:400});
+                    setTimeout(()=>{parent.removeChild(popup)},390);
+                }
+            });
+        };
+    }
 
     //GENERAL
    async getEmail({column,sel,rowEle,colEle,idValues}:{
@@ -1860,7 +2082,6 @@ class Footer{
                
                 divCont.appendChild(anchor);
                 column.appendChild(divCont);
-                this.removeMainElement({parent:column,divCont,target:anchor,sel,rowEle,colEle,idValues});
                 this.elementAdder({target:anchor,sel,rowEle,colEle,idValues}).then(async(res)=>{
                     if(res){
                         Misc.message({parent:column,msg:"added",time:500,type_:"success"});
@@ -1978,7 +2199,6 @@ class Footer{
                 idValues.push({eleId,id:"colId",attValue:column.id});
                 divCont.appendChild(anchor);
                 column.appendChild(divCont);
-                this.removeMainElement({parent:column,divCont,target:anchor,sel,rowEle,colEle,idValues});
                 this.elementAdder({target:anchor,sel,rowEle,colEle,idValues}).then(async(res)=>{
                     if(res){
                         console.log("OUT:ele",res.ele)
@@ -2103,7 +2323,7 @@ class Footer{
       
                 divCont.appendChild(anchor);
                 column.appendChild(divCont);
-                this.removeMainElement({parent:column,divCont,target:anchor,sel,rowEle,colEle,idValues});
+               
                 this.elementAdder({target:anchor,sel,rowEle,colEle,idValues}).then(async(res)=>{
                     if(res){
                         Misc.message({parent:column,msg:"added",time:500,type_:"success"});
@@ -2136,6 +2356,7 @@ class Footer{
         };
         return Promise.resolve({idValues,sel,colEle,rowEle}) as Promise<{idValues:idValueType[],sel:selectorType,rowEle:rowType,colEle:colType}>;
      };
+
 
 
     //PARENT MAIN:mainBtn()
@@ -2226,6 +2447,7 @@ class Footer{
     };
 
 
+
     removeElement({target,idValues,sel,colEle,rowEle}:{
         target:HTMLElement,
         idValues:idValueType[],
@@ -2246,16 +2468,15 @@ class Footer{
             }
             return col;
         });
-        const {rows}=this._modSelector.checkGetRows({select:sel});
-        const newRows= rows.map(row=>{
+        this.rows=this.rows.map(row=>{
             if(row.eleId===rowEle.eleId){
                 row=rowEle;
             }
             return row;
         });
-        sel={...sel,rows:JSON.stringify(newRows)};
+        sel={...sel,rows:JSON.stringify(this.rows)};
 
-        this._modSelector.selectors=this._modSelector.selectors.map(select=>{
+        this.selectors=this.selectors.map(select=>{
                 if(select.eleId===sel.eleId){
                     select=sel
                 }
@@ -2343,7 +2564,9 @@ class Footer{
 
 
         };
-    }
+    };
+
+
    
     backgroundRowColor({target,idValues,attr,name,sel,rowEle,colEle}:{
         target:HTMLElement,
@@ -2610,16 +2833,16 @@ class Footer{
             }
         });
     };
+
+
     
     getElementCount(column:HTMLElement):number|undefined{
         const {isJSON,parsed}=Header.checkJson(column.getAttribute("flex"));
         if(!isJSON) return;
         const {selectorId,rowId,colId}= parsed as flexType;
-        const selector=this._modSelector.selectors.filter(sel=>(sel.eleId===selectorId))[0];
+        const selector=this.selectors.filter(sel=>(sel.eleId===selectorId))[0];
         if(!selector) return;
-        const rows=JSON.parse(selector.rows) as rowType[];
-        if(!rows) return;
-        const row=rows.filter(row=>(row.eleId===rowId))[0];
+        const row=this.rows.filter(row=>(row.eleId===rowId))[0];
         if(!row) return;
         const col=row.cols.filter(col_=>(col_.eleId===colId))[0];
         if(!col) return 1;
@@ -2629,14 +2852,13 @@ class Footer{
 
     async updateRow({target,sel,rowEle,colEle,idValues}:{target:HTMLElement,idValues:idValueType[],sel:selectorType,rowEle:rowType,colEle:colType}):Promise<{target:HTMLElement,rowEle:rowType,idValues:idValueType[],sel:selectorType,colEle:colType}>{
             const eleId=target.id;
-            const {rows}=this._modSelector.checkGetRows({select:sel}) as {rows:rowType[]};
             rowEle={...rowEle,
                 class:target.className,
                 cssText:target.style.cssText,
                 imgKey:rowEle.imgKey
-            }
+            };
             
-           const newRows=rows.map((row)=>{
+           this.rows=this.rows.map((row)=>{
                 if(row.eleId===target.id){
                     row=rowEle;
 
@@ -2661,14 +2883,14 @@ class Footer{
                 return row;
             });
             
-            sel={...sel,rows:JSON.stringify(newRows)};
-            this._modSelector.selectors=this._modSelector.selectors.map(select=>{
+            sel={...sel,rows:JSON.stringify(this.rows)};
+            this.selectors=this.selectors.map(select=>{
                 if(select.eleId===sel.eleId){
                     select=sel;
                 };
                 return select;
             });
-            this._modSelector.localStore({blog:this._modSelector.blog});
+            
             idValues=Dataset.removeIdValueDuplicates({arr:idValues,eleId});
             return Promise.resolve({rowEle:rowEle as rowType,target,idValues,sel,colEle}) as Promise<{rowEle:rowType,target:HTMLElement,idValues:idValueType[],sel:selectorType,colEle:colType}>;
     };
@@ -2697,26 +2919,28 @@ class Footer{
             };
             return col;
         });
-        const {rows}=this._modSelector.checkGetRows({select:sel});
-        const newRows= rows.map(row=>{
+        
+        this.rows= this.rows.map(row=>{
             if(row.eleId===rowEle.eleId){
                 row=rowEle;
             }
             return row;
         });
 
-        sel={...sel,rows:JSON.stringify(newRows)};
+        sel={...sel,rows:JSON.stringify(this.rows)};
 
-        this._modSelector.selectors=this._modSelector.selectors.map(select=>{
+        this.selectors=this.selectors.map(select=>{
             if(select.eleId===sel.eleId){
                 select=sel;
             }
             return select;
         });
-        this._modSelector.localStore({blog:this._modSelector.blog});
         idValues=Dataset.removeIdValueDuplicates({arr:idValues,eleId});
         return Promise.resolve({target, colEle,rowEle,sel,idValues}) as Promise<{target:HTMLElement,colEle:colType,rowEle:rowType,sel:selectorType,idValues:idValueType[]}>;
     };
+
+
+
     async elementAdder({target,sel,rowEle,colEle,idValues}:{
         target:HTMLElement | HTMLImageElement,
         sel:selectorType,
@@ -2825,8 +3049,7 @@ class Footer{
             return col;
         });
         //ROW
-        const {rows}=this._modSelector.checkGetRows({select:sel});
-       const newRows= rows.map((row)=>{
+       this.rows=this.rows.map((row)=>{
             if(row.eleId===rowEle.eleId){
                 row=rowEle;
             }
@@ -2834,20 +3057,22 @@ class Footer{
         });
         //adding it to selector
        
-        sel={...sel,rows:JSON.stringify(newRows),footer:true,header:false};
+        sel={...sel,rows:JSON.stringify(this.rows),footer:true,header:false};
         //adding it to selector
-        this._modSelector.selectors=this._modSelector.selectors.map(select=>{
+        this.selectors=this.selectors.map(select=>{
             if(select.eleId===sel.eleId){
                 select=sel;
             }
             return select;
         });//saving it to LOCAL
-        this._modSelector.localStore({blog:this._modSelector.blog});
+        
         
         
         // console.log("DATASET FULL",ids_)
         return {target,ele:ele as element_selType,idValues,col:colEle};
     };
+
+
 
     async updateElement({target,sel,rowEle,colEle,idValues}:{
         target:HTMLElement|HTMLImageElement,
@@ -2906,34 +3131,33 @@ class Footer{
             return ele;
         });
 
-        const {rows}=this._modSelector.checkGetRows({select:sel});
         rowEle.cols= rowEle.cols.map((col)=>{
             if(col.eleId===colEle.eleId){
                 col=colEle;
             }
             return col;
         });
-        const newRows=rows.map((row)=>{
+        this.rows=this.rows.map((row)=>{
             if(row.eleId===rowEle.eleId){
                row=rowEle;
             }
             return row;
         });
         //aDDING NEWrOWS TO SEL
-        sel={...sel,rows:JSON.stringify(newRows)};
+        sel={...sel,rows:JSON.stringify(this.rows)};
         //aDDING NEWrOWS TO SEL
         //UPDATING SELECTORS
-        this._modSelector.selectors=this._modSelector.selectors.map(select=>{
+        this.selectors=this.selectors.map(select=>{
             if(select.eleId===sel.eleId){
                 select=sel;
             }
             return select;
         });
-        this._modSelector.localStore({blog:this._modSelector.blog});
         //UPDATING SELECTORS
         return Promise.resolve({target,ele:retEle,idValues,colEle,rowEle}) as Promise<{target:HTMLElement,ele:element_selType,idValues:idValueType[],colEle:colType,rowEle:rowType}>;
        
     };
+
 
 
      editElement({target,sel,rowEle,colEle,idValues}:{
@@ -2957,14 +3181,14 @@ class Footer{
                 
                 return ele;
             });
-            const {rows}=this._modSelector.checkGetRows({select:sel});
+            
             rowEle.cols= rowEle.cols.map((col)=>{
                 if(col.eleId===colEle.eleId){
                     col=colEle;
                 }
                 return col;
             });
-            const newRows=rows.map((row)=>{
+            this.rows=this.rows.map((row)=>{
                 if(row.eleId===rowEle.eleId){
                    row=rowEle;
                 }
@@ -2972,17 +3196,17 @@ class Footer{
             });
             //aDDING NEWrOWS TO SEL
            
-            sel={...sel,rows:JSON.stringify(newRows)};
+            sel={...sel,rows:JSON.stringify(this.rows)};
            
             //aDDING NEWrOWS TO SEL
             //UPDATING SELECTORS
-            this._modSelector.selectors=this._modSelector.selectors.map(select=>{
+            this.selectors=this.selectors.map(select=>{
                 if(select.eleId===sel.eleId){
                     select=sel;
                 }
                 return select;
             });
-            this._modSelector.localStore({blog:this._modSelector.blog});
+           
             //UPDATING SELECTORS
             
         };
@@ -2990,6 +3214,7 @@ class Footer{
         return {target,ele:retEle,idValues,colEle,rowEle};
        
     };
+
 
     flexStyleAdjustments({target,idValues,name,sel,rowEle,colEle}:{
         target:HTMLElement,

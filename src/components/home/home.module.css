@@ -5,6 +5,8 @@
   width: 100%;
   gap: 1rem;
   position: relative;
+  min-height: 110vh;
+  height: auto;
 }
 .homeIndex {
   margin-inline: auto;
@@ -17,12 +19,19 @@
   width: 100%;
 }
 @media screen and (max-width: 900px) {
+  .homeIndexContainer {
+    min-height: 110vh;
+  }
   .homeIndex {
     padding-inline: 0px;
     gap: 3rem;
   }
 }
 @media screen and (max-width: 410px) {
+  .homeIndexContainer {
+    min-height: 125vh;
+    height: auto;
+  }
   .homeIndex {
     padding-inline: 0px;
     margin-inline: 0px;

@@ -68,7 +68,7 @@ class Toolbar{
         { id: "29", attr: false, name: "final", display: "show final", class_: "final", isIcon: false, isElement: false },
     ];
    
-    constructor(private _modSelector:ModSelector,private _service:Service,private _user:User,private htmlElement:HtmlElement){
+    constructor(private _modSelector:ModSelector,private _service:Service,private _user:User,private htmlElement:HtmlElement,private _blog:blogType){
         this.openClose=false;
         this.btnColor=this._modSelector.btnColor;
         this.bgColor=this._modSelector._bgColor;
@@ -77,8 +77,24 @@ class Toolbar{
 
     };
 
+    //------------GETTERS/SETTERS---------------//
+    get blog(){
+        const strBlog=localStorage.getItem("blog");
+        if(strBlog){
+            const blog=JSON.parse(strBlog) as blogType
+            return blog
+        }else{
+            return this._blog
+        }
+    };
+    set blog(blog:blogType){
+        this._blog=blog;
+    };
+    //------------GETTERS/SETTERS---------------//
+
 
      mainRowBtn({parent,mainContainer,textarea,blog}:{parent: HTMLElement | null,mainContainer:HTMLElement,textarea:HTMLElement,blog:blogType}): void {
+        this.blog=blog;
         this.mainCont=mainContainer;
         this.textarea=textarea;
         const idValues=this._modSelector.dataset.idValues
@@ -118,7 +134,8 @@ class Toolbar{
 
 
 
-     mainColBtn({parent,mainContainer,textarea,blog}:{parent: HTMLElement | null,mainContainer:HTMLElement,textarea:HTMLElement,blog:blogType}): void {
+     mainColBtn({parent,mainContainer,textarea,blog}:{parent: HTMLElement | null,mainContainer:HTMLElement,textarea:HTMLElement,blog:blogType|null}): void {
+        this.blog=blog ||{} as blogType;
         const time=600;
         const idValues=this._modSelector.dataset.idValues
         if (!parent) return;
@@ -145,7 +162,7 @@ class Toolbar{
 
 
 
-    openCloseBtn({parent,idValues,textarea,openClose,time,blog}:{parent:HTMLElement,idValues:idValueType[],textarea:HTMLElement,openClose:boolean,time:number,blog:blogType}){
+    openCloseBtn({parent,idValues,textarea,openClose,time,blog}:{parent:HTMLElement,idValues:idValueType[],textarea:HTMLElement,openClose:boolean,time:number,blog:blogType|null}){
         this.openClose=openClose;
         //add button to open left(from-4%=>0%)
         this.openCloseBtnAction({parent}).then(async(res)=>{
@@ -196,7 +213,7 @@ class Toolbar{
     };
     
 
-    showCloseToolbar({parent,openClose,idValues,textarea,time,blog}:{parent:HTMLElement,openClose:boolean,idValues:idValueType[],textarea:HTMLElement,time:number,blog:blogType}){
+    showCloseToolbar({parent,openClose,idValues,textarea,time,blog}:{parent:HTMLElement,openClose:boolean,idValues:idValueType[],textarea:HTMLElement,time:number,blog:blogType|null}){
         const less400= window.innerWidth <400;
         const less900= window.innerWidth <900;
         const check=([...parent.children as any] as HTMLElement[]).find(ch=>(ch.id==="showCloseToolbar-icons-container"));
@@ -245,7 +262,7 @@ class Toolbar{
         less400:boolean,
         less900:boolean,
         isRow:boolean,
-        blog:blogType
+        blog:blogType|null
         
     }){
 
@@ -288,7 +305,7 @@ class Toolbar{
         less400:boolean,
         less900:boolean,
         isRow:boolean,
-        blog:blogType
+        blog:blogType|null
 
     }){
        
@@ -406,7 +423,7 @@ class Toolbar{
      }:{
             mainContainer:HTMLElement,
             btn:HTMLButtonElement,
-            blog:blogType,
+            blog:blogType|null,
             idValues:idValueType[],
             less400:boolean,
             less900:boolean,

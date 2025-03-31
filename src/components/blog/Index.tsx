@@ -26,8 +26,6 @@ function Index({ blog, user }: { blog: blogType | null, user: userType | null })
     const countRef = React.useRef(0);
 
 
-
-
     React.useEffect(() => {
         if (countRef.current > 0) return;
         if (typeof window !== "undefined" && clientRef.current) {
@@ -38,7 +36,7 @@ function Index({ blog, user }: { blog: blogType | null, user: userType | null })
                 const _modSelector = new ModSelector(dataset);
                 const _service = new Service(_modSelector);
                 const auth = new AuthService(_modSelector, _service);
-                auth.getSessionUser({ user }).then(async (resuser) => {
+                auth.getUser({ user, count: countRef.current }).then(async (resuser) => {
                     if (resuser) {
                         const regSignIn = new RegSignIn(_modSelector, _service, resuser.user, resuser.status)
                         const _user = new User(_modSelector, _service, resuser.status, regSignIn, resuser.user);

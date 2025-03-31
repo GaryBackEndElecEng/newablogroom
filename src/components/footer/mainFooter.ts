@@ -237,7 +237,7 @@ class MainFooter{
         container.id="center";
         this.centerBtns({parent:container,main,isAuthenticated,user});//BUTTONS
         this.centerSideContent({parent:container,main,less400});
-        this.copyRight({parent:container,main,less400,less900});
+        this.copyRight({parent:container,main,less400,less900,user});
         col.appendChild(container);
     };
 
@@ -451,20 +451,41 @@ class MainFooter{
 
 
     //CENTER
-    copyRight({parent,main,less400,less900}:{parent:HTMLElement,main:HTMLElement,less400:boolean,less900:boolean}){
-        const container=document.createElement("div");
-        container.style.cssText="position:absolute;left:0%;width:130px;display:grid;place-items:center;font-size:12px;";
-        container.style.top=less900 ? less400 ? "95%":"75%":"90%";
+    copyRight({parent,main,less400,less900,user}:{parent:HTMLElement,main:HTMLElement,less400:boolean,less900:boolean,user:userType}){
+        const cont=document.createElement("div");
+        cont.id="copyright-container";
+        cont.style.cssText="display:inline-flex;gap:1rem;align-items:center;";
         const year:number=new Date().getFullYear();
         const copyright=document.createElement("div");
         copyright.style.cssText="margin-inline:auto;";
         copyright.style.top="20%";
         copyright.textContent=`@copyright ${year}`;
-        container.appendChild(copyright);
-        main.appendChild(copyright);
-        parent.appendChild(container);
-        Misc.matchMedia({parent:container,maxWidth:500,cssStyle:{"top":"95%"}});
-        Misc.matchMedia({parent:container,maxWidth:900,cssStyle:{"top":"98%"}});
+        cont.appendChild(copyright);
+        this.isSignedIn({main:cont,user,less400,less900});
+        main.appendChild(cont);
+       
+    };
+
+
+    isSignedIn({main,user,less400,less900}:{main:HTMLElement,user:userType,less400:boolean,less900:boolean}){
+        const css_row="display:flex;justify-content:center;align-items:center:gap:1rem;"
+        const container=document.createElement("div");
+        container.id="isSignedIn";
+        container.style.cssText=css_row + "padding:0.25rem;color:white;border-radius:50%;margin-inline:auto;gap:1rem;";
+        const small=document.createElement("small");
+        small.id="isSignedIn-small";
+        small.textContent=user?.name || "not signed in";
+        const xDiv=document.createElement("div");
+        xDiv.id="SVG-container";
+        xDiv.style.cssText="padding:3px";
+        if(user?.id!=="" && user?.email!==""){
+            FaCreate({parent:xDiv,name:FaSignOutAlt,cssStyle:{borderRadius:"50%",fontSize:"20px",color:"white",display:"block"}});
+        }else{
+            FaCreate({parent:xDiv,name:FaSignInAlt,cssStyle:{borderRadius:"50%",fontSize:"20px",color:"white",display:"block"}});
+        }
+        container.appendChild(xDiv);
+        container.appendChild(small);
+        main.appendChild(container);
     };
 
 
@@ -547,7 +568,7 @@ class MainFooter{
 
 
     centerSideContent(item:{parent:HTMLElement,main:HTMLElement,less400:boolean}){
-        const {parent,main,less400}=item;
+        const {parent,less400}=item;
        
         const container=document.createElement("div");
         container.id="centerSideContent";
@@ -607,7 +628,7 @@ class MainFooter{
             if(e){
                 const header=document.querySelector("header#navHeader") as HTMLElement;
                 if(!header) return;
-                this.dataflow.storageMessage(header);
+                this.dataflow.storageMessage({parent:header,less400,less900});
             }
         };
         const {button:btnFeature}=Misc.simpleButton({anchor:container,text:"features",bg:this.btnColor,color:"white",type:"button",time:600});
@@ -637,7 +658,7 @@ class MainFooter{
        
         const parent=document.querySelector("header#navHeader") as HTMLElement;
         if(parent){
-            const less900=window.innerWidth < 900;
+           
             const less400=window.innerWidth < 400;
             parent.style.position="relative";
             parent.style.zIndex="";
@@ -763,6 +784,8 @@ class MainFooter{
 
     storageMsg(item:{parent:HTMLElement,isRepeat:boolean}){
         const {parent,isRepeat}=item;
+        const less900= window.innerWidth < 900;
+        const less400= window.innerWidth < 400;
         Header.cleanUpByID(parent,"popup-storageMsg");
         if(isRepeat){
 
@@ -810,7 +833,7 @@ class MainFooter{
                     parent.removeChild(popup);//observer ref
                     const getNavHeader=document.querySelector("header#navHeader") as HTMLElement;
                     window.scroll(0,0);
-                    this.dataflow.storageMessage(getNavHeader);
+                    this.dataflow.storageMessage({parent:getNavHeader,less400,less900});
                 }
             };
             parent.appendChild(popup);

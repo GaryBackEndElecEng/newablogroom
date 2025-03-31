@@ -33,8 +33,9 @@ export default function Index() {
             const auth = new AuthService(modSelector, service);
             modSelector.loadFromLocal().then(async (res_) => {
                 if (res_) {
-                    const { blog } = res_.getBlog() as { blog: blogType, user: userType | null };
-                    auth.confirmUser({ user: user, count: countRef.current }).then(async (res) => {
+                    const { blog, user: _user } = res_.getBlog() as { blog: blogType, user: userType | null };
+                    const getUser = _user || user
+                    auth.confirmUser({ user: getUser, count: countRef.current }).then(async (res) => {
                         if (res) {
                             countRef.current = res.count;
                             const user_id = res?.user?.id || undefined

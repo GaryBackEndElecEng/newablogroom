@@ -111,7 +111,7 @@ class Ven{
        target.classList.remove("showName");
        divCont.appendChild(target);
     
-        this._modSelector.editElement({target,idValues});
+        this._modSelector.editElement({target,idValues,selRowCol:null});
 
        divCont.onclick=async(e:MouseEvent)=>{
         if(!e) return;
@@ -276,7 +276,7 @@ class Ven{
                 };
             }
         });
-        this._modSelector.editElement({target:venMain,idValues});
+        this._modSelector.editElement({target:venMain,idValues,selRowCol:null});
     }
     ven(item:{id:number,parent:HTMLElement,shade1:string,shade2:string,width:number,title:string,text:string,isSizeAdjust:boolean,cssStyle:{[key:string]:string}}){
         const {id,parent,shade1,width,shade2,title,text,isSizeAdjust,cssStyle}=item;

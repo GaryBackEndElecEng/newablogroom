@@ -138,7 +138,7 @@ class MessageSetup{
         popup.style.width="100%";
         popup.style.maxWidth=less900 ? (less400 ? "375px" :"600px" ) : "620px";
         const img=document.createElement("img");
-        img.style.cssText="shape-outside:circle(50%);margin-right:1rem;width:125px;height:125px;border-radius:50%;box-shadow:1px 1px 12px 1px white;filter:drop-shadow(0 0 0.75rem white);float:left;";
+        img.style.cssText="shape-outside:circle(50%);margin-right:1rem;width:125px;height:125px;border-radius:50%;box-shadow:1px 1px 12px 1px white;filter:drop-shadow(0 0 0.75rem white);float:left;border:none;";
         img.src=this.logo;
         img.alt="www.ablogroom.com";
         const para=document.createElement("p");
@@ -334,13 +334,13 @@ class MessageSetup{
         popup.style.width="100%";
         popup.style.maxWidth=less900 ? (less400 ? "375px" :"420px" ) : "520px";
         const img=document.createElement("img");
-        img.style.cssText="shape-outside:circle(50%);margin-right:1rem;aspect-ratio:1 / 1;border-radius:50%;box-shadow:1px 1px 12px 1px white;filter:drop-shadow(0 0 0.75rem white);float:left;";
+        img.style.cssText="shape-outside:circle(50%);margin-right:1rem;aspect-ratio:1 / 1;border-radius:50%;box-shadow:1px 1px 12px 1px white;filter:drop-shadow(0 0 0.75rem white);float:left;border:none;";
         img.style.width=less900 ? (less400 ? "120px":"135px") : "150px";
         img.src=this.requestPic;
         img.alt="www.ablogroom.com";
         const para=document.createElement("p");
         para.appendChild(img);
-        para.innerHTML+="The author will respond to you. An email was sent to you.<pre> Thank you for sending this request.</pre>";
+        para.innerHTML+="Thank you for trusting us.THe author will send a courtesy email thanking you for the interests. An email will be sent to the provided email address, indicated below.<br/><span style=text-wrap:wrap;> Thank you for sending this request.</span>";
         para.style.cssText="font-family:Poppins-Regular;padding-right:1rem;margin-bottom:1rem;border-bottom:1px solid blue;";
         popup.appendChild(para);
         const form=document.createElement("form");
@@ -448,8 +448,8 @@ class MessageSetup{
         const xDiv=document.createElement("div");
         parent.style.zIndex="2";
        
-        xDiv.style.cssText="position:absolute;top:0%;right:0%;transform:translate(-4px,-4px);width:25px;height:25px;border-radius:50%;background-color:black;display:flex;place-items:center;";
-        FaCreate({parent:xDiv,name:FaCrosshairs,cssStyle:{fontSize:"23px",color:"white"}});
+        xDiv.style.cssText="position:absolute;top:0%;right:0%;transform:translate(-4px,4px);border-radius:50%;background-color:black;display:flex;place-items:center;padding:0.25rem;";
+        FaCreate({parent:xDiv,name:FaCrosshairs,cssStyle:{fontSize:"14px",color:"white",borderRadius:"50%"}});
         target.appendChild(xDiv);
         xDiv.onclick=(e:MouseEvent)=>{
             if(e){
@@ -891,7 +891,7 @@ class Message{
     sendPostmessage(item:{parent:HTMLElement,post:postType,pathname:string|null,func:()=>Promise<void>}):Promise<{sent:boolean,retParent:HTMLElement}>{
         //THIS SENDS THE ANSWER TO A POST EITHER BY URI OR AND MSG (post.sendMsg or And uri=freepicurl/post.sendRqKey)
         const {parent,post,func,pathname}=item;
-        console.log("pathname:",pathname);
+       
         let sent:boolean=false;
         if(pathname==="/posts"){
             parent.style.position="absolute";
@@ -910,7 +910,7 @@ class Message{
                    await this._service.requestPost({sendRequest:send}).then(async(res)=>{
                         //api/postrequest
                         if(res){
-                            const msg=`Your request message to ${post.title} was sent. You will be recieving an email with the answers;`
+                            const msg=`Your request message to ${post.title} was sent to your email address with the answer. Again thanks for trusting us.`
                             Misc.message({parent,msg:msg,type_:"success",time:1200});
                             sent=true;
                             func()

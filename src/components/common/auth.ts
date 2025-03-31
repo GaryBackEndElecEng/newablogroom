@@ -117,7 +117,7 @@ class AuthService {
         this.storeLocal(user,blog);
         const browser=new BrowserType(this.user.id);
         this.states=browser.getHistory()|| [] as stateType[];
-        if(user?.id && user?.id!=="" && user?.email !=="" && count===0){
+        if(user?.id && user?.id!==""){
              //---!!!!!!!initinilizes blog and user && stores it in local!!!!!!!
             this.user=user;
             this.isAdmin=user.admin;
@@ -151,15 +151,19 @@ class AuthService {
 
     };
 
-    async getSessionUser({user}:{user:userType|null}){
+    async getSessionUser(){
         const session=await getSession();
-        if(session && user?.id){
-            this._user=user;
+        if(session && session?.user?.email){
+            const getuser= await this._service.getUser({email:session.user.email});
+            if(getuser){
+                this.user=getuser
+            }
+           
             this._isAuthenticated=true;
             this.status="authenticated";
             this._modSelector.status="authenticated";
             this._service.isSignedOut=false;
-        }else if(user?.id && !session){
+        }else {
             this._isAuthenticated=false;
             this.status="unauthenticated";
             this._modSelector.status="unauthenticated";
@@ -169,17 +173,26 @@ class AuthService {
         
     };
 
-    confirmUser({user,count}:{user:userType|null,count:number}): Promise<{user:userType,isAuthenicated:boolean,count:number,status:statusType}>{
-        if(user){
-            const check=(this.user.id===user?.id && this.user.email===user?.email);
-            if(!check){
-               
-                this.user=user;
+   async confirmUser({user,count}:{user:userType|null,count:number}): Promise<{user:userType,isAuthenicated:boolean,count:number,status:statusType}>{
+        const getUser= await this.refreshUser();
+        if(user && getUser){
+            const check=(getUser.id===user?.id && getUser.email===user?.email);
+            if(check){
+                this.user=getUser;
+                this._isAuthenticated=true;
+                this.status="authenticated";
+                this._modSelector.status="authenticated";
+                this._service.isSignedOut=false;
             }
             
+        }else{
+            this._isAuthenticated=false;
+            this.status="unauthenticated";
+            this._modSelector.status="unauthenticated";
+            this._service.isSignedOut=true;
         }
         return Promise.resolve({user:this.user,isAuthenicated:this._isAuthenticated,count:count+1,states:this.states,status:this.status}) as Promise<{user:userType,isAuthenicated:boolean,count:number,states:stateType[],status:statusType}>;
-    }
+    };
 
     loadUser(){
         return this.user;

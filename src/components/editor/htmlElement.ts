@@ -77,6 +77,7 @@ class HtmlElement {
     };
     set elements(elements:elementType[]){
         this._modSelector.elements=elements;
+       
     };
     get arrDivCont(){
         return this._arrDivCont;
@@ -564,6 +565,7 @@ class HtmlElement {
         //THIS ADDS ELEMENTS OTHER THAN UL,BLOCKQUOTE,TIME,A,IMG FROM MAIN CLASS
         
         target.innerHTML = `${icon.name}-insert text`;
+        target.style.cssText="padding-inline:1rem;padding-block:0.5rem;border-radius:8px;border:none;";
         idValues.push({eleId:target.id,id:"divContId",attValue:divCont.id});
         
         
@@ -1217,7 +1219,7 @@ class HtmlElement {
         const eleId=target.id;
         const getImgKey=this._modSelector.dataset.getIdValue({target,idValues,id:"imgKey"});
         const imgKey=getImgKey?.attValue || undefined;
-        const ID=( this._modSelector.elements?.length)||1;
+        const ID=( this.elements?.length)||1;
         const blog=this._modSelector.blog;
         
         idValues=Dataset.removeIdValueDuplicates({arr:idValues,eleId});

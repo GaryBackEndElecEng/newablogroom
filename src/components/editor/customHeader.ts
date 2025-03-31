@@ -1,19 +1,18 @@
-import {flexType,element_selType,colType,rowType,selectorType,columnAttrType,colAttrType, blogType, elementType} from "./Types";
+import {flexType,element_selType,colType,rowType,selectorType,colAttrType, blogType, elementType, nameValueAttrType} from "./Types";
 import ModSelector from "./modSelector";
 import {FaTrash,FaCrosshairs} from "react-icons/fa";
 import {FaCreate} from "@/components/common/ReactIcons";
 import Service from "@/components/common/services";
 import Header from "./header";
 import Main from '@/components/editor/main';
-import Flexbox from "./flexBox";
 import User from "../user/userMain";
-import { btnType, button, buttonRetDisable, buttonReturn } from "../common/tsFunctions";
+import { btnType, button, buttonReturn } from "../common/tsFunctions";
 import Misc, { fadeOutType } from "../common/misc";
 import Nav from "../nav/headerNav";
-import ShapeOutside from "./shapeOutside";
 import Dataset from "../common/dataset";
 import {idValueType, selRowColType, selRowType, typeEnumType } from "@/lib/attributeTypes";
 import { attrEnumArr, attrEnumArrTest, typeEnumArr, typeEnumArrTest } from "../common/lists";
+import CommonUltils from "../common/commonUltils";
 
 
 
@@ -24,9 +23,15 @@ class CustomSetup{
     constructor(private _modSelector:ModSelector,private _service:Service){
         this.bgColor=this._modSelector._bgColor;
         this.btnColor=this._modSelector.btnColor;
-    }
+    };
+
+
+
+
+
+
     columnSetup(selector:selectorType,row:HTMLElement):{retRow:HTMLElement,input:HTMLInputElement,formGrp:HTMLElement,btn:HTMLElement}{
-        this._modSelector.header=selector;
+        this._modSelector._header=selector;
         row.classList.add("flex-wrap");
         const formGrp=document.createElement("div");
         formGrp.className="form-group flexCol justify-center align-center";
@@ -51,7 +56,10 @@ class CustomSetup{
         formGrp.appendChild(btn);
         row.appendChild(formGrp);
         return {retRow:row,input,formGrp,btn}
-    }
+    };
+
+
+
     
     imgSetup(parent:HTMLElement):{retParent:HTMLElement,form:HTMLFormElement,formContainer:HTMLElement}{
         parent.style.position="relative";
@@ -104,7 +112,10 @@ class CustomSetup{
             }
         });
         return {retParent:parent,formContainer,form}
-    }
+    };
+
+
+
     formSetup(col:HTMLElement):{retCol:HTMLElement,formGrp:HTMLDivElement,input:HTMLInputElement,btn:HTMLButtonElement}{
         const formGrp=document.createElement("div");
         formGrp.setAttribute("data-form-group","true");
@@ -128,7 +139,9 @@ class CustomSetup{
         formGrp.appendChild(btn);
         col.appendChild(formGrp);
         return {retCol:col,formGrp,input,btn}
-    }
+    };
+
+    
 };
 
 
@@ -145,58 +158,14 @@ class CustomHeader {
     bgColor="#0C090A";
     btnColor:string;
     customSetup:CustomSetup;
-    flexbox:Flexbox;
     divCont_css:string;
     divCont_class:string;
     _selector:selectorType;
+    _rows:rowType[];
+    _selectors:selectorType[];
    
-    static nameValueAttrs:columnAttrType[]=[
-        {id:0,name:"select",value:undefined,attr:undefined,remove:undefined,level:undefined},
-        {id:1,name:"image",value:"img",level:"element"},
-        {id:1,name:"h1",value:"h1",level:"element"},
-        {id:2,name:"h2",value:"h2",level:"element"},
-        {id:3,name:"h3",value:"h3",level:"element"},
-        {id:4,name:"h4",value:"h4",level:"element"},
-        {id:5,name:"p",value:"p",level:"element"},
-        {id:6,name:"logo",value:"img",level:"element"},
-        {id:7,name:"bg-image",attr:"bg-image",level:"col"},
-        {id:8,name:"rm-bg-image",level:"col"},
-        {id:8,name:"quote",value:"blockquote",level:"element"},
-        {id:9,name:"ul",value:"ul",level:"element"},
-        {id:10,name:"link",value:"a",level:"element"},
-        {id:11,name:"h5",value:"h5",level:"element"},
-        {id:12,name:"h6",value:"h6",level:"element"},
-        {id:13,name:"line",value:"hr",level:"element"},
-        {id:14,name:"vertical-line",value:"div",level:"element"},
-        {id:15,name:"span",value:"span",level:"element"},
-        {id:16,name:"email",value:"a",level:"element"},
-        {id:17,name:"insert-tel",value:"a",level:"element"},
-        {id:18,attr:"bg-color",name:"bg-color",level:"col"},
-        {id:18,attr:"set-even-height",name:"set-even-height",level:"col"},
-        {id:19,name:"adjust-img-size",attr:"adjust-img-size",level:"element"},
-        {id:20,name:"pretty-font",attr:"pretty-font",level:"element"},
-        {id:21,name:"flex-normal",attr:"flex-normal",level:"col"},
-        {id:22,name:"flex-static",attr:"flex-static",level:"col"},
-        {id:23,name:"flex-double",attr:"flex-double",level:"col"},
-        {id:24,name:"skew-45",attr:"skew-45",level:"element"},
-        {id:25,name:"skew-15",attr:"skew-15",level:"element"},
-        {id:26,name:"flex-row",attr:"flexRow",level:"col"},
-        {id:27,name:"flex-col",attr:"flexCol",level:"col"},
-        {id:28,name:"box-shadow",attr:"box-shadow-md1",level:"element"},
-        {id:29,name:"round",attr:"round",level:"element"},
-        {id:30,name:"shadow-round",attr:"box-shadow-round",level:"element"},
-        {id:31,name:"flex-1/4",attr:"flex-quarter",level:"col"},
-        {id:32,name:"flex-1/2",attr:"flex-half",level:"col"},
-        // {id:33,name:"flex-3/4",attr:"flex-three-quarter",level:"col"},
-        {id:34,name:"flex-default",attr:"flex-default",level:"col"},
-        {id:35,name:"bg-row-color",attr:"background-row",remove:false,level:"row"},
-        {id:36,name:"bg-row-image",attr:"bg-row-image",remove:false,level:"row"},
-        {id:37,name:"bg-row-height",attr:"bg-row-height",remove:false,level:"row"}
 
-    ];
-
-
-    static columnAttrs:columnAttrType[]=[
+    static columnAttrs:nameValueAttrType[]=[
         {id:0,name:"select",attr:"select",remove:false},
         {id:1,name:"remove-drop-down",attr:"remove",remove:false},
         {id:2,name:"flex-normal",attr:"flex-normal",remove:false},
@@ -214,10 +183,10 @@ class CustomHeader {
 
     ];
 
-    static columnPartition:columnAttrType[]=[{id:1,name:"flex-normal",attr:"flex-normal",remove:false},{id:2,name:"flex-static",attr:"flex-static",remove:false},{id:3,name:"flex-double",attr:"flex-double",remove:false},{id:4,name:"flex-row",attr:"flexRow",remove:false},{id:5,name:"flex-col",attr:"flexCol",remove:false},{id:6,name:"flex-1/4",attr:"flex-quarter",remove:false},{id:7,name:"flex-1/2",attr:"flex-half",level:"col"},{id:8,name:"flex-3/4",attr:"flex-three-quarter",remove:false},{id:9,name:"flex-col-normal",attr:"flexCol-normal",remove:false},{id:10,name:"flex-default",attr:"flex-default",remove:false}];
+    static columnPartition:nameValueAttrType[]=[{id:1,name:"flex-normal",attr:"flex-normal",remove:false},{id:2,name:"flex-static",attr:"flex-static",remove:false},{id:3,name:"flex-double",attr:"flex-double",remove:false},{id:4,name:"flex-row",attr:"flexRow",remove:false},{id:5,name:"flex-col",attr:"flexCol",remove:false},{id:6,name:"flex-1/4",attr:"flex-quarter",remove:false},{id:7,name:"flex-1/2",attr:"flex-half",level:"col"},{id:8,name:"flex-3/4",attr:"flex-three-quarter",remove:false},{id:9,name:"flex-col-normal",attr:"flexCol-normal",remove:false},{id:10,name:"flex-default",attr:"flex-default",remove:false}];
 
     public mainHeader:HTMLElement;
-    constructor(private _modSelector:ModSelector,private _service:Service,public header:Header,private _user:User,public _shapeOutside:ShapeOutside){
+    constructor(private _modSelector:ModSelector,private _service:Service,private _user:User,public commonUltils:CommonUltils,private _blog:blogType){
         
         this.mainHeader=document.createElement("section");
         this.mainHeader.id="sectionHeader";
@@ -230,7 +199,6 @@ class CustomHeader {
         this.isRefreshed=false;
         this.flex={} as flexType;
         this.customSetup= new CustomSetup(this._modSelector,this._service);
-        this.flexbox=new Flexbox(this._modSelector,this._service,this._user,this._shapeOutside);
         this.btnColor=this._modSelector.btnColor;
         this.bgColor=this._modSelector._bgColor;
         this.divCont_css="display:flex;flex-direction:column;justify-content:center;width100%;align-items:center;padding:1rem;margin-inline:3rem;";
@@ -258,15 +226,53 @@ class CustomHeader {
             footer:false,
             headerType:"custom",
         }
+        this._rows=[] as rowType[];
+         this._selectors=[] as selectorType[];
        
     }
 //-----------------GETTERS SETTERS-------------------//
+
+get blog(){
+    const strBlog=localStorage.getItem("blog");
+    if(strBlog){
+        const blog=JSON.parse(strBlog) as blogType
+        return blog
+    }else{
+        return this._blog
+    }
+};
+set blog(blog:blogType){
+    this._blog=blog
+    this._modSelector.blog=blog;
+};
 get selector(){
     return this._selector;
 }
 set selector(selector:selectorType){
     this._selector=selector;
 }
+get rows(){
+    return this._rows
+};
+set rows(rows:rowType[]){
+    this._rows=rows;
+};
+get groupRows(){
+    return this._modSelector.groupRows;
+};
+set groupRows(groupRows:{selectorId:string,rows:rowType[]}[]){
+    this._modSelector.groupRows=groupRows;
+};
+get selectors(){
+    return this._modSelector.selectors;
+};
+
+set selectors(selectors:selectorType[]){
+    this._selectors=selectors
+    this._modSelector.selectors=selectors
+};
+
+
 //-----------------GETTERS SETTERS-------------------//
 
 //EDIT INJECTION AFTER REFRESH
@@ -317,7 +323,9 @@ set selector(selector:selectorType){
 
 
             const {rows}=this._modSelector.checkGetRows({select:selector});
-            rows.toSorted((a,b)=>{if(a.order < b.order) return -1;return 1}).map(async(row_,index)=>{
+            this.groupRows=[...this.groupRows,{selectorId:selector.eleId,rows}];
+            this.rows=rows;
+            this.rows.toSorted((a,b)=>{if(a.order < b.order) return -1;return 1}).map(async(row_,index)=>{
                 const eleId=row_.eleId;
                 const selRow={selectorId:selector.eleId,rowId:row_.eleId} as selRowType;
                     const row=document.createElement("div");
@@ -452,6 +460,7 @@ set selector(selector:selectorType){
 //MAIN CUSTOM INJECTION (SELECTED FROM SIDEBAR)-parent=this._main.mainHeader
   async  customHeader(parent:HTMLElement,isRefresh:boolean){
         //THIS IS THE INJECTION POINT FOR CUSTOM HEADER DESIGN.THIS IS INTEGRATED INTO showCustHdrSelector if REFRESHED
+        this.rows=[] as rowType[];
         parent.classList.remove("normal-header");
         parent.classList.add("custom-header");
         this.isRefreshed=isRefresh;
@@ -512,10 +521,9 @@ set selector(selector:selectorType){
         
                    
         
-                   await this._modSelector.rowAdder({target:row,selectEle:sel.target,idValues,selector:sel.selector}).then(async(rw)=>{
+                   await this.rowAdder({target:row,selectEle:sel.target,idValues,selector:sel.selector}).then(async(rw)=>{
                        if(rw.selectEle && rw.idValues && rw.rowEle && rw.sel){
                         idValues=rw.idValues;
-                        console.log("outside:after row:selector",sel.selector)//WORKS HAS ROW
                            this.selectColunms({parent:rw.target,sel:rw.sel,rowEle:rw.rowEle,idValues});
                        }
                    });//works
@@ -540,13 +548,13 @@ set selector(selector:selectorType){
         const {retRow,input,btn,formGrp}=this.customSetup.columnSetup(sel,parent);
         btn.addEventListener("click",async(e:MouseEvent)=>{
             if(e){
-             
+             console.log("selectors",this.selectors)
                const value=(input as HTMLInputElement).value;
                 const nums=parseInt(value) as number;
             // console.log("SELECTCOLUMNS:SELECTOR:selector.rows",selector.rows);//WORKS
             const newColattr:colAttrType={id:0,T:nums,B:0,selector_id:sel.id};
             sel.colAttr[0]=newColattr
-            this._modSelector.selectors=this._modSelector.selectors.map(_sel=>{
+            this.selectors=this.selectors.map(_sel=>{
                     if(_sel.eleId===sel.eleId){
                         _sel=sel;
                     }
@@ -605,13 +613,15 @@ set selector(selector:selectorType){
      async selectorAdder({parent,target,selector,idValues}:{parent:HTMLElement,target:HTMLElement,selector:selectorType,idValues:idValueType[]}):Promise<{target:HTMLElement,selector:selectorType,idValues:idValueType[],colsTop:number,colsBot:number}>{
         //THIS ADDS SELECTOR CONTAINER FOR ROWS/COLS, APPENDS THE TARGET TO THE NEW HEADER,REFRESHES SELECTOR.HEADER,ADDS IT TO LOCAL && RETURN INSERTION STYLES TO THE NEW HEADER 
         //INSERTS CLASSNAME AND CSS INTO TARGET!!!!!!!DOES NOT CHANGE THE ELEMENT'S ID!!!!!!
-       
+       const blog=this._modSelector.blog;
         const node=target.nodeName.toLowerCase();
+        const len=this.selectors.length;
         const eleId=target.id
         this._modSelector.dataset.insertcssClassIntoComponents({target,level:"selector",headerType:"custom",id:"selectorId",loc:"flexbox",type:"customHeader"});
-       this._modSelector.selectors=this._modSelector.selectors.filter(select=>(!select.header));
-       const blog={...this._modSelector.blog,selectors:this._modSelector.selectors}
-       this._modSelector.localStore({blog});
+        const isheader=this.selectors?.find(select=>(select.header));
+        if(isheader)  this.groupRows=this.groupRows.filter(kv=>kv.selectorId !==isheader.eleId);
+       this.selectors=this.selectors.filter(select=>(!select.header));
+       
         const {cleaned}=this._modSelector.removeClasses({target,classes:["isActive","box-shadow","text-center"]});
        
         const colAttr:colAttrType={
@@ -624,12 +634,13 @@ set selector(selector:selectorType){
         const colsBot=colAttr.B;
 
         selector={...selector,
-            id:0,
+            id:len,
             placement:0,
             eleId:eleId,
             name:node,
             header:true,
             footer:false,
+            blog_id:blog.id,
             rowNum:0,
             colNum:2,
             class:cleaned.join(" "),
@@ -641,11 +652,10 @@ set selector(selector:selectorType){
         
         this._modSelector.count=this._modSelector.count+1;
         this.selector=selector;
-        this._modSelector.selectors= [...this._modSelector.selectors,selector];//adding iot to teh stack
-        const blog1={...this._modSelector.blog,selectors:this._modSelector.selectors}
-       this._modSelector.localStore({blog:blog1});
+        this.selectors= [...this.selectors,selector];//adding iot to teh stack
+        this.groupRows=[...this.groupRows,{selectorId:selector.eleId,rows:[] as rowType[]}];
         this._modSelector.footerPlacement();//shifting footer down by one
-        this._modSelector.header=selector;
+        this._modSelector._header=selector;
         idValues.push({eleId,id:"selectorId",attValue:eleId});
         idValues.push({eleId,id:"ID",attValue:eleId});
         idValues.push({eleId,id:"placement",attValue:"0"});
@@ -674,6 +684,125 @@ set selector(selector:selectorType){
     };
 
 
+    async rowAdder({target,selectEle,idValues,selector}:{target:HTMLElement,selectEle:HTMLElement,idValues:idValueType[],selector:selectorType}):Promise<{rowEle:rowType | undefined,target:HTMLElement,selectEle:HTMLElement,idValues:idValueType[],sel:selectorType}>{
+       
+        const node=target.nodeName.toLowerCase();
+        const colAttr=selector.colAttr[0];
+        const topNum=colAttr.T;
+        const botNum=colAttr.B;
+        let row_:rowType={} as rowType;
+        const parent=target.parentElement;
+        const eleId=target.id;
+        const parent_id= parent ? parent.id:null;
+
+        const isGroupRows=!!(this.groupRows.find(grprow=>grprow.selectorId===selector.eleId));
+        if(this.groupRows.length<=0 || isGroupRows){
+            this.rows=[] as rowType[];
+        }else{
+            this.rows=this.groupRows.filter(rw=>(rw.selectorId===selector.eleId))[0]?.rows;
+        }
+        if(parent_id) idValues.push({eleId,id:"parent_id",attValue:parent_id});
+        idValues=Dataset.removeIdValueDuplicates({arr:idValues,eleId});
+                if(!this.rows) this.rows=[] as rowType[];
+                const ID=this.rows ? this.rows.length :0;
+                const check=(this.rows?.find(row=>(row.eleId===eleId))) ;
+                idValues.push({eleId,id:"rowId",attValue:eleId});
+                const selRow:selRowType={selectorId:selector.eleId,rowId:eleId};
+                idValues.push({eleId,id:"selRow",attValue:JSON.stringify(selRow)});
+                idValues.push({eleId,id:"rowNum",attValue:String(topNum+botNum)});
+                idValues.push({eleId,id:"selectorId",attValue:selector.eleId});
+                idValues.push({eleId,id:"selector_id",attValue:String(selector.id)});
+                idValues.push({eleId,id:"ID",attValue:eleId});
+                idValues.push({eleId,id:"isRow",attValue:"true"});
+                idValues.push({eleId,id:"rowOrder",attValue:String(ID)});
+                const getEleIds=idValues.filter(kat=>(kat.eleId===eleId));
+                idValues.push({eleId:target.id,id:"selectorId",attValue:selector.eleId});
+                if(!check){
+                    row_={
+                        id: ID,
+                        name:node,
+                        class:target.className,
+                        eleId,
+                        inner_html:target.innerHTML ? target.innerHTML : "",
+                        cssText:target.style.cssText,
+                        cols:[] as colType[],
+                        selector_id:selector.id,
+                        order:ID,
+                        attr:undefined,
+                        type:undefined
+                    } as rowType;
+                    //----------//---POPULATING ATTRIBUTES TO TARGET------\\-----///
+                    const {idValues:retIdValues}=this._modSelector.dataset.coreDefaultIdValues({
+                        target,loc:"flexbox",
+                        level:"row",
+                        clean:false,
+                        sel:selector,
+                        row:row_,
+                        col:null,
+                        ele:null,
+                        idValues
+
+                    });
+                       
+                    idValues=retIdValues;
+                    idValues=Dataset.removeIdValueDuplicates({arr:idValues,eleId});
+                    this._modSelector.dataset.populateElement({
+                        target,
+                        selRowColEle:row_,
+                        level:"row",
+                        loc:"flexbox",
+                        idValues,
+                        clean:false
+                       });
+                    getEleIds.map(kat=>{
+                        const attrTest=attrEnumArrTest(row_);
+                        const typeTest=typeEnumArrTest(row_);
+                        const hasAttr=attrEnumArr.includes(kat.id);
+                        const hasType=typeEnumArr.includes(kat.id as typeEnumType);
+                        if(hasAttr && !attrTest){
+                            row_.attr=kat.attValue;
+                        }else if(hasType && !typeTest){
+                            row_.type=kat.attValue;
+                        }else if(kat.id==="imgKey"){
+                            row_.imgKey=kat.attValue;
+                        }
+                    });
+                     //THIS LOADS THE DEFAULTS AND POPULATES THE ELEMENT BASED ON IDVALUE INPUTS
+                    this.rows=[...this.rows,row_];//WORKS
+                    // RE-ASSIGNMENT
+                    const rowsString=JSON.stringify(this.rows);//works
+                    selector.rows=rowsString
+                    //ADDING NEW SELECTOR TO SELECTORS && PUSHING IT TO LOCAL
+                    this.selectors=this.selectors.map(select=>{
+                            if(select.eleId===selector.eleId){
+                                select=selector
+                            }
+                        return select
+                    });
+
+                    if(this.groupRows.length>0){
+                        const check=this.groupRows.find(kv=>(kv.selectorId===selector.eleId));
+                        if(check){
+                            this.groupRows=this.groupRows.map(grpRows=>{
+                                if(grpRows.selectorId===selector.eleId){
+                                    grpRows.rows=this.rows;
+                                }
+                                return grpRows;
+                            });
+                        }else{
+                            this.groupRows=[...this.groupRows,{selectorId:selector.eleId,rows:this.rows}];
+                        }
+                    }else{
+                        this.groupRows=[{selectorId:selector.eleId,rows:this.rows}]
+                    }
+                    idValues=Dataset.removeIdValueDuplicates({arr:idValues,eleId});
+                    this._modSelector.dataset.idValues=idValues;
+
+                };//END
+        //----------//---POPULATING ATTRIBUTES TO TARGET------\\-----///
+        return Promise.resolve({rowEle:row_ as rowType,target,selectEle,idValues,sel:selector}) as Promise<{rowEle:rowType | undefined,target:HTMLElement,selectEle:HTMLElement,idValues:idValueType[],sel:selectorType}>;
+        
+    };
 
   
 
@@ -724,29 +853,171 @@ set selector(selector:selectorType){
             rowEle.cols=[...rowEle.cols,colEle];
             
             //ADDING MODIFIED ROW TO SELECTOR
-            const {rows}=this._modSelector.checkGetRows({select:sel});
-            const newRows=rows.map(row_=>{
+            this.rows=this.groupRows.filter(rw=>(rw.selectorId===sel.eleId))[0]?.rows;
+            this.rows=this.rows.map(row_=>{
                 if(row_.eleId===rowEle.eleId){
                     row_=rowEle;
                 }
                 return row_;
             });
             //ADDING NEW ROWS TO SELECTOR
-            sel.rows=JSON.stringify(newRows);
+            sel.rows=JSON.stringify(this.rows);
             //ADDING SELECTOR TO TO SELECTORS
-            this._modSelector.selectors=this._modSelector.selectors.map(select=>{
+            this.selectors=this.selectors.map(select=>{
                     if(select.eleId===sel.eleId){
                         select=sel;
                     }
                 return select;
             });
-            this._modSelector.localStore({blog:this._modSelector.blog});
-        }
+            this.rows=this.groupRows.filter(rw=>(rw.selectorId===sel.eleId))[0]?.rows;
+            this.rows=this.rows.map(row_=>{
+                if(row_.eleId===rowEle.eleId){
+                    row_=rowEle;
+                }
+                return row_;
+            });
+        };//END
             
            this._modSelector.dataset.idValues=this._modSelector.dataset.idValues.concat(idValues);
            return Promise.resolve({target,colEle,idValues,parent,sel,rowEle}) as Promise<{target:HTMLElement,colEle:colType,idValues:idValueType[],parent:HTMLElement,sel:selectorType,rowEle:rowType}>;
             
-    }
+    };
+
+
+
+    async updateRow({target,idValues,selRow}:{target:HTMLElement,idValues:idValueType[],selRow:selRowType}):Promise<{row:rowType,target:HTMLElement,idValues:idValueType[]}|undefined>{
+       
+        const eleId=target.id;
+        let row_:rowType| undefined = {} as rowType|undefined;
+        const getImgKey=this._modSelector.dataset.getIdValue({idValues,target,id:"imgKey"});
+        const imgKey=getImgKey?.attValue || undefined;
+        if(!selRow) return;
+        const {rowId}=selRow;
+        const isRow= rowId===eleId
+        if(!isRow){
+            Misc.message({parent:target,msg:"target.id is not RowId,,,canceling row-update",type_:"error",time:1300});
+        }else{
+
+            this.selectors=this.selectors.map((select)=>{
+                if(select.header){
+                    this.rows=this.groupRows.filter(grpRows=>(grpRows.selectorId===select.eleId))[0]?.rows;
+                    this.rows= this.rows.map((row)=>{
+                        if(row.eleId===target.id){
+                            row.class=target.className;
+                            row.cssText=target.style.cssText;
+                            row.imgKey=imgKey
+                           idValues= this._modSelector.datasetSincUpdate({target,ele:row,idValues,level:"row",loc:"flexbox"});
+                           const getEleIds=idValues.filter(kat=>(kat.eleId===eleId));
+                                  const testAttr=attrEnumArrTest(row);
+                                  const testType=typeEnumArrTest(row);
+                                  getEleIds.map(kat=>{
+                                    if(kat.attValue){
+                                        if(testAttr && kat.id===testAttr.id ){
+                                            row.attr=kat.attValue
+                                        }else if(testType && kat.id===testType.id ){
+                                            row.type=kat.attValue
+                                        }else if(kat.id==="imgKey"){
+                                            row.imgKey=kat.attValue
+                                        }
+                                    }
+                                  });
+                        }
+                        row_=row;
+                        return row;
+                    });
+                    select.rows=JSON.stringify(this.rows);
+                    this.groupRows=this.groupRows.map(grpRows=>{
+                        if(grpRows.selectorId===select.eleId){
+                            grpRows.rows=this.rows;
+                        }
+                        return grpRows;
+                    });
+                }
+
+                return select;
+            });
+            
+            //REPOPULATING TARGET
+            idValues=Dataset.removeIdValueDuplicates({arr:idValues,eleId});
+            if(row_){
+                this._modSelector.dataset.populateElement({target,selRowColEle:row_,idValues,level:"row",loc:"flexbox",clean:false});
+            }
+           this._modSelector.dataset.idValues=this._modSelector.dataset.idValues.concat(idValues);
+        }
+            return Promise.resolve({row:row_ as rowType,target,idValues}) as Promise<{row:rowType,target:HTMLElement,idValues:idValueType[]}|undefined>;
+    };
+
+
+
+    async updateColumn({target,idValues,selRowCol}:{target:HTMLElement,idValues:idValueType[],selRowCol:selRowColType}): Promise<{target:HTMLElement,col:colType|undefined,idValues:idValueType[]}|undefined>{
+        const eleId=target.id;
+        const getImgKey=this._modSelector.dataset.getIdValue({idValues,target,id:"imgKey"});
+        const imgKey=getImgKey?.attValue || undefined;
+        let colEle:colType|undefined;
+        const {rowId,colId}=selRowCol
+        
+      
+       
+        if(!(colId && colId===eleId)){
+            Misc.message({parent:target,msg:"!!TARGET IS NOT COLID,,,,canceling update",type_:"error",time:1200});
+            return;
+        }else{
+    
+            this._modSelector.selectors=this._modSelector.selectors.map((select)=>{
+                if(select.header){
+                    this.rows=this.groupRows.filter(grpRows=>(grpRows.selectorId===select.eleId))[0]?.rows;
+                    this.rows=this.rows.map((row)=>{
+                        if(row.eleId===rowId){
+                            row.cols.map((_col_)=>{
+                                if(_col_.eleId===eleId){
+                                    _col_.class=target.className;
+                                    _col_.cssText=target.style.cssText;
+                                    _col_.imgKey=imgKey;
+                                    //LOADING ELEMENT 
+                                    //REPOPULATING TARGET
+                                  idValues=this._modSelector.datasetSincUpdate({target,ele:_col_,idValues,level:"col",loc:"flexbox"});
+                                  const getEleIds=idValues.filter(kat=>(kat.eleId===eleId));
+                                  const testAttr=attrEnumArrTest(_col_);
+                                  const testType=typeEnumArrTest(_col_);
+                                  getEleIds.map(kat=>{
+                                    if(kat.attValue){
+                                        if(testAttr && kat.id===testAttr.id ){
+                                            _col_.attr=kat.attValue
+                                        }else if(testType && kat.id===testType.id ){
+                                            _col_.type=kat.attValue
+                                        }else if(kat.id==="imgKey"){
+                                            _col_.imgKey=kat.attValue
+                                        }
+                                    }
+                                  });
+                                }
+                                colEle=_col_;
+                                return _col_;
+                            });
+                        }
+                        return row;
+                    });
+                    select.rows=JSON.stringify(this.rows);
+                    this.groupRows=this.groupRows.map(grpRows=>{
+                        if(grpRows.selectorId===select.eleId){
+                            grpRows.rows=this.rows;
+                        }
+                        return grpRows;
+                    });
+                }
+                return select;
+            });
+            this._modSelector.selectors=this._modSelector._selectors;
+            this._modSelector.blog={...this._modSelector.blog,selectors:this._modSelector.selectors};
+            this._modSelector.localStore({blog:this._modSelector.blog});
+        }
+        //RE-POPULATING TARGET WITH NEW COLLECTED ATTRIBUTES
+        idValues=Dataset.removeIdValueDuplicates({arr:idValues,eleId});
+        this._modSelector.dataset.idValues=idValues;
+        //RE-POPULATING TARGET WITH NEW COLLECTED ATTRIBUTES
+        return Promise.resolve({target,col:colEle,idValues}) as Promise<{target:HTMLElement,col:colType|undefined,idValues:idValueType[]}|undefined>;
+        
+    };
    
 
      ////////////PARENT showHideTools///////////////////////
@@ -780,7 +1051,7 @@ set selector(selector:selectorType){
         select.name="eleName";
         select.style.cssText="font-size:12px;font-family:'Roboto' , sans serif";
      
-        CustomHeader.nameValueAttrs.toSorted((a,b)=>{if(a.id < b.id){ return -1} else{ return 1}}).map((nameValueAtt)=>{
+        this.commonUltils.nameValueAttrs.toSorted((a,b)=>{if(a.id < b.id){ return -1} else{ return 1}}).map((nameValueAtt)=>{
             const option=document.createElement("option");
             option.id=`${nameValueAtt.id}`;
             option.value=JSON.stringify(nameValueAtt);
@@ -798,17 +1069,16 @@ set selector(selector:selectorType){
                 select.appendChild(option);
              }
         });
-        
+        const selectEle=document.querySelector(`${sel.name}#${sel.eleId}`) as HTMLElement;
         divFormGrp.appendChild(label);
         divFormGrp.appendChild(select);
         parent.appendChild(divFormGrp);
-        select.addEventListener("change",(e:Event)=>{
+        select.addEventListener("change",async(e:Event)=>{
             if(e){
                 e.preventDefault();
-                const parent_=parent.parentElement as HTMLElement;
                 const colValAtt=(e.currentTarget as HTMLSelectElement).value;
                 if(!colValAtt) return
-                const colAttrName:columnAttrType=JSON.parse(colValAtt);
+                const colAttrName:nameValueAttrType=JSON.parse(colValAtt);
                 //Is  number
                 const {name,attr,value,level}=colAttrName
                 if(value){
@@ -847,6 +1117,9 @@ set selector(selector:selectorType){
                             case name==="bg-color":
                                 this.columnColor({target:parent,idValues,selRowCol});
                             return;
+                            case name==="rm-bg-color":
+                                this.rmColumnColor({target:parent,idValues,selRowCol});
+                            return;
                             case name==="set-even-height":
                                 this.setEvenHeight({target:parent,idValues,selRowCol});
                             return;
@@ -856,13 +1129,16 @@ set selector(selector:selectorType){
                             case name==="bg-row-image":
                                 this.bgRowImage({column:parent,blog:this._modSelector.blog,idValues,selRow});
                             return;
+                            case name==="set-column-height":
+                                this.setColumnHeight({parent,target:parent,idValues,selRowCol});
+                            return;
                             case name==="rm-bg-image":
                                 this.rmBgImage({target:parent,idValues});
                             return;
                             default:
                                 parent.classList.toggle(attr);
                                 this.changePartition({target:parent,attr,idValues,selRowCol});
-                                this._modSelector.updateColumn({target:parent,idValues,selRowCol});
+                               await this.updateColumn({target:parent,idValues,selRowCol});
                                 return;
                             
                         }
@@ -870,8 +1146,10 @@ set selector(selector:selectorType){
                         
                         switch(true){
                             case name==="bg-row-color":
-                               
-                                this.rowColor({row:parent_,idValues,selRow});
+                                this.rowColor({column:parent,idValues,selRow});
+                                return;
+                            case name==="rm-bg-row-color":
+                                this.rmRowColor({column:parent,idValues,selRow});
                                 return;
                             case name==="bg-row-height":
                                 this.rowHeight({column:parent,idValues,selRowCol});
@@ -883,7 +1161,21 @@ set selector(selector:selectorType){
                                     return;
 
                         }
-                     }
+                     }else if(level==="selector"){
+                        if(selectEle){
+    
+                            if(name==="add-flex-image"){
+                               await this.commonUltils.selectorBgImage({target:selectEle,idValues});
+                            }else if(name==="remove-flex-image"){
+                               await this.commonUltils.selRemoveBgImage({target:selectEle,idValues});
+                            }else if(name==="add-flex-bg"){
+                                this.commonUltils.addSelectorColor({target:selectEle,select:sel});
+                            }else if(name==="remove-flex-bg"){
+                                this.commonUltils.removeSelectorColor({target:selectEle,select:sel});
+                            };
+                            
+                        };
+                    };
                     
                 }
                 
@@ -897,7 +1189,7 @@ set selector(selector:selectorType){
 
 
 
-    changePartition({target,attr,idValues,selRowCol}:{target:HTMLElement,attr:string,idValues:idValueType[],selRowCol:selRowColType}):void{
+    async changePartition({target,attr,idValues,selRowCol}:{target:HTMLElement,attr:string,idValues:idValueType[],selRowCol:selRowColType}):Promise<void>{
         //THIS CHANGES FLEX PARTITION (ie;flex:1 1 25%,,,50%,,,75%)
         const row=target.parentElement as HTMLElement;
         const columns=([...row.children as any] as HTMLElement[]);
@@ -911,10 +1203,10 @@ set selector(selector:selectorType){
                         target.style.flexWrap="wrap";
                         target.style.justifyContent="flex-start";
                         target.style.alignItems="flex-start";
-                        this._modSelector.updateColumn({target,idValues,selRowCol});
+                        await this.updateColumn({target,idValues,selRowCol});
                     return 
                     case attr==="flex-static":
-                        columns.map(col=>{
+                        Promise.all(columns.map(async(col)=>{
                             if(col){
                                 const findClass=([...col.classList as any] as string[]).find(cl=>(cl.includes("col-")));
                                 if(findClass){
@@ -922,13 +1214,13 @@ set selector(selector:selectorType){
                                     col.classList.add(`col-lg-${12/colLen}`);
                                 }
                                 col.style.flex="1 0 33%";
-                                this._modSelector.updateColumn({target:col,idValues,selRowCol})
+                               await this.updateColumn({target:col,idValues,selRowCol})
                             }
-                        });
+                        }));
 
                     return;
                     case attr==="flex-double":
-                        columns.map(col=>{
+                        await Promise.all(columns.map(async(col)=>{
                             if(col){
                                 const findClass=([...col.classList as any] as string[]).find(cl=>(cl.includes("col-")));
                                 if(findClass){
@@ -943,9 +1235,9 @@ set selector(selector:selectorType){
                                 }
                              
                         
-                                this._modSelector.updateColumn({target:col,idValues,selRowCol})
+                                await this.updateColumn({target:col,idValues,selRowCol})
                             }
-                        });
+                        }));
 
                     return;
                     case attr==="flexRow":
@@ -955,16 +1247,16 @@ set selector(selector:selectorType){
                         target.style.justifyContent="flex-start";
                         target.style.alignItems="flex-start";
                     
-                        this._modSelector.updateColumn({target,idValues,selRowCol});
+                        await this.updateColumn({target,idValues,selRowCol});
                     return 
                     case attr==="flexCol":
                         target.style.display="flex";
                         target.style.flexDirection="column";
                       
-                        this._modSelector.updateColumn({target,idValues,selRowCol});
+                       await this.updateColumn({target,idValues,selRowCol});
                         return 
                     case attr==="flex-quarter":
-                        columns.map(col=>{
+                        await Promise.all(columns.map(async(col)=>{
                             if(col){
                                 const findClass=([...col.classList as any] as string[]).find(cl=>(cl.includes("col-")));
                                 if(findClass){
@@ -980,12 +1272,12 @@ set selector(selector:selectorType){
                                 }
                              
                              
-                                this._modSelector.updateColumn({target:col,idValues,selRowCol})
+                               await this.updateColumn({target:col,idValues,selRowCol})
                             }
-                        });
+                        }));
                     return;
                     case attr==="flex-three-quarter":
-                        columns.map(col=>{
+                       await Promise.all(columns.map(async(col)=>{
                             if(col){
                                 const findClass=([...col.classList as any] as string[]).find(cl=>(cl.includes("col-")));
                                 if(findClass){
@@ -1000,9 +1292,9 @@ set selector(selector:selectorType){
                                     }
                                 }
                               
-                                this._modSelector.updateColumn({target:col,idValues,selRowCol})
+                              await this.updateColumn({target:col,idValues,selRowCol})
                             }
-                        });
+                        }));
 
                     return;
                     case attr==="flexCol-normal":
@@ -1011,11 +1303,11 @@ set selector(selector:selectorType){
                        target.style.justifyContent="flex-start";
                        target.style.alignItems="flex-start";
                       
-                        this._modSelector.updateColumn({target,idValues,selRowCol});
+                       await this.updateColumn({target,idValues,selRowCol});
                         return 
                     case attr==="flex-default":
                        
-                        columns.map((col,index)=>{
+                        await Promise.all(columns.map(async(col,index)=>{
                             if(col){
                                 const lenArr:number[]=Array.from((Array(colLen).keys()));
                                 const findClass=([...col.classList as any] as string[]).find(cl=>(cl.includes("col-")));
@@ -1038,9 +1330,9 @@ set selector(selector:selectorType){
                                     col.style.minHeight="15vh";
                                 }
                                
-                                this._modSelector.updateColumn({target:col,idValues,selRowCol})
+                                await this.updateColumn({target:col,idValues,selRowCol})
                             }
-                        });
+                        }));
 
                     return;
                 }
@@ -1069,8 +1361,10 @@ set selector(selector:selectorType){
                 },580);
             }
         });
-    }
-        //FLEX TOOLS
+    };
+
+
+       
     
     //PARENT columnFlexChoices()
    async headerElementCreator({column,node,name,idValues,selector,row,col}:{column:HTMLElement,node:string,name:string,idValues:idValueType[],selector:selectorType,row:rowType,col:colType}){
@@ -1142,16 +1436,14 @@ set selector(selector:selectorType){
                                 if(e){
                                     res.target.classList.toggle("isActive");
                                     divCont.classList.toggle("isActive");
-                                    const check=([...target.classList as any] as string[]).includes("isActive");
+                                  
                                     this.removeMainElement({parent:column,divCont,target:res.target,idValues,selRowCol});
-                                    if(check){
-                                        this.updateElement({target,idValues});//updates class and cssText;
-                                    }
+                                    
                                 }
                             });
-                            this.editElement({target:res.target,idValues:res.idValues,selRowCol});//ADDS A LISTENER TO HEADER LABELS
                         }
                     });//adds both selector eles and elements
+                    this.editElement({target,idValues:idValues,selRowCol});//ADDS A LISTENER TO HEADER LABELS
                     divCont.appendChild(target);
                     column.appendChild(divCont);
                     Misc.matchMedia({parent:divCont,maxWidth:820,cssStyle:{marginInline:"1.5rem"}});
@@ -1174,7 +1466,6 @@ set selector(selector:selectorType){
                                     
                                     res.target.classList.toggle("isActive");
                                     divCont.classList.toggle("isActive");
-                                        this.updateElement({target,idValues});//updates class and cssText;
                                     this.removeMainElement({parent:column,divCont,target:res.target,idValues,selRowCol});
                                     
                                 }
@@ -1357,7 +1648,6 @@ set selector(selector:selectorType){
                             divCont.classList.toggle("isActive");
                             const check=([...target.classList as any] as string[]).includes("isActive")
                             if(check){
-                                this.updateElement({target,idValues});//updates class and cssText;
                                 this._modSelector.removeMainElement({parent:column,divCont,target,idValues,selRowCol});
                                 Main.activatebuttons({target});
                             }
@@ -1377,17 +1667,13 @@ set selector(selector:selectorType){
                         if(e){
                             target.classList.toggle("isActive");
                             divCont.classList.toggle("isActive");
-                           
-                            const check=([...target.classList as any] as string[]).includes("isActive")
                             this.removeMainElement({parent:column,divCont,target:target,idValues,selRowCol});
                             Main.activatebuttons({target});
-                            if(check){
-                                this.updateElement({target,idValues});//updates class and cssText;
-                            }
+                            
                         }
                     });
                 
-                    this.editElement({target,idValues,selRowCol});//ADDS A LISTENER TO HEADER LABELS
+                    this._modSelector.editElement({target,idValues,selRowCol});//ADDS A LISTENER TO HEADER LABELS
                 return;
                 case element.name==="img":
                     target.setAttribute("contenteditable","false");
@@ -1568,76 +1854,50 @@ set selector(selector:selectorType){
         
      };
 
-  
+
+
      getBgImage({target,blog,idValues,selRowCol}:{target:HTMLElement,blog:blogType,idValues:idValueType[],selRowCol:selRowColType}){
        //target====column
-       const {selectorId,rowId}=selRowCol as selRowColType;
-       const selRow={selectorId,rowId} as selRowType;
-        const formContainer=document.createElement("div");
-        formContainer.className="flexCol box-shadow";
-        formContainer.style.cssText="position:absolute;width:200px;height:200px;z-index:0;font-size:12px;z-index:100;";
-        const form=document.createElement("form");
-        form.className="m-auto d-flex flex-column gap-1 form-group";
-        form.setAttribute("data-form-group","true");
-        form.style.cssText="position:absolute;inset:-1rem; width:inherit;";
-        const label=document.createElement("label");
-        label.textContent="upload image";
-        label.style.cssText="font-size:14px; text-align:center;"
-        label.className="form-control text-sm text-primary";
-        const input=document.createElement("input");
-        input.type="file";
-        input.style.cssText="font-size:14px;"
-        input.name="file";
-        input.accept="image/jpg image/png";
-        input.className="form-control";
-        const btn=buttonRetDisable({parent:form,text:"submit",bg:this.btnColor,color:"white",type:"submit",disable:true})
-        form.appendChild(label);
-        form.appendChild(input);
-        form.appendChild(btn);
-        formContainer.appendChild(form);
-        target.appendChild(formContainer);
-        Header.removePopup({parent:target,target:formContainer,position:"right"});
-        ModSelector.modAddEffect(formContainer);
-        input.addEventListener("change",(e:Event)=>{
-            if(e){
-                btn.disabled=false;
-            }
-        });
-        form.addEventListener("submit",async (e:SubmitEvent)=>{
-            if(e){
-                e.preventDefault();
-                const user=this._user.user;
-                const getOldKey=this._modSelector.dataset.getIdValue({target,idValues,id:"imgKey"});
-                const oldKey= getOldKey ? getOldKey.attValue : null;
-                const formdata= new FormData(e.currentTarget as HTMLFormElement);
-                const file=formdata.get("file");
-                if(file as File){
-                target.style.zIndex="0";
-                target.style.position="relative";
-                const image=URL.createObjectURL(file as File);
-                target.style.backgroundImage=`url(${image})`;
-                target.style.backgroundPosition=`50% 50%`;
-                target.style.backgroundSize=`100% 100%`;
-                target.removeAttribute("contenteditable");
-                const {Key}=this._service.generateFreeImgKey({formdata,user}) as {Key:string};
-                const idValue:idValueType={eleId:target.id,id:"imgKey",attValue:Key};
-                this._modSelector.dataset.upDateIdValue({target,idValues,idValue});
-                idValues.push({eleId:target.id,id:"backgroundImg",attValue:"true"});
-                this._modSelector.updateColumn({target:target,idValues,selRowCol}).then(async(res)=>{
-                    if(res){
-                        const selRowCol:selRowColType={...selRow,colId:target.id};
-                        this._user.askSendToServer({bg_parent:target,formdata,image:null,blog,oldKey,idValues,selRowCol});
-                        target.setAttribute("data-background-image","true");
-                    }
-                });
-                Misc.fadeOut({anchor:formContainer,xpos:50,ypos:100,time:500});
-                setTimeout(()=>{
-                    target.removeChild(formContainer);
-                },480);
+       this.commonUltils.BgImage({target,blog,idValues,selRowCol}).then(async(res)=>{
+        if(res){
 
+            res.form.addEventListener("submit",async (e:SubmitEvent)=>{
+                if(e){
+                    e.preventDefault();
+                    const user=this._user.user;
+                    const getOldKey=this._modSelector.dataset.getIdValue({target,idValues,id:"imgKey"});
+                    const oldKey= getOldKey ? getOldKey.attValue : null;
+                    const formdata= new FormData(e.currentTarget as HTMLFormElement);
+                    const file=formdata.get("file");
+                    if(file as File){
+                    res.target.style.zIndex="0";
+                    res.target.style.position="relative";
+                    const image=URL.createObjectURL(file as File);
+                    res.target.style.backgroundImage=`url(${image})`;
+                    res.target.style.backgroundPosition=`50% 50%`;
+                    res.target.style.backgroundSize=`100% 100%`;
+                    res.target.removeAttribute("contenteditable");
+                    const {Key}=this._service.generateFreeImgKey({formdata,user}) as {Key:string};
+                    const idValue:idValueType={eleId:res.target.id,id:"imgKey",attValue:Key};
+                    this._modSelector.dataset.upDateIdValue({target:res.target,idValues:res.idValues,idValue});
+                    idValues.push({eleId:target.id,id:"backgroundImg",attValue:"true"});
+                    await this.updateColumn({target:target,idValues,selRowCol}).then(async(_res)=>{
+                        if(_res){
+                            
+                            this._user.askSendToServer({bg_parent:target,formdata,image:null,blog,oldKey,idValues,selRowCol:res.selRowCol});
+                            target.setAttribute("data-background-image","true");
+                        }
+                    });
+                    Misc.fadeOut({anchor:res.popup,xpos:50,ypos:100,time:500});
+                    setTimeout(()=>{
+                        res.target.removeChild(res.popup);
+                    },480);
+    
+                    }
                 }
-            }
-        });
+            });
+        }
+       });
 
      };
 
@@ -1673,7 +1933,7 @@ set selector(selector:selectorType){
                     target.setAttribute("data-backgroundImg","true");
                     idValues.push({eleId,id:"backgroundImg",attValue:"backgroundImg"})
                     mainTextarea.style.zIndex="0";
-                    this._modSelector.updateRow({target,idValues,selRow}).then(async(res)=>{
+                    this.updateRow({target,idValues,selRow}).then(async(res)=>{
                         if(res){
                             const selRowCol:selRowColType={...selRow,colId:column.id}
                             this._user.askSendToServer({bg_parent:target,formdata,image:null,blog,oldKey,idValues,selRowCol});
@@ -1688,7 +1948,7 @@ set selector(selector:selectorType){
      };
 
      
-     setEvenHeight({target,idValues,selRowCol}:{target:HTMLElement,idValues:idValueType[],selRowCol:selRowColType}){
+     async setEvenHeight({target,idValues,selRowCol}:{target:HTMLElement,idValues:idValueType[],selRowCol:selRowColType}){
         const eleId=target.id
         for(const key of Object.keys(target.style)){
             if(key==="height"){
@@ -1699,15 +1959,42 @@ set selector(selector:selectorType){
         const getRow=target.parentElement;
         if(!( getRow)) return;
         const rowHeight=window.getComputedStyle(getRow).getPropertyValue("height");
-        console.log("rowHeight",rowHeight)
         target.style.height=rowHeight;
         const idValue:idValueType={eleId,id:"height",attValue:rowHeight};
         this._modSelector.dataset.upDateIdValue({target,idValues,idValue});
-        this._modSelector.updateColumn({target:target,idValues,selRowCol}).then(async(col)=>{
+        await this.updateColumn({target:target,idValues,selRowCol}).then(async(col)=>{
             if(!col){
                 Misc.message({parent:target,msg:"set height failed",time:700,type_:"error"});
             }
         });
+    };
+
+
+
+    setColumnHeight({parent,target,idValues,selRowCol}:{parent:HTMLElement,
+            target:HTMLElement,
+            idValues:idValueType[],
+            selRowCol:selRowColType,
+    
+        }){
+            this.commonUltils.columnHeight({parent,target,idValues,selRowCol}).then(async(res)=>{
+                if(res){
+                    
+                    res.popup.onsubmit=(e:SubmitEvent)=>{
+                        if(!e) return;
+                        e.preventDefault();
+                        const formdata=new FormData(e.currentTarget as HTMLFormElement);
+                        const value=formdata.get("height") as string;
+                        target.style.height=`${value}vh`;
+                        this.updateColumn({target:res.target,idValues:res.idValues,selRowCol:res.selRowCol}).then(async(_res)=>{
+                            if(_res){
+                                Misc.growOut({anchor:res.popup,scale:0,opacity:0,time:400});
+                                setTimeout(()=>{res.parent.removeChild(res.popup)},390);
+                            }
+                        });
+                    };
+                }
+            });
     };
 
 
@@ -1780,85 +2067,88 @@ set selector(selector:selectorType){
 
     
       //PARENT columnFlexChoices()
-      rowColor({row,idValues,selRow}:{row:HTMLElement,idValues:idValueType[],selRow:selRowType}){
-        if(row){
-            if(row as HTMLElement){
-                row.style.zIndex="0";
-                row.style.position="relative";
-                const input=document.createElement("input");
-                input.type="color";
-                input.id="color-row-picker";
-                input.style.cssText="position:absolute;inset:30% 40%;z-index:300;width:20%;"
-                row.appendChild(input);
-                input.addEventListener("change",()=>{
-                    const color:string=input.value;
+      rowColor({column,idValues,selRow}:{column:HTMLElement,idValues:idValueType[],selRow:selRowType}){
+        const row=column.parentElement as HTMLElement;
+        this.commonUltils.rowColor({row,column,idValues,selRow}).then(async(res)=>{
+            if(res){
+                res.input.addEventListener("change",()=>{
+                    const color:string=res.input.value;
                     // console.log("color!!:",color)
                     (row as HTMLElement).style.background=color;
                     this._modSelector.updateRow({target:row as HTMLElement,idValues,selRow}); //updating selector and storing it
-                    if(input.value){
-                    row.removeChild(input);
+                    if(res.input.value){
+                    row.removeChild(res.popup);
                     }
                 });
             }
-        }
+        });
        
      };
 
 
+     rmRowColor({column,selRow,idValues}:{column:HTMLElement,idValues:idValueType[],selRow:selRowType}){
+        const row=column.parentElement as HTMLElement;
+            row.style.backgroundColor="";
+            this.updateRow({target:row as HTMLElement,idValues:idValues,selRow:selRow}); //updating selector and storing it
+       
+     };
 
 
      rowHeight({column,idValues,selRowCol}:{column:HTMLElement,idValues:idValueType[],selRowCol:selRowColType}){
         if(!column) return;
-        const {selectorId,rowId}=selRowCol as selRowColType;
-        const selRow={selectorId,rowId} as selRowType;
-        const parent=column.parentElement as HTMLElement;
-        const getColumns=parent.querySelectorAll("div.column-header") as unknown as  HTMLElement[];
-        parent.style.position="relative";
-        const cont=document.createElement('div');
-        cont.id="row-height";
-        cont.classList.add("popup");
-        cont.setAttribute("is-popup","true");
-        cont.style.cssText ="position:absolute;top:100%;left:50%,right:50%;width:170px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:1rem;margin-block:1rem;box-shadow:1px 1px 12px 1px black;border-radius:12px;z-index:200;padding-block;";
-        cont.style.left="40%";
-        cont.style.right="40%";
-        const {input,label}=Nav.inputComponent(cont);
-        input.type="number";
-        input.placeholder="100";
-        input.min="100";
-        input.max="600";
-        label.textContent="row-height";
-        label.classList.add("text-primary");
-        const {button}=Misc.simpleButton({anchor:cont,bg:Nav.btnColor,color:"white",text:"ok",time:300,type:"button"});
-        parent.appendChild(cont);
-        input.oninput=(e:Event)=>{
-            if(e){
-                const number=(e.currentTarget as HTMLInputElement).value;
-                parent.style.height=`${number}px`;
-                parent.style.minHeight=`${number}px`;
-                // console.log("number",number,"row",parent.style.height)
-            
-            }
-        };
-        button.onclick=(e:MouseEvent)=>{
-            if(e){
-                const height=(input as HTMLInputElement).value;
-                parent.style.minHeight=`${height}px`;
-                parent.style.height=`${height}px`;
-                this._modSelector.updateRow({target:parent,idValues,selRow});
-                (getColumns && [...getColumns] as HTMLElement[]).map(col=>{
-                    if(col){
-                        col.style.height=`${height}px`;
-                        col.style.minHeight=`${height}px`;
-                        this._modSelector.updateColumn({target:col,idValues,selRowCol});
+        this.commonUltils.rowHeight({column,idValues,selRowCol})?.then(async(res)=>{
+            if(res){
+
+                res.input.oninput=(e:Event)=>{
+                    if(e){
+                        const number=(e.currentTarget as HTMLInputElement).value;
+                        res.row.style.height=`${number}px`;
+                        res.row.style.minHeight=`${number}px`;
+                        // console.log("number",number,"row",parent.style.height)
+                    
                     }
-                });
-                Misc.fadeOut({anchor:cont,xpos:100,ypos:100,time:400});
-                setTimeout(()=>{
-                    parent.removeChild(cont);
-                },398);
+                };
+                res.button.onclick=async(e:MouseEvent)=>{
+                    if(e){
+                        const height=(res.input as HTMLInputElement).value;
+                        res.row.style.minHeight=`${height}px`;
+                        res.row.style.height=`${height}px`;
+                        this._modSelector.updateRow({target:res.row,idValues:res.idValues,selRow:res.selRow});
+                        const getColumns=res.row.querySelectorAll("[data-is-column]") as any as HTMLElement[];
+                        await Promise.all((getColumns && [...getColumns] as HTMLElement[]).map(async(col)=>{
+                            if(col){
+                                col.style.height=`${height}px`;
+                                col.style.minHeight=`${height}px`;
+                               await this.updateColumn({target:col,idValues,selRowCol});
+                            }
+                        }));
+                        Misc.fadeOut({anchor:res.container,xpos:100,ypos:100,time:400});
+                        setTimeout(()=>{
+                            res.row.removeChild(res.container);
+                        },398);
+                    }
+                };
             }
-        };
+        });
      };
+
+
+
+
+    updateSelector({target,idValues}:{target:HTMLElement,idValues:idValueType[]}):Promise<{target:HTMLElement,select:selectorType|undefined}>{
+        const eleId=target.id;
+        let select:selectorType|undefined={} as selectorType;
+        this.selectors=this.selectors.map(sel=>{
+            if(sel.eleId===eleId){
+                sel.cssText=target.style.cssText;
+                sel.class=target.className;
+                sel.inner_html=target.innerHTML;
+                select=sel;
+            };
+            return sel;
+        });
+        return Promise.resolve({target,select}) as Promise<{target:HTMLElement,select:selectorType|undefined}>
+    };
 
 
 
@@ -1874,11 +2164,12 @@ set selector(selector:selectorType){
            input.style.cssText="position:absolute;inset:30% 40%;z-index:300;width:20%;"
             target.appendChild(input);
             Header.removePopup({parent:target,target:input,position:"right"});
-            input.addEventListener("change",()=>{
+            input.addEventListener("change",async(e:Event)=>{
+                if(!e) return;
                 const color:string=input.value;
                 // console.log("color!!:",color)
                 target.style.background=color;
-                this._modSelector.updateColumn({target,idValues,selRowCol}); //updating selector and storing it
+                await this.updateColumn({target,idValues,selRowCol}); //updating selector and storing it
                 if(input.value){
                 target.removeChild(input);
                 }
@@ -1887,6 +2178,12 @@ set selector(selector:selectorType){
        
      };
 
+
+    rmColumnColor({target,idValues,selRowCol}:{target:HTMLElement,idValues:idValueType[],selRowCol:selRowColType}){
+                    target.style.backgroundColor="";
+                    this._modSelector.dataset.removeSubValue({target,idValues,id:"bgColor",eleId:target.id})
+                    this.updateColumn({target:target,idValues,selRowCol}); //updating selector and storing it
+    };
 
      
      getEmail({parent,target,divCont,idValues,selector,row,col}:{
@@ -2047,27 +2344,26 @@ set selector(selector:selectorType){
                 },398);
             }
         };
-     }
+     };
+
       //PARENT CustomElementChoices()
-      modifyColEleAttrs({target,class_,idValues,selRowCol}:{target:HTMLElement,class_:string,idValues:idValueType[],selRowCol:selRowColType}){
+     async modifyColEleAttrs({target,class_,idValues,selRowCol}:{target:HTMLElement,class_:string,idValues:idValueType[],selRowCol:selRowColType}){
         if(class_){
             //NEW ELEMENTS
            
             const getIsActiveElements=target.querySelectorAll("[is-element='true'].isActive");
             const getColumn=document.getElementById(target.id);
 
-        ([...(getIsActiveElements as any)] as HTMLElement[]).map(eleActive=>{
-                if(eleActive as HTMLElement){
-                    eleActive.classList.toggle(class_ as string);
-                    this.updateElement({target:eleActive,idValues});
-                    
-                }
-        });
-                        if(!getColumn) return;
-                        getColumn.classList.toggle(class_ as string);
-                        this._modSelector.updateColumn({target:getColumn,idValues,selRowCol});
-        }else{
-            //REBUILT ELEMENTS
+            ([...(getIsActiveElements as any)] as HTMLElement[]).map(eleActive=>{
+                    if(eleActive as HTMLElement){
+                        eleActive.classList.toggle(class_ as string);
+                        this.updateElement({target:eleActive,idValues});
+                        
+                    }
+            });
+            if(!getColumn) return;
+            getColumn.classList.toggle(class_ as string);
+            await this.updateColumn({target:getColumn,idValues,selRowCol});
         }
      };
 
@@ -2094,7 +2390,7 @@ set selector(selector:selectorType){
                     getRow.style.paddingBlock="0.5rem";
                     const {selectorId,rowId}=selRowCol;
                     const selRow:selRowType={selectorId,rowId};
-                    this._modSelector.updateRow({target:getRow,idValues,selRow});
+                    this.updateRow({target:getRow,idValues,selRow});
                 }
             });
             btn.addEventListener("click",(e:MouseEvent)=>{
@@ -2160,11 +2456,11 @@ set selector(selector:selectorType){
 
     removeElement({target,idValues,selRowCol}:{target:HTMLElement,idValues:idValueType[],selRowCol:selRowColType}){
         const eleId=target.id;
-        const {selectorId,rowId,colId}=selRowCol as selRowColType;
-        this._modSelector.selectors=this._modSelector.selectors.map(sel=>{
-                if(sel.eleId===selectorId){
-                    const rows=JSON.parse(sel.rows) as rowType[];
-                    rows.map(row=>{
+        const {rowId,colId}=selRowCol as selRowColType;
+        this.selectors=this.selectors.map(sel=>{
+                if(sel.header){
+                    this.rows=this.groupRows.filter(grpRows=>(grpRows.selectorId===sel.eleId))[0]?.rows;
+                    this.rows=this.rows.map(row=>{
                         if(row.eleId===rowId){
                             row.cols.map(col=>{
                                 if(col.eleId===colId){
@@ -2179,16 +2475,24 @@ set selector(selector:selectorType){
                         }
                         return row;
                     });
-                    sel.rows=JSON.stringify(rows);
+                    sel.rows=JSON.stringify(this.rows);
+                    this.groupRows=this.groupRows.map(grpRows=>{
+                        if(grpRows.selectorId===sel.eleId){
+                            grpRows.rows=this.rows;
+                        }
+                        return grpRows;
+                    });
                 }
             return sel;
         });
-        this._modSelector.blog={...this._modSelector.blog,selectors:this._modSelector.selectors};
-        this._modSelector.localStore({blog:this._modSelector.blog});
+        
         idValues = idValues.filter(kat=>(kat.eleId !==eleId));
         idValues=Dataset.removeIdValueDuplicates({arr:idValues,eleId});
         this._modSelector.dataset.upDateIdValues({idValues})
-    }
+    };
+
+
+
     createAnchor({parent,target,divCont,flex,idValues,selector,row,col}:{
         parent:HTMLElement,
         target:HTMLElement,
@@ -2271,11 +2575,11 @@ set selector(selector:selectorType){
                     divCont.addEventListener("click",(e:MouseEvent)=>{
                         if(e){
                             res.target.classList.toggle("isActive");
-                            this.updateElement({target:res.target,idValues});
+                            divCont.classList.toggle("isActive");
                             this.removeMainElement({parent,divCont,target:res.target,idValues,selRowCol});
                         }
                     });
-                    this.editElement({target:res.target,idValues:res.idValues,selRowCol});//ADDS A LISTENER TO HEADER LABELS
+                    
                     }
                 });
                 divCont.appendChild(anchor);
@@ -2293,6 +2597,7 @@ set selector(selector:selectorType){
     };
 
 
+
     removeHeader({target,parent,idValues}:{parent:HTMLElement,target:HTMLElement,idValues:idValueType[]}){
         target.style.position="relative";
         const cssStyle={color:"white",fontSize:"12px",borderRadius:"50%"};
@@ -2306,11 +2611,11 @@ set selector(selector:selectorType){
         xIconDiv.addEventListener("click",(e:MouseEvent)=>{
             if(e){
                 const arr:{targetName:string,imgKey:string}[]=[];
-                this._modSelector.selectors.map((sel,index)=>{
+                this.selectors.map((sel,index)=>{
                     if(sel.header){
+                        this.rows=this.groupRows.filter(kv=>(kv.selectorId===sel.eleId))[0]?.rows;
                         idValRms=idValRms.concat(idValues.filter(kat=>(kat.eleId ===sel.eleId)));
-                        const {rows}=this._modSelector.checkGetRows({select:sel});
-                        rows.map(row=>{
+                        this.rows.map(row=>{
                             idValRms=idValRms.concat(idValues.filter(kat=>(kat.eleId ===row.eleId)));
                             if(row.imgKey ){
                                 arr.push({targetName:row.eleId,imgKey:row.imgKey});
@@ -2334,11 +2639,8 @@ set selector(selector:selectorType){
                         
                     }
                 });
-                this._modSelector.selectors.map((sel,index)=>{
-                    if(sel.header){
-                        this._modSelector.selectors.splice(index,1);
-                    }
-                });
+                const isHeader=this.selectors.find(kv=>(!kv.header));
+               
                
                 idValRms.map((kv,index)=>{
                     idValues.map((kat,ind)=>{
@@ -2359,14 +2661,13 @@ set selector(selector:selectorType){
                         });
                     }
                 });
-                this._modSelector.selectors.forEach((sel,index)=>{
+                this.selectors.forEach((sel,index)=>{
                     if(sel.eleId===target.id){
-                        this._modSelector.selectors.splice(index,1);
+                        this.selectors=this.selectors.filter(kv=>(kv.eleId !==sel.eleId));
+                        this.groupRows=this.groupRows.filter(kv=>(kv.selectorId !==sel.eleId));
                         this._modSelector.shiftPlace(sel.placement);
                     }
                 });
-                this._modSelector.blog={...this._modSelector.blog,selectors:this._modSelector.selectors}
-                this._modSelector.localStore({blog:this._modSelector.blog});
                 Misc.fadeOut({anchor:target,xpos:50,ypos:100,time:600});
                 setTimeout(()=>{
                     parent.removeChild(target);
@@ -2376,13 +2677,12 @@ set selector(selector:selectorType){
        
     };
 
+
     
     editElement({target,idValues,selRowCol}:{target:HTMLElement | HTMLImageElement,idValues:idValueType[],selRowCol:selRowColType}){
         const eleId=target.id;
         const idValue={eleId,id:"selRowCol",attValue:JSON.stringify(selRowCol)} as idValueType;
         this._modSelector.dataset.upDateIdValue({target,idValue,idValues})
-       
-        const {cleaned}=this._modSelector.removeClasses({target,classes:["isActive","box-shadow"]});
         
         if(selRowCol){
             const {rowId,colId}= selRowCol as selRowColType;
@@ -2390,19 +2690,16 @@ set selector(selector:selectorType){
             target.oninput=(e:Event)=>{
                 if(e){
                     
-                    this._modSelector.selectors=this._modSelector.selectors.map(selector_=>{
+                    this.selectors=this.selectors.map(selector_=>{
                         if(selector_.header){
-                            const {rows}=this._modSelector.checkGetRows({select:selector_});
-                            const newRows= rows.map(row=>{
+                            this.rows=this.groupRows.filter(grpRows=>(grpRows.selectorId===selector_.eleId))[0]?.rows;
+                            this.rows= this.rows.map(row=>{
                                 if(row.eleId===rowId){
                                     row.cols.map(col=>{
                                         if(col.eleId===colId){
                                             col.elements.map(element=>{
                                                 if(element.eleId===target.id){
                                                     element.inner_html=target.innerHTML;
-                                                        element.class=cleaned.join(" ");
-                                                        element.cssText=target.style.cssText;
-                                                        
                                                 }
                                                 return element;
                                             });
@@ -2412,12 +2709,17 @@ set selector(selector:selectorType){
                                 }
                                 return row;
                             });
-                            selector_.rows=JSON.stringify(newRows);
+                            selector_.rows=JSON.stringify(this.rows);
+                            this.groupRows=this.groupRows.map(grpRows=>{
+                                if(grpRows.selectorId===selector_.eleId){
+                                    grpRows.rows=this.rows;
+                                }
+                                return grpRows;
+                            });
                         }
                         return selector_;
                     });
-                    this._modSelector.blog={...this._modSelector.blog,selectors:this._modSelector.selectors};
-                    this._modSelector.localStore({blog:this._modSelector.blog});
+                   
                 }
             };
            
@@ -2441,10 +2743,10 @@ set selector(selector:selectorType){
         const {cleaned}=this._modSelector.removeClasses({target,classes:["isActive","box-shadow"]})
         if(isJSON){
             const {rowId,colId}=parsed as selRowColType;
-            this._modSelector.selectors=this._modSelector.selectors.map(select=>{
-                    if(select.header){
-                        const {rows}=this._modSelector.checkGetRows({select});
-                        rows.map(row=>{
+            this.selectors=this.selectors.map(select=>{
+                if(select.header){
+                        this.rows=this.groupRows.filter(grpRows=>(grpRows.selectorId===select.eleId))[0]?.rows;
+                       this.rows= this.rows.map(row=>{
                             if(row.eleId===rowId){
                                 row.cols.map(col=>{
                                     if(col.eleId===colId){
@@ -2478,11 +2780,16 @@ set selector(selector:selectorType){
                             }
                             return row;
                         });
-                        select.rows=JSON.stringify(rows);
+                        select.rows=JSON.stringify(this.rows);
+                        this.groupRows=this.groupRows.map(grpRows=>{
+                            if(grpRows.selectorId===select.eleId){
+                                grpRows.rows=this.rows;
+                            }
+                            return grpRows;
+                        });
                     }
                 return select;
             });
-            this._modSelector.localStore({blog:this._modSelector.blog});
             
         }
     };
@@ -2523,6 +2830,7 @@ set selector(selector:selectorType){
         const imgKey=getImgKey?.attValue || undefined;
         const {cleaned}=this._modSelector.removeClasses({target,classes:["isActive","box-shadow"]});
         //ADDING ATTRIBUTES
+        this.rows=this.groupRows.filter(grpRows=>(grpRows.selectorId===sel.eleId))[0]?.rows;
         const check=colEle.elements.map(ele_=>(ele_.eleId)).includes(target.id as string);
         if(!check){
                 const ID=colEle.elements ? colEle.elements.length:0;
@@ -2584,39 +2892,43 @@ set selector(selector:selectorType){
                 
                 //RE-ASSIGNMENT HAS NEW INFO FROM TARGET
                 colEle.elements.push(ele)// oushing it
-        };
-        //adding it TO ROW
-        rowEle.cols=rowEle.cols.map(col_=>{
-            if(col_.eleId===colEle.eleId){
-                col_=colEle; //updating column
-            }
-            return col_;
-        });
-        //adding it TO ROW
-        // adding ROW TO SELECTOR
-        const {rows}=this._modSelector.checkGetRows({select:sel});
-            const newRows=rows.map(row_=>{
-                if(row_.eleId===rowEle.eleId){
-                    row_.cols=rowEle.cols;
-                }
-                return row_;
-            });
-            const stringRows=JSON.stringify(newRows);
-            sel={...sel,rows:stringRows};
-        // adding ROW TO SELECTOR
-        //ADDING SELECTOR TO SELECTORS AND SAVING IT TO LOCAL
-        this._modSelector.selectors=this._modSelector.selectors.map(select=>{
-            if(select.eleId===sel.eleId){
-                select=sel;// ADDING SELECTOR
-            }
-            return select;
-        }); 
-        this._modSelector.localStore({blog:this._modSelector.blog});
-        //ADDING SELECTOR TO SELECTORS AND SAVING IT TO LOCAL
-        //UPDATING IDVALUES
-       
-        this._modSelector.dataset.idValues=this._modSelector.dataset.idValues.concat(idValues);
-        //UPDATING IDVALUES
+                //adding it TO ROW
+                rowEle.cols=rowEle.cols.map(col_=>{
+                    if(col_.eleId===colEle.eleId){
+                        col_=colEle; //updating column
+                    }
+                    return col_;
+                });
+                //adding it TO ROW
+                // adding ROW TO SELECTOR
+                this.rows=this.rows.map(row_=>{
+                        if(row_.eleId===rowEle.eleId){
+                            row_.cols=rowEle.cols;
+                        }
+                        return row_;
+                    });
+                    const stringRows=JSON.stringify(this.rows);
+                    sel={...sel,rows:stringRows};
+                // adding ROW TO SELECTOR
+                //ADDING SELECTOR TO SELECTORS AND SAVING IT TO LOCAL
+                this.selectors=this.selectors.map(select=>{
+                    if(select.eleId===sel.eleId){
+                        select=sel;// ADDING SELECTOR
+                    }
+                    return select;
+                }); 
+                this.groupRows=this.groupRows.map(grpRows=>{
+                    if(grpRows.selectorId===sel.eleId){
+                        grpRows.rows=this.rows;
+                    }
+                    return grpRows;
+                });
+              
+                //ADDING SELECTOR TO SELECTORS AND SAVING IT TO LOCAL
+                //UPDATING IDVALUES
+                this._modSelector.dataset.idValues=this._modSelector.dataset.idValues.concat(idValues);
+                //UPDATING IDVALUES
+        };//END
         return {target,ele:ele as element_selType,idValues,sel,rowEle,colEle};
        
     };

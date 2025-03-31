@@ -3,7 +3,7 @@ import Service from "../common/services";
 import Nav from "../nav/headerNav";
 import Header from "./header";
 import ModSelector from "./modSelector";
-import {codeType,replType, linecodeType, } from "./Types";
+import {codeType,replType, linecodeType, blogType, } from "./Types";
 import {FaCreate} from "@/components/common/ReactIcons";
 import {FaCrosshairs,FaPython, FaHtml5} from "react-icons/fa";
 import { TbJson } from "react-icons/tb";
@@ -95,7 +95,7 @@ class NewCode{
                  blog_id:0,
              },
          ];
-    constructor(private _modSelector:ModSelector,private _service:Service,private _user:User){
+    constructor(private _modSelector:ModSelector,private _service:Service,private _user:User,private _blog:blogType){
         this._selectCodes=this._modSelector.selectCodes;
         this._count=this._modSelector.count;
         Main.textarea=document.querySelector("div#textarea");
@@ -179,6 +179,13 @@ class NewCode{
     }
 
     //----GETTERS SETTERS---///
+    get blog(){
+    return this._blog
+    };
+    set blog(blog:blogType){
+        this._blog=blog
+        localStorage.setItem("blog",JSON.stringify(blog));
+    };
     get placement(){
         const getPlace=localStorage.getItem("placement");
         if(getPlace){
@@ -270,7 +277,10 @@ class NewCode{
         });
             
         
-    }
+    };
+
+
+    
     async asyncCode(item:{parent:HTMLElement,selectCode:codeType}):Promise<{divCont:HTMLElement,pre:HTMLPreElement,target:HTMLElement,selectCode:codeType,regArr:{name:string,arrType:regJavaType[]}[]}|undefined>{
         const {parent,selectCode}=item;
         if(!selectCode)return;
@@ -284,10 +294,11 @@ class NewCode{
             ]
             Header.cleanUpByID(parent,"genCode-divCont -" + selectCode.eleId);
             const {target,divCont,selectCode:selectCode_,pre}= await this.divContTarget({parent,selectCode});
-            return new Promise(resolve=>{
-                resolve({divCont,pre,target,selectCode:selectCode_,regArr})
-            })as Promise<{divCont:HTMLElement,pre:HTMLPreElement,target:HTMLElement,selectCode:codeType,regArr:{name:string,arrType:regJavaType[]}[]}>;
-    }
+            return Promise.resolve({divCont,pre,target,selectCode:selectCode_,regArr})as Promise<{divCont:HTMLElement,pre:HTMLPreElement,target:HTMLElement,selectCode:codeType,regArr:{name:string,arrType:regJavaType[]}[]}>;
+    };
+
+
+    
     //ENTRY POINT FROM SIDEBAR!!!
     codeTemplate(parent:HTMLElement) {
          
@@ -392,10 +403,10 @@ class NewCode{
          target.appendChild(pre);
          divCont.appendChild(target);
          parent.appendChild(divCont);
-         return new Promise(resolve=>{
-            resolve({target,divCont,selectCode,pre})
-         }) as Promise<{target:HTMLElement,divCont:HTMLElement,selectCode:codeType,pre:HTMLPreElement}>;
-    }
+         return Promise.resolve({target,divCont,selectCode,pre}) as Promise<{target:HTMLElement,divCont:HTMLElement,selectCode:codeType,pre:HTMLPreElement}>;
+    };
+
+
     titleContainer(item:{parent:HTMLElement,selectCode:codeType}){
         const {parent,selectCode}=item;
        
@@ -430,7 +441,10 @@ class NewCode{
         imgDive.appendChild(span);
        
         parent.appendChild(imgDive);
-    }
+    };
+
+
+    
     refreshSave(item:{parent:HTMLElement,pre:HTMLPreElement,selectCode:codeType}){
         const {parent,pre,selectCode}=item;
         //parent===divCont!!!

@@ -11,6 +11,7 @@ import style from "./chart.module.css";
 import Dataset from '../common/dataset';
 import AuthService from '../common/auth';
 import Message from '../common/message';
+import RegSignIn from '../nav/regSignin';
 
 
 export default function Index() {
@@ -27,18 +28,17 @@ export default function Index() {
             const modSelector = new ModSelector(dataset);
             const service = new Service(modSelector);
             const auth = new AuthService(modSelector, service);
-            auth.generateUser().then(async (res) => {
+            auth.getSessionUser().then(async (res) => {
                 if (res) {
-                    const _user = res.user
-                    const user = new User(modSelector, service, auth);
-                    user.user = _user;
-                    modSelector.asyncBlogInitializer({ user: _user }).then(async (res) => {
-                        if (res) {
-                            const message = new Message(modSelector, service, res, null, _user);
+                    const regSignIn = new RegSignIn(modSelector, service, res.user, res.status)
+                    const user = new User(modSelector, service, res.status, regSignIn, res.user);
+                    modSelector.asyncBlogInitializer({ user: res.user }).then(async (_res) => {
+                        if (_res) {
+                            const message = new Message(modSelector, service, _res, null, res.user);
                             const chart = new ChartJS(modSelector, service, user, message);
                             countRef.current = 2;
 
-                            chart.mainChart({ injector: docChart, blog: res, idValues }).then((inject) => {
+                            chart.mainChart({ injector: docChart, blog: _res, idValues }).then((inject) => {
                                 if (inject) {
                                     climate.generateGraph({ parent: inject })
                                 }
