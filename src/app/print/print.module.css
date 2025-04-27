@@ -1,0 +1,9 @@
+.indexPage,
+.printpage {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 1rem;
+  margin-inline: auto;
+  margin-block: 1.5rem;
+}

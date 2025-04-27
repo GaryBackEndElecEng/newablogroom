@@ -1,0 +1,55 @@
+.particularCont {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  width: 100% !important;
+  margin-inline: auto;
+  margin-block: 1rem;
+  background-color: #d3f3f4;
+  padding-block: 2rem;
+  gap: 1rem;
+}
+
+.formGrpNormal {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 80% !important;
+  position: relative;
+}
+
+.formGrpTextArea {
+  display: flex;
+  flex-direction: column;
+  width: 100% !important;
+  gap: 1rem;
+  position: relative;
+  align-items: stretch;
+  margin-inline: auto;
+}
+
+.css_col {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin-inline: auto;
+  justify-content: center;
+  align-self: center;
+  justify-self: center;
+  position: relative;
+}
+.css_row {
+  display: inline-flex;
+  align-items: center;
+  margin-inline: auto;
+  justify-content: center;
+  align-self: center;
+  justify-self: center;
+  position: relative;
+}
+@media screen and (max-width: 900px) {
+  .formGrpNormal {
+    width: 90% !important;
+  }
+}

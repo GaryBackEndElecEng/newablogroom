@@ -16,6 +16,7 @@ import styles from "./footer.module.css";
 import BrowserType from '../common/browserType';
 import RegSignIn from '../nav/regSignin';
 import { useEditor } from '../context/editorContext';
+import MainAdvertise from '../bio/advertisment/mainAdvertise';
 
 
 
@@ -38,7 +39,7 @@ export default function Index() {
                     auth.confirmUser({ user: getUser, count: countRef.current }).then(async (res) => {
                         if (res) {
                             countRef.current = res.count;
-                            const user_id = res?.user?.id || undefined
+                            const user_id = res?.user?.id || undefined;
                             const browser = new BrowserType(user_id);
                             const isAuthenticated = res.isAuthenicated;
                             const regSignIn = new RegSignIn(modSelector, service, res.user, res.status);
@@ -51,7 +52,7 @@ export default function Index() {
                             const feature = new Features();
                             const injector = document.querySelector("section#footerInjector") as HTMLElement;
                             const mainFooter = new MainFooter(modSelector, service, injector, auth, res.user, dataflow, feature, allMsgs, commonInfo, browser);
-                            mainFooter.main({ injector, isAuthenticated, user: res.user });
+                            mainFooter.main({ injector, isAuthenticated, user: res.user, });
 
                         }
                     });

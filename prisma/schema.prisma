@@ -64,6 +64,9 @@ model User {
   posts          Post[]
   quoteImgs      QuoteImg[]
   devpDeployimgs DevDeployimg[]
+  resumes        Resume[]
+  references     Reference[]
+  letters        Letter[]
   showinfo       Boolean?
   admin          Boolean        @default(false)
   username       String?
@@ -146,51 +149,6 @@ model ColAttr {
 
   @@map("colAttr")
 }
-
-// model Row {
-//   id          Int      @id @default(autoincrement())
-//   name        String
-//   eleId       String
-//   class       String
-//   inner_html  String?
-//   imgKey      String?
-//   cssText     String
-//   cols        Col[]
-//   selector    Selector @relation(fields: [selector_id], references: [id], onDelete: Cascade, onUpdate: Cascade)
-//   selector_id Int
-//   order       Int
-// }
-
-// model Col {
-//   id         Int           @id @default(autoincrement())
-//   name       String
-//   eleId      String
-//   class      String
-//   inner_html String?
-//   imgKey     String?
-//   cssText    String
-//   elements   Element_sel[]
-//   row        Row           @relation(fields: [row_id], references: [id], onDelete: Cascade, onUpdate: Cascade)
-//   row_id     Int
-//   order      Int
-// }
-
-// model Element_sel {
-//   id         Int     @id @default(autoincrement())
-//   placement  Int?
-//   name       String
-//   eleId      String
-//   class      String
-//   inner_html String
-//   cssText    String
-//   attr       String?
-//   selectorId Int?
-//   img        String?
-//   imgKey     String?
-//   col        Col     @relation(fields: [col_id], references: [id], onDelete: Cascade, onUpdate: Cascade)
-//   col_id     Int
-//   order      Int
-// }
 
 model Element {
   id         Int     @id @default(autoincrement())
@@ -357,3 +315,42 @@ model DevDeployimg {
 
   @@map("devDeployimgs")
 }
+
+//BIO PORTFOLIO
+model Resume {
+  id      Int     @id @unique @default(autoincrement())
+  user    User    @relation(fields: [user_id], references: [id], onDelete: Cascade)
+  user_id String
+  name    String  @unique
+  enable  Boolean @default(false)
+  resume  Json
+
+  @@unique([name, id])
+  @@map("resume")
+}
+
+model Reference {
+  id          Int     @id @unique @default(autoincrement())
+  name        String  @unique
+  user        User    @relation(fields: [user_id], references: [id], onDelete: Cascade)
+  user_id     String
+  res_name_id String?
+  reference   Json
+
+  @@unique([name, id])
+  @@map("reference")
+}
+
+model Letter {
+  id          Int     @id @unique @default(autoincrement())
+  name        String  @unique
+  user        User    @relation(fields: [user_id], references: [id], onDelete: Cascade)
+  user_id     String
+  res_name_id String?
+  letter      Json
+
+  @@unique([name, id])
+  @@map("letter")
+}
+
+//BIO PORTFOLIO

@@ -1,0 +1,167 @@
+.mainCreateRef {
+  margin: auto;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  border: 1px solid lightblue;
+  border-radius: 7px;
+  width: 100% !important;
+  padding-inline: 6rem;
+  padding-block: 1.5rem;
+  background-color: black;
+  padding-bottom: 2rem;
+  gap: 1rem;
+}
+
+.dividerCont {
+  margin: auto;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 1.5rem;
+  width: 100%;
+  margin-top: 0;
+  margin-bottom: 2rem;
+  height: 2px;
+  background-color: blue;
+  box-shadow: 1px 1px 12px 1px blue, -1px -1px 12px 1px blue;
+}
+.outerBtnDiv {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin-inline: auto;
+  background-color: black;
+  padding: 1rem;
+  width: 100%;
+  position: relative;
+  order: 20;
+}
+.btnCont {
+  width: 50% !important;
+  margin-block: 1.75rem;
+  margin-inline: auto;
+  align-self: center;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  position: relative;
+  background-color: white;
+  order: 10;
+  z-index: 100;
+  padding: 1rem;
+  border-radius: 2px 30px 2px 30px;
+}
+
+.mainInnerCreateRef {
+  margin: auto;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  border: 1px solid lightblue;
+  border-radius: 7px;
+  width: 100% !important;
+  padding-inline: 3rem;
+  padding-block: 1.5rem;
+  background-color: white;
+  gap: 2rem;
+}
+
+.refCardCont {
+  margin: auto;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  border: 1px solid lightblue;
+  border-radius: 7px;
+  width: 100% !important;
+  background-color: white;
+}
+
+.genericPopup {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding-inline: 1rem;
+  padding-block: 2rem;
+  position: absolute;
+  top: 50%;
+  left: 30%;
+  right: 30%;
+  min-width: 350px;
+  min-height: 350px;
+  background-color: rgb(191, 227, 240);
+  z-index: 200;
+  box-shadow: 1px 1px 12px 1px black;
+  border-radius: 8px;
+}
+
+.formGrpNormal {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 80% !important;
+  position: relative;
+}
+
+.form {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  width: 100% !important;
+  margin-inline: auto;
+  margin-block: 1rem;
+  gap: 1rem;
+  position: relative;
+}
+
+@media screen and (max-width: 1200px) {
+  .mainCreateRef {
+    padding-inline: 3rem;
+  }
+  .mainInnerCreateRef {
+    padding-inline: 2rem;
+  }
+}
+
+@media screen and (max-width: 900px) {
+  .mainCreateRef {
+    padding-inline: 2rem;
+  }
+  .mainInnerCreateRef {
+    padding-inline: 1rem;
+  }
+
+  .genericPopup {
+    left: 20%;
+    right: 20%;
+  }
+  .btnCont {
+    width: 75% !important;
+  }
+}
+
+@media screen and (max-width: 400px) {
+  .mainCreateRef {
+    padding-inline: 0.5rem;
+  }
+  .mainInnerCreateRef {
+    padding-inline: 0rem;
+  }
+  .genericPopup {
+    left: 10%;
+    right: 10%;
+  }
+  .btnCont {
+    width: 90% !important;
+  }
+}

@@ -1,0 +1,176 @@
+.mainRefsCont {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  width: 100% !important;
+  margin-inline: auto;
+  margin-block: 1rem;
+  gap: 1rem;
+  position: relative;
+}
+
+.innerMainRefsCont {
+  margin: auto;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  border: 1px solid lightblue;
+  border-radius: 7px;
+  width: 100% !important;
+}
+.innerMainRefCard {
+  margin: auto;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  border: 1px solid lightblue;
+  border-radius: 7px;
+  width: 100% !important;
+}
+.refCardHeader {
+  margin: auto;
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  justify-content: center;
+  width: 100% !important;
+  order: 0;
+}
+.headerLeftSide {
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  justify-content: center;
+  width: 30% !important;
+  order: 0;
+}
+.headerRightSide {
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  justify-content: center;
+  width: 70% !important;
+  order: 1;
+}
+.refCardLinkCont {
+  margin: auto;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  width: 90%;
+  margin-inline: auto;
+  margin-left: 1rem;
+  margin-block: 1rem;
+  order: 1;
+}
+.linksRefRowRightSide {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  margin-inline: auto;
+  align-self: center;
+  justify-self: center;
+  order: 1;
+  flex: 1 0 auto;
+}
+
+.contactRefCont {
+  margin: auto;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  width: 90%;
+  margin-inline: auto;
+  margin-left: 1rem;
+  margin-block: 1rem;
+}
+
+.css_col {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin-inline: auto;
+  justify-content: center;
+  align-self: center;
+  justify-self: center;
+  position: relative;
+}
+.css_row {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  margin-inline: auto;
+  justify-content: center;
+  align-self: center;
+  justify-self: stretch;
+  position: relative;
+  flex-wrap: nowrap;
+  width: 100% !important;
+}
+.contRow {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  margin-inline: auto;
+  justify-content: center;
+  align-self: center;
+  justify-self: stretch;
+  position: relative;
+  flex-wrap: nowrap;
+  width: 100% !important;
+  padding-inline: 1.25rem;
+}
+
+@media screen and (max-width: 900px) {
+  .contRow {
+    padding-inline: 0.5rem;
+  }
+  .headerLeftSide {
+    width: 40% !important;
+  }
+  .headerRightSide {
+    width: 60% !important;
+  }
+}
+
+@media screen and (max-width: 400px) {
+  .linksRefRowRightSide {
+    flex: 1 0 100%;
+    width: 100%;
+    align-items: center;
+  }
+  .css_row {
+    flex-direction: column;
+    flex-wrap: none;
+    align-items: center;
+    justify-content: center;
+  }
+  .contRow {
+    flex-direction: column;
+    flex-wrap: none;
+    align-items: center;
+    justify-content: center;
+  }
+  .headerLeftSide,
+  .headerRightSide {
+    width: 100% !important;
+  }
+}
+
+@keyframes growIn {
+  from {
+    transform: scale(0) translateX(100%);
+    opacity: 0.5;
+  }
+  to {
+    transform: scale(1) translateX(100%);
+    opacity: 1;
+  }
+}

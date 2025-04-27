@@ -1,0 +1,467 @@
+.headerCont {
+  display: flex;
+  gap: 1rem;
+
+  justify-content: center;
+  align-items: center;
+  height: 20vh;
+  overflow: hidden;
+  order: 1;
+  width: 100% !important;
+  border: 1px solid red;
+  background: linear-gradient(to left, grey, white);
+  z-index: 0;
+  position: relative;
+}
+
+.containerResumes {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-start;
+  width: 100% !important;
+  margin-inline: auto;
+  margin-bottom: 2rem;
+  margin-top: 0;
+  max-width: 1600px;
+  box-shadow: 1px 1px 12px 1px black;
+  border-radius: 12px;
+  background-color: white;
+  min-height: 120vh;
+  height: auto;
+  order: 2;
+}
+
+.topbarRow {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: space-between;
+  max-width: 1400px !important;
+  width: 100% !important;
+  margin-inline: auto;
+  margin-block: 1rem;
+  padding-inline: 0.5rem;
+  background-image: url("/images/main.png");
+  border-radius: 8px;
+  justify-self: center;
+  flex-wrap: wrap;
+  height: auto;
+  padding-block: 3rem;
+  animation: appearIn 1s ease-in;
+}
+
+.innerMainOpenCont {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  width: 90% !important;
+  margin-inline: auto;
+  margin-block: 1rem;
+  border-radius: inherit;
+  background-color: white;
+  padding-inline: 2rem;
+  padding-bottom: 2rem;
+}
+
+.css_col {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin-inline: auto;
+  justify-content: center;
+  align-self: center;
+  justify-self: center;
+  position: relative;
+}
+.noDataCont {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin-inline: 1rem;
+  justify-content: center;
+  align-self: center;
+  justify-self: center;
+  position: relative;
+  width: 100%;
+}
+.noDataCont > p {
+  padding-inline: 0.5rem;
+  text-wrap: pretty;
+}
+
+.css_row {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  margin-inline: auto;
+  justify-content: flex-start;
+  align-self: center;
+  justify-self: center;
+  position: relative;
+}
+/* rowCol  AND .topbarRowCol are BIND TOGETHER THEY MUST BE DUPLICATES */
+.rowCol {
+  display: flex;
+  flex-direction: column;
+  margin-inline: auto;
+  background: linear-gradient(225deg, whitesmoke, transparent);
+  color: white;
+  justify-items: center;
+  gap: 1rem;
+  padding-block: 1.5rem;
+  height: auto;
+  flex: 1 0 auto;
+  position: relative;
+}
+/* rowCol  AND .topbarRowCol are BIND TOGETHER THEY MUST BE DUPLICATES */
+.topbarRowCol {
+  display: flex;
+  flex-direction: column;
+  margin-inline: auto;
+  background: linear-gradient(225deg, whitesmoke, transparent);
+  color: white;
+  justify-items: center;
+  gap: 1rem;
+  padding-block: 1.5rem;
+  height: auto;
+  flex: 1 0 auto;
+  position: relative;
+}
+.topbarRowCol::after {
+  content: attr(data-topbar-desc);
+  display: flex;
+  margin: auto;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 0.75rem;
+  position: absolute;
+  border-left: 4px solid blue;
+  border-bottom: 4px solid blue;
+  padding-left: 8px;
+  height: auto;
+  inset: 0% 10% auto 10%;
+  z-index: 200;
+  transform: translateY(-70%);
+  background-color: black;
+  box-shadow: 1px 1px 12px 1px black;
+  border-radius: 8px;
+  color: white;
+  animation: growIn 0.7s ease-in;
+}
+.topbarRowInfo {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  position: absolute;
+  top: 0%;
+  right: 0%;
+  transform: translate(-5px, 5px);
+  max-width: 40px;
+  max-height: 40px;
+  border-radius: 50%;
+  background-color: black;
+  color: white;
+  padding: 2px;
+}
+
+.headerCol {
+  display: flex;
+  opacity: 1;
+  flex-direction: column;
+  margin-inline: auto;
+  background-position: 50% 60%;
+  background-size: 100% 200%;
+  color: white;
+  justify-items: center;
+  justify-content: center;
+  gap: 1rem;
+  padding-block: 1.5rem;
+  height: inherit;
+  border-top: 2px solid black;
+  border-bottom: 2px solid black;
+  animation: appearIn 1s ease-in;
+}
+.headerCol > h6 {
+  opacity: 1;
+  font-size: 400%;
+  font-weight: bold;
+  animation: dropDown 0.6s ease-in;
+  line-height: 2rem;
+}
+.headerLastPara {
+  opacity: 1;
+  font-size: 150%;
+  font-weight: bold;
+  animation: _rotate 2s ease-in;
+}
+.colPara {
+  opacity: 1;
+  font-size: 150%;
+  font-weight: bold;
+  animation: slideIn 2s ease-in;
+}
+
+.headerColOut {
+  display: flex;
+  flex-direction: column;
+  margin-inline: auto;
+  background-position: 50% 50%;
+  background-size: 100% 100%;
+  color: white;
+  justify-items: center;
+  gap: 1rem;
+  padding-block: 1.5rem;
+  height: auto;
+  border-top: 2px solid black;
+  border-bottom: 2px solid black;
+  opacity: 0;
+  animation: appearOut 1s ease-in;
+}
+.headerEffectRow {
+  margin: auto;
+  display: flex;
+  flex-direction: row;
+  margin-inline: auto;
+  flex-wrap: nowrap;
+  color: white;
+  justify-items: center;
+  align-items: center;
+  gap: 1rem;
+  height: inherit;
+  background-position: 50% 50%;
+  background-size: 100% 100%;
+  width: 100% !important;
+  overflow-x: scroll;
+}
+.headerEffectRow > div {
+  height: inherit;
+}
+.innerRowCol {
+  margin-inline: auto;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  background-color: transparent;
+  height: 18vh !important;
+  overflow-y: scroll !important;
+  overflow-x: hidden;
+  border-top: 1px solid rgba(245, 243, 243, 0.608);
+  border-width: 2px;
+  padding-block: 0.5rem;
+  gap: 1rem;
+  width: 100%;
+}
+
+.customButton {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  padding-inline: 2rem;
+  padding-block: 0rem;
+  align-self: center;
+  justify-self: center;
+  max-width: 200px;
+  width: 100% !important;
+  z-index: 0;
+  position: relative;
+}
+.customButton::after {
+  opacity: 0;
+  content: attr(data-button);
+  position: absolute;
+  inset: 0% 40% 0% 40%;
+  background-color: transparent;
+  color: white;
+  transform: translateY(100%);
+  border-radius: 3px;
+  transition: all 0.7s ease-in;
+}
+.customButton:hover::after {
+  opacity: 1;
+  inset: 0%;
+  background-color: white;
+  border-radius: 20px;
+  color: black;
+  transform: translateY(-300%);
+  transition: all 0.7s ease-out;
+}
+.customButtonLeft {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  padding-inline: 2rem;
+  padding-block: 0rem;
+  align-self: center;
+  justify-self: center;
+  max-width: 200px;
+  width: 100% !important;
+  z-index: 0;
+  position: relative;
+}
+.customButtonLeft::after {
+  opacity: 0;
+  content: attr(data-button);
+  position: absolute;
+  inset: 0% 40% 0% 40%;
+  background-color: transparent;
+  color: white;
+  transform: translateX(-50%);
+  border-radius: 3px;
+  z-index: 0;
+  transition: all 0.7s ease-in;
+}
+.customButtonLeft:hover::after {
+  opacity: 1;
+  inset: 0% -20% 0% -20%;
+  background-color: white;
+  border-radius: 20px;
+  color: black;
+  z-index: 200;
+  transform: translate(0%, 109%);
+  transition: all 0.7s ease-out;
+}
+
+@media screen and (max-width: 1200px) {
+  .containerResumes {
+    padding-inline: 1.25rem;
+  }
+  .innerMainOpenCont {
+    padding-inline: 1rem;
+    width: 95% !important;
+  }
+}
+
+@media screen and (max-width: 900px) {
+  .headerCont {
+    height: 18vh;
+  }
+  .customButtonLeft::after {
+    display: none;
+  }
+  .customButton::after {
+    display: none;
+  }
+  .containerResumes {
+    padding-inline: 1rem;
+  }
+  .innerMainOpenCont {
+    padding-inline: 0.25rem;
+    width: 100% !important;
+  }
+  .headerCol > h6 {
+    font-size: 300%;
+  }
+  .headerCol > p,
+  .headerLastPara {
+    font-size: 120%;
+  }
+  .customButton {
+    max-width: 100px;
+  }
+
+  .topbarRow {
+    flex-wrap: wrap !important;
+    padding-block: 1.5rem;
+  }
+}
+@media screen and (max-width: 400px) {
+  .headerCont {
+    height: 20vh;
+  }
+  .containerResumes {
+    padding-inline: 0.25rem;
+  }
+  .headerCol > h6 {
+    font-size: 200%;
+  }
+  .headerCol > p,
+  .headerLastPara {
+    font-size: 110%;
+  }
+  .topbarRow {
+    flex-wrap: none;
+    flex-direction: column !important;
+    align-items: center !important;
+    padding-block: 1rem;
+  }
+  .rowCol,
+  .topbarRowCol {
+    width: 100% !important;
+  }
+  .innerRowCol {
+    width: 100% !important;
+    align-items: center;
+    justify-content: flex-start;
+    height: 10vh !important;
+  }
+  .css_row {
+    flex-direction: column;
+    flex-wrap: none;
+    align-items: center;
+    justify-content: center;
+  }
+  .customButton {
+    max-width: 200px;
+  }
+}
+@keyframes appearIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+@keyframes appearOut {
+  from {
+    opacity: 1;
+  }
+  to {
+    opacity: 0;
+  }
+}
+@keyframes dropDown {
+  from {
+    transform: translateY(-100%);
+  }
+  to {
+    transform: translateY(0%);
+  }
+}
+@keyframes slideIn {
+  from {
+    transform: translateX(-20%);
+    opacity: 0;
+  }
+  to {
+    transform: translateX(0%);
+    opacity: 1;
+  }
+}
+
+@keyframes _rotate {
+  from {
+    transform: rotateY(-360deg);
+    opacity: 0;
+  }
+  to {
+    transform: rotateY(0deg);
+    opacity: 1;
+  }
+}
+@keyframes growIn {
+  from {
+    transform: scale(0) translateY(0%);
+    opacity: 0;
+  }
+  to {
+    transform: scale(1) translateY(-70%);
+    opacity: 1;
+  }
+}

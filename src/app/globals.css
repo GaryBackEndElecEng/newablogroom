@@ -1257,15 +1257,7 @@ svg.show {
   margin-inline: auto;
   padding-inline: 1.25rem;
 }
-h1,
-h2,
-h3,
-h4,
-h5,
-h6,
-p {
-  padding-inline: 1.25rem;
-}
+
 .title {
   font-weight: normal;
   text-decoration: none;

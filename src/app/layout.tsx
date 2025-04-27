@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
-import { Inter } from "next/font/google";
+
+import { Geist, Geist_Mono, Playwrite_AR, Poppins } from "next/font/google";
 import "./globals.css";
 import "bootstrap/dist/css/bootstrap.min.css";
 import EditorContextProvider from "@/components/context/editorContext";
@@ -8,8 +9,22 @@ import Header from "@/components/nav/Header";
 import Providers from "./providers";
 const bend = "/images/main.png";
 
-const inter = Inter({ subsets: ["latin"] });
-const baseUrl = process.env.NODE_ENV !== "production" ? process.env.NEXTAUTH_URL as string : "https://www.ablogroom.com";
+const geistSans = Geist({
+  variable: "--font-geist-sans",
+  subsets: ["latin"],
+});
+
+const geistMono = Geist_Mono({
+  variable: "--font-geist-mono",
+  subsets: ["latin"],
+});
+const playwrite = Playwrite_AR({
+  variable: "--Playwrite",
+
+})
+const poppins = Poppins({ subsets: ['latin'], weight: "400", variable: "--poppins" });
+
+
 
 export const metadata: Metadata = {
   metadataBase: new URL("https://www.ablogroom.com"),
@@ -56,25 +71,16 @@ export const metadata: Metadata = {
     siteName: "ablogroom",
     images: [
       {
-        url: "https://new-master.s3.ca-central-1.amazonaws.com/ablogroom/gb_logo_600.png",
+        url: "https://newablogroom-free-bucket.s3.us-east-1.amazonaws.com/gb_logo_600.png",
         width: 600,
         height: 600
       },
       {
-        url: "https://new-master.s3.ca-central-1.amazonaws.com/ablogroom/gb_logo_800_400.png",
+        url: "https://newablogroom-free-bucket.s3.us-east-1.amazonaws.com/gb_logo_800_400.png",
         width: 800,
         height: 400
       },
-      {
-        url: "/images/gb_logo_600.png",
-        width: 600,
-        height: 600
-      },
-      {
-        url: "/images/gb_logo_800_400.png",
-        width: 800,
-        height: 400
-      },
+
       {
         url: "https://new-master.s3.ca-central-1.amazonaws.com/ablogroom/thankYou.png",
         width: 600,
@@ -130,7 +136,7 @@ export default async function RootLayout({
 
   return (
     <html lang="en">
-      <body >
+      <body className={`${geistSans.variable} ${poppins.variable} ${geistMono.variable} ${playwrite.variable}`} >
         <Providers>
           <EditorContextProvider>
             <Header />

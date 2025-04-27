@@ -1,0 +1,360 @@
+.mainEditor {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin-inline: auto;
+  justify-content: flex-start;
+  position: relative;
+  width: 100% !important;
+  background: linear-gradient(-45deg, black, lightgrey);
+}
+.contactHeader {
+  margin-inline: 0;
+  width: 100% !important;
+}
+.mainLetterCont,
+.mainShowLetter {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin-inline: auto;
+  justify-content: flex-start;
+  position: relative;
+  background-color: white;
+  border-radius: 8px;
+  width: 90% !important;
+  padding-inline: 1rem;
+}
+.summaryCont {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin-inline: auto;
+  justify-content: center;
+  align-self: center;
+  justify-self: center;
+  position: relative;
+  width: 100% !important;
+  margin-block: 2rem;
+  padding-inline: 0;
+}
+.letterCont {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin-inline: auto;
+  justify-content: center;
+  align-self: center;
+  justify-self: center;
+  position: relative;
+  width: 100% !important;
+}
+.addFileCont {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin-inline: auto;
+  justify-content: center;
+  align-self: center;
+  justify-self: center;
+  position: relative;
+  margin-block: 2rem;
+  width: 50% !important;
+}
+
+.css_col {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin-inline: auto;
+  justify-content: center;
+  align-self: center;
+  justify-self: center;
+  position: relative;
+  width: 100% !important;
+  margin-block: 1rem;
+  padding-inline: 0 !important;
+}
+.paragraphCont {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin-inline: auto;
+  justify-content: center;
+  align-self: center;
+  justify-self: center;
+  position: relative;
+  width: 100% !important;
+  margin-block: 1rem;
+  gap: 2rem;
+  padding-inline: 1.25 !important;
+}
+.contactHeaderColLeft {
+  align-self: flex-start;
+  justify-self: center;
+  position: relative;
+  margin-block: 1rem;
+  padding-inline: 0 !important;
+  flex: 1 0 50%;
+  order: 0;
+}
+.contactHeaderColRight {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  margin-inline: auto;
+  justify-content: center;
+  justify-self: center;
+  position: relative;
+  margin-block: 1rem;
+  padding-inline: 0 !important;
+  flex: 1 0 50%;
+  order: 1;
+}
+
+.contactCol {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin-inline: auto;
+  justify-content: center;
+  align-self: center;
+  justify-self: center;
+  position: relative;
+  margin-block: 1rem;
+}
+.paraFormGroup {
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  margin-inline: auto;
+  justify-content: center;
+  align-self: center;
+  justify-self: center;
+  position: relative;
+  width: 100% !important;
+  margin-block: 1rem;
+  padding-block: 1rem;
+}
+.css_row {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  margin-inline: auto;
+  justify-content: center;
+  align-self: center;
+  justify-self: stretch;
+  position: relative;
+  flex-wrap: nowrap;
+  width: 100% !important;
+}
+.btnRow {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  margin-inline: auto;
+  justify-content: center;
+  align-self: center;
+  justify-self: stretch;
+  position: relative;
+  flex-wrap: wrap;
+  gap: 1rem;
+  width: 100% !important;
+}
+.css_row_normal {
+  display: flex;
+  flex-direction: row;
+  margin-inline: auto;
+  justify-content: center;
+  flex-wrap: nowrap;
+}
+.contactRow {
+  display: flex;
+  flex-direction: row;
+  align-items: flex-start;
+  margin-inline: auto;
+  justify-content: space-between;
+  align-self: center;
+  justify-self: stretch;
+  position: relative;
+  flex-wrap: wrap;
+  width: 100% !important;
+}
+.removeParagraph {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  margin-inline: auto;
+  justify-content: center;
+  align-self: center;
+  justify-self: stretch;
+  flex-wrap: wrap;
+  width: 100px !important;
+  position: absolute;
+  top: 0%;
+  right: 0%;
+  height: auto;
+  z-index: 200 !important;
+  border-radius: 7px;
+  box-shadow: 1px 1px 10px 1px black;
+  padding-inline: 0.5rem;
+  background-color: white;
+}
+
+.addParagraph {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin-inline: auto;
+  justify-content: center;
+  align-self: center;
+  justify-self: stretch;
+  width: 100px !important;
+  z-index: 300 !important;
+  position: absolute;
+  top: 0%;
+  left: 0%;
+  height: auto;
+  border-radius: 7px;
+  box-shadow: 1px 1px 10px 1px black;
+  padding-inline: 0.5rem;
+  background-color: white;
+}
+.formParaCont {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin-inline: auto;
+  justify-content: center;
+  align-self: center;
+  justify-self: stretch;
+  width: 100% !important;
+  border-radius: 7px;
+  border: 1px solid lightblue;
+  padding-inline: 2.5rem;
+}
+.filenameCont {
+  display: inline-flex;
+  gap: 1rem;
+  position: absolute;
+  top: 100%;
+  left: 0%;
+  transform: translate(15px, 0px) scale(0.9);
+  font-size: 8px;
+}
+.signature {
+  display: flex;
+  margin-inline: 0;
+  flex-direction: column;
+  line-height: 1.5rem;
+  align-items: flex-start;
+  width: fit-content;
+  align-self: flex-start;
+  justify-self: flex-start;
+}
+.signature h6 {
+  font-size: 140%;
+  font-family: var(--Playwrite);
+  line-height: 3.5rem;
+}
+.outerBtnDiv {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin-inline: auto;
+  background-color: black;
+  padding: 1rem;
+  width: 100%;
+  position: relative;
+  order: 20;
+}
+.btnCont {
+  width: 50% !important;
+  margin-block: 1.75rem;
+  margin-inline: auto;
+  align-self: center;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  position: relative;
+  background-color: white;
+  order: 10;
+  z-index: 100;
+  padding: 1rem;
+  border-radius: 2px 30px 2px 30px;
+}
+
+@media screen and (max-width: 900px) {
+  .formParaCont {
+    padding-inline: 1rem !important;
+  }
+  .mainShowLetter {
+    width: 100% !important;
+    padding-inline: 0.5rem;
+  }
+  .mainLetterCont {
+    width: 100% !important;
+  }
+  .addFileCont {
+    width: 60% !important;
+  }
+  .removeParagraph,
+  .addParagraph {
+    width: 70px !important;
+  }
+}
+@media screen and (max-width: 400px) {
+  .formParaCont {
+    padding-inline: 0.5rem !important;
+  }
+  .mainShowLetter,
+  .mainLetterCont {
+    padding-inline: 0.25rem;
+    width: 100% !important;
+  }
+  .paragraphCont {
+    padding-inline: 0.25rem !important;
+  }
+  .css_row {
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+  }
+  .contactHeaderColRight {
+    align-items: flex-start;
+    align-self: flex-start;
+    width: 100% !important;
+    flex: none;
+    margin-inline: 0;
+    order: 0;
+  }
+  .contactHeaderColLeft {
+    order: 1;
+  }
+  .addFileCont {
+    width: 80% !important;
+  }
+  .mainLetterCont {
+    width: 100% !important;
+  }
+
+  .removeParagraph,
+  .addParagraph {
+    width: 50px !important;
+  }
+  .contactRow {
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+  }
+  .css_row_normal {
+    justify-content: flex-start;
+    align-items: flex-start;
+  }
+  .filenameCont {
+    transform: translate(2px, 0px) scale(0.7);
+  }
+  .signature h6 {
+    font-size: 103%;
+  }
+}

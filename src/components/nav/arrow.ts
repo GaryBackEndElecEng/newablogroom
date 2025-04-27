@@ -2,6 +2,7 @@
 import { FaAccessibleIcon, FaBlog,FaInfo,FaEdit,FaHome,FaMedapps,FaSign,FaFilePowerpoint,FaArrowRight} from "react-icons/fa";
 import { navLinkBtnType, userType, blogType, } from "../editor/Types";
 import { FaBtn, FaCreate } from "../common/ReactIcons";
+import { BiSolidReport } from "react-icons/bi";
 import * as Icons from "react-icons/fa";
 import Header from '../editor/header';
 import RegSignIn from './regSignin';
@@ -285,14 +286,15 @@ set user(user:userType){
                 {id:2,name:"admin",color:"red",link:"/admin",func:()=> Nav.navHistory("/admin"),icon:FaSign,show:this._isAdmin,isEditor:false,save:async()=>null},
                 {id:3,name:"editor",color:"#00BFFF",link:"/editor",func:()=>Nav.navHistory("/editor"),icon:FaEdit,show:true,isEditor:true,save:()=>null},
                 {id:4,name:"posts",color:"#00BFFF",link:"/posts",func:()=>Nav.navHistory("/posts"),icon:Icons.FaDropbox,show:true,isEditor:false,save:()=>null},
-                {id:5,name:"chart",color:"#00BFFF",link:"/chart",func:()=>Nav.navHistory("/chart"),icon:Icons.FaChartBar,show:true,isEditor:false,save:()=>null},
-                {id:6,name:"signin",color:"#00FF00",link:null,func:()=> this._regSignin.signIn(),icon:FaSign,show:!isAuthenticated,isEditor:false,save:()=>null},
-                {id:7,name:"logout",color:"#00FF00",link:null,func:()=>this.auth.logout({func:()=>undefined,redirect:true}),icon:FaSign,show:isAuthenticated,isEditor:false,save:()=>null},
-                {id:8,name:"contact",color:"#00FF00",link:null,func:()=> this.commonInfo.contact({user,isAuthenticated}),icon:FaMedapps,show:true,isEditor:false,save:()=>null},
-                {id:9,name:"profile on demand",color:"#800000",link:null,func:()=> this._profile.main(getHeaderInjector),icon:FaAccessibleIcon,show:isAuthenticated,isEditor:false,save:()=>null},
-                {id:10,name:"profile page",color:"#00FF00",link:"/profile",func:()=> Nav.navHistory("/profile"),icon:FaAccessibleIcon,show:isAuthenticated,isEditor:false,save:()=>null},
-                {id:10,name:"general-Info",color:"#00FF00",link:null,func:()=> this.commonInfo.generalInfo(MainHeader.header as HTMLElement),icon:FaInfo,show:true,isEditor:false,save:()=>null},
-                {id:11,name:"features",color:"#00FF00",link:null,func:()=> this.feature.feature(document.body as HTMLElement),icon:FaFilePowerpoint,show:true,isEditor:false,save:()=>null},
+                {id:5,name:"resume builder",color:"blue",link:"/bio",func:()=>Nav.navHistory("/bio"),icon:BiSolidReport,show:isAuthenticated,isEditor:false,save:()=>null},
+                {id:6,name:"chart",color:"#00BFFF",link:"/chart",func:()=>Nav.navHistory("/chart"),icon:Icons.FaChartBar,show:true,isEditor:false,save:()=>null},
+                {id:7,name:"signin",color:"#00FF00",link:null,func:()=> this._regSignin.signIn(),icon:FaSign,show:!isAuthenticated,isEditor:false,save:()=>null},
+                {id:8,name:"logout",color:"#00FF00",link:null,func:()=>this.auth.logout({func:()=>undefined,redirect:true}),icon:FaSign,show:isAuthenticated,isEditor:false,save:()=>null},
+                {id:9,name:"contact",color:"#00FF00",link:null,func:()=> this.commonInfo.contact({user,isAuthenticated}),icon:FaMedapps,show:true,isEditor:false,save:()=>null},
+                {id:10,name:"profile on demand",color:"#800000",link:null,func:()=> this._profile.main(getHeaderInjector),icon:FaAccessibleIcon,show:isAuthenticated,isEditor:false,save:()=>null},
+                {id:11,name:"profile page",color:"#00FF00",link:"/profile",func:()=> Nav.navHistory("/profile"),icon:FaAccessibleIcon,show:isAuthenticated,isEditor:false,save:()=>null},
+                {id:12,name:"general-Info",color:"#00FF00",link:null,func:()=> this.commonInfo.generalInfo(MainHeader.header as HTMLElement),icon:FaInfo,show:true,isEditor:false,save:()=>null},
+                {id:13,name:"features",color:"#00FF00",link:null,func:()=> this.feature.feature(document.body as HTMLElement),icon:FaFilePowerpoint,show:true,isEditor:false,save:()=>null},
             ]
         }
         ////----------!!IS CLIENT LOGGED IN ? YES=> SHOW ELSE: HIDE -----//////

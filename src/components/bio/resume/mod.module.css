@@ -1,0 +1,167 @@
+.mainMod {
+  display: flex;
+  flex-direction: column;
+  width: 100% !important;
+  align-items: center;
+  justify-content: center;
+  margin-block: 2rem;
+  padding-inline: 2rem;
+  margin-inline: auto;
+  position: relative !important;
+  border-radius: 8px;
+}
+
+.combinedCont {
+  margin: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  width: 100%;
+  background-color: #6bcbf324;
+  color: black;
+  border-radius: 8px;
+  box-shadow: 1px 1px 12px 1px black;
+}
+.rowCont {
+  margin: auto;
+  display: flex;
+  width: 100% !important;
+  gap: 1rem;
+  flex-wrap: wrap;
+  justify-content: flex-start;
+  align-items: flex-start;
+  background-color: white;
+  border-radius: inherit;
+}
+.colRow {
+  margin: auto;
+  display: flex;
+  width: fit-content;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+.colCont {
+  margin: auto;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-start;
+  flex: 1 0 auto;
+  align-self: flex-start;
+  border-right: 1px solid lightgrey;
+}
+.selectionCont {
+  margin: auto;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+.select {
+  margin: auto;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  border: none;
+}
+.attachDetachCont {
+  position: absolute !important;
+  inset: 0%;
+  font-size: 12px;
+  color: blue;
+  width: fit-content;
+  transform: translate(10%, 80%);
+}
+.attachDetachCont::after {
+  display: block;
+  opacity: 0;
+  content: "<=attached";
+  position: absolute;
+  inset: 0%;
+  width: fit-content;
+  transform: translateY(0%);
+  transition: all 0.5s ease-out;
+}
+.attachDetachCont:hover::after {
+  opacity: 1;
+  transform: translate(150%, -70%);
+  transition: all 0.5s ease-in;
+}
+.clearAccessCont {
+  margin: auto;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  border: none;
+  background-color: white;
+  padding: 1rem;
+}
+.clearAccessCont > div {
+  margin: auto;
+  display: flex;
+  flex-direction: row;
+  align-items: flex-start;
+  justify-content: center;
+  border-bottom: 1px solid blue;
+  padding-inline: 1rem;
+  gap: 1rem;
+}
+.resumeCol {
+  margin: auto;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  flex: 1 0 auto;
+  margin-block: 1rem;
+}
+.resumeCol > span > h6 {
+  font-size: 130%;
+}
+.resname {
+  position: relative;
+}
+.resname::after {
+  content: attr(data-resname);
+  color: blue;
+  position: absolute;
+  inset: 0%;
+  transform: translate(250%, 0px);
+  font-size: 10px;
+  border-radius: 6px;
+  box-shadow: 1px 1px 6px 1px black;
+  z-index: 200;
+  background: transparent;
+  padding-inline: 0.25rem;
+  padding-block: 1px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: fit-content;
+}
+
+@media screen and (max-width: 900px) {
+  .mainMod {
+    padding-inline: 1rem;
+  }
+}
+@media screen and (max-width: 400px) {
+  .mainMod {
+    padding-inline: 0rem;
+  }
+  .rowCont {
+    flex-direction: column;
+    align-items: center;
+  }
+  .colCont {
+    flex: "none";
+    width: 100% !important;
+  }
+  .colRow,
+  .rowCont {
+    flex-direction: column;
+    align-items: center;
+  }
+}

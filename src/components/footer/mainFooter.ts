@@ -1,6 +1,7 @@
 
 import {FaCreate} from "@/components/common/ReactIcons";
 import { FaArrowRight,FaFingerprint, FaInfoCircle, FaSignInAlt, FaSignOutAlt } from "react-icons/fa";
+import { BiSolidReport } from "react-icons/bi";
 import Misc from "../common/misc";
 import { buttonReturn } from "../common/tsFunctions";
 import ModSelector from "../editor/modSelector";
@@ -19,6 +20,7 @@ import AuthService from "../common/auth";
 import CommonInfo from "../common/commonInfo";
 import BrowserType from "../common/browserType";
 import FirstTimeIntro from "../common/firstTimeIntro";
+import MainAdvertise from "../bio/advertisment/mainAdvertise";
 
 
 
@@ -43,10 +45,12 @@ class MainFooter{
     arrUrl:{name:string,link:string}[];
     public injector_:HTMLElement;
     public firstTimeIntro:FirstTimeIntro;
+    public resumeAdvertise:MainAdvertise
 
 
 
     constructor(private _modSelector:ModSelector,private _service:Service,injector:HTMLElement,private auth:AuthService,private _user:userType|null,public dataflow:Dataflow,public feature:Features,public allMsgs:AllMsgs,public commonInfo:CommonInfo,private browser:BrowserType){
+        this.resumeAdvertise= new MainAdvertise();
         this.btnColor=Nav.btnColor
         this.injector_=injector;
         MainFooter.entry=injector;
@@ -100,6 +104,7 @@ class MainFooter{
         container.className=styles.mainFooterCont;
         injector.appendChild(container);
         injector.appendChild(container);
+        this.resumeAdvertisement({parent:container});
         const repeatCount=0;
         const isRepeat=this.browser.homeShowControl({repeatCount});
         this.showStorageMsg({parent:container,isRepeat});
@@ -144,7 +149,42 @@ class MainFooter{
        
     };
 
-   
+
+
+   resumeAdvertisement({parent}:{parent:HTMLElement}){
+    const less400=window.innerWidth <400;
+    const cont=document.createElement("div");
+    cont.id="resumeAdvertisement";
+    cont.className=styles.resumeAdvertisement;
+    parent.appendChild(cont);
+    const subContRow=document.createElement("div");
+    subContRow.id="advertise-sub-cont-row";
+    const iconCont=document.createElement("div");
+    iconCont.style.cssText="border-radius:50%;padding:6px;background-color:#0d6efd";
+    iconCont.style.fontSize=less400 ? "18px":"24px";
+    FaCreate({parent:iconCont,name:BiSolidReport,cssStyle:{borderRadius:"50%",backgroundColor:"black",color:"white",border:"1px solid blue"}});
+    subContRow.appendChild(iconCont);
+    const h6=document.createElement("h6");
+    h6.className="text-primary lean display-6 mx-1";
+    h6.style.cssText="text-transform:uppercase;text-wrap:nowrap;"
+    h6.textContent="resume builder";
+    subContRow.appendChild(h6);
+    cont.appendChild(subContRow);
+    subContRow.onclick=(e:MouseEvent)=>{
+        if(!e) return;
+        const navHeader=document.querySelector("header#navHeader") as HTMLElement;
+        if(!navHeader) return;
+        this.resumeAdvertise.mainPopup({parent:navHeader,count:0}).then(async(res)=>{
+            if(res){
+                res.count++;
+                
+            }
+        });
+    };
+    //resumeAdvertise
+   };
+
+
 
     async addElement(item:{col:HTMLElement,main:HTMLElement,str:string,isAuthenticated:boolean,less400:boolean,less900:boolean,user:userType}){
         const {col,main,str,isAuthenticated,less400,less900,user}=item;

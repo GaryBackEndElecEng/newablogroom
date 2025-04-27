@@ -17,6 +17,23 @@
   margin-bottom: 0;
   z-index: 0;
 }
+.resumeAdvertisement {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 100% !important;
+  background-color: transparent;
+}
+.resumeAdvertisement > div {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 1rem;
+  max-width: 200px;
+  margin-inline: auto;
+  animation: slideIn 1.5s ease-in;
+  cursor: pointer;
+}
 .mainFooterCont {
   padding-inline: 10px;
 }
@@ -99,5 +116,16 @@
   }
   to {
     background-position: 50% 0%;
+  }
+}
+
+@keyframes slideIn {
+  from {
+    transform: translateX(-100%);
+    opacity: 0.4;
+  }
+  to {
+    transform: translateX(0%);
+    opacity: 1;
   }
 }

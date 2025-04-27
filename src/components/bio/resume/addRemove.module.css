@@ -1,0 +1,168 @@
+.contRmEducAchiev {
+  display: inline-flex;
+  position: absolute;
+  top: 0%;
+  right: 0%;
+  width: fit-content;
+  height: auto;
+  border-radius: 7px;
+  box-shadow: 1px 1px 10px 1px black;
+  padding: 0.25rem;
+  background-color: black;
+  color: white;
+  transform: translate(40px, 0px) scale(0.75);
+}
+.addEducAchiev {
+  display: flex;
+  flex-direction: column;
+  position: absolute;
+  top: 0%;
+  left: 0%;
+  width: fit-content;
+  height: auto;
+  border-radius: 7px;
+  box-shadow: 1px 1px 10px 1px black;
+  padding: 0.25rem;
+  background-color: black;
+  color: white;
+  transform: translate(-80px, 0px) scale(0.75);
+  z-index: 200;
+}
+.removLanguage {
+  display: inline-flex;
+  position: absolute;
+  top: 0%;
+  right: 0%;
+  width: fit-content;
+  height: auto;
+  border-radius: 7px;
+  box-shadow: 1px 1px 10px 1px black;
+  gap: 0.5rem;
+  background-color: black;
+  color: white;
+  transform: translate(50px, 36px) scale(0.7);
+  z-index: 200;
+}
+.removeWorkExperience {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  position: absolute;
+  top: 0%;
+  right: 0%;
+  transform: translate(-0px, 0px);
+  background-color: white;
+  z-index: 200;
+  color: blue;
+  border-radius: 10px;
+  gap: 0.5rem;
+  padding: 0.5rem;
+  box-shadow: 1px 1px 10px 1px blue;
+  max-width: 70px;
+  width: 100%;
+}
+.addExperienceCont {
+  display: flex;
+  flex-direction: column;
+  position: absolute;
+  top: 0%;
+  left: 0%;
+  background-color: white;
+  z-index: 200;
+  color: blue;
+  border-radius: 10px;
+  padding: 2px;
+  gap: 0.5rem;
+  box-shadow: 1px 1px 10px 1px blue;
+  max-width: 70px;
+  width: 100%;
+  text-wrap: wrap;
+  transform: translate(20px, 30px) scale(0.6);
+}
+.addReflink {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  border-radius: 8px;
+  position: absolute;
+  top: 0%;
+  left: 0%;
+  width: fit-content;
+  height: auto;
+  box-shadow: 1px 1px 10px 1px black;
+  background-color: blue;
+  color: white;
+  z-index: 200;
+}
+.rmSiteLink {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  border-radius: 8px;
+  position: absolute;
+  top: 0%;
+  right: 0%;
+  width: fit-content;
+  height: auto;
+  box-shadow: 1px 1px 10px 1px black;
+  background-color: blue;
+  color: white;
+  z-index: 200;
+}
+.removeAchievPopup {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  position: absolute;
+  top: 0%;
+  right: 0%;
+  width: fit-content;
+  height: auto;
+  border-radius: 7px;
+  box-shadow: 1px 1px 10px 1px black;
+  padding: 0.25rem;
+  color: white;
+  background-color: black;
+  z-index: 200;
+  transform: translate(50px, 40px) scale(0.6);
+}
+
+@media screen and (max-width: 900) {
+  .addExperienceCont {
+    transform: translate(0px, -10px) scale(0.7);
+  }
+  .contRmEducAchiev {
+    transform: translate(20px, 0px) scale(0.45);
+  }
+  .addEducAchiev {
+    transform: translate(-80px, -15px) scale(0.7);
+  }
+  .removLanguage {
+    transform: translate(40px, -15px) scale(0.7);
+  }
+  .removeAchievPopup {
+    transform: translate(40px, 40px) scale(0.6);
+  }
+}
+@media screen and (max-width: 400) {
+  .addExperienceCont {
+    transform: translate(-150px, 10px) scale(0.5);
+  }
+  .contRmEducAchiev {
+    transform: translate(20px, -10px) scale(0.36);
+  }
+  .addEducAchiev {
+    transform: translate(-15px, -40px) scale(0.5);
+  }
+  .removLanguage {
+    transform: translate(5px, -40px) scale(0.5);
+  }
+  .removeWorkExperience {
+    transform: translate(30px, -70px) scale(0.7);
+  }
+  .removeAchievPopup {
+    transform: translate(9px, 0px) scale(0.6);
+  }
+}

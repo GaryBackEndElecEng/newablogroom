@@ -1,0 +1,213 @@
+.containerResumes {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  width: 100% !important;
+  margin-inline: auto;
+  margin-block: 1rem;
+  max-width: 1400px;
+}
+.topbarRow {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: space-between;
+  width: 100% !important;
+  margin-inline: auto;
+  margin-block: 1rem;
+  padding-inline: 0.5rem;
+  background: linear-gradient(45deg, #7284b0eb, #ffffff1a),
+    url("/images/main.png");
+  border-radius: 8px;
+  justify-self: center;
+  flex-wrap: wrap;
+  height: auto;
+  padding-block: 3rem;
+}
+.rowCol {
+  display: flex;
+  flex-direction: column;
+  margin-inline: auto;
+  background: linear-gradient(225deg, whitesmoke, transparent);
+  color: white;
+  justify-items: center;
+  gap: 1rem;
+  padding-block: 1.5rem;
+}
+
+.summaryCont,
+.contactCont,
+.experienceCont,
+.educationCont {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  width: 100% !important;
+  margin-inline: auto;
+  margin-block: 1rem;
+  max-width: 1200px;
+}
+.particularCont {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  width: 100% !important;
+  margin-inline: auto;
+  margin-block: 1rem;
+  background-color: #d3f3f4;
+  padding-block: 2rem;
+  gap: 1rem;
+}
+
+.form {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  width: 100% !important;
+  margin-inline: auto;
+  margin-block: 1rem;
+  gap: 1rem;
+  position: relative;
+}
+
+.formGrpTextArea {
+  display: flex;
+  flex-direction: column;
+  width: 100% !important;
+  gap: 1rem;
+  position: relative;
+  align-items: stretch;
+  margin-inline: auto;
+}
+.formGrpNormal {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 80% !important;
+  position: relative;
+}
+.saveNewResume {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  position: absolute;
+  inset: 0%;
+  height: 300px;
+  border-radius: 8px;
+  box-shadow: 1px 1px 12px 1px lime;
+  background-color: #091256;
+  z-index: 200;
+  color: white;
+  width: 30%;
+  transform: translateX(100%);
+  padding-block: 1rem;
+  animation: growIn 0.7s ease-in;
+}
+
+.popupViewResume {
+  display: flex;
+  flex-direction: center;
+  align-items: center;
+  position: absolute;
+  inset: 0% 0% auto 0%;
+  box-shadow: 1px 1px 12px 1px lime;
+  backdrop-filter: blur(10px);
+  background-color: white;
+  border-radius: 8px;
+  z-index: 200;
+}
+
+.css_col {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin-inline: auto;
+  justify-content: center;
+  align-self: center;
+  justify-self: center;
+  position: relative;
+}
+.css_row {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  margin-inline: auto;
+  justify-content: center;
+  align-self: center;
+  justify-self: stretch;
+  position: relative;
+  flex-wrap: nowrap;
+  width: 100% !important;
+}
+
+@media screen and (max-width: 1200px) {
+  .containerResumes {
+    padding-inline: 1.25rem;
+  }
+}
+@media screen and (max-width: 900px) {
+  .popupViewResume {
+    inset: -80% 0% auto 0%;
+  }
+
+  .containerResumes {
+    padding-inline: 1rem;
+  }
+  .formGrpNormal {
+    width: 90% !important;
+  }
+
+  .topbarRow {
+    flex-wrap: wrap !important;
+    padding-block: 1.5rem;
+  }
+  .saveNewResume {
+    width: 70%;
+  }
+}
+@media screen and (max-width: 400px) {
+  .formGrpNormal {
+    width: 100% !important;
+  }
+  .containerResumes {
+    padding-inline: 0.25rem;
+  }
+
+  .topbarRow {
+    flex-wrap: none;
+    flex-direction: column !important;
+    align-items: center !important;
+    padding-block: 1rem;
+  }
+  .rowCol {
+    width: 100% !important;
+    align-items: center;
+    justify-content: center;
+  }
+  .css_row,
+  .contRow {
+    flex-direction: column;
+    flex-wrap: none;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .saveNewResume {
+    width: 100%;
+  }
+}
+
+@keyframes growIn {
+  from {
+    transform: scale(0) translateX(100%);
+    opacity: 0.5;
+  }
+  to {
+    transform: scale(1) translateX(100%);
+    opacity: 1;
+  }
+}

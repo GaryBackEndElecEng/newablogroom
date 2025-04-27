@@ -1,0 +1,129 @@
+.resumeInjector {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin-inline: auto;
+  justify-content: flex-start;
+  position: relative;
+  width: 100% !important;
+}
+.mainCont {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin-inline: auto;
+  justify-content: flex-start;
+  position: relative;
+  width: 100% !important;
+  padding-inline: 5rem;
+}
+.letCont {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin-inline: auto;
+  justify-content: flex-start;
+  position: relative;
+  width: 85% !important;
+  page-break-after: always;
+}
+.resCont {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin-inline: auto;
+  justify-content: flex-start;
+  position: relative;
+  width: 80% !important;
+  margin-top: 2rem;
+  page-break-after: always;
+}
+.resCont p {
+  letter-spacing: 0.125rem;
+}
+.refCont {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin-inline: auto;
+  justify-content: flex-start;
+  position: relative;
+  width: 70% !important;
+}
+.container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin-inline: auto;
+  justify-content: flex-start;
+  position: relative;
+  width: 100% !important;
+}
+
+.titleRow {
+  display: flex;
+  flex-wrap: nowrap;
+  gap: 1rem;
+  margin-inline: 0;
+  width: 100% !important;
+  align-items: center;
+}
+.rowBtnCont {
+  display: flex;
+  flex-wrap: nowrap;
+  gap: 1rem;
+  margin-inline: 0;
+  width: 100% !important;
+  align-items: center;
+  justify-content: center;
+  margin-block: 2rem;
+  margin-bottom: 3rem;
+}
+
+.css_col {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin-inline: auto;
+  justify-content: center;
+  align-self: center;
+  justify-self: center;
+  position: relative;
+  width: 100% !important;
+  margin-block: 1rem;
+  padding-inline: 0 !important;
+}
+
+.css_col_normal {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin-inline: auto;
+  justify-content: center;
+  align-self: center !important;
+  justify-self: center;
+  position: relative;
+  margin-block: 1rem;
+  padding-inline: 0 !important;
+}
+
+@media screen and (max-width: 900px) {
+  .mainCont {
+    padding-inline: 1.5rem;
+  }
+  .refCont,
+  .resCont,
+  .letCont {
+    width: 90% !important;
+  }
+}
+@media screen and (max-width: 400px) {
+  .mainCont {
+    padding-inline: 0.5rem;
+  }
+  .refCont,
+  .resCont,
+  .letCont {
+    width: 100% !important;
+  }
+}

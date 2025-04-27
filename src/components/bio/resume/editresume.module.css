@@ -1,0 +1,178 @@
+.innerContainer {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 100% !important;
+  background: linear-gradient(45deg, whitesmoke, transparent),
+    url("/images/main.png") !important;
+  background-size: 100% 100%;
+  background-position: 50% 50%;
+}
+.workExpCont {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 100% !important;
+  background-color: whitesmoke;
+  border: 1px soldi green;
+  box-shadow: 1px 1px 12px 1px green;
+  border-radius: 8px;
+  padding-block: 1.5rem;
+  margin-block: 1.5rem;
+  margin-inline: auto;
+  position: relative;
+  gap: 1.5rem;
+}
+.educateCont {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 100% !important;
+  border-radius: 8px;
+  background-color: white;
+  color: black;
+  box-shadow: 1px 1px 12px 1px white;
+  padding-block: 1.5rem;
+  margin-block: 1.5rem;
+  margin-inline: auto;
+  text-transform: capitalize;
+  position: relative;
+}
+.contactCont {
+  display: flex;
+  flex-direction: column;
+  width: 100% !important;
+  align-items: center;
+  margin-inline: auto;
+  border: 1px solid blue;
+  box-shadow: 1px 1px 10px 1px white;
+  border-radius: inherit;
+  padding: 1rem;
+  color: white;
+  text-align: center;
+  background-color: #013b3f;
+}
+.contactCont > div {
+  width: 100%;
+  margin-inline: auto;
+  align-self: center;
+}
+.editSiteCont {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 100% !important;
+  background-color: whitesmoke;
+  box-shadow: 1px 1px 12px 1px lime;
+  border-radius: 8px;
+  padding-block: 1.5rem;
+  margin-block: 1.5rem;
+  position: relative;
+}
+.editSiteCont > h4,
+.educateCont > h4,
+.workExpCont > h4 {
+  color: rgb(0, 187, 255);
+  text-decoration: underline;
+  margin-bottom: 1.5rem;
+}
+.editForm {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 100% !important;
+  gap: 1rem;
+  position: relative;
+  border-radius: 8px;
+  padding: 1rem;
+}
+
+.rowContainer {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: flex-start;
+  border-radius: 8px;
+  width: 100% !important;
+}
+.css_row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  border-radius: 8px;
+  gap: 1rem;
+}
+.saveCreateNewResume {
+  display: inline-flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  border-radius: 8px;
+  margin-inline: auto;
+  margin-block: 2rem;
+  width: 100%;
+  position: relative;
+  padding-inline: 1rem;
+  gap: 2rem;
+}
+.rowCol {
+  border-radius: inherit;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: auto;
+  padding: 1rem;
+  background: linear-gradient(45deg, whitesmoke, rgba(255, 255, 255, 0.4));
+}
+.editSaveAsNewCont {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-direction: column;
+  width: clamp(250px, 375px, 400px);
+  position: absolute;
+  inset: 20% 30% auto 30%;
+  box-shadow: 1px 1px 12px 1px black;
+  border-radius: 8px;
+  background-color: white;
+  padding: 1rem !important;
+}
+.css_col {
+  margin-inline: auto;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-direction: column;
+  width: 100% !important;
+  gap: 1rem !important;
+}
+.formGrp {
+  margin-inline: auto;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-direction: column;
+  width: 80% !important;
+}
+@media screen and (max-width: 900px) {
+  .editSaveAsNewCont {
+    inset: 20% 10% auto 10%;
+  }
+}
+
+@media screen and (max-width: 400px) {
+  .rowContainer {
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+  }
+  .rowCol {
+    width: 100% !important;
+    align-items: center;
+    justify-content: center;
+  }
+  .editSaveAsNewCont {
+    inset: 20% 0% auto 0%;
+  }
+}

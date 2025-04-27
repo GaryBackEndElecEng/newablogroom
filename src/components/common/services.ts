@@ -1,4 +1,7 @@
 import {elementType,selectorType,codeType,blogType, gets3ImgKey, userType,messageType, deletedImgType, img_keyType, adminImageType, providerType, pageCountType, delteUserType, sendEmailMsgType, chartType, postType, infoType2, bucketType, quoteType, returnQuoteFinalType, quoteimgType, signupQuoteType, rowType, sendPostRequestType, checkemailType} from "@/components/editor/Types";
+
+import { combinedType, mainIntroLetterType, mainResumeRefType, mainResumeType, nameLetterType, nameRefType, nameResumeType } from '../bio/resume/refTypes';
+
 import Misc from "../common/misc";
 import ModSelector from "@/components/editor/modSelector";
 import { getErrorMessage } from "@/lib/errorBoundaries";
@@ -62,8 +65,29 @@ class Service {
   private readonly  deletemarkImg:string="/api/admin/deletemarkimg";
   private readonly  requestreset:string="/api/admin/requestreset";
   private readonly  postRequest:string="/api/postrequest";
+  //BIO----------PORTFOLIO-------------------//--------------------------//
+  public readonly resume:string;
+  public readonly resumes:string;
+  public readonly reference:string;
+  public readonly references:string;
+  public readonly checkref:string;
+  public readonly letter:string;
+  public readonly letters:string;
+  public readonly resrefslets:string;
+  
+  //BIO----------PORTFOLIO-------------------//--------------------------//
     // getInitBlog:blogType;
     constructor(private _modSelector:ModSelector){
+        //BIO----------PORTFOLIO-------------------//--------------------------//
+        this.resume="/api/resume/resume";
+        this.resumes="/api/resume/resumes";
+        this.reference="/api/resume/resumeref";
+        this.references="/api/resume/resumerefs";
+        this.checkref="/api/resume/checkref";
+        this.letter="/api/resume/letter/letter";
+        this.letters="/api/resume/letter/letters";
+        this.resrefslets="/api/resume/resrefslets";
+        //BIO----------PORTFOLIO-------------------//--------------------------//
         this.bucket="masterultils-postimages";
         this.awsimgUrl="/api/awsimg";
         this.deletemarkImg="/api/admin/deletemarkimg";
@@ -1745,6 +1769,208 @@ getKey({imgUrl}:{imgUrl:string}):string|null{
             });
         
     };
+
+
+    //------------------------------------RESUME PORTFOLIO BIO-----------------------------------//
+     ///------------------------------------RESUME BELOW---------------------------//
+   
+     getResume({name}:{name:string}):Promise<mainResumeType|void>{
+      
+        return fetch(`${this.resume}?name=${name}`).then(async(res)=>{
+            if(res.ok){
+                return await res.json() as mainResumeType;
+            }
+        });
+    
+  };
+
+  getResumes({user_id}:{user_id:string}):Promise<nameResumeType[]|void>{
+    
+        return fetch(`${this.resumes}?user_id=${user_id}`).then(async(res)=>{
+            if(res.ok){
+                return await res.json() as nameResumeType[];
+            }
+        });
+    
+  };
+
+
+ async saveResume({mainResume}:{mainResume:mainResumeType}): Promise<mainResumeType | undefined>{
+      const option={
+          headers:{
+              "Content-Type":"application/json"
+          },
+          method:"POST",
+          body:JSON.stringify(mainResume)
+      }
+    
+        return fetch(this.resume,option).then(async(res)=>{
+            if(res.ok){
+                return await res.json() as mainResumeType
+            }
+        });
+  };
+
+ async deleteResume({item}:{item:nameResumeType}): Promise<mainResumeType | undefined>{
+  const {id,name}=item;
+      const option={
+          headers:{
+              "Content-Type":"application/json"
+          },
+          method:"DELETE",
+      }
+    
+        return fetch(`${this.resume}?id=${id}&name=${name}`,option).then(async(res)=>{
+            if(res.ok){
+                return await res.json() as mainResumeType
+            }
+        });
+  };
+
+///------------------------------------RESUME ABOVE-------------------------------------------//
+     ///------------------LETTERS-------------------------------------//
+   async getLetters({user_id}:{user_id:string|null}):Promise<void|nameLetterType[] | undefined>{
+    if(!user_id) return;
+        return fetch(`${this.letters}?user_id=${user_id}`).then(async(res)=>{
+            if(res.ok){
+                return await res.json() as nameLetterType[];
+            }
+        }).catch((error)=>{const msg=getErrorMessage(error);console.error(msg)});
+    };
+
+   async getLetter({name}:{name:string}):Promise<void|mainIntroLetterType | undefined>{
+        const option={
+            headers:{
+                "Content-Type":"application/json"
+            },
+            method:"GET"
+        }
+        return fetch(`${this.letter}?name=${name}`,option).then(async(res)=>{
+            if(res.ok){
+                return await res.json() as mainIntroLetterType;
+            }
+        }).catch((error)=>{const msg=getErrorMessage(error);console.error(msg)});
+    };
+
+    async deleteLetter({id}:{id:number}):Promise<void|nameLetterType | undefined>{
+        const option={
+            headers:{
+                "Content-Type":"application/json"
+            },
+            method:"DELETE"
+        }
+        return fetch(`${this.letter}?id=${id}`,option).then(async(res)=>{
+            if(res.ok){
+                return await res.json() as nameLetterType;
+            }
+        }).catch((error)=>{const msg=getErrorMessage(error);console.error(msg)});
+    };
+
+    async saveLetter({mainLetter}:{mainLetter:mainIntroLetterType}):Promise<void|mainIntroLetterType | undefined>{
+        const option={
+            headers:{
+                "Content-Type":"application/json"
+            },
+            method:"POST",
+            body:JSON.stringify(mainLetter)
+        }
+       
+        return fetch(this.letter,option).then(async(res)=>{
+            if(res.ok){
+                return await res.json() as mainIntroLetterType;
+            }
+        }).catch((error)=>{const msg=getErrorMessage(error);console.error(msg)});
+    };
+    ///------------------LETTERS-------------------------------------//
+    //-------------------------------------REFERENCES-BELOW----------------------------------------//
+
+getReference({name}:{name:string}):Promise<mainResumeRefType|void>{
+      
+    return fetch(`${this.reference}?name=${name}`).then(async(res)=>{
+        if(res.ok){
+            return await res.json() as mainResumeRefType
+        }
+    });
+};
+
+    getReferences({user_id}:{user_id:string}):Promise<void | nameRefType[] | undefined>{
+        
+        return fetch(`${this.references}?user_id=${user_id}`).then(async(res)=>{
+            if(res.ok){
+                return await res.json() as nameRefType[]
+            }
+        }).catch(error=>{const msg=getErrorMessage(error);console.log(msg)});
+  };
+
+ async saveReferences({mainReference}:{mainReference:mainResumeRefType}): Promise<mainResumeRefType | undefined>{
+      const option={
+          headers:{
+              "Content-Type":"application/json"
+          },
+          method:"POST",
+          body:JSON.stringify(mainReference)
+      }
+    
+        return fetch(this.reference,option).then(async(res)=>{
+            if(res.ok){
+                return await res.json() as mainResumeRefType
+            }
+        });
+  };
+
+    async deleteReference({item}:{item:nameRefType}): Promise<nameRefType | undefined>{
+        const {id,name}=item;
+            const option={
+                headers:{
+                    "Content-Type":"application/json"
+                },
+                method:"DELETE",
+               
+            }
+          
+              return fetch(`${this.reference}?id=${id}&name=${name}`,option).then(async(res)=>{
+                  if(res.ok){
+                      return await res.json() as nameRefType
+                  }
+              });
+        };
+
+    async checkRef({nameResume}:{nameResume:nameResumeType}): Promise<void | {nameRef: nameRefType;found: boolean;} | undefined>{
+        const {name}=nameResume;
+        return fetch(`${this.checkref}?name=${name}`).then(async(res)=>{
+            if(res.ok){
+                return await res.json() as {nameRef:nameRefType,found:boolean}
+            }
+        }).catch((error)=>{const msg=getErrorMessage(error);console.error(msg);});
+    };
+
+    //-------------------------------------REFERENCES ABOVE-----------------------------------------//
+      ///------------------COMBINED-------------------------------------//
+      async getcombined({user_id}:{user_id:string|null}): Promise<void | combinedType | undefined>{
+        if(!user_id)return
+        return fetch(`${this.resrefslets}?user_id=${user_id}`).then(async(res)=>{
+            if(res.ok){
+                return await res.json() as combinedType
+            }
+        }).catch(error=>{const msg=getErrorMessage(error);console.log(msg)});
+    };
+    async saveCombined({combined}:{combined:combinedType}): Promise<void | combinedType | undefined>{
+        const option={
+            headers:{
+                "Content-Type":"application/json",
+            },
+            method:"POST",
+            body:JSON.stringify(combined)
+        };
+        return fetch(this.resrefslets,option).then(async(res)=>{
+            if(res.ok){
+                return await res.json() as combinedType;
+            }
+        }).catch(error=>{const msg=getErrorMessage(error);console.log(msg)});
+    }
+    ///------------------COMBINED-------------------------------------//
+
+    //------------------------------------RESUME PORTFOLIO BIO-----------------------------------//
 
 
    

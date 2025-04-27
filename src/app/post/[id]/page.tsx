@@ -33,7 +33,7 @@ export default async function page(props: Props) {
     } else {
         redirect("/");
     }
-}
+};
 
 export async function genMetadata(item: { id: number, parent: ResolvingMetadata }): Promise<Metadata> {
     const { id, parent } = item;
@@ -52,7 +52,7 @@ export async function genMetadata(item: { id: number, parent: ResolvingMetadata 
     await prisma.$disconnect();
     return await retMetadata({ title, keywords: keywds, images: [{ url: image, width: 300, height: 300 }], url, authors });
 
-}
+};
 
 export async function retMetadata(item: { title: string | undefined, keywords: string[] | undefined, images: { url: string, width: number, height: number }[] | undefined, url: string | undefined, authors: { name: string, url: string }[] | undefined }): Promise<Metadata> {
     const { title, keywords, images, url, authors } = item;
@@ -64,7 +64,7 @@ export async function retMetadata(item: { title: string | undefined, keywords: s
             height: 600
         },
         {
-            url: "https://new-master.s3.ca-central-1.amazonaws.com/static/masterultils/masterUltils800_400.png",
+            url: "https://newablogroom-free-bucket.s3.us-east-1.amazonaws.com/gb_logo_600.png",
             width: 800,
             height: 400
         },
