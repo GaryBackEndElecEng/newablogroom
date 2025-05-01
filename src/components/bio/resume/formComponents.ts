@@ -4,6 +4,7 @@ import EditResume from "./editResume";
 import { awardType, educationType, orgType, resumeRefType, resumeType, workExperienceType } from "./refTypes";
 import Resume from "./resume";
 import styles from "./formComp.module.css";
+import { langConversion, langInserts } from './engFre';
 
 
 class FormComponents{
@@ -12,29 +13,8 @@ class FormComponents{
     public refKeys:string[];
 
     constructor( public addRemove:AddRemove){
-        this.educationOrgs=[
-            {id:0,cat:"school"},
-            {id:1,cat:"location"},
-            {id:2,cat:"level"},
-            {id:3,cat:"from"},
-            {id:4,cat:"to"},
-            {id:5,cat:"degree"},
-            {id:6,cat:"GPA"},
-            {id:7,cat:"relevantWork"},
-            {id:8,cat:"extracurricular"},
-            {id:9,cat:"achievements"},
-            {id:10,cat:"skills"},
-        ]
-        this.workOrgs=[
-            {id:0,cat:"title"},
-            {id:1,cat:"company"},
-            {id:2,cat:"summary"},
-            {id:3,cat:"location"},
-            {id:4,cat:"from"},
-            {id:5,cat:"to"},
-            {id:6,cat:"achievements"},
-            {id:7,cat:"skills"},
-        ]
+       
+    
         this.refKeys=[
             "id",
             "ref_id",
@@ -45,10 +25,11 @@ class FormComponents{
             "links",
             "contacts"
         ]
-    }
+    };
 
-    workParticulars({parent,order,key,value,experience,index}:{parent:HTMLElement,order:number,key:string,value:string,index:number,experience:workExperienceType}):workExperienceType{
+    workParticulars({parent,order,key,value,experience,index,french}:{parent:HTMLElement,order:number,key:string,value:string,index:number,experience:workExperienceType,french:boolean}):workExperienceType{
         const less400=window.innerWidth < 400;
+        const parts=[{eng:"title",fr:"titre"},{eng:"company",fr:"companie"},{eng:"location",fr:"emplacement"},{eng:"summary",fr:"résumé"}].find(kv=>(kv.eng===key)) as {eng:string,fr:string};
         let particularCont=parent.querySelector("div#work-particular-cont") as HTMLElement|null;
         if(!particularCont){
             particularCont=document.createElement("div");
@@ -65,7 +46,7 @@ class FormComponents{
         input.value=value as string;
         input.style.width=less400 ? "95%":"80%";
         label.setAttribute("for",input.id);
-        label.textContent=key;
+        label.textContent=french && parts ? parts.fr :key;
         input.onchange=(e:Event)=>{
             if(!e) return;
             const value=(e.currentTarget as HTMLInputElement).value;
@@ -91,17 +72,17 @@ class FormComponents{
         return experience;
     };
 
-    workAchievement({parent,order,css_col,css_row,experience,less400}:{parent:HTMLElement,order:number,experience:workExperienceType,css_col:string,css_row:string,less400:boolean}):workExperienceType{
+    workAchievement({parent,order,css_col,css_row,experience,less400,french}:{parent:HTMLElement,order:number,experience:workExperienceType,css_col:string,css_row:string,less400:boolean,french:boolean}):workExperienceType{
         const achievContMain=document.createElement("div");
         achievContMain.id="experience-achievement-cont-main";
         achievContMain.style.cssText=css_col + "width:100%;margin-inline:auto;margin-block:1rem;position:relative";
         achievContMain.style.width=less400 ? "100%":"80%";
         achievContMain.style.order=String(order);
         parent.appendChild(achievContMain);
-        this.addRemove.addWorkAchiev({parent:achievContMain,experience,less400,css_col,
+        this.addRemove.addWorkAchiev({parent:achievContMain,experience,less400,css_col,french,
             func:(experience)=>{
                 Resume.cleanUpById({parent,id:"experience-achievement-cont-main"});
-                this.workAchievement({parent,order,css_col,css_row,experience,less400});
+                this.workAchievement({parent,order,css_col,css_row,experience,less400,french});
             }
         });
         if(experience.achievements && experience.achievements.length >0){
@@ -122,20 +103,20 @@ class FormComponents{
                         css_row,
                         func:(experience)=>{
                             Resume.cleanUpById({parent,id:"experience-achievement-cont-main"});
-                            this.workAchievement({parent,order,css_col,css_row,experience,less400});
+                            this.workAchievement({parent,order,css_col,css_row,experience,less400,french});
                         }
                     });
                     
                     for( const [key,value] of Object.entries(achiev)){
-    
+                       
                         if(typeof(value)==="string"){
                             if(key==="achievement"){
-                            achiev=this.achievementTextArea({parent:achievCont,order:0,key:key,value,less400,index,achiev});
+                            achiev=this.achievementTextArea({parent:achievCont,order:0,key:key,value,less400,index,achiev,french});
                     
                             }else if(key==="reason"){
-                                achiev=this.achievementInput({parent:achievCont,order:1,achiev,value,key:key,less400,index});
+                                achiev=this.achievementInput({parent:achievCont,order:1,achiev,value,key:key,less400,index,french});
                             }else if(key==="composite"){
-                                achiev=this.achievementTextArea({parent:achievCont,order:2,key:key,value,less400,index,achiev});
+                                achiev=this.achievementTextArea({parent:achievCont,order:2,key:key,value,less400,index,achiev,french});
                             }
     
                         }
@@ -150,17 +131,18 @@ class FormComponents{
     };
 
 
-    educateAchievement({parent,order,css_col,css_row,education,less400}:{parent:HTMLElement,order:number,education:educationType,css_col:string,css_row:string,less400:boolean}):educationType{
+    educateAchievement({parent,order,css_col,css_row,education,less400,french}:{parent:HTMLElement,order:number,education:educationType,css_col:string,css_row:string,less400:boolean,french:boolean}):educationType{
+        
         const achievContMain=document.createElement("div");
         achievContMain.id="educate-achievement-cont-main";
         achievContMain.style.cssText=css_col + "width:100%;margin-inline:auto;margin-block:1rem;position:relative";
         achievContMain.style.width=less400 ? "100%":"70%";
         achievContMain.style.order=String(order);
         parent.appendChild(achievContMain);
-        this.addRemove.addEducateAchiev({parent:achievContMain,education,less400,
+        this.addRemove.addEducateAchiev({parent:achievContMain,education,less400,french,
             func:(education)=>{
                 Resume.cleanUpById({parent,id:"educate-achievement-cont-main"});
-                this.educateAchievement({parent,order,css_col,css_row,education,less400});
+                this.educateAchievement({parent,order,css_col,css_row,education,less400,french});
             }
         });
         education.achievements=education.achievements.map((achiev,index)=>{
@@ -179,7 +161,7 @@ class FormComponents{
                     less400,
                     func:(education)=>{
                         Resume.cleanUpById({parent,id:"educate-achievement-cont-main"});
-                        this.educateAchievement({parent,order,css_col,css_row,education,less400});
+                        this.educateAchievement({parent,order,css_col,css_row,education,less400,french});
                     }
                 });
                 
@@ -187,12 +169,12 @@ class FormComponents{
 
                     if(typeof(value)==="string"){
                         if(key==="achievement"){
-                        achiev=this.achievementTextArea({parent:achievCont,order:0,key:key,value,less400,index,achiev});
+                        achiev=this.achievementTextArea({parent:achievCont,order:0,key:key,value,less400,index,achiev,french});
                 
                         }else if(key==="reason"){
-                            achiev=this.achievementInput({parent:achievCont,order:1,achiev,value,key:key,less400,index});
+                            achiev=this.achievementInput({parent:achievCont,order:1,achiev,value,key:key,less400,index,french});
                         }else if(key==="composite"){
-                            achiev=this.achievementTextArea({parent:achievCont,order:2,key:key,value,less400,index,achiev});
+                            achiev=this.achievementTextArea({parent:achievCont,order:2,key:key,value,less400,index,achiev,french});
                         }
 
                     }
@@ -204,7 +186,8 @@ class FormComponents{
         return education;
     };
 
-    achievementTextArea({parent,order,key,value,less400,index,achiev}:{parent:HTMLElement,order:number,key:string,value:string,less400:boolean,index:number,achiev:awardType}):awardType{
+    achievementTextArea({parent,order,key,value,less400,index,achiev,french}:{parent:HTMLElement,order:number,key:string,value:string,less400:boolean,index:number,achiev:awardType,french:boolean}):awardType{
+        const lang=langConversion({key});
         const css_col="display:flex;flex-direction:column;justify-content:center;align-items:center;gap:1rem;";
         const {textarea:achievInput,label,formGrp}=EditResume.textareaComponent(parent);
         formGrp.style.cssText=css_col +"width:100%;gap:1rem;position:relative;align-items:stretch;margin-inline:auto;";
@@ -215,8 +198,9 @@ class FormComponents{
         achievInput.name="work-"+ key + "-" + String(index);
         achievInput.value=value as string;
         achievInput.style.width="auto";
+        achievInput.placeholder=langInserts({french,key}).place;
         label.setAttribute("for",achievInput.id);
-        label.textContent=key;
+        label.textContent=french && lang ? lang :key;
         achievInput.rows=3;
         achievInput.onchange=(e:Event)=>{
             if(!e) return;
@@ -230,7 +214,8 @@ class FormComponents{
         return achiev;
     };
 
-    summary({parent,order,key,value,less400,experience}:{parent:HTMLElement,order:number,key:string,value:string,less400:boolean,experience:workExperienceType}):workExperienceType{
+    summary({parent,order,key,value,less400,experience,french}:{parent:HTMLElement,order:number,key:string,value:string,less400:boolean,experience:workExperienceType,french:boolean}):workExperienceType{
+        const lang=langConversion({key:"summary"});
         const {textarea:textinput,label,formGrp}=EditResume.textareaComponent(parent);
         formGrp.className=styles.formGrpTextArea;
         formGrp.style.width="100%";
@@ -239,9 +224,10 @@ class FormComponents{
         textinput.id=`${key}-summary-textarea`;
         textinput.name="work-"+ key + "-" + String(order);
         textinput.value=value as string;
+        textinput.placeholder=langInserts({french,key:"summary"}).place;
         textinput.style.width="100%";
         label.setAttribute("for",textinput.id);
-        label.textContent=key;
+        label.textContent=french && lang ? lang : key;
         textinput.rows=4;
         textinput.onchange=(e:Event)=>{
             if(!e) return;
@@ -252,7 +238,8 @@ class FormComponents{
     };
 
 
-    achievementInput({parent,order,achiev,value,key,less400,index}:{parent:HTMLElement,order:number,achiev:awardType,value:string,key:string,less400:boolean,index:number}){
+    achievementInput({parent,order,achiev,value,key,less400,index,french}:{parent:HTMLElement,order:number,achiev:awardType,value:string,key:string,less400:boolean,index:number,french:boolean}){
+        const lang=langConversion({key});
         const css_col="display:flex;flex-direction:column;justify-content:center;align-items:center;gap:1rem;";
         const {input,label,formGrp}=EditResume.inputComponent(parent);
         formGrp.style.cssText=css_col +"width:50%;gap:1rem;flex:1 0 50%;position:relative;align-items:center;";
@@ -261,9 +248,10 @@ class FormComponents{
         input.id=`${key}`;
         input.name="work-"+ key + "-" + String(index);
         input.value=value as string;
+        input.placeholder=langInserts({french,key}).place;
         input.style.width=less400 ? "100%":"75%";
         label.setAttribute("for",input.id);
-        label.textContent=key;
+        label.textContent=french && lang ? lang :key;
         input.onchange=(e:Event)=>{
             if(!e) return;
             const value=(e.currentTarget as HTMLInputElement).value;
@@ -273,7 +261,7 @@ class FormComponents{
     };
 
 
-    fromToInputEducateComponent({parent,order,key,value,index,less400,education}:{parent:HTMLElement,order:number,key:string,value:string,less400:boolean,index:number,education:educationType}):educationType{
+    fromToInputEducateComponent({parent,order,key,value,index,less400,education,french}:{parent:HTMLElement,order:number,key:string,value:string,less400:boolean,index:number,education:educationType,french:boolean}):educationType{
         const css_row="display:flex;justify-content:center;align-items:center;gap:1rem;flex-wrap:nowrap;"
         const css_col="display:flex;justify-content:center;align-items:center;gap:1rem;flex-direction:column;"
         const check=([...parent.children] as HTMLElement[]).map(ch=>ch.id).includes("from-to-cont-1");
@@ -290,7 +278,8 @@ class FormComponents{
         getDiv=parent.querySelector(`div#${"from-to-cont-1" + String(index)}`) as HTMLElement;
         const count=[...getDiv.children].length;
         if(count <=1){
-
+            
+            const lang=langConversion({key});
             const {input,label,formGrp}=EditResume.inputComponent(getDiv);
             formGrp.style.cssText=css_col +"gap:1rem;position:relative;align-items:center;";
             formGrp.style.flex=less400 ? " 1 0 100%":"1 0 50%";
@@ -302,7 +291,7 @@ class FormComponents{
             input.style.width=less400 ? "75%":"50%";
             input.value=value as string;
             label.setAttribute("for",input.id);
-            label.textContent=key;
+            label.textContent= french && lang ? lang : key;
             input.onchange=(e:Event)=>{
                 if(!e) return;
                 const value=(e.currentTarget as HTMLInputElement).value;
@@ -319,7 +308,8 @@ class FormComponents{
     };
 
 
-    fromToInputWorkComponent({parent,order,key,value,less400,index,experience}:{parent:HTMLElement,order:number,key:string,value:string,less400:boolean,index:number,experience:workExperienceType}){
+    fromToInputWorkComponent({parent,order,key,value,less400,index,experience,french}:{parent:HTMLElement,order:number,key:string,value:string,less400:boolean,index:number,experience:workExperienceType,french:boolean}){
+        const lang=[{eng:"to",fr:"a"},{eng:"from",fr:"de"}].find(kv=>(kv.eng===key)) as {eng:string,fr:string};
         const css_row="display:flex;justify-content:center;align-items:center;gap:1rem;flex-wrap:nowrap;"
         const css_col="display:flex;justify-content:center;align-items:center;gap:1rem;flex-direction:center;"
         const check=([...parent.children] as HTMLElement[]).map(ch=>ch.id).includes("from-to-cont-1");
@@ -347,9 +337,9 @@ class FormComponents{
             input.name="work-"+ key + "-" + String(index);
             input.style.width="";
             input.value=value as string;
-            input.placeholder=key;
+            input.placeholder=langInserts({french,key}).place;
             label.setAttribute("for",input.id);
-            label.textContent=key;
+            label.textContent=french && lang ? lang.fr : key;
             input.onchange=(e:Event)=>{
                 if(!e) return;
                 const value=(e.currentTarget as HTMLInputElement).value;
@@ -366,7 +356,7 @@ class FormComponents{
     };
 
 
-    educateSkills({parent,order,css_col,key,less400,education}:{parent:HTMLElement,order:number,css_col:string,less400:boolean,key:string,education:educationType}):educationType{
+    educateSkills({parent,order,css_col,key,less400,education,french}:{parent:HTMLElement,order:number,css_col:string,less400:boolean,key:string,education:educationType,french:boolean}):educationType{
         const css_row="display:flex;flex-wrap:nowrap;justify-content:center;align-items:center;ga:0.5rem;"
         const skillsComp=document.createElement("div");
         skillsComp.id="skills-comp";
@@ -378,10 +368,11 @@ class FormComponents{
             education,
             css_col,
             less400,
+            french,
             key,
             func:(education)=>{
                 Resume.cleanUpById({parent,id:"skills-comp"});
-                this.educateSkills({parent,order,css_col,key,less400,education});
+                this.educateSkills({parent,order,css_col,key,less400,education,french});
             }
         });
         education.skills=education.skills.map((skill,index)=>{
@@ -395,7 +386,7 @@ class FormComponents{
                 input.value=skill as string;
                 input.style.width=less400 ? "75%":"50%";
                 label.setAttribute("for",input.id);
-                label.textContent="skill";
+                label.textContent=french ? "compétence":"skill";
                 input.onchange=(e:Event)=>{
                     if(!e) return;
                     const value=(e.currentTarget as HTMLInputElement).value;
@@ -410,7 +401,7 @@ class FormComponents{
                     less400,
                     func:(education)=>{
                         Resume.cleanUpById({parent,id:"skills-comp"});
-                        this.educateSkills({parent,order,css_col,key,less400,education});
+                        this.educateSkills({parent,order,css_col,key,less400,education,french});
                     }
                 });
             }
@@ -420,7 +411,7 @@ class FormComponents{
     };
 
 
-    workSkills({formChild,order,css_col,key,less400,experience}:{formChild:HTMLElement,order:number,css_col:string,less400:boolean,key:string|undefined,experience:workExperienceType}):workExperienceType{
+    workSkills({formChild,order,css_col,key,less400,experience,french}:{formChild:HTMLElement,order:number,css_col:string,less400:boolean,key:string|undefined,experience:workExperienceType,french:boolean}):workExperienceType{
         const css_row="display:flex;flex-wrap:nowrap;justify-content:center;align-items:center;ga:0.5rem;position:relative;"
         const skillsComp=document.createElement("div");
         skillsComp.id="skills-work-comp";
@@ -432,14 +423,16 @@ class FormComponents{
             experience,
             css_col,
             less400,
+            french,
             func:(experience)=>{
                 Resume.cleanUpById({parent:formChild,id:"skills-work-comp"});
-                this.workSkills({formChild,order,css_col,key,less400,experience});
+                this.workSkills({formChild,order,css_col,key,less400,experience,french});
             }
         });
         if(experience.skills && experience.skills.length>0){
             experience.skills=experience.skills.map((skill,index)=>{
                 if(skill){
+                    const lang=langConversion({key:"skill"});
                     const {input,label,formGrp}=EditResume.inputComponent(skillsComp);
                     formGrp.style.cssText=css_col +"width:auto;gap:1rem;position:relative;align-items:center;";
                     formGrp.style.width=less400 ? "100%":"80%";
@@ -448,7 +441,7 @@ class FormComponents{
                     input.value=skill as string;
                     input.style.width=less400 ? "75%":"50%";
                     label.setAttribute("for",input.id);
-                    label.textContent="skill";
+                    label.textContent=french && lang ? lang:"skill";
                     this.addRemove.removeWorkSkill({
                         target:formGrp,
                         skill,
@@ -458,7 +451,7 @@ class FormComponents{
                         key: key ||"skill",
                         func:(experience)=>{
                             Resume.cleanUpById({parent:formChild,id:"skills-work-comp"});
-                            this.workSkills({formChild,order,css_col,key,less400,experience});
+                            this.workSkills({formChild,order,css_col,key,less400,experience,french});
                         }
                     });
                     input.oninput=(e:Event)=>{
@@ -474,7 +467,8 @@ class FormComponents{
     };
 
 
-    educationParticulars({parent,order,key,value,index,education,less400}:{parent:HTMLElement,order:number,key:string,value:string,index:number,education:educationType,less400:boolean}):educationType{
+    educationParticulars({parent,order,key,value,index,education,less400,french}:{parent:HTMLElement,order:number,key:string,value:string,index:number,education:educationType,less400:boolean,french:boolean}):educationType{
+        const lang=langConversion({key});
         const css_col="display:flex;justify-content:flex-start;align-items:center;gap:1rem;flex-direction:column;padding-inline:1rem;";
         const particularCont=document.createElement("div");
         particularCont.id="particular-cont";
@@ -494,7 +488,8 @@ class FormComponents{
         input.value=value as string;
         input.style.width="";
         label.setAttribute("for",input.id);
-        label.textContent=key;
+        label.textContent=french && lang ? lang :key;
+        
         input.onchange=(e:Event)=>{
             if(!e) return;
             const value=(e.currentTarget as HTMLInputElement).value;
@@ -530,31 +525,9 @@ class FormComponents{
         return education
     };
 
-    skillAchievContainerGenerate({parent,css_col}:{parent:HTMLElement,css_col:string}):{achiev_cont:HTMLElement,skill_cont:HTMLElement}{
-       
-            const getAchievCont=parent.querySelector("div#achievement-cont") as HTMLElement;
-            const getSkillsCont=parent.querySelector("skills-cont") as HTMLElement;
-            this.workOrgs.forEach((item,index)=>{
-                if(item.id===index){
-                    if(item.cat==="achievements" && !getAchievCont){
-                        const achievCont=document.createElement("div");
-                        achievCont.id="achievement-cont";
-                        achievCont.style.cssText=css_col + "width:100%; margin-inline:auto;";
-                        parent.appendChild(achievCont);
-                    }else if(item.cat==="skills" && !getSkillsCont){
-                        const skillsCont=document.createElement("div");
-                        skillsCont.id="skills-cont";
-                        skillsCont.style.cssText=css_col + "width:100%; margin-inline:auto;";
-                        parent.appendChild(skillsCont);
-                    }
-                };
-                
-            });
-            return {achiev_cont:getAchievCont,skill_cont:getSkillsCont}
-       
-    };
+  
 
-    createExtra({parent,resume,css_col,css_row,order,less400,show}:{parent:HTMLElement,resume:resumeType,css_col:string,css_row:string,order:number,less400:boolean,show:boolean}):resumeType{
+    createExtra({parent,resume,css_col,css_row,order,less400,show,french}:{parent:HTMLElement,resume:resumeType,css_col:string,css_row:string,order:number,less400:boolean,show:boolean,french:boolean}):resumeType{
         if(show){
             const extraCont=document.createElement("div");
             extraCont.id="extra-cont-languages";
@@ -567,23 +540,25 @@ class FormComponents{
                 resume,
                 css_col,
                 less400,
+                french,
                 func:(resume)=>{
                     Resume.cleanUpById({parent,id:"extra-cont-languages"});
-                    this.createExtra({parent,resume,css_col,css_row,less400,order,show});
+                    this.createExtra({parent,resume,css_col,css_row,less400,order,show,french});
                 }
             });
             resume.extra.languages=resume.extra.languages.map((lang,index)=>{
                 if(lang){
+                    const lang_=langConversion({key:"language"})
                     const {input,label,formGrp}=EditResume.inputComponent(extraCont);
                     formGrp.style.cssText=css_col +"width:auto;gap:1rem;position:relative;align-items:center;";
                     formGrp.id=`formGrp-extra-${index}`;
                     formGrp.style.width=less400 ? "100%":"80%";
                     input.id=`lang-${index}`;
                     input.name="lang-" + String(index);
-                    input.value=lang;
+                    input.value=lang ;
                     input.style.width=less400 ? "75%":"50%";
                     label.setAttribute("for",input.id);
-                    label.textContent="Language";
+                    label.textContent=french ?  lang_ :"Language";
                     input.oninput=(e:Event)=>{
                         if(!e) return;
                         const value=(e.currentTarget as HTMLInputElement).value;
@@ -596,7 +571,7 @@ class FormComponents{
                         index,
                         func:(resume)=>{
                             Resume.cleanUpById({parent,id:"extra-cont-languages"});
-                            this.createExtra({parent,resume,css_col,css_row,less400,order,show});
+                            this.createExtra({parent,resume,css_col,css_row,less400,order,show,french});
                         }
                     })
                 };
@@ -612,7 +587,7 @@ class FormComponents{
         return resume
     };
 
-    referenceComponent({parent,reference,less400}:{parent:HTMLElement,reference:resumeRefType,less400:boolean}){
+    referenceComponent({parent,reference,less400,french}:{parent:HTMLElement,reference:resumeRefType,less400:boolean,french:boolean}){
         const css_col="display:flex;justify-content:flex-start;align-items:center;gap:1rem;flex-direction:column;padding-inline:1rem;";
         const css_row="display:flex;justify-content:flex-start;align-items:center;gap:1rem;flex-wrap:wrap;padding-inline:1rem;";
         const referenceCont=document.createElement("div");
@@ -625,6 +600,7 @@ class FormComponents{
             const check=["id","links","desc","res_name_id","contacts"].includes(key);
             if(!check){
                 const {input,label,formGrp}=EditResume.inputComponent(referenceCont);
+                const lang=langConversion({key});
                 label.id=String(rand);
                 formGrp.style.cssText=css_col +"gap:1rem;position:relative;align-items:center;";
                 formGrp.style.width=less400 ? "90%":"70%";
@@ -636,7 +612,7 @@ class FormComponents{
                 input.value=value as string;
                 input.style.width="";
                 label.setAttribute("for",input.id);
-                label.textContent=key;
+                label.textContent=french ? lang :key;
                 input.onchange=(e:Event)=>{
                     if(!e) return;
                     const value=(e.currentTarget as HTMLInputElement).value;
@@ -656,18 +632,28 @@ class FormComponents{
                 };
             }else{
 
-                reference=this.referenceContact({parent:referenceCont,reference,key,order:5,css_row,css_col,less400});
+                reference=this.referenceContact({
+                    parent:referenceCont,
+                    reference,
+                    key,
+                    order:5,
+                    css_row,
+                    css_col,
+                    less400,
+                    french
+
+                });
             }
         };
-        reference=this.referenceLink({parent:referenceCont,reference,order:6,css_row,css_col,less400});
+        reference=this.referenceLink({parent:referenceCont,reference,order:6,css_row,css_col,less400,french});
        
         
         return reference
     };
 
 
-    referenceLink({parent,reference,css_row,css_col,order,less400}:{parent:HTMLElement,reference:resumeRefType,css_row:string,css_col:string,order:number,less400:boolean}){
-      
+    referenceLink({parent,reference,css_row,css_col,order,less400,french}:{parent:HTMLElement,reference:resumeRefType,css_row:string,css_col:string,order:number,less400:boolean,french:boolean}){
+        const lang=langConversion({key:"ref links"});
         const refLinkCont=document.createElement("div");
         refLinkCont.id="ref-link-cont";
         refLinkCont.className=styles.css_col;
@@ -676,7 +662,7 @@ class FormComponents{
         name.className="text-center my-1 my-2 text-primary display-6 lean";
         name.style.fontSize="130%";
         name.style.textTransform="Capitalize";
-        name.textContent="ref linkss";
+        name.textContent=french ? lang : "ref links";
         refLinkCont.appendChild(name);
         parent.appendChild(refLinkCont);
         this.addRemove.addReflink({
@@ -685,7 +671,7 @@ class FormComponents{
             less400,
             func:(reference)=>{
                 Resume.cleanUpById({parent,id:"ref-link-cont"});
-                this.referenceLink({parent,reference,css_row,order,css_col,less400});
+                this.referenceLink({parent,reference,css_row,order,css_col,less400,french});
             }
         });
      
@@ -704,13 +690,13 @@ class FormComponents{
                     less400,
                     func:(reference)=>{
                         Resume.cleanUpById({parent,id:"ref-link-cont"});
-                        this.referenceLink({parent,reference,css_row,order,css_col,less400});
+                        this.referenceLink({parent,reference,css_row,order,css_col,less400,french});
                     }
                 });
     
                 for(const [key,value] of Object.entries(link)){
                     if(typeof(key)==="string" && typeof(value)==="string"){
-    
+                        const lang=langConversion({key});
                         const {input,label,formGrp}=EditResume.inputComponent(row);
                         formGrp.style.cssText=css_col +"width:auto;gap:1rem;position:relative;align-items:center;";
                         formGrp.id=`formGrp-link-key-${index}-${key}`;
@@ -725,7 +711,7 @@ class FormComponents{
                         input.value=value;
                         input.style.width="auto";
                         label.setAttribute("for",input.id);
-                        label.textContent=key;
+                        label.textContent=french ? lang :key;
                         input.onchange=(e:Event)=>{
                             if(!e) return;
                             const value=(e.currentTarget as HTMLInputElement).value;
@@ -748,7 +734,7 @@ class FormComponents{
 
 
 
-    referenceContact({parent,reference,key,css_row,css_col,order,less400}:{parent:HTMLElement,reference:resumeRefType,key:string,css_row:string,css_col:string,order:number,less400:boolean}){
+    referenceContact({parent,reference,key,css_row,css_col,order,less400,french}:{parent:HTMLElement,reference:resumeRefType,key:string,css_row:string,css_col:string,order:number,less400:boolean,french:boolean}){
         const len=reference?.contacts?.length;
         Resume.cleanUpById({parent,id:"ref-contact-cont"});
         const refContactCont=document.createElement("div");
@@ -759,7 +745,7 @@ class FormComponents{
         name.className="text-center my-1 my-2 text-primary display-6 lean";
         name.style.fontSize="130%";
         name.style.textTransform="Capitalize";
-        name.textContent="ref Contacts";
+        name.textContent=french ? langConversion({key:"réf Contacts"}):"ref Contacts";
         refContactCont.appendChild(name);
         parent.appendChild(refContactCont);
         this.addRemove.addRefContact({
@@ -767,9 +753,10 @@ class FormComponents{
             reference,
             css_col,
             less400,
+            french,
             func:(reference)=>{
                 Resume.cleanUpById({parent,id:"ref-contact-cont"});
-                this.referenceContact({parent,reference,key,css_row,order,css_col,less400});
+                this.referenceContact({parent,reference,key,css_row,order,css_col,less400,french});
             }
         });
      
@@ -794,7 +781,7 @@ class FormComponents{
                     less400,
                     func:(reference)=>{
                         Resume.cleanUpById({parent,id:"ref-contact-cont"});
-                        this.referenceContact({parent,reference,key,css_row,order,css_col,less400});
+                        this.referenceContact({parent,reference,key,css_row,order,css_col,less400,french});
                     }
                 });
     
@@ -818,7 +805,7 @@ class FormComponents{
                         input.placeholder=key;
                         input.style.width="auto";
                         label.setAttribute("for",input.id);
-                        label.textContent=key;
+                        label.textContent=french ? langConversion({key}):key;
                         label.style.textTransform="uppercase";
                         input.onchange=(e:Event)=>{
                             if(!e) return;

@@ -73,7 +73,8 @@ export type educationType={
 
 export type orgType={
     id:number,
-    cat:string
+    cat:string,
+    catFr:string
 }
 
 export type awardType={
@@ -187,31 +188,35 @@ export type nameRefType={
     user_id:string,
     res_name_id?:string|null
 };
-export type insertType={key:string,type:string,place:string};
+export type insertType={key:string,type:string,place:string,placeFr:string};
+
+export type catType="resumes"|"references"|"letters"|"combined"|"CVs"|"références"|"lettres de motivation"|"combinée";
 
 export type topbarRowType={
     id:string,
-    cat:"resumes"|"references"|"letters"|"combined",
+    cat:catType,
+    catFr:catType,
     topbarCats:topbarCatType[],
     desc:string,
     icon:IconType
 
 };
 export type topbarRowDescType={
-    cat:"resumes"|"references"|"letters"|"combined",
+    cat:catType,
     desc:string
 }
 export type topbarRowColDescType={
-    cat:"resumes"|"references"|"letters"|"combined",
+    cat:catType,
     desc:string,
     name:string,
 }
 
 export type topbarCatType={
     id:string,
-    cat:"resumes"|"references"|"letters"|"combined",
+    cat:catType,
     name:string,
     text:string,
+    textFr:string,
     desc:string,
     order:string,
     dataset:string,
@@ -222,6 +227,7 @@ export type topbarCatResType={
     ID:string,
     cat:string,
     name:string,
+    nameFr:string|null,
     html:HTMLElement,
     redirect:boolean,
     order:string
@@ -304,5 +310,11 @@ export type secretResType={
 }
 export type noDataMsgType={
     cat:"res"|"ref"|"let"|"comb",
-    msg:string
+    msg:string,
+    msgFr:string
+}
+
+export type langType={
+    eng:string,
+    fr:string
 }

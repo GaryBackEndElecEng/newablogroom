@@ -119,6 +119,8 @@
   background-color: white;
   border-radius: 8px;
   z-index: 200;
+  height: 90vh;
+  overflow-y: scroll;
 }
 
 .css_col {

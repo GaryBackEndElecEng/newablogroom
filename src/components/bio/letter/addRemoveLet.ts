@@ -2,6 +2,7 @@ import { FaCreate } from "@/components/common/ReactIcons";
 import { contactType, letterType, mainIntroLetterType, paragraphType, signatureType, userType } from "../resume/refTypes";
 import { FaMinusCircle, FaPlusCircle } from "react-icons/fa";
 import styles from "./letter.module.css";
+import { langParagraph1, langParagraph2, langParagraph3, langParagraphs, paraFrPlaceHolder, paraPlaceHolder } from "../resume/engFre";
 
 class AddRemoveLet{
     public count:number;
@@ -9,7 +10,8 @@ class AddRemoveLet{
     public readonly paragraphInit2:paragraphType;
     public readonly paragraphInit3:paragraphType;
     public readonly paragraphInits:paragraphType[];
-    public static readonly paraPlaceHolder:string[]=["critical skills","demonstration of skills","give employ reason to why you are a good fit"];
+    public static readonly paraPlaceHolder:string[]=paraPlaceHolder;
+    public static readonly paraFrPlaceHolder:string[]=paraFrPlaceHolder;
     private _mainIntroLetter:mainIntroLetterType;
     private _letter:letterType;
     private _paragraph:paragraphType;
@@ -19,18 +21,9 @@ class AddRemoveLet{
     public signed:signatureType;
     constructor(private _user:userType|null){
         this.count=0;
-        this.paragraphInit1={
-            id:0,
-            para:"This paragraph gives a summary of your background and critical skills (hard skills) that make you qualified for the position"
-        }
-        this.paragraphInit2={
-            id:1,
-            para:"This paragraph can be used to demonstrate your persuasive skills (soft skills)."
-        }
-        this.paragraphInit3={
-            id:1,
-            para:"This paragraph can be used to give the employer reasons to employ you by through your research of the company."
-        }
+        this.paragraphInit1=langParagraph1({french:false});
+        this.paragraphInit2=langParagraph2({french:false})
+        this.paragraphInit3=langParagraph3({french:false})
         this.paragraphInits=[this.paragraphInit1,this.paragraphInit2,this.paragraphInit3];
        
         this._paragraph={
@@ -148,7 +141,7 @@ class AddRemoveLet{
     };
 
 
-    addParagaph({parent,letter,index,key,less400,func}:{parent:HTMLElement,letter:letterType,key:string,less400:boolean,index:number,func:(letter:letterType)=>letterType|void}){
+    addParagaph({parent,letter,index,key,less400,french,func}:{parent:HTMLElement,letter:letterType,key:string,less400:boolean,index:number,french:boolean,func:(letter:letterType)=>letterType|void}){
         const len=letter?.paragraphs?.length;
         const less900=window.innerWidth < 900;
         const cont=document.createElement("div");
@@ -183,9 +176,7 @@ class AddRemoveLet{
         cont.onclick=(e:MouseEvent)=>{
             if(!e) return;
             const len=letter.paragraphs?.length || 0;
-            if(len >3)this.count=0;
-            const paraInit=this.paragraphInits[this.count];
-                this.paragraph={...paraInit,id:len};
+            this.paragraph={...langParagraphs({french,num:len}),id:len};
             letter.paragraphs=[...letter.paragraphs,this.paragraph];
             this.count++;
             func(letter);

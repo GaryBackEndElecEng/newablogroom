@@ -5,6 +5,7 @@ import { introResumeType, mainIntroLetterType, mainResumeRefType, mainResumeType
 import PageHistory from "@/components/common/pageHistory";
 
 import MainAdvertise from "../advertisment/mainAdvertise";
+import { langConversion } from "./engFre";
 
 
 class HeaderEffect{
@@ -90,22 +91,25 @@ class HeaderEffect{
 
    
 
-    main({parent,less400,}:{parent:HTMLElement,less400:boolean,}){
+    main({parent,less400,french}:{parent:HTMLElement,less400:boolean,french:boolean}){
       
+        Resume.cleanUpById({parent,id:this.headerContId});
         this.header({parent});
+        Resume.cleanUpById({parent,id:this.containerId});
         const mainContainer=document.createElement("section");
         mainContainer.id="container-resumes";
         mainContainer.setAttribute("data-resume-container","true");
         mainContainer.className=styles.containerResumes;
         parent.appendChild(mainContainer);
         const titleId=this.titleId;
-        const titleName="Resume Portfolio Editor";
+        const titleName=french ? langConversion({key:"Resume Portfolio Editor"}):"Resume Portfolio Editor";
         this.topbar.getTopBar({
             parent,
             mainContainer,
             titleId,
             titleName,
             less400,
+            french,
             mainResumes:this.mainResumes,
             mainRefs:this.mainRefs,
             mainLetters:this._mainLetters,

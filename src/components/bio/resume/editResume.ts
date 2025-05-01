@@ -8,6 +8,7 @@ import ViewResume from "./viewResume";
 import AddRemove from "./addRemove";
 import FormComponents from "./formComponents";
 import styles from "./editresume.module.css"
+import { langConversion } from "./engFre";
 
 
 
@@ -54,28 +55,28 @@ class EditResume {
 
         this.contacts=[this.contact];
         this.educationOrgs=[
-            {id:0,cat:"school"},
-            {id:1,cat:"location"},
-            {id:2,cat:"level"},
-            {id:3,cat:"from"},
-            {id:4,cat:"to"},
-            {id:5,cat:"degree"},
-            {id:6,cat:"GPA"},
-            {id:7,cat:"relevantWork"},
-            {id:8,cat:"extracurricular"},
-            {id:9,cat:"achievments"},
-            {id:10,cat:"skills"},
+            {id:0,cat:"school",catFr:"ecole"},
+            {id:1,cat:"location",catFr:"location"},
+            {id:2,cat:"level",catFr:"niveau"},
+            {id:3,cat:"from",catFr:"de"},
+            {id:4,cat:"to",catFr:"a"},
+            {id:5,cat:"degree",catFr:"degre"},
+            {id:6,cat:"GPA",catFr:"GPA/MPC"},
+            {id:7,cat:"relevantWork",catFr:"pertinentTravail"},
+            {id:8,cat:"extracurricular",catFr:"périscolaire"},
+            {id:9,cat:"achievements",catFr:""},
+            {id:10,cat:"skills",catFr:""},
         ];
 
         this.workOrgs=[
-            {id:0,cat:"title"},
-            {id:1,cat:"company"},
-            {id:2,cat:"summary"},
-            {id:3,cat:"location"},
-            {id:4,cat:"from"},
-            {id:5,cat:"to"},
-            {id:6,cat:"achievments"},
-            {id:7,cat:"skills"},
+            {id:0,cat:"title",catFr:"titre"},
+            {id:1,cat:"company",catFr:"companie"},
+            {id:2,cat:"summary",catFr:"résumé"},
+            {id:3,cat:"location",catFr:"loaction"},
+            {id:4,cat:"from",catFr:"de"},
+            {id:5,cat:"to",catFr:"a"},
+            {id:6,cat:"achievements",catFr:"réalisations"},
+            {id:7,cat:"skills",catFr:"compétences"},
         ];
 
         this._achievement={
@@ -175,7 +176,7 @@ class EditResume {
     
     //-----------------GETTER/SETTERS--------------------//
     //NOT USED
-    main({parent,user}:{parent:HTMLElement,user:userType|null}){
+    main({parent,user,french}:{parent:HTMLElement,user:userType|null,french:boolean}){
         this.injection=parent;
         console.log("USER",user)
         if(user){
@@ -190,11 +191,11 @@ class EditResume {
         const name=document.createElement("h4");
         name.textContent="edit your resume";
         name.style.cssText="text-transform:capitalize;margin-inline:auto;";
-        this.getResumes({parent:container,user});
+        this.getResumes({parent:container,user,french});
         parent.appendChild(container);
     };
     //NOT USED
-    async getResumes({parent,user}:{parent:HTMLElement,user:userType|null}){
+    async getResumes({parent,user,french}:{parent:HTMLElement,user:userType|null,french:boolean}){
         this.user=user
         const less400=window.innerWidth < 400;
         const less900=window.innerWidth < 900;
@@ -228,7 +229,7 @@ class EditResume {
         row.id="container-row";
         
         row.className=styles.rowContainer;
-        this.selectResume({grandParent:container,parent:innerContainer,row,less400,less900,css_col,css_row,nameResumes:this.nameResumes,user});
+        this.selectResume({grandParent:container,parent:innerContainer,row,less400,less900,css_col,css_row,nameResumes:this.nameResumes,user,french});
         innerContainer.appendChild(row);
         const {button}=Resume.simpleButton({anchor:innerContainer,type:"button",bg:"black",color:"white",text:"back",time:400});
         button.style.justifySelf="center";
@@ -248,7 +249,7 @@ class EditResume {
 
 
     //NOT USED
-    selectResume({grandParent,parent,row,css_col,css_row,less400,less900,nameResumes,user}:{
+    selectResume({grandParent,parent,row,css_col,css_row,less400,less900,nameResumes,user,french}:{
         grandParent:HTMLElement,
         parent:HTMLElement,
         row:HTMLElement,
@@ -257,7 +258,8 @@ class EditResume {
         less400:boolean,
         less900:boolean,
         nameResumes:nameResumeType[],
-        user:userType|null
+        user:userType|null,
+        french:boolean
     }){
         const col1=document.createElement("div");
         col1.id="resume-side";
@@ -279,7 +281,7 @@ class EditResume {
                         grandParent.removeChild(child)
                     }
                 });
-                this.editResume({grandParent,parent:grandParent,nameResume,row,css_col,css_row,less900,less400,user,
+                this.editResume({grandParent,parent:grandParent,nameResume,row,css_col,css_row,less900,less400,user,french,
                     func:()=>{}
                 });
             };
@@ -289,7 +291,7 @@ class EditResume {
     };
 
     //INJECTION POINT!!!
-    async editResume({grandParent,parent,nameResume,row,css_col,css_row,less900,less400,user,func}:{
+    async editResume({grandParent,parent,nameResume,row,css_col,css_row,less900,less400,user,french,func}:{
         grandParent:HTMLElement,
         parent:HTMLElement,
         row:HTMLElement,
@@ -299,6 +301,7 @@ class EditResume {
         less400:boolean,
         less900:boolean,
         user:userType|null,
+        french:boolean,
         func:(mainResumes:mainResumeType[],mainResume:mainResumeType,type:"rem"|"add")=>Promise<void>|void
     }){
         this.user=user;
@@ -324,32 +327,33 @@ class EditResume {
             title.className="text-center text-light font-weight-bold display-6 lean mt-2";
             title.style.fontSize=less900 ? (less400 ? "170%":"200%"):"230%";
             title.style.textTransform="capitalize";
-            title.textContent="resume";
+            title.textContent=french ? langConversion({key:"resume"}):"resume";
             container.appendChild(title);
             this.closeForm({parent,target:container});
             const summCont=document.createElement("div");
             summCont.id="summ-cont";
             summCont.style.cssText="width:100%;margin-inline:auto;border:1px solid grey;box-shadow:1px 1px 10px 1px white;border-radius:inherit;padding:1rem;color:white;text-align:center;background-color:black;";
             container.appendChild(summCont);
-            this.mainResume.resume=this.editSummary({parent:summCont,resume,css_col,less400});
+            this.mainResume.resume=this.editSummary({parent:summCont,resume,css_col,less400,french});
             const contactCont=document.createElement("div");
             contactCont.className=styles.contactCont;
             contactCont.id="contact-cont";
             container.appendChild(contactCont);
-            this.mainResume.resume=this.editContact({parent:contactCont,resume,css_col,less400});
+            this.mainResume.resume=this.editContact({parent:contactCont,resume,css_col,less400,french});
             const workCont=document.createElement("div");
             workCont.id="work-cont";
             workCont.style.cssText="width:100%;margin-inline:auto;border:1px solid blue;box-shadow:1px 1px 10px 1px white;border-radius:inherit;padding:1rem;color:white;text-align:center;background-color:black;position:relative;";
             container.appendChild(workCont);
-            this.mainResume.resume=this.editWorkExper({parent:workCont,resume,css_col,css_row,less400});
+            this.mainResume.resume=this.editWorkExper({parent:workCont,resume,css_col,css_row,less400,french});
             this._addRemove.addWorkEducate({
                 parent:workCont,
                 resume,
                 css_col,
                 isEducation:false,
                 less400,
+                french,
                 func:(resume)=>{
-                    this.mainResume.resume=this.editWorkExper({parent:workCont,resume,css_col,css_row,less400});
+                    this.mainResume.resume=this.editWorkExper({parent:workCont,resume,css_col,css_row,less400,french});
                 }
 
             });
@@ -357,15 +361,16 @@ class EditResume {
             educateCont.id="educate-cont";
             educateCont.style.cssText="width:100%;margin-inline:auto;border:1px solid blue;box-shadow:1px 1px 10px 1px white;border-radius:inherit;padding:1rem;color:white;text-align:center;background-color:black;";
             container.appendChild(educateCont);
-            this.mainResume.resume=this.editEducation({parent:educateCont,resume,css_row,css_col,less400});
+            this.mainResume.resume=this.editEducation({parent:educateCont,resume,css_row,css_col,less400,french});
             this._addRemove.addWorkEducate({
                 parent:workCont,
                 resume,
                 css_col,
+                french,
                 isEducation:true,
                 less400,
                 func:(resume)=>{
-                    this.mainResume.resume=this.editEducation({parent:educateCont,resume,css_col,css_row,less400});
+                    this.mainResume.resume=this.editEducation({parent:educateCont,resume,css_col,css_row,less400,french});
                 }
 
             });
@@ -377,7 +382,7 @@ class EditResume {
             const languageCont=document.createElement("div");
             languageCont.id="languages-cont";
             languageCont.style.cssText="width:100%;margin-inline:auto;border:1px solid blue;box-shadow:1px 1px 10px 1px white;border-radius:inherit;padding:1rem;color:white;text-align:center;background-color:black;";
-            this.mainResume.resume=this.editLanguages({parent:languageCont,resume,css_col,css_row,less400});
+            this.mainResume.resume=this.editLanguages({parent:languageCont,resume,css_col,css_row,less400,french});
             container.appendChild(languageCont);
             
             parent.appendChild(container);
@@ -395,10 +400,10 @@ class EditResume {
                     setTimeout(()=>{
                         parent.removeChild(container);
                      
-                        this.viewresume.resume({parent,mainResume:this.mainResume,showPrint:false,closeDelete:true,
+                        this.viewresume.resume({parent,mainResume:this.mainResume,showPrint:false,closeDelete:true,french,
                             func1:()=>{}
                         });
-                        this.saveCreateNewResume({grandParent,parent,row,mainResume:this.mainResume,css_row,css_col,user,func});
+                        this.saveCreateNewResume({grandParent,parent,row,mainResume:this.mainResume,css_row,css_col,user,french,func});
                     },550);
                 }
             };
@@ -406,14 +411,16 @@ class EditResume {
     };
 
 
-    saveCreateNewResume({grandParent,parent,row,mainResume,css_row,css_col,user,func}:{grandParent:HTMLElement,parent:HTMLElement,row:HTMLElement,mainResume:mainResumeType,css_row:string,css_col:string,user:userType|null,
+    saveCreateNewResume({grandParent,parent,row,mainResume,css_row,css_col,user,french,func}:{grandParent:HTMLElement,parent:HTMLElement,row:HTMLElement,mainResume:mainResumeType,css_row:string,css_col:string,user:userType|null,french:boolean,
         func:(mainResumes:mainResumeType[],mainResume:mainResumeType,type:"rem"|"add")=>Promise<void>|void
     }){
         
         const container=document.createElement("div");
         container.className=styles.saveCreateNewResume;
         container.id='save-create-new-container';
-        const {button:saveNew}=Resume.simpleButton({anchor:container,type:"button",time:400,bg:"black",color:"white",text:"save as new File?"});
+        const lang=langConversion({key:"save as new File?"});
+        const text_=french ? lang :"save as new File?";
+        const {button:saveNew}=Resume.simpleButton({anchor:container,type:"button",time:400,bg:"black",color:"white",text:text_});
         saveNew.onclick=(e:MouseEvent)=>{
             if(!e) return;
 
@@ -421,7 +428,8 @@ class EditResume {
 
             
         };
-        const {button:save}=Resume.simpleButton({anchor:container,type:"button",time:400,bg:"black",color:"white",text:"save"});
+        const text_1=french? langConversion({key:"save"}) : "save";
+        const {button:save}=Resume.simpleButton({anchor:container,type:"button",time:400,bg:"black",color:"white",text:text_1});
         parent.appendChild(container);
         parent.appendChild(container);
         save.onclick=async(e:MouseEvent)=>{
@@ -437,9 +445,11 @@ class EditResume {
                                 parent.removeChild(child);
                             }
                         });
-                        Resume.message({parent,msg:`saved :${res.name}`,type:"success",time:600});
+                        const lang=french ? langConversion({key:"saved"}): "saved";
+                        Resume.message({parent,msg:`${lang} :${res.name}`,type:"success",time:600});
                     }else{
-                        Resume.message({parent,msg:"not saved",type:"error",time:1600});
+                        const lang=french ? langConversion({key:"not saved"}): "not saved";
+                        Resume.message({parent,msg:lang,type:"error",time:1600});
                     }
                 }).catch((error)=>{const msg=getErrorMessage(error);console.error(msg)});
 
@@ -504,7 +514,7 @@ class EditResume {
 
 
     //NOT USED
-    saveCreateNew({grandParent,parent,row,mainResume,css_col,css_row,user}:{grandParent:HTMLElement,parent:HTMLElement,mainResume:mainResumeType,row:HTMLElement,css_col:string,css_row:string,user:userType|null}){
+    saveCreateNew({grandParent,parent,row,mainResume,css_col,css_row,user,french}:{grandParent:HTMLElement,parent:HTMLElement,mainResume:mainResumeType,row:HTMLElement,css_col:string,css_row:string,user:userType|null,french:boolean}){
         const less400=window.innerWidth <400;
         const less900=window.innerWidth <900;
         const container=document.createElement("div");
@@ -556,7 +566,7 @@ class EditResume {
                     });
                     Resume.message({parent,msg:`created new ${name}`,type:"success",time:800});
                     this.cleanUp(grandParent);
-                    this.selectResume({grandParent,parent,css_col,css_row,row,less400,less900,nameResumes:this.nameResumes,user});
+                    this.selectResume({grandParent,parent,css_col,css_row,row,less400,less900,nameResumes:this.nameResumes,user,french});
                 }else{
                     Resume.message({parent,msg:"not saved",type:"error",time:1600});
                 }
@@ -567,11 +577,12 @@ class EditResume {
 
     
 
-    editSummary({parent,resume,css_col,less400}:{
+    editSummary({parent,resume,css_col,less400,french}:{
         parent:HTMLElement,
         resume:resumeType,
         css_col:string,
-        less400:boolean
+        less400:boolean,
+        french:boolean
     }):resumeType{
         const {summary}=resume;
         const summaryCont=document.createElement("div");
@@ -579,7 +590,7 @@ class EditResume {
         summaryCont.style.cssText=css_col + "background-color:lightblue;border:1px solid purple;box-shadow:1px 1px 12px 1px purple;border-radius:8px;padding-block:1.5rem;margin-block:1.5rem;";
         const name=document.createElement("h4");
         name.style.cssText="text-transform:uppercase;";
-        name.textContent="summary";
+        name.textContent=french ? langConversion({key:"summary"}):"summary";
         summaryCont.appendChild(name)
         parent.appendChild(summaryCont);
         const {textarea:summInput,label,formGrp}=EditResume.textareaComponent(summaryCont);
@@ -591,7 +602,7 @@ class EditResume {
         summInput.value=summary;
         summInput.style.width="auto";
         label.setAttribute("for",summInput.id);
-        label.textContent="summary";
+        label.textContent=french ? langConversion({key:"summary"}) :"summary";
         summInput.rows=6;
         summInput.onchange=(e:Event)=>{
             if(!e) return;
@@ -604,18 +615,19 @@ class EditResume {
 
 
 
-    editContact({parent,resume,css_col,less400}:{
+    editContact({parent,resume,css_col,less400,french}:{
         parent:HTMLElement,
         resume:resumeType,
         css_col:string,
-        less400:boolean
+        less400:boolean,
+        french:boolean
     }):resumeType{
         const contactCont=document.createElement("div");
         contactCont.id="contact-cont-inner";
         contactCont.style.cssText=css_col + "background-color:whitesmoke;border:1px solid orange;box-shadow:1px 1px 12px 1px orange;border-radius:8px;padding-block:1.5rem;margin-block:1.5rem;";
         const name=document.createElement("h4");
         name.style.cssText="text-transform:uppercase;";
-        name.textContent="contact";
+        name.textContent=french ? langConversion({key:"contact"}):"contact";
         name.className="text-primary text-center";
         contactCont.appendChild(name);
         parent.appendChild(contactCont);
@@ -630,7 +642,7 @@ class EditResume {
             input.value=value;
             input.style.width=less400 ? "75%":"50%";
             label.setAttribute("for",input.id);
-            label.textContent=key;
+            label.textContent=french? langConversion({key}):key;
             input.onchange=(e:Event)=>{
                 if(!e) return;
                 const value=(e.currentTarget as HTMLTextAreaElement).value;
@@ -672,12 +684,13 @@ class EditResume {
 
 
 
-    editWorkExper({parent,resume,css_col,css_row,less400}:{
+    editWorkExper({parent,resume,css_col,css_row,less400,french}:{
         parent:HTMLElement,
         resume:resumeType,
         css_col:string,
         css_row:string,
-        less400:boolean
+        less400:boolean,
+        french:boolean
     }):resumeType{
         const {workExperience}=resume;
         const mainWorkCont=document.createElement("div");
@@ -695,7 +708,7 @@ class EditResume {
                 
                 const name=document.createElement("h4");
                 name.style.cssText="text-transform:uppercase;";
-                name.textContent="work experience";
+                name.textContent=french ? langConversion({key:"work experience"}):"work experience";
                 workExpCont.appendChild(name);
                 mainWorkCont.appendChild(workExpCont);
                 this._addRemove.removeWorkExperience({
@@ -705,7 +718,7 @@ class EditResume {
                     css_col,less400,
                     func:(resume)=>{
                         Resume.cleanUpById({parent,id:"main-work-cont"});
-                        this.editWorkExper({parent,css_row,resume,css_col,less400});
+                        this.editWorkExper({parent,css_row,resume,css_col,less400,french});
                     }
                 });
                 
@@ -715,24 +728,25 @@ class EditResume {
                     const inputType=["title","company","location"].includes(key);
                     
                     if(inputType && typeof(value)==="string" && item.cat===key){
-                        experience= this.formComp.workParticulars({parent:workExpCont,order:0,key,value,experience,index});
+                        experience= this.formComp.workParticulars({parent:workExpCont,order:0,key,value,experience,index,french});
                     }else if(key==="summary" && typeof(value)==="string"){
-                        experience=this.formComp.summary({parent:workExpCont,order:1,key,value,experience,less400})
+                        experience=this.formComp.summary({parent:workExpCont,order:1,key,value,experience,less400,french})
                     }else if((key==="from" || key==="to") && typeof(value)==="string"){
-                        experience= this.formComp.fromToInputWorkComponent({parent:workExpCont,order:2,key,value,less400,index,experience});
+                        experience= this.formComp.fromToInputWorkComponent({parent:workExpCont,order:2,key,value,less400,index,experience,french});
                         
                     }else if(key==="achievements"){
-                        experience=this.formComp.workAchievement({parent:workExpCont,order:3,css_col,css_row,experience,less400});
+                        experience=this.formComp.workAchievement({parent:workExpCont,order:3,css_col,css_row,experience,less400,french});
                     }else if(key==="skills"){
-                        experience=this.formComp.workSkills({formChild:workExpCont,order:4,css_col,key,less400,experience});
+                        experience=this.formComp.workSkills({formChild:workExpCont,order:4,css_col,key,less400,experience,french});
                     }else if(!item){
                         this.workOrgs.map(kv=>{
                             const check=Object.keys(experience).includes(kv.cat);
                             if(kv && !check){
-                                if(kv.cat==="achievements"){
-                                    experience=this.formComp.workAchievement({parent:workExpCont,order:5,css_col,css_row,experience,less400});
+                                const {cat}=kv;
+                                if(cat==="achievements"){
+                                    experience=this.formComp.workAchievement({parent:workExpCont,order:5,css_col,css_row,experience,less400,french});
                                 }else if(kv.cat==="skills"){
-                                    experience=this.formComp.workSkills({formChild:workExpCont,order:6,css_col,key,less400,experience});
+                                    experience=this.formComp.workSkills({formChild:workExpCont,order:6,css_col,key,less400,experience,french});
 
                                 }
                             }
@@ -748,12 +762,13 @@ class EditResume {
 
 
 
-    editEducation({parent,resume,css_col,css_row,less400}:{
+    editEducation({parent,resume,css_col,css_row,less400,french}:{
         parent:HTMLElement,
         resume:resumeType,
         css_col:string,
         css_row:string,
         less400:boolean,
+        french:boolean
     }):resumeType{
         const {education}=resume;
         const mainEditCont=document.createElement("div");
@@ -778,20 +793,20 @@ class EditResume {
                     css_col,less400,
                     func:(resume)=>{
                         Resume.cleanUpById({parent,id:"main-edit-cont"});
-                        this.editEducation({parent,resume,css_row,css_col,less400});
+                        this.editEducation({parent,resume,css_row,css_col,less400,french});
                     }
                 });
                 for(const [key,value] of Object.entries(educate)){
                     const check=["achievements","skills","from","to"].includes(key);
                     if(!check && typeof(value)==="string"){
-                       educate= this.formComp.educationParticulars({parent:educateCont,order:0,key,value,index,education:educate,less400});
+                       educate= this.formComp.educationParticulars({parent:educateCont,order:0,key,value,index,education:educate,less400,french});
                     }else if((key==="from" || key==="to") && typeof(value)==="string"){
-                        educate=this.formComp.fromToInputEducateComponent({parent:educateCont,order:1,key,value,less400,index,education:educate})
+                        educate=this.formComp.fromToInputEducateComponent({parent:educateCont,order:1,key,value,less400,index,education:educate,french})
                        
                     }else if(key==="achievements"){
-                        educate=this.formComp.educateAchievement({parent:educateCont,order:2,css_col,css_row,education:educate,less400})
+                        educate=this.formComp.educateAchievement({parent:educateCont,order:2,css_col,css_row,education:educate,less400,french})
                      }else if(key==="skills"){
-                       educate= this.formComp.educateSkills({parent:educateCont,order:3,css_col,key,less400,education:educate});
+                       educate= this.formComp.educateSkills({parent:educateCont,order:3,css_col,key,less400,education:educate,french});
                     }
                 };
             };
@@ -864,7 +879,7 @@ class EditResume {
         return resume;
     };
 
-    editLanguages({parent,resume,css_col,css_row,less400}:{parent:HTMLElement,resume:resumeType,css_col:string,less400:boolean,css_row:string}):resumeType{
+    editLanguages({parent,resume,css_col,css_row,less400,french}:{parent:HTMLElement,resume:resumeType,css_col:string,less400:boolean,css_row:string,french:boolean}):resumeType{
         const languageCont=document.createElement("div");
         languageCont.id="language-cont";
         languageCont.style.cssText=css_col + "margin-inline:auto;padding-block:1rem;margin-block:1rem;position:relative;";
@@ -875,9 +890,10 @@ class EditResume {
             resume,
             css_col,
             less400,
+            french,
             func:(resume)=>{
                 Resume.cleanUpById({parent,id:"language-cont"});
-                this.editLanguages({parent,css_col,css_row,resume,less400});
+                this.editLanguages({parent,css_col,css_row,resume,less400,french});
             }
         });
 
@@ -899,7 +915,7 @@ class EditResume {
                     index,
                     func:(resume)=>{
                         Resume.cleanUpById({parent,id:"language-cont"});
-                        this.editLanguages({parent,css_col,css_row,resume,less400});
+                        this.editLanguages({parent,css_col,css_row,resume,less400,french});
                     }
                 });
                 input.onchange=(e:Event)=>{
@@ -914,7 +930,7 @@ class EditResume {
     };
 
 
-    deleteResume({grandParent,parent,nameResume,css_col,css_row}:{grandParent:HTMLElement,parent:HTMLElement,css_col:string,css_row:string,nameResume:nameResumeType}){
+    deleteResume({grandParent,parent,nameResume,css_col,css_row,french}:{grandParent:HTMLElement,parent:HTMLElement,css_col:string,css_row:string,nameResume:nameResumeType,french:boolean}){
         const xDiv=document.createElement("div");
         parent.style.position="relative";
         xDiv.id="delete-resume";
@@ -923,25 +939,28 @@ class EditResume {
         parent.appendChild(xDiv);
         xDiv.onclick=(e:MouseEvent)=>{
             if(!e) return;
-            this.deleteRequest({grandParent,parent,item:nameResume,css_col,css_row})
+            this.deleteRequest({grandParent,parent,item:nameResume,css_col,css_row,french})
         };
     };
 
-    deleteRequest({grandParent,parent,item,css_col,css_row}:{grandParent:HTMLElement,parent:HTMLElement,item:nameResumeType,css_col:string,css_row:string}){
+    deleteRequest({grandParent,parent,item,css_col,css_row,french}:{grandParent:HTMLElement,parent:HTMLElement,item:nameResumeType,css_col:string,css_row:string,french:boolean}){
+        const lang=langConversion({key:"are you sure you want to delete this resume?"})
         const container=document.createElement("div");
         container.id="delete-resume-request";
         container.style.cssText=css_col + "margin-inline:auto;padding-inline:1rem;background-color:white;color:black;box-shadow:1px 1px 12px 1px black;border-radius:8px;margin-block:1rem;position:absolute;inset:0%;width:300px;height:150px;align-items:center;";
         const para=document.createElement("p");
         para.id="para";
-        para.textContent=" are you sure you want to delete this resume?";
+        para.textContent=french ? lang :"are you sure you want to delete this resume?";
         container.appendChild(para);
         container.appendChild(para);
         grandParent.appendChild(container);
         const btnDiv=document.createElement("div");
         btnDiv.id="btnDiv";
         btnDiv.style.cssText=css_row + "margin-inline:auto;gap:1.5rem;margin-block:1rem;justify-content:space-around;";
-        const {button:cancel}=Resume.simpleButton({anchor:btnDiv,bg:"blue",color:"white",text:"cancel",time:400,type:"button"});
-        const {button:delete_}=Resume.simpleButton({anchor:btnDiv,bg:"red",color:"white",text:"delete",time:400,type:"button"});
+        const cancel_=french ? langConversion({key:"cancel"}) : "cancel";
+        const {button:cancel}=Resume.simpleButton({anchor:btnDiv,bg:"blue",color:"white",text:cancel_,time:400,type:"button"});
+        const del=french ? langConversion({key:"delete"}) : "delete";
+        const {button:delete_}=Resume.simpleButton({anchor:btnDiv,bg:"red",color:"white",text:del,time:400,type:"button"});
         container.appendChild(btnDiv);
         cancel.onclick=(e:MouseEvent)=>{
             if(!e) return;
@@ -952,9 +971,10 @@ class EditResume {
             this._service.deleteResume({item}).then(async(res)=>{
                 if(res){
                     this.mainResumes=this.mainResumes.filter(kv=>(kv.id!==res.id));
-                    Resume.message({parent,msg:" deleted",type:"success",time:700});
+                    const msg=french ? langConversion({key:"deleted"}) : "deleted";
+                    Resume.message({parent,msg,type:"success",time:700});
                     this.cleanUp(grandParent);
-                    this.getResumes({parent:grandParent,user:this._user});
+                    this.getResumes({parent:grandParent,user:this._user,french});
                 }
             });
         };

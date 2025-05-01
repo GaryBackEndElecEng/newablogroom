@@ -25,3 +25,45 @@
   width: 100%;
   min-height: 200px;
 }
+.langBox {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  position: absolute;
+  top: 0%;
+  right: 0%;
+  background-color: white;
+  cursor: pointer;
+  border-radius: 8px;
+  z-index: 3000;
+  box-shadow: 1px 1px 7px white, -1px -1px 7px white;
+  transform: translate(-20px, 10px);
+  animation: rotate 1s ease-in;
+}
+.langBox > small {
+  font-size: 100%;
+  color: #0d6efd;
+  margin: auto;
+  padding-inline: 1rem;
+  padding-block: 0.5rem;
+}
+
+@media screen and (max-width: 900px) {
+  .langBox > small {
+    font-size: 80%;
+  }
+}
+@media screen and (max-width: 400px) {
+  .langBox > small {
+    font-size: 70%;
+  }
+}
+@keyframes rotate {
+  from {
+    transform: rotateX(360deg) translate(-20px, 10px);
+  }
+  to {
+    transform: rotateX(0deg) translate(-20px, 10px);
+  }
+}

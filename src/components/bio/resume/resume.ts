@@ -7,6 +7,7 @@ import CreateResume from "./createResume";
 import { FaCrosshairs } from "react-icons/fa";
 import { FaCreate } from "../../common/ReactIcons";
 import HeaderEffect from "./headerEffect";
+import styles from "./resume.module.css";
 
 
 
@@ -21,6 +22,8 @@ class Resume{
    public readonly rowId:string;
    public readonly containerId:string;
    public readonly dataContainer:string;
+   public readonly injectorId:string;
+   public readonly injectorQuery:string;
 
 
     constructor(public _injector:HTMLElement,private _service:Service,public headerEffect:HeaderEffect,public resumeRef:Reference,public viewResume:ViewResume,public createResume:CreateResume){
@@ -35,19 +38,49 @@ class Resume{
         this.dataContainer="section[data-resume-container]";
         this.headerEffect.dataRow=this.dataRow;
         this.headerEffect.rowId=this.rowId;
+        this.injectorId=this._injector.id;
+        const node=this._injector.nodeName.toLowerCase();
+        this.injectorQuery=`${node}#${this._injector.id}`;
     };
 
 
     //-----------------GETTERS/SETTERS---------------//
     get injector(){
         return this._injector
-    }
+    };
     //-----------------GETTERS/SETTERS---------------//
     async main({parent}:{parent:HTMLElement}){
-        const less400= window.innerWidth <400;
-        this.headerEffect.main({parent,less400,})
+        let french=false;
+        console.log("french",french);
+        parent.style.position="relative";
+        parent.style.zIndex="0";
+        const less400= window.innerWidth < 400;
+        this.headerEffect.main({parent,less400,french});
+       //CREAT BUTTON CHANGE LANGUAGE && RECYCLE: main()
+       const langBox=document.createElement("div");
+       langBox.id="lang-box";
+       langBox.className=styles.langBox;
+        parent.appendChild(langBox);
+        const small=document.createElement("small");
+        small.textContent="français";
+        langBox.appendChild(small);
        
-
+        langBox.onclick=(e:MouseEvent)=>{
+            if(!e) return;
+            if(small.textContent==="français"){
+                small.textContent="english";
+                french=true;
+                this.headerEffect.main({parent,less400,french});
+            }else{
+                small.textContent="français";
+                french=false;
+                this.headerEffect.main({parent,less400,french});
+            }
+            langBox.animate([
+                {transform:"rotateX(0deg) translate(-20px, 10px)"},
+                {transform:"rotateX(360deg) translate(-20px, 10px)"},
+            ],{duration:1000,iterations:1});
+        };
     };
 
   

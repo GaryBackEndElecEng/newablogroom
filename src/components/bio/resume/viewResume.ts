@@ -4,6 +4,7 @@ import Reference from "./viewReference";
 import { awardType, contactType, educationType, mainResumeType, miscType, nameRefType, nameResumeType, resumeType, workExperienceType } from "./refTypes";
 import Resume from "./resume";
 import styles from "./viewResume.module.css";
+import { langConversion } from "./engFre";
 
 
 class ViewResume {
@@ -76,14 +77,14 @@ class ViewResume {
 
     //--------GETTERS SETTERS----------//
 
-async showResume({parent,mainResume,func1}:{parent:HTMLElement,mainResume:mainResumeType|undefined,
+async showResume({parent,mainResume,french,func1}:{parent:HTMLElement,mainResume:mainResumeType|undefined,french:boolean,
     func1:(mainResumes:mainResumeType[])=>Promise<void>|void
 }){
     
     this.storeMainResume({mainResume});
     
     if(mainResume){
-        this.resume({parent,mainResume,showPrint:true,closeDelete:false,func1});
+        this.resume({parent,mainResume,showPrint:true,closeDelete:false,french,func1});
     }
     
 };
@@ -114,7 +115,7 @@ storeMainResume({mainResume}:{mainResume:mainResumeType|undefined}):{nameResumes
 
 
 
-resume({parent,mainResume,showPrint,closeDelete,func1}:{parent:HTMLElement,mainResume:mainResumeType,showPrint:boolean,closeDelete:boolean,
+resume({parent,mainResume,showPrint,closeDelete,french,func1}:{parent:HTMLElement,mainResume:mainResumeType,showPrint:boolean,closeDelete:boolean,french:boolean,
     func1:(mainResumes:mainResumeType[])=>Promise<void>|void
 }){
     const less900=window.innerWidth <900;
@@ -142,26 +143,40 @@ resume({parent,mainResume,showPrint,closeDelete,func1}:{parent:HTMLElement,mainR
     mainCont.style.alignItems="stretch";
     mainCont.style.width="100%";
    
-        this.header({parent:mainCont,css_col,css_row,less400,less900,contact,sites,filename});
-    this.summaryCont({parent:mainCont,less400,less900,css_col,summary});
+    this.header({parent:mainCont,css_col,css_row,less400,less900,contact,sites,filename,french});
+    this.summaryCont({parent:mainCont,less400,less900,css_col,summary,french});
     //experience button
     const experienceCont=document.createElement("div");
     experienceCont.id="experience-cont";
     experienceCont.style.cssText=css_col + "justify-content:center;align-items:center;width:100%;";
     mainCont.appendChild(experienceCont);
-    this.showHideWorkExp({parent:experienceCont,less400,less900,experData,css_col,css_row,time,show:this.show,lineWidth});
+    this.showHideWorkExp({parent:experienceCont,less400,less900,experData,css_col,css_row,time,show:this.show,lineWidth,french});
     const educateCont=document.createElement("div");
     educateCont.id="educate-cont";
     educateCont.style.cssText=css_col + "width:100%";
     mainCont.appendChild(educateCont);
-    this.showHideEducate({parent:educateCont,less400,less900,css_col,css_row,educDataArr,show:this.show,time,lineWidth});
-   this.languages({parent:mainCont,extra:extra});
+    this.showHideEducate({
+        parent:educateCont,
+        less400,
+        less900,
+        css_col,
+        css_row,
+        educDataArr,
+        show:this.show,
+        time,
+        lineWidth,
+        french
+
+    });
+   this.languages({parent:mainCont,extra:extra,french});
    
     const btnDiv=document.createElement("div");
     btnDiv.id="btn-div";
     btnDiv.style.cssText=css_row +"margin-inline:auto;margin-block:2rem;justify-content:center;gap:1.5rem;";
     if(showPrint){
-        const {button:print}=Resume.simpleButton({anchor:btnDiv,bg:"black",color:"white",text:"print",time:400,type:"button"});
+        const lang=langConversion({key:"print"});
+        const text_=french && lang ? lang: "print";
+        const {button:print}=Resume.simpleButton({anchor:btnDiv,bg:"black",color:"white",text:text_,time:400,type:"button"});
      
          print.onclick=(e:MouseEvent)=>{
              if(!e) return;
@@ -179,7 +194,7 @@ resume({parent,mainResume,showPrint,closeDelete,func1}:{parent:HTMLElement,mainR
     mainCont.appendChild(btnDiv);
     this._deleteClass.rowId=this.rowId;
     if(!closeDelete){
-        this._deleteClass.deleteResume({parent,target:mainCont,mainResume,
+        this._deleteClass.deleteResume({parent,target:mainCont,mainResume,french,
             func:({mainResumes,nameResumes})=>{
                 this.mainResumes=mainResumes;
                 this.nameResumes=nameResumes;
@@ -191,10 +206,9 @@ resume({parent,mainResume,showPrint,closeDelete,func1}:{parent:HTMLElement,mainR
     parent.appendChild(mainCont);
 };
 
-printResume({parent,resume}:{parent:HTMLElement,resume:resumeType}){
+printResume({parent,resume,french}:{parent:HTMLElement,resume:resumeType,french:boolean}){
     const less900=window.innerWidth <900;
     const less400=window.innerWidth <400;
-    const lineWidth=less900 ? (less400 ? "100%":"90%"):"75%";
     const css_col="display:flex;flex-direction:column;";
     const css_row="display:flex;flex-wrap:nowrap;align-items:center;";
 
@@ -216,35 +230,72 @@ printResume({parent,resume}:{parent:HTMLElement,resume:resumeType}){
     mainCont.style.alignItems="stretch";
     mainCont.style.width="100%";
    
-        this.header({parent:mainCont,css_col,css_row,less400,less900,contact,sites,filename});
-    this.summaryCont({parent:mainCont,less400,less900,css_col,summary});
+        this.header({parent:mainCont,css_col,css_row,less400,less900,contact,sites,filename,french});
+    this.summaryCont({parent:mainCont,less400,less900,css_col,summary,french});
     //experience button
     const experienceCont=document.createElement("div");
     experienceCont.id="experience-cont";
     experienceCont.style.cssText=css_col + "justify-content:center;align-items:center;width:100%;";
     mainCont.appendChild(experienceCont);
-    this.experience({parent:experienceCont,less400,less900,css_col,css_row,experData,show:true,time:0,isPrint:true});
+    this.experience({
+        parent:experienceCont,
+        less400,
+        less900,
+        css_col,
+        css_row,
+        experData,
+        show:true,
+        time:0,
+        isPrint:true,
+        french
+
+    });
     const educateCont=document.createElement("div");
     educateCont.id="educate-cont";
     educateCont.style.cssText=css_col + "width:100%";
     mainCont.appendChild(educateCont);
-    this.education({parent:experienceCont,less400,less900,css_col,css_row,educDataArr,show:true,time:0,isPrint:true});
-    this.languages({parent:mainCont,extra});
+    this.education({
+        parent:experienceCont,
+        less400,
+        less900,
+        css_col,
+        css_row,
+        educDataArr,
+        show:true,
+        time:0,
+        isPrint:true,
+        french
+
+    });
+    this.languages({parent:mainCont,extra,french});
     parent.appendChild(mainCont);
 };
 
 
-showHideEducate({parent,time,show,css_row,css_col,less400,less900,educDataArr,lineWidth}:{parent:HTMLElement,time:number,show:boolean,educDataArr:educationType[],less400:boolean,less900:boolean,css_col:string,css_row:string,lineWidth:string}){
+showHideEducate({parent,time,show,css_row,css_col,less400,less900,educDataArr,lineWidth,french}:{
+    parent:HTMLElement,
+    time:number,
+    show:boolean,
+    educDataArr:educationType[],
+    less400:boolean,
+    less900:boolean,
+    css_col:string,
+    css_row:string,
+    lineWidth:string
+    french:boolean,
+}){
     Resume.lineDivison({parent:parent,width:lineWidth,background:"blue"});
     const showHideExperience=document.createElement("div");
     showHideExperience.id="show-hide-experience-cont";
     showHideExperience.className=styles.showHideExperience;
     const title=document.createElement("h4");
-    title.textContent="EDUCATION";
+    title.textContent=french ? langConversion({key:"education"}):"EDUCATION";
+    title.style.cssText="text-transform:uppercase;";
     title.className="text-primary display-6";
     parent.appendChild(showHideExperience);
     showHideExperience.appendChild(title);
-    const {button}=Resume.simpleButton({anchor:showHideExperience,type:"button",bg:"black",color:"white",text:"open",time:400});
+    const _text=french ? langConversion({key:"open"}) : "open";
+    const {button}=Resume.simpleButton({anchor:showHideExperience,type:"button",bg:"black",color:"white",text:_text,time:400});
     Resume.lineDivison({parent:parent,width:lineWidth,background:"blue"});
     //experience button
     const experienceCont=document.createElement("div");
@@ -255,16 +306,39 @@ showHideEducate({parent,time,show,css_row,css_col,less400,less900,educDataArr,li
         if(!e)return;
         if(!show){
             show=true;
-            button.textContent="close";
+            button.textContent=french ? "fermer":"close";
             title.style.opacity="0";
             title.style.transition="opacity 1s ease-in-out";
-            this.education({parent:experienceCont,less400,less900,css_col,css_row,educDataArr,show,time,isPrint:false});
+            this.education({
+                parent:experienceCont,
+                less400,
+                less900,
+                css_col,
+                css_row,
+                educDataArr,
+                show,
+                time,
+                isPrint:false,
+                french
+            });
         }else{
             show=!show;
             title.style.opacity="1";
             title.style.transition="opacity 1s ease-in-out";
-            button.textContent="open";
-            this.education({parent:experienceCont,less400,less900,css_col,css_row,educDataArr,show,time,isPrint:false});
+            button.textContent=french ? langConversion({key:"open"}):"open";
+            this.education({
+                parent:experienceCont,
+                less400,
+                less900,
+                css_col,
+                css_row,
+                educDataArr,
+                show,
+                time,
+                isPrint:false,
+                french
+
+            });
         }
     };
 
@@ -272,7 +346,18 @@ showHideEducate({parent,time,show,css_row,css_col,less400,less900,educDataArr,li
 };
 
 
-showHideWorkExp({parent,time,show,css_row,css_col,less400,less900,experData,lineWidth}:{parent:HTMLElement,time:number,show:boolean,experData:workExperienceType[],less400:boolean,less900:boolean,css_col:string,css_row:string,lineWidth:string}){
+showHideWorkExp({parent,time,show,css_row,css_col,less400,less900,experData,lineWidth,french}:{
+    parent:HTMLElement,
+    time:number,
+    show:boolean,
+    experData:workExperienceType[],
+    less400:boolean,
+    less900:boolean,
+    css_col:string,
+    css_row:string,
+    lineWidth:string,
+    french:boolean
+}){
     const showHideOuter=document.createElement("div");
     showHideOuter.id="show-hide-outer-cont";
     showHideOuter.className=styles.showHideOuter;
@@ -281,12 +366,16 @@ showHideWorkExp({parent,time,show,css_row,css_col,less400,less900,experData,line
     showHideExperience.className=styles.showHideExperience;
     Resume.lineDivison({parent:showHideOuter,width:lineWidth,background:"blue"});
     const title=document.createElement("h4");
-    title.textContent="EXPERIENCE";
+    const lang=langConversion({key:"experience"})
+    title.textContent=french && lang ? lang :"experience";
     title.className="text-primary display-6 mx-0";
+    title.style.textTransform="uppercase";
     showHideOuter.appendChild(showHideExperience);
     parent.appendChild(showHideOuter);
     showHideExperience.appendChild(title);
-    const {button}=Resume.simpleButton({anchor:showHideExperience,type:"button",bg:"black",color:"white",text:"open",time:400});
+    const lang1=langConversion({key:"open"});
+    const text_=french && lang1 ? lang1 : "open";
+    const {button}=Resume.simpleButton({anchor:showHideExperience,type:"button",bg:"black",color:"white",text:text_,time:400});
     Resume.lineDivison({parent:showHideOuter,width:lineWidth,background:"blue"});
     //experience button
     const experienceCont=document.createElement("div");
@@ -297,26 +386,52 @@ showHideWorkExp({parent,time,show,css_row,css_col,less400,less900,experData,line
     button.onclick=(e:MouseEvent)=>{
         if(!e)return;
         if(!show){
+            const lang=langConversion({key:"hide"});
             show=!show;
             title.style.opacity="0";
             title.style.transition="opacity 1s ease-in-out";
-            button.textContent="hide";
+            button.textContent=french && lang ? lang : "hide";
             experienceCont.style.alignItems="";
-            this.experience({parent:experienceCont,less400,less900,css_col,css_row,experData,show,time,isPrint:false});
+            this.experience({
+                parent:experienceCont,
+                less400,
+                less900,
+                css_col,
+                css_row,
+                experData,
+                show,
+                time,
+                isPrint:false,
+                french
+
+            });
         }else{
+            const lang=langConversion({key:"open"});
             show=!show;
             title.style.opacity="1";
             experienceCont.style.alignItems="";
             title.style.transition="opacity 1s ease-in-out";
-            button.textContent="open";
-            this.experience({parent:experienceCont,less400,less900,css_col,css_row,experData,show,time,isPrint:false});
+            button.textContent=french && lang ? lang : "open";
+            this.experience({
+                parent:experienceCont,
+                less400,
+                less900,
+                css_col,
+                css_row,
+                experData,
+                show,
+                time,
+                isPrint:false,
+                french
+
+            });
         }
     };
     showHideExperience.style.alignItems="";
     
 };
  
-showCombined({parent,resume,showHeader,isPrint}:{parent:HTMLElement,resume:resumeType,showHeader:boolean,isPrint:boolean}){
+showCombined({parent,resume,showHeader,isPrint,french}:{parent:HTMLElement,resume:resumeType,showHeader:boolean,isPrint:boolean,french:boolean}){
     const {sites,contact,workExperience,education,extra,summary}= resume;
     const less900=window.innerWidth <900;
     const less400=window.innerWidth <400;
@@ -330,23 +445,24 @@ showCombined({parent,resume,showHeader,isPrint}:{parent:HTMLElement,resume:resum
     if(showHeader){
         
          const filename=this.nameRef?.res_name_id ? resume.name:undefined;
-        this.header({parent:container,less400,less900,css_col,css_row,contact,sites,filename});
+        this.header({parent:container,less400,less900,css_col,css_row,contact,sites,filename,french});
     };
-    this.summaryCont({parent:container,less400,less900,css_col,summary});
-    this.experience({parent:container,less400,less900,css_col,css_row,experData:workExperience,time,show:true,isPrint});
-    this.education({parent:container,less400,less900,css_col,css_row,educDataArr:education,time,show:true,isPrint});
-    this.languages({parent:container,extra});
+    this.summaryCont({parent:container,less400,less900,css_col,summary,french});
+    this.experience({parent:container,less400,less900,css_col,css_row,experData:workExperience,time,show:true,isPrint,french});
+    this.education({parent:container,less400,less900,css_col,css_row,educDataArr:education,time,show:true,isPrint,french});
+    this.languages({parent:container,extra,french});
     
 };
 
-languages({parent,extra}:{parent:HTMLElement,extra:miscType}){
+languages({parent,extra,french}:{parent:HTMLElement,extra:miscType,french:boolean}){
     ViewResume.divider({parent,width:75});
+    const lang_=langConversion({key:"languages"});
     const extraContLang=document.createElement("div");
     extraContLang.id="extra-cont";
     extraContLang.className=styles.extraContLang;
     const languages=document.createElement("div");
     const lang=document.createElement("h6");
-    lang.textContent="Languages";
+    lang.textContent=french ? lang_ :"Languages";
     lang.className="display-6 text-primary mx-0";
     lang.style.cssText="margin-bottom:1rem;text-transform:uppercase;margin-inline:0;";
     languages.appendChild(lang);
@@ -365,7 +481,7 @@ languages({parent,extra}:{parent:HTMLElement,extra:miscType}){
     ViewResume.divider({parent,width:75});
 }
 
-experience({parent,less400,less900,css_col,css_row,experData,time,show,isPrint}:{less400:boolean,less900:boolean,parent:HTMLElement,css_col:string,css_row:string,experData:workExperienceType[],time:number,show:boolean,isPrint:boolean}){
+experience({parent,less400,less900,css_col,css_row,experData,time,show,isPrint,french}:{less400:boolean,less900:boolean,parent:HTMLElement,css_col:string,css_row:string,experData:workExperienceType[],time:number,show:boolean,isPrint:boolean,french:boolean}){
     if(show){
         const workExpCont=document.createElement("div");
         workExpCont.id="work-experience-cont";
@@ -373,14 +489,16 @@ experience({parent,less400,less900,css_col,css_row,experData,time,show,isPrint}:
       
         const title=document.createElement("h6");
         title.id="title-exp";
-        title.className="display-6 my-1 mb-3 lean";
-        title.style.fontSize="175%";
-        title.textContent="EXPERIENCE";
+        title.className="display-6 my-1 mb-3 lean text-primary";
+        title.style.fontSize=less900 ? (less400 ? "175%":"200%"):"225%";
+        title.style.textTransform="uppercase;";
+        const lang=langConversion({key:"experience"});
+        title.textContent=french ? lang :"experience";
         workExpCont.appendChild(title);
         ViewResume.divider({parent:workExpCont,width:75});
 
         experData.map((exper,index)=>{
-            this.experCard({parent:workExpCont,exper,less400,less900,css_col,css_row,index});
+            this.experCard({parent:workExpCont,exper,less400,less900,css_col,css_row,index,french});
         });
         parent.appendChild(workExpCont);
 
@@ -391,24 +509,25 @@ experience({parent,less400,less900,css_col,css_row,experData,time,show,isPrint}:
 };
 
 
-education({parent,css_col,less400,less900,css_row,educDataArr,time,show,isPrint}:{parent:HTMLElement,css_col:string,css_row:string,less400:boolean,less900:boolean,educDataArr:educationType[],time:number,show:boolean,isPrint:boolean}){
+education({parent,css_col,less400,less900,css_row,educDataArr,time,show,isPrint,french}:{parent:HTMLElement,css_col:string,css_row:string,less400:boolean,less900:boolean,educDataArr:educationType[],time:number,show:boolean,isPrint:boolean,french:boolean}){
     if(show){
+        const lang=langConversion({key:"education"})
         const educationCont=document.createElement("div");
         educationCont.id="main-education";
         educationCont.className=styles.workExpCont;
         const title=document.createElement("h6");
         title.id="education-title";
         title.style.cssText="text-transform:uppercase;margin-block:0rem;";
-        title.className="display-6 my-1 mb-3 lean";
-        title.style.fontSize="175%";
-        title.textContent="education";
+        title.className="display-6 my-1 mb-3 lean text-primary";
+        title.style.fontSize=less900 ? (less400 ? "180%":"210%"):"225%";
+        title.textContent=french ? lang : "education";
         //divider
         ViewResume.divider({parent:educationCont,width:75});
         educationCont.appendChild(title);
       
         parent.appendChild(educationCont);
         educDataArr.map((educData,index)=>{
-            this.educationCard({parent:educationCont,less400,less900,css_col,css_row,educData,index});
+            this.educationCard({parent:educationCont,less400,less900,css_col,css_row,educData,index,french});
 
         });
 
@@ -419,7 +538,7 @@ education({parent,css_col,less400,less900,css_row,educDataArr,time,show,isPrint}
 };
 
 
-header({parent,less400,less900,css_col,css_row,contact,sites,filename}:{less400:boolean,less900:boolean,parent:HTMLElement,css_col:string,css_row:string,contact:contactType,sites:string[],filename:string|undefined}){
+header({parent,less400,less900,css_col,css_row,contact,sites,filename,french}:{less400:boolean,less900:boolean,parent:HTMLElement,css_col:string,css_row:string,contact:contactType,sites:string[],french:boolean,filename:string|undefined}){
     const cont=document.createElement("div");
     cont.id="header-main";
     cont.className=styles.viewHeaderMain;;
@@ -434,22 +553,25 @@ header({parent,less400,less900,css_col,css_row,contact,sites,filename}:{less400:
     name.textContent=contact.name;
     nameCont.appendChild(name);
     parent.appendChild(nameCont);
-    this.addressTitle({parent:cont,less400,less900,contact,filename});
-    this.siteTitle({parent:cont,less400,less900,css_col,sites});
+    this.addressTitle({parent:cont,less400,less900,contact,filename,french});
+    this.siteTitle({parent:cont,less400,less900,css_col,sites,french});
     parent.appendChild(cont);
 };
 
 
 
-summaryCont({parent,less400,less900,css_col,summary}:{less400:boolean,less900:boolean,parent:HTMLElement,css_col:string,summary:string}){
+summaryCont({parent,less400,less900,css_col,summary,french}:{less400:boolean,less900:boolean,parent:HTMLElement,css_col:string,summary:string,french:boolean}){
+    const lang=langConversion({key:"summary"});
     const summaryCont=document.createElement("div");
     summaryCont.id="summary-cont";
     summaryCont.style.cssText=css_col + "margin-inline:auto;margin-top:1rem;";
     summaryCont.style.width="100%";
     summaryCont.style.paddingInline=less900 ? (less400 ? "0.25rem":"1rem"):"1.5rem";
     const h6=document.createElement("h6");
-    h6.style.cssText="text-transform:uppercase;line-height:0.15rem;margin-bottom:7px;";
-    h6.textContent="summary";
+    h6.style.cssText="text-transform:uppercase;margin-bottom:7px;";
+    h6.className="text-primary text-center my-1 lean display-6";
+    h6.textContent=french && lang ? lang :"summary";
+    h6.style.fontSize=less900 ? (less400 ? "160%":"190%"): "220%";
     summaryCont.appendChild(h6);
     const para=document.createElement("p");
     para.style.cssText="text-wrap:pretty";
@@ -459,7 +581,7 @@ summaryCont({parent,less400,less900,css_col,summary}:{less400:boolean,less900:bo
     parent.appendChild(summaryCont);
 };
 
-addressTitle({parent,less400,less900,contact,filename}:{less400:boolean,less900:boolean,parent:HTMLElement,contact:contactType,filename:string|undefined}){
+addressTitle({parent,less400,less900,contact,filename,french}:{less400:boolean,less900:boolean,parent:HTMLElement,contact:contactType,filename:string|undefined,french:boolean}){
     const nameCont=document.createElement("div");
     nameCont.id="address-cont";
     nameCont.className=styles.addressCont
@@ -511,9 +633,11 @@ addressTitle({parent,less400,less900,contact,filename}:{less400:boolean,less900:
     if(filename){
 
         const anchor=document.createElement("a");
+        const lang=langConversion({key:"resume + reference"})
+        const text = french && lang ? lang :"resume + reference"
         const newUrl=new URL(`/showResume/${filename}`,window.location.origin)
         anchor.href=newUrl.href
-        anchor.textContent="resume + reference";
+        anchor.textContent=text;
         anchor.style.order="2"
         nameCont.appendChild(anchor);
         }
@@ -521,7 +645,7 @@ addressTitle({parent,less400,less900,contact,filename}:{less400:boolean,less900:
 };
 
 
-siteTitle({parent,less400,less900,css_col,sites}:{less400:boolean,less900:boolean,parent:HTMLElement,css_col:string,sites:string[]}){
+siteTitle({parent,less400,less900,css_col,sites,french}:{less400:boolean,less900:boolean,parent:HTMLElement,css_col:string,sites:string[],french:boolean}){
     const siteCont=document.createElement("div");
     siteCont.id="site-cont";
     siteCont.style.cssText=css_col
@@ -542,13 +666,13 @@ siteTitle({parent,less400,less900,css_col,sites}:{less400:boolean,less900:boolea
 };
 
 
-experCard({parent,exper,less400,less900,css_col,css_row,index}:{parent:HTMLElement,exper:workExperienceType,less400:boolean,less900:boolean,css_col:string,css_row:string,index:number}){
+experCard({parent,exper,less400,less900,css_col,css_row,index,french}:{parent:HTMLElement,exper:workExperienceType,less400:boolean,less900:boolean,css_col:string,css_row:string,index:number,french:boolean}){
     const expCard=document.createElement("div");
     expCard.id="exper-card-" + String(index);
     expCard.className=styles.expCard;
     expCard.style.paddingInline="0";
     ViewResume.divider({parent:expCard,width:25});
-    this.experHeader({parent:expCard,css_row,exper,less400,less900});
+    this.experHeader({parent:expCard,css_row,exper,less400,less900,french});
     //append cardHeader
     const summary=document.createElement("p");
     summary.id="summary";
@@ -561,7 +685,7 @@ experCard({parent,exper,less400,less900,css_col,css_row,index}:{parent:HTMLEleme
     achievCont.className=styles.achievCont;
  
     const achieveTitle=document.createElement("h6");
-    achieveTitle.textContent="achievement";
+    achieveTitle.textContent=french ? langConversion({key:"achievement"}):"achievement";
     achieveTitle.style.cssText="text-transform:capitalize;margin-bottom:0.25rem;margin-left:0;";
     achievCont.appendChild(achieveTitle);
     exper.achievements.map((achiev,index)=>{
@@ -569,7 +693,7 @@ experCard({parent,exper,less400,less900,css_col,css_row,index}:{parent:HTMLEleme
             const ind=document.createElement("span");
             ind.textContent=String(index + 1) + ". ";
             achievCont.appendChild(ind);
-            this.achievCard({parent:achievCont,achiev,index,});
+            this.achievCard({parent:achievCont,achiev,index,french});
         }
     });
     expCard.appendChild(achievCont);
@@ -577,7 +701,7 @@ experCard({parent,exper,less400,less900,css_col,css_row,index}:{parent:HTMLEleme
 };
 
 
-experHeader({parent,less400,less900,exper,css_row}:{parent:HTMLElement,less400:boolean,less900:boolean,css_row:string,exper:workExperienceType}){
+experHeader({parent,less400,less900,exper,css_row,french}:{parent:HTMLElement,less400:boolean,less900:boolean,css_row:string,exper:workExperienceType,french:boolean}){
     const expCardHeader=document.createElement("div");
     expCardHeader.id="exp-card-header";
     expCardHeader.className=styles.expCardHeader;
@@ -610,14 +734,16 @@ experHeader({parent,less400,less900,exper,css_row}:{parent:HTMLElement,less400:b
     dateCont.id="experHeader-date-cont";
     dateCont.className=styles.experHeaderBodyDateContRow;
     const from=document.createElement("span");
+    const from_=french ? langConversion({key:"from"}):"from";
     from.id="from";
     from.className="text-primary";
-    from.innerHTML=`<span style=color:blue;>From:</span> ${exper.from}`;
+    from.innerHTML=`<span style=color:blue;>${from_}:</span> ${exper.from}`;
     dateCont.appendChild(from);
     const to=document.createElement("span");
+    const to_=french ? langConversion({key:"to"}):"to";
     to.id="to";
     to.className="text-primary";
-    to.innerHTML=`<span style=color:blue;>To:</span> ${exper.to}`;
+    to.innerHTML=`<span style=color:blue;>${to_}:</span> ${exper.to}`;
     dateCont.appendChild(to);
     experHeaderBody.appendChild(dateCont);
      //---------------------HEADER BODY---------------------------------------//
@@ -625,31 +751,32 @@ experHeader({parent,less400,less900,exper,css_row}:{parent:HTMLElement,less400:b
     parent.appendChild(expCardHeader);
 };
 
-educationCard({parent,less400,less900,css_col,css_row,educData,index}:{less400:boolean,less900:boolean,parent:HTMLElement,css_col:string,css_row:string,educData:educationType,index:number}){
+educationCard({parent,less400,less900,css_col,css_row,educData,french,index}:{less400:boolean,less900:boolean,parent:HTMLElement,css_col:string,css_row:string,educData:educationType,french:boolean,index:number}){
         const card=document.createElement("div");
         card.id="education-card-"+ String(index);
         card.className=styles.educateCard;
         ViewResume.divider({parent:card,width:25});
        
-        this.educateHeader({parent:card,css_col,css_row,less900,less400,educData});
+        this.educateHeader({parent:card,css_col,css_row,less900,less400,educData,french});
         //extracurricular
         if(educData.extracurricular){
+            const word=french ? langConversion({key:"extracurricular"}): "extracurricular";
             const extracurricular=document.createElement("p");
             extracurricular.id="extracurricular";
             extracurricular.className="px-1 py-1";
             extracurricular.style.textWrap="pretty";
-            extracurricular.innerHTML=`<span style=color:blue;>extracurricular: </span>${educData.extracurricular}`;
+            extracurricular.innerHTML=`<span style=color:blue;>${word}: </span>${educData.extracurricular}`;
             card.appendChild(extracurricular);
         }
-        this.educateAchieve({parent:card,educData,less400,less900,css_col});
+        this.educateAchieve({parent:card,educData,less400,less900,css_col,french});
         //SKILLs
-        this.skillContainer({parent:card,css_row,educData,less400});
+        this.skillContainer({parent:card,css_row,educData,less400,french});
         parent.appendChild(card);
 };
 
 
 
-skillContainer({parent,css_row,educData,less400}:{parent:HTMLElement,css_row:string,educData:educationType,less400:boolean}){
+skillContainer({parent,css_row,educData,less400,french}:{parent:HTMLElement,css_row:string,educData:educationType,less400:boolean,french:boolean}){
 const skillCont=document.createElement("div");
 skillCont.id="skill-cont";
 skillCont.className=styles.educateSkillRowCont;
@@ -659,8 +786,9 @@ skills_.map((skill,index)=>{
     const skill_=document.createElement("p");
     skill_.id="skill-" + String(index);
     if(index===0){
+        const word=french ? langConversion({key:skill}):"skills";
         skill_.style.color="blue";
-        skill_.textContent=`${skill} : `;
+        skill_.textContent=`${word} : `;
     }else{
         skill_.textContent=skill;
     }
@@ -670,7 +798,7 @@ parent.appendChild(skillCont);
 };
 
 
-educateHeader({parent,css_col,css_row,less900,less400,educData}:{parent:HTMLElement,css_col:string,css_row:string,less900:boolean,less400:boolean,educData:educationType}){
+educateHeader({parent,css_col,css_row,less900,less400,educData,french}:{parent:HTMLElement,css_col:string,css_row:string,less900:boolean,less400:boolean,educData:educationType,french:boolean}){
         const cont=document.createElement("div");
         cont.id="education-header";
         cont.className=styles.educHeaderCont;
@@ -706,14 +834,16 @@ educateHeader({parent,css_col,css_row,less900,less400,educData}:{parent:HTMLElem
         dateCont.id="date-cont";
         dateCont.className=styles.experHeaderBodyDateContRow;
         const from=document.createElement("span");
+        const from_=french ? langConversion({key:"from"}):"From";
         from.id="from";
         from.className="text-primary";
-        from.innerHTML=`<span style=color:blue;>From:</span> ${educData.from}`;
+        from.innerHTML=`<span style=color:blue;>${from_}:</span> ${educData.from}`;
         dateCont.appendChild(from);
         const to=document.createElement("span");
+        const to_=french ? langConversion({key:"to"}):"To";
         to.id="to";
         to.className="text-primary";
-        to.innerHTML=`<span style=color:blue;>To:</span> ${educData.to}`;
+        to.innerHTML=`<span style=color:blue;>${to_}:</span> ${educData.to}`;
         dateCont.appendChild(to);
         experHeaderBody.appendChild(dateCont);
         //relevantWork
@@ -738,7 +868,7 @@ educateHeader({parent,css_col,css_row,less900,less400,educData}:{parent:HTMLElem
 };
 
 
-educateAchieve({parent,educData,less400,less900,css_col}:{parent:HTMLElement,educData:educationType,css_col:string,less400:boolean,less900:boolean}){
+educateAchieve({parent,educData,less400,less900,css_col,french}:{parent:HTMLElement,educData:educationType,css_col:string,less400:boolean,less900:boolean,french:boolean}){
 const achievCont=document.createElement("div");
 achievCont.id="educate-achiev-cont";
 achievCont.style.cssText="margin-inline:0;";
@@ -747,7 +877,7 @@ achievCont.style.width=less900 ?(less400 ? "100%":"85%"):"76%";
 const title=document.createElement("h6");
 title.id="achieve-cont-title";
 title.style.cssText="font-weight:bold;line-height:0.5rem;margin-block:0.25;text-transform:capitalize;";
-title.textContent="achievments";
+title.textContent=french ? langConversion({key:"achievements"}):"achievements";
 parent.appendChild(title);
 educData.achievements.map((achiev,index)=>{
     const para1=document.createElement("p");
@@ -770,12 +900,12 @@ educData.achievements.map((achiev,index)=>{
         div.appendChild(small);
     };
     if(achiev.composite){
-
+        const word=french ? langConversion({key:"composite"}): "composite";
         const small=document.createElement("small");
         small.id="small-" + String(index);
         small.style.cssText="text-wrap:pretty;";
         small.style.marginLeft=less900 ? (less400 ? "0.3rem":"0.5rem"):"0.75rem";
-        small.innerHTML=`<span style=color:blue>comp:</span>${achiev.composite}`;
+        small.innerHTML=`<span style=color:blue>${word}:</span>${achiev.composite}`;
         
         div.appendChild(small);
     }
@@ -786,7 +916,7 @@ parent.appendChild(achievCont);
 
 
 
-achievCard({parent,achiev,index,}:{parent:HTMLElement,achiev:awardType,index:number}){
+achievCard({parent,achiev,index,french}:{parent:HTMLElement,achiev:awardType,index:number,french:boolean}){
 const achievContCard=document.createElement("div");
 achievContCard.id="achievCard-cont-card";
 achievContCard.className=styles.achievContCard;
@@ -799,7 +929,7 @@ achievReasonComp.id="achiev-reason-composite";
 achievReasonComp.className=styles.achievReasonComp;
 if(achiev?.reason){
     const title=document.createElement("small");
-    title.textContent="purpose:";
+    title.textContent=french ? `${langConversion({key:"purpose"})}:`:"purpose:";
     const small=document.createElement("small");
     small.id="small-reason" + String(index);
     small.textContent=achiev.reason;
@@ -807,7 +937,7 @@ if(achiev?.reason){
     achievReasonComp.appendChild(small);
 };if(achiev?.composite){
     const title=document.createElement("small");
-    title.textContent="composite:";
+    title.textContent=french ? `${langConversion({key:"composite"})}:`:"composite:";
     title.style.cssText="color:blue";
     const small=document.createElement("small");
     small.id="small-composite" + String(index);

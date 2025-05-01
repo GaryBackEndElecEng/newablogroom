@@ -1,4 +1,5 @@
 import EditResume from "../resume/editResume";
+import { langConversion } from "../resume/engFre";
 import {  letterType, } from "../resume/refTypes";
 import Resume from "../resume/resume";
 import AddRemoveLet from "./addRemoveLet";
@@ -11,7 +12,7 @@ class FormLetComponents{
 
     }
 
-formPara({parent,letter,key,order,less400}:{parent:HTMLElement,letter:letterType,key:string,order:number,less400:boolean}):letterType{
+formPara({parent,letter,key,order,less400,french}:{parent:HTMLElement,letter:letterType,key:string,order:number,less400:boolean,french:boolean}):letterType{
     parent.style.position="relative";
     const len=letter?.paragraphs?.length;
     const paraCont=document.createElement("div");
@@ -25,10 +26,11 @@ formPara({parent,letter,key,order,less400}:{parent:HTMLElement,letter:letterType
         letter,
         index:order,
         key,
+        french,
         less400,
         func:(letter)=>{
             Resume.cleanUpById({parent,id:"form-para-cont"});
-            this.formPara({parent,letter,key,order,less400});
+            this.formPara({parent,letter,key,order,less400,french});
         }
     });
     
@@ -61,7 +63,7 @@ formPara({parent,letter,key,order,less400}:{parent:HTMLElement,letter:letterType
                     less400,
                     func:(letter)=>{
                         Resume.cleanUpById({parent,id:"form-para-cont"});
-                        this.formPara({parent,letter,key,order,less400});
+                        this.formPara({parent,letter,key,order,less400,french});
                     }
                 });
                 textInput.onchange=(e:Event)=>{
@@ -163,7 +165,7 @@ formContact({parent,letter,key,order,less400}:{parent:HTMLElement,letter:letterT
 
 
 
-formSummary({parent,letter,key,order,less400}:{parent:HTMLElement,letter:letterType,key:string,order:number,less400:boolean}):letterType{
+formSummary({parent,letter,key,order,french,less400}:{parent:HTMLElement,letter:letterType,key:string,order:number,french:boolean,less400:boolean}):letterType{
     parent.style.position="relative";
     const summaryCont=document.createElement("div");
     summaryCont.id="summary-cont";
@@ -180,9 +182,10 @@ formSummary({parent,letter,key,order,less400}:{parent:HTMLElement,letter:letterT
     textInput.name="form-summary-"+ key + "-" + String(order);
     textInput.value=letter.summary as string;
     textInput.style.width="100%";
-    textInput.placeholder="what position?,how you learned of the hiring.";
+    const text="what position?,how you learned of the hiring."
+    textInput.placeholder=french ? langConversion({key:text}): text;
     label.setAttribute("for",textInput.id);
-    label.textContent=key;
+    label.textContent=french ? langConversion({key}) :key;
     textInput.rows=8;
     textInput.onchange=(e:Event)=>{
         if(!e) return;
@@ -192,17 +195,17 @@ formSummary({parent,letter,key,order,less400}:{parent:HTMLElement,letter:letterT
     return letter;
 };
 
-rowToPosition({parent,letter,less400,order}:{parent:HTMLElement,letter:letterType,less400:boolean,order:number}):letterType{
+rowToPosition({parent,letter,less400,order,french}:{parent:HTMLElement,letter:letterType,less400:boolean,french:boolean,order:number}):letterType{
     const row=document.createElement("div");
     row.id="row-to-position";
     row.className=styles.css_row;
     parent.appendChild(row);
-    letter=this.formTo({parent:row,letter,key:"to",order,less400});
+    letter=this.formTo({parent:row,letter,key:"to",order,less400,french});
     letter=this.formPosition({parent:row,letter,key:"position",order:order+1,less400});
     return letter
 }
 
-formTo({parent,letter,key,order,less400}:{parent:HTMLElement,letter:letterType,key:string,order:number,less400:boolean}):letterType{
+formTo({parent,letter,key,order,french,less400}:{parent:HTMLElement,letter:letterType,key:string,order:number,french:boolean,less400:boolean}):letterType{
     parent.style.position="relative";
     const toCont=document.createElement("div");
     toCont.id="to-cont";
@@ -219,7 +222,7 @@ formTo({parent,letter,key,order,less400}:{parent:HTMLElement,letter:letterType,k
     input.id=`form-${key}-to-input`;
     input.name="form-to-"+ key + "-" + String(order);
     input.value=letter.to as string;
-    input.placeholder="to Whom";
+    input.placeholder=french ? langConversion({key:"to Whom"}):"to Whom";
     input.style.width="auto";
     label.setAttribute("for",input.id);
     label.textContent=key;
@@ -265,7 +268,7 @@ formPosition({parent,letter,key,order,less400}:{parent:HTMLElement,letter:letter
 
 
 
-formConlusion({parent,letter,key,order,less400}:{parent:HTMLElement,letter:letterType,key:string,order:number,less400:boolean}):letterType{
+formConlusion({parent,letter,key,order,less400,french}:{parent:HTMLElement,letter:letterType,key:string,french:boolean,order:number,less400:boolean}):letterType{
     const {textarea:textInput,label,formGrp}=EditResume.textareaComponent(parent);
     formGrp.id="form-conclusion";
     formGrp.className=styles.css_col;
@@ -277,7 +280,7 @@ formConlusion({parent,letter,key,order,less400}:{parent:HTMLElement,letter:lette
     textInput.name="form-conclusion-"+ key + "-" + String(order);
     textInput.value=letter.conclusion as string;
     textInput.style.width="100%";
-    textInput.placeholder="when you can be available,where you can be contacted,and THANK THEM for the consideration.";
+    textInput.placeholder=french? langConversion({key:"conclusion"}):"when you can be available,where you can be contacted,and THANK THEM for the consideration.";
     label.setAttribute("for",textInput.id);
     label.textContent=key;
     textInput.rows=6;

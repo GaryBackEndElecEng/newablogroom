@@ -4,6 +4,7 @@ import { FaCreate } from "@/components/common/ReactIcons";
 import { FaCrosshairs } from "react-icons/fa";
 import { mainIntroLetterType, mainResumeRefType, mainResumeType, nameLetterType, nameRefType, nameResumeType, userType } from "./refTypes";
 import styles from "./deleteClass.module.css";
+import { langConversion } from "./engFre";
 
 class DeleteClass{
     public rowId:string;
@@ -89,10 +90,11 @@ class DeleteClass{
 
 
 
-    deleteResume({parent,target,mainResume,func}:{
+    deleteResume({parent,target,mainResume,french,func}:{
         target:HTMLElement;
         parent:HTMLElement,
         mainResume:mainResumeType,
+        french:boolean,
         func:({mainResumes,nameResumes}:{mainResumes:mainResumeType[],nameResumes:nameResumeType[]})=>Promise<void>|void
 
     }){
@@ -106,15 +108,16 @@ class DeleteClass{
             target.appendChild(xDiv);
             xDiv.onclick=(e:MouseEvent)=>{
                 if(!e) return;
-                this.deleteRequest({target,parent,mainResume,func})
+                this.deleteRequest({target,parent,mainResume,french,func})
             };
         };
     };
 
 
-    deleteRequest({target,parent,mainResume,func}:{
+    deleteRequest({target,parent,mainResume,french,func}:{
         target:HTMLElement,
         parent:HTMLElement,
+        french:boolean,
         mainResume:mainResumeType,
         func:({mainResumes,nameResumes}:{mainResumes:mainResumeType[],nameResumes:nameResumeType[]})=>Promise<void>|void}){
         const container=document.createElement("div");
@@ -122,7 +125,8 @@ class DeleteClass{
         container.className=styles.deleteRequest;
         const para=document.createElement("p");
         para.id="para";
-        para.textContent=" are you sure you want to delete this resume?";
+        const text_=langConversion({key:"are you sure you want to delete this resume?"})
+        para.textContent=french && text_ ? text_ : "are you sure you want to delete this resume?";
         container.appendChild(para);
         container.appendChild(para);
         target.appendChild(container);
@@ -149,7 +153,9 @@ class DeleteClass{
                                 parent.removeChild(child);
                             }
                         });
-                        Resume.message({parent,msg:" deleted",type:"success",time:700});
+                        const lang2=langConversion({key:"deleted"})
+                        const text_2=french && lang2 ? lang2 :"deleted"
+                        Resume.message({parent,msg:text_2,type:"success",time:700});
 
                         func({mainResumes:this.mainResumes,nameResumes:this.nameResumes});
                     };
@@ -160,10 +166,11 @@ class DeleteClass{
     };
 
 
-    deleteReF({parent,target,mainRef,func}:{
+    deleteReF({parent,target,mainRef,french,func}:{
         target:HTMLElement;
         parent:HTMLElement,
         mainRef:mainResumeRefType,
+        french:boolean,
         func:({mainRefs,nameRefs}:{mainRefs:mainResumeRefType[],nameRefs:nameRefType[]})=>Promise<void>|void
 
     }){
@@ -177,17 +184,18 @@ class DeleteClass{
             target.appendChild(xDiv);
             xDiv.onclick=(e:MouseEvent)=>{
                 if(!e) return;
-                this.deleteRefRequest({target,parent,mainRef,func})
+                this.deleteRefRequest({target,parent,mainRef,french,func})
             };
         };
     };
 
 
 
-    deleteRefRequest({target,parent,mainRef,func}:{
+    deleteRefRequest({target,parent,mainRef,french,func}:{
         target:HTMLElement,
         parent:HTMLElement,
         mainRef:mainResumeRefType,
+        french:boolean,
         func:({mainRefs,nameRefs}:{mainRefs:mainResumeRefType[],nameRefs:nameRefType[]})=>Promise<void>|void}){
         const container=document.createElement("div");
         container.id="delete-resume-request";
@@ -221,7 +229,8 @@ class DeleteClass{
                                 parent.removeChild(child);
                             }
                         });
-                        Resume.message({parent,msg:" deleted",type:"success",time:700});
+                        const lang=langConversion({key:"deleted"});
+                        Resume.message({parent,msg:french? lang:" deleted",type:"success",time:700});
 
                         func({mainRefs:this.mainRefs,nameRefs:this.nameRefs});
                     };

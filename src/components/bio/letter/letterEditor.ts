@@ -120,7 +120,7 @@ class LetterEditor{
         this._paragraphs=paragraphs;
     }
     ///-----------------GETTERS SETTERS----------------------//
-    newLetter({parent,func1}:{parent:HTMLElement,
+    newLetter({parent,french,func1}:{parent:HTMLElement,french:boolean,
         func1:(mainLetters:mainIntroLetterType[],mainLet:mainIntroLetterType)=>Promise<void>|void
     }){
         const time=1500;
@@ -130,7 +130,7 @@ class LetterEditor{
         mainCont.style.transform="rotate(0deg)";
         mainCont.style.opacity="1";
         parent.appendChild(mainCont);
-        this.mainLetterContainer({parent:mainCont,mainLetter:this.mainLetterInit,isNew:true,func1});
+        this.mainLetterContainer({parent:mainCont,french,mainLetter:this.mainLetterInit,isNew:true,func1});
        
         mainCont.animate([
             {transform:"rotateX(90deg)",opacity:"0"},
@@ -139,7 +139,7 @@ class LetterEditor{
     };
     
 
-    editLetter({parent,filename,func1}:{parent:HTMLElement,filename:string,
+    editLetter({parent,filename,french,func1}:{parent:HTMLElement,filename:string,french:boolean,
         func1:(mainLetters:mainIntroLetterType[],mainLe:mainIntroLetterType)=>Promise<void>|void
     }){
        
@@ -151,17 +151,17 @@ class LetterEditor{
                     const mainLetter=res;
                     const remain=this.mainLetters.filter(kv=>(kv.id !==res.id));
                     this.mainLetters=[...remain,res];
-                    this.mainLetterContainer({parent,mainLetter,isNew:false,func1});
+                    this.mainLetterContainer({parent,mainLetter,french,isNew:false,func1});
                 };
             });
         }else{
-            this.mainLetterContainer({parent,mainLetter:isMainLetter,isNew:false,func1});
+            this.mainLetterContainer({parent,mainLetter:isMainLetter,isNew:false,french,func1});
         }
     };
 
 
 
-    mainLetterContainer({parent,mainLetter,isNew,func1}:{parent:HTMLElement,mainLetter:mainIntroLetterType,isNew:boolean,func1:(mainLets:mainIntroLetterType[],mainLet:mainIntroLetterType)=>Promise<void>|void
+    mainLetterContainer({parent,mainLetter,isNew,french,func1}:{parent:HTMLElement,mainLetter:mainIntroLetterType,isNew:boolean,french:boolean,func1:(mainLets:mainIntroLetterType[],mainLet:mainIntroLetterType)=>Promise<void>|void
 
     }){
         const less400=window.innerWidth <400;
@@ -186,7 +186,7 @@ class LetterEditor{
             filename.style.fontSize=less400 ? "150%":"225%";
             mainLetterCont.appendChild(filename);
         }
-        this.letter=this.showMainLetter({parent:mainLetterCont,letter:letterIn,less400});
+        this.letter=this.showMainLetter({parent:mainLetterCont,letter:letterIn,less400,french});
       
         const outerBtnDiv=document.createElement("div");
         outerBtnDiv.id="btn-cont";
@@ -279,18 +279,18 @@ class LetterEditor{
     };
 
 
-    showMainLetter({parent,letter,less400}:{parent:HTMLElement,letter:letterType,less400:boolean}){
+    showMainLetter({parent,letter,less400,french}:{parent:HTMLElement,letter:letterType,less400:boolean,french:boolean}){
         parent.style.position="relative";
        
         const letterCont=document.createElement("section");
         letterCont.id="letter-cont";
         letterCont.className=styles.letterCont;
         parent.appendChild(letterCont);
-        letter=this.formLetComp.rowToPosition({parent:letterCont,letter,order:0,less400});
-        letter=this.formLetComp.formSummary({parent:letterCont,letter,key:"summary",order:2,less400});
+        letter=this.formLetComp.rowToPosition({parent:letterCont,letter,order:0,less400,french});
+        letter=this.formLetComp.formSummary({parent:letterCont,letter,french,key:"summary",order:2,less400});
         letter=this.formLetComp.formContact({parent:letterCont,letter,key:"contact",order:3,less400});
-        letter=this.formLetComp.formPara({parent:letterCont,letter,key:"paragraph",order:4,less400});
-        letter=this.formLetComp.formConlusion({parent:letterCont,letter,key:"conclusion",order:5,less400});
+        letter=this.formLetComp.formPara({parent:letterCont,letter,french,key:"paragraph",order:4,less400});
+        letter=this.formLetComp.formConlusion({parent:letterCont,letter,french,key:"conclusion",order:5,less400});
         
 
         return letter

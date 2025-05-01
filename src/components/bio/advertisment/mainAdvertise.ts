@@ -142,6 +142,8 @@ class MainAdvertise {
             para.className="mx-auto px-1 py-0.5";
             para.textContent=desc;
             para.style.height="20vh";
+            parent.style.overflowY="scroll";
+            parent.style.justifyContent="flex-start";
             parent.appendChild(para);
             para.animate([
                 {height:"0vh",opacity:"0"},
@@ -163,10 +165,10 @@ class MainAdvertise {
                 parent.removeChild(getPara);
                 upCont.hidden=false;
                 downCont.hidden=true;
-
+                parent.style.overflowY="";
             },680);
         };
-    }
+    };
 
     headerLowerRow({parent}:{parent:HTMLElement,topbarRows:topbarRowType[]}){
         const lowerRow=document.createElement("div");
@@ -212,6 +214,7 @@ class MainAdvertise {
                 name.className="text-center text-primary my-1 mb-2 lean display-6";
                 name.textContent=cat;
                 col.appendChild(name);
+                this.divider({parent:col,width:75,position:"center"});
                 const para=document.createElement("p");
                 para.id="row-col-para-"+ String(index);
                 para.className="mx-auto px-1 py-0.5";
@@ -268,6 +271,19 @@ class MainAdvertise {
             if(!e) return;
             parent.removeChild(target);
         };
+    };
+
+    divider({parent,width,position}:{parent:HTMLElement,width:number,position:"left"|"center"|"right"}){
+        const line=document.createElement("div");
+        if(position==="left"){
+            line.classList.add("text-left");
+        }else if(position==="center"){
+            line.classList.add("text-center");
+        }else if(position==="right"){
+            line.classList.add("text-right");
+        }
+        line.style.cssText=`width:${width}%;height:3px;background-color:#0d6efd;box-shadow:1px 1px 4px 1px #0d6efd,-1px -1px 4px 1px #0d6efd;margin-block:1rem;`;
+        parent.appendChild(line);
     }
 
 };

@@ -41,7 +41,7 @@ export default function Index({ user }: { user: userType | null }) {
                     const service = new Service(modSelector);
                     const advertise = new MainAdvertise();
                     const pageTracker = new PageHistory();
-                    const addRemove = new AddRemove();
+                    const addRemove = new AddRemove(user);
                     const addLetRemove = new AddRemoveLet(user);
                     const letterView = new LetterView();
                     const deleteClass = new DeleteClass(service, user);
@@ -69,6 +69,6 @@ export default function Index({ user }: { user: userType | null }) {
 
     }, [user]);
     return (
-        <div ref={resumeRef} id="resume"></div>
+        <section ref={resumeRef} id="resume"></section>
     )
 }

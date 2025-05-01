@@ -4,7 +4,7 @@ import Reference from "./viewReference";
 import ViewResume from "./viewResume";
 import LetterEditor from "../letter/letterEditor";
 import ModuleConnect from "./moduleConnect";
-import { combinedType, mainIntroLetterType, mainResumeRefType, mainResumeType, nameLetterType, nameRefType, nameResumeType, noDataMsgType, topbarCatResType, topbarCatType, topbarRowColDescType, topbarRowDescType, topbarRowType, userType } from './refTypes';
+import { catType, combinedType, mainIntroLetterType, mainResumeRefType, mainResumeType, nameLetterType, nameRefType, nameResumeType, noDataMsgType, topbarCatResType, topbarCatType, topbarRowColDescType, topbarRowDescType, topbarRowType, userType } from './refTypes';
 import styles from "./headerTop.module.css";
 import CreateResume from "./createResume";
 import CreateRef from "./createRef";
@@ -14,6 +14,7 @@ import LetterView from "../letter/letterView";
 import { FaCreate } from "@/components/common/ReactIcons";
 import { FaInfoCircle } from "react-icons/fa";
 import { topbarRows,topbarRowDescs,topbarRowColDescs,topbarCats } from "./topbarData";
+import { langConversion } from "./engFre";
 
 
 //-------------------//THIS CLASS IS THE MAIN MENU FOR RESUME\\\---------------/////////
@@ -63,10 +64,10 @@ class Topbar{
         this.backBtnId="back-btn-id";
     
         this.noDataMsg=[
-            {cat:"let",msg:"You have no saved intro-letters in your repetoir "},
-            {cat:"res",msg:"You have no saved resumes in your repetoir "},
-            {cat:"ref",msg:"You have no saved references in your repetoir "},
-            {cat:"comb",msg:"You have no saved references, or resumes or intro letter in your repetoir "},
+            {cat:"let",msg:"You have no saved intro-letters in your repetoir ",msgFr:"Vous n'avez aucune lettre d'introduction enregistrée dans votre répertoire"},
+            {cat:"res",msg:"You have no saved resumes in your repetoir ",msgFr:"Vous n'avez aucun CV enregistré dans votre répertoire"},
+            {cat:"ref",msg:"You have no saved references in your repetoir ",msgFr:"Vous n'avez aucune référence enregistrée dans votre répertoire"},
+            {cat:"comb",msg:"You have no saved references, or resumes or intro letter in your repetoir ",msgFr:"Vous n'avez aucune référence enregistrée, ni CV, ni lettre de présentation dans votre répertoire"},
         ]
 
     };
@@ -137,7 +138,7 @@ class Topbar{
 
 
 //PARENT===INJECTOR: MAINCONTROLLER=MAINCONTAINER
-    async getTopBar({parent,mainContainer,titleName,titleId,less400,mainResumes,mainRefs,mainLetters,user}:{
+    async getTopBar({parent,mainContainer,titleName,titleId,less400,mainResumes,mainRefs,mainLetters,user,french}:{
         parent:HTMLElement,
         mainContainer:HTMLElement,
         titleName:string,
@@ -147,6 +148,7 @@ class Topbar{
         mainRefs:mainResumeRefType[],
         mainLetters:mainIntroLetterType[],
         user:userType|null,
+        french:boolean
     }){
         // console.log("mainLetter",mainLetters,"this.mainLetters",this._mainLetters)//works
        const {nameResumes,nameRefs,nameLetters}= this.pickupData({mainResumes,mainRefs,mainLetters});
@@ -186,6 +188,7 @@ class Topbar{
             mainResumes,
             mainLetters,
             mainRefs,
+            french,
             topbarRows:topbarRows,
             func: (topbarCats) => {
                 const time = 1000;
@@ -197,14 +200,15 @@ class Topbar{
                     nameLetters,
                     nameResumes,
                     topbarCats,
-                    time
+                    time,
+                    french
                    });
             }
         });
 
     };
 
-    genTopbarcats({parent,mainContainer,nameRefs,mainResumes,nameLetters,nameResumes,topbarCats,time}:{
+    genTopbarcats({parent,mainContainer,nameRefs,mainResumes,nameLetters,nameResumes,topbarCats,time,french}:{
         parent:HTMLElement,
         mainContainer:HTMLElement,
         nameRefs:nameRefType[],
@@ -212,7 +216,8 @@ class Topbar{
         nameResumes:nameResumeType[],
         mainResumes:mainResumeType[],
         topbarCats:topbarCatResType[],
-        time:number
+        time:number,
+        french:boolean
     }){
        const css_col="display:flex;flex-direction:column;gap:1rem;";
        const css_row="display:flex;flex-wrap:wrap;gap:1rem;";
@@ -223,13 +228,15 @@ class Topbar{
         const hasResumes=!!(nameResumes?.length && nameResumes.length>0);
         topbarCats.forEach((item) => {
             if (item) {
-                const { name, html, order } = item;
+                const { name,nameFr, html, order } = item;
+                const name_=nameFr || name;
                 if (name === "resumes") {
                     if(hasResumes){
 
                         this.nameResumes.map((_res) => {
                             if (_res) {
-                                const { button } = Resume.simpleButton({ anchor: html, bg: "black", color: "white", text: _res.name, time: 400, type: "button"});
+                                const {name:_name}=_res;
+                                const { button } = Resume.simpleButton({ anchor: html, bg: "black", color: "white", text: _name, time: 400, type: "button"});
                                 button.style.order = order;
 
                                 button.onclick = (e: MouseEvent) => {
@@ -245,7 +252,7 @@ class Topbar{
                                             func: (openCont) => {
                                                 const mainResume=mainResumes.find(res=>(res.name===_res.name));
                                                 if(!mainResume) return;
-                                                this.viewResume.showResume({ parent: openCont,mainResume,
+                                                this.viewResume.showResume({ parent: openCont,mainResume,french,
                                                     func1:async()=>{
                                                         this.mainResumes=this.mainResumes.filter(kv=>(kv.id !==mainResume.id))
                                                         await this.getTopBar({
@@ -258,6 +265,7 @@ class Topbar{
                                                             mainRefs:this.mainRefs,
                                                             mainLetters:this.mainLetters,
                                                             user:this.user,
+                                                            french
                                                         });
                                                     }
                                                  });
@@ -271,10 +279,10 @@ class Topbar{
                     }else{
                         //MESSAGE HAS NO RESUMES
                         const msgCont=this.noDataMsg.find(kv=>(kv.cat==="res")) as noDataMsgType;
-                        Topbar.noLetsResRefsMsg({parent:html,isRes:true,isLet:false,isRef:false,isEdit:false,msg:msgCont.msg});
+                        Topbar.noLetsResRefsMsg({parent:html,isRes:true,isLet:false,isRef:false,isEdit:false,noDataMsg:msgCont,french});
                     }
                 } else if (name === "newResume") {
-                    const { button: createBtn } = Resume.simpleButton({ anchor: html, bg: "black", color: "white", text: name, time: 400, type: "button" });
+                    const { button: createBtn } = Resume.simpleButton({ anchor: html, bg: "black", color: "white", text: name_, time: 400, type: "button" });
                     createBtn.style.order = order;
                     createBtn.onclick = (e: MouseEvent) => {
                         if (!e) return;
@@ -286,7 +294,7 @@ class Topbar{
                             backBtnId:this.backBtnId,
                             show: true,
                             func: (openCont) => {
-                                this.createResume.main({ parent, innerParent: openCont,
+                                this.createResume.main({ parent, innerParent: openCont,french,
                                     func:async(mainResumes,mainResume)=>{
                                         this.mainResumes=mainResumes;
                                         this._editResume.mainResumes=mainResumes;
@@ -301,8 +309,10 @@ class Topbar{
                                             mainRefs:this.mainRefs,
                                             mainLetters:this.mainLetters,
                                             user:this.user,
+                                            french
                                         });
-                                        this.viewResume.showResume({parent:mainContainer,mainResume:mainResume,
+                                       
+                                        this.viewResume.showResume({parent:mainContainer,mainResume:mainResume,french,
                                             func1:()=>{}
                                         });
                                     },
@@ -340,6 +350,7 @@ class Topbar{
                                                 less900,
                                                 less400,
                                                 user:this.user,
+                                                french,
                                                 func:async(mainResumes,mainResume,type)=>{
                                                     if(type==="rem"){
                                                         mainResumes=mainResumes.filter(kv=>(kv.id!==mainResume.id));
@@ -353,6 +364,7 @@ class Topbar{
                                                             mainRefs:this.mainRefs,
                                                             mainLetters:this.mainLetters,
                                                             user:this.user,
+                                                            french
                                                         });
                                                     }else{
                                                         await this.getTopBar({
@@ -365,6 +377,7 @@ class Topbar{
                                                             mainRefs:this.mainRefs,
                                                             mainLetters:this.mainLetters,
                                                             user:this.user,
+                                                            french
                                                         });
                                                     }
                                                 }
@@ -378,7 +391,7 @@ class Topbar{
                     }else{
                         //MESSAGE NO RESUMES
                         const msgCont=this.noDataMsg.find(kv=>(kv.cat==="res")) as noDataMsgType;
-                        Topbar.noLetsResRefsMsg({parent:html,isRes:true,isLet:false,isRef:false,isEdit:true,msg:msgCont.msg});
+                        Topbar.noLetsResRefsMsg({parent:html,isRes:true,isLet:false,isRef:false,isEdit:true,noDataMsg:msgCont,french});
                     }
                    
                 } else if (name === "References") {
@@ -413,6 +426,7 @@ class Topbar{
                                                         mainRefs:this.mainRefs,
                                                         mainLetters:this.mainLetters,
                                                         user:this.user,
+                                                        french
                                                     });
                                                 }
                                              });
@@ -427,7 +441,7 @@ class Topbar{
                     }else{
                         //MESSAGE HAS NO REFERENCES
                         const msgCont=this.noDataMsg.find(kv=>(kv.cat==="ref")) as noDataMsgType;
-                        Topbar.noLetsResRefsMsg({parent:html,isRes:false,isLet:false,isRef:true,isEdit:false,msg:msgCont.msg});
+                        Topbar.noLetsResRefsMsg({parent:html,isRes:false,isLet:false,isRef:true,isEdit:false,noDataMsg:msgCont,french});
                     }
                 }else if (name === "edit_ref") {
                     if(hasRefs){
@@ -471,7 +485,7 @@ class Topbar{
                                                             mainResumes:mainResumes,
                                                             mainRefs:remain,
                                                             mainLetters:this.mainLetters,
-                                                            user:this.user,
+                                                            user:this.user,french
                                                         });
                                                     }else{
 
@@ -484,7 +498,7 @@ class Topbar{
                                                             mainResumes:mainResumes,
                                                             mainRefs:[...this.mainRefs,mainRef],
                                                             mainLetters:this.mainLetters,
-                                                            user:this.user,
+                                                            user:this.user,french
                                                         });
                                                     }
                                                 }
@@ -501,10 +515,10 @@ class Topbar{
                     }else{
                         //MESSAGE HAS NO REFS
                         const msgCont=this.noDataMsg.find(kv=>(kv.cat==="ref")) as noDataMsgType;
-                        Topbar.noLetsResRefsMsg({parent:html,isRes:false,isLet:false,isRef:true,isEdit:true,msg:msgCont.msg});
+                        Topbar.noLetsResRefsMsg({parent:html,isRes:false,isLet:false,isRef:true,isEdit:true,noDataMsg:msgCont,french});
                     }
                 } else if (name === "create_ref") {
-                    const { button: create_ref } = Resume.simpleButton({ anchor: html, bg: "black", color: "white", text: name, time: 400, type: "button" });
+                    const { button: create_ref } = Resume.simpleButton({ anchor: html, bg: "black", color: "white", text: name_, time: 400, type: "button" });
                     create_ref.style.order = order;
                     create_ref.onclick = (e: MouseEvent) => {
                         if (!e) return;
@@ -536,6 +550,7 @@ class Topbar{
                                             mainRefs:mainRefs,
                                             mainLetters:this.mainLetters,
                                             user:this.user,
+                                            french
                                         });
                                     }
                                  });
@@ -544,7 +559,7 @@ class Topbar{
 
                     };
                 } else if (name === "new_letter") {
-                    const { button: letter } = Resume.simpleButton({ anchor: html, bg: "black", color: "white", text: name, time: 400, type: "button"});
+                    const { button: letter } = Resume.simpleButton({ anchor: html, bg: "black", color: "white", text: name_, time: 400, type: "button"});
                     letter.style.order = order;
                     letter.onclick = (e: MouseEvent) => {
                         if (!e) return;
@@ -557,7 +572,7 @@ class Topbar{
                             backBtnId:this.backBtnId,
                             show: true,
                             func: (openCont) => {
-                                this.letterEditor.newLetter({ parent: openCont,
+                                this.letterEditor.newLetter({ parent: openCont,french,
                                     func1:async(mainLetters)=>{
                                         this.mainLetters=mainLetters;
                                        await this.getTopBar({
@@ -570,6 +585,7 @@ class Topbar{
                                             mainRefs:this.mainRefs,
                                             mainLetters:mainLetters,
                                             user:this.user,
+                                            french
                                         });
                                     }
                                  });
@@ -595,7 +611,7 @@ class Topbar{
                                         backBtnId:this.backBtnId,
                                         show: true,
                                         func: (openCont) => {
-                                            this.letterEditor.editLetter({ parent: openCont, filename: name,
+                                            this.letterEditor.editLetter({ parent: openCont, filename: name,french,
                                                 func1:async(mainLetters,mainLet)=>{
                                                    
                                                     if(mainLetters?.length){
@@ -610,6 +626,7 @@ class Topbar{
                                                             mainRefs:this.mainRefs,
                                                             mainLetters:mainLetters,
                                                             user:this.user,
+                                                            french
                                                         });
                                                         this.letterEditor.letterView.showLetter({parent:mainContainer,mainletter:mainLet,showToPrint:false});
                                                     }
@@ -626,7 +643,7 @@ class Topbar{
                     }else{
                         //MESSAGE HAS NO LETTERS
                         const msgCont=this.noDataMsg.find(kv=>(kv.cat==="let")) as noDataMsgType;
-                        Topbar.noLetsResRefsMsg({parent:html,isRes:false,isLet:true,isRef:false,isEdit:true,msg:msgCont.msg});
+                        Topbar.noLetsResRefsMsg({parent:html,isRes:false,isLet:true,isRef:false,isEdit:true,noDataMsg:msgCont,french});
                     }
                 } else if (name === "print-letters") {
                    
@@ -648,7 +665,7 @@ class Topbar{
                     }else{
                         //MESSAGE HAS NO LETTERS
                         const msgCont=this.noDataMsg.find(kv=>(kv.cat==="let")) as noDataMsgType;
-                        Topbar.noLetsResRefsMsg({parent:html,isRes:false,isLet:true,isRef:false,isEdit:false,msg:msgCont.msg});
+                        Topbar.noLetsResRefsMsg({parent:html,isRes:false,isLet:true,isRef:false,isEdit:false,noDataMsg:msgCont,french});
                     }
                 } else if (name === "view-letters") {
                     if(hasLetters){
@@ -684,10 +701,10 @@ class Topbar{
                     }else{
                         //MESSAGE HAS NO LETTERS
                         const msgCont=this.noDataMsg.find(kv=>(kv.cat==="let")) as noDataMsgType;
-                        Topbar.noLetsResRefsMsg({parent:html,isRes:false,isLet:true,isRef:false,isEdit:false,msg:msgCont.msg});
+                        Topbar.noLetsResRefsMsg({parent:html,isRes:false,isLet:true,isRef:false,isEdit:false,noDataMsg:msgCont,french});
                     }
                 } else if (name === "attach") {
-                    const { button: attachBtn } = Resume.simpleButton({ anchor: html, bg: "black", color: "white", text: name, time: 400, type: "button" });
+                    const { button: attachBtn } = Resume.simpleButton({ anchor: html, bg: "black", color: "white", text: name_, time: 400, type: "button" });
                     attachBtn.style.order = order;
                     attachBtn.onclick = (e: MouseEvent) => {
                         if (e) {
@@ -725,7 +742,7 @@ class Topbar{
 
                     }else{
                         const msgCont=this.noDataMsg.find(kv=>(kv.cat==="comb")) as noDataMsgType;
-                        Topbar.noLetsResRefsMsg({parent:html,isRes:false,isLet:true,isRef:false,isEdit:false,msg:msgCont.msg});
+                        Topbar.noLetsResRefsMsg({parent:html,isRes:false,isLet:true,isRef:false,isEdit:false,noDataMsg:msgCont,french});
                     }
                 }else if(name==="clear_attach"){
                     if(hasResumes){
@@ -756,21 +773,22 @@ class Topbar{
 
                     }else{
                         const msgCont=this.noDataMsg.find(kv=>(kv.cat==="comb")) as noDataMsgType;
-                        Topbar.noLetsResRefsMsg({parent:html,isRes:false,isLet:true,isRef:false,isEdit:false,msg:msgCont.msg});
+                        Topbar.noLetsResRefsMsg({parent:html,isRes:false,french,isLet:true,isRef:false,isEdit:false,noDataMsg:msgCont});
                     }
                 };
             }
         });
     }
 
-    generateTopBar({grandParent,mainContainer,less400,topbarRows,mainResumes,mainLetters,mainRefs,func}:{
+    generateTopBar({grandParent,mainContainer,less400,topbarRows,mainResumes,mainLetters,mainRefs,french,func}:{
         grandParent:HTMLElement,
         mainContainer:HTMLElement,
         less400:boolean,
         topbarRows:topbarRowType[],
         mainResumes:mainResumeType[],
         mainRefs:mainResumeRefType[],
-        mainLetters:mainIntroLetterType[]
+        mainLetters:mainIntroLetterType[],
+        french:boolean
         func:(topbarCatRes:topbarCatResType[],cat:string)=>Promise<void>|void
 
     }){
@@ -800,10 +818,10 @@ class Topbar{
             const {cat,topbarCats}=topbarItem;
             name.className="text-center text-light display-6 lean my-1";
             name.style.textTransform="capitalize";
-            name.textContent=cat;
+            const _cat:catType=french ? langConversion({key:cat}) as catType:cat;
+            name.textContent=_cat;
             col.appendChild(name);
-
-            const {button}=Resume.simpleButton({anchor:col,type:'button',bg:'black',color:'white',text:topbarItem.cat,time:400});
+            const {button}=Resume.simpleButton({anchor:col,type:'button',bg:'black',color:'white',text:_cat,time:400});
             button.id=topbarItem.id;
             button.style.order=String(index);
 
@@ -819,10 +837,10 @@ class Topbar{
                     topbarCats,
                     mainResumes,
                     mainRefs,
-                    mainLetters
+                    mainLetters,
+                    french
                 })
                 func(topbarCatRes,cat);
-
             };
         });
         
@@ -849,7 +867,7 @@ class Topbar{
 
 
     
-    openTopbarCats({grandParent,mainContainer,row,cat,less400,topbarCats,mainResumes,mainRefs,mainLetters}:{
+    openTopbarCats({grandParent,mainContainer,row,cat,less400,topbarCats,mainResumes,mainRefs,mainLetters,french}:{
         grandParent:HTMLElement,
         mainContainer:HTMLElement,
         row:HTMLElement,
@@ -858,7 +876,8 @@ class Topbar{
         less400:boolean,
         mainResumes:mainResumeType[],
         mainRefs:mainResumeRefType[],
-        mainLetters:mainIntroLetterType[]
+        mainLetters:mainIntroLetterType[],
+        french:boolean
 
     }):Promise<topbarCatResType[]>{
         //SUB CATAGORY LEVEL
@@ -869,7 +888,7 @@ class Topbar{
         row.className=styles.topbarRow;
         const nameQuery=`h6#${this.titleId}`;
         const name=mainContainer.querySelector(nameQuery) as HTMLElement;
-        name.textContent=cat;
+        name.textContent=french ? langConversion({key:cat}) :cat;
         name.style.order="-1";
         //BACK BUTTON
         const {button:back}=Resume.simpleButton({anchor:mainContainer,type:"button",bg:"black",color:'white',text:'back',time:400});
@@ -889,7 +908,8 @@ class Topbar{
                 mainResumes,
                 mainRefs,
                 mainLetters,
-                user:this.user
+                user:this.user,
+                french
             });
         };
         //BACK BUTTON
@@ -897,7 +917,7 @@ class Topbar{
         const len=topbarCats?.length || 1;
         const partition=Math.floor(100/len);
         topbarCats.forEach((item,index)=>{
-            const {id,dataset,name:_name,desc,text,order}=item;
+            const {id,dataset,name:_name,desc,text,textFr,order}=item;
             const col=document.createElement("div");
             col.id=item.id;
             col.className=styles.rowCol;
@@ -907,7 +927,7 @@ class Topbar{
             this.topbarRowInfoIcon({parent:col,desc});
             const name=document.createElement("h6");
             name.id=item.id +"-"+ String(index)+"-name";
-            name.textContent=text;
+            name.textContent=french? textFr:text;
             name.style.cssText="margin-inline:auto;text-transform:uppercase;letter-spacing:0.15rem;";
             col.appendChild(name);
             const innerCol=document.createElement("div");
@@ -917,7 +937,8 @@ class Topbar{
             innerCol.style.order=String(order);
             col.appendChild(innerCol);
             row.appendChild(col);
-            arr.push({id:index,cat,ID:id,name:_name,html:innerCol,redirect:item.redirect,order:order});
+            const nameFr=french ? textFr :null
+            arr.push({id:index,cat,ID:id,name:_name,nameFr,html:innerCol,redirect:item.redirect,order:order});
         });
         return Promise.resolve(arr) as Promise<topbarCatResType[]>
     };
@@ -995,10 +1016,11 @@ class Topbar{
         Resume.openCloseEffect({parent:mainContainer,target:openCont,time,show});
     };
 
-    static noLetsResRefsMsg({parent,isRes,isLet,isRef,isEdit,msg}:{parent:HTMLElement,isRes:boolean,isLet:boolean,isRef:boolean,isEdit:boolean,msg:string}){
+    static noLetsResRefsMsg({parent,isRes,isLet,isRef,isEdit,french,noDataMsg}:{parent:HTMLElement,isRes:boolean,isLet:boolean,isRef:boolean,isEdit:boolean,french:boolean,noDataMsg:noDataMsgType}){
         const cont=document.createElement("div");
         cont.className=styles.noDataCont;
         const para=document.createElement("p");
+        const msg=french ? noDataMsg.msgFr :noDataMsg.msg;
         if(isRes){
             para.textContent=msg;
             if(isEdit) para.textContent=`${msg} to edit`;

@@ -79,6 +79,8 @@
   flex: 1 1 50%;
   width: 50%;
   position: relative;
+  padding-inline: 0.75rem;
+  border-left: 1px dotted blue;
 }
 .lowerInnerColCol {
   display: flex;
@@ -189,7 +191,7 @@
   position: absolute;
   top: 0%;
   left: 0%;
-  transform: translate(10px, -10px);
+  transform: translate(10px, 10px);
 }
 .removePopup {
   position: absolute;
@@ -267,6 +269,8 @@
   .mainLowerRow > div {
     flex: none;
     width: 100% !important;
+    border-left: none;
+    border-bottom: 1px dotted blue;
   }
 }
 @media screen and (max-width: 700px) {

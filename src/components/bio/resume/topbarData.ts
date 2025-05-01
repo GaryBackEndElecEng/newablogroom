@@ -51,25 +51,25 @@ export const topbarclear_attach=topbarRowColDescs.find(kv=>(kv.name==="clear_att
 
 
 export const topbarCats:topbarCatType[]=[
-    {id:"row-col-resumes",dataset:"data-resumes-resumes",cat:"resumes",name:"resumes",desc:topbarresumes.desc,text:"Current resumes",order:"0",redirect:false},
-    {id:"row-col-new",dataset:"data-resumes-newResumes",cat:"resumes",name:"newResume",desc:topbarnewResume.desc,text:"Create New",order:"1",redirect:false},
-    {id:"row-col-references",dataset:"data-references-References",cat:"references",name:"References",desc:topbarReferences.desc,text:"References",order:"2",redirect:false},
-    {id:"row-col-create-ref",dataset:"data-references-create_ref",cat:"references",name:"create_ref",desc:topbarcreate_ref.desc,text:"new Reference",order:"3",redirect:false},
-    {id:"row-col-edit-ref-ref",dataset:"data-references-edit_ref",cat:"references",name:"edit_ref",desc:topbaredit_ref.desc,text:"edit Reference",order:"4",redirect:false},
-    {id:"row-col-edit",dataset:"data-set-edit-resumes",cat:"resumes",name:"edit_resumes",desc:topbaredit_resumes.desc,text:" edit Resumes",order:"5",redirect:true},
-    {id:"row-col-letter-newlet",dataset:"data-letters-new_letter",cat:"letters",name:"new_letter",desc:topbarnew_letter.desc,text:"new cover letter",order:"6",redirect:false},
-    {id:"row-col-letter-edit",dataset:"data-letters-print-letters",cat:"letters",name:"print-letters",desc:topbarprint_letters.desc,text:"print-letters",order:"8",redirect:false},
-    {id:"row-col-letter-edit",dataset:"data-letters-print-letters",cat:"letters",name:"view-letters",desc:topbarview_letters.desc,text:"view letters",order:"9",redirect:false},
-    {id:"row-col-letter-view",dataset:"data-letters-edit_letters",cat:"letters",name:"edit_letter",desc:topbaredit_letter.desc,text:"edit-letters",order:"10",redirect:true},
-    {id:"row-col-moduleConnect-view",dataset:"data-combined-attach",cat:"combined",name:"attach",desc:topbarattach.desc,text:"attach",order:"9",redirect:false},
-    {id:"row-col-combine-attach",dataset:"data-combined-view_attach",cat:"combined",name:"view_attach",desc:topbarview_attach.desc,text:"combined",order:"11",redirect:false},
-    {id:"row-col-combine-clear",dataset:"data-combined-clear-attach",cat:"combined",name:"clear_attach",desc:topbarclear_attach.desc,text:"clear view access",order:"12",redirect:false},
+    {id:"row-col-resumes",dataset:"data-resumes-resumes",cat:"resumes",name:"resumes",desc:topbarresumes.desc,text:"Current resumes",textFr:"CV actuels",order:"0",redirect:false},
+    {id:"row-col-new",dataset:"data-resumes-newResumes",cat:"resumes",name:"newResume",desc:topbarnewResume.desc,text:"Create New",textFr:"Créer nouveau",order:"1",redirect:false},
+    {id:"row-col-references",dataset:"data-references-References",cat:"references",name:"References",desc:topbarReferences.desc,text:"References",textFr:"Références",order:"2",redirect:false},
+    {id:"row-col-create-ref",dataset:"data-references-create_ref",cat:"references",name:"create_ref",desc:topbarcreate_ref.desc,text:"new Reference",textFr:"nouvelle référence",order:"3",redirect:false},
+    {id:"row-col-edit-ref-ref",dataset:"data-references-edit_ref",cat:"references",name:"edit_ref",desc:topbaredit_ref.desc,text:"edit Reference",textFr:"modifier la référence",order:"4",redirect:false},
+    {id:"row-col-edit",dataset:"data-set-edit-resumes",cat:"resumes",name:"edit_resumes",desc:topbaredit_resumes.desc,text:" edit Resumes",textFr:"modifier les CV",order:"5",redirect:true},
+    {id:"row-col-letter-newlet",dataset:"data-letters-new_letter",cat:"letters",name:"new_letter",desc:topbarnew_letter.desc,text:"new cover letter",textFr:"nouvelle lettre de motivation",order:"6",redirect:false},
+    {id:"row-col-letter-edit",dataset:"data-letters-print-letters",cat:"letters",name:"print-letters",desc:topbarprint_letters.desc,text:"print-letters",textFr:"lettres imprimées",order:"8",redirect:false},
+    {id:"row-col-letter-edit",dataset:"data-letters-print-letters",cat:"letters",name:"view-letters",desc:topbarview_letters.desc,text:"view letters",textFr:"voir les lettres",order:"9",redirect:false},
+    {id:"row-col-letter-view",dataset:"data-letters-edit_letters",cat:"letters",name:"edit_letter",desc:topbaredit_letter.desc,text:"edit-letters",textFr:"modifier les lettres",order:"10",redirect:true},
+    {id:"row-col-moduleConnect-view",dataset:"data-combined-attach",cat:"combined",name:"attach",desc:topbarattach.desc,text:"attach",textFr:"attacher",order:"9",redirect:false},
+    {id:"row-col-combine-attach",dataset:"data-combined-view_attach",cat:"combined",name:"view_attach",desc:topbarview_attach.desc,text:"combined",textFr:"combiné",order:"11",redirect:false},
+    {id:"row-col-combine-clear",dataset:"data-combined-clear-attach",cat:"combined",name:"clear_attach",desc:topbarclear_attach.desc,text:"clear view access",textFr:"accès à une vue dégagée",order:"12",redirect:false},
 ];
 
 export const topbarRows:topbarRowType[]=[
-    {id:"topbar-row-resumes",cat:"resumes",icon:BiSolidReport,desc:resumeDesc.desc,topbarCats:topbarCats.filter(kv=>(kv.cat==="resumes"))},
-    {id:"topbar-row-references",cat:"references",icon:VscReferences,desc:refDesc.desc,topbarCats:topbarCats.filter(kv=>(kv.cat==="references"))},
-    {id:"topbar-row-letters",cat:"letters",icon:SlEnvolopeLetter,desc:letterDesc.desc,topbarCats:topbarCats.filter(kv=>(kv.cat==="letters"))},
-    {id:"topbar-row-combined",cat:"combined",icon:IoIosAttach,desc:combinedDesc.desc,topbarCats:topbarCats.filter(kv=>(kv.cat==="combined"))},
+    {id:"topbar-row-resumes",cat:"resumes",catFr:"CVs",icon:BiSolidReport,desc:resumeDesc.desc,topbarCats:topbarCats.filter(kv=>(kv.cat==="resumes"))},
+    {id:"topbar-row-references",cat:"references",catFr:"références",icon:VscReferences,desc:refDesc.desc,topbarCats:topbarCats.filter(kv=>(kv.cat==="references"))},
+    {id:"topbar-row-letters",cat:"letters",catFr:"lettres de motivation",icon:SlEnvolopeLetter,desc:letterDesc.desc,topbarCats:topbarCats.filter(kv=>(kv.cat==="letters"))},
+    {id:"topbar-row-combined",cat:"combined",catFr:"combinée",icon:IoIosAttach,desc:combinedDesc.desc,topbarCats:topbarCats.filter(kv=>(kv.cat==="combined"))},
 ];
 

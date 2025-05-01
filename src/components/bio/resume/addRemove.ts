@@ -1,7 +1,9 @@
 import { FaMinusCircle, FaPlus, FaPlusCircle } from "react-icons/fa";
 import { FaCreate } from "../../common/ReactIcons";
-import { awardType, contactRefType, educationType, linkType, miscType, resumeRefType, resumeType, workExperienceType } from "./refTypes";
+import { awardType, contactRefType, educationType, linkType, miscType, resumeRefType, resumeType, userType, workExperienceType } from "./refTypes";
 import styles from "./addRemove.module.css";
+import { langAchievement, langContact, langEducation, langExperience, langLanguages, langSkills } from "./engFre";
+
 
 
 class AddRemove{
@@ -16,7 +18,7 @@ class AddRemove{
     public skillWords:string[];
     public languages:string[];
 
-    constructor(){
+    constructor(private _user:userType|null){
         this.languages=["English","French","Spanish","Mandarin","Hindi","Bengali","Russian","Italian","Turkish","Portuguese","Japanese","Georgian","Arabic","Dutch","Latin","Gaelic","Welsh","Hungarian","Indonesian","Persian","Perubian",""]
         this.skillWords=["Teamwork","Critical Thinking","Problem Solving","Customer Service","Out-Of-The-Box-Thinker","Analytical","Managerial","Unapprehensive"]
         this.contact={
@@ -74,6 +76,12 @@ class AddRemove{
     };
 
     //---------------------GETTER/SETTERS--------------////
+    get user(){
+        return this._user;
+    };
+    set user(user:userType|null){
+        this._user=user;
+    };
     get experience(){
         return this._experience;
     };
@@ -136,7 +144,7 @@ class AddRemove{
        
     };
 
-    addWorkEducate({parent,resume,css_col,isEducation,less400,func}:{parent:HTMLElement,resume:resumeType,css_col:string,less400:boolean,isEducation:boolean,func:(resume:resumeType)=>resumeType|void}){
+    addWorkEducate({parent,resume,css_col,isEducation,less400,french,func}:{parent:HTMLElement,resume:resumeType,css_col:string,less400:boolean,isEducation:boolean,french:boolean,func:(resume:resumeType)=>resumeType|void}){
         const less900=window.innerWidth <900;
             const cont=document.createElement("div");
             if(isEducation){
@@ -177,12 +185,12 @@ class AddRemove{
                 if(e){
                     if(!isEducation){
                         const len=resume.workExperience.length+1;
-                        this.experience={...this.experience,id:len};
+                        this.experience={...langExperience({french}),id:len};
                         resume.workExperience=[...resume.workExperience,this.experience];
                         func(resume);
                     }else{
                         const len=resume.education.length+1;
-                        this.education={...this.education,id:len};
+                        this.education={...langEducation({french}),id:len};
                         resume.education=[...resume.education,this.education];
                         func(resume);
                     }
@@ -217,7 +225,7 @@ class AddRemove{
            
     };
 
-    addEducateAchiev({parent,education,less400,func}:{parent:HTMLElement,education:educationType,less400:boolean,func:(education:educationType)=>educationType|void}){
+    addEducateAchiev({parent,education,less400,french,func}:{parent:HTMLElement,education:educationType,less400:boolean,french:boolean,func:(education:educationType)=>educationType|void}){
         const less900=window.innerWidth <900;
         const len=education?.achievements?.length;
         const cont=document.createElement("div");
@@ -248,10 +256,10 @@ class AddRemove{
             if(!e) return;
             if(education?.achievements?.length){
                 const len=education.achievements.length + 1;
-                this.achievement={...this.achievement,id:len};
+                this.achievement={...langAchievement({french}),id:len};
                 education.achievements=[...education.achievements,this.achievement];
             }else{
-                this.achievement={...this.achievement,id:0};
+                this.achievement={...langAchievement({french}),id:0};
                 education.achievements=[] as awardType[];
                 education.achievements=[...education.achievements,this.achievement]
             }
@@ -262,7 +270,7 @@ class AddRemove{
     };
 
 
-    addWorkAchiev({parent,experience,less400,css_col,func}:{parent:HTMLElement,less400:boolean,experience:workExperienceType,css_col:string,func:(experience:workExperienceType)=>workExperienceType|void}){
+    addWorkAchiev({parent,experience,less400,css_col,french,func}:{parent:HTMLElement,less400:boolean,experience:workExperienceType,french:boolean,css_col:string,func:(experience:workExperienceType)=>workExperienceType|void}){
         const cont=document.createElement("div");
         cont.id=`add-work-achiev-main-popup`;
         cont.style.cssText=css_col + "position:absolute;top:0%;left:0%;width:fit-content;height:auto;border-radius:7px;box-shadow:1px 1px 10px 1px black;padding:0.25rem;background-color:black;color:white;";
@@ -283,11 +291,12 @@ class AddRemove{
             if(!e) return;
             if(experience.achievements?.length){
                 const len=experience.achievements.length + 1;
-                this.achievement={...this.achievement,id:len};
+                this.achievement={...langAchievement({french}),id:len};
                 experience.achievements=[...experience.achievements,this.achievement];
             }else{
                 experience.achievements=[] as awardType[];
-                experience.achievements=[...experience.achievements,this.experience.achievements[0]];
+                this.achievement={...langAchievement({french}),id:0};
+                experience.achievements=[...experience.achievements,this.achievement];
             }
             func(experience);
         };
@@ -404,7 +413,7 @@ class AddRemove{
     };
     
     
-    addEducateSkill({parent,education,css_col,less400,key,func}:{parent:HTMLElement,education:educationType,css_col:string,less400:boolean,key:string,func:(education:educationType)=>educationType|void}){
+    addEducateSkill({parent,education,css_col,less400,key,french,func}:{parent:HTMLElement,education:educationType,css_col:string,less400:boolean,french:boolean,key:string,func:(education:educationType)=>educationType|void}){
         const len=education.skills.length
         const cont=document.createElement("div");
         cont.id=`add-educate-skill-main-${key}`;
@@ -428,10 +437,10 @@ class AddRemove{
             if(!e) return;
             let count=0;
             const len=education?.skills?.length||0;
-            const len2=this.skillWords.length;
+            const len2=langSkills({french}).length;
             count=len
             if(len>=len2) count=0;
-            const word=`${this.skillWords[count]}-${len}`;
+            const word=`${langSkills({french})[count]}-${len}`;
             if(education && education?.skills?.length>0){
                 education.skills=[...education.skills,word];
               
@@ -447,7 +456,7 @@ class AddRemove{
         return education;
     };
 
-    addWorkSkill({parent,experience,css_col,less400,func}:{parent:HTMLElement,experience:workExperienceType,css_col:string,less400:boolean,func:(experience:workExperienceType)=>workExperienceType|void}){
+    addWorkSkill({parent,experience,css_col,less400,french,func}:{parent:HTMLElement,experience:workExperienceType,css_col:string,less400:boolean,french:boolean,func:(experience:workExperienceType)=>workExperienceType|void}){
         const len=experience?.skills?.length || 0
         const cont=document.createElement("div");
         cont.id=`add-work-skill-main-`;
@@ -473,10 +482,10 @@ class AddRemove{
             if(!e) return;
             let count=0;
             const len=experience?.skills?.length||0;
-            const len2=this.skillWords.length;
+            const len2=langSkills({french}).length;
             count=len
             if(len>=len2) count=0;
-            const word=`${this.skillWords[count]}-${len}`;
+            const word=`${langSkills({french})[count]}-${len}`;
             if(experience && experience?.skills?.length>0){
                 experience.skills=[...experience.skills,word];
               
@@ -515,11 +524,12 @@ class AddRemove{
         };
     };
 
-    addLanguage({parent,resume,css_col,less400,func}:{
+    addLanguage({parent,resume,css_col,less400,french,func}:{
         parent:HTMLElement,
         css_col:string,
         resume:resumeType,
         less400:boolean,
+        french:boolean,
         func:(resume:resumeType)=>resumeType|void
     }){
         const len=resume?.extra?.languages.length ||0;
@@ -546,7 +556,7 @@ class AddRemove{
             if(!e) return;
             if(resume?.extra?.languages){
                 const len=resume.extra.languages.length;
-                const lang=this.languages[len]
+                const lang=langLanguages({french})[len]
                 this.extra=resume.extra;
                 resume.extra.languages=[...resume.extra.languages,lang];
             }else{
@@ -813,11 +823,12 @@ class AddRemove{
     };
 
 
-    addRefContact({parent,reference,css_col,less400,func}:{
+    addRefContact({parent,reference,css_col,less400,french,func}:{
         parent:HTMLElement,
         css_col:string,
         reference:resumeRefType,
         less400:boolean,
+        french:boolean,
         func:(reference:resumeRefType)=>resumeType|void
     }){
         const less900 = window.innerWidth <900;
@@ -850,11 +861,11 @@ class AddRemove{
             if(!e) return;
             if(reference.contacts?.length>0){
                 const len=reference.contacts.length;
-                this.contact={...this.contact,id:len};
+                this.contact={...langContact({french,user:this.user}),id:len};
                 reference.contacts=[...reference.contacts,this.contact];
             }else{
                 reference.contacts=[] as contactRefType[];
-                reference.contacts=[...reference.contacts,this.contact]
+                reference.contacts=[...reference.contacts,langContact({french,user:this.user})]
             }
             func(reference);
         };
