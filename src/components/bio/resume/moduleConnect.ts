@@ -1,11 +1,12 @@
 import Service from "@/components/common/services";
-import {  combinedType, nameLetterType, nameRefType, nameResumeType, userType } from "./refTypes";
+import {  combinedType, nameLetterType, nameRefType, nameResumeType, noDataMsgType, userType } from "./refTypes";
 import styles from "./mod.module.css";
 import Resume from "./resume";
 import { getErrorMessage } from "@/components/common/errorBoundary";
 import { FaCreate } from "@/components/common/ReactIcons";
-import { FaCrosshairs } from "react-icons/fa";
+import { FaCopy, FaCrosshairs } from "react-icons/fa";
 import Topbar from "./topbar";
+import { langConversion, langNoData } from "./engFre";
 
 class ModuleConnect {
     public rowId:string;
@@ -71,11 +72,12 @@ class ModuleConnect {
     
     //--------------------------------GETTER/SETTERS------------------------------//
 
-    main({parent,nameResumes,nameReferences,nameLetters}:
+    main({parent,nameResumes,nameReferences,nameLetters,french}:
         {parent:HTMLElement,
         nameResumes:nameResumeType[],
         nameReferences:nameRefType[],
-        nameLetters:nameLetterType[]
+        nameLetters:nameLetterType[],
+        french:boolean
 
     }){
        const {combined,hasCombined}= this.pickUpData({nameResumes,nameReferences,nameLetters});
@@ -95,7 +97,7 @@ class ModuleConnect {
                         this.nameRefs=nameRefs ? nameRefs as nameRefType[] : [] as nameRefType[];
                         this.nameResumes=nameResumes;
                         this.combined=res;
-                        this.showCombined({parent:mainMod,combined:res})
+                        this.showCombined({parent:mainMod,combined:res,french})
                     }
                 }).catch(error=>{
                     const msg=getErrorMessage(error);
@@ -103,17 +105,18 @@ class ModuleConnect {
                 });
 
             }else{
-                const msg="sorry, you have no saved content, within your repetoir. Once you have built a resume with a reference and or letter, the data will be displayed for file attchment."
-                Topbar.noLetsResRefsMsg({parent:mainMod,isRes:false,isRef:false,isLet:false,isEdit:false,msg})
+                const msg=langNoData({french,cat:"combined"});
+                const noData={cat:"comb",msg:langNoData({french:false,cat:"combined"}),msgFr:msg} as noDataMsgType;
+                Topbar.noLetsResRefsMsg({parent:mainMod,isRes:false,isRef:false,isLet:false,isEdit:false,noDataMsg:noData,french});
                 //INDICATE NO DATA MESSAGE!!! HERE
             }
         }else{
             
-            this.showCombined({parent:mainMod,combined:combined})
+            this.showCombined({parent:mainMod,combined:combined,french})
         }
     };
 
-    showCombined({parent,combined}:{parent:HTMLElement,combined:combinedType,}){
+    showCombined({parent,combined,french}:{parent:HTMLElement,combined:combinedType,french:boolean,}){
         const combinedCont=document.createElement("div");
         combinedCont.id="combined-cont";
         combinedCont.className=styles.combinedCont;
@@ -128,13 +131,17 @@ class ModuleConnect {
         this.nameLetters=nameLetters ? nameLetters as nameLetterType[] : [] as nameLetterType[];
         const len =this.nameResumes.length + this.nameRefs.length +this.nameLetters.length;
         if(len===0){
-            const msg="sorry, you have no saved content, within your repetoir. Once you have built a resume with a reference and or letter, the data will be displayed for file attchment."
-                Topbar.noLetsResRefsMsg({parent:combinedCont,isRes:false,isRef:false,isLet:false,isEdit:false,msg})
+            const msg=langNoData({french,cat:"combined"});
+                const noData={cat:"comb",msg:langNoData({french:false,cat:"combined"}),msgFr:msg} as noDataMsgType;
+                Topbar.noLetsResRefsMsg({parent,isRes:false,isRef:false,isLet:false,isEdit:false,noDataMsg:noData,french});
         }
-        this.nameresumes({parent:rowCont,order:0,nameResumes});
-       this.nameRefs= this.NameRefs({parent:rowCont,order:1,nameRefs,nameresumes:nameResumes});
-       this.nameLetters= this.nameLets({parent:rowCont,order:2,nameLetters,nameresumes:nameResumes});
+        this.linkNames({parent:rowCont,order:0,nameResumes,french});
+        this.nameresumes({parent:rowCont,order:1,nameResumes,french});
+       this.nameRefs= this.NameRefs({parent:rowCont,order:2,nameRefs,nameresumes:nameResumes,french});
+       this.nameLetters= this.nameLets({parent:rowCont,order:3,nameLetters,nameresumes:nameResumes,french});
        const {button}=Resume.simpleButton({anchor:combinedCont,type:"button",bg:"#2d3236",color:"#ccedd6",text:"submit",time:400});
+       button.disabled=true;
+       button.id="combined-submit-btn";
        button.style.alignSelf="center";
        button.style.marginBlock="2rem";
        button.onclick=(e:MouseEvent)=>{
@@ -143,22 +150,75 @@ class ModuleConnect {
         
         this._service.saveCombined({combined}).then (async(res)=>{
             if(res){
-               
+               button.classList.remove(styles.combinedSubmitBtn);
                 const {nameRefs,nameLetters}=res;
                 this.nameLetters=nameLetters ? nameLetters as nameLetterType[] : [] as nameLetterType[];
                 this.nameRefs=nameRefs ? nameRefs as nameRefType[] : [] as nameRefType[];
-                Resume.message({parent,msg:"saved",type:"success",time:800});
+                const msg=french ? langConversion({key:"saved"}): "saved";
+                Resume.message({parent,msg,type:"success",time:800});
             }
         }).catch(error=>{const msg=getErrorMessage(error);Resume.message({parent,msg,type:"success",time:2200});});
        };
     };
 
-    nameresumes({parent,order,nameResumes}:{parent:HTMLElement,order:number,nameResumes:nameResumeType[]}){
+
+
+    linkNames({parent,order,nameResumes,french}:{parent:HTMLElement,order:number,nameResumes:nameResumeType[],french:boolean}){
+        const col=document.createElement("div");
+        col.id="col-link-names";
+        // col.className=styles.linkNamesCont;
+        col.className=styles.colCont;
+        const name=document.createElement("h6");
+        name.className="text-center text-primary lean my-1 mb-2 justify-self-start";
+        name.style.cssText="font-size:135%;text-transform:uppercase;";
+        name.textContent="avail. links";
+        col.appendChild(name);
+        const linkULCont=document.createElement("ul");
+        linkULCont.id="row-col-link-cont";
+        linkULCont.className=styles.linkULContCol;
+        linkULCont.style.order=String(order);
+        col.appendChild(linkULCont);
+        parent.appendChild(col);
+        nameResumes.map((nameResume,index)=>{
+            const {enable,name}=nameResume;
+            const li=document.createElement("li");
+            li.id="ul-li-" + String(index +1);
+            const span=document.createElement("span");
+            if( enable){
+                const url=new URL(`/showResume/${name}`,location.origin);
+                this.copyLink({grandParent:parent,parent:li,url:url.href,name,french});
+                span.textContent=`/${name}`;
+
+            }else{
+                span.textContent=french ? langConversion({key:"no-link"}): "no-link";
+            };
+            li.appendChild(span);
+            linkULCont.appendChild(li);
+        });
+    };
+
+
+
+    copyLink({grandParent,parent,url,name,french}:{grandParent:HTMLElement,parent:HTMLElement,url:string,french:boolean,name:string}){
+        parent.style.position="relative";
+        const xDiv=document.createElement("div");
+        xDiv.className=styles.copyLink;
+        FaCreate({parent:xDiv,name:FaCopy,cssStyle:{color:"inherit",backgroundColor:"inherit",fontSize:"18px"}});
+        parent.appendChild(xDiv);
+        xDiv.onclick=(e:MouseEvent)=>{
+            if(!e) return;
+            navigator.clipboard.writeText(url);
+            const msg=french ? `enregistrée ${name} a presse-papiers`:`saved: ${name} to clipboard`;
+            Resume.message({parent:grandParent,msg,type:"success",time:1200});
+        };
+    };
+
+    nameresumes({parent,order,nameResumes,french}:{parent:HTMLElement,order:number,nameResumes:nameResumeType[],french:boolean}){
         const colCont=document.createElement("div");
         colCont.id="row-col-resumes-cont";
         colCont.className=styles.colCont;
         colCont.style.order=String(order);
-        const name=document.createElement("name");
+        const name=document.createElement("h6");
         name.className="text-center text-primary lean my-1 mb-2 justify-self-start";
         name.style.cssText="font-size:135%;text-transform:uppercase;";
         name.textContent="resumes";
@@ -168,7 +228,9 @@ class ModuleConnect {
         nameResumes.map((resname,index)=>{
             if(resname){
                 const {name,enable}=resname;
-                const text=enable ? "enabled":"disabled";
+                const isEnabled=french ? langConversion({key:"enabled"}):"enabled";
+                const isDisabled=french ? langConversion({key:"disabled"}):"disabled";
+                const text=enable ? isEnabled:isDisabled;
                 const li=document.createElement("li");
                 li.className=styles.resname;
                 li.setAttribute("data-resname",text);
@@ -184,7 +246,7 @@ class ModuleConnect {
     };
 
 
-    NameRefs({parent,order,nameRefs,nameresumes}:{parent:HTMLElement,order:number,nameRefs:nameRefType[]|null,nameresumes:nameResumeType[]}):nameRefType[]{
+    NameRefs({parent,order,nameRefs,nameresumes,french}:{parent:HTMLElement,order:number,nameRefs:nameRefType[]|null,nameresumes:nameResumeType[],french:boolean}):nameRefType[]{
         const colCont=document.createElement("div");
         colCont.id="row-col-refs-cont";
         colCont.className=styles.colCont;
@@ -206,7 +268,7 @@ class ModuleConnect {
                      li.style.marginBlock="1rem";
                      nameresumes.map(nameresume=>{
                          if(nameresume.name===refname.res_name_id){
-                             this.attachDetachAction({target:li,nameresume,nameLetRef:refname});
+                             this.attachDetachAction({target:li,nameresume,nameLetRef:refname,french});
                          };
                      });
                      const text=new Text(refname.name);
@@ -214,9 +276,10 @@ class ModuleConnect {
                      this.selection({
                          target:li,
                          nameresumes,
+                         french,
                          func:(nameresume)=>{
                              //---ATTACHES/DETATCHES REF/LETTER TO RESUME-------/////
-                             this.attachDetachAction({target:li,nameresume,nameLetRef:refname});
+                             this.attachDetachAction({target:li,nameresume,nameLetRef:refname,french});
                          }
                      });
                      ol.appendChild(li);
@@ -232,7 +295,7 @@ class ModuleConnect {
     };
 
 
-    nameLets({parent,order,nameLetters,nameresumes}:{parent:HTMLElement,order:number,nameLetters:nameLetterType[]|null,nameresumes:nameResumeType[]}):nameLetterType[]{
+    nameLets({parent,order,nameLetters,nameresumes,french}:{parent:HTMLElement,order:number,nameLetters:nameLetterType[]|null,nameresumes:nameResumeType[],french:boolean}):nameLetterType[]{
         const colCont=document.createElement("div");
         colCont.id="row-col-refs-cont";
         colCont.className=styles.colCont;
@@ -255,16 +318,18 @@ class ModuleConnect {
                 const text=new Text(refname.name);
                 nameresumes.map(nameresume=>{
                     if(nameresume.name===refname.res_name_id){
-                        this.attachDetachAction({target:li,nameresume,nameLetRef:refname});
+                        this.attachDetachAction({target:li,nameresume,nameLetRef:refname,french});
                     };
                 });
                 li.appendChild(text);
                 this.selection({
                     target:li,
                     nameresumes,
+                    french,
                     func:(nameresume)=>{
                          //---ATTACHES/DETATCHES REF/LETTER TO RESUME-------/////
-                        this.attachDetachAction({target:li,nameresume,nameLetRef:refname});
+                        this.attachDetachAction({target:li,nameresume,nameLetRef:refname,french});
+                       
                     }
                 });
                 ol.appendChild(li);
@@ -276,7 +341,7 @@ class ModuleConnect {
         return nameLetters;
     };
 
-    selection({target,nameresumes,func}:{target:HTMLElement,nameresumes:nameResumeType[],func:(nameResume:nameResumeType)=>nameResumeType|void}){
+    selection({target,nameresumes,french,func}:{target:HTMLElement,nameresumes:nameResumeType[],french:boolean,func:(nameResume:nameResumeType)=>nameResumeType|void}){
         const cont=document.createElement("div");
         cont.id="selection-cont";
         cont.className=styles.selectionCont;
@@ -300,20 +365,29 @@ class ModuleConnect {
             const valueStr=(e.currentTarget as HTMLSelectElement).value;
             const nameResume=JSON.parse(valueStr as string) as nameResumeType;
             func(nameResume)
+            const getBtn=document.querySelector("button#combined-submit-btn") as HTMLButtonElement;
+            if(!getBtn)return;
+            const msg=french ? langConversion({key:"press submit to save"}) : "press submit to save";
+            getBtn.setAttribute("data-submit-btn",msg)
+            getBtn.classList.add(styles.combinedSubmitBtn);
+            getBtn.disabled=false;
         };
     };
 
-    attachDetachAction({target,nameresume,nameLetRef}:{target:HTMLElement,nameresume:nameResumeType,nameLetRef:nameLetterType}){
+    attachDetachAction({target,nameresume,nameLetRef,french}:{target:HTMLElement,nameresume:nameResumeType,nameLetRef:nameLetterType,french:boolean}){
+        
         const {name:_name}=nameresume;
         target.style.position="relative";
         const attachDetatchCont=document.createElement("div");
         attachDetatchCont.id="attach-detach-cont";
         target.appendChild(attachDetatchCont);
         attachDetatchCont.className=styles.attachDetachCont;               
-        if(_name !=="detach"){
+        if(_name!=="detach"){
             nameLetRef.res_name_id=nameresume.name;
             const span=document.createElement("span");
             span.id="span";
+            const attached=french ? langConversion({key:'attached'}):"attached";
+            attachDetatchCont.setAttribute("data-attached",`${attached}:${_name}`);
             span.textContent=nameLetRef.res_name_id;
             attachDetatchCont.appendChild(span);
         }else{
@@ -321,6 +395,7 @@ class ModuleConnect {
             target.removeChild(getSpan)
             nameLetRef.res_name_id=null;
         }
+        
     };
 
     removeView({parent,target}:{parent:HTMLElement,target:HTMLElement}){

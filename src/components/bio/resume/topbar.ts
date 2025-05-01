@@ -717,7 +717,7 @@ class Topbar{
                                 show: true,
                                 func: (openCont) => {
                                     this._moduleConnect.combined={nameResumes,nameRefs:nameRefs,nameLetters}
-                                    this._moduleConnect.main({ parent: openCont,nameResumes,nameReferences:nameRefs,nameLetters });
+                                    this._moduleConnect.main({ parent: openCont,nameResumes,nameReferences:nameRefs,nameLetters,french });
                                 }
                             });
                         }
@@ -806,12 +806,13 @@ class Topbar{
 
 
         topbarRows.map((topbarItem,index)=>{
-
+            const {desc,descFr}=topbarItem
             const col=document.createElement("div");
             col.id=topbarItem.id;
             col.className=styles.rowCol;
             col.style.flex=less400 ? "none":`1 0 ${partition}%`;
-            this.topbarRowInfoIcon({parent:col,desc:topbarItem.desc});
+            const _desc=french ? descFr :desc;
+            this.topbarRowInfoIcon({parent:col,desc:_desc});
             row.appendChild(col);
 
             const name=document.createElement("h6");
@@ -917,14 +918,15 @@ class Topbar{
         const len=topbarCats?.length || 1;
         const partition=Math.floor(100/len);
         topbarCats.forEach((item,index)=>{
-            const {id,dataset,name:_name,desc,text,textFr,order}=item;
+            const {id,dataset,name:_name,desc,descFr,text,textFr,order}=item;
             const col=document.createElement("div");
             col.id=item.id;
             col.className=styles.rowCol;
             col.style.order=`order:${order};`;
             col.style.borderRight="1px solid black";
             col.style.flex=less400 ? "" :`1 0 ${partition}%`;
-            this.topbarRowInfoIcon({parent:col,desc});
+            const _desc=french ? descFr:desc;
+            this.topbarRowInfoIcon({parent:col,desc:_desc});
             const name=document.createElement("h6");
             name.id=item.id +"-"+ String(index)+"-name";
             name.textContent=french? textFr:text;

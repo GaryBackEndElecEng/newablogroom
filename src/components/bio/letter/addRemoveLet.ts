@@ -26,12 +26,9 @@ class AddRemoveLet{
         this.paragraphInit3=langParagraph3({french:false})
         this.paragraphInits=[this.paragraphInit1,this.paragraphInit2,this.paragraphInit3];
        
-        this._paragraph={
-            id:0,
-            para:""
-        };
+        this._paragraph=langParagraph1({french:false});
         this.paraInit=this._paragraph;
-        this._paragraphs=[this.paragraphInit1];
+        this._paragraphs=this.paragraphInits;
         
         this.contact={
             name:this._user?.name ||"",

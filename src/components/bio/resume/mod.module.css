@@ -49,6 +49,39 @@
   flex: 1 0 auto;
   align-self: flex-start;
   border-right: 1px solid lightgrey;
+  margin-block: 1rem;
+}
+.linkULContCol {
+  margin: auto;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-start;
+  flex: 1 0 auto;
+  align-self: flex-start;
+  border-right: 1px solid lightgrey;
+}
+.linkULContCol > li {
+  display: inline-flex;
+  flex-wrap: nowrap;
+  justify-content: center;
+  align-items: center;
+  gap: 0.5rem;
+}
+.linkULContCol > li > span {
+  margin: auto;
+}
+.copylink {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  position: absolute;
+  background-color: white;
+  color: black;
+  width: 50px;
+  height: 50px;
+  border-radius: 50%;
 }
 .selectionCont {
   margin: auto;
@@ -76,7 +109,7 @@
 .attachDetachCont::after {
   display: block;
   opacity: 0;
-  content: "<=attached";
+  content: attr(data-attached);
   position: absolute;
   inset: 0%;
   width: fit-content;
@@ -85,8 +118,13 @@
 }
 .attachDetachCont:hover::after {
   opacity: 1;
-  transform: translate(150%, -70%);
+  transform: translate(-60%, -70%);
   transition: all 0.5s ease-in;
+}
+.attachDetachCont > span {
+  position: relative;
+  color: blue;
+  cursor: pointer;
 }
 .clearAccessCont {
   margin: auto;
@@ -120,6 +158,14 @@
 .resumeCol > span > h6 {
   font-size: 130%;
 }
+.linkNamesCont {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  flex: 1 0 auto;
+  margin-block: 1rem;
+}
 .resname {
   position: relative;
 }
@@ -128,7 +174,7 @@
   color: blue;
   position: absolute;
   inset: 0%;
-  transform: translateX(205px);
+  transform: translateX(155px);
   font-size: 10px;
   border-radius: 6px;
   box-shadow: 1px 1px 6px 1px black;
@@ -140,6 +186,41 @@
   justify-content: center;
   align-items: center;
   width: fit-content;
+}
+.combinedSubmitBtn {
+  position: relative;
+}
+.combinedSubmitBtn::after {
+  opacity: 1;
+  content: attr(data-submit-btn);
+  color: blue;
+  position: absolute;
+  inset: 0% 0% auto 0%;
+  width: clamp(100px, 150px, 175px);
+  transform: translateX(150%);
+  font-size: 10px;
+  border-radius: 6px;
+  box-shadow: 1px 1px 6px 1px black;
+  z-index: 200;
+  background: transparent;
+  padding-inline: 0.5rem;
+  padding-block: 0px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background-color: white;
+
+  animation: slideIn 0.7s ease-in;
+}
+@keyframes slideIn {
+  from {
+    opacity: 0;
+    transform: translateX(0%);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(150%);
+  }
 }
 
 @media screen and (max-width: 900px) {

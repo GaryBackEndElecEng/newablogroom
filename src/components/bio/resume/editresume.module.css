@@ -38,6 +38,32 @@
   text-transform: capitalize;
   position: relative;
 }
+.fileCont {
+  display: flex;
+  flex-direction: row;
+  flex-wrap: nowrap;
+  /* width: 100% !important; */
+  align-items: center;
+  justify-content: center;
+  background-color: white;
+  border-radius: 8px;
+  border: none;
+  position: relative;
+  margin-block: 1rem;
+  gap: 1rem;
+  padding-inline: 1.5rem;
+  padding-block: 0.5rem;
+}
+.fileCont > h6 {
+  font-size: 120%;
+  color: blue;
+  text-transform: capitalize;
+}
+.fileCont > span {
+  color: black;
+  align-self: flex-start;
+  text-transform: capitalize;
+}
 .contactCont {
   display: flex;
   flex-direction: column;

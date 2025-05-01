@@ -6,6 +6,7 @@ import EditResume from "../resume/editResume";
 import Resume from "../resume/resume";
 import DeleteClass from "../resume/deleteClass";
 import LetterView from "./letterView";
+import { langConversion, langInserts, langLetter } from "../resume/engFre";
 
 
 
@@ -170,11 +171,13 @@ class LetterEditor{
         mainLetterCont.id="main-letter-cont";
         mainLetterCont.className=styles.mainLetterCont;
         parent.appendChild(mainLetterCont);
-        const {letter:letterIn}=mainLetter;
-
+        const {letter:letterIn,name:_name}=mainLetter;
+        
         if(isNew){
-            this.letter=letterIn
-            this.letter=this.addFilename({parent:mainLetterCont,letter:letterIn,less400});
+            const convLetter=langLetter({french,user:this.user});
+            this.letter=convLetter
+            this.letter=this.addFilename({parent:mainLetterCont,letter:convLetter,less400,french});
+            this.letter=this.showMainLetter({parent:mainLetterCont,letter:convLetter,less400,french});
         }else{
             const filenameCont=document.createElement("div");
             filenameCont.id="filename-cont";
@@ -184,9 +187,10 @@ class LetterEditor{
             const filename=document.createElement("h6");
             filename.className="text-primary text-center my-1 mb-2 lean display-6";
             filename.style.fontSize=less400 ? "150%":"225%";
-            mainLetterCont.appendChild(filename);
+            filename.textContent=_name;
+            filenameCont.appendChild(filename);
+            this.letter=this.showMainLetter({parent:mainLetterCont,letter:letterIn,less400,french});
         }
-        this.letter=this.showMainLetter({parent:mainLetterCont,letter:letterIn,less400,french});
       
         const outerBtnDiv=document.createElement("div");
         outerBtnDiv.id="btn-cont";
@@ -245,7 +249,7 @@ class LetterEditor{
 
 
 
-    addFilename({parent,letter,less400}:{parent:HTMLElement,letter:letterType,less400:boolean}):letterType{
+    addFilename({parent,letter,less400,french}:{parent:HTMLElement,letter:letterType,less400:boolean,french:boolean}):letterType{
         
         const rand=Math.floor(Math.random()*1000);
         const addFileCont=document.createElement("div");
@@ -262,10 +266,11 @@ class LetterEditor{
         label.style.textTransform="uppercase";
         input.id=`filename-input`;
         input.name="filename-input";
-        input.placeholder="add filename";
+        input.type="text";
+        input.placeholder=langInserts({french,key:"filename"}).place;
         input.style.width="100%";
         label.setAttribute("for",input.id);
-        label.textContent="filename";
+        label.textContent=french ? langConversion({key:"filename"}):"filename";
         input.onchange=(e:Event)=>{
             if(e){
                 const value=(e.currentTarget as HTMLInputElement).value;
@@ -288,7 +293,7 @@ class LetterEditor{
         parent.appendChild(letterCont);
         letter=this.formLetComp.rowToPosition({parent:letterCont,letter,order:0,less400,french});
         letter=this.formLetComp.formSummary({parent:letterCont,letter,french,key:"summary",order:2,less400});
-        letter=this.formLetComp.formContact({parent:letterCont,letter,key:"contact",order:3,less400});
+        letter=this.formLetComp.formContact({parent:letterCont,letter,key:"contact",order:3,less400,french});
         letter=this.formLetComp.formPara({parent:letterCont,letter,french,key:"paragraph",order:4,less400});
         letter=this.formLetComp.formConlusion({parent:letterCont,letter,french,key:"conclusion",order:5,less400});
         

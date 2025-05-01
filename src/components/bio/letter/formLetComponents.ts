@@ -1,5 +1,5 @@
 import EditResume from "../resume/editResume";
-import { langConversion } from "../resume/engFre";
+import { langConversion, langInserts } from "../resume/engFre";
 import {  letterType, } from "../resume/refTypes";
 import Resume from "../resume/resume";
 import AddRemoveLet from "./addRemoveLet";
@@ -52,7 +52,7 @@ formPara({parent,letter,key,order,less400,french}:{parent:HTMLElement,letter:let
                 textInput.value=para as string;
                 textInput.style.width="100%";
                 label.setAttribute("for",textInput.id);
-                label.textContent=key;
+                label.textContent=french ? langConversion({key}):key;
                 textInput.rows=6;
                 this.addRemoveLet.removeParagaph({
                     target:formGrp,
@@ -80,7 +80,7 @@ formPara({parent,letter,key,order,less400,french}:{parent:HTMLElement,letter:let
 
 
 
-formContact({parent,letter,key,order,less400}:{parent:HTMLElement,letter:letterType,key:string,order:number,less400:boolean}):letterType{
+formContact({parent,letter,key,order,less400,french}:{parent:HTMLElement,letter:letterType,key:string,order:number,less400:boolean,french:boolean}):letterType{
         parent.style.position="relative";
         const contactCont=document.createElement("div");
         contactCont.id="particular-cont";
@@ -99,7 +99,7 @@ formContact({parent,letter,key,order,less400}:{parent:HTMLElement,letter:letterT
        const contact=letter.contact;
        const signed=letter.signature;
         for(const [contKey,value] of Object.entries(contact)){
-            if(key){
+            if(key && contKey !=="id"){
                 const {input,label,formGrp}=EditResume.inputComponent(row);
                 formGrp.className=styles.contactCol;
                 formGrp.style.flex=less400 ? "none":"1 1 50%";
@@ -120,8 +120,10 @@ formContact({parent,letter,key,order,less400}:{parent:HTMLElement,letter:letterT
                 input.name="let-contact-" + key + "-" + contKey;
                 input.value=value as string;
                 input.style.width="100%";
+                input.placeholder=langInserts({french,key:contKey}).place;
+                input.type=langInserts({french,key:contKey}).type;
                 label.setAttribute("for",input.id);
-                label.textContent=contKey;
+                label.textContent=french ? langConversion({key:contKey}):contKey;
                 input.oninput=(e:Event)=>{
                     if(!e) return;
                     const value1=(e.currentTarget as HTMLInputElement).value;
@@ -201,7 +203,7 @@ rowToPosition({parent,letter,less400,order,french}:{parent:HTMLElement,letter:le
     row.className=styles.css_row;
     parent.appendChild(row);
     letter=this.formTo({parent:row,letter,key:"to",order,less400,french});
-    letter=this.formPosition({parent:row,letter,key:"position",order:order+1,less400});
+    letter=this.formPosition({parent:row,letter,key:"position",order:order+1,less400,french});
     return letter
 }
 
@@ -225,7 +227,7 @@ formTo({parent,letter,key,order,french,less400}:{parent:HTMLElement,letter:lette
     input.placeholder=french ? langConversion({key:"to Whom"}):"to Whom";
     input.style.width="auto";
     label.setAttribute("for",input.id);
-    label.textContent=key;
+    label.textContent=french ? langConversion({key}):key;
    
     input.onchange=(e:Event)=>{
         if(!e) return;
@@ -235,7 +237,7 @@ formTo({parent,letter,key,order,french,less400}:{parent:HTMLElement,letter:lette
     return letter;
 };
 
-formPosition({parent,letter,key,order,less400}:{parent:HTMLElement,letter:letterType,key:string,order:number,less400:boolean}):letterType{
+formPosition({parent,letter,key,order,less400,french}:{parent:HTMLElement,letter:letterType,key:string,order:number,less400:boolean,french:boolean}):letterType{
     parent.style.position="relative";
     const toCont=document.createElement("div");
     toCont.id="position-cont";
@@ -250,12 +252,13 @@ formPosition({parent,letter,key,order,less400}:{parent:HTMLElement,letter:letter
     formGrp.style.order=String(order);
     formGrp.style.width=less400 ? "80%":"40%";
     input.id=`form-${key}-position-input`;
+    input.type="text";
     input.name="form-position-"+ key + "-" + String(order);
     input.value=letter.position as string;
-    input.placeholder="requested position";
+    input.placeholder=langInserts({french,key}).place;
     input.style.width="auto";
     label.setAttribute("for",input.id);
-    label.textContent=key;
+    label.textContent=french ? langConversion({key}):key;
    
     input.onchange=(e:Event)=>{
         if(!e) return;

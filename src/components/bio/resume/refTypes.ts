@@ -198,6 +198,7 @@ export type topbarRowType={
     catFr:catType,
     topbarCats:topbarCatType[],
     desc:string,
+    descFr:string,
     icon:IconType
 
 };
@@ -218,6 +219,7 @@ export type topbarCatType={
     text:string,
     textFr:string,
     desc:string,
+    descFr:string,
     order:string,
     dataset:string,
     redirect:boolean

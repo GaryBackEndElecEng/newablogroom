@@ -1,4 +1,4 @@
-import { awardType, insertType, linkType, resumeType, userType, workExperienceType } from './refTypes';
+import { awardType, catType, insertType, linkType, resumeType, userType, workExperienceType } from './refTypes';
 
 export const links:linkType[]=[{name:"ablogroom",link:"https://www.ablogroom.com"},{name:"masterultils",link:"https://masterultils.com"},{name:"masterconnect",link:"https://www.masterconnect.com"},]
 
@@ -14,19 +14,26 @@ export const langConversion=({key}:{key:string}):string=>{
         {eng:"summary",fr:"résumé"},
         {eng:"save",fr:"sauvegarder"},
         {eng:"resumes",fr:"CVs"},
+        {eng:"no-link",fr:"sans lien"},
         {eng:"references",fr:"références"},
         {eng:"letters",fr:"lettres de motivation"},
         {eng:"combined",fr:"combinée"},
         {eng:"extracurricular",fr:"périscolaire"},
         {eng:"saved",fr:"enregistrée"},
+        {eng:"attached",fr:"ci-jointe"},
         {eng:"not saved",fr:"non enregistré"},
         {eng:"deleted",fr:"supprimé"},
+        {eng:"paragraph",fr:"paragraphe"},
+        {eng:"position",fr:"poste de travail"},
         {eng:"GPA",fr:"GPA/MPC"},
+        {eng:"press submit to save",fr:"appuyez sur Soumettre pour enregistrer"},
         {eng:"languages",fr:"langages"},
         {eng:"achievements",fr:"réalisations"},
         {eng:"skill",fr:"compétence"},
         {eng:"skills",fr:"compétences"},
         {eng:"links",fr:"liens"},
+        {eng:"enabled",fr:"activé"},
+        {eng:"disabled",fr:"désactivé"},
         {eng:"to Whom",fr:"à qui"},
         {eng:"conclusion",fr:"quand vous pouvez être disponible, où vous pouvez être contacté et REMERCIEZ-LES pour la considération."},
         {eng:"cancel",fr:"Annuler"},
@@ -43,6 +50,8 @@ export const langConversion=({key}:{key:string}):string=>{
         {eng:"reason",fr:"raison"},
         {eng:"link",fr:"lien"},
         {eng:"open",fr:"ouvrir"},
+        {eng:"requested position",fr:"poste demandé"},
+        {eng:"filename",fr:"nom de filier"},
         {eng:"to",fr:"a"},
         {eng:"from",fr:"de"},
         {eng:"resume + reference",fr:"CV + référence"},
@@ -90,6 +99,7 @@ export const inserts:insertType[]=[
     {key:"skill",type:"text",place:"learned skill",placeFr:"compétence acquise"},
     {key:"degree",type:"text",place:"degree",placeFr:"degré"},
     {key:"GPA",type:"number",place:"0",placeFr:"0"},
+    {key:"position",type:"text",place:"job position",placeFr:"poste de travail"},
     {key:"relevantWork",type:"text",place:"Your relevant description to stand out",placeFr:"Votre description pertinente pour vous démarquer"},
     {key:"extracurricular",type:"text",place:"your extra work completed during school",placeFr:"votre travail supplémentaire effectué pendant l'école"},
     {key:"achievement",type:"text",place:"your achievement",placeFr:"votre réussite"},
@@ -102,6 +112,7 @@ export const inserts:insertType[]=[
     {key:"to",type:"number",place:"to",placeFr:"a"},
     {key:"achievement",type:"text",place:"achievement",placeFr:"réalisation"},
     {key:"reason",type:"text",place:"reason",placeFr:"raison"},
+    {key:"filename",type:"text",place:"add filename",placeFr:"ajouter un nom de fichier"},
     {key:"composite",type:"text",place:"what do you use?",placeFr:"Qu'est-ce que tu utilises ?"}
 
 ];
@@ -288,3 +299,46 @@ export const langResume=({french,user}:{french:boolean,user:userType|null}):resu
     };
 };
 //---------------------------------RESUME------------------------------------//
+//---------------------------------LETTER------------------------------------//
+export const langLetter=({french,user}:{french:boolean,user:userType|null})=>{
+    if(french) return {
+        filename:"",
+        position:"poste de travail",
+        to:"",
+        contact:langContact({french,user}),
+        summary:"Dans le paragraphe d'ouverture, indiquez pour quel poste vous postulez, puis comment vous avez entendu parler de ce poste.",
+        paragraphs:[langParagraph1({french})],
+        conclusion:"À la fin de la lettre, indiquez votre disponibilité pour le poste, où vous pouvez être contacté et quand vous contacterez le recruteur pour un rendez-vous afin de discuter de votre candidature. Si vous n'avez pas de contact, vous pouvez simplement indiquer votre attente de réponse dans cette partie de la lettre. Remerciez la personne à qui vous écrivez pour son temps et l'attention qu'elle a portée à votre candidature.",
+        signature:{
+            name:user?.name || "",
+            cell:"",
+            email:user?.email ||""
+        }
+    };
+    else return {
+        filename:"",
+        position:"job position",
+        to:"",
+        contact:langContact({french,user}),
+        summary:"In the opening paragraph tell what position you are applying for, then how you learned about the position.",
+        paragraphs:[langParagraph1({french})],
+        conclusion:"At the end of the letter talk about your availability for the job, where you can be contacted, and when you are going to contact the hiring person for an appointment to discuss your application. If you have no contact name you may simply want to indicate your anticipation for a response in this part of the letter. Thank the person to whom you are writing for his/her time and consideration of your application",
+        signature:{
+            name:user?.name || "",
+            cell:"",
+            email:user?.email ||""
+        }
+    };
+}
+//---------------------------------LETTER------------------------------------//
+//---------------------------------MISC------------------------------------//
+
+export const langNoData=({french,cat}:{french:boolean,cat:catType})=>{
+    const arr:{eng:catType,fr:string}[]=[
+        {eng:"resumes",fr:"CVs"},{eng:"references",fr:"références"},{eng:"letters",fr:"lettres de motivation"},{eng:"combined",fr:"combinée"}
+    ]
+    const catRes=arr.find(kv=>(kv.eng===cat));
+    if(french)return `Désolé, vous n'avez enregistré aucun contenu dans votre répertoire du ${catRes?.fr ||"des items"}. Une fois votre CV créé avec une lettre de recommandation et/ou une lettre de motivation, les données seront affichées pour être jointes au fichier.`
+   else return `sorry, you have no saved content, within your ${catRes?.eng ||"items"}' repetoir. Once you have built a resume with a reference and or letter, the data will be displayed for file attchment.`
+}
+//---------------------------------MISC------------------------------------//

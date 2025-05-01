@@ -178,7 +178,7 @@ class EditResume {
     //NOT USED
     main({parent,user,french}:{parent:HTMLElement,user:userType|null,french:boolean}){
         this.injection=parent;
-        console.log("USER",user)
+        
         if(user){
             this.user=user;
             this.nameResumes=user.resumes.map(res=>({id:res.id as number,name:res.name,user_id:res.user_id,enable:res.enable}))
@@ -317,7 +317,7 @@ class EditResume {
         }else{
             this.mainResume=hasResume;
         }
-            const {resume}=this.mainResume;
+            const {resume,name:_name}=this.mainResume;
             const container=document.createElement("section");
             container.id="edit-resume";
             container.style.cssText=css_col + "margin-inline:auto;background-color:#032767b8;align-items:center;border-radius:12px;margin-block:2rem;" ;
@@ -329,6 +329,17 @@ class EditResume {
             title.style.textTransform="capitalize";
             title.textContent=french ? langConversion({key:"resume"}):"resume";
             container.appendChild(title);
+            //------FILE NAME-------------------//
+            const fileCont=document.createElement("div");
+            fileCont.className=styles.fileCont;
+            const span=document.createElement("span");
+            span.textContent=french ? `${langConversion({key:"filename"})}:`:"filename:";
+            const filename=document.createElement("h6");
+            filename.textContent=_name;
+            fileCont.appendChild(span);
+            fileCont.appendChild(filename);
+            container.appendChild(fileCont);
+            //------FILE NAME-------------------//
             this.closeForm({parent,target:container});
             const summCont=document.createElement("div");
             summCont.id="summ-cont";
