@@ -25,7 +25,7 @@ class MainAdvertise {
     main({parent,count}:{parent:HTMLElement,count:number}):Promise<{count:number}>{
         const cont=document.createElement("section");
         cont.id="main";
-        let french=false;
+        const french=false;
         this.langBtnConvert({parent:cont,french});
         
         cont.className=styles.main;
