@@ -42,7 +42,7 @@ export const topbarRowColDescs:topbarRowColDescType[]=[
     {cat:"letters",name:"edit_letter",desc:"This sub section allows you to quickly edit your Cover Letter quick response."},
     {cat:"combined",name:"attach",desc:"This magically attaches references or Cover letters to your resume and adds the link for quick access to your cover letter for instant professional viewing."},
     {cat:"combined",name:"view_attach",desc:"This provides you with bounded letter-to-resume or/and reference-to-resume or/and letter-reference-to-resumes for quick online-viewing. This is a powerful feature that allows you to make available one-click-viewing pleasure."},
-    {cat:"combined",name:"clear_attach",desc:"This clears the resume-to reference and cover-letter binding and removes the link from the internet. This allows you to give a time period of online-viewing"},
+    {cat:"combined",name:"clear_attach",desc:"This clears the resume-to reference and/or cover-letter binding.Secondly, it removes the link from the internet,once disabled. This allows you to the power of combined online-viewing"},
 ];
 
 export const topbarRowColDescsFr:topbarRowColDescType[]=[
@@ -58,7 +58,7 @@ export const topbarRowColDescsFr:topbarRowColDescType[]=[
     {cat:"letters",name:"edit_letter",desc:"Cette sous-section vous permet de modifier rapidement votre réponse rapide à la lettre de motivation"},
     {cat:"combined",name:"attach",desc:"Cela attache comme par magie des références ou des lettres de motivation à votre CV et ajoute le lien pour un accès rapide à votre lettre de motivation pour une visualisation professionnelle instantanée"},
     {cat:"combined",name:"view_attach",desc:"Cette fonctionnalité vous permet de consulter rapidement en ligne des lettres de motivation et/ou des références de motivation. Cette fonctionnalité puissante vous permet de consulter vos CV en un clic."},
-    {cat:"combined",name:"clear_attach",desc:"Cela supprime la liaison entre le CV et la lettre de motivation, ainsi que le lien internet. Cela vous permet d'indiquer une période de consultation en ligne."},
+    {cat:"combined",name:"clear_attach",desc:"Cela supprime la liaison entre le CV et la lettre de motivation. Ensuite, le lien Internet, serait désactivé, et supprimé. Vous pouvez ainsi profiter de la puissance d'une presentation du votre CV aficher et complet et ci-joint."},
 ];
 
 

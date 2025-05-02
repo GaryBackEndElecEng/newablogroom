@@ -1,0 +1,45 @@
+.resumeBuilderLayout {
+  margin-inline: auto;
+  display: flex;
+  width: 80% !important;
+  flex-direction: column;
+  min-height: 100vh;
+}
+.langBox {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  position: absolute;
+  top: 0%;
+  right: 0%;
+  background-color: white;
+  cursor: pointer;
+  border-radius: 8px;
+  z-index: 3000;
+  box-shadow: 1px 1px 7px black, -1px -1px 7px black;
+  transform: translate(-20px, 10px);
+  animation: rotate 1s ease-in;
+}
+
+@media screen and (max-width: 1200px) {
+  .resumeBuilderLayout {
+    width: 90% !important;
+  }
+}
+@media screen and (max-width: 900px) {
+  .resumeBuilderLayout {
+    width: 95% !important;
+  }
+  .langBox > small {
+    font-size: 80%;
+  }
+}
+@media screen and (max-width: 600px) {
+  .resumeBuilderLayout {
+    width: 100% !important;
+  }
+  .langBox > small {
+    font-size: 70%;
+  }
+}

@@ -27,6 +27,10 @@ export async function genSitemapArray(item: { baseUrl: string }): Promise<Metada
             { url: `${retBaseUrl}/termsOfService`, lastModified: new Date(), changeFrequency: 'yearly', priority: 1 },
             { url: `${retBaseUrl}/signin`, lastModified: new Date(), changeFrequency: 'yearly', priority: 1 },
             { url: `${retBaseUrl}/chart`, lastModified: new Date(), changeFrequency: 'monthly', priority: 1 },
+            { url: `${retBaseUrl}/signin`, lastModified: new Date(), changeFrequency: 'monthly', priority: 1 },
+            { url: `${retBaseUrl}/register`, lastModified: new Date(), changeFrequency: 'monthly', priority: 1 },
+            { url: `${retBaseUrl}/bio`, lastModified: new Date(), changeFrequency: 'monthly', priority: 1 },
+            { url: `${retBaseUrl}/resumebuilder`, lastModified: new Date(), changeFrequency: 'monthly', priority: 1 },
         ];
         const blogIds = await prisma.blog.findMany({
             where: { show: true },
@@ -36,15 +40,27 @@ export async function genSitemapArray(item: { baseUrl: string }): Promise<Metada
             where: { published: true },
             select: { id: true }
         }) as { id: number }[];
+        const getResumes = await prisma.resume.findMany({
+            where: { enable: true }
+        });
         await prisma.$disconnect();
         if (blogIds && blogIds.length > 0) {
             blogIds.map(blog => {
                 arr.push({ url: `${retBaseUrl}/blog/${blog.id}`, lastModified: new Date(), changeFrequency: 'always', priority: 1 });
             });
-        }
+        };
         if (postIds && postIds.length > 0) {
             postIds.map(post => {
                 arr.push({ url: `${retBaseUrl}/post/${post.id}`, lastModified: new Date(), changeFrequency: 'always', priority: 1 });
+            });
+        };
+
+        if (getResumes?.length > 0) {
+            getResumes.map(mainResume => {
+                if (mainResume) {
+                    const { name } = mainResume;
+                    arr.push({ url: `${retBaseUrl}/showResume/${name}`, lastModified: new Date(), changeFrequency: 'always', priority: 1 });
+                }
             });
         }
 
@@ -52,8 +68,7 @@ export async function genSitemapArray(item: { baseUrl: string }): Promise<Metada
         const msg = getErrorMessage(error)
         console.log(msg);
 
-    } finally {
-        return arr;
     }
+    return arr;
 
 } 
