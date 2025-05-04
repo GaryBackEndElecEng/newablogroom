@@ -6,6 +6,7 @@ import Service from "@/components/common/services";
 import EditResume from "./editResume";
 import ViewReference from "./viewReference";
 import Topbar from "./topbar";
+import { langReference } from "./engFre";
 
 
 class CreateRef{
@@ -47,7 +48,7 @@ public count:number;
    
 
     this._mainRefs=this._user ? this._user.references as mainResumeRefType[] : [] as mainResumeRefType[];
-    this.nameRefs=this._user ? this._user.references.map(kv=>({id:kv.id as number,name:kv.name,user_id:kv.user_id,res_name_id:kv.res_name_id})) : [] as nameRefType[]
+    this.nameRefs=this._user ? this._user.references.map(kv=>({id:kv.id as number,name:kv.name,user_id:kv.user_id,res_name_id:kv.res_name_id,french:kv.french})) : [] as nameRefType[]
     
     this.links=[{name:"ablogroom",link:"https://www.ablogroom.com"},{name:"example",link:"https://example.com"}]
     this._reference={
@@ -61,6 +62,14 @@ public count:number;
         contacts:this._contacts
     };
     this._references=[this._reference];
+    this._mainRef={
+        id:0,
+        name:"",
+        user_id:this._user?.id || "",
+        res_name_id:"",
+        french:false,
+        references:this._references
+    }
     this._initReferences=[this.formComp.addRemove.reference];
     this._nameRef={} as nameRefType;
     this._nameRefs=[] as nameRefType[];
@@ -106,7 +115,7 @@ public count:number;
     };
     //-------------GETTER/SETTERS-----------//
 
-    main({parent,user,func}:{parent:HTMLElement,user:userType|null,func:(mainRefs:mainResumeRefType[])=>Promise<void>|void}){
+    main({parent,user,french,func}:{parent:HTMLElement,user:userType|null,french:boolean,func:(mainRefs:mainResumeRefType[])=>Promise<void>|void}){
         const less400=window.innerWidth < 400;
         const less900=window.innerWidth < 900;
         const css_col="display:flex;justify-content:flex-start;align-items:center;gap:1rem;flex-direction:column;padding-inline:1rem;";
@@ -118,8 +127,9 @@ public count:number;
         parent.appendChild(mainCreateRef);
         if(!this.references){
             this.references=this._initReferences;
-        }
-       this.addReferences({grandParent:parent,parent:mainCreateRef,references:this.references,less400,less900,css_col,css_row,user,func});
+        };
+        if(french) this.references=[langReference({french,user:this.user})];
+       this.addReferences({grandParent:parent,parent:mainCreateRef,french,references:this.references,less400,less900,css_col,css_row,user,func});
        
        const dividerCont=document.createElement("div");
        dividerCont.id="create-ref-main-divider-cont";
@@ -140,7 +150,7 @@ public count:number;
        button.style.order="4"
        button.onclick=(e:MouseEvent)=>{
         if(e){
-           
+            
             this.savereference({grandParent:parent,parent:mainCreateRef,references:this.references,less900,less400,css_col,css_row,user,func});
         }
        };
@@ -149,7 +159,8 @@ public count:number;
 
 
 
-    addReferences({grandParent,parent,references,less400,less900,css_col,css_row,user,func}:{grandParent:HTMLElement,parent:HTMLElement,references:resumeRefType[],less400:boolean,less900:boolean,css_col:string,css_row:string,user:userType|null,func:(mainRefs:mainResumeRefType[])=>Promise<void>|void}){
+
+    addReferences({grandParent,parent,references,french,less400,less900,css_col,css_row,user,func}:{grandParent:HTMLElement,parent:HTMLElement,references:resumeRefType[],french:boolean,less400:boolean,less900:boolean,css_col:string,css_row:string,user:userType|null,func:(mainRefs:mainResumeRefType[])=>Promise<void>|void}){
        
         
         const innerCreateRef=document.createElement("div");
@@ -163,9 +174,10 @@ public count:number;
             css_col,
             references,
             less400,
+            french,
             func:(references)=>{
                 Resume.cleanUpById({parent,id:"inner-create-ref"});
-                this.addReferences({grandParent,parent,references,less400,less900,css_col,css_row,user,func});
+                this.addReferences({grandParent,parent,references,less400,less900,french,css_col,css_row,user,func});
             }
         });
         
@@ -196,15 +208,14 @@ public count:number;
                     less400,
                     func:(references)=>{
                         Resume.cleanUpById({parent,id:"inner-create-ref"});
-                        this.addReferences({grandParent,parent,references,less400,less900,css_col,css_row,user,func});
+                        this.addReferences({grandParent,parent,references,less400,french,less900,css_col,css_row,user,func});
                     }
                 });
-               reference= this.formComp.referenceComponent({parent:refCardCont,reference,less400});
+               reference= this.formComp.referenceComponent({parent:refCardCont,reference,less400,french});
           
             return reference;
         });
      
-        
     };
 
 
@@ -226,7 +237,8 @@ public count:number;
         parent.appendChild(popup);
         const form=document.createElement("form");
         form.className=styles.form;
-        form.style.order="2"
+        form.style.order="2";
+        //FILENAAME
         const {input,label,formGrp}=EditResume.inputComponent(form);
         formGrp.className=styles.form;
         formGrp.classList.add("form-group");
@@ -234,7 +246,19 @@ public count:number;
         input.name="name";
         input.type="text";
         label.setAttribute("for",input.id);
-        input.placeholder="name";
+        //FRENCH OR ENGLISH
+        const {input:inputIsFr,label:labelIsFr,formGrp:grpIsFr}=EditResume.inputComponent(form);
+        grpIsFr.className=styles.form;
+        grpIsFr.classList.remove("form-group");
+        formGrp.classList.add("form-group");
+        inputIsFr.id="isFr-"+ String(rand);
+        inputIsFr.classList.remove("form-control");
+        inputIsFr.name="isFr";
+        inputIsFr.type="checkbox";
+        labelIsFr.setAttribute("for",inputIsFr.id);
+        labelIsFr.textContent="French / Français ?";
+        (inputIsFr).value="false";
+        //FRENCH OR ENGLISH
         Resume.simpleButton({anchor:form,text:"submit",color:"white",bg:"black",type:"submit",time:400});
         popup.appendChild(form);
         Resume.deletePopup({parent,target:popup});
@@ -244,19 +268,18 @@ public count:number;
                 const rand=Math.floor(Math.random()*1000);
                 const formdata=new FormData(e.currentTarget as HTMLFormElement);
                 const name=formdata.get("name") as string;
+                const isFr=Boolean(formdata.get("isFr") as string);
                 const _name=`${name.split(" ").join("_").trim()}_${rand}`;
-                this.mainRef={...this.mainRef,references,user_id:user.id,name:_name};
-                
-
+                this.mainRef={...this.mainRef,references,user_id:user.id,name:_name,french:isFr};
                 await this._service.saveReferences({mainReference:this.mainRef}).then(async(res)=>{
                     if(res){
                         
                         this.user=user;
                         this.mainRef=res;
-                        const {id,name,references}=res
+                        const {id,name,references,french}=res
                         this.references=references;
                         this.mainRefs=[...this.mainRefs,res];
-                        this.nameRefs=[...this.nameRefs,{id:id as number,name,user_id:this.user.id,res_name_id:undefined}];
+                        this.nameRefs=[...this.nameRefs,{id:id as number,name,user_id:this.user.id,res_name_id:undefined,french}];
                         this.viewRef.mainResumerefs=this.mainRefs;
                         this.viewRef.nameRefs=[...this.nameRefs];
                         popup.animate([

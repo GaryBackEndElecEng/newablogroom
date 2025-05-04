@@ -802,7 +802,7 @@ class FormComponents{
                         if(key==="cell") input.autocomplete="tel";
                         if(key==="email") input.autocomplete="email";
                        
-                        input.placeholder=key;
+                        input.placeholder=french ? langConversion({key}):key;
                         input.style.width="auto";
                         label.setAttribute("for",input.id);
                         label.textContent=french ? langConversion({key}):key;

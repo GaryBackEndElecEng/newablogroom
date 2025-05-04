@@ -46,7 +46,7 @@ class EditReference{
        
         this._mainRef={} as mainResumeRefType;
         this._mainRefs=this._user?.references as mainResumeRefType[] || [] as mainResumeRefType[];
-        this._nameRefs=this._user?.references.map(kv=>({id:kv.id as number,name:kv.name,user_id:kv.user_id,res_name_id:kv.res_name_id})) as nameRefType[] || [] as nameRefType[]
+        this._nameRefs=this._user?.references.map(kv=>({id:kv.id as number,name:kv.name,user_id:kv.user_id,res_name_id:kv.res_name_id,french:kv.french})) as nameRefType[] || [] as nameRefType[]
     }
 
     ///----------------------SEETERGS/GETTERS-------------------------------///
@@ -140,8 +140,8 @@ class EditReference{
         func:(nameRefs: nameRefType[],mainRef:mainResumeRefType,type:"add"|"rem") => Promise<void> | void
     }){
         this.mainRef=mainRef;
-            const {id,name:name_,user_id}=mainRef;
-            const nameRef:nameRefType={id:id as number,name:name_,user_id,res_name_id:null};
+            const {id,name:name_,user_id,french}=mainRef;
+            const nameRef:nameRefType={id:id as number,name:name_,user_id,res_name_id:null,french:false};
             const container=document.createElement("section");
             container.id="edit-resume-ref";
             container.style.cssText=css_col;
@@ -222,7 +222,7 @@ class EditReference{
                              reference=this.editRefLinks({parent:refContainer,key:refKey,reference,order:4,less400,css_col,css_row});
                             }else if(refKey==="contacts"){
                                 
-                                reference=this.formComp.referenceContact({parent:refContainer,reference,key:refKey,css_row,css_col,less400,order:3});
+                                reference=this.formComp.referenceContact({parent:refContainer,reference,key:refKey,css_row,css_col,less400,order:3,french});
                             };
                         }
                     }

@@ -45,13 +45,14 @@ class PrintResume{
         const css_row="display:flex;flex-wrap:nowrap;align-items:center;justify-content:center;gap:1rem;";
         if(mainResume){
             this.mainResume=mainResume;
-            this.viewResume.resume({parent:injector,mainResume,showPrint:false,closeDelete:true,func1:()=>{}});
+            const {french}=mainResume
+            this.viewResume.resume({parent:injector,mainResume,showPrint:false,french,closeDelete:true,func1:()=>{}});
 
         }else if(mainResumeRef){
             // print out refrerence
             this.mainResumeRef=mainResumeRef;
-            const {name,references}=mainResumeRef;
-            this.viewResume.resumeRef.showReferences({parent:injector,less400,less900,css_col,css_row,show:true,time:1000,references,name,toPrint:false});
+            const {name,references,french}=mainResumeRef;
+            this.viewResume.resumeRef.showReferences({parent:injector,less400,less900,css_col,css_row,show:true,time:1000,references,name,toPrint:false,french});
         };
         const btnDiv=document.createElement("div");
         btnDiv.id="btn-div";
@@ -74,8 +75,8 @@ class PrintResume{
             print.onclick=(e:MouseEvent)=>{
                 if(!e) return;
                 Resume.cleanUp(injector);
-                const {resume}=this.mainResume as mainResumeType;
-                this.viewResume.printResume({parent:injector,resume});
+                const {resume,french}=this.mainResume as mainResumeType;
+                this.viewResume.printResume({parent:injector,resume,french});
                 const getNav=document.querySelector("header#navHeader") as HTMLElement;
                 const getFooter=document.querySelector("section#footerInjector") as HTMLElement;
                 if(!getNav || ! getFooter) return;

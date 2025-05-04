@@ -181,8 +181,8 @@ class EditResume {
         
         if(user){
             this.user=user;
-            this.nameResumes=user.resumes.map(res=>({id:res.id as number,name:res.name,user_id:res.user_id,enable:res.enable}))
-            this.mainResumes=user.resumes.map(res=>({id:res.id as number,name:res.name,user_id:res.user_id,enable:res.enable,resume:res.resume as resumeType}))
+            this.nameResumes=user.resumes.map(res=>({id:res.id as number,name:res.name,user_id:res.user_id,enable:res.enable,french:res.french}))
+            this.mainResumes=user.resumes.map(res=>({id:res.id as number,name:res.name,user_id:res.user_id,enable:res.enable,resume:res.resume as resumeType,french:res.french}))
         }
         const css_col="display:flex;flex-direction:column;"
         const container=document.createElement("section");

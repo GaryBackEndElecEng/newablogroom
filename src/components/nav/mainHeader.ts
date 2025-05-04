@@ -385,7 +385,7 @@ class MainHeader {
         const text = document.createElement("small");
         text.id = "genPageCount-inner-text";
         text.style.cssText = "color:#0CAFFF;font-size:10px;font-weight:bold;";
-        text.textContent = `${name} :`;
+        text.textContent = `${name.split("").slice(0,7).join("")}:`;
         const count_ = document.createElement("small");
         count_.id = "genPageCount-inner-count";
         count_.style.cssText = "color:white;font-size:10px;font-weight:bold;"
@@ -397,7 +397,9 @@ class MainHeader {
         parent.appendChild(container);
         Misc.growIn({ anchor: container, scale: 0.2, opacity: 0, time: 500 });
         return {pageCountContainer:container}
-    }
+    };
+
+
 
 
 

@@ -17,7 +17,7 @@ class ViewResume {
     private _nameResumes:nameResumeType[];
     private _mainResume:mainResumeType;
     private _mainResumes:mainResumeType[];
-    constructor(private _service:Service,public resumeRef:Reference,private _deleteClass:DeleteClass){
+    constructor(private _service:Service,public resumeRef:Reference,public deleteClass:DeleteClass){
         this.rowId="";
         this.containerId="";
         this._nameResumes=[] as nameResumeType[];
@@ -78,7 +78,7 @@ class ViewResume {
     //--------GETTERS SETTERS----------//
 
 async showResume({parent,mainResume,french,func1}:{parent:HTMLElement,mainResume:mainResumeType|undefined,french:boolean,
-    func1:(mainResumes:mainResumeType[])=>Promise<void>|void
+    func1:(mainResumes:mainResumeType[],nameResumes:nameResumeType[])=>Promise<void>|void
 }){
     
     this.storeMainResume({mainResume});
@@ -94,11 +94,11 @@ async showResume({parent,mainResume,french,func1}:{parent:HTMLElement,mainResume
 
 storeMainResume({mainResume}:{mainResume:mainResumeType|undefined}):{nameResumes:nameResumeType[],mainResumes:mainResumeType[]}{
     if(mainResume){
-            const {name,user_id,enable,id}=mainResume;
+            const {name,user_id,enable,id,french}=mainResume;
             this.mainResume=mainResume;
             const hasMain=this.mainResumes.find(res=>(res.name===mainResume.name));
-            this.nameResume={id:id as number,name,user_id,enable};
-            this.nameResumes=this.mainResumes.map(res=>({id:res.id as number,name:res.name,user_id:res.user_id,enable:res.enable}));
+            this.nameResume={id:id as number,name,user_id,enable,french};
+            this.nameResumes=this.mainResumes.map(res=>({id:res.id as number,name:res.name,user_id:res.user_id,enable:res.enable,french:res.french}));
             if(hasMain){
                 const remain=this.mainResumes.filter(res=>(res.name !==hasMain.name));
                 this.mainResumes=[...remain,mainResume];
@@ -116,7 +116,7 @@ storeMainResume({mainResume}:{mainResume:mainResumeType|undefined}):{nameResumes
 
 
 resume({parent,mainResume,showPrint,closeDelete,french,func1}:{parent:HTMLElement,mainResume:mainResumeType,showPrint:boolean,closeDelete:boolean,french:boolean,
-    func1:(mainResumes:mainResumeType[])=>Promise<void>|void
+    func1:(mainResumes:mainResumeType[],nameResumes:nameResumeType[])=>Promise<void>|void
 }){
     const less900=window.innerWidth <900;
     const less400=window.innerWidth <400;
@@ -192,13 +192,13 @@ resume({parent,mainResume,showPrint,closeDelete,french,func1}:{parent:HTMLElemen
     }
     
     mainCont.appendChild(btnDiv);
-    this._deleteClass.rowId=this.rowId;
+    this.deleteClass.rowId=this.rowId;
     if(!closeDelete){
-        this._deleteClass.deleteResume({parent,target:mainCont,mainResume,french,
+        this.deleteClass.deleteResume({parent,target:mainCont,mainResume,french,
             func:({mainResumes,nameResumes})=>{
                 this.mainResumes=mainResumes;
                 this.nameResumes=nameResumes;
-                func1(mainResumes)
+                func1(mainResumes,nameResumes)
             }
             })
 
@@ -564,14 +564,10 @@ summaryCont({parent,less400,less900,css_col,summary,french}:{less400:boolean,les
     const lang=langConversion({key:"summary"});
     const summaryCont=document.createElement("div");
     summaryCont.id="summary-cont";
-    summaryCont.style.cssText=css_col + "margin-inline:auto;margin-top:1rem;";
-    summaryCont.style.width="100%";
-    summaryCont.style.paddingInline=less900 ? (less400 ? "0.25rem":"1rem"):"1.5rem";
+    summaryCont.className=styles.summaryCont;
     const h6=document.createElement("h6");
-    h6.style.cssText="text-transform:uppercase;margin-bottom:7px;";
-    h6.className="text-primary text-center my-1 lean display-6";
+    h6.className="text-primary my-1 lean display-6";
     h6.textContent=french && lang ? lang :"summary";
-    h6.style.fontSize=less900 ? (less400 ? "160%":"190%"): "220%";
     summaryCont.appendChild(h6);
     const para=document.createElement("p");
     para.style.cssText="text-wrap:pretty";
@@ -667,6 +663,7 @@ siteTitle({parent,less400,less900,css_col,sites,french}:{less400:boolean,less900
 
 
 experCard({parent,exper,less400,less900,css_col,css_row,index,french}:{parent:HTMLElement,exper:workExperienceType,less400:boolean,less900:boolean,css_col:string,css_row:string,index:number,french:boolean}){
+    const check=!!(exper?.achievements && exper.achievements.length>0);
     const expCard=document.createElement("div");
     expCard.id="exper-card-" + String(index);
     expCard.className=styles.expCard;
@@ -685,18 +682,22 @@ experCard({parent,exper,less400,less900,css_col,css_row,index,french}:{parent:HT
     achievCont.className=styles.achievCont;
  
     const achieveTitle=document.createElement("h6");
-    achieveTitle.textContent=french ? langConversion({key:"achievement"}):"achievement";
+    achieveTitle.textContent=french ? langConversion({key:"achievements"}):"achievements";
     achieveTitle.style.cssText="text-transform:capitalize;margin-bottom:0.25rem;margin-left:0;";
     achievCont.appendChild(achieveTitle);
-    exper.achievements.map((achiev,index)=>{
-        if(achiev?.achievement.split("").length>0){
-            const ind=document.createElement("span");
-            ind.textContent=String(index + 1) + ". ";
-            achievCont.appendChild(ind);
-            this.achievCard({parent:achievCont,achiev,index,french});
-        }
-    });
+    if(check){
+
+        exper.achievements.map((achiev,index)=>{
+            if(achiev?.achievement.split("").length>0){
+                const ind=document.createElement("span");
+                ind.textContent=String(index + 1) + ". ";
+                achievCont.appendChild(ind);
+                this.achievCard({parent:achievCont,achiev,index,french});
+            }
+        });
+    }
     expCard.appendChild(achievCont);
+    this.skillExperContainer({parent:expCard,css_row,expData:exper,less400,french});
     parent.appendChild(expCard);
 };
 
@@ -770,13 +771,13 @@ educationCard({parent,less400,less900,css_col,css_row,educData,french,index}:{le
         }
         this.educateAchieve({parent:card,educData,less400,less900,css_col,french});
         //SKILLs
-        this.skillContainer({parent:card,css_row,educData,less400,french});
+        this.skillEducContainer({parent:card,css_row,educData,less400,french});
         parent.appendChild(card);
 };
 
 
 
-skillContainer({parent,css_row,educData,less400,french}:{parent:HTMLElement,css_row:string,educData:educationType,less400:boolean,french:boolean}){
+skillEducContainer({parent,css_row,educData,less400,french}:{parent:HTMLElement,css_row:string,educData:educationType,less400:boolean,french:boolean}){
 const skillCont=document.createElement("div");
 skillCont.id="skill-cont";
 skillCont.className=styles.educateSkillRowCont;
@@ -785,12 +786,47 @@ skills_=skills_.concat(educData.skills)
 skills_.map((skill,index)=>{
     const skill_=document.createElement("p");
     skill_.id="skill-" + String(index);
+    skill_.style.paddingInline="0.25rem";
+    skill_.style.fontSize=less400 ? "90%":"85%";
     if(index===0){
+        skill_.style.borderLeft="none";
+        skill_.style.textWrap="nowrap";
         const word=french ? langConversion({key:skill}):"skills";
         skill_.style.color="blue";
         skill_.textContent=`${word} : `;
     }else{
-        skill_.textContent=skill;
+        skill_.style.textWrap="wrap";
+        skill_.textContent=`${skill},`;
+    }
+    skillCont.appendChild(skill_);
+});
+parent.appendChild(skillCont);
+};
+
+
+
+skillExperContainer({parent,css_row,expData,less400,french}:{parent:HTMLElement,css_row:string,expData:workExperienceType,less400:boolean,french:boolean}){
+    const {skills}=expData;
+const skillCont=document.createElement("div");
+skillCont.id="skill-cont";
+skillCont.className=styles.educateSkillRowCont;
+
+const skills_=["skill"].concat(skills);
+skills_.map((skill,index)=>{
+    const skill_=document.createElement("p");
+    skill_.id="skill-" + String(index);
+    skill_.style.paddingInline="0.25rem";
+    skill_.style.fontSize=less400 ? "90%":"85%";
+    if(index===0){
+        skill_.style.borderLeft="";
+        skill_.style.textWrap="nowrap";
+        const word=french ? langConversion({key:skill}):"skills";
+        skill_.style.color="blue";
+        skill_.textContent=`${word} : `;
+    }else{
+        
+        skill_.style.textWrap="wrap";
+        skill_.textContent=`${skill},`;
     }
     skillCont.appendChild(skill_);
 });
@@ -869,50 +905,68 @@ educateHeader({parent,css_col,css_row,less900,less400,educData,french}:{parent:H
 
 
 educateAchieve({parent,educData,less400,less900,css_col,french}:{parent:HTMLElement,educData:educationType,css_col:string,less400:boolean,less900:boolean,french:boolean}){
-const achievCont=document.createElement("div");
-achievCont.id="educate-achiev-cont";
-achievCont.style.cssText="margin-inline:0;";
-achievCont.style.marginLeft=less900 ? ( less400 ? "0.3rem":"0.75rem"):"1rem";
-achievCont.style.width=less900 ?(less400 ? "100%":"85%"):"76%";
-const title=document.createElement("h6");
-title.id="achieve-cont-title";
-title.style.cssText="font-weight:bold;line-height:0.5rem;margin-block:0.25;text-transform:capitalize;";
-title.textContent=french ? langConversion({key:"achievements"}):"achievements";
-parent.appendChild(title);
-educData.achievements.map((achiev,index)=>{
-    const para1=document.createElement("p");
-    para1.id="achiev-para-" + String(index);
-    para1.style.cssText="text-wrap:pretty;margin-inline:0;";
-    para1.style.lineHeight=less900 ? (less400 ? "1.25rem":"1.15rem"):"1.20rem";
-    para1.innerHTML=`<span style=color:blue;>${index + 1}.</span>${achiev.achievement}`;
-    achievCont.appendChild(para1);
-    const div=document.createElement("div");
-    div.id="achiev-cont-listings";
-    div.style.cssText=css_col + "margin-inline:0;line-height:1.1rem;";
-    if(achiev.reason){
+    const check=!!(educData?.achievements && educData.achievements.length>0);
+if(check){
 
-        const small=document.createElement("small");
-        small.id="small-" + String(index);
-        small.style.cssText="text-wrap:pretty;";
-        small.style.marginLeft=less900 ? (less400 ? "0.3rem":"0.5rem"):"0.75rem";
-        small.innerHTML=`<span style=color:blue>purp:</span>${achiev.reason}`;
+    const achievCont=document.createElement("div");
+    achievCont.id="educate-achiev-cont";
+    achievCont.className=styles.achievEducCont;
+    achievCont.style.marginLeft=less900 ? ( less400 ? "0.3rem":"0.75rem"):"1rem";
+    achievCont.style.width=less900 ?(less400 ? "100%":"85%"):"76%";
+    const title=document.createElement("h6");
+    title.id="achieve-cont-title";
+    title.style.cssText="font-weight:bold;line-height:0.5rem;margin-block:0.25;text-transform:capitalize;";
+    title.textContent=french ? langConversion({key:"achievements"}):"achievements";
+    parent.appendChild(title);
+    educData.achievements.map((achiev,index)=>{
+        const para1=document.createElement("p");
+        para1.id="achiev-para-" + String(index);
+        para1.style.cssText="text-wrap:pretty;margin-inline:0;";
+        para1.style.lineHeight=less900 ? (less400 ? "1.75rem":"1.5rem"):"1.75rem";
+        para1.innerHTML=`<span style=color:blue;>${index + 1}.</span>${achiev.achievement}`;
+        achievCont.appendChild(para1);
         
-        div.appendChild(small);
+        if(achiev.reason && achiev.reason !==""){
+            ViewResume.division({parent:achievCont,position:"start",width:23});
+            const div=document.createElement("div");
+            div.id="achiev-cont-listings";
+            div.style.cssText=css_col + "margin-inline:0;line-height:1.1rem;";
+    
+            const text=french ? langConversion({key:"aim"}) : "aim";
+            const title=document.createElement("h6");
+            title.textContent=text;
+            const small=document.createElement("small");
+            small.id="small-" + String(index);
+            small.style.cssText="text-wrap:pretty;order:2";
+            small.style.marginLeft=less900 ? (less400 ? "0.3rem":"0.5rem"):"0.75rem";
+            small.textContent=achiev.reason;
+            
+            div.appendChild(title);
+            div.appendChild(small);
+            achievCont.appendChild(div);
+        };
+        if(achiev.composite && achiev.composite !==""){
+            console.log("composed of:",achiev.composite);
+            const div=document.createElement("div");
+            div.id="achiev-cont-listings";
+            div.style.cssText=css_col + "margin-inline:0;line-height:1.1rem;";
+            const word=french ? langConversion({key:"composite"}): "compose of:";
+            const title=document.createElement("h6");
+            title.textContent=word;
+            const small=document.createElement("small");
+            small.id="small-" + String(index);
+            small.style.cssText="text-wrap:pretty;";
+            small.style.marginLeft=less900 ? (less400 ? "0.3rem":"0.5rem"):"0.75rem";
+            small.textContent=achiev.composite;
+            
+            div.appendChild(title);
+            div.appendChild(small);
+            achievCont.appendChild(div);
+        }
+    });
+    parent.appendChild(achievCont);
     };
-    if(achiev.composite){
-        const word=french ? langConversion({key:"composite"}): "composite";
-        const small=document.createElement("small");
-        small.id="small-" + String(index);
-        small.style.cssText="text-wrap:pretty;";
-        small.style.marginLeft=less900 ? (less400 ? "0.3rem":"0.5rem"):"0.75rem";
-        small.innerHTML=`<span style=color:blue>${word}:</span>${achiev.composite}`;
-        
-        div.appendChild(small);
-    }
-    achievCont.appendChild(div);
-});
-parent.appendChild(achievCont);
-};
+}
 
 
 
@@ -928,7 +982,8 @@ const achievReasonComp=document.createElement("div");
 achievReasonComp.id="achiev-reason-composite";
 achievReasonComp.className=styles.achievReasonComp;
 if(achiev?.reason){
-    const title=document.createElement("small");
+    ViewResume.division({parent:achievContCard,position:"start",width:23});
+    const title=document.createElement("h6");
     title.textContent=french ? `${langConversion({key:"purpose"})}:`:"purpose:";
     const small=document.createElement("small");
     small.id="small-reason" + String(index);
@@ -936,7 +991,8 @@ if(achiev?.reason){
     achievReasonComp.appendChild(title);
     achievReasonComp.appendChild(small);
 };if(achiev?.composite){
-    const title=document.createElement("small");
+    
+    const title=document.createElement("h6");
     title.textContent=french ? `${langConversion({key:"composite"})}:`:"composite:";
     title.style.cssText="color:blue";
     const small=document.createElement("small");
@@ -972,6 +1028,15 @@ showHideEffect({parent,target,show,time,isPrint}:{parent:HTMLElement,target:HTML
     
         };
     };
+};
+
+static division({parent,position,width}:{parent:HTMLElement,position:"start"|"center"|"end",width:number}){
+    const line=document.createElement("div");
+    if(position==="start") line.classList.add(("text-start"));
+    if(position==="center") line.classList.add(("text-center"));
+    if(position==="end") line.classList.add(("text-end"));
+    line.style.cssText=`width:${width}%;height:1px;background-color:blue;margin-block:0.5rem;margin-inline:0;`;
+    parent.appendChild(line);
 };
 
 

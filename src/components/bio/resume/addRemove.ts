@@ -2,7 +2,7 @@ import { FaMinusCircle, FaPlus, FaPlusCircle } from "react-icons/fa";
 import { FaCreate } from "../../common/ReactIcons";
 import { awardType, contactRefType, educationType, linkType, miscType, resumeRefType, resumeType, userType, workExperienceType } from "./refTypes";
 import styles from "./addRemove.module.css";
-import { langAchievement, langContact, langEducation, langExperience, langLanguages, langSkills } from "./engFre";
+import { langAchievement, langContact, langEducation, langExperience, langLanguages, langReference, langSkills } from "./engFre";
 
 
 
@@ -145,26 +145,17 @@ class AddRemove{
     };
 
     addWorkEducate({parent,resume,css_col,isEducation,less400,french,func}:{parent:HTMLElement,resume:resumeType,css_col:string,less400:boolean,isEducation:boolean,french:boolean,func:(resume:resumeType)=>resumeType|void}){
-        const less900=window.innerWidth <900;
+        
             const cont=document.createElement("div");
             if(isEducation){
                 cont.id="add-education-cont";
+                cont.className=styles.addEducationCont;
                 
             }else{
                 cont.id="add-experience-cont";
+                cont.className=styles.addExperienceCont;
             }
-            cont.className=styles.addExperienceCont;
-            if(isEducation){
-                cont.style.left="0%";
-                cont.style.backgroundColor="orange";
-                cont.style.color="white";
-                if(less900) cont.style.transform="translate(0px, -10px) scale(0.7)";
-                if(less400) cont.style.transform="translate(-10px, 0px) scale(0.5)";
-            }else{
-                cont.style.left="0%";
-                if(less900) cont.style.transform="translate(0px, -10px) scale(0.7)";
-                if(less400) cont.style.transform="translate(-150px, 10px) scale(0.5)";
-            }
+        
             
             const name=document.createElement("small");
             if(isEducation){
@@ -175,7 +166,7 @@ class AddRemove{
             }
             cont.appendChild(name);
             const xDiv=document.createElement("div");
-            xDiv.id="add=work-experience";
+            xDiv.id="add-work-exp-educ";
             xDiv.style.cssText=css_col + "background-color:white;z-index:200;color:white;border-radius:4px;padding:2px;background-color:black";
             FaCreate({parent:xDiv,name:FaPlus,cssStyle:{width:"100%",aspectratio:"1/1"}});
             xDiv.style.width=less400 ? "45px":"65px;";
@@ -675,7 +666,7 @@ class AddRemove{
     };
 
 
-    addReference({parent,css_col,references,less400,func}:{parent:HTMLElement,css_col:string,less400:boolean,references:resumeRefType[],func:(references:resumeRefType[])=>void}){
+    addReference({parent,css_col,references,less400,french,func}:{parent:HTMLElement,css_col:string,less400:boolean,references:resumeRefType[],french:boolean,func:(references:resumeRefType[])=>void}){
         const cont=document.createElement("div");
         cont.id="add-reference-cont"
         cont.style.cssText=css_col + "position:absolute;top:0%;left:0%;background-color:white;z-index:200;color:blue;border-radius:10px;padding:2px;gap:0.5rem;padding:0.5rem;box-shadow:1px 1px 10px 1px blue;max-width:50px;width:100%;text-wrap:wrap;";
@@ -695,8 +686,8 @@ class AddRemove{
         cont.onclick=(e:MouseEvent)=>{
            
             if(e){
-               
                     this.reference={...this.reference};
+                    if(french) this.reference=langReference({french,user:this.user});
                     references=[...references,this.reference];
                     func(references);
             }

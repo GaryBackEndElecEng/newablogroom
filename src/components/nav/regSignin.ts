@@ -633,7 +633,7 @@ class RegSignIn {
                         await signIn("credentials",{formdata});
                     } catch (error) {
                         const msg=getErrorMessage(error);
-                       
+                       console.log(msg);
                         if(error instanceof AuthenticatorAssertionResponse){
                             window.history.go(-1);
                         }
@@ -647,20 +647,15 @@ class RegSignIn {
     };
 
 
-     signInProvider(parent:HTMLElement,signinUrl:string|undefined,provider:providerType,):{container:HTMLElement}{
+     signInProvider(parent:HTMLElement,callbackUrl:string|undefined,provider:providerType,):{container:HTMLElement}{
         //Misc.providersImgs
         const less400=window.innerWidth < 400;
         const container=document.createElement("div");
         container.id="signInProvider-container";
         container.style.cssText="margin:auto;display:flex;justify-content:center;align-items:center;gap:1rem;flex-direction:column;position:relative;border-radius:inherit;padding-inline:1rem;padding-block:0.5rem;filter:drop-shadow(0 0 .25rem #06efec);";
-       
-            Misc.providersImgs.map(item=>{
-                if((item.name==="google") && (provider.id as unknown as string) ==="google"){
-                   
-                    this.providerSignature({parent:container,item,less400});
-
-                };
-            });
+       const item:providerSigninType={id:provider.id as unknown as string,name:provider.name as unknown as string,img:"/images/providers/gmail.png"}
+       //USING signIn() from next auth instead of form with callback
+       this.providerSignature({parent:container,item,less400});
         
         parent.appendChild(container);
         return {container}

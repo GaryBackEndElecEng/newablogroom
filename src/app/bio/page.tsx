@@ -4,7 +4,7 @@ import { getServerSession, Session } from 'next-auth';
 import { redirect } from 'next/navigation';
 import prisma from "@/prisma/prismaclient";
 import { getErrorMessage } from '@/components/common/errorBoundary';
-import { letterType, mainIntroLetterType, mainResumeRefType, resumeRefStrType, resumeRefType, resumeType, userType } from '@/components/bio/resume/refTypes';
+import { letterType, mainIntroLetterType, mainResumeRefType, mainResumeStrType, resumeRefStrType, resumeRefType, resumeType, userType } from '@/components/bio/resume/refTypes';
 
 
 export default async function page() {
@@ -42,6 +42,7 @@ async function getUser({ session }: { session: Session | null }): Promise<userTy
                 }
             });
             if (user) {
+
                 await prisma.$disconnect();
                 const convUser = convertJSON({ user: user as unknown as userType })
                 return convUser as unknown as userType
@@ -57,8 +58,8 @@ async function getUser({ session }: { session: Session | null }): Promise<userTy
 
 function convertJSON({ user }: { user: userType }): userType {
     const letters = user.letters;
-    const refs = user.references;
-    const resumes = user.resumes;
+    const refs = user.references as resumeRefStrType[];
+    const resumes = user.resumes as mainResumeStrType[];
     const convLetters = letters.map(_let => {
         const convLet = JSON.parse(_let.letter as unknown as string) as letterType
         return { ..._let, letter: convLet } as unknown as mainIntroLetterType

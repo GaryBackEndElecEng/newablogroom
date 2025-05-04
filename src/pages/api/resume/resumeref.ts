@@ -8,7 +8,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     if (req.method === "POST") {
         const mainReference = req.body as mainResumeRefType;
         if (!mainReference) return res.status(400).json({ msg: "nothing recieved" });
-        const { name,res_name_id, references,user_id } = mainReference
+        const { name,res_name_id, references,user_id,french } = mainReference
        
         try {
             if (!name) return res.status(400).json({ msg: "no name ID" }); await prisma.$disconnect();
@@ -23,10 +23,12 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
                     name: name,
                     user_id,
                     res_name_id,
+                    french,
                     reference: JSON.stringify(references),
                 },
                 update: {
                     res_name_id,
+                    french,
                     reference: JSON.stringify(references),
                     
                 }
@@ -94,7 +96,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 export async function convertReference({ ref }: { ref: resumeRefStrType }):Promise< mainResumeRefType | undefined> {
     if (!ref) return;
     try {
-        const {id,name,reference,res_name_id } = ref;
+        const {id,name,reference,res_name_id,french } = ref;
         const _references=JSON.parse(reference) as resumeRefType[];
        const refconvert= _references.map(kv=>{
             if(res_name_id){
@@ -109,7 +111,7 @@ export async function convertReference({ ref }: { ref: resumeRefStrType }):Promi
             }
         });
         
-        return {id,name,references:refconvert} as unknown as mainResumeRefType
+        return {id,name,references:refconvert,french} as unknown as mainResumeRefType
     } catch (error) {
         const msg = getErrorMessage(error);
         console.log(msg)
@@ -120,7 +122,7 @@ export async function convertReference({ ref }: { ref: resumeRefStrType }):Promi
 export  function convertSimpleReference({ ref }: { ref: resumeRefStrType }):mainResumeRefType | undefined {
     if (!ref) return;
     try {
-        const {id,name,res_name_id,reference } = ref;
+        const {id,name,res_name_id,reference,french } = ref;
         const _references=JSON.parse(reference) as resumeRefType[];
        const refconvert= _references.map(kv=>{
             if(res_name_id){
@@ -128,7 +130,7 @@ export  function convertSimpleReference({ ref }: { ref: resumeRefStrType }):main
             };
             return kv;
         });
-        return {id,name,references:refconvert} as unknown as mainResumeRefType
+        return {id,name,references:refconvert,res_name_id,french} as unknown as mainResumeRefType
     } catch (error) {
         const msg = getErrorMessage(error);
         console.log(msg)

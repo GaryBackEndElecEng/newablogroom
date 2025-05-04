@@ -4,7 +4,6 @@ import GoogleProvider from "next-auth/providers/google";
 import prisma from "@/prisma/prismaclient";
 import { PrismaAdapter } from "@auth/prisma-adapter";
 import { hashComp } from "@/lib/ultils/bcrypt";
-import { accountType } from "@/components/editor/Types";
 const EMAIL = process.env.EMAIL as string;
 const EMAIL2 = process.env.EMAIL2 as string;
 
@@ -81,13 +80,6 @@ const authOptions: NextAuthOptions = {
         GoogleProvider({
             clientId: process.env.GOOGLE_client_ID as string,
             clientSecret: process.env.GOOGLE_client_secret as string,
-            authorization: {
-                params: {
-                    prompt: "consent",
-                    access_type: "offline",
-                    response_type: "code"
-                }
-            }
 
         }),
         CredentialsProvider({

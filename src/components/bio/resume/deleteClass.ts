@@ -28,9 +28,9 @@ class DeleteClass{
         this._mainResume={} as mainResumeType;
         if(this._user){
             this._mainResumes=this._user.resumes as mainResumeType[];
-            this._nameResumes=this._mainResumes.map(kv=>({id:kv.id as number,user_id:kv.user_id,name:kv.name,enable:kv.enable}));
+            this._nameResumes=this._mainResumes.map(kv=>({id:kv.id as number,user_id:kv.user_id,name:kv.name,enable:kv.enable,french:kv.french}));
             this._mainRefs=this._user.references as mainResumeRefType[];
-            this._nameRefs=this._mainRefs.map(kv=>({id:kv.id as number,user_id:kv.user_id,res_name_id:kv.res_name_id,name:kv.name}));
+            this._nameRefs=this._mainRefs.map(kv=>({id:kv.id as number,user_id:kv.user_id,res_name_id:kv.res_name_id,name:kv.name,french:kv.french}));
             this._mainLets=this._user?.letters as mainIntroLetterType[];
             this._nameLets=this._mainLets.map(kv=>({id:kv.id as number,user_id:kv.user_id,res_name_id:kv.res_name_id,name:kv.name}));
             
@@ -125,7 +125,7 @@ class DeleteClass{
         container.className=styles.deleteRequest;
         const para=document.createElement("p");
         para.id="para";
-        const text_=langConversion({key:"are you sure you want to delete this resume?"})
+        const text_=langConversion({key:"deleteRequest"})
         para.textContent=french && text_ ? text_ : "are you sure you want to delete this resume?";
         container.appendChild(para);
         container.appendChild(para);
@@ -142,12 +142,12 @@ class DeleteClass{
         };
         delete_.onclick=(e:MouseEvent)=>{
             if(e && this._user){
-                const {id,name,user_id,enable}=mainResume;
-                const item={id:id as number,name,user_id,enable}
+                const {id,name,user_id,enable,french}=mainResume;
+                const item={id:id as number,name,user_id,enable,french}
                 this._service.deleteResume({item}).then(async(res)=>{
                     if(res){
-                        this.mainResumes=this.mainResumes.filter(kv=>(kv.id!==res.id));
-                        this.nameResumes=this.nameResumes.filter(kv=>(kv.id !==res.id));
+                        this.mainResumes=this.mainResumes.filter(kv=>(kv.name!==res.name));
+                        this.nameResumes=this.nameResumes.filter(kv=>(kv.name !==res.name));
                         ([...parent.children] as HTMLElement[]).forEach(child=>{
                             if(child.id !==this.rowId){
                                 parent.removeChild(child);
@@ -202,7 +202,8 @@ class DeleteClass{
         container.className=styles.deleteRefRequest;
         const para=document.createElement("p");
         para.id="para";
-        para.textContent=" are you sure you want to delete this reference?";
+        const text_=langConversion({key:"deleteRefRequest"});
+        para.textContent=french && text_ ? text_ : "are you sure you want to delete this resume?";
         container.appendChild(para);
         container.appendChild(para);
         target.appendChild(container);
@@ -218,12 +219,12 @@ class DeleteClass{
         };
         delete_.onclick=(e:MouseEvent)=>{
             if(e && this._user){
-                const {id,name,user_id,res_name_id}=mainRef;
-                const item={id:id as number,name,user_id,res_name_id}
+                const {id,name,user_id,res_name_id,french}=mainRef;
+                const item={id:id as number,name,user_id,res_name_id,french}
                 this._service.deleteReference({item}).then(async(res)=>{
                     if(res){
-                        this.mainRefs=this.mainRefs.filter(kv=>(kv.id!==res.id));
-                        this.nameRefs=this.nameRefs.filter(kv=>(kv.id !==res.id));
+                        this.mainRefs=this.mainRefs.filter(kv=>(kv.name!==res.name));
+                        this.nameRefs=this.nameRefs.filter(kv=>(kv.name !==res.name));
                         ([...parent.children] as HTMLElement[]).forEach(child=>{
                             if(child.id !==this.rowId){
                                 parent.removeChild(child);
@@ -241,10 +242,11 @@ class DeleteClass{
     };
 
 
-    deleteLet({parent,target,mainLet,func}:{
+    deleteLet({parent,target,french,mainLet,func}:{
         target:HTMLElement;
         parent:HTMLElement,
         mainLet:mainIntroLetterType,
+        french:boolean,
         func:({mainLets,nameLets}:{mainLets:mainIntroLetterType[],nameLets:nameLetterType[]})=>Promise<void>|void
 
     }){
@@ -258,16 +260,17 @@ class DeleteClass{
             target.appendChild(xDiv);
             xDiv.onclick=(e:MouseEvent)=>{
                 if(!e) return;
-                this.deleteLetRequest({target,parent,mainLet,func})
+                this.deleteLetRequest({target,parent,mainLet,french,func})
             };
         };
     };
 
 
 
-    deleteLetRequest({target,parent,mainLet,func}:{
+    deleteLetRequest({target,parent,mainLet,french,func}:{
         target:HTMLElement,
         parent:HTMLElement,
+        french:boolean,
         mainLet:mainIntroLetterType,
         func:({mainLets,nameLets}:{mainLets:mainIntroLetterType[],nameLets:nameLetterType[]})=>Promise<void>|void}){
         const container=document.createElement("div");
@@ -275,7 +278,8 @@ class DeleteClass{
         container.className=styles.deleteRefRequest;
         const para=document.createElement("p");
         para.id="para";
-        para.textContent=" are you sure you want to delete this letter?";
+        const text_=langConversion({key:"deleteLetRequest"});
+        para.textContent=french && text_ ? text_ : ` are you sure you want to delete this letter:${mainLet.name}?`;
         container.appendChild(para);
         container.appendChild(para);
         target.appendChild(container);
@@ -294,13 +298,16 @@ class DeleteClass{
                 const {id,}=mainLet;
                 this._service.deleteLetter({id}).then(async(res)=>{
                     if(res){
-                        this.mainLets=this.mainLets.filter(kv=>(kv.id!==res.id));
-                        this.nameLets=this.nameLets.filter(kv=>(kv.id !==res.id));
+                        
+                        this.mainLets=this.mainLets.filter(kv=>(kv.name!==res.name));
+                        this.nameLets=this.nameLets.filter(kv=>(kv.name !==res.name));
+                        
                         ([...parent.children] as HTMLElement[]).forEach(child=>{
                             if(child.id !==this.rowId){
                                 parent.removeChild(child);
                             }
                         });
+                        
                         Resume.message({parent,msg:" deleted",type:"success",time:700});
 
                         func({mainLets:this.mainLets,nameLets:this.nameLets});

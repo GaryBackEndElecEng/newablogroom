@@ -65,6 +65,7 @@ export type categoryListType={
     imageCategory:[]
 }
  import { IconType } from "react-icons";
+import { mainIntroLetterStrType, mainIntroLetterType, mainResumeRefType, mainResumeStrType, mainResumeType, resumeRefStrType } from '../bio/resume/refTypes';
 
  export type dataType2 = {
     id: number, //order of display
@@ -433,6 +434,9 @@ export type userType={
     posts:postType[],
     devDeployimgs:userDevelopType[],
     quoteImgs:userQuoteType[],
+    letters:mainIntroLetterStrType[]|mainIntroLetterType[],
+    resumes:mainResumeStrType[] |mainResumeType[],
+    references:mainResumeRefType[] | resumeRefStrType[],
     showinfo?:boolean,
     admin:boolean,
     username?:string

@@ -175,15 +175,13 @@ class AuthService {
 
    async confirmUser({user,count}:{user:userType|null,count:number}): Promise<{user:userType,isAuthenicated:boolean,count:number,status:statusType}>{
         const getUser= await this.refreshUser();
-        if(user && getUser){
-            const check=(getUser.id===user?.id && getUser.email===user?.email);
-            if(check){
-                this.user=getUser;
-                this._isAuthenticated=true;
-                this.status="authenticated";
-                this._modSelector.status="authenticated";
-                this._service.isSignedOut=false;
-            }
+        if(user || getUser){
+            if(getUser) this.user=getUser;
+            if(user) this.user=user
+            this._isAuthenticated=true;
+            this.status="authenticated";
+            this._modSelector.status="authenticated";
+            this._service.isSignedOut=false;
             
         }else{
             this._isAuthenticated=false;

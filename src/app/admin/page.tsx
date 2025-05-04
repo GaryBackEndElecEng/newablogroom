@@ -41,7 +41,8 @@ export async function getUsers(): Promise<userType[] | []> {
                 admin: true,
                 username: true,
                 blogs: true,
-                posts: true
+                posts: true,
+                resumes: true,
             }
         }) as unknown[] as userType[];
         if (users) {
@@ -78,6 +79,7 @@ export async function adminUser(item: { email: string | null }): Promise<userTyp
             }
         }) as unknown as userType;
         if (user) {
+            await prisma.$disconnect();
             return user;
         };
         return null;

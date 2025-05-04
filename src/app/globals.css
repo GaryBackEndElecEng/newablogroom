@@ -226,10 +226,7 @@ body {
     opacity: "1";
   }
 }
-p {
-  line-height: 1.85;
-  font-size: 1.25rem;
-}
+
 @media screen and (max-width: 900) {
   p {
     font-size: 1.15rem;

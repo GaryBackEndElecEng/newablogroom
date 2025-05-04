@@ -46,16 +46,28 @@
   flex-direction: column;
   align-items: stretch;
   justify-content: center;
-  width: 30% !important;
+  width: 50% !important;
   order: 0;
+}
+.headerLeftSide p,
+.headerLeftSide h6 {
+  margin-inline: 0;
 }
 .headerRightSide {
   display: flex;
   flex-direction: column;
   align-items: stretch;
   justify-content: center;
-  width: 70% !important;
+  width: 50% !important;
   order: 1;
+}
+
+.headerRightSide p {
+  margin-inline: 0;
+}
+.headerRightSide a {
+  margin-inline: 0;
+  margin-bottom: 1rem;
 }
 .refCardLinkCont {
   margin: auto;
@@ -68,6 +80,16 @@
   margin-left: 1rem;
   margin-block: 1rem;
   order: 1;
+}
+.refCardLinkCont_row {
+  display: flex;
+  justify-content: center;
+  align-items: stretch !important;
+  margin-inline: auto;
+  width: 100% !important;
+  margin-block: 1rem;
+  padding-block: 0.5rem;
+  border-top: 1px solid blue;
 }
 .linksRefRowRightSide {
   display: flex;
@@ -107,7 +129,7 @@
   flex-direction: row;
   align-items: center;
   margin-inline: auto;
-  justify-content: center;
+  justify-content: space-around;
   align-self: center;
   justify-self: stretch;
   position: relative;
@@ -120,23 +142,19 @@
   align-items: center;
   margin-inline: auto;
   justify-content: center;
-  align-self: center;
   justify-self: stretch;
   position: relative;
   flex-wrap: nowrap;
   width: 100% !important;
   padding-inline: 1.25rem;
 }
+.contRow > div {
+  align-self: flex-start !important;
+}
 
 @media screen and (max-width: 900px) {
   .contRow {
     padding-inline: 0.5rem;
-  }
-  .headerLeftSide {
-    width: 40% !important;
-  }
-  .headerRightSide {
-    width: 60% !important;
   }
 }
 
@@ -161,6 +179,11 @@
   .headerLeftSide,
   .headerRightSide {
     width: 100% !important;
+  }
+  .refCardLinkCont_row {
+    flex-direction: column;
+    align-items: flex-start !important;
+    justify-content: center;
   }
 }
 

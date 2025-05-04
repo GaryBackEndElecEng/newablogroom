@@ -25,19 +25,11 @@
   width: 90% !important;
   padding-inline: 1rem;
 }
-.summaryCont {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  margin-inline: auto;
-  justify-content: center;
-  align-self: center;
-  justify-self: center;
-  position: relative;
-  width: 100% !important;
-  margin-block: 2rem;
-  padding-inline: 0;
+.mainLetterCont p,
+.mainShowLetter p {
+  letter-spacing: 0.15rem;
 }
+
 .letterCont {
   display: flex;
   flex-direction: column;
@@ -75,8 +67,10 @@
   margin-block: 1rem;
   padding-inline: 0 !important;
 }
-.paragraphCont {
-  display: flex;
+
+.paragraphCont,
+.summaryCont {
+  display: block;
   flex-direction: column;
   align-items: center;
   margin-inline: auto;
@@ -89,6 +83,14 @@
   gap: 2rem;
   padding-inline: 1.25 !important;
 }
+.paragraphCont p,
+.summaryCont p {
+  text-indent: 1.25rem;
+  align-self: start;
+  justify-self: start;
+  padding-inline: 1rem !important;
+  letter-spacing: 0.15rem;
+}
 .contactHeaderColLeft {
   align-self: flex-start;
   justify-self: center;
@@ -97,6 +99,9 @@
   padding-inline: 0 !important;
   flex: 1 0 50%;
   order: 0;
+}
+.contactHeaderColLeft > h6 {
+  order: -1 !important;
 }
 .contactHeaderColRight {
   display: flex;
@@ -107,6 +112,7 @@
   justify-self: center;
   position: relative;
   margin-block: 1rem;
+  margin-top: 3rem;
   padding-inline: 0 !important;
   flex: 1 0 50%;
   order: 1;
@@ -283,6 +289,29 @@
   padding: 1rem;
   border-radius: 2px 30px 2px 30px;
 }
+.companyCont {
+  display: flex;
+  flex-direction: column;
+  width: 100% !important;
+  align-items: flex-start;
+  justify-content: center;
+  margin-inline: 0;
+  position: relative;
+  margin-bottom: 2rem;
+}
+.companyCont > div {
+  margin-inline: 0;
+  display: flex;
+  align-self: "flex-start";
+  justify-self: "flex-start";
+}
+.companyCont h6 {
+  font-size: 130%;
+  margin-inline: 0;
+}
+.companyCont span {
+  margin-inline: 0;
+}
 
 @media screen and (max-width: 900px) {
   .formParaCont {
@@ -301,6 +330,9 @@
   .removeParagraph,
   .addParagraph {
     width: 70px !important;
+  }
+  .companyCont h6 {
+    font-size: 125%;
   }
 }
 @media screen and (max-width: 400px) {
@@ -325,11 +357,17 @@
     align-self: flex-start;
     width: 100% !important;
     flex: none;
-    margin-inline: 0;
+    margin-inline: 0 !important;
     order: 0;
+  }
+  .contactHeaderColRight h6,
+  .contactHeaderColRight a,
+  .contactHeaderColRight div {
+    margin-inline: 0;
   }
   .contactHeaderColLeft {
     order: 1;
+    margin-inline: 0;
   }
   .addFileCont {
     width: 80% !important;
@@ -356,5 +394,8 @@
   }
   .signature h6 {
     font-size: 103%;
+  }
+  .companyCont h6 {
+    font-size: 115%;
   }
 }

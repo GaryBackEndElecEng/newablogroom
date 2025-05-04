@@ -27,6 +27,7 @@ class CombineView {
         mainLetters:mainIntroLetterType[]|null
 
     }){
+        const {french}=mainResume as mainResumeType;
         this._injector=injector;
         this._mainResume=mainResume;
         this._mainRefs=mainRefs;
@@ -52,7 +53,7 @@ class CombineView {
         if(mainLetters?.length){
             //---------------------------IF LETTER EXIST-------------------------//
             mainLetters.map(mainletter=>{
-                this._letterView.letterBody({parent:letCont,mainletter,less400});
+                this._letterView.letterBody({parent:letCont,mainletter,less400,french});
             });
             this.titleName({
                 parent:mainCont,
@@ -66,13 +67,13 @@ class CombineView {
             this.showHide({target:resCont,show:false,time:0});
             this._letterView.lineDivider({parent:mainCont,width:45,color:"lightblue",height:"2px",order:2,position:"flex-start"});
             if(mainResume){
-                this._viewResume.showCombined({parent:resCont,resume:mainResume.resume,showHeader:false,isPrint:false});
+                this._viewResume.showCombined({parent:resCont,resume:mainResume.resume,french,showHeader:false,isPrint:false});
             };
         }else{
              //---------------------------IF LETTER DOES NOT EXIST-------------------------//
             this.showHide({target:resCont,show:true,time:1500});
             if(mainResume){
-                this._viewResume.showCombined({parent:resCont,resume:mainResume.resume,showHeader:true,isPrint:false});
+                this._viewResume.showCombined({parent:resCont,resume:mainResume.resume,french,showHeader:true,isPrint:false});
             };
         }
         mainCont.appendChild(resCont);
@@ -96,8 +97,8 @@ class CombineView {
             this.showHide({target:refCont,show:false,time:0});
             mainRefs.map(mainref=>{
                 if(mainref){
-                    const {name,references}=mainref;
-                    this._resumeRef.showReferences({parent:refCont,references,name,less400,less900,css_col,css_row,show:true,time:2000,toPrint:false});
+                    const {name,references,french:frenchRef}=mainref;
+                    this._resumeRef.showReferences({parent:refCont,references,name,french:frenchRef,less400,less900,css_col,css_row,show:true,time:2000,toPrint:false});
                 }
             });
         };
@@ -223,10 +224,12 @@ class CombineView {
 
    async printDoc({injector}:{
         injector:HTMLElement,
+        
        
 
     }): Promise<{injector:HTMLElement,mainResume:mainResumeType,mainRefs:mainResumeRefType[],mainLetters:mainIntroLetterType[],mainCont:HTMLElement}>{
         const mainResume=this._mainResume;
+        const {french}=mainResume as mainResumeType;
         const mainRefs=this._mainRefs;
         const mainLetters=this._mainLetters
         const less400=window.innerWidth <400;
@@ -247,7 +250,7 @@ class CombineView {
             letCont.style.order="0";
             mainCont.appendChild(letCont);
             mainLetters.map(mainletter=>{
-                this._letterView.letterBody({parent:letCont,mainletter,less400});
+                this._letterView.letterBody({parent:letCont,mainletter,less400,french});
             });
             this._letterView.lineDivider({parent:mainCont,width:45,color:"lightblue",height:"2px",order:2,position:"flex-start"});
             if(mainResume){
@@ -259,12 +262,12 @@ class CombineView {
                     order:3,
                     less400
                 });
-                this._viewResume.showCombined({parent:resCont,resume:mainResume.resume,showHeader:false,isPrint:true});
+                this._viewResume.showCombined({parent:resCont,resume:mainResume.resume,french,showHeader:false,isPrint:true});
             };
         }else{
              //---------------------------IF LETTER DOES NOT EXIST-------------------------//
             if(mainResume){
-                this._viewResume.showCombined({parent:resCont,resume:mainResume.resume,showHeader:true,isPrint:true});
+                this._viewResume.showCombined({parent:resCont,resume:mainResume.resume,french,showHeader:true,isPrint:true});
             };
         }
         this._letterView.lineDivider({parent:mainCont,width:45,color:"lightblue",height:"2px",order:5,position:"flex-start"});
@@ -285,7 +288,7 @@ class CombineView {
             await Promise.all( mainRefs.map(async(mainref)=>{
                 if(mainref){
                     const {name,references}=mainref;
-                    this._resumeRef.showReferences({parent:refCont,references,name,less400,less900,css_col,css_row,show:true,time:2000,toPrint:false});
+                    this._resumeRef.showReferences({parent:refCont,references,name,french,less400,less900,css_col,css_row,show:true,time:2000,toPrint:false});
                 }
             }));
         };

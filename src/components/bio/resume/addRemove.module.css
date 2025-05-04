@@ -77,7 +77,25 @@
   max-width: 70px;
   width: 100%;
   text-wrap: wrap;
-  transform: translate(20px, 30px) scale(0.6);
+  transform: translate(-5px, 30px) scale(0.6);
+}
+.addEducationCont {
+  display: flex;
+  flex-direction: column;
+  position: absolute;
+  top: 0%;
+  left: 0%;
+  background-color: rgba(153, 205, 50, 0.657);
+  z-index: 200;
+  color: blue;
+  border-radius: 10px;
+  padding: 2px;
+  gap: 0.5rem;
+  box-shadow: 1px 1px 10px 1px blue;
+  max-width: 70px;
+  width: 100%;
+  text-wrap: wrap;
+  transform: translate(50px, 30px) scale(0.6);
 }
 .addReflink {
   display: flex;
@@ -133,6 +151,9 @@
   .addExperienceCont {
     transform: translate(0px, -10px) scale(0.7);
   }
+  .addEducationCont {
+    transform: translate(50px, -10px) scale(0.7);
+  }
   .contRmEducAchiev {
     transform: translate(20px, 0px) scale(0.45);
   }
@@ -148,7 +169,10 @@
 }
 @media screen and (max-width: 400) {
   .addExperienceCont {
-    transform: translate(-150px, 10px) scale(0.5);
+    transform: translate(0px, 10px) scale(0.5);
+  }
+  .addEducationCont {
+    transform: translate(50px, 10px) scale(0.5);
   }
   .contRmEducAchiev {
     transform: translate(20px, -10px) scale(0.36);

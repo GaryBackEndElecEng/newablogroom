@@ -12,8 +12,8 @@ generator client {
 
 datasource db {
   provider = "postgresql"
-  // url      = env("localDB")
-  url      = env("DATABASE_URL_AWS")
+  url      = env("localDB")
+  // url      = env("DATABASE_URL_AWS")
 }
 
 model Account {
@@ -318,24 +318,26 @@ model DevDeployimg {
 
 //BIO PORTFOLIO
 model Resume {
-  id      Int     @id @unique @default(autoincrement())
-  user    User    @relation(fields: [user_id], references: [id], onDelete: Cascade)
+  id      Int      @id @unique @default(autoincrement())
+  user    User     @relation(fields: [user_id], references: [id], onDelete: Cascade)
   user_id String
-  name    String  @unique
-  enable  Boolean @default(false)
+  name    String   @unique
+  enable  Boolean  @default(false)
   resume  Json
+  french  Boolean? @default(false)
 
   @@unique([name, id])
   @@map("resume")
 }
 
 model Reference {
-  id          Int     @id @unique @default(autoincrement())
-  name        String  @unique
-  user        User    @relation(fields: [user_id], references: [id], onDelete: Cascade)
+  id          Int      @id @unique @default(autoincrement())
+  name        String   @unique
+  user        User     @relation(fields: [user_id], references: [id], onDelete: Cascade)
   user_id     String
   res_name_id String?
   reference   Json
+  french      Boolean? @default(false)
 
   @@unique([name, id])
   @@map("reference")

@@ -13,7 +13,8 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
                 select: {
                     id: true,
                     name: true,
-                    res_name_id: true
+                    res_name_id: true,
+                    french: true
                 }
             });
             if (references) {

@@ -23,6 +23,7 @@ import LetterView from '../letter/letterView';
 import MainAdvertise from '../advertisment/mainAdvertise';
 import ModSelector from '@/components/editor/modSelector';
 import Dataset from '@/components/common/dataset';
+import AuthService from '@/components/common/auth';
 
 
 
@@ -39,6 +40,12 @@ export default function Index({ user }: { user: userType | null }) {
                     const dataset = new Dataset();
                     const modSelector = new ModSelector(dataset)
                     const service = new Service(modSelector);
+                    const auth = new AuthService(modSelector, service);
+                    auth.confirmUser({ user: user as userType, count: countRef.current }).then(async (res) => {
+                        if (res) {
+                            countRef.current++;
+                        }
+                    });
                     const advertise = new MainAdvertise();
                     const pageTracker = new PageHistory();
                     const addRemove = new AddRemove(user);
@@ -48,7 +55,7 @@ export default function Index({ user }: { user: userType | null }) {
                     const moduleConnect = new ModuleConnect(service, user)
                     const formComp = new FormComponents(addRemove);
                     const formLetComp = new FormLetComponents(addLetRemove);
-                    const viewRef = new ViewReference(service, deleteClass);
+                    const viewRef = new ViewReference(service, deleteClass, user);
                     const editRef = new EditReference(service, formComp, user, viewRef);
                     const createRef = new CreateRef(service, formComp, viewRef, user);
                     const viewResume = new ViewResume(service, viewRef, deleteClass);

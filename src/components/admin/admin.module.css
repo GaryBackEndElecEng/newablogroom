@@ -1,0 +1,48 @@
+.getResumes {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  width: 100% !important;
+}
+.resumeRow {
+  display: flex;
+  width: 100% !important;
+  flex-wrap: wrap;
+  gap: 1rem;
+}
+
+.resumeCol {
+  margin-inline: 0;
+  flex: 1 0 auto;
+  padding: 1rem;
+  width: 25% !important;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  background-color: black;
+  color: white;
+  border-radius: 8px;
+}
+.resumeCol > div {
+  display: flex;
+  align-items: center;
+  align-self: flex-start;
+  justify-content: center;
+  width: 100% !important;
+}
+
+@media screen and (max-width: 400) {
+  .resumeRow {
+    flex-direction: column;
+    align-items: center;
+    margin-block: 1rem;
+    padding: 0.75rem;
+  }
+  .resumeRow > div {
+    width: 100% !important;
+    align-items: center;
+  }
+}

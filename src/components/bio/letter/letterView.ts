@@ -1,7 +1,8 @@
 
-import { contactType, letterType, mainIntroLetterType, paragraphType, signatureType } from "../resume/refTypes";
+import { companyLetType, contactType, letterType, mainIntroLetterType, paragraphType, signatureType } from "../resume/refTypes";
 import styles from "./letter.module.css"
 import Resume from "../resume/resume";
+import { langConversion } from "../resume/engFre";
 
 
 class LetterView{
@@ -11,7 +12,7 @@ private _paragraph:paragraphType;
 private _paragraphs:paragraphType[];
 public contact:contactType;
 public signed:signatureType;
-
+public company:companyLetType;
 
     constructor(){
         this._mainIntroLetter={} as mainIntroLetterType;
@@ -27,6 +28,11 @@ public signed:signatureType;
             cell:"",
             email:""
         };
+        this.company={
+            name:"",
+            loc:undefined,
+            site:undefined
+        }
         
         this.contact={
             name:"Gary Wallace",
@@ -42,6 +48,7 @@ public signed:signatureType;
             to:"",
             position:"",
             contact:this.contact,
+            company:this.company,
             summary:"Executed timings are critical and hard to organize these injected methods during asynchronous executable events. To better organize on methods, as well as effectively transfer data from one getter/setter, housed within a class to another getter/setter in another class is to use imported functions. This method can save headaches and pain , when synchronizing data and method integration. You can apply this method for any function and or method. What's powerful about this approach is that you don't need to worry about executing follow-up function or organize timings to when they should be executed. This increases compact efficiencies to when coding. Additionally, this method is much easier than using React methods on function imports, when programming with TypeScript. This method is similar to React.node, children method for parent layouts",
             paragraphs:[this._paragraph],
             conclusion:"",
@@ -71,21 +78,21 @@ public signed:signatureType;
     };
     ///-----------------GETTERS SETTERS----------------------//
     //---------------//-GETS mainletter FILE FROM THE URL\\------------///
-    main({parent,mainletter,showToPrint}:{parent:HTMLElement,mainletter:mainIntroLetterType|null,showToPrint:boolean}){
+    main({parent,mainletter,showToPrint,french}:{parent:HTMLElement,mainletter:mainIntroLetterType|null,showToPrint:boolean,french:boolean}){
         const mainLetter = document.createElement('div');
         mainLetter.id="main-letter-cont";
         mainLetter.className=styles.mainLetterCont;
         parent.appendChild(mainLetter);
         if(mainletter){
             this.letter=mainletter.letter;
-            this.showLetter({parent,mainletter,showToPrint});
+            this.showLetter({parent,mainletter,showToPrint,french});
         }else{
             Resume.message({parent,msg:"SORRY FILE WAS NOT FOUND",type:"warning",time:200});
         }
 
     };
 
-    showLetter({parent,mainletter,showToPrint}:{parent:HTMLElement,mainletter:mainIntroLetterType,showToPrint:boolean}){
+    showLetter({parent,mainletter,showToPrint,french}:{parent:HTMLElement,mainletter:mainIntroLetterType,showToPrint:boolean,french:boolean}){
         const less400=window.innerWidth <400;
         Resume.cleanUpById({parent,id:"main-show-letter"});
         const mainShowLetter=document.createElement("section");
@@ -94,7 +101,7 @@ public signed:signatureType;
         parent.appendChild(mainShowLetter);
         const {id,name}=mainletter;
         if(!showToPrint) this.filename({parent:mainShowLetter,id,name,less400});
-       this.letterBody({parent:mainShowLetter,mainletter,less400});
+       this.letterBody({parent:mainShowLetter,mainletter,less400,french});
        if(showToPrint){
 
            const btnRow=document.createElement("div");
@@ -136,17 +143,61 @@ public signed:signatureType;
 
     };
 
-    letterBody({parent,mainletter,less400}:{parent:HTMLElement,mainletter:mainIntroLetterType,less400:boolean}){
+    letterBody({parent,mainletter,less400,french}:{parent:HTMLElement,mainletter:mainIntroLetterType,less400:boolean,french:boolean}){
         const {letter,res_name_id:filename}=mainletter;
-        const {contact,summary,conclusion,paragraphs,to,signature,position}=letter
+        const {contact,summary,company,conclusion,paragraphs,to,signature,position}=letter
         this.contactHeader({parent,contact,position,filename,order:0,less400});
         this.lineDivider({parent,width:47,color:"blue",height:"3px",order:1,position:"flex-start"});
-        this.toWhom({parent,to,order:2,less400});
-        this.summary({parent,summary,order:3,less400});
-        this.paraBody({parent,paragraphs,order:4,less400});
-        this.conclusion({parent,conclusion,order:5,less400});
-        this.signature({parent,signature,order:6,less400});
-    }
+        this.companyHeader({parent,company,less400,french,order:2});
+        this.toWhom({parent,to,order:3,less400});
+        this.summary({parent,summary,order:4,less400});
+        this.paraBody({parent,paragraphs,order:5,less400});
+        this.conclusion({parent,conclusion,order:6,less400});
+        this.signature({parent,signature,order:7,less400});
+    };
+
+    companyHeader({parent,company,less400,french,order}:{parent:HTMLElement,company:companyLetType|undefined,less400:boolean,french:boolean,order:number}){
+
+        if(company){
+            const companyCont=document.createElement("div");
+            companyCont.id="company-cont";
+            companyCont.className=styles.companyCont;
+            companyCont.style.order=String(order);
+            parent.appendChild(companyCont);
+            for(const [key,value] of Object.entries(company)){
+                if(value && typeof(value)==="string"){
+
+                    if(key==="name"){
+                        const div=document.createElement("div");
+                       
+                        const span=document.createElement("span");
+                        span.textContent=french ? langConversion({key:"coName"}) : "Co:"
+                        const h6=document.createElement("h6");
+                        h6.className="text-primary lean";
+                        h6.textContent=value
+                        div.appendChild(span);
+                        div.appendChild(h6);
+                        companyCont.appendChild(div);
+                    }else{
+                        const div=document.createElement("div");
+                        
+                        const span1=document.createElement("span");
+                        span1.style.cssText="order:0";
+                        span1.textContent=french ? `${langConversion({key})}: ` : `${key}: `;
+                        const span2=document.createElement("span");
+                        span2.style.cssText="order:1";
+                        span2.textContent=value;
+                        div.appendChild(span1);
+                        div.appendChild(span2);
+                        companyCont.appendChild(div);
+                    }
+                }
+            }
+
+            parent.appendChild(companyCont);
+        }
+
+    };
 
     contactHeader({parent,contact,position,filename,order,less400}:{parent:HTMLElement,contact:contactType,filename:string|undefined,order:number,less400:boolean,position:string}){
         const contactHeader=document.createElement("div");
@@ -170,52 +221,64 @@ public signed:signatureType;
         rightSide.className=styles.contactHeaderColRight;
        
         row.appendChild(rightSide);
-
+        let count=0;
         //LEFTSIDE
+        const name=document.createElement("h6");
+        name.className="text-primary lean display-6";
+        name.id="full-name";
+        name.textContent=contact.name;
+        name.style.order="-1";
+        name.style.marginBottom="0.75rem";
+        leftSide.appendChild(name);
         for(const [key,value] of Object.entries(contact)){
-            if(key==="name"){
-                const name=document.createElement("h6");
-                name.className="text-primary lean display-6";
-                name.id="full-name";
-                name.textContent=value;
-                name.style.order="0";
-                name.style.marginBottom="0.75rem";
-                leftSide.appendChild(name);
-            }else if(key==="address"){
-                const address=document.createElement("p");
-                address.id="address";
-                address.textContent=value;
-                address.style.order="1";
-                address.style.lineHeight="0.5rem";
-                leftSide.appendChild(address);
-            }else if(key==="city"){
-                const city=document.createElement("p");
-                city.id="city-name";
-                city.textContent=value;
-                city.style.order="2";
-                city.style.lineHeight="0.5rem";
-                leftSide.appendChild(city);
-            }else if(key==="PO"){
-                const PO=document.createElement("p");
-                PO.id="PO";
-                PO.textContent=value;
-                PO.style.order="3";
-                PO.style.lineHeight="0.5rem";
-                leftSide.appendChild(PO);
-            }else if(key==="cell"){
-                const cell=document.createElement("p");
-                cell.id="cell";
-                cell.textContent=value;
-                cell.style.order="4";
-                cell.style.lineHeight="0.5rem";
-                leftSide.appendChild(cell);
-            }else{
-                const email=document.createElement("p");
-                email.id="email";
-                email.textContent=value;
-                email.style.order="5";
-                email.style.lineHeight="0.5rem";
-                leftSide.appendChild(email);
+            if(key !=="id" && key !=="name"){
+
+                if(key==="address"){
+                    const address=document.createElement("p");
+                    address.id="address";
+                    address.textContent=value;
+                    address.style.order="1";
+                    address.style.lineHeight="0.5rem";
+                    leftSide.appendChild(address);
+                   
+                }else if(key==="city"){
+                   
+                    const city=document.createElement("p");
+                    city.id="city-name";
+                    city.textContent=value;
+                    city.style.order="3";
+                    city.style.lineHeight="0.5rem";
+                    leftSide.appendChild(city);
+                   
+                }else if(key==="PO"){
+                   
+                    const PO=document.createElement("p");
+                    PO.id="PO";
+                    PO.textContent=value;
+                    PO.style.order="4";
+                    PO.style.lineHeight="0.5rem";
+                    leftSide.appendChild(PO);
+                  
+                }else if(key==="cell"){
+                   
+                    const cell=document.createElement("p");
+                    cell.id="cell";
+                    cell.textContent=value;
+                    cell.style.order="5";
+                    cell.style.lineHeight="0.5rem";
+                    leftSide.appendChild(cell);
+                    
+                }else{
+                   
+                    const email=document.createElement("p");
+                    email.id="email";
+                    email.textContent=value;
+                    email.style.order="6";
+                    email.style.lineHeight="0.5rem";
+                    leftSide.appendChild(email);
+                   
+                }
+                count++;
             }
         };
         //LEFTSIDE
@@ -276,9 +339,6 @@ public signed:signatureType;
         summaryCont.style.width="100%";
         summaryCont.style.order=String(order);
         const para=document.createElement("p");
-        para.style.cssText="margin-inline:auto;text-indent:2rem;text-wrap:pretty;";
-        para.style.paddingInline=less400 ? "0.5rem":"1rem";
-        para.style.letterSpacing="0.15rem";
         para.textContent=summary;
         summaryCont.appendChild(para);
         parent.appendChild(summaryCont);
@@ -316,9 +376,6 @@ public signed:signatureType;
             if(text){
                 const para=document.createElement("p");
                 para.id="para-content-"+String(index);
-                para.style.cssText="align-self:start;justify-self:start;text-indent:2rem;";
-                para.style.paddingInline=less400 ? "0.5rem":"1rem";
-                para.style.letterSpacing="0.15rem";
                 para.textContent=text.para;
                 paragraphCont.appendChild(para);
             }

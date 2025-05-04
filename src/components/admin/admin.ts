@@ -8,27 +8,42 @@ import Nav from "../nav/headerNav";
 import {FaCreate} from '@/components/common/ReactIcons';
 import { FaCrosshairs } from "react-icons/fa";
 import { getErrorMessage } from "@/lib/errorBoundaries";
+import { mainResumeStrType, mainResumeType } from "../bio/resume/refTypes";
+import styles from "./admin.module.css";
 
 
 
 class Admin{
+    public viewPortId:string;
     private _info:infoType2;
    private _adminimgs:adminImageType[];
    private _pagecounts:pageCountType[];
    private _admin:userType;
    private _posts:postType[];
    private _blogs:blogType[];
+   private _resumes:mainResumeType[];
    private _messages:messageType[];
    public readonly btnColor:string="#0C090A";
    public readonly logo:string="./images/gb_logo.png";
     nofilePara:string=" no files";
     constructor(private _service:Service,private _modSelector:ModSelector,private _user:User,private _users:userType[],admin:userType|null){
+        this.viewPortId="viewport";
         this.logo="./images/gb_logo.png";
         this.btnColor="#0C090A";
         this._adminimgs=[] as adminImageType[];
         this._messages=[];
         this.posts=[] as postType[];
         this.blogs=[] as blogType[];
+        const mainResumeArr:mainResumeType[]=[];
+        this._users.map(user=>{
+            if(user?.resumes){
+                 (user.resumes as mainResumeStrType[]).map(_resume=>{
+                    const mainRes={..._resume,resume:JSON.parse(_resume.resume)} as mainResumeType;
+                    mainResumeArr.push(mainRes);
+                }) ;
+            }
+        });
+        this._resumes=mainResumeArr;
         this._users.map(user=>{
             if(user){
                 this._posts=this._posts.concat(user.posts);
@@ -101,6 +116,12 @@ class Admin{
     set adminuser(user:userType){
         this._admin=user;
     }
+    get resumes(){
+        return this._resumes;
+    };
+    set resumes(resumes:mainResumeType[]){
+        this._resumes=resumes;
+    };
     get users(){
         return this._users
     }
@@ -155,7 +176,7 @@ class Admin{
         mainContainer.style.cssText=css;
         mainContainer.style.padding=less900 ? (less400 ? "0rem":"0.5rem"):"1rem";
         const viewport=document.createElement("div");
-        viewport.id="viewport";
+        viewport.id=this.viewPortId;
         viewport.style.cssText=css + "margin-inline:auto; width:100%;min-height:70vh;padding-inline:auto;box-shadow:1px 1px 12px 1px white;backdrop-filter:blur(4px);";
         const btnContainer=document.createElement("div");
         btnContainer.id="btnContainer";
@@ -204,6 +225,18 @@ class Admin{
                             }
                         });
                     }
+                }
+            };
+        const {button:resumeBtn}=Misc.simpleButton({anchor:btnContainer,text:"open resumes",type:"button",time:400,bg:this.btnColor,color:"white"});
+            resumeBtn.onclick=(e:MouseEvent)=>{
+                if(e){
+                    //GET USERS
+                    console.log("clicked")
+                    // resumeBtn.disabled=true;
+                    // setTimeout(()=>{usersBtn.disabled=false;},1000);
+                    this.openClean({parent:viewport});
+                   this.getResumes({parent:viewport,mainResumes:this.resumes});
+                  
                 }
             };
         const {button:usersBtn}=Misc.simpleButton({anchor:btnContainer,text:"open users",type:"button",time:400,bg:this.btnColor,color:"white"});
@@ -339,10 +372,57 @@ class Admin{
             {name:"search image",id:"searchImg-container"},
             {name:"search user",id:"userSearch-container"},
             {name:"info container",id:"infoForm-container"},
+            {name:"resumes",id:"get-resumes"},
         ]
         IDs.map(item=>{
             Header.cleanUpByID(parent,item.id);
         });
+    };
+
+    getResumes({parent,mainResumes}:{parent:HTMLElement,mainResumes:mainResumeType[]}){
+        if(mainResumes?.length && mainResumes.length>0){
+
+            const container=document.createElement("div");
+            container.id="resume-cont";
+            container.id="get-resumes";
+            container.className=styles.getResumes;
+            parent.appendChild(container);
+            const row=document.createElement("div");
+            row.id="resume-row";
+            row.className=styles.resumeRow;
+            mainResumes.map((mainResume,index)=>{
+                this.Resume({row,mainResume,index});
+            });
+            container.appendChild(row);
+        }
+    };
+
+    Resume({row,mainResume,index}:{row:HTMLElement,mainResume:mainResumeType,index:number}){
+        const {resume,name}=mainResume;
+        const {contact}=resume;
+        const col=document.createElement("div");
+        col.id="row-col-" + String(index);
+        col.className=styles.resumeCol;
+        const h6=document.createElement("h6");
+        h6.className="text-primary lean my-1 mb-2";
+        h6.style.cssText="font-size:110%;"
+        h6.id="col-h6";
+        h6.textContent=name;
+        col.appendChild(h6);
+        for(const [key,value] of Object.entries(contact)){
+            const innerRow=document.createElement("div");
+            const h6=document.createElement("h6");
+            h6.style.cssText="color:blue";
+            h6.textContent=key;
+            const para=document.createElement("p");
+            para.textContent=value;
+            innerRow.appendChild(h6);
+            innerRow.appendChild(para);
+            col.appendChild(innerRow);
+
+        };
+        row.appendChild(col);
+
     }
 
   

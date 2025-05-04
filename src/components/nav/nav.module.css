@@ -107,7 +107,7 @@
   }
   .pageCountMain {
     left: auto;
-    transform: scale(0.6);
+    transform: scale(0.5);
     flex-wrap: nowrap !important;
   }
   .middleLogoMain {

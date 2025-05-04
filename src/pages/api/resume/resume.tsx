@@ -9,7 +9,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     if (req.method === "POST") {
         const mainResume = req.body as mainResumeType;
         if (!mainResume) return res.status(400).json({ msg: "nothing recieved" });
-        const { id, name, resume, user_id } = mainResume;
+        const { id, name, resume, user_id, french } = mainResume;
         resume.id = id
         try {
             if (!name) return res.status(400).json({ msg: "no name ID" }); await prisma.$disconnect();
@@ -18,16 +18,18 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
                 create: {
                     name,
                     user_id,
+                    french,
                     resume: JSON.stringify(resume),
                 },
                 update: {
+                    french,
                     resume: JSON.stringify(resume),
                 }
             });
             if (getresume) {
-                const { id, name, resume } = getresume;
+                const { id, name, resume, french } = getresume;
                 const _resume = JSON.parse(resume as string) as resumeType;
-                const convert = { id, name, user_id, resume: { ..._resume, id, name } };
+                const convert = { id, name, user_id, resume: { ..._resume, id, name }, french };
                 res.status(200).json(convert);
                 return await prisma.$disconnect()
             } else {
@@ -83,15 +85,15 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 export function convertResume({ resumestr }: { resumestr: mainResumeStrType }): mainResumeType | undefined {
     if (!resumestr) return;
     try {
-        const { id, name, user_id, resume } = resumestr;
+        const { id, name, user_id, resume, french } = resumestr;
         const _resume: resumeType = JSON.parse(resume) as resumeType;
 
         const resume_: resumeType = {
             ..._resume,
             id,
-            name,
+            name
         };
-        return { id, name, user_id, resume: resume_ } as mainResumeType
+        return { id, name, user_id, resume: resume_, french } as mainResumeType
     } catch (error) {
         const msg = getErrorMessage(error);
         console.log(msg)

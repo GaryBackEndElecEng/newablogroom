@@ -39,7 +39,7 @@
   page-break-after: always;
 }
 .resCont p {
-  letter-spacing: 0.125rem;
+  letter-spacing: 0.035rem !important;
 }
 .refCont {
   display: flex;

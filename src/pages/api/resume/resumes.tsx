@@ -13,7 +13,8 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
                 where: { user_id },
                 select: {
                     id: true,
-                    name: true
+                    name: true,
+                    french: true
                 }
             });
             if (getResumes) {

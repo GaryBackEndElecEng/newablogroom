@@ -21,9 +21,9 @@ class ModuleConnect {
         this.rowId="";
         this.containerId="";
         this._combined={} as combinedType;
-        const nameResumes=this._user ? this._user.resumes.map(kv=>({id:kv.id as number,enable:kv.enable,user_id:kv.user_id,name:kv.name})):[] as nameResumeType[]
+        const nameResumes=this._user ? this._user.resumes.map(kv=>({id:kv.id as number,enable:kv.enable,user_id:kv.user_id,name:kv.name,french:kv.french})):[] as nameResumeType[]
         this._nameResumes=nameResumes;
-        const nameRefs_= this._user ? this._user.references.map(kv=>({id:kv.id as number,user_id:kv.user_id,name:kv.name,res_name_id:kv.res_name_id})):[] as nameRefType[];
+        const nameRefs_= this._user ? this._user.references.map(kv=>({id:kv.id as number,user_id:kv.user_id,name:kv.name,res_name_id:kv.res_name_id,french:kv.french})):[] as nameRefType[];
         this._nameRefs=nameRefs_;
         const nameLetters=this._user ? this._user.letters.map(kv=>({id:kv.id as number,user_id:kv.user_id,name:kv.name,res_name_id:kv.res_name_id})):[] as nameLetterType[]
         this._nameLetters=nameLetters;
@@ -166,7 +166,6 @@ class ModuleConnect {
     linkNames({parent,order,nameResumes,french}:{parent:HTMLElement,order:number,nameResumes:nameResumeType[],french:boolean}){
         const col=document.createElement("div");
         col.id="col-link-names";
-        // col.className=styles.linkNamesCont;
         col.className=styles.colCont;
         const name=document.createElement("h6");
         name.className="text-center text-primary lean my-1 mb-2 justify-self-start";
@@ -351,7 +350,7 @@ class ModuleConnect {
         select.className=styles.select;
         cont.appendChild(select);
         const len=nameresumes?.length ||1;
-        const _cat=[{id:0,name:"select",enable:false,user_id:this.user?.id as string},{id:len+1,name:"detach",enable:false,user_id:this.user?.id as string}];
+        const _cat=[{id:0,name:"select",enable:false,user_id:this.user?.id as string,french:false},{id:len+1,name:"detach",enable:false,user_id:this.user?.id as string,french:false}];
         const _nameresumes=nameresumes.concat(_cat);
         _nameresumes.toSorted((a,b)=>{if(a.id <b.id) return -1;return 1}).map((resname,index)=>{
             const option=document.createElement("option");

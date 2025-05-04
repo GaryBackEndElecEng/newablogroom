@@ -1,7 +1,8 @@
 import EditResume from "../resume/editResume";
 import { langConversion, langInserts } from "../resume/engFre";
-import {  letterType, } from "../resume/refTypes";
+import {  companyLetType, letterType, } from "../resume/refTypes";
 import Resume from "../resume/resume";
+import ViewResume from "../resume/viewResume";
 import AddRemoveLet from "./addRemoveLet";
 import styles from "./letter.module.css";
 
@@ -80,6 +81,74 @@ formPara({parent,letter,key,order,less400,french}:{parent:HTMLElement,letter:let
 
 
 
+formCompany({parent,letter,order,less400,french}:{parent:HTMLElement,letter:letterType,order:number,less400:boolean,french:boolean}):letterType{
+        parent.style.position="relative";
+        const companyCont=document.createElement("div");
+        companyCont.id="particular-cont";
+        companyCont.className=styles.css_col;
+        companyCont.style.marginBlock="1.5rem";
+        companyCont.style.order=String(order);
+        const name=document.createElement("h6");
+        name.textContent=french ? langConversion({key:"company"}):"company";
+        name.className="text-primary text-center mb-2 lean display-6";
+        name.style.fontSize=less400 ? "150%":"180%";
+        parent.appendChild(companyCont);
+        ViewResume.division({parent:companyCont,position:"start",width:26});
+        companyCont.appendChild(name);
+        const row=document.createElement("div");
+        row.className=styles.contactRow;
+        companyCont.appendChild(row);
+       const company=letter.company as companyLetType;
+      
+        for(const [contKey,value] of Object.entries(company)){
+            if( contKey !=="id"){
+                const {input,label,formGrp}=EditResume.inputComponent(row);
+                formGrp.className=styles.contactCol;
+                formGrp.style.flex=less400 ? "none":"1 1 50%";
+                formGrp.style.width=less400 ? "100%":"50%";
+                formGrp.classList.add("form-group");
+                formGrp.style.gap=less400 ? "0.75rem":"1rem";
+                label.classList.add("text-primary");
+                label.classList.add("text-center");
+                label.style.textTransform="uppercase";
+                if(contKey==="name"){ formGrp.style.order="0";};
+                if(contKey==="loc") {formGrp.style.order="1";};
+                if(contKey==="site") {formGrp.style.order="2";};
+               
+                input.id=`company-${contKey}`;
+                input.name="let-contact- company" + "-" + contKey;
+                input.value=value as string;
+                input.style.width="100%";
+                input.placeholder=langInserts({french,key:contKey}).place;
+                input.type=langInserts({french,key:contKey}).type;
+                label.setAttribute("for",input.id);
+                label.textContent=french ? langConversion({key:contKey}):contKey;
+                input.oninput=(e:Event)=>{
+                    if(!e) return;
+                    const value1=(e.currentTarget as HTMLInputElement).value;
+                    switch(true){
+                        case contKey==="name":
+                            (letter.company as companyLetType).name=value1;
+                        break;
+                        case contKey==="loc":
+                            (letter.company as companyLetType).loc=value1;
+                        break;
+                        case contKey==="site":
+                            (letter.company as companyLetType).site=value1;
+                        break;
+                        
+                        default:
+                            break;
+                    }
+                };
+            };
+            
+        };
+        return letter
+};
+
+
+
 formContact({parent,letter,key,order,less400,french}:{parent:HTMLElement,letter:letterType,key:string,order:number,less400:boolean,french:boolean}):letterType{
         parent.style.position="relative";
         const contactCont=document.createElement("div");
@@ -91,8 +160,9 @@ formContact({parent,letter,key,order,less400,french}:{parent:HTMLElement,letter:
         name.textContent=key;
         name.className="text-primary text-center mb-2 lean display-6";
         name.style.fontSize=less400 ? "150%":"180%";
-        contactCont.appendChild(name);
         parent.appendChild(contactCont);
+        ViewResume.division({parent:contactCont,position:"start",width:26});
+        contactCont.appendChild(name);
         const row=document.createElement("div");
         row.className=styles.contactRow;
         contactCont.appendChild(row);
@@ -201,6 +271,7 @@ rowToPosition({parent,letter,less400,order,french}:{parent:HTMLElement,letter:le
     const row=document.createElement("div");
     row.id="row-to-position";
     row.className=styles.css_row;
+    ViewResume.division({parent:parent,position:"start",width:26});
     parent.appendChild(row);
     letter=this.formTo({parent:row,letter,key:"to",order,less400,french});
     letter=this.formPosition({parent:row,letter,key:"position",order:order+1,less400,french});

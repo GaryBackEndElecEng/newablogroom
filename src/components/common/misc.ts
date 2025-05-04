@@ -93,8 +93,7 @@ class Misc{
     public static readonly newBlogImg="/images/newBlogImg.png";
     public static providersImgs:providerSigninType[]=[
         {id:"",name:"google",img:"/images/providers/gmail.png"},
-        {id:"",name:"facebook",img:"/images/providers/facebook.png"},
-        {id:"",name:"instragramProvider",img:"/images/providers/instagram.png"}
+      
     ]
     public static words:string[]=["The sky", "above", "the port","was", "the color of television", "tuned", "to", "a dead channel", ".", "All", "this happened", "more or less","." ,"I", "had", "the story", "bit by bit", "from various people", "and", "as generally", "happens", "in such cases", "each time", "it", "was", "a different story","." ,"It", "was", "a pleasure", "to", "burn"]
     public static bgColor:string="#34282C";

@@ -79,7 +79,8 @@ async function saveRefs({ nameRefs }: { nameRefs: nameRefType[] }): Promise<name
                 id: true,
                 name: true,
                 user_id: true,
-                res_name_id: true
+                res_name_id: true,
+                french: true
             }
         });
         if (nameRef_) {
@@ -110,7 +111,8 @@ async function saveResumes({ nameResumes }: { nameResumes: nameResumeType[] }): 
                 id: true,
                 name: true,
                 user_id: true,
-                enable: true
+                enable: true,
+                french: true
             }
         });
         await prisma.$disconnect()

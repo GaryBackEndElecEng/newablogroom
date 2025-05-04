@@ -1,3 +1,4 @@
+import { blogType, postType, userDevelopType, userQuoteType } from "@/components/editor/Types";
 import { IconType } from "react-icons";
 
 export type accountType={
@@ -36,6 +37,10 @@ export type userType={
     bio?:string,
     accounts:accountType[],
     sessions:sessionType[],
+    blogs:blogType[],
+    posts:postType[],
+    devDeployimgs:userDevelopType[],
+    quoteImgs:userQuoteType[],
     letters:mainIntroLetterStrType[]|mainIntroLetterType[],
     resumes:mainResumeStrType[] |mainResumeType[],
     references:mainResumeRefType[] | resumeRefStrType[],
@@ -123,14 +128,16 @@ export type mainResumeType={
     name:string,
     enable:boolean,
     user_id:string,
-    resume:resumeType
+    resume:resumeType,
+    french:boolean
 }
 export type mainResumeStrType={
     id?:number,
     name:string,
     enable:boolean,
     user_id:string,
-    resume:string
+    resume:string,
+    french:boolean
 };
 export type resumeRefType={
     id:number,
@@ -146,13 +153,16 @@ export type mainResumeRefType={
     id?:number,
     name:string,
     user_id:string,
+    french:boolean,
     res_name_id?:string,
     references:resumeRefType[]
 }
+
 export type resumeRefStrType={
     id?:number,
     name:string,
     user_id:string,
+    french:boolean,
     res_name_id?:string,
     reference:string
 }
@@ -180,12 +190,14 @@ export type nameResumeType={
     id:number,
     name:string,
     user_id:string,
-    enable:boolean
+    enable:boolean,
+    french:boolean,
 };
 export type nameRefType={
     id:number,
     name:string,
     user_id:string,
+    french:boolean,
     res_name_id?:string|null
 };
 export type insertType={key:string,type:string,place:string,placeFr:string};
@@ -259,12 +271,18 @@ export type signatureType={
     cell:string,
     email:string,
 }
+export type companyLetType={
+    name:string,
+    loc?:string,
+    site?:string
+}
 export type letterType={
     res_name_id?:string,
     filename:string,
     to:string,
     contact:contactType,
     position:string,
+    company?:companyLetType,
     summary:string,
     paragraphs:paragraphType[],
     conclusion:string,

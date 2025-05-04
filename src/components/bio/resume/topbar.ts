@@ -38,7 +38,7 @@ class Topbar{
     public titleId:string;
     public titleName:string;
 
-    constructor(private _service:Service, private _user:userType|null,public resumeRef:Reference,public viewResume:ViewResume,public createResume:CreateResume,private createRef:CreateRef,private letterEditor:LetterEditor,private _moduleConnect:ModuleConnect,private editRef:EditReference,private _editResume:EditResume,private letterView:LetterView){
+    constructor(private _service:Service, private _user:userType|null,public resumeRef:Reference,public viewResume:ViewResume,public createResume:CreateResume,private createRef:CreateRef,private letterEditor:LetterEditor,private _moduleConnect:ModuleConnect,private editRef:EditReference,private _editResume:EditResume,public letterView:LetterView){
         this._nameResumes=[] as nameResumeType[];
         this._nameRefs=[] as nameRefType[];
         this._nameLetters=[] as nameLetterType[];
@@ -155,6 +155,14 @@ class Topbar{
         this.titleId=titleId;
         this.titleName=titleName;
         this.user=user;
+        //RENEWING DELETE CLASS DATA AFTER REFRESHING
+        this.viewResume.deleteClass.mainResumes=mainResumes;
+        this.viewResume.deleteClass.nameResumes=nameResumes;
+        this.resumeRef.deleteClass.mainRefs=mainRefs;
+        this.resumeRef.deleteClass.nameRefs=nameRefs;
+        this.resumeRef.deleteClass.mainLets=mainLetters;
+        this.letterEditor.deleteClass.nameLets=nameLetters;
+        this.letterEditor.deleteClass.mainLets=mainLetters;
         // this.mainLetters=mainLetters
         
       
@@ -226,6 +234,9 @@ class Topbar{
         const hasLetters=!!(nameLetters?.length && nameLetters.length>0);
         const hasRefs=!!(nameRefs?.length && nameRefs.length>0);
         const hasResumes=!!(nameResumes?.length && nameResumes.length>0);
+        this.mainResumes=mainResumes;
+        this.nameRefs=nameRefs;
+        this.nameLetters=nameLetters;
         topbarCats.forEach((item) => {
             if (item) {
                 const { name,nameFr, html, order } = item;
@@ -233,7 +244,7 @@ class Topbar{
                 if (name === "resumes") {
                     if(hasResumes){
 
-                        this.nameResumes.map((_res) => {
+                        nameResumes.map((_res) => {
                             if (_res) {
                                 const {name:_name}=_res;
                                 const { button } = Resume.simpleButton({ anchor: html, bg: "black", color: "white", text: _name, time: 400, type: "button"});
@@ -253,15 +264,19 @@ class Topbar{
                                                 const mainResume=mainResumes.find(res=>(res.name===_res.name));
                                                 if(!mainResume) return;
                                                 this.viewResume.showResume({ parent: openCont,mainResume,french,
-                                                    func1:async()=>{
-                                                        this.mainResumes=this.mainResumes.filter(kv=>(kv.id !==mainResume.id))
+                                                    func1:async(mainResumes,nameResumes)=>{
+                                                        
+                                                        this.nameResumes=nameResumes;
+                                                        this.mainResumes=mainResumes;
+                                                        this._editResume.mainResumes=mainResumes;
+                                                        this.viewResume.mainResumes=mainResumes;
                                                         await this.getTopBar({
                                                             parent,
                                                             mainContainer,
                                                             titleName:this.titleName,
                                                             titleId:this.titleId,
                                                             less400,
-                                                            mainResumes:this.mainResumes,
+                                                            mainResumes,
                                                             mainRefs:this.mainRefs,
                                                             mainLetters:this.mainLetters,
                                                             user:this.user,
@@ -313,7 +328,26 @@ class Topbar{
                                         });
                                        
                                         this.viewResume.showResume({parent:mainContainer,mainResume:mainResume,french,
-                                            func1:()=>{}
+                                            func1:async(mainResumes,nameResumes)=>{
+                                                // RESPONSE AFTER DELETING item.id +"-inner"
+                                                this.mainResumes=mainResumes;
+                                                this.nameResumes=nameResumes;
+                                                this._editResume.mainResumes=mainResumes;
+                                                this.viewResume.mainResumes=mainResumes;
+                                                //row-col-edit
+                                                await this.getTopBar({
+                                                    parent,
+                                                    mainContainer,
+                                                    titleName:this.titleName,
+                                                    titleId:this.titleId,
+                                                    less400,
+                                                    mainResumes:mainResumes,
+                                                    mainRefs:this.mainRefs,
+                                                    mainLetters:this.mainLetters,
+                                                    user:this.user,
+                                                    french
+                                                });
+                                            }
                                         });
                                     },
                                  });
@@ -397,7 +431,7 @@ class Topbar{
                 } else if (name === "References") {
                     if(hasRefs){
 
-                        this.nameRefs.forEach(name => {
+                        nameRefs.forEach(name => {
                             if (name) {
                                 const { button } = Resume.simpleButton({ anchor: html, type: "button", bg: "black", color: "white", time: 400, text: name.name });
                                 button.style.order = order;
@@ -412,10 +446,12 @@ class Topbar{
                                         backBtnId:this.backBtnId,
                                         show: true,
                                         func: (openCont) => {
-                                            this.resumeRef.main({ parent: openCont, name: name.name, less400, less900, css_col, css_row, buttonEffect: false,toPrint:true,
-                                                func1:async(mainRef)=>{
-                                                 
-                                                    this.mainRefs=this.mainRefs.filter(kv=>(kv.id !==mainRef.id));
+                                            this.resumeRef.main({ parent: openCont, name: name.name, less400, less900, css_col, css_row,french, buttonEffect: false,toPrint:true,
+                                                func1:async(mainRefs,nameRefs)=>{
+                                                    console.log("refs",mainRefs);
+                                                    console.log("nameRefs",nameRefs);
+                                                    this.mainRefs=mainRefs;
+                                                    this.nameRefs=nameRefs;
                                                     await this.getTopBar({
                                                         parent,
                                                         mainContainer,
@@ -423,7 +459,7 @@ class Topbar{
                                                         titleId:this.titleId,
                                                         less400,
                                                         mainResumes:mainResumes,
-                                                        mainRefs:this.mainRefs,
+                                                        mainRefs,
                                                         mainLetters:this.mainLetters,
                                                         user:this.user,
                                                         french
@@ -531,13 +567,13 @@ class Topbar{
                             backBtnId:this.backBtnId,
                             show: true,
                             func: (openCont) => {
-                                this.createRef.main({ parent: openCont,user:this.user,
+                                this.createRef.main({ parent: openCont,user:this.user,french,
                                     func:async(mainRefs)=>{
                                         this.mainRefs=mainRefs;
                                         this.editRef.mainRefs=mainRefs;
                                         this.resumeRef.mainResumerefs=mainRefs;
                                         this.nameRefs=mainRefs.map(kv=>(
-                                            {id:kv.id as number,name:kv.name,user_id:kv.user_id,res_name_id:kv.res_name_id}
+                                            {id:kv.id as number,name:kv.name,user_id:kv.user_id,res_name_id:kv.res_name_id,french:kv.french}
                                         ));
                                         this.resumeRef.nameRefs=this.nameRefs
                                       await this.getTopBar({
@@ -573,8 +609,9 @@ class Topbar{
                             show: true,
                             func: (openCont) => {
                                 this.letterEditor.newLetter({ parent: openCont,french,
-                                    func1:async(mainLetters)=>{
+                                    func1:async(mainLetters,nameLetters)=>{
                                         this.mainLetters=mainLetters;
+                                        this.nameLetters=nameLetters;
                                        await this.getTopBar({
                                             parent,
                                             mainContainer,
@@ -612,10 +649,12 @@ class Topbar{
                                         show: true,
                                         func: (openCont) => {
                                             this.letterEditor.editLetter({ parent: openCont, filename: name,french,
-                                                func1:async(mainLetters,mainLet)=>{
-                                                   
-                                                    if(mainLetters?.length){
-                                                        this.mainLetters=mainLetters;
+                                                func1:async(mainLetters,nameLetters)=>{
+                                                    //DELETE && SAVE
+                                                   const mainLet=this.mainLetters?.find(kv=>(kv.name===name)) as mainIntroLetterType;
+                                                   this.mainLetters=mainLetters;
+                                                   this.nameLetters=nameLetters;
+                                                  
                                                        await this.getTopBar({
                                                             parent,
                                                             mainContainer,
@@ -628,8 +667,9 @@ class Topbar{
                                                             user:this.user,
                                                             french
                                                         });
-                                                        this.letterEditor.letterView.showLetter({parent:mainContainer,mainletter:mainLet,showToPrint:false});
-                                                    }
+                                                        if(mainLet){
+                                                            this.letterEditor.letterView.showLetter({parent:mainContainer,mainletter:mainLet,showToPrint:false,french});
+                                                        }
                                                     
                                                  
                                                 }
@@ -670,7 +710,7 @@ class Topbar{
                 } else if (name === "view-letters") {
                     if(hasLetters){
 
-                        this.nameLetters.map(namelet => {
+                        nameLetters.map(namelet => {
                           
                             const {name}=namelet;
                             const { button: nameLetBtn } = Resume.simpleButton({ anchor: html, bg: "black", color: "white", text: name, time: 400, type: "button"});
@@ -688,7 +728,7 @@ class Topbar{
                                         backBtnId:this.backBtnId,
                                         show: true,
                                         func: (openCont) => {
-                                       this.letterView.main({parent:openCont,mainletter,showToPrint:false});
+                                       this.letterView.main({parent:openCont,mainletter,showToPrint:false,french});
                                         },
                                     });
 
@@ -933,7 +973,7 @@ class Topbar{
             name.style.cssText="margin-inline:auto;text-transform:uppercase;letter-spacing:0.15rem;";
             col.appendChild(name);
             const innerCol=document.createElement("div");
-            innerCol.id="inner-col";
+            innerCol.id=item.id +"-inner";
             innerCol.setAttribute(dataset,"true");
             innerCol.className=styles.innerRowCol;
             innerCol.style.order=String(order);
@@ -982,21 +1022,30 @@ class Topbar{
     }{
         
         const hasLetters=!!(mainLetters?.length);
-        const hasResumes=!!(mainResumes?.length && mainResumes.length>0);
+        const hasResumes=!!(mainResumes?.length && mainResumes.length > 0);
         const hasRefs=!!(mainRefs?.length && mainRefs.length>0);
         if(hasLetters){
             // console.log("INSIDE PICK UP>HASLETTERS",mainLetters)//works
             this._mainLetters=mainLetters ;
             this.nameLetters=this._mainLetters.map(mainL=>({id:mainL.id,name:mainL.name,user_id:mainL.user_id,res_name_id:mainL.res_name_id}));
+        }else{
+            this._mainLetters=[] as mainIntroLetterType[];
+            this.nameLetters=[] as nameLetterType[];
         }; if(hasResumes){
             this._mainResumes=mainResumes;
-            this.nameResumes=this._mainResumes.map(mainL=>({id:mainL.id as number,enable:mainL.enable,name:mainL.name,user_id:mainL.user_id}));
+            this.nameResumes=this._mainResumes.map(mainL=>({id:mainL.id as number,enable:mainL.enable,name:mainL.name,user_id:mainL.user_id,french:mainL.french}));
             
             
+        }else{
+            this.mainResumes=[] as mainResumeType[];
+            this.nameResumes=[] as nameResumeType[];
         }; if(hasRefs){
             this._mainRefs=mainRefs;
-            this.nameRefs=this._mainRefs.map(mainL=>({id:mainL.id as number,name:mainL.name,user_id:mainL.user_id,res_name_id:mainL.res_name_id}));
+            this.nameRefs=this._mainRefs.map(mainL=>({id:mainL.id as number,name:mainL.name,user_id:mainL.user_id,res_name_id:mainL.res_name_id,french:mainL.french}));
           
+        }else{
+            this.mainRefs=[] as mainResumeRefType[];
+            this.nameRefs=[] as nameRefType[];
         };
 
         return {nameLetters:this.nameLetters,nameResumes:this.nameResumes,nameRefs:this.nameRefs}

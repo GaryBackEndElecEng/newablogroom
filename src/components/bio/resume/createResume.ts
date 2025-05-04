@@ -61,7 +61,8 @@ class CreateResume {
             name:"",
             enable:false,
             user_id:this._user?.id || "" ,
-            resume:this._resume
+            resume:this._resume,
+            french:false
         };
         
     };
@@ -361,6 +362,19 @@ class CreateResume {
         input.placeholder=french && langFile ? langFile :  "file name";
         label.textContent="file name";
         label.setAttribute("for",input.id);
+         //FRENCH OR ENGLISH
+         const {input:inputIsFr,label:labelIsFr,formGrp:grpIsFr}=EditResume.inputComponent(form);
+         grpIsFr.className=styles.form;
+         grpIsFr.classList.remove("form-group");
+         formGrp.classList.add("form-group");
+         inputIsFr.id="isFr";
+         inputIsFr.classList.remove("form-control");
+         inputIsFr.name="isFr";
+         inputIsFr.type="checkbox";
+         labelIsFr.setAttribute("for",inputIsFr.id);
+         labelIsFr.textContent="French / Français ?";
+         (inputIsFr).value="false";
+         //FRENCH OR ENGLISH
         const {button}=Resume.simpleButton({anchor:form,text:"submit",bg:"black",color:"white",type:"submit",time:400});
         button.disabled=true;
         input.onchange=(e:Event)=>{
@@ -377,31 +391,31 @@ class CreateResume {
                 const rand=Math.floor(Math.random()*100);
                 const formdata=new FormData(e.currentTarget as HTMLFormElement);
                 const name=formdata.get("name") as string;
+                const isFr=Boolean(formdata.get("isFr") as string);
                 const newName=`${name.split(" ").join("_").trim()}-${rand}`;
-                resume={...resume,name:newName}
-                const res= await this.saveResume({parent,popup:msgPopup,resume:resume,user:this.user});
-                if(res){
-                    const success=langConversion({key:"success"});
-                    const msg=french ? success: "success;" 
+                resume={...resume,name:newName};
+                const mainResume:mainResumeType={id:0,name:newName,enable:false,french:isFr,user_id:this.user.id,resume};
+                await this._service.saveResume({mainResume}).then(async(res)=>{
+                    if(res){
+                        const success=langConversion({key:"success"});
+                    this.mainResume=res;
+                    const {id,name,user_id,enable,french}=this.mainResume;
+                    const msg=french ? success: "success;" ;
                     Resume.message({parent,msg,type:"success",time});
                     setTimeout(()=>{
-                        ([...innerParent.children] as HTMLElement[]).forEach(child=>{
-                            if(child && child.id===msgPopup.id){
-                                innerParent.removeChild(child);
-                            }
-                        });
+                        Resume.cleanUpById({parent:innerParent,id:msgPopup.id});
                     },time-50);
-                    this.mainResume=res;
-                    const {id,name,user_id,enable}=this.mainResume;
                     this.mainResumes=[...this.mainResumes,res];
-                    this.nameResumes=[...this.nameResumes,{id:id as number,enable,user_id,name:name}];
+                    this.nameResumes=[...this.nameResumes,{id:id as number,enable,user_id,name:name,french}];
                     //CLOSING ALL IN CREATE RESUME EXCEPT "container-row";
             
                     func(this.mainResumes,res);
-
-                }else{
-                    Resume.message({parent,msg:"not saved",type:"error",time:time*2});
-                };
+                        Resume.message({parent,msg:"saved",type:"success",time:800});
+                    }else{
+                        Resume.message({parent,msg:"not saved",type:"error",time:time*2});
+                    }
+                });
+               
                 
             }
         };

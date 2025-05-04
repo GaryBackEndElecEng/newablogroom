@@ -1,5 +1,5 @@
 import Service from "@/components/common/services";
-import { contactType, letterType, mainIntroLetterType, paragraphType, signatureType, userType } from "../resume/refTypes";
+import { companyLetType, contactType, letterType, mainIntroLetterType, nameLetterType, paragraphType, signatureType, userType } from "../resume/refTypes";
 import styles from "./letter.module.css";
 import FormLetComponents from "./formLetComponents";
 import EditResume from "../resume/editResume";
@@ -17,6 +17,7 @@ class LetterEditor{
     public readonly letterInit:letterType;
     public readonly mainLetterInit:mainIntroLetterType;
     private _mainLetters:mainIntroLetterType[];
+    private _nameLetters:nameLetterType[];
     private _letter:letterType;
     private _paragraph:paragraphType;
     public readonly paragraphInit1:paragraphType;
@@ -25,13 +26,19 @@ class LetterEditor{
     public readonly paragraphInits:paragraphType[];
     public contact:contactType;
     public signed:signatureType;
+    public company:companyLetType;
   
 
-    constructor(private _service:Service,private formLetComp:FormLetComponents,private _user:userType|null,private deleteClass:DeleteClass,public letterView:LetterView){
+    constructor(private _service:Service,private formLetComp:FormLetComponents,private _user:userType|null,public deleteClass:DeleteClass,public letterView:LetterView){
         this._mainLetter={} as mainIntroLetterType;
         this.rowId="";
         this.containerId="";
         this._mainLetters=[] as mainIntroLetterType[]
+        this.company={
+            name:"Co",
+            loc:"",
+            site:""
+        }
         this.paragraphInit1={
             id:0,
             para:"This paragraph gives a summary of your background and critical skills (hard skills) that make you qualified for the position"
@@ -64,6 +71,7 @@ class LetterEditor{
             filename:"",
             position:"what position",
             to:"",
+            company:this.company,
             contact:this.contact,
             summary:"In the opening paragraph tell what position you are applying for, then how you learned about the position.",
             paragraphs:[this._paragraph],
@@ -78,7 +86,8 @@ class LetterEditor{
             name:"",
             letter:this.letterInit
         };
-        this.mainLetters=this._user?.letters as mainIntroLetterType[]|| [] as mainIntroLetterType[];
+        this._mainLetters=this._user?.letters as mainIntroLetterType[]|| [] as mainIntroLetterType[];
+        this._nameLetters=(this._user?.letters as mainIntroLetterType[]).map(kv=>({id:kv.id,name:kv.name,user_id:kv.user_id,res_name_id:kv.res_name_id}))
     };
 
 
@@ -90,6 +99,12 @@ class LetterEditor{
         this._user=user;
         
     };
+    get nameLetters(){
+        return this._nameLetters;
+    };
+    set nameLetters(nameLetters:nameLetterType[]){
+        this._nameLetters=nameLetters;
+    }
     get mainLetter(){
         return this._mainLetter;
     };
@@ -122,7 +137,7 @@ class LetterEditor{
     }
     ///-----------------GETTERS SETTERS----------------------//
     newLetter({parent,french,func1}:{parent:HTMLElement,french:boolean,
-        func1:(mainLetters:mainIntroLetterType[],mainLet:mainIntroLetterType)=>Promise<void>|void
+        func1:(mainLetters:mainIntroLetterType[],nameLets:nameLetterType[])=>Promise<void>|void
     }){
         const time=1500;
         const mainCont=document.createElement("div");
@@ -141,7 +156,7 @@ class LetterEditor{
     
 
     editLetter({parent,filename,french,func1}:{parent:HTMLElement,filename:string,french:boolean,
-        func1:(mainLetters:mainIntroLetterType[],mainLe:mainIntroLetterType)=>Promise<void>|void
+        func1:(mainLetters:mainIntroLetterType[],nameLets:nameLetterType[])=>Promise<void>|void
     }){
        
         const isMainLetter=this._mainLetters?.find(kv=>(kv.name===filename));
@@ -162,7 +177,7 @@ class LetterEditor{
 
 
 
-    mainLetterContainer({parent,mainLetter,isNew,french,func1}:{parent:HTMLElement,mainLetter:mainIntroLetterType,isNew:boolean,french:boolean,func1:(mainLets:mainIntroLetterType[],mainLet:mainIntroLetterType)=>Promise<void>|void
+    mainLetterContainer({parent,mainLetter,isNew,french,func1}:{parent:HTMLElement,mainLetter:mainIntroLetterType,isNew:boolean,french:boolean,func1:(mainLets:mainIntroLetterType[],nameLet:nameLetterType[])=>Promise<void>|void
 
     }){
         const less400=window.innerWidth <400;
@@ -202,10 +217,11 @@ class LetterEditor{
         mainLetterCont.appendChild(outerBtnDiv);
         if(!isNew){
 
-            this.deleteClass.deleteLet({parent,target:mainLetterCont,mainLet:mainLetter,
-                func:({mainLets})=>{
-                    this.mainLetters=mainLets;
-                    func1(this.mainLetters,mainLetter)
+            this.deleteClass.deleteLet({parent,target:mainLetterCont,french,mainLet:mainLetter,
+                func:({mainLets,nameLets})=>{
+                    this._mainLetters=mainLets;
+                    this._nameLetters=nameLets;
+                    func1(mainLets,nameLets)
                 }
             })
         }
@@ -221,21 +237,19 @@ class LetterEditor{
                 if(check){
                     this._service.saveLetter({mainLetter:mainLetter}).then(async(res)=>{
                         if(res){
+                            const {id,name,res_name_id,user_id}=res;
                             this.mainLetter=res;
-                            
-                            this._mainLetters.push(res);
-                          
+                            const remain=this._mainLetters.filter(kv=>(kv.name !==name));
+                            const remainNameLets=this._nameLetters.filter(kv=>(kv.name !==name));
+                            this._mainLetters=[...remain,res];
+                            this._nameLetters=[...remainNameLets,{id:id as number,name,user_id,res_name_id}];
                             Resume.message({parent:mainLetterCont,msg:"saved",time:800,type:"success"});
-                            // const newUrl=new URL("/letter",window.location.origin);
-                            // newUrl.searchParams.set("filename",res.name);
-                            // window.location.href=newUrl.href;
-                            //SEND TO LETTERVIEW
                             ([...parent.children] as HTMLElement[]).forEach(child=>{
                                 if(child && child.id !==this.rowId){
                                     parent.removeChild(child);
                                 }
                             });
-                            func1(this._mainLetters,this.mainLetter);
+                            func1(this._mainLetters,this._nameLetters);
                         }
                     });
                 }else{
@@ -290,8 +304,10 @@ class LetterEditor{
         const letterCont=document.createElement("section");
         letterCont.id="letter-cont";
         letterCont.className=styles.letterCont;
+        if(!letter.company) letter.company=this.company;
         parent.appendChild(letterCont);
-        letter=this.formLetComp.rowToPosition({parent:letterCont,letter,order:0,less400,french});
+        letter=this.formLetComp.formCompany({parent:letterCont,letter,order:0,less400,french});
+        letter=this.formLetComp.rowToPosition({parent:letterCont,letter,order:1,less400,french});
         letter=this.formLetComp.formSummary({parent:letterCont,letter,french,key:"summary",order:2,less400});
         letter=this.formLetComp.formContact({parent:letterCont,letter,key:"contact",order:3,less400,french});
         letter=this.formLetComp.formPara({parent:letterCont,letter,french,key:"paragraph",order:4,less400});
