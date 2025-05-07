@@ -4,6 +4,7 @@ import prisma from "@/prisma/prismaclient";
 import { userType } from '@/components/editor/Types';
 import { Session, getServerSession } from 'next-auth';
 import { getErrorMessage } from '@/lib/errorBoundaries';
+import { convertJSON } from '../bio/page';
 const EMAIL = process.env.EMAIL;
 const EMAIL2 = process.env.EMAIL2;
 export default async function page() {
@@ -34,7 +35,9 @@ export async function getuser(item: { session: Session | null }): Promise<userTy
         bio: true,
         showinfo: true,
         admin: true,
-        username: true
+        username: true,
+        resumes: true,
+        references: true
       }
     }) as unknown as userType;
     if (user) {
@@ -42,7 +45,8 @@ export async function getuser(item: { session: Session | null }): Promise<userTy
         user.admin = true;
       };
       await prisma.$disconnect();
-      return user;
+      const _user = convertJSON({ user });
+      return _user;
     } else {
       await prisma.$disconnect();
       return null;
@@ -55,5 +59,7 @@ export async function getuser(item: { session: Session | null }): Promise<userTy
     return null;
   };
 }
+
+
 
 

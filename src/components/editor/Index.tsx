@@ -30,6 +30,9 @@ import Toolbar from '../common/toolbar';
 import { useEditor } from '../context/editorContext';
 import { userType } from './Types';
 import CommonUltils from '../common/commonUltils';
+import DeleteClass from '../bio/resume/deleteClass';
+import ViewReference from '../bio/resume/viewReference';
+import ViewResume from '../bio/resume/viewResume';
 
 
 
@@ -45,57 +48,57 @@ function Index({ user }: { user: userType | null }) {
             const side_bar = document.querySelector("aside#sidebar") as HTMLElement;
             if (mainInjection && side_bar) {
                 const dataset = new Dataset();
-
                 const modSelector = new ModSelector(dataset);
                 const service = new Service(modSelector);
+                const deleteClass = new DeleteClass(service, user);
+                const viewRef = new ViewReference(service, deleteClass, user);
+                const viewResume = new ViewResume(service, viewRef, deleteClass);
                 modSelector.loadFromLocal().then(async (res) => {
                     const blogUser = res.getBlog();
-                    if (blogUser) {
-                        const { blog, user: user_ } = blogUser;
-                        const auth = new AuthService(modSelector, service);
-                        const getUser = user && user.id !== "" ? user : user_;
-                        auth.confirmUser({ user: getUser, count: countRef.current }).then(async (res) => {
-                            if (res) {
-                                countRef.current = res.count;
-                                const commonUltils = new CommonUltils(modSelector, service, res.user);
-                                const regSignin = new RegSignIn(modSelector, service, res.user, res.status);
-                                const _user = new User(modSelector, service, res.status, regSignin, res.user);
-                                const message = new Message(modSelector, service, blog, null, res.user);
-                                const newCode = new NewCode(modSelector, service, _user, blog);
-                                const chart = new ChartJS(modSelector, service, _user, message);
-                                const design = new Design(modSelector);
-                                const ven = new Ven(modSelector);
-                                const pasteCode = new PasteCode(modSelector, service);
-                                const reference = new Reference(modSelector);
-                                const shapeOutside = new ShapeOutside(modSelector, service, _user);
-                                const headerFlag = new Headerflag(modSelector, service, _user);
-                                const _htmlElement = new HtmlElement(modSelector, service, _user, shapeOutside, design, ven, reference, headerFlag, pasteCode,);
-                                const _toolbar = new Toolbar(modSelector, service, _user, _htmlElement, blog);
-                                const displayBlog = new DisplayBlog(modSelector, service, _user, blog, chart, message, _htmlElement);
-                                const commonInfo = new CommonInfo(modSelector, service, auth);
-                                const _header = new Header(modSelector, service, _user, commonUltils, blog);
-                                const customHeader = new CustomHeader(modSelector, service, _user, commonUltils, blog)
-                                const _flexbox = new Flexbox(modSelector, service, _user, shapeOutside, commonUltils, blog);
-                                const _footer = new Footer(modSelector, service, _user, reference, blog);
-                                const metablog = new MetaBlog(modSelector, service, blog);
-                                const _edit = new Edit(modSelector, service, mainInjection, res.user, _flexbox, _htmlElement, _header, customHeader, _footer, displayBlog, chart, _toolbar);
+                    const { blog, } = blogUser;
+                    const auth = new AuthService(modSelector, service);
+                    auth.confirmUser({ user, count: countRef.current }).then(async (_res) => {
+                        if (_res) {
+                            countRef.current = _res.count;
+                            const commonUltils = new CommonUltils(modSelector, service, _res.user);
+                            const regSignin = new RegSignIn(modSelector, service, _res.user, _res.status);
+                            const _user = new User(modSelector, service, _res.status, regSignin, _res.user);
+                            const message = new Message(modSelector, service, blog, null, _res.user);
+                            const newCode = new NewCode(modSelector, service, _user, blog);
+                            const chart = new ChartJS(modSelector, service, _user, message);
+                            const design = new Design(modSelector);
+                            const ven = new Ven(modSelector);
+                            const pasteCode = new PasteCode(modSelector, service);
+                            const reference = new Reference(modSelector);
+                            const shapeOutside = new ShapeOutside(modSelector, service, _user);
+                            const headerFlag = new Headerflag(modSelector, service, _user);
+                            const _htmlElement = new HtmlElement(modSelector, service, _user, shapeOutside, design, ven, reference, headerFlag, pasteCode,);
+                            const _toolbar = new Toolbar(modSelector, service, _user, _htmlElement, blog);
+                            const displayBlog = new DisplayBlog(modSelector, service, _user, blog, chart, message, _htmlElement);
+                            const commonInfo = new CommonInfo(modSelector, service, auth);
+                            const _header = new Header(modSelector, service, _user, commonUltils, blog);
+                            const customHeader = new CustomHeader(modSelector, service, _user, commonUltils, blog)
+                            const _flexbox = new Flexbox(modSelector, service, _user, shapeOutside, commonUltils, blog);
+                            const _footer = new Footer(modSelector, service, _user, reference, blog);
+                            const metablog = new MetaBlog(modSelector, service, blog);
+                            const _edit = new Edit(modSelector, service, mainInjection, _res.user, _flexbox, _htmlElement, _header, customHeader, _footer, displayBlog, chart, _toolbar);
 
-                                const main = new Main(modSelector, service, auth, mainInjection, _toolbar, _edit, res.user, blog, _header, customHeader, shapeOutside, commonInfo);
-                                const sidebar = new Sidebar(modSelector, service, auth, main, _flexbox, newCode, _header, customHeader, _footer, _edit, _user, regSignin, displayBlog, chart, shapeOutside, metablog, headerFlag, _toolbar, blog);
-                                await main.mainContainer(mainInjection).then(async (_res) => {
-                                    if (_res) {
-                                        const { textarea, mainCont, footer, mainHeader, toolbar } = _res;
-                                        if (mainCont && textarea && footer && mainHeader && toolbar) {
+                            const main = new Main(modSelector, service, auth, mainInjection, _toolbar, _edit, _res.user, blog, _header, customHeader, shapeOutside, commonInfo);
+                            const sidebar = new Sidebar(modSelector, service, auth, main, _flexbox, newCode, _header, customHeader, _footer, _edit, _user, regSignin, displayBlog, chart, shapeOutside, metablog, headerFlag, _toolbar, blog, viewResume, _res.user);
+                            await main.mainContainer(mainInjection).then(async (_res_) => {
+                                if (_res_) {
+                                    const { textarea, mainCont, footer, mainHeader, toolbar } = _res_;
+                                    if (mainCont && textarea && footer && mainHeader && toolbar) {
 
-                                            sidebar.onclickHideShowSideBar({ injector: side_bar, mainContainer: mainCont, textarea, footer, mainHeader, blog: _res.blog });
-                                            countRef.current++;
-                                        }
-
+                                        sidebar.onclickHideShowSideBar({ injector: side_bar, mainContainer: mainCont, textarea, footer, mainHeader, blog: _res_.blog });
+                                        countRef.current++;
                                     }
-                                });
-                            }
-                        });
-                    };
+
+                                }
+                            });
+                        }
+                    });
+
                 });
             }
 

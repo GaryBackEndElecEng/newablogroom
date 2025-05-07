@@ -230,10 +230,7 @@ class Admin{
         const {button:resumeBtn}=Misc.simpleButton({anchor:btnContainer,text:"open resumes",type:"button",time:400,bg:this.btnColor,color:"white"});
             resumeBtn.onclick=(e:MouseEvent)=>{
                 if(e){
-                    //GET USERS
-                    console.log("clicked")
-                    // resumeBtn.disabled=true;
-                    // setTimeout(()=>{usersBtn.disabled=false;},1000);
+                   
                     this.openClean({parent:viewport});
                    this.getResumes({parent:viewport,mainResumes:this.resumes});
                   
@@ -588,14 +585,15 @@ class Admin{
 
     userCard(item:{parent:HTMLElement,containerRow:HTMLElement,user:userType,css:string,index:number,adminUser:userType}){
         const { parent,containerRow,user,index,adminUser}=item;
-        const css_col="margin-inline:auto;display:flex;flex-direction:column;place-items:center;gap:0px;"
+        const css_col="margin-inline:auto;display:flex;flex-direction:column;place-items:center;gap:0px;padding:0.75rem;border-radius:8px;"
         const nameStyle="color:red;margin-right:1rem;font-size:110%;font-weight:bold;"
         const card=document.createElement("div");
         card.className="card";
         card.id=`card-${index}`;
         card.style.cssText=css_col;
         card.style.borderRadius="15px";
-        card.style.backgroundColor="white";
+        card.style.backgroundColor="black";
+        card.style.color="white";
         card.style.position="relative";
         card.style.alignItems="stretch";
         card.style.flex="1 1 25%";
@@ -981,6 +979,8 @@ class Admin{
         parent.appendChild(container);
 
     };
+
+
     blogcard(item:{parent:HTMLElement,row:HTMLElement,blog:blogType}){
         const {parent,row,blog}=item;
         const less900=window.innerWidth <900;
@@ -989,7 +989,7 @@ class Admin{
         const css_row="margin-inline:auto;display:flex;place-items:center;padding-inline:0.25rem;flex-wrap:wrap;";
         const col=document.createElement("div");
         col.id="row-col"+ `${blog.id}`;
-        col.style.cssText=css_col + "background-color:white;color:black;";
+        col.style.cssText=css_col + "background-color:black;color:white;";
         col.style.width=less900 ? (less400 ? "100%":"48%"): "33%";
         const user=this.users.find(user=>(user.id===blog.user_id));
         const ul=document.createElement("ul");
@@ -1035,7 +1035,7 @@ class Admin{
         const css_col="margin-inline:auto;display:flex;flex-direction:column;justify-content:flex-start;align-items:center;padding-inline:0.25rem;padding-block:1rem;height:40vh;overflow-y:scroll;";
         const col=document.createElement("div");
         col.id="row-col"+ `${post.id}`;
-        col.style.cssText=css_col + "background-color:white;color:black;";
+        col.style.cssText=css_col + "background-color:black;color:white;border-radius:8px;";
         col.style.width=less900 ? (less400 ? "100%":"48%"):"33%";
         const user=this.users.find(user=>(user.id===post.userId));
         const ul=document.createElement("ul");
@@ -1168,7 +1168,7 @@ class Admin{
                         const col=document.createElement("div");
                         col.className="col-md-3";
                         col.id="msg-col-" + String(index)
-                        col.style.cssText="margin:auto;display:flex;justify-content:center;align-items:center;gap:1rem;box-shadow:1px 1px 12px 1px black;border-radius:12px;flex-direction:column;padding:1rem;background-color:white;padding:1rem;border-radius:12px;";
+                        col.style.cssText="margin:auto;display:flex;justify-content:center;align-items:center;gap:1rem;box-shadow:1px 1px 12px 1px black;border-radius:12px;flex-direction:column;padding:1rem;background-color:black;color:white;padding:1rem;border-radius:8px;";
                         this.singleMsg({parent,row:row,msg:msg,col:col,index:index});
                         this.deleteMsg({parent,row,col,msg,msgs:this.messages});
                     }
@@ -1290,7 +1290,7 @@ class Admin{
         Header.cleanUpByID(parent,`col-pg-count-${index}`);
         const col=document.createElement("div");
         col.id=`col-pg-count-${index}`;
-        col.style.cssText="margin:auto;display:flex;justify-content:center;align-items:flex-start;flex-direction:column;padding:1rem;box-shadow:1px 1px 12px 1px;border-radius:12px;position:relative;background-color:white;border-radius:12px;";
+        col.style.cssText="margin:auto;display:flex;justify-content:center;align-items:flex-start;flex-direction:column;padding:1rem;box-shadow:1px 1px 12px 1px;border-radius:12px;position:relative;background-color:black:color:white;border-radius:12px;padding:1rem;";
         col.className="col-md-3";
         const card=document.createElement("div");
         card.id="col-pg-count-card";

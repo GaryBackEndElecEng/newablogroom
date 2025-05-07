@@ -10,6 +10,8 @@ class AddRemove{
     private _experience:workExperienceType;
     private _education:educationType;
     private _achievement:awardType;
+    public achievementInit:awardType;
+    public summaryInit:string;
     private _reference:resumeRefType;
     public contact:contactRefType;
     private _contacts:contactRefType[];
@@ -21,6 +23,7 @@ class AddRemove{
     constructor(private _user:userType|null){
         this.languages=["English","French","Spanish","Mandarin","Hindi","Bengali","Russian","Italian","Turkish","Portuguese","Japanese","Georgian","Arabic","Dutch","Latin","Gaelic","Welsh","Hungarian","Indonesian","Persian","Perubian",""]
         this.skillWords=["Teamwork","Critical Thinking","Problem Solving","Customer Service","Out-Of-The-Box-Thinker","Analytical","Managerial","Unapprehensive"]
+        this.summaryInit="It is a section where you describe your past jobs, titles, and work history";
         this.contact={
             id:0,
             name:"name",
@@ -31,17 +34,23 @@ class AddRemove{
         }
         this._contacts=[this.contact]
         this._extra={languages:["add a language"]};
-        this._achievement={
-            id:1,
+        this.achievementInit={
+            id:0,
             achievement:"Instead of highlighting your duties and responsibilities, try to outline your achievements and awards",
             reason:" Provide a stand-out answer to the question “reasons to why you should get hired? through reason” by proving how well you handled the things in your past",
             composite:" What you used to attain the above achievement."
+        };
+        this._achievement={
+            id:1,
+            achievement:"",
+            reason:" ",
+            composite:" "
         };
         this._experience={
             id:0,
             title:"",
             company:"",
-            summary:" It is a section where you describe your past jobs, titles, and work history",
+            summary:"",
             location:"",
             from:"",
             to:"",
@@ -129,7 +138,7 @@ class AddRemove{
         name.textContent="remove";
         cont.appendChild(name);
         const xDiv=document.createElement("div");
-        xDiv.id="add=work-experience";
+        xDiv.id="popup-rm-educ";
         xDiv.style.cssText=css_col + "background-color:white;z-index:200;color:red;border-radius:4px;padding:2px;background-color:black";
         FaCreate({parent:xDiv,name:FaMinusCircle,cssStyle:{width:"100%",aspectratio:"1/1"}});
         xDiv.style.width=less400 ? "45px":"65px;";
@@ -144,29 +153,16 @@ class AddRemove{
        
     };
 
-    addWorkEducate({parent,resume,css_col,isEducation,less400,french,func}:{parent:HTMLElement,resume:resumeType,css_col:string,less400:boolean,isEducation:boolean,french:boolean,func:(resume:resumeType)=>resumeType|void}){
+    addEducation({parent,resume,css_col,less400,french,func}:{parent:HTMLElement,resume:resumeType,css_col:string,less400:boolean,french:boolean,func:(resume:resumeType)=>resumeType|void}){
         
             const cont=document.createElement("div");
-            if(isEducation){
-                cont.id="add-education-cont";
-                cont.className=styles.addEducationCont;
-                
-            }else{
-                cont.id="add-experience-cont";
-                cont.className=styles.addExperienceCont;
-            }
-        
-            
+            cont.id="add-education-cont";
+            cont.className=styles.addEducationCont;
             const name=document.createElement("small");
-            if(isEducation){
-                name.textContent="new Educat";
-
-            }else{
-                name.textContent="new Work";
-            }
+            name.textContent="new Educat";
             cont.appendChild(name);
             const xDiv=document.createElement("div");
-            xDiv.id="add-work-exp-educ";
+            xDiv.id="popup-add-education";
             xDiv.style.cssText=css_col + "background-color:white;z-index:200;color:white;border-radius:4px;padding:2px;background-color:black";
             FaCreate({parent:xDiv,name:FaPlus,cssStyle:{width:"100%",aspectratio:"1/1"}});
             xDiv.style.width=less400 ? "45px":"65px;";
@@ -174,19 +170,39 @@ class AddRemove{
             parent.appendChild(cont);
             cont.onclick=(e:MouseEvent)=>{
                 if(e){
-                    if(!isEducation){
-                        const len=resume.workExperience.length+1;
-                        this.experience={...langExperience({french}),id:len};
-                        resume.workExperience=[...resume.workExperience,this.experience];
-                        func(resume);
-                    }else{
-                        const len=resume.education.length+1;
-                        this.education={...langEducation({french}),id:len};
-                        resume.education=[...resume.education,this.education];
-                        func(resume);
-                    }
+                    const len=resume.education.length+1;
+                    this.education={...langEducation({french}),id:len};
+                    resume.education=[...resume.education,this.education];
+                    func(resume);
                 }
             };
+           
+    };
+
+
+    addWorkExperience({parent,resume,css_col,less400,french,func}:{parent:HTMLElement,resume:resumeType,css_col:string,less400:boolean,french:boolean,func:(resume:resumeType)=>resumeType|void}){
+        
+        const cont=document.createElement("div");
+        cont.id="add-experience-cont";
+        cont.className=styles.addExperienceCont;
+        const name=document.createElement("small");
+        name.textContent="new Work";
+        cont.appendChild(name);
+        const xDiv=document.createElement("div");
+        xDiv.id="popup-add-work-exp";
+        xDiv.style.cssText=css_col + "background-color:white;z-index:200;color:white;border-radius:4px;padding:2px;background-color:black";
+        FaCreate({parent:xDiv,name:FaPlus,cssStyle:{width:"100%",aspectratio:"1/1"}});
+        xDiv.style.width=less400 ? "45px":"65px;";
+        cont.appendChild(xDiv);
+        parent.appendChild(cont);
+        cont.onclick=(e:MouseEvent)=>{
+            if(e){
+                const len=resume.workExperience.length+1;
+                this.experience={...langExperience({french}),id:len};
+                resume.workExperience=[...resume.workExperience,this.experience];
+                func(resume);
+            }
+        };
            
     };
 

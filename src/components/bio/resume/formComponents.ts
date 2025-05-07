@@ -11,9 +11,18 @@ class FormComponents{
     public educationOrgs:orgType[];
     public workOrgs:orgType[];
     public refKeys:string[];
+    public achievementInit:awardType;
+    public summaryInit:string;
 
     constructor( public addRemove:AddRemove){
-       
+        this.summaryInit="It is a section where you describe your past jobs, titles, and work history";
+
+        this.achievementInit={
+            id:0,
+            achievement:"Instead of highlighting your duties and responsibilities, try to outline your achievements and awards",
+            reason:" Provide a stand-out answer to the question “reasons to why you should get hired? through reason” by proving how well you handled the things in your past",
+            composite:" What you used to attain the above achievement."
+        };
     
         this.refKeys=[
             "id",
@@ -41,9 +50,13 @@ class FormComponents{
         const {input,label,formGrp}=EditResume.inputComponent(particularCont);
         formGrp.className=styles.formGrpNormal;
         formGrp.classList.add("form-group")
+        if(key==="title")formGrp.style.order="0";
+        if(key==="company")formGrp.style.order="1";
+        if(key==="location")formGrp.style.order="2";
         input.id=`${key}`;
         input.name="work-"+ key + "-" + String(index);
         input.value=value as string;
+        input.placeholder=french && parts ? parts.fr :key;
         input.style.width=less400 ? "95%":"80%";
         label.setAttribute("for",input.id);
         label.textContent=french && parts ? parts.fr :key;
@@ -53,20 +66,15 @@ class FormComponents{
             switch(true){
                 case key==="title":
                 experience.title=value;
-                formGrp.style.order="0"
                 break;
                 case key==="company":
                 experience.company=value;
-                formGrp.style.order="1"
                 break;
                 case key==="location":
                 experience.location=value;
-                formGrp.style.order="2"
                 break;
-                case key==="summary":
-                experience.location=value;
-                formGrp.style.order="0"
-                break;
+                default:
+                    break;
             }
         };
         return experience;
@@ -208,7 +216,7 @@ class FormComponents{
             if(key==="achievement"){
                 achiev.achievement=value
             }else{
-                achiev.reason=value
+                achiev.composite=value
             }
         };
         return achiev;
@@ -224,7 +232,7 @@ class FormComponents{
         textinput.id=`${key}-summary-textarea`;
         textinput.name="work-"+ key + "-" + String(order);
         textinput.value=value as string;
-        textinput.placeholder=langInserts({french,key:"summary"}).place;
+        textinput.placeholder=langInserts({french,key:"workSummary"}).place;
         textinput.style.width="100%";
         label.setAttribute("for",textinput.id);
         label.textContent=french && lang ? lang : key;
@@ -284,9 +292,12 @@ class FormComponents{
             formGrp.style.cssText=css_col +"gap:1rem;position:relative;align-items:center;";
             formGrp.style.flex=less400 ? " 1 0 100%":"1 0 50%";
             formGrp.style.width=less400 ? "100%":"50%";
-            
+            if(key==="from") formGrp.style.order="-1";
+            if(key==="to") formGrp.style.order="1";
             input.id=`${key}`;
             input.type="number";
+            input.min="1990";
+            input.max="3000";
             input.name="work-"+ key + "-" + String(index);
             input.style.width=less400 ? "75%":"50%";
             input.value=value as string;
@@ -297,10 +308,8 @@ class FormComponents{
                 const value=(e.currentTarget as HTMLInputElement).value;
                 if(key==="from"){
                     education.from=value;
-                    formGrp.style.order="0"
                 }else{
                     education.to=value;
-                    formGrp.style.order="1"
                 };
             };
         };
@@ -336,6 +345,8 @@ class FormComponents{
             input.type="number";
             input.name="work-"+ key + "-" + String(index);
             input.style.width="";
+            input.min="1990";
+            input.max="3000";
             input.value=value as string;
             input.placeholder=langInserts({french,key}).place;
             label.setAttribute("for",input.id);
@@ -351,6 +362,7 @@ class FormComponents{
                     formGrp.style.order="1"
                 };
             };
+            
         };
         return experience;
     };
@@ -358,55 +370,58 @@ class FormComponents{
 
     educateSkills({parent,order,css_col,key,less400,education,french}:{parent:HTMLElement,order:number,css_col:string,less400:boolean,key:string,education:educationType,french:boolean}):educationType{
         const css_row="display:flex;flex-wrap:nowrap;justify-content:center;align-items:center;ga:0.5rem;"
-        const skillsComp=document.createElement("div");
-        skillsComp.id="skills-comp";
-        skillsComp.style.cssText=css_col + "width:100%;margin-block:1rem;position:relative";
-        skillsComp.style.order=String(order);
-        parent.appendChild(skillsComp);
-        this.addRemove.addEducateSkill({
-            parent:skillsComp,
-            education,
-            css_col,
-            less400,
-            french,
-            key,
-            func:(education)=>{
-                Resume.cleanUpById({parent,id:"skills-comp"});
-                this.educateSkills({parent,order,css_col,key,less400,education,french});
-            }
-        });
-        education.skills=education.skills.map((skill,index)=>{
-            if(skill){
-                const {input,label,formGrp}=EditResume.inputComponent(skillsComp);
-                formGrp.id=`formGrp-skill-${index}`
-                formGrp.style.cssText=css_col +"width:auto;gap:1rem;position:relative;align-items:center;";
-                formGrp.style.width=less400 ? "100%":"80%";
-                input.id=`${key}-${index}`;
-                input.name="skill-" + key + String(index);
-                input.value=skill as string;
-                input.style.width=less400 ? "75%":"50%";
-                label.setAttribute("for",input.id);
-                label.textContent=french ? "compétence":"skill";
-                input.onchange=(e:Event)=>{
-                    if(!e) return;
-                    const value=(e.currentTarget as HTMLInputElement).value;
-                    education.skills[index]=value;
-                };
-                this.addRemove.removeEducateSkill({
-                    target:formGrp,
-                    skill,
-                    education,
-                    css_row,
-                    key,
-                    less400,
-                    func:(education)=>{
-                        Resume.cleanUpById({parent,id:"skills-comp"});
-                        this.educateSkills({parent,order,css_col,key,less400,education,french});
-                    }
-                });
-            }
-            return skill;
-        });
+       
+
+            const skillsComp=document.createElement("div");
+            skillsComp.id="skills-comp";
+            skillsComp.style.cssText=css_col + "width:100%;margin-block:1rem;position:relative";
+            skillsComp.style.order=String(order);
+            parent.appendChild(skillsComp);
+            this.addRemove.addEducateSkill({
+                parent:skillsComp,
+                education,
+                css_col,
+                less400,
+                french,
+                key,
+                func:(education)=>{
+                    Resume.cleanUpById({parent,id:"skills-comp"});
+                    this.educateSkills({parent,order,css_col,key,less400,education,french});
+                }
+            });
+            education.skills=education.skills.map((skill,index)=>{
+                if(skill){
+                    const {input,label,formGrp}=EditResume.inputComponent(skillsComp);
+                    formGrp.id=`formGrp-skill-${index}`
+                    formGrp.style.cssText=css_col +"width:auto;gap:1rem;position:relative;align-items:center;";
+                    formGrp.style.width=less400 ? "100%":"80%";
+                    input.id=`${key}-${index}`;
+                    input.name="skill-" + key + String(index);
+                    input.value=skill as string;
+                    input.style.width=less400 ? "75%":"50%";
+                    label.setAttribute("for",input.id);
+                    label.textContent=french ? "compétence":"skill";
+                    input.onchange=(e:Event)=>{
+                        if(!e) return;
+                        const value=(e.currentTarget as HTMLInputElement).value;
+                        education.skills[index]=value;
+                    };
+                    this.addRemove.removeEducateSkill({
+                        target:formGrp,
+                        skill,
+                        education,
+                        css_row,
+                        key,
+                        less400,
+                        func:(education)=>{
+                            Resume.cleanUpById({parent,id:"skills-comp"});
+                            this.educateSkills({parent,order,css_col,key,less400,education,french});
+                        }
+                    });
+                }
+                return skill;
+            });
+        
         return education;
     };
 
@@ -429,7 +444,7 @@ class FormComponents{
                 this.workSkills({formChild,order,css_col,key,less400,experience,french});
             }
         });
-        if(experience.skills && experience.skills.length>0){
+        if(experience.skills && experience.skills?.length>0){
             experience.skills=experience.skills.map((skill,index)=>{
                 if(skill){
                     const lang=langConversion({key:"skill"});

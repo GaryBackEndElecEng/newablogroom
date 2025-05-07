@@ -56,7 +56,7 @@ async function getUser({ session }: { session: Session | null }): Promise<userTy
     return null;
 }
 
-function convertJSON({ user }: { user: userType }): userType {
+export function convertJSON({ user }: { user: userType }): userType {
     const letters = user.letters;
     const refs = user.references as resumeRefStrType[];
     const resumes = user.resumes as mainResumeStrType[];

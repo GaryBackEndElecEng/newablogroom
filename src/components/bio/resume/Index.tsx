@@ -51,10 +51,10 @@ export default function Index({ user }: { user: userType | null }) {
                     const addRemove = new AddRemove(user);
                     const addLetRemove = new AddRemoveLet(user);
                     const letterView = new LetterView();
-                    const deleteClass = new DeleteClass(service, user);
                     const moduleConnect = new ModuleConnect(service, user)
                     const formComp = new FormComponents(addRemove);
                     const formLetComp = new FormLetComponents(addLetRemove);
+                    const deleteClass = new DeleteClass(service, user);
                     const viewRef = new ViewReference(service, deleteClass, user);
                     const editRef = new EditReference(service, formComp, user, viewRef);
                     const createRef = new CreateRef(service, formComp, viewRef, user);

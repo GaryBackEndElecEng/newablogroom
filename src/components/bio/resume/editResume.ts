@@ -1,4 +1,4 @@
-import { FaCrosshairs } from "react-icons/fa";
+import { FaArrowAltCircleDown, FaCrosshairs } from "react-icons/fa";
 import { FaCreate } from "../../common/ReactIcons";
 import Service from "@/components/common/services";
 import { awardType, contactRefType, educationType, formResType, linkType, mainResumeRefType, mainResumeType, nameResumeType, orgType, resumeType, userType, workExperienceType } from "./refTypes";
@@ -8,13 +8,15 @@ import ViewResume from "./viewResume";
 import AddRemove from "./addRemove";
 import FormComponents from "./formComponents";
 import styles from "./editresume.module.css"
-import { langConversion } from "./engFre";
+import { langAchievement, langConversion, langSkills } from "./engFre";
+import { AmplifyDependentResourcesAttributes } from '../../../../amplify/backend/types/amplify-dependent-resources-ref';
 
 
 
 
 
 class EditResume {
+    public countOrder:number;
     public rowId:string;
     public containerId:string;
     public innerContId:string;
@@ -29,6 +31,8 @@ class EditResume {
     private _experience:workExperienceType;
     private _education:educationType;
     private _achievement:awardType;
+    public achievementInit:awardType;
+    public summaryInit:string;
     public contacts:contactRefType[];
     public contact:contactRefType;
     public links:linkType[];
@@ -38,7 +42,7 @@ class EditResume {
     
     constructor(private _service:Service,public viewresume:ViewResume,private _addRemove:AddRemove,public formComp:FormComponents, private _user:userType|null){
         
-       
+       this.countOrder=0;
         this.rowId="";
         this.containerId="";
         this.innerContId="innercontainer"
@@ -78,23 +82,31 @@ class EditResume {
             {id:6,cat:"achievements",catFr:"réalisations"},
             {id:7,cat:"skills",catFr:"compétences"},
         ];
+        this.summaryInit="It is a section where you describe your past jobs, titles, and work history";
 
-        this._achievement={
-            id:1,
+        this.achievementInit={
+            id:0,
             achievement:"Instead of highlighting your duties and responsibilities, try to outline your achievements and awards",
             reason:" Provide a stand-out answer to the question “reasons to why you should get hired? through reason” by proving how well you handled the things in your past",
             composite:" What you used to attain the above achievement."
+        };
+
+        this._achievement={
+            id:1,
+            achievement:"",
+            reason:"",
+            composite:""
         };
 
         this._experience={
             id:0,
             title:"",
             company:"",
-            summary:" It is a section where you describe your past jobs, titles, and work history",
+            summary:"",
             location:"",
             from:"",
             to:"",
-            skills:["Teamwork","Critical Thinking","Problem Solving","Customer Service"],
+            skills:["Teamwork","Critical Thinking","Problem Solving",],
             achievements:[this._achievement]
         };
        
@@ -304,6 +316,7 @@ class EditResume {
         french:boolean,
         func:(mainResumes:mainResumeType[],mainResume:mainResumeType,type:"rem"|"add")=>Promise<void>|void
     }){
+        this.countOrder=0;
         this.user=user;
         this.formResNames=[];
         const {name}=nameResume;
@@ -355,36 +368,16 @@ class EditResume {
             workCont.id="work-cont";
             workCont.style.cssText="width:100%;margin-inline:auto;border:1px solid blue;box-shadow:1px 1px 10px 1px white;border-radius:inherit;padding:1rem;color:white;text-align:center;background-color:black;position:relative;";
             container.appendChild(workCont);
-            this.mainResume.resume=this.editWorkExper({parent:workCont,resume,css_col,css_row,less400,french});
-            this._addRemove.addWorkEducate({
-                parent:workCont,
-                resume,
-                css_col,
-                isEducation:false,
-                less400,
-                french,
-                func:(resume)=>{
-                    this.mainResume.resume=this.editWorkExper({parent:workCont,resume,css_col,css_row,less400,french});
-                }
-
-            });
+            
+            this.mainResume.resume=this.hideShowWorkExp({parent:workCont,resume,css_col,css_row,less400,french});
+            
             const educateCont=document.createElement("div");
             educateCont.id="educate-cont";
-            educateCont.style.cssText="width:100%;margin-inline:auto;border:1px solid blue;box-shadow:1px 1px 10px 1px white;border-radius:inherit;padding:1rem;color:white;text-align:center;background-color:black;";
+            educateCont.style.cssText="width:100%;margin-inline:auto;border:1px solid blue;box-shadow:1px 1px 10px 1px white;border-radius:inherit;padding:1rem;color:white;text-align:center;background-color:black;position:relative;";
             container.appendChild(educateCont);
-            this.mainResume.resume=this.editEducation({parent:educateCont,resume,css_row,css_col,less400,french});
-            this._addRemove.addWorkEducate({
-                parent:workCont,
-                resume,
-                css_col,
-                french,
-                isEducation:true,
-                less400,
-                func:(resume)=>{
-                    this.mainResume.resume=this.editEducation({parent:educateCont,resume,css_col,css_row,less400,french});
-                }
 
-            });
+           this.mainResume.resume=this.hideShowEducation({parent:workCont,resume,css_col,css_row,less400,french});
+           
             const sitesCont=document.createElement("div");
             sitesCont.id="sites-cont";
             sitesCont.style.cssText="width:100%;margin-inline:auto;border:1px solid blue;box-shadow:1px 1px 10px 1px white;border-radius:inherit;padding:1rem;color:white;text-align:center;background-color:black;";
@@ -422,6 +415,119 @@ class EditResume {
     };
 
 
+    hideShowWorkExp({parent,resume,css_col,css_row,less400,french,}:{parent:HTMLElement,resume:resumeType,css_col:string,css_row:string,less400:boolean,french:boolean,}){
+        let show=true;
+        const showHideWorkCont=document.createElement("div");
+        showHideWorkCont.id="showHideWorkCont";
+        showHideWorkCont.className=styles.showHideContShow;
+        parent.appendChild(showHideWorkCont);
+        resume=this.editWorkExper({parent:showHideWorkCont,resume,css_col,css_row,less400,french});
+        //-------------button----------------//
+        const divCont=document.createElement("div");
+        divCont.id="popup-hideShowWorkExp";
+        divCont.className=styles.hideShowPopupWorkShow;
+        const para=document.createElement("p");
+        para.className="mt-0 mb-0";
+        para.textContent="hide work";
+        const xDiv=document.createElement("div");
+        xDiv.id="xDiv";
+        xDiv.style.cssText=css_col +"margin:auto;";
+        FaCreate({parent:xDiv,name:FaArrowAltCircleDown,cssStyle:{fontSize:"18px",borderRadius:"50%",color:"white",background:"orange"}});
+        divCont.appendChild(para);
+        divCont.appendChild(xDiv);
+        parent.appendChild(divCont);
+        //-------------button----------------//
+        divCont.onclick=(e:MouseEvent)=>{
+            if(!e) return;
+            show=!show;
+            if(show){
+                divCont.className=styles.hideShowPopupWorkHide;
+                para.textContent="hide work";
+                showHideWorkCont.hidden=false;
+                showHideWorkCont.style.transform="rotateX(0deg) scale(1)";
+                showHideWorkCont.style.opacity="1";
+                showHideWorkCont.style.height="auto";
+                showHideWorkCont.className=styles.showHideContShow;
+                showHideWorkCont.animate([
+                    {transform:"rotateX(90deg) scale(0.5)",opacity:"0",height:"20px;"},
+                    {transform:"rotateX(0deg) scale(1)",opacity:"1",height:"auto"}
+                ],{duration:1000,iterations:1,"easing":"ease-in"});
+            }else{
+                divCont.className=styles.hideShowPopupWorkShow;
+                para.textContent="show work";
+                showHideWorkCont.style.transform="rotateX(90deg) scale(0.5)";
+                showHideWorkCont.style.opacity="0";
+                showHideWorkCont.style.height="20px";
+                showHideWorkCont.className=styles.showHideContHide;
+                showHideWorkCont.animate([
+                    {transform:"rotateX(0deg) scale(1)",opacity:"1",height:"auto"},
+                    {transform:"rotateX(90deg) scale(0.5)",opacity:"0",height:"20px"},
+                ],{duration:1000,iterations:1,"easing":"ease-in"});
+                setTimeout(()=>{
+                    showHideWorkCont.hidden=true;
+                },1000);
+            }
+        };
+        return resume;
+    };
+
+
+    hideShowEducation({parent,resume,css_col,css_row,less400,french,}:{parent:HTMLElement,resume:resumeType,css_col:string,css_row:string,less400:boolean,french:boolean,}){
+        let show=true;
+        const showHideEducCont=document.createElement("div");
+        showHideEducCont.id="showHideWorkCont";
+        showHideEducCont.className=styles.showHideContShow;
+        parent.appendChild(showHideEducCont);
+       resume= this.editEducation({parent:showHideEducCont,resume,css_col,css_row,less400,french});
+        //-------------button----------------//
+        const divCont=document.createElement("div");
+        divCont.id="popup-hideShowEducExp";
+        divCont.className=styles.hideShowPopupEducShow;
+        const para=document.createElement("p");
+        para.className="mt-0 mb-0";
+        para.textContent="hide Educate";
+        const xDiv=document.createElement("div");
+        xDiv.style.cssText=css_col +"margin:auto;";
+        FaCreate({parent:xDiv,name:FaArrowAltCircleDown,cssStyle:{fontSize:"18px",borderRadius:"50%",color:"white",background:"orange"}});
+        divCont.appendChild(para);
+        divCont.appendChild(xDiv);
+        parent.appendChild(divCont);
+        //-------------button----------------//
+        divCont.onclick=(e:MouseEvent)=>{
+            if(!e) return;
+            show=!show;
+            if(show){
+                divCont.className=styles.hideShowPopupEducHide;
+                para.textContent="hide educate";
+                showHideEducCont.hidden=false;
+                showHideEducCont.style.transform="rotateX(0deg) scale(1)";
+                showHideEducCont.style.opacity="1";
+                showHideEducCont.style.height="auto";
+                showHideEducCont.className=styles.showHideContShow;
+                showHideEducCont.animate([
+                    {transform:"rotateX(90deg) scale(0.5)",opacity:"0",height:"20px;"},
+                    {transform:"rotateX(0deg) scale(1)",opacity:"1",height:"auto"}
+                ],{duration:1000,iterations:1,"easing":"ease-in"});
+            }else{
+                divCont.className=styles.hideShowPopupEducShow;
+                para.textContent="show educate";
+                showHideEducCont.style.transform="rotateX(90deg) scale(0.5)";
+                showHideEducCont.style.opacity="0";
+                showHideEducCont.style.height="20px";
+                showHideEducCont.className=styles.showHideContHide;
+                showHideEducCont.animate([
+                    {transform:"rotateX(0deg) scale(1)",opacity:"1",height:"auto"},
+                    {transform:"rotateX(90deg) scale(0.5)",opacity:"0",height:"20px"},
+                ],{duration:1000,iterations:1,"easing":"ease-in"});
+                setTimeout(()=>{
+                    showHideEducCont.hidden=true;
+                },1000);
+            }
+        };
+        return resume;
+    };
+
+
     saveCreateNewResume({grandParent,parent,row,mainResume,css_row,css_col,user,french,func}:{grandParent:HTMLElement,parent:HTMLElement,row:HTMLElement,mainResume:mainResumeType,css_row:string,css_col:string,user:userType|null,french:boolean,
         func:(mainResumes:mainResumeType[],mainResume:mainResumeType,type:"rem"|"add")=>Promise<void>|void
     }){
@@ -434,10 +540,7 @@ class EditResume {
         const {button:saveNew}=Resume.simpleButton({anchor:container,type:"button",time:400,bg:"black",color:"white",text:text_});
         saveNew.onclick=(e:MouseEvent)=>{
             if(!e) return;
-
             this.editSaveAsNew({grandParent,parent,row,mainResume,css_row,css_col,user,func})
-
-            
         };
         const text_1=french? langConversion({key:"save"}) : "save";
         const {button:save}=Resume.simpleButton({anchor:container,type:"button",time:400,bg:"black",color:"white",text:text_1});
@@ -448,30 +551,68 @@ class EditResume {
          
             if(user?.id){
                 mainResume={...mainResume,user_id:user.id as string}
-                await this._service.saveResume({mainResume}).then(async(res)=>{
-                    if(res){
-                        this.mainResume=res;
-                        ([...parent.children] as HTMLElement[]).forEach(child=>{
-                            if(child && child.id !==this.rowId){
-                                parent.removeChild(child);
-                            }
-                        });
-                        const lang=french ? langConversion({key:"saved"}): "saved";
-                        Resume.message({parent,msg:`${lang} :${res.name}`,type:"success",time:600});
-                    }else{
-                        const lang=french ? langConversion({key:"not saved"}): "not saved";
-                        Resume.message({parent,msg:lang,type:"error",time:1600});
-                    }
-                }).catch((error)=>{const msg=getErrorMessage(error);console.error(msg)});
+                this.saveEditedResume({parent,mainResume,func});
+                
 
             }
         };
     };
 
+
+
+    saveEditedResume({parent,mainResume,func}:{parent:HTMLElement,mainResume:mainResumeType,
+        func:(mainResumes:mainResumeType[],mainResume:mainResumeType,type:"rem"|"add")=>Promise<void>|void
+    }){
+        const popup=document.createElement("div");
+        popup.id="popup-saveEditedResume";
+        popup.className=styles.saveEditedResume;
+
+        const form=document.createElement("form");
+        form.id="edit-saveas-new-form";
+        form.className=styles.css_col;
+        const {input:checkbox,label:clabel,formGrp:grlCheck}=EditResume.inputComponent(form);
+        grlCheck.className=styles.formGrpCheck;
+        grlCheck.classList.remove("form-group");
+        checkbox.classList.remove("form-control");
+        grlCheck.style.gap="1rem";
+        checkbox.id="checkbox";
+        checkbox.type="checkbox";
+        checkbox.name="checkbox";
+        checkbox.checked=mainResume.french;
+        console.log("checked",checkbox.checked);
+        checkbox.placeholder="";
+        clabel.setAttribute("for",checkbox.id);
+        clabel.textContent="french /française";
+        popup.appendChild(form);
+        parent.appendChild(popup);
+        Resume.simpleButton({anchor:form,bg:"black",color:"white",type:"submit",time:400,text:"submit"});
+        form.onsubmit=async(e:SubmitEvent)=>{
+            if(e){
+                e.preventDefault();
+                const formdata=new FormData(e.currentTarget as HTMLFormElement);
+                const checkbox=Boolean(formdata.get("checkbox") as string);
+                mainResume={...mainResume,french:checkbox};
+                this._service.saveResume({mainResume}).then(async(res)=>{
+                    if(res){
+                        const {name}=res as mainResumeType;
+                        Resume.message({parent,msg:"saved",type:"success",time:1000});
+                        this.mainResume=res;
+                        const remain=this.mainResumes.filter(kv=>(kv.name !==name));
+                        this.mainResumes=[...remain,res];
+                        parent.removeChild(popup);
+                        func(this.mainResumes,res,"add");
+                    }
+                });
+            }
+        };
+    }
+
+
+
     editSaveAsNew({grandParent,parent,user,mainResume,func}:{parent:HTMLElement,grandParent:HTMLElement,row:HTMLElement,css_col:string,css_row:string,user:userType|null,mainResume:mainResumeType,
         func:(mainResumes:mainResumeType[],mainResume:mainResumeType,type:"rem"|"add")=>Promise<void>|void
     }){
-        console.log("editSaveAsNew: START")
+        
         parent.style.position="relative";
         const popup=document.createElement("div");
         popup.id="popup-edit-saveNew";
@@ -490,18 +631,31 @@ class EditResume {
         input.placeholder="file name";
         label.setAttribute("for",input.id);
         label.textContent="file name";
+        const {input:checkbox,label:clabel,formGrp:grlCheck}=EditResume.inputComponent(form);
+        grlCheck.className=styles.formGrp;
+        grlCheck.classList.remove("form-group");
+        checkbox.classList.remove("form-control");
+        grlCheck.style.gap="1rem";
+        checkbox.id="checkbox";
+        checkbox.type="checkbox";
+        checkbox.name="checkbox";
+        checkbox.checked=mainResume.french;
+        checkbox.placeholder="";
+        clabel.setAttribute("for",checkbox.id);
+        clabel.textContent="french /française";
         popup.appendChild(form);
         Resume.simpleButton({anchor:form,bg:"black",color:"white",type:"submit",time:400,text:"submit"});
         form.onsubmit=async(e:SubmitEvent)=>{
             if(!(e && user)) return;
             e.preventDefault();
-            console.log("STEP1");
+          
             const rand=Math.floor(Math.random()*1000);
             const formdata=new FormData(e.currentTarget as HTMLFormElement);
             const name=formdata.get("name") as string;
+            const checkbox=Boolean(formdata.get("checkbox") as string);
             const _name=`${name.split(" ").join("_").trim()}-${rand}`;
             mainResume.resume.name=_name;
-            mainResume={...mainResume,name:_name,user_id:user.id};
+            mainResume={...mainResume,name:_name,user_id:user.id,french:checkbox};
             await this._service.saveResume({mainResume}).then(async(res)=>{
                 if(res){
                     this.mainResume=res;
@@ -644,51 +798,54 @@ class EditResume {
         parent.appendChild(contactCont);
         const {contact}=resume;
         for(const [key,value]of Object.entries(contact)){
-            const {input,label,formGrp}=EditResume.inputComponent(contactCont);
-          
-            formGrp.style.cssText=css_col +"width:100%;gap:1rem;position:relative;align-items:center;";
-            
-            input.id=`${key}`;
-            input.name="contact-" + key;
-            input.value=value;
-            input.style.width=less400 ? "75%":"50%";
-            label.setAttribute("for",input.id);
-            label.textContent=french? langConversion({key}):key;
-            input.onchange=(e:Event)=>{
-                if(!e) return;
-                const value=(e.currentTarget as HTMLTextAreaElement).value;
-                switch(true){
-                    case key==="address":
-                        resume.contact.address=value;
-                        formGrp.style.order="1";
-                    break;
-                    case key==="name":
-                        resume.contact.name=value;
-                        formGrp.style.order="0";
-                    break;
-                    case key==="city":
-                        resume.contact.city=value;
-                        formGrp.style.order="2";
-                    break;
-                    case key==="PO":
-                        resume.contact.PO=value;
-                        formGrp.style.order="3";
-                    break;
-                    case key==="cell":
-                        resume.contact.cell=value;
-                        formGrp.style.order="4";
-                    break;
-                    case key==="email1":
-                        resume.contact.email1=value;
-                        formGrp.style.order="5";
-                    break;
-                    case key==="email2":
-                        resume.contact.email2=value;
-                        formGrp.style.order="6";
-                    break;
-                }
-            };
-            this.formResNames.push({cat:"contact",subCat:key,item:undefined,name:"contact-" + key,value:value as string});
+            if(key !=="id"){
+
+                const {input,label,formGrp}=EditResume.inputComponent(contactCont);
+              
+                formGrp.style.cssText=css_col +"width:100%;gap:1rem;position:relative;align-items:center;";
+                if(key==="name") formGrp.style.order="0";
+                if(key==="address") formGrp.style.order="1";
+                if(key==="city") formGrp.style.order="2";
+                if(key==="PO") formGrp.style.order="3";
+                if(key==="cell") formGrp.style.order="4";
+                if(key==="email1") formGrp.style.order="5";
+                if(key==="email2") formGrp.style.order="6";
+                input.id=`${key}`;
+                input.name="contact-" + key;
+                input.value=value;
+                input.placeholder=french? langConversion({key}):key;
+                input.style.width=less400 ? "75%":"50%";
+                label.setAttribute("for",input.id);
+                label.textContent=french? langConversion({key}):key;
+                input.onchange=(e:Event)=>{
+                    if(!e) return;
+                    const value=(e.currentTarget as HTMLTextAreaElement).value;
+                    switch(true){
+                        case key==="address":
+                            resume.contact.address=value;
+                        break;
+                        case key==="name":
+                            resume.contact.name=value;
+                        break;
+                        case key==="city":
+                            resume.contact.city=value;
+                        break;
+                        case key==="PO":
+                            resume.contact.PO=value;
+                        break;
+                        case key==="cell":
+                            resume.contact.cell=value;
+                        break;
+                        case key==="email1":
+                            resume.contact.email1=value;
+                        break;
+                        case key==="email2":
+                            resume.contact.email2=value;
+                        break;
+                    }
+                };
+                this.formResNames.push({cat:"contact",subCat:key,item:undefined,name:"contact-" + key,value:value as string});
+            }
         };
         return resume;
     };
@@ -703,11 +860,32 @@ class EditResume {
         less400:boolean,
         french:boolean
     }):resumeType{
+        resume=this.hasWorkAchievement({resume,french});//adding achievement if empty
+        resume=this.hasSkillsAchievement({resume,french});//adding achievement if empty
         const {workExperience}=resume;
+        Resume.cleanUpById({parent,id:"main-work-cont"})
         const mainWorkCont=document.createElement("div");
         mainWorkCont.id="main-work-cont";
-        mainWorkCont.style.cssText=css_col +"margin-inline:auto;width:100%;margin-block:1.5rem;align-items:center;";
+        mainWorkCont.style.cssText=css_col +"margin-inline:auto;width:100%;margin-block:1.5rem;align-items:center;position:relative;";
+        this._addRemove.addWorkExperience({
+            parent:mainWorkCont,
+            resume,
+            css_col,
+            less400,
+            french,
+            func:(resume)=>{
+                Resume.cleanUpById({parent,id:"main-work-cont"});
+                this.editWorkExper({parent,css_row,resume,css_col,less400,french});
+            }
+        });
         parent.appendChild(mainWorkCont);
+        this.sortOrderWorkExp({parent:mainWorkCont,resume,
+            funcExp:(_resume,count)=>{
+                _resume.workExperience=_resume.workExperience.toSorted((a,b)=>{if(a.id <b.id) return -1;return 1})
+              resume=this.editWorkExper({parent,resume:_resume,css_col,css_row,less400,french});
+                Resume.message({parent:mainWorkCont,msg:`shift one:${count}`,type:"success",time:1200});
+            }
+        });
         resume.workExperience= workExperience.map((experience,index)=>{
             if(experience){
                 
@@ -715,8 +893,6 @@ class EditResume {
                 const workExpCont=document.createElement("div");
                 workExpCont.className=styles.workExpCont;
                 workExpCont.id="work-experience-cont";
-                
-                
                 const name=document.createElement("h4");
                 name.style.cssText="text-transform:uppercase;";
                 name.textContent=french ? langConversion({key:"work experience"}):"work experience";
@@ -749,24 +925,143 @@ class EditResume {
                         experience=this.formComp.workAchievement({parent:workExpCont,order:3,css_col,css_row,experience,less400,french});
                     }else if(key==="skills"){
                         experience=this.formComp.workSkills({formChild:workExpCont,order:4,css_col,key,less400,experience,french});
-                    }else if(!item){
-                        this.workOrgs.map(kv=>{
-                            const check=Object.keys(experience).includes(kv.cat);
-                            if(kv && !check){
-                                const {cat}=kv;
-                                if(cat==="achievements"){
-                                    experience=this.formComp.workAchievement({parent:workExpCont,order:5,css_col,css_row,experience,less400,french});
-                                }else if(kv.cat==="skills"){
-                                    experience=this.formComp.workSkills({formChild:workExpCont,order:6,css_col,key,less400,experience,french});
-
-                                }
-                            }
-                        });
-                    }
+                    };
                   
                 };
             };
             return experience
+        });
+        return resume;
+    };
+
+
+    sortOrderWorkExp({parent,resume,funcExp,}:{
+        parent:HTMLElement,
+        resume:resumeType,
+        funcExp:(_resume:resumeType,count:number)=>Promise<resumeType|void>|resumeType|void
+    }){
+        parent.style.position="relative";
+        const popup=document.createElement("div");
+        popup.id="sortOrderWorkExp";
+        popup.className=styles.sortOrderWorkExp;
+        const div=document.createElement("div");
+        div.setAttribute("data-count",String(this.countOrder));
+        const h6=document.createElement("h6");
+        h6.textContent="order experience?";
+        div.appendChild(h6);
+        popup.appendChild(div);
+        parent.appendChild(popup);
+        popup.onclick=(e:MouseEvent)=>{
+            if(!e) return;
+           resume.workExperience.map((exp,index)=>{
+                if(exp){
+                    const {from,id:idref}=exp;
+                    const dateRef=Number(from);
+                    if(!isNaN(dateRef)){
+                        resume.workExperience=resume.workExperience.map(fromDateExp=>{
+                            if(fromDateExp && fromDateExp.from){
+                                const {from:_from,id:fromDateExpId}=fromDateExp;
+                                const fromDate=Number(_from);
+                               
+                                if(fromDate > dateRef && idref < fromDateExpId){
+                                    fromDateExp.id=idref;
+                                    exp.id=fromDateExpId;
+                                    this.countOrder++;
+                                }
+                            }
+                            return fromDateExp;
+                        });
+                    }
+
+                }
+                
+            });
+
+            funcExp(resume,this.countOrder);
+        };
+
+    };
+
+
+    sortOrderEducation({parent,resume,funcExp,}:{
+        parent:HTMLElement,
+        resume:resumeType,
+        funcExp:(_resume:resumeType,count:number)=>Promise<resumeType|void>|resumeType|void
+    }){
+        parent.style.position="relative";
+        const popup=document.createElement("div");
+        popup.id="sortOrderWorkExp";
+        popup.className=styles.sortOrderWorkExp;
+        const div=document.createElement("div");
+        div.setAttribute("data-count",String(this.countOrder));
+        const h6=document.createElement("h6");
+        h6.textContent="order education?";
+        div.appendChild(h6);
+        popup.appendChild(div);
+        parent.appendChild(popup);
+        popup.onclick=(e:MouseEvent)=>{
+            if(!e) return;
+           resume.education.map((exp,index)=>{
+                if(exp){
+                    const {from,id:idref}=exp;
+                    const dateRef=Number(from);
+                    if(!isNaN(dateRef)){
+                        resume.education=resume.education.map(fromDateEduc=>{
+                            if(fromDateEduc && fromDateEduc.from){
+                                const {from:_from,id:fromDateExpId}=fromDateEduc;
+                                const fromDate=Number(_from);
+                               
+                                if(fromDate > dateRef && idref < fromDateExpId){
+                                    fromDateEduc.id=idref;
+                                    exp.id=fromDateExpId;
+                                    this.countOrder++
+                                }
+                            }
+                            return fromDateEduc;
+                        });
+                    }
+
+                }
+                
+            });
+
+            funcExp(resume,this.countOrder);
+        };
+
+    };
+
+
+    hasWorkAchievement({resume,french}:{resume:resumeType,french}){
+
+        resume.workExperience=resume.workExperience.map((exp,index)=>{
+            if(exp && !(exp.achievements && exp.achievements?.length)){
+                exp.achievements=[langAchievement({french})]
+            }
+            return exp
+        });
+        return resume;
+    };
+
+
+    hasSkillsAchievement({resume,french}:{resume:resumeType,french:boolean}){
+
+        resume.workExperience=resume.workExperience.map((exp,index)=>{
+            if(exp && !(exp.skills && exp.skills?.length)){
+                exp.skills=langSkills({french});
+            }
+            return exp
+        });
+        return resume;
+    };
+
+
+
+    hasEducAchievement({resume,french}:{resume:resumeType,french:boolean}){
+        resume.education=resume.education.map((educ,index)=>{
+            if(educ && !(educ.achievements && educ.achievements?.length)){
+                educ.achievements=[langAchievement({french})]
+            }
+            return educ
         });
         return resume;
     };
@@ -782,9 +1077,27 @@ class EditResume {
         french:boolean
     }):resumeType{
         const {education}=resume;
+        Resume.cleanUpById({parent,id:"main-edit-cont"});
         const mainEditCont=document.createElement("div");
         mainEditCont.id="main-edit-cont";
-        mainEditCont.style.cssText=css_col + "width:100%;border-radius:8px;margin-block:1.5rem;";
+        mainEditCont.style.cssText=css_col + "width:100%;border-radius:8px;margin-block:1.5rem;position:relative";
+        this._addRemove.addEducation({
+            parent:mainEditCont,
+            resume,
+            french,
+            css_col,less400,
+            func:(resume)=>{
+                Resume.cleanUpById({parent,id:"main-edit-cont"});
+                this.editEducation({parent,resume,css_row,css_col,less400,french});
+            }
+        });
+        this.sortOrderEducation({parent:mainEditCont,resume,
+            funcExp:(_resume,count)=>{
+                _resume.education=_resume.education.toSorted((a,b)=>{if(a.id <b.id) return -1;return 1})
+              resume=this.editEducation({parent,resume:_resume,css_col,css_row,less400,french});
+                Resume.message({parent:mainEditCont,msg:`shift: ${count}`,type:"success",time:1200});
+            }
+        });
         parent.appendChild(mainEditCont);
         resume.education=education.map((educate,index)=>{
             if(educate){

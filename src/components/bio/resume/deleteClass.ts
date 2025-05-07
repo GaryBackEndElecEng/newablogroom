@@ -26,7 +26,7 @@ class DeleteClass{
         this._mainResumes=[] as mainResumeType[];
         this._nameResumes=[] as nameResumeType[];
         this._mainResume={} as mainResumeType;
-        if(this._user){
+        if(this._user?.resumes && this._user?.resumes?.length >0){
             this._mainResumes=this._user.resumes as mainResumeType[];
             this._nameResumes=this._mainResumes.map(kv=>({id:kv.id as number,user_id:kv.user_id,name:kv.name,enable:kv.enable,french:kv.french}));
             this._mainRefs=this._user.references as mainResumeRefType[];

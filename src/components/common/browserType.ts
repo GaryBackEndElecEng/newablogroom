@@ -12,13 +12,16 @@ class BrowserType {
         {reg:/(?!\/)(post)\/\d+/, id: 5, pathname: "/post/",pagename:"post" },
         {reg:/(?!\/)(blog)\/\d+/, id: 6, pathname: "/blog/",pagename:"blog" },
         {reg:/(?!\/)(admin)/, id: 7, pathname: "/admin",pagename:"admin" },
-        {reg:/(?!\/)(printblog)/, id: 8, pathname: "/printblog",pagename:"printblog" },
-        {reg:/(?!\/)(policy)/, id: 9, pathname: "/policy",pagename:"policy" },
-        {reg:/(?!\/)(quote)/, id: 10, pathname: "/quote",pagename:"quote" },
-        {reg:/(?!\/)(register)/, id: 11, pathname: "/register",pagename:"register" },
-        {reg:/(?!\/)(signin)/, id: 12, pathname: "/signin",pagename:"signin" },
-        {reg:/(?!\/)(termsOfService)/, id: 13, pathname: "/termsOfService",pagename:"termsOfAervice" },
-        {reg:/(?!\/)(error_page)/, id: 14, pathname: "/error_page",pagename:"error_page" },
+        {reg:/(?!\/)(printblog)/, id: 9, pathname: "/printblog",pagename:"printblog" },
+        {reg:/(?!\/)(bio)/, id: 10, pathname: "/bio",pagename:"bio" },
+        {reg:/(?!\/)(resumebuilder)/, id: 11, pathname: "/resumebuilder",pagename:"resumebuilder" },
+        {reg:/(?!\/)(policy)/, id: 11, pathname: "/policy",pagename:"policy" },
+        {reg:/(?!\/)(quote)/, id: 12, pathname: "/quote",pagename:"quote" },
+        {reg:/(?!\/)(register)/, id: 13, pathname: "/register",pagename:"register" },
+        {reg:/(?!\/)(signin)/, id: 14, pathname: "/signin",pagename:"signin" },
+        {reg:/(?!\/)(termsOfService)/, id: 15, pathname: "/termsOfService",pagename:"termsOfAervice" },
+        {reg:/(?!\/)(error_page)/, id: 16, pathname: "/error_page",pagename:"error_page" },
+        {reg:/(?!\/)(admin)/, id: 17, pathname: "/admin",pagename:"admin" },
         {reg:/(?!\/)/, id: 0, pathname: "/",pagename:"" },
 
 
@@ -167,6 +170,7 @@ class BrowserType {
         const pathname=window.location.pathname;
          const states=this.getHistory();
          const getState=states?.filter(kv=>(kv.isAdmin)).find(kv=>kv.pathname===pathname);
+         console.log("getState.count",getState?.count)
          if(getState){
             return getState.count <=repeatCount
          };

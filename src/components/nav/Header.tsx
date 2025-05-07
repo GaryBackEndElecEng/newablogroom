@@ -5,6 +5,7 @@ import { getServerSession, Session } from 'next-auth';
 import prisma from "@/prisma/prismaclient";
 import { getErrorMessage } from '@/lib/errorBoundaries';
 import { userType } from '../editor/Types';
+import { letterType, mainIntroLetterType, mainResumeRefType, mainResumeStrType, resumeRefStrType, resumeRefType, resumeType } from '../bio/resume/refTypes';
 
 const EMAIL = process.env.EMAIL;
 const EMAIL2 = process.env.EMAIL2;
@@ -36,7 +37,10 @@ export async function getuser(item: { session: Session | null }): Promise<userTy
                 bio: true,
                 showinfo: true,
                 admin: true,
-                username: true
+                username: true,
+                resumes: true,
+                references: true,
+                letters: true
             }
         }) as unknown as userType;
         if (user) {
@@ -44,7 +48,8 @@ export async function getuser(item: { session: Session | null }): Promise<userTy
                 user.admin = true;
             };
             await prisma.$disconnect();
-            return user;
+            const _user = convertJSON({ user });
+            return _user;
         } else {
             await prisma.$disconnect();
             return null;
@@ -56,5 +61,28 @@ export async function getuser(item: { session: Session | null }): Promise<userTy
         await prisma.$disconnect();
         return null;
     };
+}
+
+
+function convertJSON({ user }: { user: userType }): userType {
+    const letters = user.letters;
+    const refs = user.references as resumeRefStrType[];
+    const resumes = user.resumes as mainResumeStrType[];
+    const convLetters = letters.map(_let => {
+        const convLet = JSON.parse(_let.letter as unknown as string) as letterType
+        return { ..._let, letter: convLet } as unknown as mainIntroLetterType
+    }) as unknown as mainIntroLetterType[];
+    const refers = refs.map(ref => {
+        const references = JSON.parse((ref as resumeRefStrType).reference as string) as resumeRefType[]
+        return { ...ref, references: references }
+    }) as mainResumeRefType[];
+
+    const convResumes = resumes.map(res => {
+        const convRes = JSON.parse(res.resume as string) as resumeType
+        return { ...res, resume: convRes }
+    });
+
+    user = { ...user, letters: convLetters, references: refers, resumes: convResumes };
+    return user;
 }
 

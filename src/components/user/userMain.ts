@@ -14,6 +14,7 @@ import { FaCrosshairs } from "react-icons/fa";
 import { FaCreate } from "../common/ReactIcons";
 import { idValueType, locationEnumType, selRowColType, selRowType } from "@/lib/attributeTypes";
 import RegSignIn from "../nav/regSignin";
+import { mainIntroLetterStrType, mainIntroLetterType, mainResumeRefType, mainResumeStrType, mainResumeType, resumeRefStrType } from "../bio/resume/refTypes";
 
 class UserSetups  {
    public bgColor:string;
@@ -377,6 +378,9 @@ class User{
         devDeployimgs:[] as userDevelopType[],
         accounts:[] as accountType[],
         sessions:[] as sessionType[],
+        letters:[] as mainIntroLetterStrType[]|mainIntroLetterType[],
+        resumes:[] as mainResumeStrType[] |mainResumeType[],
+        references:[] as mainResumeRefType[] | resumeRefStrType[],
         admin:false,
     } as userType;
   

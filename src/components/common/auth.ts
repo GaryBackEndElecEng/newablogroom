@@ -5,6 +5,7 @@ import MainHeader from "../nav/mainHeader";
 import { userDevelopType, userQuoteType } from '../editor/Types';
 import BrowserType from "./browserType";
 import { getSession } from "next-auth/react";
+import { mainIntroLetterStrType, mainIntroLetterType, mainResumeRefType, mainResumeStrType, mainResumeType, resumeRefStrType } from '../bio/resume/refTypes';
 
 
 class AuthService {
@@ -18,30 +19,35 @@ class AuthService {
    private _isAdmin:boolean;
    private _user:userType;
     private _states:stateType[];
-   static readonly userInit:userType={
-        id:"",
-        email:"",
-        name:undefined,
-        password:undefined,
-        emailVerified:undefined,
-        image:undefined,
-        imgKey:undefined,
-        bio:undefined,
-        showinfo:undefined,
-        blogs:[] as blogType[],
-        posts:[] as postType[],
-        devDeployimgs:[] as userDevelopType[],
-        quoteImgs:[] as userQuoteType[],
-        accounts:[] as accountType[],
-        sessions:[] as sessionType[],
-        admin:false,
-        username:undefined,
-    } as userType;
+    readonly userInit:userType;
     _status:statusType;
 
     constructor(private _modSelector:ModSelector,private _service:Service){
         this._isAuthenticated=false;
-        this._user=AuthService.userInit as userType;
+        this.userInit={
+            id:"",
+            email:"",
+            name:undefined,
+            password:undefined,
+            emailVerified:undefined,
+            image:undefined,
+            imgKey:undefined,
+            bio:undefined,
+            showinfo:undefined,
+            blogs:[] as blogType[],
+            posts:[] as postType[],
+            devDeployimgs:[] as userDevelopType[],
+            quoteImgs:[] as userQuoteType[],
+            accounts:[] as accountType[],
+            sessions:[] as sessionType[],
+            letters:[] as mainIntroLetterStrType[]|mainIntroLetterType[],
+            resumes:[] as mainResumeStrType[] |mainResumeType[],
+            references:[] as mainResumeRefType[] | resumeRefStrType[],
+            admin:false,
+            username:undefined,
+        } as userType;
+
+        this._user=this.userInit as userType;
         this.bgColor=this._modSelector._bgColor;
         this.btnColor=this._modSelector.btnColor;
         this.logo=`gb_logo.png`;
@@ -74,7 +80,7 @@ class AuthService {
         }else{
             this._isAuthenticated=false;
             this.status="unauthenticated";
-            this._user=AuthService.userInit;
+            this._user=this.userInit;
         };
         
     }
@@ -130,7 +136,7 @@ class AuthService {
         }else{
             
             //THIS INITIALIZE ALL PARAMS TO ALL PAGES( WITHOUT USER)
-            this.user=AuthService.userInit;
+            this.user=this.userInit;
             this._isAuthenticated=false;
             this._modSelector.status="unauthenticated";
             this.status="unauthenticated";
@@ -208,7 +214,7 @@ class AuthService {
                 localStorage.removeItem("email");
                 MainHeader.header=document.querySelector("header#navHeader") as HTMLElement;
                 this._service.isSignedOut=true;
-                this._user=AuthService.userInit
+                this._user=this.userInit
                 this.status="unauthenticated";
                 MainHeader.removeAllClass({parent:MainHeader.header,class_:"ablogroom"});
                 window.scroll(0,0);

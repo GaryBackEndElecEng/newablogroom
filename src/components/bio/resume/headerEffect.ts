@@ -169,13 +169,13 @@ class HeaderEffect{
 
 
     buildShowSlide({row,item,show,len}:{row:HTMLElement,item:introResumeType,show:boolean,len:number,}){
-        const {id,name,desc,img,isDark}=item;
+        const {id,name,desc,isDark}=item;
         let getCol=row.querySelector(`div#col-${id}`) as HTMLElement;
         if(!getCol){
             getCol=document.createElement("div");
             getCol.id=`col-${id}`;
             getCol.style.order=String(id);
-            getCol.style.backgroundImage=`url(${img})`;
+            getCol.style.backgroundImage=`url(${this.mainImg})`;
             getCol.style.flex="1 0 100%";
             getCol.style.width="100%";
             getCol.style.zIndex="0";

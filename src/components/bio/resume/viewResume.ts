@@ -7,6 +7,7 @@ import styles from "./viewResume.module.css";
 import { langConversion } from "./engFre";
 
 
+
 class ViewResume {
     public rowId:string;
     public containerId:string;
@@ -88,6 +89,109 @@ async showResume({parent,mainResume,french,func1}:{parent:HTMLElement,mainResume
     }
     
 };
+
+
+//FROM SIDEBAR
+copyLinkFromSidebar({parent,mainResumes}:{parent:HTMLElement,mainResumes:mainResumeType[]}){
+    //SHOW W/o TO INSERT
+    //SHOW LIST
+    parent.style.position="relative";
+    const popup=document.createElement("div");
+    popup.id="popup-viewResume";
+    popup.className=styles.popupFromSidebar;
+    Resume.deletePopup({parent,target:popup});
+    parent.appendChild(popup);
+    if(mainResumes){
+        mainResumes?.map((mainResume,index)=>{
+            if(mainResume){
+                const {name:_name,enable:enabled}=mainResume;
+                let count=0;
+                const row=document.createElement("div");
+                row.className=styles.fromeSidebarRow;
+                row.setAttribute("data-innerRow",`view ${_name}`);
+                row.id="row";
+                row.style.order=String(index);
+                for(const [key,value] of Object.entries(mainResume)){
+                    count++;
+                    const check=["id","resume","user_id","french"].includes(key);
+                    if(!check && typeof(value) !=="object"){
+                        const StrValue=String(value);
+                        const innerRow=document.createElement("div");
+                        innerRow.id="row-innerRow-"+ String(count);
+                        innerRow.className=styles.sidebarRowInnerRow;
+                        innerRow.style.order=String(count);
+                        const name=document.createElement("h6");
+                        name.className="text-primary text-center";
+                        name.style.cssText="font-size:110%;";
+                        name.textContent=key;
+                        innerRow.appendChild(name);
+                        const nameValue=document.createElement("h6");
+                        nameValue.textContent=StrValue;
+                        innerRow.appendChild(nameValue);
+                        row.appendChild(innerRow);
+                        if(key==="enable" && value){
+                            const btn=document.createElement("button");
+                            btn.id="btn";
+                            btn.className=styles.btn;
+                            btn.setAttribute("data-sidebar-btn","copy link");
+                            btn.textContent="copy link";
+                            row.appendChild(btn);
+                            btn.onclick=(e:MouseEvent)=>{
+                                if(!e) return;
+                                const {name}=mainResume;
+                                const url=new URL(`showResume/${name}`,location.origin);
+                                navigator.clipboard.writeText(url.href);
+                                Resume.message({parent,msg:"copied",type:"success",time:800});
+                                setTimeout(()=>{parent.removeChild(popup)},800);
+                            };
+                        };
+                        innerRow.onclick=(e:MouseEvent)=>{
+                            if(!e) return;
+                            parent.style.overflowY="scroll";
+                            const {french}=mainResume;
+                            const rows=popup.querySelectorAll("div#row");
+                            rows.forEach(_row=>{
+                                popup.removeChild(_row);
+                            });
+                            this.resume({
+                                parent:popup,
+                                mainResume,
+                                showPrint:false,
+                                closeDelete:true,
+                                french,
+                                func1:()=>{},
+                            });
+                            if(enabled){
+
+                                const btn=document.createElement("button");
+                                    btn.id="btn";
+                                    btn.className=styles.btnNormal;
+                                    btn.setAttribute("data-sidebar-btn","copy link");
+                                    btn.textContent="copy link";
+                                    popup.appendChild(btn);
+                                    btn.onclick=(e:MouseEvent)=>{
+                                        if(!e) return;
+                                        const {name}=mainResume;
+                                        const url=new URL(`showResume/${name}`,location.origin);
+                                        navigator.clipboard.writeText(url.href);
+                                        Resume.message({parent,msg:"copied",type:"success",time:800});
+                                        setTimeout(()=>{parent.removeChild(popup)},800);
+                                        
+                                    };
+                                };
+                            }
+                        }
+                       
+                }
+                popup.appendChild(row);
+    
+            }
+        });
+    }else{
+        Resume.message({parent,msg:"sorry you have no resumes from resumeBuilder",type:"warning",time:2500});
+    }
+
+}
 
 
 
@@ -205,6 +309,8 @@ resume({parent,mainResume,showPrint,closeDelete,french,func1}:{parent:HTMLElemen
     }
     parent.appendChild(mainCont);
 };
+
+
 
 printResume({parent,resume,french}:{parent:HTMLElement,resume:resumeType,french:boolean}){
     const less900=window.innerWidth <900;
@@ -663,7 +769,7 @@ siteTitle({parent,less400,less900,css_col,sites,french}:{less400:boolean,less900
 
 
 experCard({parent,exper,less400,less900,css_col,css_row,index,french}:{parent:HTMLElement,exper:workExperienceType,less400:boolean,less900:boolean,css_col:string,css_row:string,index:number,french:boolean}){
-    const check=!!(exper?.achievements && exper.achievements.length>0);
+    const check=!!(exper?.achievements && exper.achievements?.length>0);
     const expCard=document.createElement("div");
     expCard.id="exper-card-" + String(index);
     expCard.className=styles.expCard;
@@ -684,9 +790,8 @@ experCard({parent,exper,less400,less900,css_col,css_row,index,french}:{parent:HT
     const achieveTitle=document.createElement("h6");
     achieveTitle.textContent=french ? langConversion({key:"achievements"}):"achievements";
     achieveTitle.style.cssText="text-transform:capitalize;margin-bottom:0.25rem;margin-left:0;";
-    achievCont.appendChild(achieveTitle);
     if(check){
-
+        
         exper.achievements.map((achiev,index)=>{
             if(achiev?.achievement.split("").length>0){
                 const ind=document.createElement("span");
@@ -695,8 +800,9 @@ experCard({parent,exper,less400,less900,css_col,css_row,index,french}:{parent:HT
                 this.achievCard({parent:achievCont,achiev,index,french});
             }
         });
+        achievCont.appendChild(achieveTitle);
+        expCard.appendChild(achievCont);
     }
-    expCard.appendChild(achievCont);
     this.skillExperContainer({parent:expCard,css_row,expData:exper,less400,french});
     parent.appendChild(expCard);
 };
@@ -778,60 +884,68 @@ educationCard({parent,less400,less900,css_col,css_row,educData,french,index}:{le
 
 
 skillEducContainer({parent,css_row,educData,less400,french}:{parent:HTMLElement,css_row:string,educData:educationType,less400:boolean,french:boolean}){
-const skillCont=document.createElement("div");
-skillCont.id="skill-cont";
-skillCont.className=styles.educateSkillRowCont;
-let skills_=["skills"];
-skills_=skills_.concat(educData.skills)
-skills_.map((skill,index)=>{
-    const skill_=document.createElement("p");
-    skill_.id="skill-" + String(index);
-    skill_.style.paddingInline="0.25rem";
-    skill_.style.fontSize=less400 ? "90%":"85%";
-    if(index===0){
-        skill_.style.borderLeft="none";
-        skill_.style.textWrap="nowrap";
-        const word=french ? langConversion({key:skill}):"skills";
-        skill_.style.color="blue";
-        skill_.textContent=`${word} : `;
-    }else{
-        skill_.style.textWrap="wrap";
-        skill_.textContent=`${skill},`;
+    if(educData && educData?.skills && educData.skills?.length >0){
+
+        const skillCont=document.createElement("div");
+        skillCont.id="skill-cont";
+        skillCont.className=styles.educateSkillRowCont;
+        let skills_=["skills"];
+        skills_=skills_.concat(educData.skills)
+        skills_.map((skill,index)=>{
+            const skill_=document.createElement("p");
+            skill_.id="skill-" + String(index);
+            skill_.style.paddingInline="0.25rem";
+            skill_.style.fontSize=less400 ? "90%":"85%";
+            if(index===0){
+                skill_.style.borderLeft="none";
+                skill_.style.textWrap="nowrap";
+                const word=french ? langConversion({key:skill}):"skills";
+                skill_.style.color="blue";
+                skill_.textContent=`${word} : `;
+            }else{
+                skill_.style.textWrap="wrap";
+                skill_.textContent=`${skill},`;
+            }
+            skillCont.appendChild(skill_);
+        });
+        parent.appendChild(skillCont);
+        };
     }
-    skillCont.appendChild(skill_);
-});
-parent.appendChild(skillCont);
-};
 
 
 
 skillExperContainer({parent,css_row,expData,less400,french}:{parent:HTMLElement,css_row:string,expData:workExperienceType,less400:boolean,french:boolean}){
-    const {skills}=expData;
-const skillCont=document.createElement("div");
-skillCont.id="skill-cont";
-skillCont.className=styles.educateSkillRowCont;
+    if(expData && expData?.skills && expData.skills?.length >0){
 
-const skills_=["skill"].concat(skills);
-skills_.map((skill,index)=>{
-    const skill_=document.createElement("p");
-    skill_.id="skill-" + String(index);
-    skill_.style.paddingInline="0.25rem";
-    skill_.style.fontSize=less400 ? "90%":"85%";
-    if(index===0){
-        skill_.style.borderLeft="";
-        skill_.style.textWrap="nowrap";
-        const word=french ? langConversion({key:skill}):"skills";
-        skill_.style.color="blue";
-        skill_.textContent=`${word} : `;
-    }else{
+        const {skills}=expData;
+        const skillCont=document.createElement("div");
+        skillCont.id="skill-cont";
+        skillCont.className=styles.educateSkillRowCont;
         
-        skill_.style.textWrap="wrap";
-        skill_.textContent=`${skill},`;
-    }
-    skillCont.appendChild(skill_);
-});
-parent.appendChild(skillCont);
-};
+        const skills_=["skill"].concat(skills);
+        skills_.map((skill,index)=>{
+            const skill_=document.createElement("p");
+            skill_.id="skill-" + String(index);
+            skill_.style.paddingInline="0.25rem";
+            skill_.style.fontSize=less400 ? "90%":"85%";
+            if(index===0){
+                skill_.style.borderLeft="";
+                skill_.style.textWrap="nowrap";
+                const word=french ? langConversion({key:skill}):"skills";
+                skill_.style.color="blue";
+                skill_.textContent=`${word} : `;
+            }else{
+                
+                skill_.style.textWrap="wrap";
+                skill_.textContent=`${skill},`;
+            }
+            skillCont.appendChild(skill_);
+        });
+        parent.appendChild(skillCont);
+        
+        };
+
+    };
 
 
 educateHeader({parent,css_col,css_row,less900,less400,educData,french}:{parent:HTMLElement,css_col:string,css_row:string,less900:boolean,less400:boolean,educData:educationType,french:boolean}){

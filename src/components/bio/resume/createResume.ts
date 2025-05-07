@@ -622,11 +622,10 @@ class CreateResume {
             workExpCont.appendChild(name);
             parent.appendChild(workExpCont);
             const {workExperience}=resume;
-            this.formComp.addRemove.addWorkEducate({
+            this.formComp.addRemove.addWorkExperience({
                 parent:workExpCont,
                 resume,
                 css_col,
-                isEducation:false,
                 less400,
                 french,
                 func:(resume)=>{
@@ -674,18 +673,7 @@ class CreateResume {
                 return experience
             });
             CreateResume.hideShow({target:workExpCont,show,time:1100});
-            this.formComp.addRemove.addWorkEducate({
-                parent:workExpCont,
-                french,
-                resume,
-                css_col,
-                isEducation:false,
-                less400,
-                func:(resume)=>{
-                    Resume.cleanUpById({parent,id:"work-experience-cont"});
-                    this.createWorkExper({parent,resume,css_col,css_row,less400,show,french})
-                }
-            });
+           
         }else{
             const getExperience=parent.querySelector("div#work-experience-cont") as HTMLElement;
             CreateResume.hideShow({target:getExperience,show,time:1100});
@@ -719,12 +707,11 @@ class CreateResume {
             name.textContent="education";
             educateCont.appendChild(name);
             parent.appendChild(educateCont);
-            this.formComp.addRemove.addWorkEducate({
+            this.formComp.addRemove.addEducation({
                 parent:educateCont,
                 resume,
                 french,
                 css_col,
-                isEducation:true,
                 less400,
                 func:(resume)=>{
                     Resume.cleanUpById({parent,id:"educate-cont"});
@@ -771,18 +758,7 @@ class CreateResume {
             });
             this.educations=resume.education;
             CreateResume.hideShow({target:educateCont,show,time:1100});
-            this.formComp.addRemove.addWorkEducate({
-                parent:educateCont,
-                resume,
-                french,
-                isEducation:true,
-                css_col,
-                less400,
-                func:(resume)=>{
-                    Resume.cleanUpById({parent,id:"educate-cont"});
-                    this.createEducation({parent,resume,css_col,css_row,order,less400,show,french})
-                }
-            });
+          
         }else{
            
             CreateResume.hideShow({target:educateCont,show,time:1100});
@@ -810,6 +786,9 @@ class CreateResume {
         const {input,label,formGrp}=EditResume.inputComponent(particularComp);
         formGrp.className=styles.formGrpNormal
         formGrp.style.alignItems="center";
+        if(key==="title")  formGrp.style.order="0";
+        if(key==="company")  formGrp.style.order="1";
+        if(key==="location")  formGrp.style.order="2";
         input.id=`${key}`;
         input.type=insert.type;
         input.placeholder=french ? translate.fr:key;
@@ -823,15 +802,12 @@ class CreateResume {
             const value=(e.currentTarget as HTMLInputElement).value;
             switch(true){
                 case key==="title":
-                    formGrp.style.order="0";
                     experience.title=value;
                 break;
                 case key==="company":
-                    formGrp.style.order="1";
                     experience.company=value;
                 break;
                 case key==="location":
-                    formGrp.style.order="2";
                     experience.location=value;
                 break;
             }
@@ -849,6 +825,7 @@ class CreateResume {
         formGrp.style.order=String(order);
         summInput.id="summary";
         summInput.name="work-summary-" + String(index);
+        summInput.placeholder=langInserts({french,key:"summary"}).place;
         summInput.value=value as string;
         label.setAttribute("for",summInput.id);
         label.textContent=french ? "résumé":"summary";
@@ -887,13 +864,16 @@ class CreateResume {
             formGrp.id=`from-to-cont-child-${count}`
             formGrp.style.flex=less400 ? " 1 0 100%":"1 0 50%";
             formGrp.style.width=less400 ? "100%":"50%";
-            
+            if(key==="from")  formGrp.style.order="0";
+            else  formGrp.style.order="1";
             input.id=`${key}`;
             input.type="number";
             input.name="work-"+ key + "-" + String(index);
             input.style.width=less400 ? "75%":"50%";
+            input.min="1950";
+            input.max="3000";
             input.value=value as string;
-            input.placeholder= langInserts({french,key}).place;
+            input.placeholder="";
             label.setAttribute("for",input.id);
             label.textContent=key;
             input.onchange=(e:Event)=>{
@@ -901,10 +881,8 @@ class CreateResume {
                 const value=(e.currentTarget as HTMLInputElement).value;
                 if(key==="from"){
                     experience.from=value;
-                    formGrp.style.order="0";
                 }else{
                     experience.to=value;
-                    formGrp.style.order="1";
                 }
             };
         };
@@ -1086,6 +1064,8 @@ class CreateResume {
         input.value=value as string;
         input.style.width=less400 ? "75%":"50%";
         input.type="number";
+        input.min="1990";
+        input.max="3000";
         input.placeholder=french ? langConversion({key}):key;
         label.setAttribute("for",input.id);
         label.textContent=french ? langConversion({key})  :key;

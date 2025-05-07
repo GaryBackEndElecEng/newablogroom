@@ -34,6 +34,8 @@ import Headerflag from "./headerflag";
 import { idValueType, selRowColType } from "@/lib/attributeTypes";
 import AuthService from "../common/auth";
 import Toolbar from "../common/toolbar";
+import ViewResume from "../bio/resume/viewResume";
+import { mainResumeType } from "../bio/resume/refTypes";
 
 
 
@@ -1078,7 +1080,7 @@ class Sidebar{
     
     //---------------------INITIALIZE------------------------///
 
-    constructor(private _modSelector:ModSelector,private _service:Service,private auth:AuthService,main:Main, private _flexbox:Flexbox,private _code:NewCode,header:Header,public customHeader:CustomHeader,footer:Footer,edit:Edit,private _user:User,private _regSignin:RegSignIn,displayBlog:DisplayBlog,public chart:ChartJS,public shapeOutside:ShapeOutside,private _metablog:MetaBlog,private _headerFlag:Headerflag,public toolbar:Toolbar,private _blog:blogType){
+    constructor(private _modSelector:ModSelector,private _service:Service,private auth:AuthService,main:Main, private _flexbox:Flexbox,private _code:NewCode,header:Header,public customHeader:CustomHeader,footer:Footer,edit:Edit,private _User:User,private _regSignin:RegSignIn,displayBlog:DisplayBlog,public chart:ChartJS,public shapeOutside:ShapeOutside,private _metablog:MetaBlog,private _headerFlag:Headerflag,public toolbar:Toolbar,private _blog:blogType,private _viewResume:ViewResume,private __user:userType|null){
         this.emojiSmile="./images/emojiSmile.png";
         this.logo="/images/logo.png";
         this._selectors_=Flexbox.selectors_;
@@ -1091,10 +1093,10 @@ class Sidebar{
         this.design= new Design(this._modSelector);
         this.ven= new Ven(this._modSelector);
         this._pasteCode= new PasteCode(this._modSelector,this._service)
-        this.htmlelement=new HtmlElement(this._modSelector,this._service,this._user,this.shapeOutside,this.design,this.ven,this.reference,this._headerFlag,this._pasteCode)
+        this.htmlelement=new HtmlElement(this._modSelector,this._service,this._User,this.shapeOutside,this.design,this.ven,this.reference,this._headerFlag,this._pasteCode)
         this._displayBlog=displayBlog;
         Sidebar.headerType={normal:true,custom:false}
-        this.sideSetup= new SideSetup(this._modSelector,this._service,this._user,this._displayBlog,this._edit);
+        this.sideSetup= new SideSetup(this._modSelector,this._service,this._User,this._displayBlog,this._edit);
         this.intro=new Intro(this._modSelector,this._service);
         this.loadMisc= new LoadMisc(this._modSelector,this._service);
        
@@ -1102,6 +1104,12 @@ class Sidebar{
         
     }
     //------GETTER SETTERS-----/////
+    get user(){
+        return this.__user;
+    };
+    set user(user:userType|null){
+        this.__user=user;
+    }
     get blog(){
         const strBlog=localStorage.getItem("blog");
         if(strBlog){
@@ -1142,6 +1150,7 @@ class Sidebar{
         blog:blogType|null
 
     }){
+        injector.style.alignSelf="flex-start";
         mainContainer.id="main";
         this.blog=blog || {} as blogType;
         Main.container=mainContainer;
@@ -1167,6 +1176,7 @@ class Sidebar{
 
    //PARENT onClickHideShowSidebar()
     onclickHideShowSideBarGt100({injector,arrDiv,mainCont,less1000,textarea,footer,mainHeader,blog}:{injector:HTMLElement,arrDiv:HTMLElement,mainCont:HTMLElement,less1000:boolean,textarea:HTMLElement,footer:HTMLElement,mainHeader:HTMLElement,blog:blogType|null}){
+        injector.style.alignSelf="flex-start";
         const maxHeight=130
         this.sidebarMain({parent:injector,maxHeight,mainCont,less1000,textarea,footer,mainHeader,blog});
         injector.appendChild(arrDiv);
@@ -1233,7 +1243,7 @@ class Sidebar{
     //PARENT onClickHideShowSidebar()
     onclickHideShowSidebarLt1000({injector,arrDiv,mainCont,less1000,textarea,footer,mainHeader,blog}:{injector:HTMLElement,arrDiv:HTMLElement,mainCont:HTMLElement,less1000:boolean,textarea:HTMLElement,footer:HTMLElement,mainHeader:HTMLElement,blog:blogType|null}){
         const maxHeight=60;
-      
+        injector.style.alignSelf="flex-start";
         this.sidebarMain({parent:injector,maxHeight,mainCont,less1000,textarea,footer,mainHeader,blog});
         injector.appendChild(arrDiv);
         arrDiv.addEventListener("click",(e:MouseEvent)=>{
@@ -1293,7 +1303,7 @@ class Sidebar{
         const less400= window.innerWidth <400;
         const less900= window.innerWidth <900;
         const height=less1000 ? "60vh":"140vh";
-        const user=this._user.user;
+        const user=this.user ? this.user : this._User.user;
         const idValues=this._modSelector.dataset.idValues
         Main.textarea=document.querySelector("div#textarea");
         parent.style.paddingBottom="2rem";
@@ -1311,6 +1321,7 @@ class Sidebar{
         this.initializeTheme({parent:sidebarMain,mainCont,idValues,textarea,mainHeader,footer});
         this.addToolbar({parent:sidebarMain,mainCont,idValues,textarea,mainHeader,footer,blog});
         this.initiatesAddNewBlog(sidebarMain,mainCont);
+        this.insertResumeLink(sidebarMain,textarea,this.user);
         this.addAGraph(sidebarMain,textarea,idValues);
         this.initiateEdit({parent:sidebarMain,mainCont,textarea,mainHeader,footer,idValues,less400,less900});
         this.refreshEditor({parent:sidebarMain,mainCont,textarea,mainHeader,footer,blog,user});
@@ -1524,11 +1535,11 @@ class Sidebar{
                     retBtn.disabled=false;
                 },1000);
                 const blog=this._modSelector.blog;
-                const user=this._user.user;
+                const user=this.user;
               
-                if(blog && user.id && user.email){
+                if(blog && user?.id ){
                     
-                    this._user.saveWork({parent:mainCont,blog,func:()=>undefined})
+                    this._User.saveWork({parent:mainCont,blog,func:()=>undefined})
 
                 }else{
                     this._regSignin.signIn();
@@ -1635,7 +1646,7 @@ class Sidebar{
                 },1000);
                 const blog=this._modSelector.blog;
                 const maxCount=ModSelector.maxCount(blog);
-                const user=this._user.user;
+                const user=this.user;
                 const checkUser=(user?.id && user.id!=="" && user?.email!=="");
                 const checkBlog=( blog.name !=="undefined" && maxCount>0) ;
                 if(checkUser){
@@ -1645,7 +1656,7 @@ class Sidebar{
 
                         Misc.wantToSaveBeforeFunc({
                             parent:mainCont,
-                            funcSave:async()=>{await this._user.saveWork({parent,blog,func:async()=>{
+                            funcSave:async()=>{await this._User.saveWork({parent,blog,func:async()=>{
                                 await this._main.newBlog({
                                     parent:mainCont,
                                     func:()=>undefined,
@@ -1660,6 +1671,52 @@ class Sidebar{
                     }else{
                         await this._main.newBlog({parent:mainCont,func:()=>undefined})
                     }
+
+                }else{
+                    this._regSignin.signIn();
+                }
+            }
+        });
+     };
+
+
+
+     insertResumeLink(parent:HTMLElement,textArea:HTMLElement,user:userType|null){
+        //BTN THAT DESCRIBES ITS PURPOSE ON SIDEBAR
+        const btnContainer=document.createElement("div");
+        btnContainer.className="flexCol text-center";
+        btnContainer.style.cssText="box-shadow:1px 1px 12px 1px white;border-radius:10px;padding-inline:0.5rem;padding-block:1rem;text-align:center;align-items:center;width:100%;";
+        const H5=document.createElement("h5");
+        H5.textContent="Resume";
+        H5.style.cssText="margin:auto;text-decoration:underline;text-underline-offset:1rem;";
+        H5.className="text-info lean";
+        btnContainer.appendChild(H5);
+        const para=document.createElement("p");
+        para.className="mc-auto px-1 text-balance text-center";
+        para.style.cssText="text-wrap:wrap;margin-block:1rem;";
+        para.style.color=this.textColor;
+        para.textContent="Insert Your Resume.";
+        btnContainer.appendChild(para);
+        const {button:btn}=Misc.simpleButton({anchor:btnContainer,text:"insertResume",type:"button",bg:"#0dcaf0",color:"black",time:400});
+        parent.appendChild(btnContainer);
+        btn.animate([
+            {transform:"translateY(-100%) skew(45deg,0deg)",opacity:"0.3"},
+            {transform:"translateY(0%) skew(0deg,0deg)",opacity:"1"}
+        ],{duration:1000,iterations:1})
+        btn.addEventListener("click",async(e:MouseEvent)=>{
+            if(e ){
+                window.scroll(0,0);
+                btn.disabled=true;
+                setTimeout(()=>{
+                    btn.disabled=false;
+                },1000);
+                
+                
+                const checkUser=!!(user && user?.id );
+                if(checkUser){
+                    //ask to save
+                    const mainResumes=user.resumes as mainResumeType[]
+                   this._viewResume.copyLinkFromSidebar({parent:textArea,mainResumes})
 
                 }else{
                     this._regSignin.signIn();
@@ -1863,9 +1920,9 @@ class Sidebar{
                 setTimeout(()=>{
                     btn.disabled=false;
                 },1000);
-                const user=this._user.user;
+                const user=this.user;
                 const blog=this._modSelector.blog;
-                const signedIn= ( user?.id && user.id!=="" && user.email!=="") ;
+                const signedIn= user?.id ;
                 const allGood= (signedIn && blog && blog.user_id!=="" && blog.name);
                 if(allGood){
                     this._metablog.metablog({
@@ -2190,7 +2247,7 @@ class Sidebar{
                 //MAIN INSERTION POINT FOR TEXTAREA
                 if(!Main.textarea) return;
                 const blog=this._modSelector.blog;
-                const user=this._user?.user?.id!=="" ? this._user.user:null;
+                const user=this.user;
                    await this.addImage.main({parent:textarea,blog,useParent:true,idValues,user});
             }
         });

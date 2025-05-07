@@ -123,13 +123,14 @@ export const inserts:insertType[]=[
     {key:"composite",type:"text",place:"composed of",placeFr:"composé de"},
     {key:"title",type:"text",place:"your title",placeFr:"votre titre"},
     {key:"company",type:"text",place:"Company's name",placeFr:"Nom de l'entreprise"},
-    {key:"summary",type:"text",place:"Work Summary description",placeFr:"Description du résumé des travaux"},
+    {key:"summary",type:"text",place:"Work Summary description: It is a section where you describe your past jobs, titles, and work history",placeFr:"Description du résumé des travaux: Il s'agit d'une section dans laquelle vous décrivez vos emplois passés, vos titres et votre historique de travail"},
+    {key:"workSummary",type:"text",place:"Work description:It is a section where you describe your responsibilities when working with the company, above.",placeFr:"Description du poste : Il s'agit d'une section dans laquelle vous décrivez vos responsabilités lorsque vous travaillez avec l'entreprise, ci-dessus."},
     {key:"from",type:"number",place:"from",placeFr:"de"},
     {key:"to",type:"number",place:"to",placeFr:"a"},
-    {key:"achievement",type:"text",place:"achievement",placeFr:"réalisation"},
+    {key:"achievement",type:"text",place:"achievement: Instead of highlighting your duties and responsibilities, try to outline your achievements and awards",placeFr:"réalisation : Au lieu de mettre en évidence vos devoirs et responsabilités, essayez de décrire vos réalisations et vos récompenses."},
     {key:"reason",type:"text",place:"reason",placeFr:"raison"},
     {key:"filename",type:"text",place:"add filename",placeFr:"ajouter un nom de fichier"},
-    {key:"composite",type:"text",place:"what do you use?",placeFr:"Qu'est-ce que tu utilises ?"}
+    {key:"composite",type:"text",place:"what do you use?- What you used to attain the above achievement.",placeFr:"Qu'est-ce que tu utilises ?- Ce que vous avez utilisé pour atteindre le résultat ci-dessus."}
 
 ];
 
@@ -275,7 +276,7 @@ export const langEducation=({french}:{french:boolean})=>{
         GPA:0,
         relevantWork:"",
         extracurricular:"",
-        skills:langSkills({french}),
+        skills:langSkills({french}).slice(0,1),
         achievements:[langAchievement({french})]
     };
     
@@ -290,11 +291,11 @@ export const langExperience=({french}:{french:boolean})=>{
         id:0,
         title:"",
         company:"",
-        summary:langSummary({french}),
+        summary:"",
         location:"",
         from:"",
         to:"",
-        skills:langSkills({french}),
+        skills:langSkills({french}).slice(0,1),
         achievements:[langAchievement({french})]
     }
     return experience

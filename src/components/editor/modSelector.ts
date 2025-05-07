@@ -1,4 +1,4 @@
-import { flexType, elementType, colType, rowType, selectorType, element_selType, codeType, blogType, userType, themeType, saveProcessType, pageCountType, chartType, barOptionType, lineOptionType, messageType } from './Types';
+import { flexType, elementType, colType, rowType, selectorType, element_selType, codeType, blogType, userType, themeType, saveProcessType, pageCountType, chartType, barOptionType, lineOptionType, messageType, userDevelopType, postType, userQuoteType, accountType, sessionType } from './Types';
 
 import { FaCreate } from "../common/ReactIcons";
 import { FaCrosshairs } from "react-icons/fa";
@@ -10,6 +10,7 @@ import { Color } from "chart.js";
 import Dataset from '../common/dataset';
 import { idEnumType, idValueType, locationEnumType, selRowColType, selRowType, typeEnumType } from "@/lib/attributeTypes";
 import { attrEnumArr, attrEnumArrTest, IDKeys, typeEnumArr, typeEnumArrTest } from '../common/lists';
+import { mainIntroLetterStrType, mainIntroLetterType, mainResumeRefType, mainResumeStrType, mainResumeType, resumeRefStrType } from '../bio/resume/refTypes';
 
 
 
@@ -28,7 +29,7 @@ class ModSelector {
     private _count=1;
     private _placement=1;
     private _chart:chartType;
-    public initUser:userType;
+    public userInit:userType;
     public readonly initChart:chartType={
         id:0,
         type:"bar",
@@ -122,6 +123,29 @@ class ModSelector {
    
     constructor(public dataset:Dataset)
     {
+        this.userInit={
+            id:"",
+            email:"",
+            name:undefined,
+            password:undefined,
+            emailVerified:undefined,
+            image:undefined,
+            imgKey:undefined,
+            bio:undefined,
+            showinfo:undefined,
+            blogs:[] as blogType[],
+            posts:[] as postType[],
+            devDeployimgs:[] as userDevelopType[],
+            quoteImgs:[] as userQuoteType[],
+            accounts:[] as accountType[],
+            sessions:[] as sessionType[],
+            letters:[] as mainIntroLetterStrType[]|mainIntroLetterType[],
+            resumes:[] as mainResumeStrType[] |mainResumeType[],
+            references:[] as mainResumeRefType[] | resumeRefStrType[],
+            admin:false,
+            username:undefined,
+        } as userType;
+
         this.btnUpDate="#0d6efd";
         this.btnDetail="#0dcaf0";
         this.initElement_sel={

@@ -70,7 +70,9 @@ class MainHeader {
         this.meta.checkPathname();// redirecting to error page if error
         //-----------------REPEAT CONTROL(ANIMATION)-------------------//
         const repeatCount=1
-        const isRepeat=this.browser.repeatShowControl({repeatCount})
+        const isRepeat=this.browser.repeatShowControl({repeatCount});
+        const isRepeatAdmin=this.browser.repeatAdminControl({repeatCount});
+        console.log("isRepeatAdmin",isRepeatAdmin)
         //-----------------REPEAT CONTROL(ANIMATION)-------------------//
         MainHeader.injector = parent;
         Header.cleanUpByID(parent, "navHeader");
@@ -106,7 +108,7 @@ class MainHeader {
         this.middleLogo.main({parent:headerMiddle});
         parent.appendChild(MainHeader.header);
         //NAV BUTTON
-       await this.showRectDropDown({ parent: MainHeader.injector,headerMiddle,headerStart, headerEnd, user, count: 0, isSignedIn: isAuthenticated,isRepeat });
+       await this.showRectDropDown({ parent: MainHeader.injector,headerMiddle,headerStart, headerEnd, user, count: 0, isSignedIn: isAuthenticated,isRepeat,isRepeatAdmin:isRepeatAdmin });
         //AUTH INJECTION UNDER MainHeader.header=document.querySelector(header#navHeader)
 
     };
@@ -121,10 +123,11 @@ class MainHeader {
         user: userType | null,
          count: number,
          isSignedIn: boolean,
-        isRepeat:boolean
+        isRepeat:boolean,
+        isRepeatAdmin:boolean
 
      }) {
-        const { parent, user, count, headerEnd, isSignedIn,isRepeat,headerMiddle,headerStart } = item;
+        const { parent, user, count, headerEnd, isSignedIn,isRepeat,headerMiddle,headerStart,isRepeatAdmin } = item;
         const url = new URL(window.location.href);
         const pathname = "/";
         const isTimeUp=isRepeat ? 5000 :1000;
@@ -165,7 +168,7 @@ class MainHeader {
                                             const admin = res_.user?.admin;
                                             if (admin && res_.isAdminRepeat && url.pathname !=="/admin") {
                                                 //ADMIN PRIVILEDGES
-                                                Misc.msgSourceImage({ parent: res_.navHeader, msg: "You have admin Rights", src: this.logo, width: 125, quality: 75, time: 5200, cssStyle: { boxShadow: "1px 1px 12px 1px white", backgroundColor: "black", color: "white", inset: "680% 0% 70% 0%", position: "absolute" } });
+                                                Misc.msgSourceImage({ parent: res_.navHeader, msg: "You have admin Rights", src: this.logo,show:isRepeatAdmin, width: 125, quality: 75, time: 5200, cssStyle: { boxShadow: "1px 1px 12px 1px white", backgroundColor: "black", color: "white", inset: "680% 0% 70% 0%", position: "absolute" } });
                                             }
                                         }
 
@@ -453,7 +456,7 @@ class MainHeader {
             { color: "#f3f5f5", box: "1px 1px 3px 1px #eaedee, -1px -1px 3px -1px black", borderRadius: "0%" },
         ];
         return shades
-    }
+    };
     static cleanUp(parent: HTMLElement) {
         while (parent.firstChild) {
             if (parent.lastChild) {

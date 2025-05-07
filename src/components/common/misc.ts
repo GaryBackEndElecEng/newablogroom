@@ -1490,52 +1490,57 @@ class Misc{
         return imageLoader(item)
     };
 
-    static msgSourceImage(item:{parent:HTMLElement,msg:string,src:string,width:number,quality:number,time:number,cssStyle:{[key:string]:string}}){
-        const {parent,msg,src,width,quality,time,cssStyle}=item;
-        const img=document.createElement("img");
-        img.style.cssText=`border-radius:50%;width:${width}px;aspect-ratio: 1/ 1;box-shadow:1px 1px 12px 1px rgb(8, 4, 249);margin-right:1rem;filter:drop-shadow(0 0 0.5rem rgb(8, 4, 249));`;
-        const urlLocalPattern:RegExp=/(http:\/\/localhost:3000)\/[0-9a-zA-Z/.]{2,}/g;
-        const urlExternalPattern:RegExp=/(https:\/\/[0-9a-z\-.?/]{2,})/g;
-        if(urlExternalPattern.test(src)){
-            img.src=httpImageLoader({src,width,quality})
-        }else if(urlLocalPattern.test(src)){
-            img.src=httpImageLoader({src,width,quality})
-        }else{
-            img.src=imageLoader({src,width,quality});
-        }
-        img.alt="www.ablogrom.com";
-        const div=document.createElement("div");
-        div.id="msgSourceImage";
-        div.style.cssText=`display:flex;justify-content:center;align-items:center;gap:1rem;position:absolute;width:clamp(350px,375px,375px);height:${width}px;background:white;z-index:200;padding-inline:1rem;padding-block:2.5rem;`;
-        div.style.transform="translateY(-100%)";
-       
-        div.style.inset="0% 0% 50% 0%"
-        div.style.alignSelf="center";
-        div.style.justifySelf="center";
-        for (const [key,value] of Object.entries(cssStyle)){
-            div.style[key]=value;
-        }
-        div.appendChild(img);
-        const para=document.createElement("p");
-        para.textContent=msg;
-        div.appendChild(para);
-        parent.appendChild(div);
-        // console.log(div)//works
-        const trans=div.style.transform;
-        div.animate([
-            {transform:trans,opacity:"0"},
-            {transform:"translateY(-50%)",opacity:"0.5"},
-            {transform:"translateY(0%)",opacity:"1"},
-            {transform:"translateY(150%)",opacity:"1"},
-            {transform:"translateY(150%)",opacity:"1"},
-            {transform:"translateY(150%)",opacity:"1"},
-            {transform:"translateY(0%)",opacity:"0.5"},
-            {transform:"translateY(-100%)",opacity:"0"},
-            {transform:trans,opacity:"0"},
-        ],{duration:time,iterations:1,"easing":"ease-in-out"});
-        setTimeout(()=>{
-            parent.removeChild(div);
-        },time-30);
+    static msgSourceImage(item:{parent:HTMLElement,msg:string,src:string,width:number,quality:number,time:number,show:boolean,cssStyle:{[key:string]:string}}){
+        const {parent,msg,src,width,quality,time,cssStyle,show}=item;
+        if(show){
+
+            const img=document.createElement("img");
+            img.style.cssText=`border-radius:50%;width:${width}px;aspect-ratio: 1/ 1;box-shadow:1px 1px 12px 1px rgb(8, 4, 249);margin-right:1rem;filter:drop-shadow(0 0 0.5rem rgb(8, 4, 249));`;
+            const urlLocalPattern:RegExp=/(http:\/\/localhost:3000)\/[0-9a-zA-Z/.]{2,}/g;
+            const urlExternalPattern:RegExp=/(https:\/\/[0-9a-z\-.?/]{2,})/g;
+            if(urlExternalPattern.test(src)){
+                img.src=httpImageLoader({src,width,quality})
+            }else if(urlLocalPattern.test(src)){
+                img.src=httpImageLoader({src,width,quality})
+            }else{
+                img.src=imageLoader({src,width,quality});
+            }
+            img.alt="www.ablogrom.com";
+            const div=document.createElement("div");
+            div.id="msgSourceImage";
+            div.style.cssText=`display:flex;justify-content:center;align-items:center;gap:1rem;position:absolute;width:clamp(350px,375px,375px);height:${width}px;background:white;z-index:200;padding-inline:1rem;padding-block:2.5rem;`;
+            div.style.transform="translateY(-100%)";
+           
+            div.style.inset="0% 0% 50% 0%"
+            div.style.alignSelf="center";
+            div.style.justifySelf="center";
+            for (const [key,value] of Object.entries(cssStyle)){
+                div.style[key]=value;
+            }
+            div.appendChild(img);
+            const para=document.createElement("p");
+            para.textContent=msg;
+            div.appendChild(para);
+            parent.appendChild(div);
+            // console.log(div)//works
+            const trans=div.style.transform;
+            div.animate([
+                {transform:trans,opacity:"0"},
+                {transform:"translateY(-50%)",opacity:"0.5"},
+                {transform:"translateY(0%)",opacity:"1"},
+                {transform:"translateY(150%)",opacity:"1"},
+                {transform:"translateY(150%)",opacity:"1"},
+                {transform:"translateY(150%)",opacity:"1"},
+                {transform:"translateY(0%)",opacity:"0.5"},
+                {transform:"translateY(-100%)",opacity:"0"},
+                {transform:trans,opacity:"0"},
+            ],{duration:time,iterations:1,"easing":"ease-in-out"});
+            setTimeout(()=>{
+                parent.removeChild(div);
+            },time-30);
+
+        };
+        
     };
 
     static scrollTo(item:{target:HTMLElement,percX:number,percY:number}){

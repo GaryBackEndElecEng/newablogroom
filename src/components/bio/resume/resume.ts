@@ -264,8 +264,9 @@ class Resume{
 
     static deletePopup({parent,target}:{parent:HTMLElement,target:HTMLElement}){
         const xDiv=document.createElement("div");
-        xDiv.style.cssText="position:absolute;padding:2px;background-color:black;color:white;border-radius:50%;top:0%;right:0%;transform:translate(0px,-6px);";
+        xDiv.style.cssText="position:absolute;padding:2px;background-color:black;color:white;border-radius:50%;top:0%;right:0%;transform:translate(6px,6px);z-index:200;";
         FaCreate({parent:xDiv,name:FaCrosshairs,cssStyle:{color:"white",borderRadius:"50%",fontSize:"14px"}});
+        target.appendChild(xDiv);
         xDiv.onclick=(e:MouseEvent)=>{
             if(e){
                 parent.removeChild(target);
