@@ -60,7 +60,6 @@ class ReorgBlog{
             reorgMain.className=styles.reorgMain;
             parent.appendChild(reorgMain);
            this.removePopup({parent,target:reorgMain});
-        console.log("REMOVE",this.remove)
             const reorg=document.createElement("div");
             reorg.className=styles.reorg;
             const row=document.createElement("div");

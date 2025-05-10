@@ -39,12 +39,20 @@ class Meta{
           {page:'/post/',redir:/\/(post)\/\d{2,}\w+/,match:/\/(post)\/\d+/},
           {page:'/blogs',redir:/\/(blogs)\w+/,match:/\/(blogs)/},
           {page:"/register",redir:/\/(register)\w+/,match:/\/(register)/},
+          {page:"/profile",redir:/\/(profile)\w+/,match:/\/(profile)/},
+          {page:"/signin",redir:/\/(signin)\w+/,match:/\/(signin)/},
           {page:"/editor",redir:/\/(editor)\w+/,match:/\/(editor)/},
           {page:"/policy",redir:/\/(policy)\w+/,match:/\/(policy)/},
           {page:"/termsOfService",redir:/\/(termsOfService)\w+/,match:/\/(termsOfService)/},
           {page:"/admin",redir:/\/(admin)\w+/,match:/\/(admin)/},
           {page:"/error_page",redir:/\/(error_page)\w+/,match:/\/(error_page)/},
           {page:"/posts",redir:/\/(posts)\w+/,match:/\/(posts)/},
+          {page:"/bio",redir:/\/(bio)\w+/,match:/\/(bio)/},
+          {page:"/resumebuilder",redir:/\/(resumebuilder)\w+/,match:/\/(resumebuilder)/},
+          {page:"/quote",redir:/\/(quote)\w+/,match:/\/(quote)/},
+          {page:"/showResume",redir:/\/(showResume)\/\w+/,match:/\/(showResume)/},
+          {page:"/printblog",redir:/\/(printblog)/,match:/\/(printblog)/},
+          {page:"/print",redir:/\/(print)/,match:/\/(print)/},
 
         ]
         this.params=["blog_id","misc","intent"];
@@ -570,10 +578,11 @@ class Meta{
     }
     //--------------------------FOR PRISMA POSTS-----------------------------//
     
-     async genSitemapArray({baseUrl,blogIds,postIds}:{
+     async genSitemapArray({baseUrl,blogIds,postIds,resumeNames}:{
       baseUrl:string,
       blogIds:{id:number}[],
-      postIds:{id:number}[]
+      postIds:{id:number}[],
+      resumeNames:{name:string}[]
     }):Promise<MetadataRoute.Sitemap>{
     
       let arr:MetadataRoute.Sitemap=[];
@@ -591,6 +600,12 @@ class Meta{
           {url:`${retBaseUrl}/termsOfService`,lastModified:new Date(),changeFrequency:'yearly',priority:1},
           {url:`${retBaseUrl}/signin`,lastModified:new Date(),changeFrequency:'yearly',priority:1},
           {url:`${retBaseUrl}/chart`,lastModified:new Date(),changeFrequency:'monthly',priority:1},
+          {url:`${retBaseUrl}/bio`,lastModified:new Date(),changeFrequency:'monthly',priority:1},
+          {url:`${retBaseUrl}/letter`,lastModified:new Date(),changeFrequency:'monthly',priority:1},
+          {url:`${retBaseUrl}/print`,lastModified:new Date(),changeFrequency:'monthly',priority:1},
+          {url:`${retBaseUrl}/printblog`,lastModified:new Date(),changeFrequency:'monthly',priority:1},
+          {url:`${retBaseUrl}/quote`,lastModified:new Date(),changeFrequency:'monthly',priority:1},
+         
         ];
     
         if(blogIds?.length>0){
@@ -603,6 +618,12 @@ class Meta{
             arr.push({url:`${retBaseUrl}/post/${post.id}`,lastModified:new Date(),changeFrequency:'always',priority:1})
           });
         };
+        if(resumeNames?.length){
+          resumeNames.map(resumeName=>{
+            arr.push({url:`${retBaseUrl}/showResume/${resumeName}`,lastModified:new Date(),changeFrequency:'always',priority:1})
+
+          });
+        }
         return arr;
        
       } catch (error) {

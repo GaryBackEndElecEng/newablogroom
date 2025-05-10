@@ -357,12 +357,14 @@ class MainHeader {
 
         const pg = window.location.pathname;
         if (count > 0) return;
-        //ensuring to count page based on landed pages from match RegExp
+        //BELOW EXTRACTS BLOG OR POST NUMBER BLOG/#NUM => NAME:BLOG, NUM=>\d+ ( full digit)
         const blog_id = MainHeader.getBlogPostID({ pathname: pg }).name === "blog" ? MainHeader.getBlogPostID({ pathname: pg }).num : undefined;
         const post_id = MainHeader.getBlogPostID({ pathname: pg }).name === "post" ? MainHeader.getBlogPostID({ pathname: pg }).num : undefined;
-       const isPage=this.meta.pages.find(async (page) => {
+       const isPage=!!(this.meta.pages.find(async (page) => {
             if ((page.match.test(pg))) {
-                   return page;}})
+                   return page;
+                }
+            }));
                 if(!isPage) return
                 this.pageCount++;
                 await this._service.getPageCount({ page: pg, blog_id, post_id }).then(async (res) => {
@@ -388,13 +390,13 @@ class MainHeader {
         const text = document.createElement("small");
         text.id = "genPageCount-inner-text";
         text.style.cssText = "color:#0CAFFF;font-size:10px;font-weight:bold;";
-        text.textContent = `${name.split("").slice(0,7).join("")}:`;
+        text.textContent = `${name.split("").slice(0,9).join("")}:`;
         const count_ = document.createElement("small");
         count_.id = "genPageCount-inner-count";
         count_.style.cssText = "color:white;font-size:10px;font-weight:bold;"
-        count_.innerHTML = `<span style="color:#0CAFFF;">#: </span>${count}`;
-        text.style.fontSize = less900 ? (less400 ? "80%" : "90%") : "100%";
-        count_.style.fontSize = less900 ? (less400 ? "80%" : "90%") : "100%";
+        count_.innerHTML = `<span style="color:#0CAFFF;">:, </span>${count}`;
+        text.style.fontSize = less900 ? (less400 ? "70%" : "90%") : "100%";
+        count_.style.fontSize = less900 ? (less400 ? "70%" : "90%") : "100%";
         container.appendChild(text);
         container.appendChild(count_);
         parent.appendChild(container);
@@ -490,7 +492,7 @@ class MainHeader {
     static getBlogPostID(item: { pathname: string }): { name: string, num: number | undefined } {
         //THIS RETURNS A THE ID TO THE PAGE (BLOG/ID) OR POST/ID IF EXIST: NUMBER ELSE UNDEFINED
         const { pathname } = item;
-        let num: { name: string, num: number | undefined } = {} as { name: string, num: undefined };
+        let nameNum: { name: string, num: number | undefined } = {} as { name: string, num: undefined };
         const regBlog_id: RegExp = /\/(blog)\/\d+/;
         const regPost_id: RegExp = /\/(post)\/\d+/;
         const match_num: RegExp = /\d+/;
@@ -504,11 +506,11 @@ class MainHeader {
                 const match_number = match_s[0].match(item_.match) as any;
                 const int_ = parseInt(match_number[0])
                 if (!isNaN(int_)) {
-                    num = { name: item_.name, num: int_ };
+                    nameNum = { name: item_.name, num: int_ };
                 }
             }
         });
-        return num
+        return nameNum
     }
 
 

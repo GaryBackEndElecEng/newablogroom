@@ -588,13 +588,10 @@ class Home{
         //-----------------------DESC--------------------//
         const descContainer=document.createElement("div");
         descContainer.id=`cardTop-descContainer-${blog.id}`;
-        descContainer.style.cssText=css_col + `height:${cardTopHeight}px;overflow-y:scroll;background-color:black;color:white;font-family:'Poppins-Regular';padding-inline:0.25rem;margin-block:auto;width:50%;border-radius:12px;box-shadow:1px 1px 12px 1px black;`;
+        descContainer.style.cssText=css_col + `height:${cardTopHeight}px;background-color:black;color:white;font-family:'Poppins-Regular';padding-inline:0.25rem;margin-block:auto;width:50%;border-radius:12px;box-shadow:1px 1px 12px 1px black;`;
         descContainer.style.width=less900 ? (less400 ? "100%":"50%") : "50%";
-        const desc=document.createElement("p");
-        desc.id=`descContainer-desc-${blog.id}`;
-        desc.style.cssText="text-wrap:pretty;";
-        desc.textContent=blog.desc ? blog.desc :"missing content";
-        descContainer.appendChild(desc);
+        this._blogs.showDescOnHover({parent:descContainer,desc:blog.desc,id:blog.id,descSliceLen:46});
+        
         //-----smallCont----------///
         const small=document.createElement("small");
         small.id="cardBottom-small-" + `${blog.id}`;

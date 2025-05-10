@@ -7,8 +7,9 @@ import { getErrorMessage } from '@/lib/errorBoundaries';
 export default async function error_() {
     const blogIds = await getBlogIds()
     const postIds = await getPostIds()
+    const resumeNames = await getResumeNames();
     return (
-        <div className="isServer"><Index blogIds={blogIds} postIds={postIds} /> </div>
+        <div className="isServer"><Index blogIds={blogIds} postIds={postIds} resumeNames={resumeNames} /> </div>
     )
 };
 
@@ -24,7 +25,7 @@ async function getBlogIds(): Promise<{ id: number }[]> {
         console.log(msg);
         return []
     }
-}
+};
 async function getPostIds(): Promise<{ id: number }[]> {
     try {
         const posts = await prisma.post.findMany();
@@ -34,4 +35,18 @@ async function getPostIds(): Promise<{ id: number }[]> {
         console.log(msg);
         return []
     }
-}
+};
+
+
+async function getResumeNames(): Promise<{ name: string }[]> {
+    try {
+        const resumes = await prisma.resume.findMany({
+            where: { enable: true }
+        });
+        return resumes.map(bl => ({ name: bl.name }))
+    } catch (error) {
+        const msg = getErrorMessage(error)
+        console.log(msg);
+        return []
+    }
+};

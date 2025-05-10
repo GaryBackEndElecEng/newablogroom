@@ -153,6 +153,7 @@ const nextConfig = {
     EMAIL: process.env.EMAIL,
     EMAIL2: process.env.EMAIL2,
     NEXTAUTH_URL: process.env.NEXTAUTH_URL,
+    AUTH_URL: process.env.AUTH_URL,
     ROOTURL: process.env.ROOTURL,
     EMAIL_PASS: process.env.EMAIL_PASS,
     GOOGLE_client_ID: process.env.GOOGLE_client_ID,

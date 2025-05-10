@@ -29,7 +29,7 @@ class RegSignIn {
         this.count=0;
         this.logo="gb_logo.png";
         this._checkemail={email:"",hasPassword:false,name:""};
-        this._user=user_ || this._modSelector.initUser;
+        this._user=user_ || this._modSelector.userInit;
     };
     //GETTER SETTERS------------------//
     get checkemail(){
@@ -687,9 +687,12 @@ class RegSignIn {
         const {button}=Misc.simpleButton({anchor:grp,bg:Nav.btnColor,color:"white",type:"button",time:400,text:"submit"});
         parent.appendChild(grp);
         button.onclick=() => {
-            const providerID=id as unknown as LiteralUnion<BuiltInProviderType> | undefined
-            signIn(providerID)
-            
+            const providerID=id as unknown as LiteralUnion<BuiltInProviderType> | undefined;
+            const provider = providerID || "google";
+            signIn(provider,{callbackUrl:location.href});
+            //https://next-auth.js.org/getting-started/client#specifying-a-callbackurl
+            //signIn("credentials",{redirect:false,password:"password"})=> if Wrong will provide a Promise:
+            //{error:string|undefined,status:number,ok:boolean,url:string|null}
         };
     };
 

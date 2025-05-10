@@ -10,6 +10,7 @@ import { BsHandThumbsUpFill } from "react-icons/bs";
 import AllMsgs from "../home/allMsgs";
 import Message from "../common/message";
 import Searchbar from "../common/searchbar";
+import styles from "./blogs.module.css";
 
 
 
@@ -264,7 +265,7 @@ class Blogs{
        Header.cleanUpByID(parent,"showBlogs-generateBlogs-mainRow");
        parent.style.position="relative";
 
-        if(blogs && blogs.length>0){
+        if(blogs?.length>0){
             const mainRow=document.createElement("div");
             mainRow.id="showBlogs-generateBlogs-mainRow";
             const blogBaseCss=`display:flex;justify-content:flex-start;flex-direction:column;margin-top:0rem;position:relative;width:100%;`;
@@ -412,14 +413,10 @@ class Blogs{
         update.style.cssText="margin-inline:auto;margin-block:0.5rem;margin-bottom:1rem;margin-bottom:1rem;";
         update.className="text-primary";
         update.textContent=blog.update ? `update: ${Blogs.tolocalstring(blog.date)}`:"no date";
-        const desc=document.createElement("div");
-        const descHeight=less900? (less400 ? "20vh": "15vh") :"12vh";
-        desc.id=`blog-desc-${blog.id}`;
-        desc.textContent=blog.desc ? `${(blog.desc.slice(0,76) as string)}...`:" no description";
-        desc.style.cssText=`margin-inline:auto; padding:1.25rem; text-align:center; margin-block:1rem;border-radius:inherit;background-color:black;color:white;box-shadow:1px 1px 12px 1px #0aa2db;height:${descHeight};text-wrap:pretty;`;
+        this.showDescOnHover({parent:cardBody,desc:blog.desc,id:blog.id,descSliceLen:46});
         this.thumbsUpStartRating({parent:cardBody,rating:blog.rating,minRating:3});
         card.appendChild(imgCont);
-        cardBody.appendChild(desc);
+       
         cardBody.appendChild(update);
         card.appendChild(cardBody);
         column.appendChild(card);
@@ -432,6 +429,39 @@ class Blogs{
         Misc.matchMedia({parent:imgCont,maxWidth:500,cssStyle:{flex:"1 1 100%"}});
        
 
+    };
+
+
+
+    showDescOnHover({parent,desc,id,descSliceLen}:{parent:HTMLElement,desc:string|undefined,id:number,descSliceLen:number}){
+        const less900=window.innerWidth < 900;
+        const descLen=desc?.length || 0;
+        const descDiv=document.createElement("div");
+        descDiv.className=styles.showDescOnHover;
+        descDiv.id=`blog-desc-${id}`;
+        parent.appendChild(descDiv);
+        const para=document.createElement("p");
+        descDiv.appendChild(para);
+        if(descLen > descSliceLen){
+            const shortDesc900=desc ? `${(desc.slice(0,descSliceLen) as string)}...<span style=color:lime;>CLICK</span> to view`:" no description";
+            const shortDesc=desc ? `${(desc.slice(0,descSliceLen) as string)}...<span style=color:lime;>HOVER</span> to view`:" no description";
+            para.innerHTML=less900 ? shortDesc900 : shortDesc;
+            // ADD POPUP
+            if(desc){
+
+                const popup=document.createElement("div");
+                popup.id=`showDesc-popup-${id}`;
+                popup.className=styles.showDescOnHoverPopup;
+                const paraPopup=document.createElement("p");
+                paraPopup.innerHTML=desc as string;
+                popup.appendChild(paraPopup);
+                descDiv.appendChild(popup);
+            }
+        }else{
+            para.textContent=desc || " description";
+        }
+
+    
     };
 
 

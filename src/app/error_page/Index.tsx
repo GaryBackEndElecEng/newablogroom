@@ -5,7 +5,11 @@ import ErrorClass from './errorClass';
 import Meta from '@/components/meta/meta';
 import styles from "./error.module.css";
 
-export default function Index({ blogIds, postIds }: { blogIds: { id: number }[], postIds: { id: number }[] }) {
+export default function Index({ blogIds, postIds, resumeNames }: {
+    blogIds: { id: number }[],
+    postIds: { id: number }[],
+    resumeNames: { name: string }[]
+}) {
     const errRef = React.useRef(null);
     const countRef = React.useRef(0);
     React.useEffect(() => {
@@ -14,7 +18,7 @@ export default function Index({ blogIds, postIds }: { blogIds: { id: number }[],
 
                 const meta = new Meta();
                 const url = new URL(window.location.href)
-                meta.genSitemapArray({ baseUrl: window.location.origin, blogIds, postIds }).then(async (res) => {
+                meta.genSitemapArray({ baseUrl: window.location.origin, blogIds, postIds, resumeNames }).then(async (res) => {
                     if (res) {
                         const siteUrls = res.map(site => (site.url));
                         const doc_ = document.querySelector("div#error_page") as HTMLElement;
@@ -35,7 +39,7 @@ export default function Index({ blogIds, postIds }: { blogIds: { id: number }[],
             }
 
         }
-    }, [blogIds, postIds]);
+    }, [blogIds, postIds, resumeNames]);
     return (
         <div className={styles.errorIndex} id="error_page" ref={errRef}></div>
     )
