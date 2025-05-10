@@ -543,6 +543,16 @@ body {
   position: relative;
 }
 
+p.indent-1 {
+  text-indent: 1rem;
+}
+p.indent-2 {
+  text-indent: 2rem;
+}
+p.indent-3 {
+  text-indent: 2rem;
+}
+
 .show-link::after {
   display: none;
   content: attr(data-link);

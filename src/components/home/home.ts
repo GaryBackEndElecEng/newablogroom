@@ -17,6 +17,7 @@ import { IoArrowRedoSharp } from "react-icons/io5";
 import { SiAnswer } from "react-icons/si";
 import BrowserType from "../common/browserType";
 import AuthService from "../common/auth";
+import styles from "./home.module.css";
 
 export type imageType2={
     id:number,
@@ -96,8 +97,12 @@ class Home{
         const isRepeat=this.browser.repeatShowControl({repeatCount});
         //----------REPEAT PROCESS CONTROL----------//
         Header.cleanUp(parent);
+        const mainContainer=document.createElement("div");
+        mainContainer.id="mainContainer";
+        mainContainer.className=styles.mainContainer;
+        parent.appendChild(mainContainer);
         const show=true;
-        await this.introTitleDisplay({parent,show,time:500}).then(async(container)=>{
+        await this.introTitleDisplay({parent:mainContainer,show,time:500}).then(async(container)=>{
             //SHOWS ABLOGROOM DISPLAY
             if(container){
                 const {button:openFeatures}=Misc.simpleButton({anchor:container,bg:this.btnColor,color:"white",text:"open features",type:"button",time:400});
@@ -105,14 +110,14 @@ class Home{
                 openFeatures.style.marginBlock="1rem";
                 openFeatures.onclick=(e:MouseEvent)=>{
                     if(e){
-                        this.feature.feature(parent);//features
+                        this.feature.feature(mainContainer);//features
                     }
                 };
                 
                 this.editorAttributeDisplay({parent:container,isRepeat});//SNAP-SCROLL IMAGES
             }
             });
-        await this.asyncMain({parent}).then(async(res)=>{
+        await this.asyncMain({parent:mainContainer}).then(async(res)=>{
             if(res){
                 this.images=this.getImages;
                 parent.animate([
@@ -183,6 +188,7 @@ class Home{
     async asyncMain(item:{parent:HTMLElement}): Promise<{showBlogs:HTMLElement,showPosts:HTMLElement,sectionOne:HTMLElement}|undefined>{
         const less900=window.innerWidth < 900;
         const less400=window.innerWidth < 400;
+        
 
         window.scroll(0,0);
         const css_col="margin-inline:auto;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:0rem;position:relative;";
@@ -899,8 +905,15 @@ class Home{
         if(isSignout==="true"){
             const parent= MainHeader.header ? MainHeader.header as HTMLElement : document.querySelector("header#navHeader") as HTMLElement;
             
-            Misc.msgSourceImage({parent,msg:"thanks for comming!!",width:175,quality:75,time:3500,src:"gb_logo.png",cssStyle:{borderRadius:"20px",backgroundColor:"black",color:"white",boxShadow:"1px 1px 12px 1px rgb(8, 4, 249);",inset:"-760% 0% -1600% 0%",zIndex:"4000"}});
-            console.log("533:signedOutFromEditor:isSignout",isSignout)
+            Misc.msgSourceImage({
+                parent,msg:"thanks for comming!!",
+                width:175,
+                quality:75,
+                time:3500,
+                src:"gb_logo.png",
+                show:true,
+                cssStyle:{borderRadius:"20px",backgroundColor:"black",color:"white",boxShadow:"1px 1px 12px 1px rgb(8, 4, 249);",inset:"-760% 0% -1600% 0%",zIndex:"4000",}
+            });
         };
     };
 

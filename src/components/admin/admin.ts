@@ -339,8 +339,7 @@ class Admin{
             const {button:infoBtn}=Misc.simpleButton({anchor:btnContainer,text:"open info form",type:"button",time:400,bg:this.btnColor,color:"white"});
             infoBtn.onclick=async(e:MouseEvent)=>{
                 if(e){
-                    infoBtn.disabled=true;
-                    setTimeout(()=>{infoBtn.disabled=false;},1000);
+                   
                     //GET USERS
                     this.openClean({parent:viewport});
                     const checkInfo = await this._service.peronalInfo2()

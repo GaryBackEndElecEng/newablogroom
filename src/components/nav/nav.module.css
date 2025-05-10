@@ -19,9 +19,97 @@
   z-index: none;
   box-shadow: 1px 1px 5px 1px white, -1px -1px 5px -1px white;
 }
+.rotateArrow {
+  position: relative;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  border-radius: 50%;
+  padding: 5px;
+  background-color: transparent;
+  box-shadow: 1px 1px 12px 1px white;
+  color: white;
+  transform: rotate(180deg);
+  margin-block: auto;
+}
+.slideMenuPopup {
+  margin-block: auto;
+  position: absolute;
+  padding-inline: 1rem;
+  border-radius: 8px;
+  background-color: #0c090a;
+  top: 65px;
+  color: white;
+  font-size: 16px;
+  width: 350px;
+  height: 800px;
+  z-index: 400;
+  box-shadow: 1px 1px 12px 1px black;
+  align-items: center;
+  flex-direction: column;
+  padding-block: 1rem;
+}
+.listItemsCont {
+  margin: auto;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  gap: 0.25rem;
+  width: 100%;
+  padding-inline: 1rem;
+}
+
+.navItemRowContainer {
+  margin-inline: auto;
+  display: inline-flex;
+  justify-content: space-around;
+  align-items: center;
+  width: 100%;
+  flex-wrap: nowrap;
+  cursor: pointer;
+  gap: 5px;
+  padding-inline: 0.25rem;
+  background-color: transparent;
+  transition: all 0.7s ease-out;
+}
+.navItemRowContainer:hover {
+  border-radius: 6px;
+  padding-inline: 1rem;
+  box-shadow: 1px 1px 6px white, -1px -1px 6px white;
+  transition: all 0.7s ease-in;
+  background-color: white;
+}
+.navItemRowContainer > div {
+  display: flex;
+  margin-inline: auto;
+  justify-content: center;
+  align-items: center;
+  background-color: transparent;
+  border-radius: 6px;
+}
+.navItemIDivIcon {
+  border-radius: 50%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 20px;
+  aspect-ratio: 1 / 1;
+  opacity: 1;
+}
+.navItemRowContainer div.navItemIDivIcon {
+  transform: translateX(0%);
+  transition: all 0.7s ease-out;
+}
+.navItemRowContainer:hover div.navItemIDivIcon {
+  transform: translateX(100%);
+  transition: all 0.7s ease-in;
+}
+
 .headerStart {
   display: flex;
   height: inherit;
+
   flex-wrap: nowrap;
   justify-content: flex-start;
   align-items: center;

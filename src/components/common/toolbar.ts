@@ -1,7 +1,7 @@
 
 import { BiBorderOuter } from "react-icons/bi";
 import { BsShadows,BsBoxFill } from "react-icons/bs";
-import { FaAlignCenter, FaAlignLeft, FaAlignRight, FaBold, FaBoxOpen, FaCalendar, FaColumns, FaCrosshairs, FaFileImage, FaFont, FaFonticons, FaItalic, FaPalette, FaPaperclip, FaParagraph, FaQuoteLeft, FaTable, FaUnderline } from "react-icons/fa";
+import { FaAlignCenter, FaAlignLeft, FaAlignRight, FaBold, FaBoxOpen, FaCalendar, FaColumns, FaCrosshairs, FaFileImage, FaFont, FaFonticons, FaIndent, FaItalic, FaPalette, FaPaperclip, FaParagraph, FaQuoteLeft, FaTable, FaUnderline } from "react-icons/fa";
 import { TbLineHeight } from "react-icons/tb";
 import { blogType, iconType } from "../editor/Types";
 import Main from "../editor/main";
@@ -19,6 +19,7 @@ import Service from "./services";
 import User from "../user/userMain";
 import ChartJS from "../chart/chartJS";
 import Message from "./message";
+import styles from "./toolbar.module.css";
 
 
 
@@ -48,24 +49,25 @@ class Toolbar{
         { id: "15", attr: true, name: "box-shadow-md", display: "shadow", class_: "tb-shadow", faIcon: BiBorderOuter, isIcon: true, isElement: false },
         { id: "16", attr: true, name: "line-height", display: "line-height", class_: "line-height", faIcon: TbLineHeight, isIcon: true, isElement: false },
         
-        { id: "10", attr: false, name: "ul", display: "List", class_: "fa-solid fa-table-list", faIcon: FaTable, isIcon: true, isElement: true },
-        { id: "13", attr: false, name: "img", display: "add-image", class_: "far fa-file-image", faIcon: FaFileImage, isIcon: true, isElement: true },
-        { id: "12", attr: false, name: "p", display: "paragraph", class_: "fa fa-paragraph", faIcon: FaParagraph, isIcon: true, isElement: true },
-        { id: "17", attr: false, name: "h1", display: "Title", class_: "H1", isIcon: false, isElement: true },
-        { id: "18", attr: false, name: "h2", display: "h2-title", class_: "H2", isIcon: false, isElement: true },
-        { id: "19", attr: false, name: "h3", display: "h3-title", class_: "H3", isIcon: false, isElement: true },
-        { id: "20", attr: false, name: "h4", display: "h4-title", class_: "H4", isIcon: false, isElement: true },
-        { id: "21", attr: false, name: "h5", display: "h5-title", class_: "H5", isIcon: false, isElement: true },
-        { id: "22", attr: false, name: "h6", display: "h6-title", class_: "H6", isIcon: false, isElement: true },
-        { id: "25", attr: false, name: "a", display: "link", class_: "fa-solid fa-paperclip", faIcon: FaPaperclip, isIcon: true, isElement: true },
-        { id: "26", attr: false, name: "time", display: "date", class_: "fa-regular fa-calendar-days", faIcon: FaCalendar, isIcon: true, isElement: true },
+        { id: "17", attr: false, name: "ul", display: "List", class_: "fa-solid fa-table-list", faIcon: FaTable, isIcon: true, isElement: true },
+        { id: "18", attr: false, name: "img", display: "add-image", class_: "far fa-file-image", faIcon: FaFileImage, isIcon: true, isElement: true },
+        { id: "19", attr: false, name: "p", display: "paragraph", class_: "fa fa-paragraph", faIcon: FaParagraph, isIcon: true, isElement: true },
+        { id: "20", attr: true, name: "indent", display: "indent para", class_: "fa fa-indent", faIcon: FaIndent, isIcon: true, isElement: false },
+        { id: "21", attr: false, name: "h1", display: "Title", class_: "H1", isIcon: false, isElement: true },
+        { id: "22", attr: false, name: "h2", display: "h2-title", class_: "H2", isIcon: false, isElement: true },
+        { id: "23", attr: false, name: "h3", display: "h3-title", class_: "H3", isIcon: false, isElement: true },
+        { id: "24", attr: false, name: "h4", display: "h4-title", class_: "H4", isIcon: false, isElement: true },
+        { id: "25", attr: false, name: "h5", display: "h5-title", class_: "H5", isIcon: false, isElement: true },
+        { id: "26", attr: false, name: "h6", display: "h6-title", class_: "H6", isIcon: false, isElement: true },
+        { id: "27", attr: false, name: "a", display: "link", class_: "fa-solid fa-paperclip", faIcon: FaPaperclip, isIcon: true, isElement: true },
+        { id: "28", attr: false, name: "time", display: "date", class_: "fa-regular fa-calendar-days", faIcon: FaCalendar, isIcon: true, isElement: true },
         { id: "8", attr: false, name: "blockquote", display: "Quote", class_: "fa-solid fa-quote-left", faIcon: FaQuoteLeft, isIcon: true, isElement: true },
-        { id: "23", attr: false, name: "SH", display: "img-text-merge", class_: "SH", isIcon: false, isElement: true },
+        { id: "29", attr: false, name: "SH", display: "img-text-merge", class_: "SH", isIcon: false, isElement: true },
 
-        { id: "24", attr: true, name: "columns", display: "2-columns", class_: "fa-solid fa-columns", faIcon: FaColumns, isIcon: true, isElement: false },
-        { id: "27", attr: true, name: "font-family", display: "Font-Family", class_: "fa fa-fonticons", faIcon: FaFonticons, isIcon: true, isElement: false },
-        { id: "28", attr: false, name: "show", display: "show work", class_: "show", isIcon: false, isElement: false },
-        { id: "29", attr: false, name: "final", display: "show final", class_: "final", isIcon: false, isElement: false },
+        { id: "30", attr: true, name: "columns", display: "2-columns", class_: "fa-solid fa-columns", faIcon: FaColumns, isIcon: true, isElement: false },
+        { id: "31", attr: true, name: "font-family", display: "Font-Family", class_: "fa fa-fonticons", faIcon: FaFonticons, isIcon: true, isElement: false },
+        { id: "32", attr: false, name: "show", display: "show work", class_: "show", isIcon: false, isElement: false },
+        { id: "33", attr: false, name: "final", display: "show final", class_: "final", isIcon: false, isElement: false },
     ];
    
     constructor(private _modSelector:ModSelector,private _service:Service,private _user:User,private htmlElement:HtmlElement,private _blog:blogType){
@@ -332,6 +334,8 @@ class Toolbar{
                         }else if(icon.name==="line-height"){
                             Main.textarea = document.querySelector("div#textarea") as HTMLElement;
                             this.lineHeight(textarea,btn,idValues,isRow);
+                        }else if(icon.name==="indent"){
+                            this.pIndent({row,btn,idValues});
                         }else{
                             //THIS CONTROLS ALL NONFLEX AND FLEX ELEMENTS
                             this.fontAction(btn,idValues);
@@ -641,6 +645,79 @@ class Toolbar{
                     popup.remove();
                 }, 390);
                 btn.classList.remove("active");
+            }
+        };
+
+
+    };
+
+
+    pIndent({row,btn,idValues}:{row:HTMLElement,btn:HTMLButtonElement,idValues:idValueType[]}) {
+        ShapeOutside.cleanUpByID(row, "p-indent-popup");
+        btn.classList.add("active");
+        btn.style.position="relative";
+        const popup = document.createElement("div");
+        popup.id="p-indent-popup";
+        popup.className=styles.pIndentPopup;
+        const small=document.createElement("small");
+        small.id="title";
+        small.textContent="select columns";
+        small.className="text-center text-primary";
+        const select=document.createElement("select");
+        select.id="p-indent-select";
+        select.className=styles.pIndentSelect;
+        const arr:{name:string,_class:string}[]=[
+            {name:"select",_class:"select"},
+            {name:"indent-1",_class:"indent-1"},
+            {name:"indent-2",_class:"indent-2"},
+            {name:"indent-3",_class:"indent-3"},
+            {name:"rm-indent",_class:"remove"},
+        ]
+        popup.appendChild(select);
+        arr.map((ind,index)=>{
+            const option=document.createElement("option");
+            option.id="option-"+ String(index);
+            if(index===0){
+                option.style.backgroundColor="black";
+                option.style.color="white";
+            }
+            option.textContent=ind.name;
+            option.value=ind._class;
+            select.appendChild(option);
+        });
+        const okay = buttonReturn({ parent: popup, text: "add to para", bg: this.btnColor, color: "white", type: "button" });
+        okay.style.transform="scale(0.7)";
+        row.appendChild(popup);
+        this.removePopup({parent:btn,target:popup});
+        
+        select.onchange = async(e: Event) => {
+            if (e) {
+            
+                const value = (e.currentTarget as HTMLInputElement).value;
+                const getIsActives = document.querySelectorAll("p.isActive");
+                ([...getIsActives as any] as HTMLParagraphElement[]).forEach(async(active) => {
+                    if (active) {
+                        ([...active.classList as any] as string[]).forEach(strClass=>{
+                            if(strClass && strClass.includes("indent")){
+                                active.classList.remove(strClass);
+                            }
+                        });
+                        if(value !=="remove"){
+                            active.classList.add(value);
+                        }
+                        await this._modSelector.updateElement({target:active,idValues,selRowCol:null});
+                    }
+                });
+            }
+        };
+        okay.onclick = (e: MouseEvent) => {
+            if (e) {
+                Misc.growOut({ anchor: popup, scale: 0, opacity: 0, time: 400 });
+                setTimeout(() => {
+                    row.removeChild(popup);
+                }, 390);
+                btn.classList.remove("active");
+                btn.disabled=false;
             }
         };
 

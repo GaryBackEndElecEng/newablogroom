@@ -62,7 +62,9 @@ set user(user:userType){
         let show:boolean=false;
       
         let getPageCount:HTMLElement|null;
-        button.style.cssText=`position:relative;display:flex;justify:content:center;align-items:center;border-radius:50%;padding:5px;background-color:transparent;box-shadow:1px 1px 12px 1px white;color:white;transform:rotate(180deg);width:${heightWidth}px;height:${heightWidth}px;padding:1px;margin-block:auto;`
+        button.className=styles.rotateArrow;
+        button.style.width=`${heightWidth}px`;
+        button.style.height=`${heightWidth}px`;
         button.style.color="white";
         button.id="rotateArrow-btn";
         FaCreate({parent:button,name:FaArrowRight,cssStyle:{width:"100%"}});
@@ -115,7 +117,7 @@ set user(user:userType){
         Header.cleanUpByID(navHeader,"slide-menu");
         const popup=document.createElement("div");
         popup.id="slide-menu";
-        popup.style.cssText="margin-block:auto;position:absolute;padding-inline:1rem;border-radius:8px;box-shadow:1px 1px 12px 1px rgba(12, 175, 255,0.5);background-color:#0C090A;top:65px;color:white;font-size:16px;width:350px;height:800px;z-index:400;border-radius:12px;box-shadow:1px 1px 12px 1px black;align-items:center;flex-direction:column;padding-block:1rem;";
+        popup.className=styles.slideMenuPopup;
         popup.style.width=less400 ? "350px":"400px";
         popup.style.minHeight="800px";
         popup.style.height="auto";
@@ -297,19 +299,20 @@ set user(user:userType){
                 {id:13,name:"features",color:"#00FF00",link:null,func:()=> this.feature.feature(document.body as HTMLElement),icon:FaFilePowerpoint,show:true,isEditor:false,save:()=>null},
             ]
         }
-        ////----------!!IS CLIENT LOGGED IN ? YES=> SHOW ELSE: HIDE -----//////
+       
         
         this.checkUser= (user && user.id!=="");
-        ////----------!!IS CLIENT LOGGED IN ? YES=> SHOW ELSE: HIDE -----//////
+       
         const container=document.createElement("div");
         container.id="list-items-container";
-        container.style.cssText=`margin:auto;margin-top:${headerHeight}px;display:flex;flex-direction:column;justify-content:center;align-items:center; gap:1rem;width:100%;padding-inline:2rem;`;
+        container.className=styles.listItemsCont;
+        container.style.marginTop=`${headerHeight}px`;
         parent.appendChild(container);
         this.btnArray.map(navItem=>{
             if(navItem.show){
                 this.navItem({parent:container,navItem:navItem,user:user,isAuthenticated});
                 const hr=document.createElement("hr");
-                hr.style.cssText="width:100%;margin-bottom:0.5rem;background:white;";
+                hr.style.cssText="width:100%;margin-bottom:0.25rem;background:white;";
                 container.appendChild(hr);
             }
         });
@@ -318,51 +321,55 @@ set user(user:userType){
 
     navItem(item:{parent:HTMLElement,navItem:navLinkBtnType,user:userType,isAuthenticated:boolean}){
         const {parent,navItem,user,isAuthenticated}=item;
+        const {icon,name,color}=navItem;
         const url=new URL(window.location.href);
         const pathname=url.pathname;
         
         const iDiv=document.createElement("div");
         iDiv.className="list-icon";
-        iDiv.style.cssText="border-radius:50%;display:flex;justify-content:center;align-items:center;width:26px;height:26px;aspect-ratio:1 / 1;";
-        FaBtn({parent:iDiv,icon:navItem.icon,cssStyle:{background:"inherit",width:"100%"}});
+        iDiv.className=styles.navItemIDivIcon;
+        FaBtn({parent:iDiv,icon,cssStyle:{background:"inherit",width:"100%"}});
         const li=document.createElement("li");
         li.style.cssText="position:relative;"
         li.id="list-nav-item";
-        li.textContent=`${navItem.name.toUpperCase()}`;
-        li.style.cssText="list-style:none;";
-        const itemCont=document.createElement("div");
-        itemCont.id=`item-container-${navItem.name}`;
-        itemCont.style.cssText="display:flex;justify-content:space-around;align-items:center;width:100%;flex-wrap:nowrap;cursor:pointer;";
-    
-        itemCont.appendChild(iDiv);
-        itemCont.appendChild(li);
-        parent.appendChild(itemCont);
-        itemCont.onmouseover=(e:Event)=>{
+        li.textContent=`${name.toUpperCase()}`;
+        li.style.cssText=`list-style:none;`;
+        const col1=document.createElement("div");
+        const col2=document.createElement("div");
+        col2.appendChild(iDiv)
+        col1.appendChild(li)
+        const rowContainer=document.createElement("div");
+        rowContainer.id=`item-container-${name}`;
+        rowContainer.className=styles.navItemRowContainer;
+        rowContainer.appendChild(col2);
+        rowContainer.appendChild(col1);
+        parent.appendChild(rowContainer);
+        rowContainer.onmouseover=(e:Event)=>{
             if(e){
-                itemCont.style.color=navItem.color;
-                itemCont.style.transform="translateX(5%)";
-                itemCont.animate([
+                rowContainer.style.color=color;
+                rowContainer.style.transform="translateX(5%)";
+                rowContainer.animate([
                     {color:"white",transform:"translateX(0%)"},
-                    {color:navItem.color,transform:"translateX(5%)"},
+                    {color:color,transform:"translateX(5%)"},
                 ],{duration:700,iterations:1,"easing":"ease-in-out"});
             }
         };
-        itemCont.onmouseout=(e:Event)=>{
+        rowContainer.onmouseout=(e:Event)=>{
             if(e){
-                itemCont.style.color="white";
-                itemCont.style.transform="translateX(0%)";
-                itemCont.animate([
-                    {color:navItem.color,transform:"translateX(5%)"},
+                rowContainer.style.color="white";
+                rowContainer.style.transform="translateX(0%)";
+                rowContainer.animate([
+                    {color:color,transform:"translateX(5%)"},
                     {color:"white",transform:"translateX(0%)"},
                 ],{duration:700,iterations:1,"easing":"ease-in-out"});
             }
         };
-        itemCont.setAttribute("data-color",navItem.color);
-        itemCont.onclick=async(e:MouseEvent)=>{
+        rowContainer.setAttribute("data-color",color);
+        rowContainer.onclick=async(e:MouseEvent)=>{
             if(e){
                 this.centerBtnsParent=document.querySelector("div#footer-centerBtns-container");
                 if(navItem.link){
-                    const newUrl=new URL(navItem.link,url.origin);
+                    const newUrl=new URL(navItem.link,location.origin);
                     window.location.href=newUrl.href;
                 }else{
                     const getArrowButton=document.querySelector("button#rotateArrow-btn") as HTMLButtonElement;

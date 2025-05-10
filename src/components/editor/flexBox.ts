@@ -278,7 +278,7 @@ colAttrs=["col-start","col-end","col-center"];
             if(rows){
                 this.groupRows=[...this.groupRows,{selectorId:selector.eleId,rows:rows}];
                 this.rows=rows
-                console.log("SEL.ID",selector.id,"ROWS",this.rows)
+               
                 await  Promise.all(this.rows.toSorted((a,b)=>{if(a.order < b.order) return -1;return 1}).map(async(row_,index)=>{
                     const eleId=row_.eleId
                     const selRow={selectorId:selector.eleId,rowId:eleId} as selRowType;

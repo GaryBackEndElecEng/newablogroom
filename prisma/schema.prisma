@@ -12,8 +12,8 @@ generator client {
 
 datasource db {
   provider = "postgresql"
-  url      = env("localDB")
-  // url      = env("DATABASE_URL_AWS")
+  // url      = env("localDB")
+  url      = env("DATABASE_URL_AWS")
 }
 
 model Account {
@@ -116,6 +116,7 @@ model Blog {
   rating     Int
   pageCounts PageCount[]
 
+  @@unique([user_id, name])
   @@map("blogs")
 }
 

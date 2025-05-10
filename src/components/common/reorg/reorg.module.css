@@ -1,0 +1,87 @@
+.reorgMain {
+  display: flex;
+  flex-direction: column;
+  max-width: 800px;
+  position: absolute;
+  inset: 0% 0% auto 0%;
+  background-color: white;
+  border-radius: 8px;
+  z-index: 200;
+  min-height: 20vh;
+  box-shadow: 1px 1px 12px 1px black, -1px -1px 12px 1px black;
+  height: 40vh;
+  overflow-y: scroll;
+  padding-block: 1.5rem;
+}
+.reorg {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+}
+.reorgRow {
+  display: inline-flex;
+  width: 100%;
+  padding-inline: 1rem;
+  border: 1px solid blue;
+  min-height: 5vh;
+}
+.reorgCol {
+  margin-inline: auto;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 100%;
+}
+.select {
+  margin-inline: auto;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  border-radius: 6px;
+  border: none;
+  margin-left: 1rem;
+}
+.removePopup {
+  display: block;
+  position: absolute;
+  top: 0%;
+  right: 0%;
+  padding: 3px;
+  background-color: black;
+  color: white;
+  border-radius: 50%;
+  z-index: 200;
+  transform: translate(8px, 8px);
+}
+.toPointer {
+  display: block;
+  position: absolute;
+  top: 0%;
+  right: 0%;
+  transform: translate(10px, -10px);
+  border-radius: 50%;
+  background-color: black;
+  width: fit-content;
+}
+.toPointer::after {
+  display: block;
+  content: attr(data-placement);
+  position: absolute;
+  top: 0%;
+  right: 0;
+  width: 36px;
+  transform: translate(100%, -100%);
+  border-radius: 50%;
+  background-color: inherit;
+  color: white;
+  padding: 2px;
+}
+
+@media screen and (max-width: 400px) {
+  .reorgRow {
+    padding-inline: 0.5rem;
+    flex-direction: column;
+    align-items: center;
+    justify-content: flex-start;
+  }
+}

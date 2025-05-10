@@ -1,4 +1,4 @@
-import { flexType, elementType, colType, rowType, selectorType, element_selType, codeType, blogType, userType, themeType, saveProcessType, pageCountType, chartType, barOptionType, lineOptionType, messageType, userDevelopType, postType, userQuoteType, accountType, sessionType } from './Types';
+import { flexType, elementType, colType, rowType, selectorType, element_selType, codeType, blogType, userType, themeType, saveProcessType, pageCountType, chartType, barOptionType, lineOptionType, messageType, userDevelopType, postType, userQuoteType, accountType, sessionType, reorderType } from './Types';
 
 import { FaCreate } from "../common/ReactIcons";
 import { FaCrosshairs } from "react-icons/fa";
@@ -17,8 +17,8 @@ import { mainIntroLetterStrType, mainIntroLetterType, mainResumeRefType, mainRes
 
 
 class ModSelector {
-    static readonly main_css:string="min-height:100vh;height:auto;box-shadow:1px 1px 12px 2px black;border-radius:10px;padding-inline:0px;padding-block:0px;margin:0px;z-index:0;position:relative;width:100%;display:flex;flex-direction:column;justify-content:flex-start;align-items:center;gap:1rem;";
-    static readonly main_class="mx-auto d-flex w-100 flex-column my-0";
+    static readonly main_css:string="min-height:100vh;height:100%;box-shadow:1px 1px 12px 2px black;border-radius:10px;padding-inline:0px;padding-block:0px;margin:0px;z-index:0;position:relative;width:100%;display:flex;flex-direction:column;justify-content:flex-start;align-items:center;gap:1rem;";
+    static readonly main_class="mx-auto d-flex w-100 flex-column my-0 h-100";
     static readonly mainHeader_css:string="margin-inline:0px;width:100%;display:flex;flex-direction:column;align-items:center;";
     static readonly mainHeader_class:string="sectionHeader";
     static readonly mainFooter_class:string="mainFooter";
@@ -242,7 +242,28 @@ class ModSelector {
         this._chart=this.initChart;
         this._charts=[];
         this._pageCounts=[] as pageCountType[];
-        this.initBlog={id:0,user_id:"",name:"",desc:"",title:"",img:undefined,eleId:undefined,class:ModSelector.main_class,cssText:ModSelector.main_css,imgKey:undefined,selectors:this._selectors,elements:this._elements,codes:this._codes,messages:[] as messageType[],show:false,rating:0,pageCounts:this._pageCounts,username:"username",date:new Date(),update:new Date(),attr:"square",charts:this._charts,barOptions:[]};
+        this.initBlog={
+            id:0,user_id:"",
+            name:"",
+            desc:"",
+            title:"",
+            img:undefined,
+            eleId:undefined,
+            class:ModSelector.main_class,
+            cssText:ModSelector.main_css,
+            imgKey:undefined,
+            selectors:this._selectors,
+            elements:this._elements,
+            codes:this._codes,messages:[] as messageType[],
+            show:false,rating:0,
+            pageCounts:this._pageCounts,
+            username:"username",
+            date:new Date(),
+            update:new Date(),
+            attr:"square",
+            charts:this._charts,
+            barOptions:[]
+        };
 
         this._afterSignIn={} as saveProcessType;
         const maxCount=ModSelector.maxCount(this._blog);
@@ -2035,50 +2056,63 @@ loadSimpleBlog(blog:blogType){
         }
         return {...blog,elements:eles,selectors,codes,charts};
     };
+
     shiftPlace(ref:number){
         //THIS SHIFTS ALL SELECTORS AND ELEMENTS -1 AFTER ELEMENT DELETION THEN ASSIGNS PLACEMENT=MAXCOUNT: SEE BELOW
         const blog=this._blog;
-        let eles=(blog.elements) ? blog.elements : [] as elementType[];
-        let selectors=(blog.selectors) ? blog.selectors : [] as selectorType[];
-        let codes=(blog.codes) ? blog.codes : [] as codeType[];
-        let charts=(blog.charts) ? blog.charts : [] as chartType[];
-        const maxCount=ModSelector.maxCount(blog);//already deleted
-       
+        let arrTotal:reorderType[]=[];
+        blog.elements=blog?.elements.toSorted((a,b)=>{if(a.placement <b.placement) return -1;return 1}) as elementType[] || [] as elementType[];
+        blog.selectors=blog?.selectors.toSorted((a,b)=>{if(a.placement <b.placement) return -1;return 1}) as selectorType[] || [] as selectorType[];
+        blog.charts=blog?.charts.toSorted((a,b)=>{if(a.placement <b.placement) return -1;return 1}) as chartType[] || [] as chartType[];
+        const maxCount=ModSelector.maxCount(blog)
         if(maxCount>0 && !isNaN(maxCount)){
+            arrTotal=arrTotal.concat(blog.elements.map(kv=>({id:kv.id,placement:kv.placement,type:"element",eleId:kv.eleId,html:kv.inner_html.slice(0,10),name:kv.name})));
+            arrTotal=arrTotal.concat(blog.selectors.map(kv=>({id:kv.id,placement:kv.placement,type:"element",eleId:kv.eleId,html:"BOX",name:kv.name})));
+            arrTotal=arrTotal.concat(blog.charts.map(kv=>({id:kv.id,placement:kv.placement,type:"element",eleId:kv.eleId,html:"Graph",name:"canvas"})));
            
-           eles= eles.toSorted((a,b)=>{if(a.placement < b.placement) return -1;return 1}).map((ele_,)=>{
-                if(ele_ && ele_.placement > ref  && ele_.placement >0){
-                    ele_.placement -=1;
+            arrTotal.toSorted((a,b)=>{if(a.placement < b.placement) return -1;return 1}).map((comb,index)=>{
+                if(comb){
+                    const {type,eleId}=comb;
+                    if(type==="element"){
+                        blog.elements.map(ele=>{
+                           
+                            const check= ele.eleId===eleId
+                            if(check){
+                                ele.placement=index + 1;
+                            }
+                          
+                        });
+                    }else if(type==="selector"){
+                        blog.selectors.map(sel=>{
+                         
+                            const check= sel.eleId===eleId
+                            if(check){
+                                sel.placement=index + 1;
+                            }
+                        });
+                    }else if(type==="chart"){
+                        blog.charts.map(sel=>{
+                      
+                            const check= sel.eleId===eleId
+                            if(check){
+                                sel.placement=index + 1;
+                            }
+                            
+                        });
+                    }
                 }
-                return ele_;
-            });
-            selectors = selectors.toSorted((a,b)=>{if(a.placement < b.placement) return -1;return 1}).map((selector_)=>{
-                if(selector_ && selector_.placement > ref && selector_.placement>0){
-                    selector_.placement -=1;
-                }
-                return selector_;
-            });
-           codes = codes.toSorted((a,b)=>{if(a.placement < b.placement) return -1;return 1}).map((code_,index)=>{
-                if(code_ && code_.placement > ref && code_.placement>0){
-                    code_.placement =index+1;
-                }
-                return code_;
-            });
-           charts= charts.toSorted((a,b)=>{if(a.placement < b.placement) return -1;return 1}).map((chart_,index)=>{
-                if(chart_ && chart_.placement > ref && chart_.placement>0){
-                    chart_.placement =index+1;
-                }
-                return chart_;
             });
            
 
         }
-        this._blog={...this._blog,selectors,elements:eles,codes,charts:charts}
+        this._blog=blog;
         this.blog=this._blog;//sending it to localStorage
         this.placement=maxCount + 1;
         // console.log("shiftPlace")
 
-    }
+    };
+
+
     checkGetRows(item:{select:selectorType}):{isRows:boolean,rows:rowType[]}{
         const {select}=item;
         let rows=[] as rowType[];
@@ -2092,6 +2126,69 @@ loadSimpleBlog(blog:blogType){
         };
      
     };
+
+    removeDuplicates({blog}:{blog:blogType}){
+        // REMOVES DUPLICATES FROM BLOG AND SAVES IT TO LOCALSTORAGE
+        blog.elements=blog?.elements.toSorted((a,b)=>{if(a.placement <b.placement) return -1;return 1}) as elementType[] || [] as elementType[];
+        blog.selectors=blog?.selectors.toSorted((a,b)=>{if(a.placement <b.placement) return -1;return 1}) as selectorType[] || [] as selectorType[];
+        blog.charts=blog?.charts.toSorted((a,b)=>{if(a.placement <b.placement) return -1;return 1}) as chartType[] || [] as chartType[];
+        
+        const eles=blog.elements.map(kv=>(kv.eleId));
+        if(eles?.length){
+                const elements:elementType[]=[];
+                const newSet=new Set();
+
+                eles.map(kat=>{
+                    newSet.add(kat)
+                });
+                Array.from(newSet).map(id=>{
+                    const getEle=blog.elements.find(kv=>(kv.eleId===id));
+                    if(getEle){
+                        elements.push(getEle);
+                    }
+                });
+                blog.elements=elements;
+            }
+
+        const sels=blog.selectors.map(kv=>(kv.eleId));
+        if(sels?.length){
+            const selectors:selectorType[]=[];
+            const newSet1=new Set();
+
+            sels.map(kat=>{
+                newSet1.add(kat)
+            });
+            Array.from(newSet1).map(id=>{
+                const getSel=blog.selectors.find(kv=>(kv.eleId===id));
+                if(getSel){
+                    selectors.push(getSel);
+                }
+            });
+            blog.selectors=selectors;
+        }
+
+        const chts=blog.charts.map(kv=>(kv.eleId));
+        if(chts?.length){
+            const charts:chartType[]=[];
+            const newSet2=new Set();
+
+            chts.map(kat=>{
+                newSet2.add(kat)
+            });
+            Array.from(newSet2).map(id=>{
+                const getChart=blog.charts.find(kv=>(kv.eleId===id));
+                if(getChart){
+                    charts.push(getChart);
+                }
+            });
+            blog.charts=charts;
+        }
+          localStorage.setItem("blog",JSON.stringify(blog));
+          this.blog=blog;
+        return blog;
+    };
+
+
     removeClasses({target,classes}:{target:HTMLElement,classes:string[]}):{cleaned:string[],target:HTMLElement}{
         const targetClasses=([...target.classList as any] as string[]);
         targetClasses.map((cl,index)=>{
@@ -2103,6 +2200,8 @@ loadSimpleBlog(blog:blogType){
         });
         return {cleaned:targetClasses,target};
     };
+
+
     static maxCount(blog:blogType):number{
         if(!blog) return 0;
         const eleCount=blog.elements ? blog.elements.length:0;
@@ -2112,7 +2211,9 @@ loadSimpleBlog(blog:blogType){
         const len=[eleCount,selCount,codeCount,chartCount].reduce((a,b)=>(a+b),0);
       
         return len
-    }
+    };
+
+
     static modAddEffect(target:HTMLElement){
         target.animate([
             {transform:"translate(-50%,-50%) scale(0.2)"},
@@ -2129,7 +2230,8 @@ loadSimpleBlog(blog:blogType){
 
         }
         return false;
-    }
+    };
+
     static genArray(num:number):number[]{
         const arr:number[]=[];
         for(let i=1;i<=num;i++){
@@ -2154,67 +2256,57 @@ loadSimpleBlog(blog:blogType){
             return target.innerHTML
         }
         return textArr.join(" ")
-    }
-    static addBgImageToCss(target:HTMLElement,url:string):string{
-        //THIS ADDS BACKGROUND-IMAGE TO TARGET
-        let css=target.style.cssText;
-        const arr:string[]=css.split(";");
-        arr.push(`background-image:url(${url})`);
-        arr.push("background-position:50% 50%");
-        arr.push("background-size:100% 100%");
-        css=arr.join(";");
-        target.style.cssText=css;
-        return css;
-    }
+    };
+  
    static getAllImgKeys(blog:blogType){
-    let index=0;
-    const arrimgs:{id:number,imgKey:string}[]=[];
-    if(blog.imgKey){
-        arrimgs.push({id:index,imgKey:blog.imgKey});
-        index+=1;
-    }else if(blog.imgBgKey){
-        arrimgs.push({id:index,imgKey:blog.imgBgKey});
-        index+=1;
-    }
-    blog.selectors.map(select=>{
-        if(select){
-            const rows=JSON.parse(select.rows) as rowType[];
-            rows.map(row=>{
-                if(row){
-                    if(row.imgKey){
-                        arrimgs.push({id:index,imgKey:row.imgKey});
-                        index+=1;
-                    }
-                    row.cols.map(col=>{
-                        if(col){
-
-                            if(col.imgKey){
-                                arrimgs.push({id:index,imgKey:col.imgKey});
-                                index+=1;
-                            }
-                            col.elements.map(ele=>{
-                                if(ele){
-                                    if(ele.imgKey){
-                                        arrimgs.push({id:index,imgKey:ele.imgKey});
-                                        index+=1;
-                                    }
-                                }
-                            });
+        let index=0;
+        const arrimgs:{id:number,imgKey:string}[]=[];
+        if(blog.imgKey){
+            arrimgs.push({id:index,imgKey:blog.imgKey});
+            index+=1;
+        }else if(blog.imgBgKey){
+            arrimgs.push({id:index,imgKey:blog.imgBgKey});
+            index+=1;
+        }
+        blog.selectors.map(select=>{
+            if(select){
+                const rows=JSON.parse(select.rows) as rowType[];
+                rows.map(row=>{
+                    if(row){
+                        if(row.imgKey){
+                            arrimgs.push({id:index,imgKey:row.imgKey});
+                            index+=1;
                         }
-                    });
-                }
-            });
-        }
-    });
-    blog.elements.map(ele=>{
-        if(ele){
-            if(ele.imgKey){
-                arrimgs.push({id:index,imgKey:ele.imgKey});
-                index+=1;
+                        row.cols.map(col=>{
+                            if(col){
+
+                                if(col.imgKey){
+                                    arrimgs.push({id:index,imgKey:col.imgKey});
+                                    index+=1;
+                                }
+                                col.elements.map(ele=>{
+                                    if(ele){
+                                        if(ele.imgKey){
+                                            arrimgs.push({id:index,imgKey:ele.imgKey});
+                                            index+=1;
+                                        }
+                                    }
+                                });
+                            }
+                        });
+                    }
+                });
             }
-        }
-    });
-    return arrimgs;
+        });
+        blog.elements.map(ele=>{
+            if(ele){
+                if(ele.imgKey){
+                    arrimgs.push({id:index,imgKey:ele.imgKey});
+                    index+=1;
+                }
+            }
+        });
+        return arrimgs;
     };
 
 
@@ -2275,31 +2367,14 @@ loadSimpleBlog(blog:blogType){
         return ele
      };
 
-   
 
-   
-     
+
 //NOT USED BELOW
-    createDoc(element:string){
-        
-        switch(true){
-            case element==="h1":
-            return document.createElement("h1");
-            case element==="h2":
-            return document.createElement("h2");
-            case element==="h3":
-            return document.createElement("h3");
-            case element==="h4":
-            return document.createElement("h4");
-            case element==="h5":
-            return document.createElement("h5");
-            case element==="p":
-            return document.createElement("p");
-            default:
-                return
-        }
-    }
-}
+  
+
+
+//END
+};
 
 export default ModSelector 
 export const modAddEffect=ModSelector.modAddEffect;

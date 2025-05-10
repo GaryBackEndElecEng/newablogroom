@@ -848,4 +848,13 @@ export type firstTimeType={
     image:string
     
 }
+export type reorderType={
+    id:number,
+    html:string,
+    name:string,
+    placement:number,
+    eleId:string,
+    type:string
+
+}
 //----INTRO---///

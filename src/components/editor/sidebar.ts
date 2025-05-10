@@ -36,6 +36,7 @@ import AuthService from "../common/auth";
 import Toolbar from "../common/toolbar";
 import ViewResume from "../bio/resume/viewResume";
 import { mainResumeType } from "../bio/resume/refTypes";
+import ReorgBlog from "../common/reorg/reorgBlog";
 
 
 
@@ -1080,7 +1081,7 @@ class Sidebar{
     
     //---------------------INITIALIZE------------------------///
 
-    constructor(private _modSelector:ModSelector,private _service:Service,private auth:AuthService,main:Main, private _flexbox:Flexbox,private _code:NewCode,header:Header,public customHeader:CustomHeader,footer:Footer,edit:Edit,private _User:User,private _regSignin:RegSignIn,displayBlog:DisplayBlog,public chart:ChartJS,public shapeOutside:ShapeOutside,private _metablog:MetaBlog,private _headerFlag:Headerflag,public toolbar:Toolbar,private _blog:blogType,private _viewResume:ViewResume,private __user:userType|null){
+    constructor(private _modSelector:ModSelector,private _service:Service,private auth:AuthService,main:Main, private _flexbox:Flexbox,private _code:NewCode,header:Header,public customHeader:CustomHeader,footer:Footer,edit:Edit,private _User:User,private _regSignin:RegSignIn,displayBlog:DisplayBlog,public chart:ChartJS,public shapeOutside:ShapeOutside,private _metablog:MetaBlog,private _headerFlag:Headerflag,public toolbar:Toolbar,private _blog:blogType,private _viewResume:ViewResume,private __user:userType|null,private reorg:ReorgBlog){
         this.emojiSmile="./images/emojiSmile.png";
         this.logo="/images/logo.png";
         this._selectors_=Flexbox.selectors_;
@@ -1177,7 +1178,7 @@ class Sidebar{
    //PARENT onClickHideShowSidebar()
     onclickHideShowSideBarGt100({injector,arrDiv,mainCont,less1000,textarea,footer,mainHeader,blog}:{injector:HTMLElement,arrDiv:HTMLElement,mainCont:HTMLElement,less1000:boolean,textarea:HTMLElement,footer:HTMLElement,mainHeader:HTMLElement,blog:blogType|null}){
         injector.style.alignSelf="flex-start";
-        const maxHeight=130
+        const maxHeight=200
         this.sidebarMain({parent:injector,maxHeight,mainCont,less1000,textarea,footer,mainHeader,blog});
         injector.appendChild(arrDiv);
         arrDiv.addEventListener("click",(e:MouseEvent)=>{
@@ -1302,7 +1303,7 @@ class Sidebar{
     }){
         const less400= window.innerWidth <400;
         const less900= window.innerWidth <900;
-        const height=less1000 ? "60vh":"140vh";
+        const height=less1000 ? "60vh":"260vh";
         const user=this.user ? this.user : this._User.user;
         const idValues=this._modSelector.dataset.idValues
         Main.textarea=document.querySelector("div#textarea");
@@ -1315,6 +1316,7 @@ class Sidebar{
         sidebarMain.id="sidebarMain";
         sidebarMain.style.cssText=`justify-content:flex-start;align-items:center;overflow-y:scroll;gap:1rem;padding-inline:1rem;border:1px solid white;font-size:${this.textFontSize};padding-block:2rem;`;
         sidebarMain.style.maxHeight=height;
+        sidebarMain.style.background=this.bgColor;
         sidebarMain.style.height="100%";
         sidebarMain.className="flexCol";
         this.introduction(sidebarMain,mainCont);
@@ -1328,7 +1330,7 @@ class Sidebar{
         this.editMeta({parent:sidebarMain,mainCont});//edit Meta
         // this.initiateEdit(sidebarMain);
         this.saveBlog(sidebarMain,mainCont);
-        this.reOrder({parent:sidebarMain,idValues,user,textarea,mainCont,mainHeader,footer});
+        this.reOrder({parent:sidebarMain,height,user,textarea,mainCont,mainHeader,footer});
         this.initiateHeaderTemplate(sidebarMain,idValues,mainHeader,this._modSelector.blog);
         this.initiateHeaderFlag(sidebarMain,idValues,textarea);
         this.ultility(sidebarMain,idValues,null,textarea);
@@ -1553,9 +1555,9 @@ class Sidebar{
 
 
     //PARENT MAIN()-onTop
-    reOrder({parent,textarea,user,idValues,mainCont,mainHeader,footer}:{
+    reOrder({parent,textarea,user,height,mainCont,mainHeader,footer}:{
         parent:HTMLElement,
-        idValues:idValueType[],
+        height:string
         user:userType,
         textarea:HTMLElement,
         mainCont:HTMLElement,
@@ -1563,11 +1565,12 @@ class Sidebar{
         footer:HTMLElement
 
     }){
+
         Main.textarea=document.querySelector("div#textarea") as HTMLElement;
         const btnContainer=document.createElement("div");
         btnContainer.className="flexCol text-center";
         btnContainer.style.cssText="box-shadow:1px 1px 12px 1px white;border-radius:10px;padding-inline:0.5rem;padding-block:1rem;text-align:center;width:100%;";
-        const H5=document.createElement("h5");
+        const H5=document.createElement("h6");
         H5.textContent="Re-order your work";
         H5.style.cssText="margin:auto;text-decoration:underline;text-underline-offset:1rem;";
         H5.className="text-info lean";
@@ -1607,8 +1610,17 @@ class Sidebar{
                     btn.disabled=false;
                 },1000);
                 if( check ){
+                    this._modSelector.removeDuplicates({blog:this._modSelector.blog});
                     const blog=this._modSelector.blog;
-                    this._edit.reOrder({parent,textarea,blog,idValues,user,mainCont,mainHeader,footer});
+                    this.reorg.reOrder({parent:textarea,textarea,blog,
+                        callback:async(_blog)=>{
+                            Header.cleanUp(textarea);
+                          await this._edit.main({parent:mainCont,textarea,mainHeader,footer,blog:_blog,user});
+                            this._modSelector.removeDuplicates({blog:_blog});
+                            parent.style.height=height;
+                            parent.style.overflowY="scroll";
+                        }
+                    });
                 }
             }
         });
@@ -1647,8 +1659,8 @@ class Sidebar{
                 const blog=this._modSelector.blog;
                 const maxCount=ModSelector.maxCount(blog);
                 const user=this.user;
-                const checkUser=(user?.id && user.id!=="" && user?.email!=="");
-                const checkBlog=( blog.name !=="undefined" && maxCount>0) ;
+                const checkUser=!!(user?.id!=="" && user?.email!=="");
+                const checkBlog=!!( blog.name !=="undefined" && maxCount>0) ;
                 if(checkUser){
                     //ask to save
                    
@@ -1656,10 +1668,14 @@ class Sidebar{
 
                         Misc.wantToSaveBeforeFunc({
                             parent:mainCont,
-                            funcSave:async()=>{await this._User.saveWork({parent,blog,func:async()=>{
+                            funcSave:async()=>{await this._User.saveWork({parent:mainCont,blog,func:async()=>{
                                 await this._main.newBlog({
                                     parent:mainCont,
-                                    func:()=>undefined,
+                                    func:({blog})=>{
+                                        if(blog){
+                                            this._modSelector.blog=blog
+                                        }
+                                    },
                                     })
                             }})},
                             functCancel:async()=>{
@@ -1821,7 +1837,8 @@ class Sidebar{
                 if(!blog){
                   const getBlog=await this._modSelector.loadFromLocal()
                   const {blog:_blog}=getBlog.getBlog();
-                  blog=_blog
+                  blog=_blog;
+                  ReorgBlog.sortPlacement({blog});
                   this._modSelector.loadBlog({blog,user});
                 }
                 
@@ -1831,8 +1848,7 @@ class Sidebar{
         });
      };
  
-      //!! NOT USED-BTN INITIATE EDIT
-    
+   
       initiateEdit({parent,mainCont,idValues,textarea,mainHeader,footer,less400,less900}:{
         parent:HTMLElement,
         mainCont:HTMLElement,
@@ -2656,10 +2672,8 @@ class Sidebar{
         remove.onclick=(e:MouseEvent)=>{
             if(!e) return;
             Header.cleanUp(parent);
-            console.log(blog.selectors)
             blog.selectors = blog.selectors.filter(select=>(!select.header));
             this._modSelector.selectors=blog.selectors;
-            console.log("after selectors",blog.selectors)
             //execute the function
             func();
         };

@@ -61,10 +61,19 @@ class MainSetup {
         const input = document.createElement("input");
         input.style.cssText = "width:95%;"
         input.name = "filename";
+        input.placeholder = "filename manditory";
         input.className = "form-control";
         input.type = "text";
         input.id = "filename";
         label.setAttribute("for", input.id);
+        input.onchange=(e:MouseEvent)=>{
+            if(!e) return;
+            const getdivCont=form.querySelector("div#divCont") as HTMLElement;
+            if(!getdivCont) return;
+            const getBtn=getdivCont.querySelector("button#newblog-btn") as HTMLButtonElement;
+            if(!getBtn) return;
+            getBtn.disabled=false;
+        }
         const { input: tinput, label: tlabel, formGrp: titleGrp } = Nav.inputComponent(form);
         titleGrp.style.cssText = "margin-inline:auto;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:1rem;"
         tinput.id = "title";
@@ -86,11 +95,14 @@ class MainSetup {
         form.appendChild(grpForm);
         form.appendChild(grpForm1);
         const divCont = document.createElement("div");
+        divCont.id="divCont";
         divCont.style.cssText = "display:flex;justify-content:center;align-items:center;margin-inline:auto;gap:1.5rem;";
         const cancel = buttonReturn({ parent: divCont, text: "cancel", bg: "#0804f9", color: "white", type: "button" });
-        const btn = buttonReturn({ parent: divCont, text: "cancel", bg: "#0804f9", color: "white", type: "button" });
+        const btn = buttonReturn({ parent: divCont, text: "submit", bg: "#0804f9", color: "white", type: "submit" });
+        btn.id="newblog-btn";
         btn.type = "submit";
         btn.textContent = "submit";
+        btn.disabled=true;
         btn.className = "btn btn-sm text-light bg-primary";
         btn.style.cssText = "margin-block:2rem; padding-inline:1rem;padding-block:0.5rem;border-radius:20px";
         form.appendChild(divCont);
@@ -150,7 +162,7 @@ class Main {
         this.btnColor = this._modSelector.btnColor;
         this._edit = edit
         this.mainSetup = new MainSetup(this._modSelector);
-        Main.main_css=this._blog?.cssText || ModSelector.main_css + "width:100%";
+        Main.main_css=this._blog?.cssText || ModSelector.main_css + "width:100%;height:100%;";
         Main.main_class= this._blog.class || ModSelector.main_class;
         this.browser=new BrowserType(this._user.id);
         this.firstTimeIntro=new FirstTimeIntro();
@@ -222,68 +234,30 @@ class Main {
 
     //WELCOME-FIRST-NON-USER////
     ////- MAIN INJECTOR-----//////////////////////////
-    async newBlog(item: { parent: HTMLElement, func: () => Promise<void> | void }): Promise<void> {
+    async newBlog(item: { parent: HTMLElement, func: ({blog}:{blog:blogType|null}) => Promise<void> | void }): Promise<void> {
         const { parent, func } = item;
         parent.style.position = "relative";
         const { form, container } = this.mainSetup.newBlogSetup(parent);
         container.id = "newBlogSetup";
         const user = this.user;
-        const initBlog = this._modSelector.blogInitializer(user);
         form.addEventListener("submit", (e: SubmitEvent) => {
             if (e) {
                 e.preventDefault();
-                const checkUser = (user && user.id!=="" && user.email!=="");
+                const checkUser = !!(user?.id!=="" && user?.email!=="");
                 const formdata = new FormData(e.currentTarget as HTMLFormElement);
                 const filename = formdata.get("filename") as string;
                 const desc = formdata.get("desc") as string;
                 const title = formdata.get("title") as string;
-
                 //ADDING USER_ID TO NEW BLOG IF EXIST!!
                 if (checkUser) {
                     if (!(filename)) { Misc.message({ parent, msg: "No filename", type_: "error", time: 1400 }); return container.remove(); }
-                    const name = filename.split(" ").join("");
-                    const _title=Misc.capitalize({str:title})
-                    this._modSelector.blog = { ...initBlog, name:name, title: _title, desc: desc, user_id: user.id, eleId: parent.id };
-                    const blog = this._modSelector.blog;
-                    this._service.newBlog(blog).then(async (blog_) => {
-                        if (blog_ && blog_.user_id) {
-                            this._modSelector.blog = { ...blog, id: blog_.id, class: Main.main_class, cssText: Main.main_css, eleId: parent.id }
-                            const _blog = this._modSelector.blog;
-                            this._modSelector.loadBlog({ blog: _blog, user });
-                            Misc.message({ parent, msg: "created", type_: "success", time: 400 })
-                            Misc.fadeOut({ anchor: container, xpos: 50, ypos: 100, time: 400 });
-                            setTimeout(() => {
-                                container.remove()
-                            }, 380);
-                            func();
-                        }
-                    }).catch((err) => {
-                        const msg = getErrorMessage(err);
-                        Misc.message({ parent, msg: msg, type_: "error", time: 1500 });
-                        setTimeout(() => { parent.removeChild(container); }, 1480);
-                    });
+                    this.newBlogSave({parent,container,user,filename,title,desc,callback:func})
 
                 } else {
-                    this._modSelector.blog = { ...initBlog, name: filename, title: title, desc: desc, cssText: Main.main_css, class: Main.main_class, eleId: parent.id };
-                    const blog = this._modSelector.blog;
-                    this._modSelector.blog = { ...blog, id: blog.id, class: Main.main_class, cssText: Main.main_css, eleId: parent.id };
-                    const _blog = this._modSelector.blog;
-                    this._modSelector.loadBlog({ blog: _blog, user });
-                    Misc.fadeOut({ anchor: container, xpos: 50, ypos: 100, time: 400 });
-                    setTimeout(() => {
-                        container.remove()
-                    }, 380);
-                    func();
-                    Misc.message({ parent, msg: "created but not saved", type_: "success", time: 1400 });
-                    setTimeout(() => {
-                        ([...parent.children as any] as HTMLElement[]).forEach(child => {
-                            if (child && child.id === "newBlogSetup") {
-                                parent.removeChild(child);
-                            }
-                        });
-
-                    }, 1380);
-                    this._regSignin.signIn();///signing in
+                    this.savingLocalAndClose({parent,container,filename,title,desc,
+                        callback:()=>{this._regSignin.signIn()}
+                    });
+                    
                 }
                 Main.cleanUp(Main.textarea as HTMLElement);
                 Main.cleanUp(Main._mainHeader as HTMLElement);
@@ -294,6 +268,78 @@ class Main {
             }
         });
     };
+
+
+
+    newBlogSave({parent,container,user,filename,title,desc,callback}:{
+        parent:HTMLElement,
+        container:HTMLElement,
+        user:userType,
+        filename:string,
+        title:string,
+        desc:string,
+        callback:({blog}:{blog:blogType|null})=>Promise<void>|void,
+
+    }){
+        const rand=Math.floor(Math.random()*1000);
+        const initBlog = this._modSelector.blogInitializer(user);
+        const name =`${filename.split(" ").join("").trim()}-${rand}`;
+        const _title=title ? Misc.capitalize({str:title}) :"MyTitle";
+        const _desc=desc || "description";
+        this._modSelector.blog = { ...initBlog, name:name, title: _title, desc: _desc, user_id: user.id, eleId: parent.id };
+        const blog = this._modSelector.blog;
+        this._service.newBlog(blog).then(async (blog_) => {
+            if (blog_ && blog_.user_id) {
+                this._modSelector.blog = { ...blog, id: blog_.id, class: Main.main_class, cssText: Main.main_css, eleId: parent.id }
+                const _blog = this._modSelector.blog;
+                this._modSelector.loadBlog({ blog: _blog, user });
+                Misc.message({ parent, msg: "created", type_: "success", time: 400 })
+                Misc.fadeOut({ anchor: container, xpos: 50, ypos: 100, time: 400 });
+                setTimeout(() => {
+                    container.remove()
+                }, 380);
+                callback({blog:_blog});
+            }
+        }).catch((err) => {
+            const msg = getErrorMessage(err);
+            callback({blog:null})
+            Misc.message({ parent, msg: msg, type_: "error", time: 1500 });
+            setTimeout(() => { parent.removeChild(container); }, 1480);
+        });
+    };
+
+    savingLocalAndClose({parent,container,filename,title,desc,callback}:{
+        parent:HTMLElement,
+        container:HTMLElement,
+        filename:string,
+        title:string,
+        desc:string,
+        callback:()=>Promise<void>|void
+    }){
+        const rand=Math.floor(Math.random()*1000);
+        const initBlog = this._modSelector.blogInitializer(null);
+        const _filename=`${filename}-${rand}`;
+        const _title=title || "title";
+        const _desc=desc || "description"
+        this._modSelector.blog = { ...initBlog, name:_filename, title:_title, desc:_desc, cssText: Main.main_css, class: Main.main_class, eleId: parent.id };
+        this._modSelector.blog = { ...this._modSelector.blog, id: 0, class: Main.main_class, cssText: Main.main_css, eleId: parent.id };
+        const blog = this._modSelector.blog;
+        this._modSelector.loadBlog({ blog, user:null });
+        Misc.fadeOut({ anchor: container, xpos: 50, ypos: 100, time: 400 });
+        setTimeout(() => {
+            container.remove()
+        }, 380);
+        callback();
+        Misc.message({ parent, msg: "created but not saved", type_: "success", time: 1400 });
+        setTimeout(() => {
+            ([...parent.children as any] as HTMLElement[]).forEach(child => {
+                if (child && child.id === "newBlogSetup") {
+                    parent.removeChild(child);
+                }
+            });
+
+        }, 1380);
+    }
 
 
     //INJECTION POINT////////////////
@@ -319,7 +365,7 @@ class Main {
             this.topMain = document.createElement("article");
             this.topMain.className = "top-main";
             this.topMain.id = `topMain-blog-${this._modSelector.blog.id}`;
-            this.topMain.style.cssText ="margin:0px;padding:0px;position:relative;width:100%;background-color:white;border-radius:15px;display:flex;flex-direction:column;";
+            this.topMain.style.cssText ="margin:0px;padding:0px;position:relative;width:100%;background-color:white;border-radius:15px;display:flex;flex-direction:column;height:100%;";
             this.topMain.style.gap=less900 ? (less400 ? "3.5rem":"1.5rem"):"1rem";
             this.toolbar=document.createElement("div");
             this.toolbar.id="toolbar-main";
@@ -328,8 +374,8 @@ class Main {
             //----------------- Iphone adjustments---------------//
             const mediaTopMain390: mediaQueryType = {
                 target: this.topMain,
-                css_max_attribute: { "max-width": "370px", "height": "auto", "width": "100%", "font-size": "10px" },
-                css_min_attribute: { "max-width": `auto`, "height": "auto", "width": "100%", "font-size": "auto" },
+                css_max_attribute: { "max-width": "370px",  "width": "100%","height":"100%", "font-size": "10px" },
+                css_min_attribute: { "max-width": `auto`,  "width": "100%","height":"100%", "font-size": "auto" },
                 minWidth: 400,
                 maxWidth: 400
             }
@@ -371,6 +417,7 @@ class Main {
             
             this.topMain.appendChild(this.mainCont);
             this.mainCont.style.width = "100% !important";
+            this.mainCont.style.height = "100% !important";
             this.mainCont.classList.add("w-100");
             this.mainCont.appendChild(bottomMain);
             this.mainCont.id="main";
@@ -474,7 +521,7 @@ class Main {
         parent.style.width = "100% !important";
         Header.cleanUpByID(parent, "textarea");
         parent.style.position = "relative";
-        const cssTextarea = "margin-inline:auto;padding-inline:1rem;padding-block:1.5rem;margin-block:1rem;border:1px solid lightgrey; border-radius:4px;width:100%;height:110vh;box-shadow:1px 1px 4px 1px grey;overflow-y:scroll;display:block;position:relative;padding-block;1rem;padding-bottom:2rem;display:flex;align-items:stretch; flex-direction:column;gap:1rem;";
+        const cssTextarea = "margin-inline:auto;padding-inline:1rem;padding-block:1.5rem;margin-block:1rem;border:1px solid lightgrey; border-radius:4px;width:100%;min-height:85%;height:100%;box-shadow:1px 1px 4px 1px grey;overflow-y:scroll;display:block;position:relative;padding-block;1rem;padding-bottom:2rem;display:flex;align-items:stretch; flex-direction:column;gap:1rem;";
         
         this.textarea = document.createElement("div");
         this.textarea.setAttribute("contenteditable", "false");
@@ -488,6 +535,7 @@ class Main {
         Main.textarea.style.cssText = cssTextarea;
         Main.textarea.style.paddingInline = less900 ? (less400 ? "0.25rem" : "0.5rem") : "1rem";
         Main.textarea.style.width = "100%";
+        Main.textarea.style.height = "100%";
         Main.textarea.id = `textarea`;
         Main.textarea=this.textarea as HTMLElement;
         //ADD WORK DONE _edit.selEleGenerator(Main.textarea,blog)

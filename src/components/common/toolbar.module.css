@@ -1,0 +1,50 @@
+.css_col {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+
+.pIndentPopup {
+  margin-inline: auto;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  inset: -70% 30% auto 30%;
+  background-color: white;
+  border-radius: 6px;
+  box-shadow: 1px 1px 12px 1px blue;
+  position: absolute;
+  padding: 5px;
+  z-index: 200;
+  max-width: 120px;
+  animation: growIn 0.7s ease-in;
+}
+
+.pIndentSelect {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  border: none;
+  width: 100%;
+  box-shadow: 1px 1px 12px 1px black;
+  border-radius: 6px;
+}
+@media screen and (max-width: 400) {
+  .pIndentPopup {
+    inset: -70% 10% auto 10%;
+  }
+}
+
+@keyframes growIn {
+  from {
+    transform: scale(0.5);
+    opacity: 0;
+  }
+  to {
+    transform: scale(1);
+    opacity: 1;
+  }
+}

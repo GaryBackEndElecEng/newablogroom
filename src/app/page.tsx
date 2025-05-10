@@ -6,7 +6,7 @@ import "bootstrap/dist/css/bootstrap.min.css";
 
 export default function Home() {
 
-  const styleOne = { marginInline: 0, minHeight: "110vh", paddingInline: 0 }
+  const styleOne = { marginInline: 0, height: "100%", paddingInline: 0 }
 
 
   return (

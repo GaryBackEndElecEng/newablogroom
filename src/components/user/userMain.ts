@@ -438,40 +438,6 @@ class User{
 
     //GETTER SETTERS
 
-    //TEST SIGNIN
-    async getSignIn({signIn}:{signIn:()=>Promise<void>}){
-        return Promise.resolve(signIn) as Promise<()=>Promise<void>>;
-    };
-
-    async saveBlog(item:{parent:HTMLElement,blog:blogType,user:userType}):Promise<blogType|void>{
-        const {blog,user,parent}=item;
-      
-       if(!parent) return Misc.message({parent,msg:"Sorry no parent Dom",type_:"error",time:1400});
-        const container=document.createElement("div");
-        container.style.cssText="margin:auto; width:300px;height:auto;padding:1rem; box-shadow:1px 1px 4px 1px black;border-radius:20px;"
-        const text=document.createElement("h6");
-        text.className="text-primary text-center mx-auto";
-        text.textContent="=>.....saving";
-        container.appendChild(text);
-        parent.appendChild(container);
-    //STUCK HERE: ISSUE:"can not readproperties of null"
-        return this._service.saveBlog({blog:blog,user}).then(async(res)=>{
-        if(res){
-                
-                parent.removeChild(container);
-                Misc.message({parent,msg:"blog is saved",type_:"success",time:400});
-                return res;
-        }else{
-            Misc.message({parent,msg:"blog not saved",type_:"success",time:400});
-        }
-        }).catch((err)=>{
-        const msg=getErrorMessage(err);
-        console.error({"error":msg});
-        
-        });
-        
-    };
-
 
     
     async signInBlogForm(item:{parent:HTMLElement,blog:blogType,func:()=>Promise<void>|undefined|void}){
@@ -571,6 +537,8 @@ class User{
     
         
     };
+
+
      //IMAGE FORM: THIS APPENDS CHOICE image in refreshImageShow() above
      async refreshImageUpload({targetContainer,mainTextArea,image,selRowCol,idValues}:{
         targetContainer:HTMLElement,
@@ -699,53 +667,7 @@ class User{
     //THIS ONLY UPLOADS AN IMAGE/INSERTS IT IN THE IMG AND STORES IT IN THE BLOG.
     //IF USER IS NOT SIGNED IN THEN IT ASKS THE USER TO SIGNIN FIRST.
 
-   async signInImageOnly({parent,image,formdata,blog,idValues,sel,row,col}:{
-    parent:HTMLElement,
-    image:HTMLImageElement|null,
-    formdata:FormData,
-    blog:blogType,
-    idValues:idValueType[],
-    loc:locationEnumType
-    sel:selectorType|null,
-    row:rowType|null,
-    col:colType|null
-   }){
-    //FORMDATA HAS {KEY,FILE} SET IN FORM
-    //IF IMAGE==NULL => BG-IMAGE
-    this.blog={...blog};
-    let loc:locationEnumType="htmlElement"
-    if(sel && row && col){
-        loc="flexbox";
-    }
-    const selRowCol=sel && row && col ? {selectorId:sel.eleId,rowId:row.eleId,colId:col.eleId} as selRowColType : null;
-    const useParent=Main.textarea ? Main.textarea : parent;
-    parent.style.position="relative";
-    parent.style.zIndex="0";
-    const {cancelBtn,saveBtn,msgCont,grandParent}=this.userSetups.imageSaveCancel(useParent,loc);
-    cancelBtn.addEventListener("click",(e:MouseEvent)=>{
-        if(e){
-            //NO!!!
-            Misc.fadeOut({anchor:msgCont,xpos:50,ypos:100,time:500});
-            setTimeout(()=>{
-                useParent.removeChild(msgCont)
-            },492);
-        }
-    });
-    
-    saveBtn.addEventListener("click",(e:MouseEvent)=>{
-        if(e){
-            //YES!!!  SIGNIN
-            Misc.fadeOut({anchor:msgCont,xpos:50,ypos:100,time:500});
-            setTimeout(()=>{
-                grandParent.removeChild(msgCont)
-            },580);
-            
-            this.saveOnlyImage({parent,formdata,img:image,blog,idValues,selRowCol})
-            
-
-        }
-    });
-   };
+ 
 
 
 //UPDATES IMGKEY AND IMG
@@ -802,46 +724,7 @@ class User{
    }
 
 
-   message(parent:HTMLElement,target:HTMLElement|null,str:string,type:"success"|"error",time:number):boolean{
-    const msg:msgType={
-      parent:parent,
-      msg:str,
-      type_:type,
-      time
-    }
-    Misc.message(msg)///3000 delay
-    //
-    setTimeout(()=>{
-        if(!target) return
-        parent.removeChild(target);
-    },2800);
-    if(type==="success") return true;
-    else return false
-   }
 
-   async saveImage({parent,blog,formdata,image,idValues,selRowCol}:{
-    parent:HTMLElement,
-    blog:blogType,
-    formdata:FormData,
-    image:HTMLImageElement|null,
-    idValues:idValueType[],
-    selRowCol:selRowColType|null
-
-   }){
-    //THIS IS FOR IMAGES THAT ARE UPLOADED AND HAVE FORMDATA WITH USER SIGNIN
-    const user=this.user;
-    if(user.id !==""){
-        blog={...blog,user_id:user.id};
-        const getKey=formdata.get("Key") as string;
-        if(!getKey){
-        this._service.generateImgKey(formdata,blog) as {Key:string};
-        }
-        return this.simpleGetS3Image({bg_parent:parent,formdata,image,idValues,selRowCol});
-
-    }else{
-        await this.signInBlogForm({parent,blog,func:()=>undefined});
-    }
-   }
 
    async changePassword(parent:HTMLElement,user:userType,passwords:{passNew:string,passOld:string}){
         const option={
@@ -865,7 +748,10 @@ class User{
             const msg=getErrorMessage(err);
             console.error(msg);
         }) ;
-    }
+    };
+
+
+
     async changeEmail(parent:HTMLElement,user:userType,emails:{emailNew:string,emailOld:string}){
         const option={
             headers:{
@@ -915,48 +801,6 @@ class User{
             console.error(msg);
         }) ;
     };
-
-
-    
-   async getRefreshedUser():Promise<{user:Promise<userType|undefined>,user_id:Promise<string|undefined>}>{
-    return{
-            user: this.getLocalUser().then(async(res:string)=>{
-            if(res as string){
-                const {parsed,isJSON}=Header.checkJson(res);
-                if(isJSON){
-                    return parsed as userType
-                }
-            }
-            })as Promise<userType|undefined>,
-            user_id:this.getLocalUserID().then(async(user_id:string)=>{
-                if(user_id){
-                    return user_id;
-                }
-            }) as Promise<string|undefined>
-        }
-   };
-
-
-
-   async getLocalUserID(){
-    return new Promise((resolver,reject)=>{
-        if(typeof window !=="undefined"){
-            resolver(localStorage.getItem("user_id"));
-           
-        }
-    }) as Promise<string|null>;
-   };
-
-
-
-   async getLocalUser(){
-    return new Promise((resolver,rejector)=>{
-        if(typeof window !=="undefined"){
-        resolver(localStorage.getItem("user"))
-       
-        }
-    }) as Promise<string |null>;
-   };
 
 
 
@@ -1316,9 +1160,141 @@ class User{
     };
 
 
+       //!!NOT USED
+   async signInImageOnly({parent,image,formdata,blog,idValues,sel,row,col}:{
+    parent:HTMLElement,
+    image:HTMLImageElement|null,
+    formdata:FormData,
+    blog:blogType,
+    idValues:idValueType[],
+    loc:locationEnumType
+    sel:selectorType|null,
+    row:rowType|null,
+    col:colType|null
+   }){
+    //FORMDATA HAS {KEY,FILE} SET IN FORM
+    //IF IMAGE==NULL => BG-IMAGE
+    this.blog={...blog};
+    let loc:locationEnumType="htmlElement"
+    if(sel && row && col){
+        loc="flexbox";
+    }
+    const selRowCol=sel && row && col ? {selectorId:sel.eleId,rowId:row.eleId,colId:col.eleId} as selRowColType : null;
+    const useParent=Main.textarea ? Main.textarea : parent;
+    parent.style.position="relative";
+    parent.style.zIndex="0";
+    const {cancelBtn,saveBtn,msgCont,grandParent}=this.userSetups.imageSaveCancel(useParent,loc);
+    cancelBtn.addEventListener("click",(e:MouseEvent)=>{
+        if(e){
+            //NO!!!
+            Misc.fadeOut({anchor:msgCont,xpos:50,ypos:100,time:500});
+            setTimeout(()=>{
+                useParent.removeChild(msgCont)
+            },492);
+        }
+    });
     
-  
-    
+    saveBtn.addEventListener("click",(e:MouseEvent)=>{
+        if(e){
+            //YES!!!  SIGNIN
+            Misc.fadeOut({anchor:msgCont,xpos:50,ypos:100,time:500});
+            setTimeout(()=>{
+                grandParent.removeChild(msgCont)
+            },580);
+            
+            this.saveOnlyImage({parent,formdata,img:image,blog,idValues,selRowCol})
+            
+
+        }
+    });
+   };
+
+    //!!NOT USED
+   message(parent:HTMLElement,target:HTMLElement|null,str:string,type:"success"|"error",time:number):boolean{
+    const msg:msgType={
+      parent:parent,
+      msg:str,
+      type_:type,
+      time
+    }
+    Misc.message(msg)///3000 delay
+    //
+    setTimeout(()=>{
+        if(!target) return
+        parent.removeChild(target);
+    },2800);
+    if(type==="success") return true;
+    else return false
+   };
+
+ //!! NOT USED
+   async saveImage({parent,blog,formdata,image,idValues,selRowCol}:{
+    parent:HTMLElement,
+    blog:blogType,
+    formdata:FormData,
+    image:HTMLImageElement|null,
+    idValues:idValueType[],
+    selRowCol:selRowColType|null
+
+   }){
+    //THIS IS FOR IMAGES THAT ARE UPLOADED AND HAVE FORMDATA WITH USER SIGNIN
+    const user=this.user;
+    if(user.id !==""){
+        blog={...blog,user_id:user.id};
+        const getKey=formdata.get("Key") as string;
+        if(!getKey){
+        this._service.generateImgKey(formdata,blog) as {Key:string};
+        }
+        return this.simpleGetS3Image({bg_parent:parent,formdata,image,idValues,selRowCol});
+
+    }else{
+        await this.signInBlogForm({parent,blog,func:()=>undefined});
+    }
+   };
+
+     //!NOT USED
+   async getRefreshedUser():Promise<{user:Promise<userType|undefined>,user_id:Promise<string|undefined>}>{
+    return{
+            user: this.getLocalUser().then(async(res:string)=>{
+            if(res as string){
+                const {parsed,isJSON}=Header.checkJson(res);
+                if(isJSON){
+                    return parsed as userType
+                }
+            }
+            })as Promise<userType|undefined>,
+            user_id:this.getLocalUserID().then(async(user_id:string)=>{
+                if(user_id){
+                    return user_id;
+                }
+            }) as Promise<string|undefined>
+        }
+   };
+
+
+   //!! NOT USED
+   async getLocalUserID(){
+    return new Promise((resolver,reject)=>{
+        if(typeof window !=="undefined"){
+            resolver(localStorage.getItem("user_id"));
+           
+        }
+    }) as Promise<string|null>;
+   };
+
+
+//!! NOT USED
+   async getLocalUser(){
+    return new Promise((resolver,rejector)=>{
+        if(typeof window !=="undefined"){
+        resolver(localStorage.getItem("user"))
+       
+        }
+    }) as Promise<string |null>;
+   };
+
+
+    //!! NOT USED
     upLoadImage({parent,image,blog,idValues,sel,row,col}:{
         parent:HTMLElement,
         image:HTMLImageElement,
@@ -1375,13 +1351,11 @@ class User{
                 }
             }
         };
-    }
-    static sleep(ms:number){
-        return new Promise(resolve=>setTimeout(resolve,ms))
     };
 
+
     
-   
+   //!!NOT USED
     async unregisteredImages(parent:HTMLElement,arrImgs:arrImgType2[]):Promise<{cancel:HTMLButtonElement,save:HTMLButtonElement,popup:HTMLElement}>{
         parent.style.position="relative";
         const popup=document.createElement("div");
@@ -1423,6 +1397,7 @@ class User{
     };
 
 
+    //!! NOT USED
     checkStrLength=(img:string | undefined):boolean=>{
         if(img && img as string ){
             const check=img.split("") && img.split("").length >0 ;
@@ -1431,7 +1406,7 @@ class User{
         return false
     };
 
-
+   //!! NOT USED
      hasImgKeyMark(res:any){
         switch(true){
             case res.blog_id && !res.header:
@@ -1499,7 +1474,11 @@ class User{
                 return
             
         }
-    }
+    };
+
+     static sleep(ms:number){
+        return new Promise(resolve=>setTimeout(resolve,ms))
+    };
 }
 
 

@@ -33,13 +33,14 @@ import CommonUltils from '../common/commonUltils';
 import DeleteClass from '../bio/resume/deleteClass';
 import ViewReference from '../bio/resume/viewReference';
 import ViewResume from '../bio/resume/viewResume';
+import ReorgBlog from '../common/reorg/reorgBlog';
 
 
 
 function Index({ user }: { user: userType | null }) {
     const countRef = React.useRef(0);
     const { setUser } = useEditor();
-    const styleOne = { Background: "white", color: "black", width: "100%", minHeight: "100vh", marginInline: "0px" }
+    const styleOne = { Background: "white", color: "black", width: "100%", minHeight: "260vh", marginInline: "0px", }
 
     React.useEffect(() => {
         setUser(user);
@@ -47,6 +48,8 @@ function Index({ user }: { user: userType | null }) {
             const mainInjection = document.querySelector("section#mainInjection") as HTMLElement;
             const side_bar = document.querySelector("aside#sidebar") as HTMLElement;
             if (mainInjection && side_bar) {
+                mainInjection.style.position = "relative;"
+                side_bar.style.position = "relative;"
                 const dataset = new Dataset();
                 const modSelector = new ModSelector(dataset);
                 const service = new Service(modSelector);
@@ -68,6 +71,7 @@ function Index({ user }: { user: userType | null }) {
                             const chart = new ChartJS(modSelector, service, _user, message);
                             const design = new Design(modSelector);
                             const ven = new Ven(modSelector);
+                            const reorg = new ReorgBlog(modSelector);
                             const pasteCode = new PasteCode(modSelector, service);
                             const reference = new Reference(modSelector);
                             const shapeOutside = new ShapeOutside(modSelector, service, _user);
@@ -84,7 +88,7 @@ function Index({ user }: { user: userType | null }) {
                             const _edit = new Edit(modSelector, service, mainInjection, _res.user, _flexbox, _htmlElement, _header, customHeader, _footer, displayBlog, chart, _toolbar);
 
                             const main = new Main(modSelector, service, auth, mainInjection, _toolbar, _edit, _res.user, blog, _header, customHeader, shapeOutside, commonInfo);
-                            const sidebar = new Sidebar(modSelector, service, auth, main, _flexbox, newCode, _header, customHeader, _footer, _edit, _user, regSignin, displayBlog, chart, shapeOutside, metablog, headerFlag, _toolbar, blog, viewResume, _res.user);
+                            const sidebar = new Sidebar(modSelector, service, auth, main, _flexbox, newCode, _header, customHeader, _footer, _edit, _user, regSignin, displayBlog, chart, shapeOutside, metablog, headerFlag, _toolbar, blog, viewResume, _res.user, reorg);
                             await main.mainContainer(mainInjection).then(async (_res_) => {
                                 if (_res_) {
                                     const { textarea, mainCont, footer, mainHeader, toolbar } = _res_;
@@ -110,8 +114,8 @@ function Index({ user }: { user: userType | null }) {
 
 
         <div className="mx-auto d-flex row" style={styleOne}>
-            <aside id="sidebar" className="flexCol col-lg-2 " style={{ zIndex: "0" }} ></aside>
-            <section id="mainInjection" className="mainInjection flexCol-normal col-lg-10 " style={{ zIndex: "0" }}>
+            <aside id="sidebar" className="flexCol col-lg-2 " style={{ zIndex: "0", minHeight: "100%" }} ></aside>
+            <section id="mainInjection" className="mainInjection flexCol-normal col-lg-10 " style={{ zIndex: "0", minHeight: "inherit" }}>
                 {/* <!-- ENTRY POINT FOR MAIN --> */}
             </section>
         </div>

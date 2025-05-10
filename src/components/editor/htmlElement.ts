@@ -188,6 +188,7 @@ class HtmlElement {
                 const anchor=target as HTMLAnchorElement;
                 if(isLink){
                     const link=isLink;
+                    console.log("htmlElement.showCleanElement.isLink",link)
                     const name=anchor.textContent ? anchor.textContent:"link"
                     this.addLinkEmailTelImg({target:anchor,image:this.link,href:link,name,type:"link"});
                 }else if(isEmail){
@@ -709,6 +710,7 @@ class HtmlElement {
                 this.elementAdder({target:img as HTMLImageElement,idValues}).then(async(_res)=>{
                     if( _res?.idValues){
                         const ele=_res.ele as elementType;
+                        console.log("ELE",ele);
                         divCont.setAttribute("data-placement",`${ele.placement}-A`);
                         idValues=_res.idValues
                         const img_= _res.target as HTMLImageElement;
@@ -1444,7 +1446,7 @@ class HtmlElement {
                         }
                         return ele;
                     });
-                    this.elements=this._elements;
+                    
                     this._modSelector.blog={...this._modSelector.blog,elements:this.elements};
                     this._modSelector.localStore({blog:this._modSelector.blog})
                 }
@@ -1531,18 +1533,19 @@ class HtmlElement {
 
 
     addLinkEmailTelImg({target,image,href,name,type}:{target:HTMLAnchorElement,image:string,href:string,name:string,type:"link"|"email"|"tel"}){
+        const url=new URL(image,location.origin);
         target.textContent="";
         const text=new Text(name);
         const span=document.createElement("span");
         span.style.cssText="display:inline-flex;align-items:center;gap:4px;";
         const img=document.createElement("img");
-        img.src=image;
+        img.src=url.href;
         img.alt="www.ablogroom.com";
         this._modSelector.dataset.insertcssClassIntoComponents({target:img,level:"element",loc:"flexbox",type:"customHeader",id:"linkImgs",headerType:"custom"});
         span.appendChild(img);
         span.appendChild(text);
         target.appendChild(span);
-        if(type==="link") window.open(href,"_blank");
+        if(type==="link")  target.href=href;
         if(type==="email") target.href=href;
         if(type==="tel") target.href=href;
     };

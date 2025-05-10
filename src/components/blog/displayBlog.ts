@@ -146,13 +146,6 @@ class DisplayBlog{
             commentUserCont.style.cssText=css_col +"margin-inline:auto;width:100%;gap:1rem;";
             //-------------MCOMMENT CONTAINER----------------------------///
           
-            //-------------META- BLOG----------------------------///
-            const metaCont=document.createElement("div");
-            metaCont.id="displayBlog-main-metaCont";
-            metaCont.style.cssText=css_col;
-            this.metaDisplay({parent:metaCont,blog,user,css_col,less900,less400});
-            outerContainer.appendChild(metaCont);
-            //-------------META- BLOG----------------------------///
             //-----------BTN CONTAINER FOR FINAL WORK-----------------//
             const btnContainer=document.createElement("div");
             btnContainer.id="btnContainer";
@@ -976,6 +969,7 @@ class DisplayBlog{
                             target:(target as HTMLAnchorElement),
                             type:"link",
                             element,
+                            pic:this.link,
                             isClean:true
                         });
                     }else if(isEmail){
@@ -983,6 +977,7 @@ class DisplayBlog{
                             target:(target as HTMLAnchorElement),
                             type:"email",
                             element,
+                            pic:this.mail,
                             isClean:true
                         });
                     }else if(isTel){
@@ -990,6 +985,7 @@ class DisplayBlog{
                             target:(target as HTMLAnchorElement),
                             type:"tel",
                             element,
+                            pic:this.phone,
                             isClean:true
                         });
                     };
@@ -1133,13 +1129,26 @@ class DisplayBlog{
     //PARENT MAIN: INJECTOR ON show button
 
 
-    showLinkEmailTelImg({target,element,type,isClean}:{target:HTMLAnchorElement,element:elementType|element_selType,type:"link"|"email"|"tel",isClean:boolean}){
+    showLinkEmailTelImg({target,element,type,pic,isClean}:{target:HTMLAnchorElement,pic:string,element:elementType|element_selType,type:"link"|"email"|"tel",isClean:boolean}){
         target.innerHTML=element.inner_html;
+        const span=target.querySelector("span") as HTMLElement;
+        console.log("target",target)
+        if(span){
+            const img=span.querySelector("img") as HTMLImageElement;
+            console.log(span)
+            if(img){
+                const url= new URL(pic,location.origin);
+                img.src=url.href;
+                img.alt="www.ablogroom.com";
+            }
+
+        }
         const href=element.attr as string;
-        target.href=href;
-        if(type==="link" && isClean){ window.open(href,"_blank");target.setAttribute("data-link",href)};
-        if(type==="email") {target.setAttribute("data-email",href)};
-        if(type==="tel"){ target.setAttribute("data-tel",href)}
+        const url=new URL(href,location.origin)
+        target.href=url.href;
+        if(type==="link" && isClean){ window.open(href,"_blank");target.setAttribute("data-link",url.href)};
+        if(type==="email") {target.setAttribute("data-email",url.href)};
+        if(type==="tel"){ target.setAttribute("data-tel",url.href)}
          
         
      };
