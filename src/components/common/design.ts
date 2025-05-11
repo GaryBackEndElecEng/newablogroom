@@ -1300,7 +1300,7 @@ class Design{
         popup.className="popup";
         popup.setAttribute("is-popup","true");
         popup.style.cssText="position:absolute;box-shadow:1px 1px 10px black,-1px -1px 12px 1px blue;border-radius:20px;min-height:15vh;z-index:200;background-color:white;display:flex;flex-direction:column;align-items:center;justify-content:center;";
-        popup.style.top="40%";
+        popup.style.top="20%";
         popup.style.left="10%";
         popup.style.right="10%";
         const getParas=Main.textarea.querySelectorAll("p") as any as HTMLParagraphElement[];

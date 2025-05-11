@@ -414,7 +414,7 @@ class RegSignIn {
             if((provider.id as unknown as string)==="credentials"){
                 this.signInForm(container,signInCallBack,csrfToken);// USING
             }else{
-                this.signInProvider(container,signInCallBack,provider);
+                this.signInProvider({parent:container,callbackUrl:signInCallBack,provider});
 
             }
         });
@@ -647,7 +647,7 @@ class RegSignIn {
     };
 
 
-     signInProvider(parent:HTMLElement,callbackUrl:string|undefined,provider:providerType,):{container:HTMLElement}{
+     signInProvider({parent,callbackUrl,provider}:{parent:HTMLElement,callbackUrl:string|undefined,provider:providerType}):{container:HTMLElement}{
         //Misc.providersImgs
         const less400=window.innerWidth < 400;
         const container=document.createElement("div");
@@ -661,7 +661,7 @@ class RegSignIn {
         return {container}
 
     };
-
+    //HOME
     providerSignature({parent,item,less400}:{parent:HTMLElement,item:providerSigninType,less400:boolean}){
         const {id,name,img}=item;
         const css_col="display:flex;flex-direction:column;align-items:center;justify-content:center;";

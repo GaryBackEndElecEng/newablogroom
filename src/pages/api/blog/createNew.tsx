@@ -36,7 +36,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
             return await prisma.$disconnect();
         }
     }
-}
+};
 
 async function verifyAndCreate({ blog }: { blog: blogType }): Promise<blogType | null> {
     const check = !!(blog?.user_id && blog?.name)

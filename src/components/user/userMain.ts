@@ -456,11 +456,14 @@ class User{
             form.onsubmit=async(e:SubmitEvent)=>{
                 if(e){
                     e.preventDefault();
+                    const rand=Math.floor(Math.random()*1000);
                     const formdata=new FormData(e.currentTarget as HTMLFormElement);
                     const desc=formdata.get("desc") as string;
                     const filename=formdata.get("filename") as string;
-                    blogUser={...blogUser,name:filename,desc:desc};
+                    const name=`${filename.split(" ").join("")}-${rand}`;
+                    blogUser={...blogUser,name:name,desc:desc};
                     //closing form
+                     await this._service.promsaveItems({blog:blogUser,user:user});
                     Misc.fadeOut({anchor:popup,xpos:50,ypos:100,time:400});
                         setTimeout(()=>{
                             retParent.removeChild(popup);
@@ -894,7 +897,7 @@ class User{
     }){
         //NEEDS TO CREATE A NEW BLOG
     
-        const cssPopup={inset:"0% 0% 0% 0%"};
+        const cssPopup={inset:"10% 0% auto 10%"};
             const {retParent,popup:nameDescPopup,form:nameDescForm,input:name_,textarea:desc_}=Misc.fillBlogNameDesc({parent,cssPopup});
                 nameDescForm.onsubmit=async(e:SubmitEvent)=>{
                     if(e){
@@ -906,9 +909,9 @@ class User{
                         const name=nameDescFormdata.get(_name) as string ||`${ user.username}-${rand}`;
                         const desc=nameDescFormdata.get(_desc) as string || "This is a description";
                         const title=nameDescFormdata.get("title") as string || "Your title can be changed";
-                        const joinName=name.split(" ").join("");
+                        const joinName=`${name.split(" ").join("")}-${rand}`;
                         blog={...blog,name:joinName,desc,title,user_id:user.id}; //saving it to local Storage
-                       
+                       localStorage.setItem("blog",JSON.stringify(blog));
                         //----------------------REMOVING FILBLOGNAMEDESC Form-----------------------//
                         Misc.message({parent,msg:"got it, thanks",type_:"success",time:400});
                         setTimeout(()=>{
@@ -923,12 +926,14 @@ class User{
                        await this._service.newBlog(blog).then(async(_blog:blogType)=>{
                             if(_blog){
                                 blog={...blog,id:_blog.id};
+                                localStorage.setItem("blog",JSON.stringify(blog));
                                 Misc.message({parent,msg:"new blog created",type_:"success",time:400});
                                 //----------------------SAVING BLOG-----------------------//
-    
+                                        await this.sleep({time:600});
                                        await this._service.saveBlog({blog:blog,user}).then(async(savedB:blogType)=>{
                                             if( savedB){
-                                                this.blog=savedB;//SAVING TO LOCAL
+                                                this.blog=savedB;
+                                                localStorage.setItem("blog",JSON.stringify(savedB));
                                                 Misc.message({parent:getTextarea,type_:"success",msg:" created && saved",time:700});
                                                 func();//executing function
                                             }else{
@@ -949,6 +954,10 @@ class User{
                     }
                 };
     };
+
+    sleep({time}:{time:number}){
+        return Promise.resolve(setTimeout(()=>{return},time))
+    }
 
 
     saveBlogWork({parent,blog,user,func}:{parent:HTMLElement,blog:blogType,user:userType,func:()=>Promise<void>|void}){

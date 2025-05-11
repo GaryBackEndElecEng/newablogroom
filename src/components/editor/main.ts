@@ -243,6 +243,7 @@ class Main {
         form.addEventListener("submit", (e: SubmitEvent) => {
             if (e) {
                 e.preventDefault();
+                const rand=Math.floor(Math.random()*1000);
                 const checkUser = !!(user?.id!=="" && user?.email!=="");
                 const formdata = new FormData(e.currentTarget as HTMLFormElement);
                 const filename = formdata.get("filename") as string;
@@ -250,8 +251,9 @@ class Main {
                 const title = formdata.get("title") as string;
                 //ADDING USER_ID TO NEW BLOG IF EXIST!!
                 if (checkUser) {
-                    if (!(filename)) { Misc.message({ parent, msg: "No filename", type_: "error", time: 1400 }); return container.remove(); }
-                    this.newBlogSave({parent,container,user,filename,title,desc,callback:func})
+                    if (!(filename)) { Misc.message({ parent, msg: "No filename", type_: "error", time: 1400 }); return container.remove(); };
+                    const _name=`${filename.split(" ").join("")}-${rand}`;
+                    this.newBlogSave({parent,container,user,filename:_name,title,desc,callback:func})
 
                 } else {
                     this.savingLocalAndClose({parent,container,filename,title,desc,
@@ -318,7 +320,7 @@ class Main {
     }){
         const rand=Math.floor(Math.random()*1000);
         const initBlog = this._modSelector.blogInitializer(null);
-        const _filename=`${filename}-${rand}`;
+        const _filename=`${filename || "file"}-${rand}`;
         const _title=title || "title";
         const _desc=desc || "description"
         this._modSelector.blog = { ...initBlog, name:_filename, title:_title, desc:_desc, cssText: Main.main_css, class: Main.main_class, eleId: parent.id };
@@ -449,7 +451,9 @@ class Main {
 
     ////- MAIN INJECTOR ABOVE ----///////////////////////////
     //INITIALIZED
-
+      sleep({time}:{time:number}){
+        return Promise.resolve(setTimeout(()=>{return},time))
+    }
 
 
       //THIS IS CRITICAL ON REFRESH: THIS UPLOADS THE STORAGE TO MAIN THROUGH EDIT
