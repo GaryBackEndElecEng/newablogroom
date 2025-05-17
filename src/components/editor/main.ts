@@ -15,7 +15,7 @@ import { getErrorMessage } from "@/lib/errorBoundaries";
 import ShapeOutside from "./shapeOutside";
 import RegSignIn from "../nav/regSignin";
 
-import CommonInfo from "../common/commonInfo";
+import CommonInfo from "../common/generalInfo/commonInfo";
 import Toolbar from "../common/toolbar";
 import BrowserType from "../common/browserType";
 import FirstTimeIntro from "../common/firstTimeIntro";

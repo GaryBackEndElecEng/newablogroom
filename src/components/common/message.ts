@@ -18,7 +18,9 @@ class MessageSetup{
     constructor(){
         this.happy="/images/emojiSmile.png";
         this.requestPic="/images/requestAnswer.png";
-    }
+    };
+
+    
     contact(parent:HTMLElement): {form:HTMLFormElement,email:HTMLInputElement,textarea:HTMLTextAreaElement,rate:HTMLInputElement,btn:HTMLButtonElement,name:HTMLInputElement,msgEvent:HTMLElement,cont:HTMLElement}{
         Nav.navHeader=document.querySelector("header#navHeader") as HTMLElement;
         window.scroll(0,0);

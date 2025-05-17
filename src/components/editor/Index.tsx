@@ -25,7 +25,7 @@ import Ven from '../common/venDiagram';
 import Reference from './reference';
 import PasteCode from '../common/pasteCode';
 import AuthService from '../common/auth';
-import CommonInfo from '../common/commonInfo';
+import CommonInfo from '../common/generalInfo/commonInfo';
 import Toolbar from '../common/toolbar';
 import { useEditor } from '../context/editorContext';
 import { userType } from './Types';

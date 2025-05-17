@@ -3,6 +3,8 @@ import Service from "@/components/common/services";
 import Nav from "../nav/headerNav";
 import Misc from "./misc/misc";
 import Header from "../editor/header";
+import { FaCrosshairs } from "react-icons/fa";
+import { FaCreate } from "./ReactIcons";
 
 class Dataflow {
  overView:string="/images/dataFlow/draftOverflow.png";
@@ -107,6 +109,7 @@ class Dataflow {
     }
     main(parent:HTMLElement){
         window.scroll(0,0);
+        Header.cleanUpByID(parent,"infor-popup")
         const less900=window.innerWidth < 900;
         const less600=window.innerWidth < 600;
         const less400=window.innerWidth < 400;
@@ -122,6 +125,7 @@ class Dataflow {
         popup.style.overflowX=size==="xs" ? `hidden`:"auto";
         popup.style.padding=(size==="xs") ? `0rem`:(size==="md") ? "2rem":"5rem";
         popup.style.inset=less900 ? (less600 ? (less400 ? "0%" :"5% 0% 0% 0%"): "0%") : "0%";
+        this.removePopup({parent,target:popup});
         this.slides.map((slide,index)=>{
             const card=document.createElement("div");
             card.style.cssText="margin:auto;display:flex;flex-direction:column;align-items:center;width:100%;position:relative;";
@@ -277,6 +281,21 @@ class Dataflow {
         Misc.fadeIn({anchor:popup,xpos:50,ypos:100,time:400});
         
 
-    }
+    };
+
+    removePopup({parent,target}:{parent:HTMLElement,target:HTMLElement}){
+        const xDiv=document.createElement("div");
+        xDiv.id="delete-popup";
+        xDiv.style.cssText="position:absolute;top:0%;right:0%;translate(-9px,9px);padding:0.25rem;background-color:black;color:white;"
+        FaCreate({parent:xDiv,name:FaCrosshairs,cssStyle:{fontSize:"18px",backgroundColor:"black",color:"white"}});
+        target.appendChild(xDiv);
+        xDiv.onclick=(e:MouseEvent)=>{
+            if(!e) return;
+            Misc.growOut({anchor:target,scale:0,opacity:0,time:400});
+            setTimeout(()=>{
+                parent.removeChild(target);
+            },395);
+        };
+    };
 }
 export default Dataflow;

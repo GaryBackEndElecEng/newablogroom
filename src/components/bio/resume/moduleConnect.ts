@@ -400,8 +400,7 @@ class ModuleConnect {
     removeView({parent,target}:{parent:HTMLElement,target:HTMLElement}){
         const xDiv=document.createElement("div");
         xDiv.id="removeView-delete-popup";
-        xDiv.style.cssText="position:absolute;top:0%;right:0%;transform:translate(5px,5px);padding:2px;bacckground-color:black;color:white;border-radius:50%;display:flex;";
-        xDiv.style.backgroundColor="black";
+        xDiv.className=styles.removeViewCont;
         FaCreate({parent:xDiv,name:FaCrosshairs,cssStyle:{fontSize:"22px",borderRadius:"50%",color:"white",backgroundColor:"black"}});
         target.appendChild(xDiv);
         xDiv.onclick=(e:MouseEvent)=>{

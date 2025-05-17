@@ -8,7 +8,6 @@
   overflow: hidden;
   order: 1;
   width: 100% !important;
-  border: 1px solid red;
   background: linear-gradient(to left, grey, white);
   z-index: 0;
   position: relative;

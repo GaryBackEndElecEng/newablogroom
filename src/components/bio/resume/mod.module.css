@@ -212,6 +212,19 @@
 
   animation: slideIn 0.7s ease-in;
 }
+
+.removeViewCont {
+  position: absolute;
+  top: 0%;
+  right: 0%;
+  transform: translate(-18px, 5px);
+  padding: 2px;
+  background-color: black;
+  color: white;
+  border-radius: 50%;
+  display: flex;
+}
+
 @keyframes slideIn {
   from {
     opacity: 0;
@@ -226,6 +239,9 @@
 @media screen and (max-width: 900px) {
   .mainMod {
     padding-inline: 1rem;
+  }
+  .resname::after {
+    transform: translateX(195px) scale(0.7);
   }
 }
 @media screen and (max-width: 400px) {

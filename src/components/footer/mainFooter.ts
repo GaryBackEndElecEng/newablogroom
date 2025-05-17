@@ -17,7 +17,7 @@ import AllMsgs from "../home/allMsgs";
 import { FaGooglePlay, FaMobileScreen, FaRightLong } from "react-icons/fa6";
 import styles from "./footer.module.css";
 import AuthService from "../common/auth";
-import CommonInfo from "../common/commonInfo";
+import CommonInfo from "../common/generalInfo/commonInfo";
 import BrowserType from "../common/browserType";
 import FirstTimeIntro from "../common/firstTimeIntro";
 import MainAdvertise from "../bio/advertisment/mainAdvertise";

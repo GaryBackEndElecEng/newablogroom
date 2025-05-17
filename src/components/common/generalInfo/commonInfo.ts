@@ -1,17 +1,19 @@
-import { FaFacebookF, FaGithub, FaInstagramSquare, FaLinkedin, FaMailBulk, FaSitemap } from "react-icons/fa";
-import ModSelector from "../editor/modSelector";
-import AuthService from "./auth";
-import Misc from "./misc/misc";
-import { FaCreate } from "./ReactIcons";
-import Service from "./services";
-import { infoType2, messageType, userType } from "../editor/Types";
-import Nav from "../nav/headerNav";
+import { FaFacebookF, FaGithub, FaInstagramSquare, FaLinkedin, FaMailBulk, FaSitemap, FaSmileWink } from "react-icons/fa";
+import ModSelector from "../../editor/modSelector";
+import AuthService from "../auth";
+import Misc from "../misc/misc";
+import { FaCreate } from "../ReactIcons";
+import Service from "../services";
+import { infoType2, messageType, userType } from "../../editor/Types";
+import Nav from "../../nav/headerNav";
+import styles from "./commonInfo.module.css";
+import Header from "@/components/editor/header";
 
 
 class CommonInfo{
-
+    public paraText:string;
     constructor(private _modSelector:ModSelector,private _service:Service,private auth:AuthService){
-
+        this.paraText="send us a thought. We keep your information private secret. Alternatively, you can check the box, below;"
     };
 
 
@@ -19,8 +21,8 @@ class CommonInfo{
         const less900=window.innerWidth <900;
         const less400=window.innerWidth <400;
         const container=document.createElement("div");
-        container.style.cssText="margin-inline:auto;position:absolute;max-width:600px;width:100%;top:160%;left:35%;";
-        Misc.matchMedia({parent:container,maxWidth:600,cssStyle:{"top":"160%","left":"0%","right":"0%"}});
+        container.id="generalInfo-cont";
+        container.className=styles.generalInfoCont;
         this._service.peronalInfo2().then(async(info:infoType2|undefined)=>{
                 if(info){
                     const maxWidth=400;
@@ -197,29 +199,12 @@ class CommonInfo{
         const cont=document.createElement("div");
         useParent.style.position="relative";
         cont.id="navArrow-contact";
-        cont.style.cssText=`position:absolute;width:fit-content;padding:1rem;background:rgb(3 13 49);color:white;height:fit-content;margin-inline:auto;display:flex;flex-direction:column;align-items:center;justify-content:center;border-radius:16px;width:100%;box-shadow:1px 1px 6px 1px aquamarine;padding:1rem;z-index:1000;`;
-        cont.style.width=less900 ? (less400 ? "100%" :"75%") :"40%";
-        cont.style.inset="270% 0% 10% 0%";
+        cont.className=styles.contactMainCont;
+        //HEADER
+        this.contactHeader({parent:cont});
+        //HEADER
         const form=document.createElement("form");
-        form.style.cssText="display:flex;flex-direction:column;align-items:center;justify-content:center;gap:1.5rem;padding:1.5rem;border-radius:inherit;background:white;color:black;margin:1rem;color:white;box-shadow:1px 1px 12px 1px skyblue;";
-        const divGrp=document.createElement("div");
-        divGrp.id="navArrow-contact-welcome-message";
-        divGrp.style.cssText="margin-inline:auto;position:relative;display:flex;flex-direction:column;margin-bottom:2rem;padding-inline:2rem;";
-        window.scroll(0,0);
-        const img=document.createElement("img");
-        const imgWidth=170;
-        img.id="navArrow-image"
-        img.src=Misc.sourceImage({src:"gb_logo.png",width:imgWidth,quality:75});
-        img.alt="www.ablogroom.com";
-        img.style.cssText="border-radius:50%;filter:drop-shadow(0 0 0.5rem white);shape-outside:circle(50%);float:right;margin-right:1.5rem;margin-bottom:0px;box-shadow:1px 1px 12px 1px;";
-        img.style.width=`${imgWidth}px`;
-        const text=document.createElement("p");
-        text.id="navArrow-contact-text-title"
-        text.className="text-primary";
-        text.style.cssText="font-family:'Playwrite';font-size:130%;line-height:2.75rem;";
-        text.appendChild(img);
-        text.innerHTML+="send us a thought. We keep your information private secret. Alternatively, you can uncheck the box, below; title:<span style='color:white'>'secret'</span>";
-        divGrp.appendChild(text);
+        form.className=styles.contactForm;
         const formGrp=document.createElement("div");
         const formGrp1=document.createElement("div");
         const formGrp2=document.createElement("div");
@@ -302,7 +287,7 @@ class CommonInfo{
         form.appendChild(rateSecret);
         ///
         form.appendChild(btn);
-        cont.appendChild(divGrp);
+       
         cont.appendChild(form);
         Nav.cancel(useParent,cont);
         useParent.appendChild(cont);
@@ -392,5 +377,68 @@ class CommonInfo{
         }
        });
     };
+
+
+
+    contactHeader({parent}:{parent:HTMLElement}){
+        const less400=window.innerWidth <400;
+        Header.cleanUpByID(parent,"commonInfo-contactHeader");
+        const container=document.createElement("div");
+        container.id="commonInfo-contactHeader";
+        container.className=styles.contactHeaderCont;
+        window.scroll(0,0);
+        const img=document.createElement("img");
+        const imgWidth=less400 ? 280 : 200;
+        img.id="contactHeader-image"
+        img.src=Misc.sourceImage({src:"gb_logo.png",width:imgWidth,quality:75});
+        img.alt="www.ablogroom.com";
+        img.style.width=`${imgWidth}px`;
+        const para=document.createElement("p");
+        para.id="navArrow-contact-text-title"
+        para.className=styles.contactHeaderPara;
+        para.appendChild(img);
+        const text=new Text(this.paraText);
+        const span=document.createElement("span");
+        span.innerHTML=`title:<span style='color:green'>'secret'</span>`;
+        para.appendChild(text);
+        para.appendChild(span);
+        para.animate([
+            {opacity:"0",lineHeight:"0.15rem"},
+            {opacity:"1",lineHeight:"2.75rem"},
+        ],{duration:1000,iterations:1,"easing":"ease-in"});
+        setTimeout(()=>{
+            this.happyFace({parent:para});
+        },1000);
+        container.appendChild(para);
+        parent.appendChild(container);
+        
+    };
+
+    typePara({parent,para,text}:{parent:HTMLElement,para:HTMLParagraphElement,text:string}){
+        let count=0;
+        const len=text.length;
+        const getPara=parent.querySelector(`p#${para.id}`);
+        if(!getPara) return;
+        const clearInt=setInterval(()=>{
+            count++;
+            console.log(count);
+            if(count < len){
+                getPara.innerHTML+=text.slice(count-1,count);
+            }else{
+                clearInterval(clearInt);
+            }
+        },200);
+    };
+
+    happyFace({parent}:{parent:HTMLElement}){
+        const xDiv=document.createElement("div");
+        xDiv.className=styles.happyFace;
+        FaCreate({parent:xDiv,name:FaSmileWink,cssStyle:{borderRadius:"50%",fontSize:"32px",backgroundColor:"black",color:"yellow"}});
+        parent.appendChild(xDiv);
+        xDiv.animate([
+            {opacity:"0",transform:"scale(0)"},
+            {opacity:"1",transform:"scale(1)"},
+        ],{duration:1000,iterations:1,"easing":"ease-in"});
+    }
 };
 export default CommonInfo;

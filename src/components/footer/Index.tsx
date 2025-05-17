@@ -11,7 +11,7 @@ import AllMsgs from '../home/allMsgs';
 import Message from '../common/message';
 import Dataset from '../common/dataset';
 import { blogType, userType } from '../editor/Types';
-import CommonInfo from '../common/commonInfo';
+import CommonInfo from '../common/generalInfo/commonInfo';
 import styles from "./footer.module.css";
 import BrowserType from '../common/browserType';
 import RegSignIn from '../nav/regSignin';

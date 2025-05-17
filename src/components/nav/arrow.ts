@@ -16,7 +16,7 @@ import Profile from '../profile/profile';
 import Features from '../home/feature';
 import AuthService from "../common/auth";
 import { FaRightLong } from "react-icons/fa6";
-import CommonInfo from "../common/commonInfo";
+import CommonInfo from "../common/generalInfo/commonInfo";
 import styles from "./nav.module.css";
 
 class NavArrow{

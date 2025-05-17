@@ -1,0 +1,128 @@
+.generalInfoCont {
+  margin-inline: auto;
+  position: absolute;
+  max-width: 800px;
+  width: 100%;
+  top: 160%;
+  left: 35%;
+}
+.contactMainCont {
+  position: absolute;
+  width: fit-content;
+  padding: 1rem;
+  background-color: rgb(3 13 49);
+  color: white;
+  height: fit-content;
+  margin-inline: auto;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  border-radius: 16px;
+  width: 100%;
+  box-shadow: 1px 1px 6px 1px aquamarine;
+  padding: 1rem;
+  z-index: 1000;
+  width: 50%;
+  inset: 110% 0% auto 0%;
+}
+.contactHeaderCont {
+  margin-inline: auto;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  margin-bottom: 2rem;
+  padding-inline: 2rem;
+  width: 100%;
+  margin-inline: auto;
+}
+.contactHeaderPara {
+  font-family: "Playwrite";
+  font-size: 130%;
+  line-height: 2.75rem;
+  color: white;
+  text-wrap: wrap;
+}
+.contactHeaderPara > img {
+  border-radius: 50%;
+  filter: drop-shadow(0 0 0.5rem white);
+  shape-outside: circle(50%);
+  float: right;
+  margin-left: 2rem;
+  margin-bottom: 0px;
+  aspect-ratio: 1 / 1;
+  width: 200px;
+}
+.contactHeaderPara > span {
+  margin-left: 1rem;
+}
+.contactForm {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 1.5rem;
+  padding: 1.5rem;
+  border-radius: inherit;
+  background: white;
+  color: black;
+  margin: 1rem;
+  color: white;
+}
+.happyFace {
+  position: absolute;
+  inset: 70% 0% auto 0%;
+  z-index: 2;
+}
+
+@media screen and (max-width: 900px) {
+  .generalInfoCont {
+    max-width: 600px;
+    inset: 110% 0% auto 0%;
+  }
+  .contactMainCont {
+    width: 75%;
+  }
+  .contactHeaderPara > img {
+    margin-left: 1.5rem;
+  }
+}
+@media screen and (max-width: 600px) {
+  .contactMainCont {
+    width: 90%;
+    inset: 150% 0% auto 0%;
+  }
+}
+@media screen and (max-width: 400px) {
+  .contactMainCont {
+    width: 100%;
+  }
+  .generalInfoCont {
+    max-width: 400px;
+  }
+  .contactHeaderPara {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    margin-inline: 0;
+    text-wrap: pretty;
+    width: 100%;
+  }
+  .contactHeaderPara > img {
+    shape-outside: none;
+    float: none;
+    margin-inline: auto;
+    margin-left: auto;
+    width: 280px;
+    aspect-ratio: 1 / 1;
+  }
+  .contactHeaderPara > span {
+    align-self: flex-start;
+    margin-inline: 0;
+  }
+  .happyFace {
+    inset: 90% 0% auto 0%;
+    z-index: 2;
+  }
+}

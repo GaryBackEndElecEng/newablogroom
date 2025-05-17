@@ -486,7 +486,9 @@ class ShapeOutside{
                 setTimeout(()=>{parent.removeChild(popup)},400);
             }
         });
-    }
+    };
+
+
 
    async addShapeOutside({parent,sel,rowEle,colEle,element,idValues}:{
     parent:HTMLElement,
@@ -607,9 +609,11 @@ class ShapeOutside{
                        
                         const ele=res.ele as unknown as elementType;
                         divCont.setAttribute("data-placememt",`${ele.placement}-A`);
+                        res.target.setAttribute("data-placememt",`${ele.placement}-A`);
                     }else{
                         const ele=res.ele as unknown as element_selType;
                         divCont.setAttribute("data-placememt",`${ele.order}-A`);
+                        res.target.setAttribute("data-placememt",`${ele.order}-A`);
                     };
                     divCont.addEventListener("click",(e:MouseEvent)=>{
                         if(e){

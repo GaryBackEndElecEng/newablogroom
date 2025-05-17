@@ -248,6 +248,7 @@ class MainAdvertise {
 
 
     showHideDescLower({parent,desc,order,index}:{parent:HTMLElement,desc:string,order:number,index:number}){
+        const less400=window.innerWidth <420;
         const upCont=document.createElement("div");
         upCont.id="upCont";
         upCont.className=styles.showHideDescRow;
@@ -284,11 +285,12 @@ class MainAdvertise {
         para.id="para-"+ String(index);
         para.className="mx-auto px-1 py-0.5";
         para.textContent=desc;
-        para.style.height="30vh";
+        para.style.height=less400 ? "40vh" : "30vh";
         paraCont.appendChild(para);
         paraCont.style.overflowY="scroll";
         paraCont.style.justifyContent="flex-start";
         paraCont.hidden=true;
+        const paraHeight=para.style.height;
         parent.appendChild(paraCont);
         //---------------------------para--------------------------------//
         downCont.hidden=true;
@@ -299,11 +301,11 @@ class MainAdvertise {
             upCont.hidden=true;
             getPara.hidden=false;
             getPara.style.opacity="1";
-            getPara.style.height="30vh";
+            getPara.style.height=less400 ? "40vh" : "30vh";
             downCont.hidden=false;
             getPara.animate([
                 {height:"0vh",opacity:"0"},
-                {height:"30vh",opacity:"1"},
+                {height:paraHeight,opacity:"1"},
             ],{duration:700,iterations:1});
         };
         downCont.onclick=(e:MouseEvent)=>{
@@ -313,7 +315,7 @@ class MainAdvertise {
             getPara.style.height="0vh";
             getPara.style.opacity="0";
             getPara.animate([
-                {height:"30vh",opacity:"1"},
+                {height:paraHeight,opacity:"1"},
                 {height:"0vh",opacity:"0"},
             ],{duration:700,iterations:1});
             setTimeout(()=>{
@@ -426,6 +428,8 @@ class MainAdvertise {
     };
 
     divider({parent,width,position}:{parent:HTMLElement,width:number,position:"left"|"center"|"right"}){
+        const less400=window.innerWidth < 420;
+        const newWidth=less400 ? width * 0.62 : width;
         const line=document.createElement("div");
         if(position==="left"){
             line.classList.add("text-left");
@@ -434,7 +438,7 @@ class MainAdvertise {
         }else if(position==="right"){
             line.classList.add("text-right");
         }
-        line.style.cssText=`width:${width}%;height:3px;background-color:#0d6efd;box-shadow:1px 1px 4px 1px #0d6efd,-1px -1px 4px 1px #0d6efd;margin-block:1rem;`;
+        line.style.cssText=`width:${newWidth}%;height:3px;background-color:#0d6efd;box-shadow:1px 1px 4px 1px #0d6efd,-1px -1px 4px 1px #0d6efd;margin-block:1rem;`;
         parent.appendChild(line);
     }
 

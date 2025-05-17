@@ -24,7 +24,7 @@ import Reference from '../editor/reference';
 import PasteCode from '../common/pasteCode';
 import ShapeOutside from '../editor/shapeOutside';
 import HtmlElement from '../editor/htmlElement';
-import CommonUser from '../common/commonInfo';
+import CommonUser from '../common/generalInfo/commonInfo';
 import SignInAndUp from './signinAndUp';
 import Message from '../common/message';
 import { useEditor } from '../context/editorContext';
