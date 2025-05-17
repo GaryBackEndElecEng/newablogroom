@@ -5,7 +5,7 @@ import Service from "../common/services";
 import Main from "./main";
 import ModSelector from "./modSelector";
 import { arrDivContType, colType, element_selType, elementType, flexType, gets3ImgKey, iconType, rowType, selectorType } from "./Types";
-import Misc from "../common/misc";
+import Misc from "../common/misc/misc";
 import { buttonReturn, imageLoader } from "../common/tsFunctions";
 import Nav from "../nav/headerNav";
 import User from "../user/userMain";

@@ -1,7 +1,7 @@
 import { IconType } from "react-icons";
 import { FaBold, FaCaretSquareDown, FaPalette, FaParagraph, FaUnderline, FaHighlighter, FaFonticons, FaAlignCenter, FaItalic, FaBraille, FaDoorClosed, FaDoorOpen } from "react-icons/fa";
 
-import Misc from "./misc";
+import Misc from "./misc/misc";
 import Header from "../editor/header";
 
 import ModSelector from "../editor/modSelector";
@@ -129,7 +129,8 @@ class EditText{
         const less400=window.innerWidth < 400;
         const btnContainer=document.createElement("div");
         btnContainer.id="btn-container";
-        btnContainer.style.cssText="width:auto;display:flex;justify-content:center;align-items:center;margin-inline:auto;position:absolute;top:85%;right:0%;order:-1;";
+        btnContainer.style.cssText="width:auto;display:flex;justify-content:center;align-items:center;margin-inline:auto;position:absolute;bottom:0%;right:0%;order:-1";
+        btnContainer.style.transform=less900 ? ( less400 ? "translate(20px,20px)":"translate(40px,20px)"):"translate(70px,20px)";
         parent.appendChild(btnContainer);
         // button
         const cssStyle={backgroundColor:"black",color:"white",textDecoration:"underline",fontWeight:"bold",fontSize:"26px",width:"auto"};

@@ -6,7 +6,7 @@ import {FaCreate} from "@/components/common/ReactIcons";
 import { btnType, button, buttonReturn } from "../common/tsFunctions";
 import Main,{ shades,blueShades } from "./main";
 import Header from "./header";
-import Misc from "../common/misc";
+import Misc from "../common/misc/misc";
 import Service from "../common/services";
 import User from "../user/userMain";
 import Nav from "../nav/headerNav";

@@ -4,7 +4,7 @@ import ModSelector from "../editor/modSelector";
 import { arrImgType3, imageType } from "../editor/Types";
 import Nav from "../nav/headerNav";
 import {FaCreate} from './ReactIcons';
-import Misc from "./misc";
+import Misc from "./misc/misc";
 import Service from "./services";
 import { idValueType, selRowColType, selRowType } from "@/lib/attributeTypes";
 

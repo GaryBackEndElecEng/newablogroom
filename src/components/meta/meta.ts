@@ -45,7 +45,7 @@ class Meta{
           {page:"/policy",redir:/\/(policy)\w+/,match:/\/(policy)/},
           {page:"/termsOfService",redir:/\/(termsOfService)\w+/,match:/\/(termsOfService)/},
           {page:"/admin",redir:/\/(admin)\w+/,match:/\/(admin)/},
-          {page:"/error_page",redir:/\/(error_page)\w+/,match:/\/(error_page)/},
+          {page:"/errorpage",redir:/\/(errorpage)\w+/,match:/\/(errorpage)/},
           {page:"/posts",redir:/\/(posts)\w+/,match:/\/(posts)/},
           {page:"/bio",redir:/\/(bio)\w+/,match:/\/(bio)/},
           {page:"/resumebuilder",redir:/\/(resumebuilder)\w+/,match:/\/(resumebuilder)/},
@@ -68,7 +68,7 @@ class Meta{
       const pathname=url.pathname;
       this.pages.map(page=>{
         if((page.redir.test(pathname))){
-          const newUrl=new URL(`/error_page?misc=${pathname}&intent=${page.page}`,url.origin);
+          const newUrl=new URL(`/errorpage?misc=${pathname}&intent=${page.page}`,url.origin);
           window.location.replace(newUrl.href);
         }
       });
@@ -604,7 +604,9 @@ class Meta{
           {url:`${retBaseUrl}/letter`,lastModified:new Date(),changeFrequency:'monthly',priority:1},
           {url:`${retBaseUrl}/print`,lastModified:new Date(),changeFrequency:'monthly',priority:1},
           {url:`${retBaseUrl}/printblog`,lastModified:new Date(),changeFrequency:'monthly',priority:1},
+          {url:`${retBaseUrl}/printletter`,lastModified:new Date(),changeFrequency:'monthly',priority:1},
           {url:`${retBaseUrl}/quote`,lastModified:new Date(),changeFrequency:'monthly',priority:1},
+          
          
         ];
     
@@ -620,7 +622,7 @@ class Meta{
         };
         if(resumeNames?.length){
           resumeNames.map(resumeName=>{
-            arr.push({url:`${retBaseUrl}/showResume/${resumeName}`,lastModified:new Date(),changeFrequency:'always',priority:1})
+            arr.push({url:`${retBaseUrl}/showresume/${resumeName.name}`,lastModified:new Date(),changeFrequency:'always',priority:1})
 
           });
         }

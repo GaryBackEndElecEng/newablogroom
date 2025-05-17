@@ -174,6 +174,7 @@ class AuthService {
             this.status="unauthenticated";
             this._modSelector.status="unauthenticated";
             this._service.isSignedOut=true;
+            this.user={...this.user,id:"",email:""}
         }
         return Promise.resolve({isAuthenticated:this._isAuthenticated,user:this.user,states:this.states,status:this.status}) as Promise<{isAuthenticated:boolean,user:userType,states:stateType[],status:statusType}>;
         

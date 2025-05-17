@@ -34,6 +34,96 @@
   width: 100% !important;
 }
 
+.mainQuoteContRow {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin-inline: auto;
+  flex-wrap: wrap;
+  margin-block: 1rem;
+}
+.displayBasicOnly {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin-inline: auto;
+  flex-direction: column;
+}
+.quoteContRow {
+  display: inline-flex;
+  justify-content: center;
+  align-items: center;
+  margin-inline: auto;
+  border: 1px solid black;
+  border-radius: 6px;
+}
+.displayBasicRow {
+  display: inline-flex;
+  justify-content: center;
+  align-items: center;
+  margin-inline: auto;
+  border: 1px solid black;
+  border-radius: 6px;
+  width: 100%;
+  flex-wrap: wrap;
+}
+.displayBasicRow > div {
+  display: flex;
+  flex-direction: row;
+  gap: 0;
+}
+
+.quoteCont {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin-inline: auto;
+  flex-direction: column;
+  border-radius: 6px;
+  box-shadow: 1px 1px 5px 1px black;
+}
+.itemCalcBase {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-start;
+  margin-inline: 0;
+  margin-block: 1rem;
+}
+.containerTotalAmount {
+  display: flex;
+  justify-content: center;
+  flex-direction: column;
+  align-items: flex-start;
+  margin-inline: auto;
+  gap: 1rem;
+  margin-block: 2rem;
+}
+
+.totalAmount,
+.tax,
+.total {
+  display: flex;
+  justify-content: flex-start;
+  flex-wrap: wrap;
+  align-items: center;
+  margin-inline: 0;
+  align-self: flex-start;
+  gap: 2rem;
+}
+.innerPageBasicRow {
+  display: flex;
+  justify-content: center;
+  flex-wrap: wrap;
+  align-items: center;
+  margin-inline: auto;
+}
+.totalAmount > span#span2 {
+  color: green;
+  padding-inline: 1rem;
+}
+.tax > span {
+  color: blue;
+}
 @media screen and (max-width: 400) {
   .resumeRow {
     flex-direction: column;

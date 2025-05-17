@@ -1,7 +1,7 @@
 
 import { getErrorMessage } from "@/lib/errorBoundaries";
 import { canvasType, quoteimgType, signupQuoteType, userType } from "../editor/Types";
-import Misc from "./misc";
+import Misc from "./misc/misc";
 import Service from "./services";
 import html2canvas from "html2canvas";
 

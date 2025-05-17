@@ -1,0 +1,98 @@
+.metablogPopup {
+  margin: auto;
+  background: white;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  position: absolute;
+  margin-bottom: 3rem;
+  overflow-y: scroll;
+  background-color: white;
+  border-radius: 12px;
+  font-size: 18px;
+  z-index: 200;
+}
+.metablogInnerCont {
+  width: 100%;
+  position: relative;
+  padding: 1rem;
+  margin-block: 1.5rem;
+  margin-inline: auto;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 1rem;
+}
+.metablogInnerCont > h4 {
+  text-align: center;
+  margin-bottom: 1.5rem;
+}
+.paraShape {
+  padding-inline: 1.25rem;
+  margin-block: 1rem;
+  width: auto;
+  padding-block: 1rem;
+  margin-inline: auto;
+  max-width: 600px;
+  line-height: 2.25rem;
+}
+.paraShape > img {
+  filter: drop-shadow(0 0 0.75rem #0039a6);
+  width: clamp(175px, 220px, 300px);
+  float: left;
+  margin-right: 1rem;
+  margin-bottom: 1rem;
+  box-shadow: 1px 1px 12px 1px black;
+  aspect-ratio: 1 / 1;
+}
+
+.metablogFinalePopup {
+  margin: auto;
+  background: white;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  position: absolute;
+  margin-bottom: 3rem;
+  overflow-y: scroll;
+  background-color: white;
+  border-radius: 12px;
+  font-size: 18px;
+  z-index: 200;
+}
+.metablogFinaleInner {
+  width: 100%;
+  position: relative;
+  padding: 1rem;
+  margin-block: 1.5rem;
+  margin-inline: auto;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 1rem;
+}
+.metablogFinaleInner > h4 {
+  text-align: center;
+  margin-bottom: 2rem;
+}
+.paraShapeFinale {
+  padding-inline: 1.25rem;
+  margin-block: 1rem;
+  width: 100%;
+  padding-block: 1rem;
+  margin-inline: auto;
+  max-width: 600px;
+  line-height: 2.25rem;
+}
+.paraShapeFinale > img {
+  filter: drop-shadow(0 0 0.75rem #0039a6);
+  width: clamp(175px, 200px, 300px);
+  float: left;
+  shape-outside: attr(data-shapeOutside);
+  margin-right: 1rem;
+  margin-bottom: 1rem;
+  box-shadow: 1px 1px 12px 1px black;
+  aspect-ratio: 1 / 1;
+}

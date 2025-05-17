@@ -3,13 +3,14 @@ import ModSelector from "../editor/modSelector";
 import { adminImageType, adminReplyMsgType, blogType, delteUserType, infoType2, messageType, pageCountType, postType, userType } from "../editor/Types";
 import User from "../user/userMain";
 import Header from "../editor/header";
-import Misc from "../common/misc";
+import Misc from "../common/misc/misc";
 import Nav from "../nav/headerNav";
 import {FaCreate} from '@/components/common/ReactIcons';
 import { FaCrosshairs } from "react-icons/fa";
 import { getErrorMessage } from "@/lib/errorBoundaries";
 import { mainResumeStrType, mainResumeType } from "../bio/resume/refTypes";
 import styles from "./admin.module.css";
+import ModQuote from "./modQuote";
 
 
 
@@ -26,7 +27,7 @@ class Admin{
    public readonly btnColor:string="#0C090A";
    public readonly logo:string="./images/gb_logo.png";
     nofilePara:string=" no files";
-    constructor(private _service:Service,private _modSelector:ModSelector,private _user:User,private _users:userType[],admin:userType|null){
+    constructor(private _service:Service,private _modSelector:ModSelector,private _user:User,private _users:userType[],admin:userType|null,private _modQuote:ModQuote){
         this.viewPortId="viewport";
         this.logo="./images/gb_logo.png";
         this.btnColor="#0C090A";
@@ -298,6 +299,7 @@ class Admin{
             if(e){
                 close.disabled=true;
                 setTimeout(()=>{close.disabled=false;},1000);
+                this.openClean({parent:viewport});
                 const searchContainer=viewport.querySelector("div#search-container") as HTMLElement;
                 const getmsgsContainer=document.querySelector("div#messages-container") as HTMLElement;
                 const getUsers=viewport.querySelector("div#getUsers-row") as HTMLElement ;
@@ -351,6 +353,17 @@ class Admin{
                     
                 }
             };
+
+            const {button:quoteBtn}=Misc.simpleButton({anchor:btnContainer,text:"open Quote",type:"button",time:400,bg:this.btnColor,color:"white"});
+            quoteBtn.onclick=async(e:MouseEvent)=>{
+                if(e){
+                   
+                    //GET USERS
+                    this.openClean({parent:viewport});
+                    this._modQuote.main({parent:viewport});
+                    
+                }
+            };
             
             return Promise.resolve(count+1) as Promise<number>;
     };
@@ -369,6 +382,11 @@ class Admin{
             {name:"search user",id:"userSearch-container"},
             {name:"info container",id:"infoForm-container"},
             {name:"resumes",id:"get-resumes"},
+            {name:"quotes",id:this._modQuote.btnSaveId},
+            {name:"quotesTotal",id:this._modQuote.mainQuoteCont},
+            {name:"quotesTotalAmount",id:this._modQuote.amountContainerId},
+            {name:"quotesIsPage",id:this._modQuote.isPageContId},
+            {name:"quotesIsBasic",id:this._modQuote.isBasicContId},
         ]
         IDs.map(item=>{
             Header.cleanUpByID(parent,item.id);

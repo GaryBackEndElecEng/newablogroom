@@ -642,7 +642,7 @@ export type quoteType={
 }
 export type quoteCalcItemType={
     id:number,
-    type:string,
+    type:"text"|"schedular"|"meta"|"pageNames"|"#users"|"pages"|"images",
     basic:boolean,
     name:string,
     desc:string,

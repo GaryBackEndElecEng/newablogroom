@@ -4,35 +4,24 @@ import { getErrorMessage } from '@/lib/errorBoundaries';
 import { blogType, userType } from '@/components/editor/Types';
 import { redirect } from 'next/navigation';
 import Index from '../index';
-import { Metadata, ResolvingMetadata } from 'next';
-import { genKeywords, retMetadata } from '@/app/post/[id]/page';
-import { awsImage } from '@/lib/awsFunctions';
-
-const baseUrl = process.env.NODE_ENV === "production" ? process.env.NEXTAUTH_URL : "http:///localhost:3000";
+import { getServerSession, Session } from 'next-auth';
 
 type Props = {
     params: Promise<{ id: string }>,
     searchParams: Promise<{ [key: string]: string | string[] | undefined }>,
 }
 
-export async function generateMetadata(props: Props, parent: ResolvingMetadata): Promise<Metadata> {
-    const params = await props.params;
-    const id = Number(params.id)
-    const singleBlog = await genMetadata({ id, parent });
-    return singleBlog;
-    //GENERATES AVAILABLE IDS FOR SINGLE PULL
-}
-
-
 export default async function page(props: Props) {
+    const session = await getServerSession();
+    const user = await getUser({ session });
     const params = await props.params;
     const id = Number(params.id);
     const blog = await getBlog({ id });
     if (blog) {
-        const user = await getUser({ user_id: blog.user_id });
-        const isUser = user?.showinfo ? user : null;
+        const owner = await getOwner({ user_id: blog.user_id });
+        const isOwner = owner?.showinfo ? owner : null;
         return (
-            <Index blog={blog} owner={isUser} />
+            <Index blog={blog} owner={isOwner} user={user} />
         )
     } else {
         redirect(`/blogs`);
@@ -48,11 +37,7 @@ async function getBlog(item: { id: number }): Promise<blogType | null> {
         const blog = await prisma.blog.findUnique({
             where: { id: id, show: true },
             include: {
-                selectors: {
-                    include: {
-                        colAttr: true,
-                    }
-                },
+                selectors: true,
                 messages: false,
                 elements: true,
                 codes: {
@@ -74,7 +59,7 @@ async function getBlog(item: { id: number }): Promise<blogType | null> {
 };
 
 
-async function getUser(item: { user_id: string }) {
+async function getOwner(item: { user_id: string }) {
     const { user_id } = item;
     if (!user_id) return null;
     try {
@@ -100,20 +85,31 @@ async function getUser(item: { user_id: string }) {
     };
 };
 
-
-export async function genMetadata(item: { id: number, parent: ResolvingMetadata }): Promise<Metadata> {
-    const { id, parent } = item;
-    const par = (await parent);
-    const url = par?.metadataBase?.origin || baseUrl || "www.ablogroom.com";
-    const blog = await getBlog({ id: id });
-    const image = blog?.imgKey ? await awsImage(blog.imgKey) : "/images/gb_logo.png";
-    const title = blog?.title ? blog.title as string : "Ablogroom blogs";
-    const keywds = blog?.desc ? await genKeywords({ content: blog.desc, title }) : [];
-    const user = blog ? await getUser({ user_id: blog.user_id as string }) : null;
-    const authors = user ? [{ name: user.name as string, url }] : undefined;
-    if (user?.name) {
-        keywds.push(user.name)
+async function getUser(item: { session: Session | null }) {
+    const { session } = item;
+    if (!(session?.user?.email)) return null;
+    try {
+        const user = await prisma.user.findUnique({
+            where: { email: session.user.email, showinfo: true },
+            select: {
+                id: true,
+                name: true,
+                email: true,
+                image: true,
+                imgKey: true,
+                bio: true,
+                showinfo: true,
+                username: true
+            }
+        }) as unknown as userType;
+        return user
+    } catch (error) {
+        const msg = getErrorMessage(error);
+        console.log(msg);
+        await prisma.$disconnect();
+        return null;
     };
-    return await retMetadata({ title, keywords: keywds, images: [{ url: image, width: 300, height: 300 }], url, authors });
+};
 
-}
+
+

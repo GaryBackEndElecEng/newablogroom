@@ -1,5 +1,5 @@
 import { getErrorMessage } from "@/lib/errorBoundaries";
-import Misc from "../common/misc";
+import Misc from "../common/misc/misc";
 import Service from "../common/services";
 import Header from "../editor/header";
 import ModSelector from "../editor/modSelector";

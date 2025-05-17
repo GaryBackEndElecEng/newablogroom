@@ -2,7 +2,7 @@ import { linkType, userType } from "@/components/editor/Types";
 import ModSelector from "../editor/modSelector";
 import AuthService from "../common/auth";
 import Service from "../common/services";
-import Misc from "../common/misc";
+import Misc from "../common/misc/misc";
 import Header from "../editor/header";
 import Meta from "../meta/meta";
 import NavArrow from "./arrow";

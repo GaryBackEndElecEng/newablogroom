@@ -5,10 +5,10 @@ import React from 'react'
 import { userType } from '../editor/Types';
 import ProfileMain from './profileMain';
 import User from '../user/userMain';
-import MetaBlog from '../editor/metaBlog';
+import MetaBlog from '../editor/metaBlog/metaBlog';
 import ChartJS from '../chart/chartJS';
 import Post from '../posts/post';
-import Headerflag from '../editor/headerflag';
+import Headerflag from '../editor/headerFlag/headerflag';
 import Dataset from '../common/dataset';
 import HtmlElement from '../editor/htmlElement';
 import ShapeOutside from '../editor/shapeOutside';

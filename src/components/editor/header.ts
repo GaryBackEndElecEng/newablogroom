@@ -3,7 +3,7 @@ import ModSelector from "./modSelector";
 import {FaCrosshairs} from "react-icons/fa";
 import {FaCreate} from "@/components/common/ReactIcons";
 import Main from "@/components/editor/main";
-import Misc from "../common/misc";
+import Misc from "../common/misc/misc";
 import User from "../user/userMain";
 import { buttonReturn } from '../common/tsFunctions';
 import Service from '../common/services';

@@ -1,7 +1,7 @@
 import { FaFacebookF, FaGithub, FaInstagramSquare, FaLinkedin, FaMailBulk, FaSitemap } from "react-icons/fa";
 import ModSelector from "../editor/modSelector";
 import AuthService from "./auth";
-import Misc from "./misc";
+import Misc from "./misc/misc";
 import { FaCreate } from "./ReactIcons";
 import Service from "./services";
 import { infoType2, messageType, userType } from "../editor/Types";

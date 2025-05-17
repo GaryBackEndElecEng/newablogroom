@@ -9,7 +9,7 @@ import RegSignIn from './regSignin';
 import Service from '../common/services';
 import User from '../user/userMain';
 import ModSelector from '../editor/modSelector';
-import Misc from '../common/misc';
+import Misc from '../common/misc/misc';
 import Nav from './headerNav';
 import MainHeader from './mainHeader';
 import Profile from '../profile/profile';

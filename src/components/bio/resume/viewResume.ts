@@ -5,6 +5,7 @@ import { awardType, contactType, educationType, mainResumeType, miscType, nameRe
 import Resume from "./resume";
 import styles from "./viewResume.module.css";
 import { langConversion } from "./engFre";
+import PrintResume from "@/components/printResume/printresume";
 
 
 
@@ -284,12 +285,16 @@ resume({parent,mainResume,showPrint,closeDelete,french,func1}:{parent:HTMLElemen
      
          print.onclick=(e:MouseEvent)=>{
              if(!e) return;
-             const origin=window.location.origin;
-             const url=new URL("/print",origin);
-             url.searchParams.set("nameResume",resume.name);
-             if(resume.id){
-                 url.searchParams.set("id",String(resume.id));
-             };
+             const headerInjector=document.querySelector("div#headerInjector") as HTMLElement;
+             const footerInjector=document.querySelector("section#footerInjector") as HTMLElement;
+            const grandparent=document.querySelector("section#resume") as HTMLElement;
+            if(!grandparent || !footerInjector || !headerInjector) return;
+            footerInjector.hidden=true;
+            headerInjector.hidden=true;
+            Resume.cleanUp(grandparent);
+            this.printResume({parent:grandparent,resume,french});
+             window.print();
+            const url=new URL("/bio",location.origin);
              window.location.href=url.href;
          };
      

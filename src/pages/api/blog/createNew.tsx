@@ -11,7 +11,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     if (req.method === "POST") {
         const getBlog = req.body as blogType;
         const { name, user_id } = getBlog;
-        const check = !!(getBlog && typeof (name) === "string" && user_id);
+        const check = !!(typeof (name) === "string" && user_id);
         if (check) {
 
             try {
@@ -39,41 +39,42 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 };
 
 async function verifyAndCreate({ blog }: { blog: blogType }): Promise<blogType | null> {
-    const check = !!(blog?.user_id && blog?.name)
-    if (check) {
-        const { name, user_id, title, desc, attr, show, rating, username, eleId, cssText, class: _class } = blog;
-        try {
-            const blog = await prisma.blog.findMany({
-                where: { name: name as string, user_id },
+    if (!blog) return null;
+    const { name, user_id, title, desc, attr, show, rating, username, eleId, cssText, class: _class } = blog;
+    try {
+        const _blog = await prisma.blog.findMany({
+            where: { name: name as string, user_id },
+        });
+        if (!(_blog && _blog[0])) {
+            const createNew = await prisma.blog.create({
+                data: {
+                    name: name as string,
+                    user_id,
+                    title: title || "title",
+                    desc: desc || "description",
+                    attr: attr || "square",
+                    show: show || false,
+                    rating: rating || 0,
+                    username: username,
+                    eleId: eleId,
+                    cssText: cssText,
+                    class: _class
+                }
             });
-            if (!(blog && blog[0])) {
-                const createNew = await prisma.blog.create({
-                    data: {
-                        name: name as string,
-                        user_id,
-                        title: title || "title",
-                        desc: desc || "description",
-                        attr: attr || "square",
-                        show: show || false,
-                        rating: rating || 0,
-                        username: username,
-                        eleId: eleId,
-                        cssText: cssText,
-                        class: _class
-                    }
-                });
-                if (createNew) {
-                    return createNew as unknown as blogType;
-                };
-            }
-            return null;
-        } catch (error) {
-            const msg = getErrorMessage(error);
-            console.log(msg);
-            return null
+            if (createNew) {
+                return createNew as unknown as blogType;
+            };
+        } else {
+            return blog as unknown as blogType;
         }
+        return null;
+    } catch (error) {
+        const msg = getErrorMessage(error);
+        console.log(msg);
+        return null
+    }
 
-    };
+
     return null;
 }
 

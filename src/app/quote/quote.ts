@@ -1,4 +1,4 @@
-import Misc from "@/components/common/misc";
+import Misc from "@/components/common/misc/misc";
 import Header from "@/components/editor/header";
 import { quoteCalcItemType, returnCalcType, userType } from "@/components/editor/Types";
 import Nav from "@/components/nav/headerNav";
@@ -121,7 +121,11 @@ initTypes:component_type[]=[
                                 this.showPageQuote({parent:container,returnQuoteFinal:finaleReslts,user}).then(async(res)=>{
                                     if(res){
                                         // This EMAILS THE USER THE QUOTE MADE FROM SHOWPAGEQUOTE
-                                        this.generatingQuote({target:res.quoteContainer,user,button:res.button});
+                                        const {button}=Misc.simpleButton({anchor:res.quoteContainer,bg:"rgb(7 193 178)",color:"white",type:"button",time:600,text:"print"});
+                                        button.id="print-quote-btn";
+                                        button.style.marginBlock="2rem";
+                                        button.style.display="block";
+                                        this.generatingQuote({target:res.quoteContainer,user,button});
                                     };
                                 });
                                 //generating quote WITHOUT API REQUEST----END 
@@ -160,9 +164,6 @@ initTypes:component_type[]=[
     generatingQuote(item:{target:HTMLElement,user:userType,button:HTMLButtonElement}){
         const {target,user,button}=item;
         // GENERATING QUOTE
-        const getFooter=document.querySelector("section#footerInjector") as HTMLElement;
-        if(!getFooter) return;
-        getFooter.style.display="none";
         
         setTimeout(()=>{
             button.style.display="none";
@@ -171,8 +172,12 @@ initTypes:component_type[]=[
         button.onclick=(e:MouseEvent)=>{
             if(e){
                 const getHeader=document.querySelector("div#headerInjector") as HTMLElement;
-                if(!getHeader) return;
+                const getFooter=document.querySelector("section#footerInjector") as HTMLElement;
+                if(!(getHeader || getFooter)) return;
                 const getBody=document.body as HTMLElement;
+                getBody.appendChild(target);
+                getHeader.hidden=true;
+                getFooter.hidden=true;
                 getBody.style.display="flex";
                 getBody.style.flexDirection="column";
                 getBody.style.alignItems="center";
@@ -547,24 +552,22 @@ initTypes:component_type[]=[
     };
 
 
-      showPageQuote({parent,returnQuoteFinal,user}:{parent:HTMLElement,returnQuoteFinal:returnQuoteFinalType,user:userType}):Promise<{button:HTMLButtonElement,quoteContainer:HTMLElement,quoteInnerCont:HTMLElement}>{
+      showPageQuote({parent,returnQuoteFinal,user}:{parent:HTMLElement,returnQuoteFinal:returnQuoteFinalType,user:userType}):Promise<{quoteContainer:HTMLElement,quoteInnerCont:HTMLElement}>{
         const css_col="margin-inline:auto;display:flex;flex-direction:column;align-items:center;";
         const css_row="margin-inline:auto;display:flex;flex-wrap:warp;align-items:center;";
         const container=document.createElement("section");
-        container.style.cssText=css_col + "justify-content:flex-start;position:absolute;inset:0% -10% -100% -10%;padding-inline:1rem;z-index:2;background-color:whitesmoke;border-radius:12px;"
         container.id="showPageQuote-container";
+        container.className=styles.showPageQuote
         const innerCont=document.createElement("div");
         innerCont.id="container-innerCont";
-        innerCont.style.cssText="width:100%;overflow:scroll;border-radius:12px;";
+        innerCont.style.cssText="width:100%;border-radius:12px;";
         container.appendChild(innerCont);
-        container.style.position="absolute";
         this.titleQuoteContainer({parent:innerCont,returnQuoteFinal,css_col,css_row,user})
          this.quoteLayout({parent:innerCont,returnQuoteFinal,css_col,css_row});
-         const {button}=Misc.simpleButton({anchor:container,bg:"#23ff00",color:"white",type:"button",time:600,text:"print"});
-         button.id="print-quote-btn";
+         
         parent.appendChild(container);
         Misc.growIn({anchor:container,scale:0,opacity:0,time:400});
-        return Promise.resolve({button,quoteContainer:container,quoteInnerCont:innerCont}) as Promise<{button:HTMLButtonElement,quoteContainer:HTMLElement,quoteInnerCont:HTMLElement}>;
+        return Promise.resolve({quoteContainer:container,quoteInnerCont:innerCont}) as Promise<{quoteContainer:HTMLElement,quoteInnerCont:HTMLElement}>;
         
 
     };
@@ -585,12 +588,10 @@ initTypes:component_type[]=[
         const container=document.createElement("div");
         const less900=window.innerWidth <900;
         const less400=window.innerWidth <400;
-        container.style.cssText=css_col + "background-color:black;border-radius:6px;color:white;min-height:10vh;width:100%;border-radius:inherit;width:100%;";
-        container.style.width="100%";
+        container.className=styles.titleQuoteContainer;
         const innerContainer=document.createElement("div");
         innerContainer.id="container-innerContainer";
         innerContainer.classList.add("mx-auto");
-        innerContainer.style.cssText=css_row + "justify-content:space-between;background-color:black;color:white;width:100%;";
         const img=document.createElement("img");
         img.id=innerContainer.id + "-img";
         img.src=this.quotepic;

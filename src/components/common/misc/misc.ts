@@ -3,11 +3,11 @@ import { providerSigninType, providerType} from "@/components/editor/Types";
 import {FaCreate} from "@/components/common/ReactIcons";
 import { FaStar,FaStarHalf,FaRegStar, FaCrosshairs } from "react-icons/fa";
 import { IconType } from "react-icons";
-import { buttonReturn,imageLoader,httpImageLoader } from "./tsFunctions";
-import Nav from "../nav/headerNav";
-import Header from "../editor/header";
+import { buttonReturn,imageLoader,httpImageLoader } from "../tsFunctions";
+import Nav from "../../nav/headerNav";
+import Header from "../../editor/header";
 import { locationEnumType } from "@/lib/attributeTypes";
-
+import styles from "./misc.module.css";
 
 
 
@@ -1138,13 +1138,11 @@ class Misc{
         window.scroll(0,0);
         const popup=document.createElement("div");
         popup.id="wantToSaveBlog-popup";
-        popup.style.cssText="position:absolute;inset:10% 30% 50% 30%;background-color:rgba(14, 51, 134,0.5);border-radius:16px;box-shadow:1px 1px 12px 1px black;padding-inline:1.5rem;display:flex;flex-direction:column;justify-content:center;gap:1.5rem;align-items:center;padding-block:1rem;z-index:200;";
+        popup.className=styles.wantToSaveBeforeFunc;
         const para=document.createElement("p");
         para.id="wantToSaveBlog-popup-notice-text"
         para.textContent=" Do you want to save?";
-        para.style.cssText="color:white;margin-inline;auto;margin-block:1rem;text-decoration:underline;text-underline-offset:0.5rem;font-family:'Poppins-Thin';font-weight:bold;font-size:140%";
         const btnCont=document.createElement("div");
-        btnCont.style.cssText="display:flex;justify-content:center;gap:2rem;align-items:center;padding-block:1rem;margin-inline:auto;flex-wrap:wrap;"
         popup.appendChild(para);
         const {button:cancel}=Misc.simpleButton({anchor:btnCont,bg:Nav.btnColor,color:"white",type:"button",time:400,text:"cancel"});
         cancel.onclick=(e:MouseEvent)=>{
@@ -1171,10 +1169,7 @@ class Misc{
         popup.appendChild(btnCont);
         parent.appendChild(popup);
         Misc.fadeIn({anchor:popup,xpos:100,ypos:50,time:500});
-        const getPopup=parent.querySelector("div#wantToSaveBlog-popup") as HTMLElement;
-        Misc.matchMedia({parent:getPopup,maxWidth:900,cssStyle:{inset:"25% 5% 50% 5%"}});
-        Misc.matchMedia({parent:getPopup,maxWidth:400,cssStyle:{inset:"20% 0% 30% 0%"}});
-        Misc.matchMedia({parent:para,maxWidth:400,cssStyle:{fontWeight:"120%"}});
+        
     };
 
     static matchMedia(media:{parent:HTMLElement,maxWidth:number,cssStyle:{[key:string]:string}}){

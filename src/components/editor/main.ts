@@ -8,7 +8,7 @@ import { buttonReturn } from "../common/tsFunctions";
 import Edit from "@/components/editor/edit";
 import Service from "@/components/common/services";
 import CustomHeader from "./customHeader";
-import Misc, { mediaQueryType } from "../common/misc";
+import Misc, { mediaQueryType } from "../common/misc/misc";
 import Nav from "../nav/headerNav";
 import AuthService from "../common/auth";
 import { getErrorMessage } from "@/lib/errorBoundaries";

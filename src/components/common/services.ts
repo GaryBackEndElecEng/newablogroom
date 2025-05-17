@@ -1,8 +1,8 @@
-import {elementType,selectorType,codeType,blogType, gets3ImgKey, userType,messageType, deletedImgType, img_keyType, adminImageType, providerType, pageCountType, delteUserType, sendEmailMsgType, chartType, postType, infoType2, bucketType, quoteType, returnQuoteFinalType, quoteimgType, signupQuoteType, rowType, sendPostRequestType, checkemailType} from "@/components/editor/Types";
+import {elementType,selectorType,codeType,blogType, gets3ImgKey, userType,messageType, deletedImgType, img_keyType, adminImageType, providerType, pageCountType, delteUserType, sendEmailMsgType, chartType, postType, infoType2, bucketType, quoteType, returnQuoteFinalType, quoteimgType, signupQuoteType, rowType, sendPostRequestType, checkemailType, quoteCalcItemType} from "@/components/editor/Types";
 
 import { combinedType, mainIntroLetterType, mainResumeRefType, mainResumeType, nameLetterType, nameRefType, nameResumeType } from '../bio/resume/refTypes';
 
-import Misc from "../common/misc";
+import Misc from "./misc/misc";
 import ModSelector from "@/components/editor/modSelector";
 import { getErrorMessage } from "@/lib/errorBoundaries";
 import { v4 as uuidv4 } from 'uuid';
@@ -57,6 +57,7 @@ class Service {
   private readonly  checkemail:string="/api/checkemail";
   private readonly  quoteUrl:string="/api/quote";
   private readonly  quoteimgUrl:string="/api/quoteimg";
+  private readonly  adminquote:string="/api/admin/quote";
   private readonly  signupUrl:string="/api/signup";
   private readonly  simpleSignupUrl:string="/api/simplesignup";
   private readonly  putimagefileUrl:string="/api/imagefile";
@@ -132,6 +133,7 @@ class Service {
         this.checkemail="/api/checkemail";
         this.quoteUrl="/api/quote";
         this.quoteimgUrl="/api/quoteimg";
+        this.adminquote="/api/admin/quote";
         this.signupUrl="/api/signup";
         this.requestreset="/api/admin/requestreset";
         this.postRequest="/api/postrequest";
@@ -1411,6 +1413,7 @@ getKey({imgUrl}:{imgUrl:string}):string|null{
             body:JSON.stringify(blogmeta)
         }
         return fetch(this.metaUrl,option).then(async(res)=>{
+            //api/meta
             if(res.ok){
                 const blogOnly=await res.json() as blogType;
                 return blogOnly
@@ -1645,6 +1648,34 @@ getKey({imgUrl}:{imgUrl:string}):string|null{
             }
         });
     };
+
+
+    async adminSaveQuotes({userId,email,quotes}:{userId:string,email:string,quotes:quoteCalcItemType[]}): Promise<void | quoteCalcItemType[]>{
+        if(!((userId && email) || quotes?.length))return;
+        const option={
+            headers:{
+                "Content-Type":"application/json"
+            },
+            method:"POST",
+            body:JSON.stringify({userId,email,quotes})
+        }
+        //api/admin/quote
+        return fetch(this.adminquote,option).then(async(res)=>{
+            if(res.ok){
+                return await res.json() as quoteCalcItemType[];
+            }
+        }).catch((error)=>{const msg=getErrorMessage(error); console.error(msg);});
+    };
+
+    
+    async adminGetQuotes({userId,email}:{userId:string,email:string}): Promise<void | quoteCalcItemType[]>{
+        if(!(userId || email)) return;
+        return fetch(`${this.adminquote}?userId=${userId}&email=${email}`).then(async(res)=>{
+            if(res.ok){
+                return await res.json() as quoteCalcItemType[];
+            }
+        }).catch((error)=>{const msg=getErrorMessage(error);console.error(msg)});
+    }
 
 
     async getQuoteimg(item:{imgKey:string}):Promise<string|undefined>{

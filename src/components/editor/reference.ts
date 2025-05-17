@@ -1,4 +1,4 @@
-import Misc from "../common/misc";
+import Misc from "../common/misc/misc";
 import Header from "./header";
 import Nav from "../nav/headerNav";
 import ModSelector from "./modSelector";

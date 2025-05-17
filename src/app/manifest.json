@@ -13,12 +13,12 @@
             "type": "image/png"
         },
         {
-            "src": "/images/gb_logo_600.png",
+            "src": "/images/gblogo600.png",
             "sizes": "600x600",
             "type": "image/png"
         },
         {
-            "src": "/images/gb_logo_800_400.png",
+            "src": "/images/gblogo800400.png",
             "sizes": "800x400",
             "type": "image/png"
         }

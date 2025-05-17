@@ -2,7 +2,7 @@ import {blogType} from "@/components/editor/Types";
 import { slateColors } from "../editor/main";
 import ModSelector from "@/components/editor/modSelector";
 import { imageLoader } from "../common/tsFunctions";
-import Misc from "../common/misc";
+import Misc from "../common/misc/misc";
 import Service from "../common/services";
 import Header from "../editor/header"
 import { FaCreate } from "../common/ReactIcons";

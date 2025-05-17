@@ -6,7 +6,7 @@ import ModSelector from "./modSelector";
 import { FaCreate } from "../common/ReactIcons";
 import Main from "./main";
 import { btnReturnDisableType, buttonRetDisable, } from "../common/tsFunctions";
-import Misc from "../common/misc";
+import Misc from "../common/misc/misc";
 import Header from "@/components/editor/header";
 import ShapeOutside from "./shapeOutside";
 import Reference from "./reference";
@@ -17,7 +17,7 @@ import { eleEnumType, idEnumType,  idValueType, selRowColType, typeEnumType } fr
 import Design from "../common/design";
 import { attrEnumArr, attrEnumArrTest,  typeEnumArr, typeEnumArrTest} from "@/components/common/lists";
 import Ven from "../common/venDiagram";
-import Headerflag from "./headerflag";
+import Headerflag from "./headerFlag/headerflag";
 import PasteCode from "../common/pasteCode";
 import Nav from "../nav/headerNav";
 
@@ -147,6 +147,7 @@ class HtmlElement {
             }
             //THEN TACKLE FLEXBOX, THEN COMBINED THEM TO DISPLAY
         }else{
+            
             const target=document.createElement(node);
             target.id=element.eleId;
             const divCont=document.createElement("div");
@@ -167,6 +168,12 @@ class HtmlElement {
             target.className=cleaned.join(" ");
             target.classList.remove("isActive");
             target.style.cssText=element.cssText;
+            target.className=element.class;
+            if(node==="p" && less400){
+                target.classList.remove("columns");
+                target.classList.remove("columns-3");
+                target.classList.remove("columns-4");
+            }
             target.innerHTML=element.inner_html;
             target.style.paddingInline=less400 ? "0.25rem":"1rem";
             const {idValues:retIdValues}=this._modSelector.dataset.coreDefaultIdValues({target,sel:null,row:null,col:null,ele:element,clean:true,level:"element",loc:"htmlElement",idValues});
@@ -188,7 +195,6 @@ class HtmlElement {
                 const anchor=target as HTMLAnchorElement;
                 if(isLink){
                     const link=isLink;
-                    console.log("htmlElement.showCleanElement.isLink",link)
                     const name=anchor.textContent ? anchor.textContent:"link"
                     this.addLinkEmailTelImg({target:anchor,image:this.link,href:link,name,type:"link"});
                 }else if(isEmail){

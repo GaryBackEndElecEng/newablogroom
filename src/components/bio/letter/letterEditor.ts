@@ -288,8 +288,8 @@ class LetterEditor{
         input.onchange=(e:Event)=>{
             if(e){
                 const value=(e.currentTarget as HTMLInputElement).value;
-                const _name=value.split(" ").join("_").trim()
-                letter.filename=`${_name}_${rand}`
+                const _name=value.split(" ").join("").trim()
+                letter.filename=`${_name}${rand}`;
               
             }
         };

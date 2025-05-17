@@ -1,7 +1,7 @@
 import { idValueType, selRowColType, selRowType } from "@/lib/attributeTypes";
 import ModSelector from "../editor/modSelector";
 import { blogType, flexChoiceType, nameValueAttrType, selectorType, userType } from "../editor/Types";
-import Misc from "./misc";
+import Misc from "./misc/misc";
 import Service from "./services";
 import Header from "../editor/header";
 import Nav from "../nav/headerNav";

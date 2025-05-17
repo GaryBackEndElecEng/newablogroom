@@ -2,7 +2,7 @@
 import Service from "../common/services";
 import ModSelector from "../editor/modSelector";
 import {blogType, imageType, messageType, postType} from "@/components/editor/Types";
-import Misc from "../common/misc";
+import Misc from "../common/misc/misc";
 import MainHeader from "../nav/mainHeader";
 import Blogs from "../blogs/blogsInjection";
 import Nav from "../nav/headerNav";

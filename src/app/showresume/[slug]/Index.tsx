@@ -24,7 +24,7 @@ export default function Index({ mainResume, mainRefs, mainLetters }: { mainResum
                     const modselector = new ModSelector(dataset);
                     const service = new Service(modselector);
                     const delClass = new DeleteClass(service, null);
-                    const resumeRef = new Reference(service, delClass);
+                    const resumeRef = new Reference(service, delClass, null);
                     const letterView = new LetterView()
                     const viewResume = new ViewResume(service, resumeRef, delClass);
                     const combineView = new CombineView(service, letterView, viewResume, resumeRef);

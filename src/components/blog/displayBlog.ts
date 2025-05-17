@@ -2,7 +2,7 @@ import {blogType,selectorType,elementType,element_selType,codeType, userType,  c
 import Blogs from "@/components/blogs/blogsInjection";
 import ModSelector,{modAddEffect} from "@/components/editor/modSelector";
 import User from "@/components/user/userMain"
-import Misc, {  mediaQueryType} from "../common/misc";
+import Misc, {  mediaQueryType} from "../common/misc/misc";
 import Service from "@/components/common/services";
 import { btnReturnType, buttonReturn, imageLoader, smallbtnReturn } from '../common/tsFunctions';
 import Main from "../editor/main";
@@ -20,6 +20,7 @@ import Dataset from '../common/dataset';
 import { attrEnumArrTest, typeEnumArrTest } from "../common/lists";
 import { Chart } from "chart.js";
 import { barOptionType, lineOptionType } from "../common/chartTypes";
+import { FaPrint } from "react-icons/fa";
 
 
 
@@ -120,8 +121,9 @@ class DisplayBlog{
      
 
      //MAIN INJECTION DONE @ Index.tsx//id=client_blog
-    async main(item:{parent:HTMLElement,blog:blogType|null,user:userType|null}){
-        const {parent,blog,user}=item;
+    async main(item:{parent:HTMLElement,blog:blogType|null,user:userType|null,owner:userType|null}){
+        const {parent,blog,user,owner}=item;
+        const isUserOwner=!!(user && owner && user?.id !=="" && user?.id===owner?.id)
         const idValues=this._modSelector.dataset.idValues;
         
         const css_col="display:flex;flex-direction:column;align-items:center;justify-content:center";
@@ -167,17 +169,23 @@ class DisplayBlog{
             btnGrp.className="btn-group btnGrp justify-content-around gap-2";
             // BUTTON RETURN NAV OPTIONS
                 // Main.cleanUp(btnGrp);
+                const arrBtn:HTMLButtonElement[]=[];
                 const btnBack=buttonReturn({parent:btnGrp,text:"back",bg:"#0C090A",color:"white",type:"button"});
                 btnBack.id="btnBack";
+                arrBtn.push(btnBack);
                 const btnMain=buttonReturn({parent:btnGrp,text:"main",bg:"#0C090A",color:"white",type:"button"});
                 btnMain.id="btnMain";
+                arrBtn.push(btnMain);
                 const sendMsg=buttonReturn({parent:btnGrp,text:"sendMsg",bg:"#0C090A",color:"white",type:"button"});
                 sendMsg.id="sendMsg";
-                const btnEditor=buttonReturn({parent:btnGrp,text:"editor",bg:"#0C090A",color:"white",type:"button"});
-                btnEditor.id="btnEditor";
-                const print_btn=buttonReturn({parent:btnGrp,text:"print",bg:"green",color:"white",type:"button"});
-                print_btn.id="printPdf_btn";
-                [btnBack,btnMain,sendMsg,btnEditor,print_btn].map(async(btn)=>{
+                arrBtn.push(sendMsg);
+                    const btnEditor=buttonReturn({parent:btnGrp,text:"editor",bg:"#0C090A",color:"white",type:"button"});
+                    btnEditor.id="btnEditor";
+                    arrBtn.push(btnEditor);
+                    const print_btn=Misc.btnIcon({anchor:btnGrp,icon:FaPrint,label:"print",msgHover:"print doc",cssStyle:{backgroundColor:"black",color:"white",fontSize:"14px",paddingInline:"1rem",paddingBlock:"0.5rem",borderRadius:"30px"},time:400});
+                    print_btn.id="printPdf_btn";
+                    arrBtn.push(print_btn);
+                arrBtn.map(async(btn)=>{
                     if(btn){
                         if(btn.id==="btnBack"){
                             btn.className=""
@@ -216,26 +224,28 @@ class DisplayBlog{
                             }
                             });
 
+                           
                         }else if(btn.id==="btnEditor"){
-                            btn.className=""
-                            btn.addEventListener("click",(e:MouseEvent)=>{
-                                if(e){
-                                    this.baseUrl=new URL(window.location.href);
-                                    const blogsUrl=new URL("/editor",this.baseUrl.origin);
-                                    window.location.href=blogsUrl.href;
-                                }
-                                });
+                                btn.className=""
+                                btn.addEventListener("click",(e:MouseEvent)=>{
+                                    if(e){
+                                        this.baseUrl=new URL(window.location.href);
+                                        const blogsUrl=new URL("/editor",this.baseUrl.origin);
+                                        window.location.href=blogsUrl.href;
+                                    }
+                                    });
                         }else if(btn.id==="printPdf_btn"){
                             btn.addEventListener("click",(e:MouseEvent)=>{
                                 if(e){
                                     this.baseUrl=new URL(window.location.href);
-                                    const check=!!(user && user.id!=="" && user.email!=="")
+                                    const check=!!(user?.id!=="" && user?.email!=="");
+                                
                                     if(check ){
-                                       
+                                    
                                         if(this.baseUrl.pathname ==="/editor"){
-                                           this.printMessage({parent,toPrint:container,css_col})
+                                        this.printMessage({parent,toPrint:container,css_col})
                                         }else{
-                                            const blogsUrl=new URL(`/printblog/${blog.id}`,this.baseUrl.origin);
+                                            const blogsUrl=new URL(`/ownerprintblog/${blog.id}`,location.origin);
                                             window.location.href=blogsUrl.href;
                                         }
                                     }else{
@@ -243,9 +253,9 @@ class DisplayBlog{
                                     }
                                 }
                                 });
-                        }
+                        };
 
-                    }
+                    };
                 });
                
                 btnContainer.appendChild(btnGrp);

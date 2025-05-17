@@ -9,6 +9,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
     if (req.method === "POST") {
         const getBlog = req.body as blogType;
+        const rand = Math.floor(Math.random() * 1000);
         // console.log("BLOG:=>>>", getBlog)
         if (getBlog && typeof (getBlog) === "object") {
             const selects = (getBlog?.selectors.length > 0) ? getBlog.selectors as unknown[] as selectorType[] : null;
@@ -19,13 +20,15 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
             await deleteSelectors({ blog: getBlog });
             await deleteCharts({ blog: getBlog });
             await deleteCodes({ blog: getBlog });
-            if (getBlog.user_id) {
+            const { id, name, user_id } = getBlog;
+
+            if (user_id && name && id) {
                 // console.log("USER ID", getBlog.user_id, "blog.id", getBlog.id)//works
                 try {
                     const blog = await prisma.blog.upsert({
-                        where: { id: getBlog.id, user_id: getBlog.user_id },
+                        where: { id, name: name as string, user_id },
                         create: {
-                            name: getBlog.name ? getBlog.name : "filename/title",
+                            name: name,
                             desc: getBlog.desc ? getBlog.desc : "blog's description",
                             user_id: getBlog.user_id as string,
                             img: getBlog.img ? getBlog.img : null,
@@ -34,25 +37,24 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
                             inner_html: getBlog.inner_html ? getBlog.inner_html : null,
                             cssText: getBlog.cssText,
                             show: getBlog.show,
-                            attr: getBlog.attr ? getBlog.attr : "circle",
+                            attr: getBlog.attr || "circle",
                             username: getBlog.username,
-                            rating: getBlog.rating ? getBlog.rating : 1,
-                            title: getBlog.title ? getBlog.title : "title",
+                            rating: getBlog.rating || 1,
+                            title: getBlog.title || "title",
 
                         },
                         update: {
-                            name: getBlog.name,
+                            title: getBlog.title || "title",
                             desc: getBlog.desc,
                             img: getBlog.img,
                             imgKey: getBlog.imgKey,
-                            imgBgKey: getBlog.imgBgKey ? getBlog.imgBgKey : null,
+                            imgBgKey: getBlog.imgBgKey || null,
                             class: getBlog.class,
-                            inner_html: getBlog.inner_html ? getBlog.inner_html : null,
+                            inner_html: getBlog.inner_html || null,
                             cssText: getBlog.cssText,
                             show: getBlog.show,
-                            attr: getBlog.attr ? getBlog.attr : "circle",
+                            attr: getBlog.attr || "circle",
                             username: getBlog.username,
-                            title: getBlog.title ? getBlog.title : "title"
                         }
                     });
                     if (blog) {
@@ -241,6 +243,9 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
             return await prisma.$disconnect();
         };
 
+    } else {
+        res.status(400).json({ msg: "nothing recieved" });
+        await prisma.$disconnect();
     }
 
 

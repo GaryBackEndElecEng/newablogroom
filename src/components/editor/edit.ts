@@ -2,7 +2,7 @@ import {selectorType,blogType, userType, arrDivPlaceType} from "./Types";
 import ModSelector from "@/components/editor/modSelector";
 import DisplayBlog, {separator} from "@/components/blog/displayBlog";
 import Header from "@/components/editor/header";
-import Misc, {btnOptionMsgType, btnOptionType, btnOptionType2} from "@/components/common/misc";
+import Misc, {btnOptionMsgType, btnOptionType, btnOptionType2} from "@/components/common/misc/misc";
 import Main from "@/components/editor/main";
 import { buttonReturn,btnReturnType } from "../common/tsFunctions";
 import Footer from "@/components/editor/footer";

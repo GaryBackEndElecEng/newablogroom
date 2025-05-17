@@ -1,7 +1,7 @@
 
 import Service from "@/components/common/services";
 import Nav from "../nav/headerNav";
-import Misc from "./misc";
+import Misc from "./misc/misc";
 import Header from "../editor/header";
 
 class Dataflow {

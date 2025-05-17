@@ -2,7 +2,7 @@ import { idValueType } from "@/lib/attributeTypes";
 import ModSelector from "../../editor/modSelector";
 import { blogType, chartType, elementType, reorderType, selectorType, userType } from "../../editor/Types";
 import styles from "./reorg.module.css";
-import Misc from "../misc";
+import Misc from "../misc/misc";
 import { FaCreate } from "../ReactIcons";
 import { FaArrowAltCircleLeft, FaArrowAltCircleRight, FaCrosshairs } from "react-icons/fa";
 import Header from "@/components/editor/header";

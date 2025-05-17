@@ -1,6 +1,6 @@
 import {  FaCrosshairs, FaThumbsUp, } from "react-icons/fa";
 import Blogs from "../blogs/blogsInjection";
-import Misc from "../common/misc";
+import Misc from "../common/misc/misc";
 import { FaCreate } from "../common/ReactIcons";
 import Service from "../common/services";
 import { imageLoader } from "../common/tsFunctions";

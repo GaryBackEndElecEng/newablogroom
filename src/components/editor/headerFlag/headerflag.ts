@@ -1,12 +1,13 @@
 import { FaCrosshairs } from "react-icons/fa";
-import Misc from "../common/misc";
-import { FaCreate } from "../common/ReactIcons";
-import Service from "../common/services";
-import ModSelector from "./modSelector";
-import { arrDivContType, blogType, cardBodyCssType, elementType, } from "./Types";
-import Nav from "../nav/headerNav";
-import User from "../user/userMain";
+import Misc from "../../common/misc/misc";
+import { FaCreate } from "../../common/ReactIcons";
+import Service from "../../common/services";
+import ModSelector from "../modSelector";
+import { arrDivContType, blogType, cardBodyCssType, elementType, } from "../Types";
+import Nav from "../../nav/headerNav";
+import User from "../../user/userMain";
 import {  idValueType } from "@/lib/attributeTypes";
+import styles from "./headerFlag.module.css";
 
 
 class Headerflag{
@@ -37,9 +38,9 @@ constructor(private _modSelector:ModSelector,private _service:Service,private _u
     this.freepicurl="https://newablogroom-free-bucket.s3.us-east-1.amazonaws.com";
     this.headerPic="/images/headerFlag.png";
     this.css_col="display:flex;flex-direction:column;align-items:center;";
-    this.css_row="display:flex;flex-wrap:wrap;justify-content:space-around;align-items:center;";
+    this.css_row="display:flex;justify-content:space-around;align-items:center;";
     this._initCssText=this.css_row + "width:100%;min-height:15vh;box-shadow:1px 1px 12px 1px black;border-radius:6px;padding:0.35rem;";
-    this._initClass="w-100 header-flag-target d-flex justify-content-around flex-wrap-wrap";
+    this._initClass="w-100 header-flag-target";
     
     this._initElement={
         id: 0, 
@@ -134,12 +135,15 @@ showCleanHeaderflag({parent,element,idValues}:{parent:HTMLElement,element:elemen
     target.style.cssText=element.cssText;
     target.className=element.class;
     target.innerHTML=element.inner_html;
-    if(less900){
+    if(less400){
         target.classList.remove("d-flex");
         target.style.flexDirection="column";
         target.style.maxHeight="auto";
         target.style.paddingBlock="1rem";
         target.style.gap="1rem";
+        target.style.flexDirection="column";
+        target.style.alignItems="center";
+        target.style.justifyContent="center";
     }
   
     const middlePara=target.querySelector("p#cardBody-middlePara") as HTMLElement;
@@ -174,6 +178,7 @@ showCleanHeaderflag({parent,element,idValues}:{parent:HTMLElement,element:elemen
     }
     //LARGE TEXT-ADJUSMENTS:CARDBODY>cardBody-middlePara 
     img.src=element.img || this.headerPic;
+    img.style.height="100%";
     if(element.imgKey){
         const src=`${this.freepicurl}/${element.imgKey}`;
         img.src=src as string;
@@ -236,7 +241,7 @@ showCleanHeaderflag({parent,element,idValues}:{parent:HTMLElement,element:elemen
     const img=target.querySelector("img") as HTMLImageElement;
     img.src=element.img || this.headerPic;
     img.alt="www.ablogroom.com";
-    console.log("HEADERFLAG IMG",element.img,"IMGKEY",element.imgKey)
+    img.style.height="100%";
     if(element.imgKey){
         const src=`${this.freepicurl}/${element.imgKey}`;
         img.src=src;

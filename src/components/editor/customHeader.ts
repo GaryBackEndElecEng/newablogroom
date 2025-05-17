@@ -7,7 +7,7 @@ import Header from "./header";
 import Main from '@/components/editor/main';
 import User from "../user/userMain";
 import { btnType, button, buttonReturn } from "../common/tsFunctions";
-import Misc, { fadeOutType } from "../common/misc";
+import Misc, { fadeOutType } from "../common/misc/misc";
 import Nav from "../nav/headerNav";
 import Dataset from "../common/dataset";
 import {idValueType, selRowColType, selRowType, typeEnumType } from "@/lib/attributeTypes";

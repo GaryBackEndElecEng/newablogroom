@@ -1,6 +1,6 @@
 
 import { companyLetType, contactType, letterType, mainIntroLetterType, paragraphType, signatureType } from "../resume/refTypes";
-import styles from "./letter.module.css"
+import styles from "@/components/bio/letter/letter.module.css"
 import Resume from "../resume/resume";
 import { langConversion } from "../resume/engFre";
 
@@ -112,24 +112,16 @@ public company:companyLetType;
             const {button:back}=Resume.simpleButton({anchor:btnRow,bg:"black",color:"white",type:"button",time:400,text:"go back"});
             back.id="go-back";
             const {button}=Resume.simpleButton({anchor:btnRow,bg:"black",color:"white",type:"button",time:400,text:"print"});
+            button.id="btn-print";
             button.style.alignSelf="center";
             button.style.marginBlock="2rem";
             button.style.justifySelf="center";
             button.style.order="8";
             button.onclick=(e:MouseEvent)=>{
                 if(e){
-                    const goback=btnRow.querySelector("button#go-back") as HTMLElement;
-                    goback.hidden=true;
-                    button.hidden=true;
-                    parent.style.backgroundColor="white";
-                    const getNav=document.querySelector("header#navHeader") as HTMLElement;
-                    const getFooter=document.querySelector("section#footerInjector") as HTMLElement;
-                    if(!getNav || !getFooter) return;
-                    getNav.hidden=true;
-                    getFooter.hidden=true;
+                    LetterView.removeAttributeForPrint({parent,button});
                     window.print();
-                   
-                    const newUrl=new URL("/",location.origin);
+                    const newUrl=new URL("/bio",location.origin);
                     location.replace(newUrl);
                 }
             }
@@ -321,7 +313,7 @@ public company:companyLetType;
         if(filename){
 
             const anchor=document.createElement("a");
-            const newUrl=new URL(`/showResume/${filename}`,window.location.origin)
+            const newUrl=new URL(`/showresume/${filename}`,window.location.origin)
             anchor.href=newUrl.href
             anchor.textContent="resume + reference";
             anchor.style.order="2"
@@ -479,6 +471,25 @@ public company:companyLetType;
         line.style.order=String(order);
         line.style.alignSelf=position;
         parent.appendChild(line);
+    }
+    static removeAttributeForPrint({parent,button}:{parent:HTMLElement,button:HTMLButtonElement}){
+        const containerResumes=document.querySelector("section#container-resumes") as HTMLElement;
+        const headerCont=document.querySelector("div#header-cont") as HTMLElement;
+        const mainRow=document.querySelector("div#container-row") as HTMLElement;
+        const goback=document.querySelector("button#go-back") as HTMLElement;
+        const back=document.querySelector("button#back-btn-id") as HTMLElement;
+        const getNav=document.querySelector("header#navHeader") as HTMLElement;
+        const getFooter=document.querySelector("section#footerInjector") as HTMLElement;
+        if(!getNav || !getFooter || !mainRow || !headerCont || !containerResumes || !back) return;
+        goback.hidden=true;
+        button.hidden=true;
+        parent.style.backgroundColor="white";
+        back.remove();
+        getNav.hidden=true;
+        getFooter.hidden=true;
+        mainRow.hidden=true;
+        headerCont.hidden=true;
+        containerResumes.style.boxShadow="none";
     }
 };
 export default LetterView;

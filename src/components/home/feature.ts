@@ -1,5 +1,5 @@
 import { FaCrosshairs } from "react-icons/fa";
-import Misc from "../common/misc";
+import Misc from "../common/misc/misc";
 import { FaCreate } from "../common/ReactIcons";
 import Nav from "../nav/headerNav";
 

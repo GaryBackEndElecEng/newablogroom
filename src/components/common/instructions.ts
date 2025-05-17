@@ -2,7 +2,7 @@ import Header from "../editor/header";
 import ModSelector from "../editor/modSelector";
 import { introDescType,slideType } from "../editor/Types";
 import Nav from "../nav/headerNav";
-import Misc from "./misc";
+import Misc from "./misc/misc";
 import Service from "./services";
 
 

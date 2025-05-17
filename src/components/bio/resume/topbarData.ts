@@ -37,7 +37,7 @@ export const topbarRowColDescs:topbarRowColDescType[]=[
     {cat:"references",name:"edit_ref",desc:"This sub section allows you to edit your reference, including adding/removing sub-components."},
     {cat:"resumes",name:"edit_resumes",desc:"This sub section allows you to edit your resume(s), including adding/removing sub-components."},
     {cat:"letters",name:"new_letter",desc:"This sub section allows you to quickly create and customize your cover letter for your respective employer."},
-    {cat:"letters",name:"print-letters",desc:"This sub section allows you to view your cover letters with option to PDF print."},
+    // {cat:"letters",name:"print-letters",desc:"This sub section allows you to view your cover letters with option to PDF print."},
     {cat:"letters",name:"view-letters",desc:"This sub section allows you to view your cover letters in one click, giving a quick means on what letter to modify for a quick reply response to a job opportunity."},
     {cat:"letters",name:"edit_letter",desc:"This sub section allows you to quickly edit your Cover Letter quick response."},
     {cat:"combined",name:"attach",desc:"This magically attaches references or Cover letters to your resume and adds the link for quick access to your cover letter for instant professional viewing."},
@@ -53,7 +53,7 @@ export const topbarRowColDescsFr:topbarRowColDescType[]=[
     {cat:"references",name:"edit_ref",desc:"Cette sous-section vous permet de modifier votre référence, notamment en ajoutant/supprimant des sous-composants."},
     {cat:"resumes",name:"edit_resumes",desc:"Cette sous-section vous permet de modifier votre/vos CV, notamment en ajoutant/supprimant des sous-composants."},
     {cat:"letters",name:"new_letter",desc:"Cette sous-section vous permet de créer et de personnaliser rapidement votre lettre de motivation pour votre employeur respectif"},
-    {cat:"letters",name:"print-letters",desc:"Cette sous-section vous permet de visualiser vos lettres de motivation avec option d'impression PDF."},
+    // {cat:"letters",name:"print-letters",desc:"Cette sous-section vous permet de visualiser vos lettres de motivation avec option d'impression PDF."},
     {cat:"letters",name:"view-letters",desc:"Cette sous-section vous permet de visualiser vos lettres de motivation en un clic, vous donnant un moyen rapide de savoir quelle lettre modifier pour une réponse rapide à une opportunité d'emploi."},
     {cat:"letters",name:"edit_letter",desc:"Cette sous-section vous permet de modifier rapidement votre réponse rapide à la lettre de motivation"},
     {cat:"combined",name:"attach",desc:"Cela attache comme par magie des références ou des lettres de motivation à votre CV et ajoute le lien pour un accès rapide à votre lettre de motivation pour une visualisation professionnelle instantanée"},
@@ -69,7 +69,7 @@ export const topbarcreate_ref=topbarRowColDescs.find(kv=>(kv.name==="create_ref"
 export const topbaredit_ref=topbarRowColDescs.find(kv=>(kv.name==="edit_ref")) as topbarRowColDescType;
 export const topbaredit_resumes=topbarRowColDescs.find(kv=>(kv.name==="edit_resumes")) as topbarRowColDescType;
 export const topbarnew_letter=topbarRowColDescs.find(kv=>(kv.name==="new_letter")) as topbarRowColDescType;
-export const topbarprint_letters=topbarRowColDescs.find(kv=>(kv.name==="print-letters")) as topbarRowColDescType;
+// export const topbarprint_letters=topbarRowColDescs.find(kv=>(kv.name==="print-letters")) as topbarRowColDescType;
 export const topbarview_letters=topbarRowColDescs.find(kv=>(kv.name==="view-letters")) as topbarRowColDescType;
 export const topbaredit_letter=topbarRowColDescs.find(kv=>(kv.name==="edit_letter")) as topbarRowColDescType;
 export const topbarattach=topbarRowColDescs.find(kv=>(kv.name==="attach")) as topbarRowColDescType;
@@ -83,7 +83,7 @@ export const topbarcreate_refFr=topbarRowColDescsFr.find(kv=>(kv.name==="create_
 export const topbaredit_refFr=topbarRowColDescsFr.find(kv=>(kv.name==="edit_ref")) as topbarRowColDescType;
 export const topbaredit_resumesFr=topbarRowColDescsFr.find(kv=>(kv.name==="edit_resumes")) as topbarRowColDescType;
 export const topbarnew_letterFr=topbarRowColDescsFr.find(kv=>(kv.name==="new_letter")) as topbarRowColDescType;
-export const topbarprint_lettersFr=topbarRowColDescsFr.find(kv=>(kv.name==="print-letters")) as topbarRowColDescType;
+// export const topbarprint_lettersFr=topbarRowColDescsFr.find(kv=>(kv.name==="print-letters")) as topbarRowColDescType;
 export const topbarview_lettersFr=topbarRowColDescsFr.find(kv=>(kv.name==="view-letters")) as topbarRowColDescType;
 export const topbaredit_letterFr=topbarRowColDescsFr.find(kv=>(kv.name==="edit_letter")) as topbarRowColDescType;
 export const topbarattachFr=topbarRowColDescsFr.find(kv=>(kv.name==="attach")) as topbarRowColDescType;
@@ -100,7 +100,7 @@ export const topbarCats:topbarCatType[]=[
     {id:"row-col-edit-ref-ref",dataset:"data-references-edit_ref",cat:"references",name:"edit_ref",desc:topbaredit_ref.desc,descFr:topbaredit_refFr.desc,text:"edit Reference",textFr:"modifier la référence",order:"4",redirect:false},
     {id:"row-col-edit",dataset:"data-set-edit-resumes",cat:"resumes",name:"edit_resumes",desc:topbaredit_resumes.desc,descFr:topbaredit_resumesFr.desc,text:" edit Resumes",textFr:"modifier les CV",order:"5",redirect:true},
     {id:"row-col-letter-newlet",dataset:"data-letters-new_letter",cat:"letters",name:"new_letter",desc:topbarnew_letter.desc,descFr:topbarnew_letterFr.desc,text:"new cover letter",textFr:"nouvelle lettre de motivation",order:"6",redirect:false},
-    {id:"row-col-letter-edit",dataset:"data-letters-print-letters",cat:"letters",name:"print-letters",desc:topbarprint_letters.desc,descFr:topbarprint_lettersFr.desc,text:"print-letters",textFr:"lettres imprimées",order:"8",redirect:false},
+    // {id:"row-col-letter-edit",dataset:"data-letters-print-letters",cat:"letters",name:"print-letters",desc:topbarprint_letters.desc,descFr:topbarprint_lettersFr.desc,text:"print-letters",textFr:"lettres imprimées",order:"8",redirect:false},
     {id:"row-col-letter-edit",dataset:"data-letters-print-letters",cat:"letters",name:"view-letters",desc:topbarview_letters.desc,descFr:topbarview_lettersFr.desc,text:"view letters",textFr:"voir les lettres",order:"9",redirect:false},
     {id:"row-col-letter-view",dataset:"data-letters-edit_letters",cat:"letters",name:"edit_letter",desc:topbaredit_letter.desc,descFr:topbaredit_letterFr.desc,text:"edit-letters",textFr:"modifier les lettres",order:"10",redirect:true},
     {id:"row-col-moduleConnect-view",dataset:"data-combined-attach",cat:"combined",name:"attach",desc:topbarattach.desc,descFr:topbarattachFr.desc,text:"attach",textFr:"attacher",order:"9",redirect:false},

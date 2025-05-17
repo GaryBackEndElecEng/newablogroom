@@ -1,4 +1,4 @@
-import Misc from "@/components/common/misc";
+import Misc from "@/components/common/misc/misc";
 import Service from "@/components/common/services";
 import Header from "@/components/editor/header";
 import ModSelector from "@/components/editor/modSelector";

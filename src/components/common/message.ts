@@ -1,6 +1,6 @@
 import {  blogType, chartType, messageType, postType, sendPostRequestType, userType } from '@/components/editor/Types';
 import {FaCrosshairs} from "react-icons/fa";
-import Misc from '../common/misc';
+import Misc from './misc/misc';
 import Nav from '../nav/headerNav';
 import Service from '../common/services';
 import ModSelector from '../editor/modSelector';

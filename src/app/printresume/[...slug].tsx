@@ -1,5 +1,5 @@
 import React from 'react'
-import styles from "./print.module.css";
+import styles from "./printresume.module.css";
 import Index from './Index';
 import prisma from "@/prisma/prismaclient";
 import { getErrorMessage } from '@/components/common/errorBoundary';
@@ -13,22 +13,22 @@ type Props = {
 }
 // GENERATEPARAMS FROM ALL THREE TABLES FOR A DYNAMIC 
 
-export default async function page({ searchParams }: { searchParams: Promise<{ [key: string]: string | string[] | undefined }> }) {
-    const { nameResume, nameRef, nameLetter } = await searchParams;
-    const mainResume = await getResume({ name: nameResume as string | undefined });
-    const mainResumeRef = await getReference({ name: nameRef as string | undefined });
-    const mainLetter = await getLetter({ name: nameLetter as string | undefined });
-    const check = !!(mainResume || mainResumeRef || mainLetter)
-    if (check) {
+export default async function page({ params }: { params: Promise<{ slug: string[] | undefined }> }) {
+    const { slug } = await params as { slug: string[] | undefined };//nameLetter
+    if (slug) {
+        const mainResume = await getResume({ name: slug[0] as string | undefined });
+        const mainResumeRef = await getReference({ name: slug[1] });
+
         return (
             <div className={styles.printpage}>
-                <Index mainResume={mainResume} mainResumeRef={mainResumeRef} mainLetter={mainLetter} />
+                <Index mainResume={mainResume} mainResumeRef={mainResumeRef} />
             </div>
         )
-
     } else {
         redirect("/bio");
     }
+
+
 };
 
 async function getResume({ name }: { name: string | undefined }): Promise<mainResumeType | null> {

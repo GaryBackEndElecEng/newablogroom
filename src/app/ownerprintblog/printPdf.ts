@@ -1,11 +1,11 @@
 import ModSelector from "@/components/editor/modSelector";
 import { arrDivPlaceType, blogType, userType } from "../../components/editor/Types";
 import DisplayBlog from "@/components/blog/displayBlog";
-import Misc from "@/components/common/misc";
+import Misc from "@/components/common/misc/misc";
 import Header from "@/components/editor/header";
 import { imageLoader } from "@/components/common/tsFunctions";
 import Service from "@/components/common/services";
-
+import styles from "./printPdf.module.css";
 
 
 class PrintPdf{
@@ -13,6 +13,7 @@ class PrintPdf{
     logo2="gb_logo.png";
     userPic="userpic.png";
     _user:userType | null;
+    
     constructor(private _modSelector:ModSelector,private _service:Service,private _displayBlog:DisplayBlog,blog:blogType,user:userType|null){
         this._blog=blog;
         this._user=user;
@@ -40,17 +41,15 @@ class PrintPdf{
         parent.style.background="white";
         parent.style.marginInline="auto";
         parent.style.minHeight="100vh";
-        parent.style.maxWidth=less900 ? (less400 ? "100%":"85%"):"70%";
-        const css_col="margin-inlin:auto;display:flex;flex-direction:column;justify-content:flex-start;align-items:center;"
+        parent.style.maxWidth=less900 ? (less400 ? "100%":"95%"):"90%";
+       
         const container=document.createElement("section");
         container.id="printpdf-main-container";
-        container.style.cssText=css_col + "width:100%";
+        container.className=styles.printMainContainer;
         container.style.paddingInline=less400 ? "0.5rem":"1rem";
-        container.style.position="relative";
         const innerContainer=document.createElement("div");
         innerContainer.id="container-innerContainer";
-        innerContainer.style.cssText=css_col + "width:100%;gap:2rem;";
-        innerContainer.style.background="white";
+
         await this.getUserInfo({parent:innerContainer,user:user}).then(async(res)=>{
             if(res){
         await this._displayBlog.saveFinalWork({innerContainer:res.parent,blog,idValues,arrDivPlaces,less900,less400}).then(async(res_)=>{
@@ -92,7 +91,7 @@ class PrintPdf{
                                 getFooter.style.display="block";
                                 getHeader.style.display="block";
                                 button.style.display="block";
-                                parent.style.maxWidth=less900 ? (less400 ? "100%":"85%"):"70%";
+                                // parent.style.maxWidth=less900 ? (less400 ? "100%":"85%"):"70%";
                                 document.body.style.backgroundImage="var(--bg-image-body)";
                                 await PrintPdf.sleep({time:300});
                                 window.print();

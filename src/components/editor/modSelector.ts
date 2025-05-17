@@ -5,7 +5,7 @@ import { FaCrosshairs } from "react-icons/fa";
 import { MouseOver } from "../common/MouseOver";
 import Header from "@/components/editor/header";
 import Main from "./main";
-import Misc from "../common/misc";
+import Misc from "../common/misc/misc";
 import { Color } from "chart.js";
 import Dataset from '../common/dataset';
 import { idEnumType, idValueType, locationEnumType, selRowColType, selRowType, typeEnumType } from "@/lib/attributeTypes";
@@ -1903,8 +1903,9 @@ loadBlog(item:{blog:blogType,user:userType|null}):{blog:blogType,user:userType|n
     }
     this.blog=this._blog;
   
-    const max_=ModSelector.maxCount(blog);
+    const max_=ModSelector.maxCount(this.blog);
     localStorage.setItem("placement",String(max_ + 1));
+    localStorage.setItem("blog",JSON.stringify(this.blog));
     return {blog:this.blog,user};
 }
 

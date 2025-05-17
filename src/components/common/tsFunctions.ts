@@ -1,5 +1,5 @@
 "use client";
-import Misc from "./misc";
+import Misc from "./misc/misc";
 export const baseUrl="http://localhost:3000";
  export const DOMAIN=process.env.DOMAIN ? process.env.DOMAIN : baseUrl;
 

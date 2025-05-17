@@ -2,7 +2,7 @@
 import {FaCreate} from "@/components/common/ReactIcons";
 import { FaArrowRight,FaFingerprint, FaInfoCircle, FaSignInAlt, FaSignOutAlt } from "react-icons/fa";
 import { BiSolidReport } from "react-icons/bi";
-import Misc from "../common/misc";
+import Misc from "../common/misc/misc";
 import { buttonReturn } from "../common/tsFunctions";
 import ModSelector from "../editor/modSelector";
 import Nav from "../nav/headerNav";

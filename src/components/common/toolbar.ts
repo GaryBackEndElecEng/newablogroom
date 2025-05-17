@@ -6,7 +6,7 @@ import { TbLineHeight } from "react-icons/tb";
 import { blogType, iconType } from "../editor/Types";
 import Main from "../editor/main";
 import { FaCreate } from "./ReactIcons";
-import Misc, { mediaQueryType } from "./misc";
+import Misc, { mediaQueryType } from "./misc/misc";
 import ModSelector from "../editor/modSelector";
 import DisplayBlog from "../blog/displayBlog";
 import Header from "../editor/header";
@@ -688,7 +688,7 @@ class Toolbar{
         const okay = buttonReturn({ parent: popup, text: "add to para", bg: this.btnColor, color: "white", type: "button" });
         okay.style.transform="scale(0.7)";
         row.appendChild(popup);
-        this.removePopup({parent:btn,target:popup});
+        this.removePopup({parent:row,target:popup});
         
         select.onchange = async(e: Event) => {
             if (e) {

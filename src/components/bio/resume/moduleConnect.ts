@@ -184,7 +184,7 @@ class ModuleConnect {
             li.id="ul-li-" + String(index +1);
             const span=document.createElement("span");
             if( enable){
-                const url=new URL(`/showResume/${name}`,location.origin);
+                const url=new URL(`/showresume/${name}`,location.origin);
                 this.copyLink({grandParent:parent,parent:li,url:url.href,name,french});
                 span.textContent=`/${name}`;
 

@@ -2,7 +2,7 @@ import HtmlElement from "../editor/htmlElement";
 import ModSelector from "../editor/modSelector";
 import { arrDivContType,elementType, focusOptions } from "../editor/Types";
 import Nav from "../nav/headerNav";
-import Misc from "./misc";
+import Misc from "./misc/misc";
 import Header from "../editor/header";
 import { FaCreate } from "./ReactIcons";
 import { FaCrosshairs } from "react-icons/fa";

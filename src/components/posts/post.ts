@@ -2,7 +2,7 @@ import Service from "../common/services";
 import ModSelector from "../editor/modSelector";
 import { postType, statusType, userType } from "../editor/Types";
 import Nav from "../nav/headerNav";
-import Misc from "../common/misc";
+import Misc from "../common/misc/misc";
 import Header from "../editor/header";
 import { FaCrosshairs,FaThumbsUp } from "react-icons/fa";
 import { FaCreate } from "../common/ReactIcons";

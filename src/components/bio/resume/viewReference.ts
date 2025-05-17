@@ -122,8 +122,7 @@ class ViewReference {
                     func:({mainRefs,nameRefs})=>{
                         this.mainResumerefs=mainRefs;
                         this.nameRefs=nameRefs;
-                        console.log("viewRef.mainRefs:",mainRefs)
-                        console.log("viewRef.nameRefs:",mainRefs)
+                       
                         func1(mainRefs,nameRefs);
                     },
                 })
@@ -189,8 +188,19 @@ class ViewReference {
             const {button:print}=Resume.simpleButton({anchor:innerMainRefsCont,type:"button",bg:"black",color:"white",text:"print",time:400});
             print.onclick=(e:MouseEvent)=>{
                 if(!e) return;
-                const newUrl=new URL("/print",window.location.origin);
-                newUrl.searchParams.set("nameRef",name);
+                const headerInjector=document.querySelector("div#headerInjector") as HTMLElement;
+             const footerInjector=document.querySelector("section#footerInjector") as HTMLElement;
+            const grandparent=document.querySelector("section#resume") as HTMLElement;
+            if(!grandparent || !footerInjector || !headerInjector) return;
+            print.hidden=true;
+            footerInjector.hidden=true;
+            headerInjector.hidden=true;
+            Resume.cleanUp(grandparent);
+             references.map((reference,index)=>{
+            this.refCard({parent:grandparent,less400,less900,css_col,css_row,reference,french,index});
+        });
+            window.print()
+                const newUrl=new URL("/bio",window.location.origin);
                 window.location.href=newUrl.href;
             };
         }

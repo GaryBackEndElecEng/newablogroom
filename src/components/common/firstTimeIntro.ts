@@ -1,6 +1,6 @@
 import { getErrorMessage } from "@/lib/errorBoundaries";
 import { firstTimeType, pointType } from "../editor/Types";
-import Misc from "./misc";
+import Misc from "./misc/misc";
 import { imageLoader } from "./tsFunctions";
 
 

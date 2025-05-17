@@ -6,7 +6,7 @@ import RegSignIn from "@/components/nav/regSignin";
 import User from "@/components/user/userMain";
 import { getCsrfToken, getProviders } from "next-auth/react";
 import Register from "../register/register";
-import Misc from "@/components/common/misc";
+import Misc from "@/components/common/misc/misc";
 import Header from "@/components/editor/header";
 
 

@@ -2,7 +2,7 @@ import {FaCrosshairs,FaPython, FaHtml5, FaJava} from "react-icons/fa";
 import { TbJson } from "react-icons/tb";
 import ModSelector from "../editor/modSelector";
 import { arrDivContType, elementType } from "../editor/Types";
-import Misc from "./misc";
+import Misc from "./misc/misc";
 import { FaCreate } from "./ReactIcons";
 import Service from "./services";
 import { idValueType } from "@/lib/attributeTypes";

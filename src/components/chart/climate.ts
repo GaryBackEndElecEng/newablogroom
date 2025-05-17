@@ -2,7 +2,7 @@ import Chart, { Color } from 'chart.js/auto';
 import data from "./temperature.json";
 import { lineOptionType, } from '../editor/Types';
 import events from "./events.json";
-import Misc from '../common/misc';
+import Misc from '../common/misc/misc';
 
 export type activityType={
     year:string,

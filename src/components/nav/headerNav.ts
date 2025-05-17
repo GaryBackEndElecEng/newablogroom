@@ -3,7 +3,7 @@ import { buttonCheckType, navLinkBtnType, messageType } from "../editor/Types";
 import Service from "../common/services";
 import ModSelector from "../editor/modSelector";
 import Header from "@/components/editor/header";
-import Misc from "../common/misc";
+import Misc from "../common/misc/misc";
 import User from "../user/userMain";
 import { getCsrfToken } from 'next-auth/react';
 

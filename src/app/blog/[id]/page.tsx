@@ -7,6 +7,8 @@ import { blogType, userType } from '@/components/editor/Types';
 import { getErrorMessage } from '@/lib/errorBoundaries';
 import prisma from "@/prisma/prismaclient";
 import { redirect } from 'next/navigation';
+import { getUserImage } from '@/lib/awsFunctions';
+import { getServerSession, Session } from 'next-auth';
 
 
 type Props = {
@@ -22,16 +24,18 @@ export async function generateMetadata(props: Props, parent: ResolvingMetadata):
 }
 
 export default async function page(props: { params: Promise<{ id: string }> }) {
+    const session = await getServerSession();
+    const user = await getUser({ session });
     const params = await props.params;
     const id = Number(params.id as string);
     const blog = (await getBlog({ id })) ? await getBlog({ id }) : null;
-    const user = blog ? await getUser({ user_id: blog.user_id as string }) : null;
+    const owner = blog ? await getOwner({ user_id: blog.user_id as string }) : null;
     const style: { [key: string]: string } = { minHeight: "100vh", height: "100%", marginInline: "auto" };
     if (blog) {
 
         return (
             <div style={style} className="isLocal">
-                <Index blog={blog} user={user} />
+                <Index blog={blog} owner={owner} user={user} />
             </div>
         )
     } else {
@@ -48,10 +52,11 @@ export async function genMetadata(item: { id: number, parent: ResolvingMetadata 
     const title = blog?.title ? blog.title as string : "Ablogroom blogs";
     const keywds = blog?.desc ? await genKeywords({ desc: blog.desc, title }) : [];
     const url = (par?.metadataBase?.origin) ? par.metadataBase.origin : "www.ablogroom.com";
-    const user = blog ? await getUser({ user_id: blog.user_id as string }) : null;
-    const authors = user ? [{ name: user.name as string, url }] : undefined;
-    if (user?.name) {
-        keywds.push(user.name)
+    const owner = blog ? await getOwner({ user_id: blog.user_id as string }) : null;
+    const ownerImage = owner ? await getUserImage(owner) : undefined;
+    const authors = ownerImage ? [{ name: ownerImage.name as string, url: ownerImage.image ? ownerImage.image : url }] : undefined;
+    if (ownerImage?.name) {
+        keywds.push(ownerImage.name)
     };
     await prisma.$disconnect();
     return await retMetadata({ title, keywords: keywds, images: undefined, url, authors });
@@ -162,12 +167,45 @@ export async function getBlog(item: { id: number }): Promise<blogType | null> {
 };
 
 
-export async function getUser(item: { user_id: string }): Promise<userType | null> {
+export async function getOwner(item: { user_id: string }): Promise<userType | null> {
     const { user_id } = item;
     let user: userType | null = null;
     try {
         user = await prisma.user.findUnique({
             where: { id: user_id },
+            select: {
+                id: true,
+                name: true,
+                email: true,
+                password: false,
+                image: true,
+                imgKey: true,
+                bio: true,
+                showinfo: true,
+                admin: true,
+                username: true
+            }
+        }) as unknown as userType;
+        if (user?.showinfo) {
+            return user;
+        } else {
+            return null;
+        }
+    } catch (error) {
+        const msg = getErrorMessage(error);
+        console.error(msg);
+        prisma.$disconnect();
+        return null;
+
+    }
+};
+
+export async function getUser(item: { session: Session | null }): Promise<userType | null> {
+    const { session } = item;
+    if (!(session?.user?.email)) return null;
+    try {
+        const user = await prisma.user.findUnique({
+            where: { email: session.user.email },
             select: {
                 id: true,
                 name: true,

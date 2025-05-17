@@ -59,7 +59,7 @@ export async function genSitemapArray(item: { baseUrl: string }): Promise<Metada
             getResumes.map(mainResume => {
                 if (mainResume) {
                     const { name } = mainResume;
-                    arr.push({ url: `${retBaseUrl}/showResume/${name}`, lastModified: new Date(), changeFrequency: 'always', priority: 1 });
+                    arr.push({ url: `${retBaseUrl}/showresume/${name}`, lastModified: new Date(), changeFrequency: 'always', priority: 1 });
                 }
             });
         }

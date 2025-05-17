@@ -1,0 +1,48 @@
+.wantToSaveBeforeFunc {
+  position: absolute;
+  inset: 10% 30% auto 30%;
+  background-color: rgba(14, 51, 134, 0.5);
+  border-radius: 16px;
+  box-shadow: 1px 1px 12px 1px black;
+  padding-inline: 1.5rem;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 1.5rem;
+  align-items: center;
+  padding-block: 1rem;
+  z-index: 200;
+}
+.wantToSaveBeforeFunc > p {
+  color: white;
+  margin-inline: auto;
+  margin-block: 1rem;
+  text-decoration: underline;
+  text-underline-offset: 0.5rem;
+  font-family: "Poppins-Thin";
+  font-weight: bold;
+  font-size: 140%;
+}
+.wantToSaveBeforeFunc > div {
+  display: flex;
+  justify-content: center;
+  gap: 2rem;
+  align-items: center;
+  padding-block: 1rem;
+  margin-inline: auto;
+  flex-wrap: wrap;
+}
+@media screen and (max-width: 900px) {
+  .wantToSaveBeforeFunc {
+    inset: 25% 5% auto 5%;
+  }
+}
+
+@media screen and (max-width: 400px) {
+  .wantToSaveBeforeFunc {
+    inset: 25% 0% auto 0%;
+  }
+  .wantToSaveBeforeFunc > p {
+    font-size: 120%;
+  }
+}

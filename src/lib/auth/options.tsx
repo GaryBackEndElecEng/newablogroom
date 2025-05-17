@@ -17,9 +17,9 @@ const authOptions: NextAuthOptions = {
     callbacks: {
         signIn: async ({ account, credentials, }) => {
             //activate only after the signin is successful
-            if (credentials) {
+            if (credentials || account) {
                 return true
-            } else if (account) return true
+            }
             return false
 
         },
@@ -146,7 +146,7 @@ const authOptions: NextAuthOptions = {
         // ...add more providers here
     ],
     pages: {
-        error: 'auth/error', // Error code passed in query string as ?error=
+        error: 'auth/error/', // Error code passed in query string as ?error=
         // verifyRequest: '/auth/verify-request', // (used for check email message)
         newUser: '/auth/new-user' // New users will be directed here on first sign in (leave the property out if not of interest)
     },

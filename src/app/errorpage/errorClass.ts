@@ -1,4 +1,4 @@
-import Misc from "@/components/common/misc";
+import Misc from "@/components/common/misc/misc";
 import Header from "@/components/editor/header";
 import Nav from "@/components/nav/headerNav";
 
@@ -40,7 +40,7 @@ class ErrorClass {
         this.params=params;
         const less900=window.innerWidth < 900;
         const less400=window.innerWidth < 400;
-        this.getUrl();//Getting paramters from url && feeding params
+        this.getUrl();//Getting {[key:string]:string }paramters from url && feeding params
         Header.cleanUpByID(parent,"error-page-main");
         const container=document.createElement("section");
         container.id="error-page-main";
@@ -148,7 +148,7 @@ class ErrorClass {
     async getUrl(){
         //GETTING PARAMETERS FROM URL
         const url=new URL(window.location.href);
-        const params=["blog_id","misc","intent"]
+        const params=["blog_id","misc","intent","error"]
         params.map(key=>{
             if(key){
                 const value=url.searchParams.get(key);

@@ -7,22 +7,24 @@ export async function GET(req: NextRequest) {
     //-----------------THIS COMES FROM not-found.tsx page OR signIn issues-----------------//
     ///api/auth/error?error=OAuthAccountNotLinked
     //misc=/NotFound
-    const url_ = new URL(req.url);
-    // console.log(url_)//works
+    const url_ = req.nextUrl;
+
     const error = url_.searchParams.get("error");//from signIn
     const misc = url_.searchParams.get("misc");//from others
+
     if (misc) {
-        const newUrl: URL = new URL("/error_page", baseUrl);
-        newUrl.searchParams.set("misc", "/NotFound");
-        return NextResponse.redirect(newUrl.href, 302);
+        const newUrl: URL = new URL("/errorpage", url_.origin);
+        newUrl.searchParams.set("misc", misc);
+        newUrl.searchParams.set("source", "api/auth/error");
+        return NextResponse.redirect(newUrl.href, 307);
     } else if (error) {
-        const newUrl: URL = new URL("/register", baseUrl);
+
+        const newUrl: URL = new URL("/register", url_.origin);
         newUrl.searchParams.set("error", "CredentialsSignin");
-        return NextResponse.redirect(newUrl.href, 302);
+        return NextResponse.redirect(newUrl.href, 307);
     } else {
-        //blog
-        const newUrl: URL = new URL("/blogs", baseUrl);
-        return NextResponse.redirect(newUrl.href, 302);
+
+        return NextResponse.next();
 
     };
 

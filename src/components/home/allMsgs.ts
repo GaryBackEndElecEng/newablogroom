@@ -1,6 +1,6 @@
 import { SiAnswer } from "react-icons/si";
 import Message from "../common/message";
-import Misc from "../common/misc";
+import Misc from "../common/misc/misc";
 import { FaCreate } from "../common/ReactIcons";
 import Service from "../common/services";
 import ModSelector from "../editor/modSelector";

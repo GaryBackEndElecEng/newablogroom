@@ -2,7 +2,7 @@ import ModSelector from '../editor/modSelector';
 import Service from '../common/services';
 import User from '../user/userMain';
 import Nav from '../nav/headerNav';
-import Misc from '../common/misc';
+import Misc from '../common/misc/misc';
 import Header from '../editor/header';
 import Chart from 'chart.js/auto';
 import Message from '../common/message';

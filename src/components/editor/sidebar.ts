@@ -8,7 +8,7 @@ import Footer from "@/components/editor/footer";
 import {FaCreate} from "@/components/common/ReactIcons";
 import {FaTrash,FaCrosshairs,FaArrowAltCircleLeft} from "react-icons/fa";
 import DisplayBlog from "../blog/displayBlog";
-import Misc, { divider_1,fadeOutType} from "@/components/common/misc";
+import Misc, { divider_1,fadeOutType} from "@/components/common/misc/misc";
 import {button, buttonReturn,btnReturnType, btnType} from "@/components/common/tsFunctions";
 import Edit from "./edit";
 import Design from "../common/design";
@@ -22,7 +22,7 @@ import ShapeOutside from "./shapeOutside";
 import Ven from "../common/venDiagram";
 import Intro from "../common/instructions";
 import LoadMisc from "../common/loadFiles";
-import MetaBlog from "./metaBlog";
+import MetaBlog from "./metaBlog/metaBlog";
 import RegSignIn from "../nav/regSignin";
 import Reference from "./reference";
 import NewCode from "./newCode";
@@ -30,7 +30,7 @@ import ChartJS from "../chart/chartJS";
 import AddImageUrl from "../common/addImageUrl";
 import CodeElement from "../common/codeElement";
 import PasteCode from "../common/pasteCode";
-import Headerflag from "./headerflag";
+import Headerflag from "./headerFlag/headerflag";
 import { idValueType, selRowColType } from "@/lib/attributeTypes";
 import AuthService from "../common/auth";
 import Toolbar from "../common/toolbar";
@@ -1327,7 +1327,7 @@ class Sidebar{
         this.addAGraph(sidebarMain,textarea,idValues);
         this.initiateEdit({parent:sidebarMain,mainCont,textarea,mainHeader,footer,idValues,less400,less900});
         this.refreshEditor({parent:sidebarMain,mainCont,textarea,mainHeader,footer,blog,user});
-        this.editMeta({parent:sidebarMain,mainCont});//edit Meta
+        this.editMeta({parent:sidebarMain,mainCont,textarea});//edit Meta
         // this.initiateEdit(sidebarMain);
         this.saveBlog(sidebarMain,mainCont);
         this.reOrder({parent:sidebarMain,height,user,textarea,mainCont,mainHeader,footer});
@@ -1897,7 +1897,7 @@ class Sidebar{
 
 
      //PARENT MAIN()-onTop!!FIX!!!!!!!!!!!!!!!
-     async editMeta({parent,mainCont}:{parent:HTMLElement,mainCont:HTMLElement}){
+     async editMeta({parent,mainCont,textarea}:{parent:HTMLElement,mainCont:HTMLElement,textarea:HTMLElement}){
          const btnContainer=document.createElement("div");
          btnContainer.className="flexCol text-center";
          btnContainer.style.cssText="box-shadow:1px 1px 12px 1px white;border-radius:10px;padding-inline:0.5rem;padding-block:1rem;text-align:center;align-items:center;width:100%;";
@@ -1943,23 +1943,27 @@ class Sidebar{
                 if(allGood){
                     this._metablog.metablog({
                         grandParent:null,
-                        parent:Main.textarea as HTMLElement,
+                        parent:textarea,
                         blog,type:"editor",
                         func:async(blog:blogType)=>{
-                            await this._metablog.finalMeta({blog,parent,type:"none"});
+                            await this._metablog.finalMeta({blog,parent:textarea,type:"none"});
                         }
                     })
                 }
                 else if(signedIn && !allGood){
-                    this._main.newBlog({parent:mainCont,func:async()=>{
-                        this._metablog.metablog({
-                            grandParent:null,
-                            parent:Main.textarea as HTMLElement,
-                            blog,type:"editor",
-                            func:async(blog:blogType)=>{
-                                await this._metablog.finalMeta({blog,parent,type:"none"});
-                            }
-                        })
+                    this._main.newBlog({parent:mainCont,func:async(res)=>{
+                        if(res.blog){
+
+                            this._metablog.metablog({
+                                grandParent:null,
+                                parent:textarea,
+                                blog:res.blog,
+                                type:"editor",
+                                func:async(blog:blogType)=>{
+                                    await this._metablog.finalMeta({blog,parent:textarea,type:"none"});
+                                }
+                            })
+                        }
                     }});
                 }else{
                     this._regSignin.signIn()

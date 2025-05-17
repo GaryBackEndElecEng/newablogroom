@@ -1,9 +1,9 @@
 import {userType,userSignInType,blogType, elementType, element_selType, gets3ImgKey, colType, rowType, selectorType, arrImgType2, accountType, sessionType,  postType, userDevelopType, userQuoteType} from "@/components/editor/Types";
 import ModSelector from "../editor/modSelector";
 import DisplayBlog from "../blog/displayBlog";
-import Misc, { btnOptionMsgType, btnOptionType, btnOptionType2 } from "../common/misc";
+import Misc, { btnOptionMsgType, btnOptionType, btnOptionType2 } from "../common/misc/misc";
 import Service from "@/components/common/services";
-import {msgType} from '@/components/common/misc';
+import {msgType} from '@/components/common/misc/misc';
 import { getErrorMessage } from "@/lib/errorBoundaries";
 import Main from "../editor/main";
 import Header from "../editor/header";
@@ -929,7 +929,7 @@ class User{
                                 localStorage.setItem("blog",JSON.stringify(blog));
                                 Misc.message({parent,msg:"new blog created",type_:"success",time:400});
                                 //----------------------SAVING BLOG-----------------------//
-                                        await this.sleep({time:600});
+                                        await this.sleep({time:1200});
                                        await this._service.saveBlog({blog:blog,user}).then(async(savedB:blogType)=>{
                                             if( savedB){
                                                 this.blog=savedB;
@@ -957,7 +957,8 @@ class User{
 
     sleep({time}:{time:number}){
         return Promise.resolve(setTimeout(()=>{return},time))
-    }
+    };
+
 
 
     saveBlogWork({parent,blog,user,func}:{parent:HTMLElement,blog:blogType,user:userType,func:()=>Promise<void>|void}){
@@ -966,7 +967,7 @@ class User{
             if(newBlog){
                 this._service.promsaveItems({blog:newBlog,user}).then(async(_blog)=>{
                     if(_blog){
-                        Misc.message({parent,type_:"success",msg:" created && saved",time:700});
+                        Misc.message({parent,type_:"success",msg:"saved",time:700});
                         func();//executing function
                     }
                 });
@@ -1035,7 +1036,7 @@ class User{
                                                 await this._modSelector.updateElement({target:img,idValues,selRowCol}).then(async(res)=>{
                                                     if(res){
                                                         
-                                                        Misc.message({parent:getTextarea,type_:"success",msg:" created && saved",time:700});
+                                                        Misc.message({parent:getTextarea,type_:"success",msg:"saved",time:700});
                                                     }
                                                 });
                                             }else{

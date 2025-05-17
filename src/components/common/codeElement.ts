@@ -2,7 +2,7 @@ import Service from "./services";
 import ModSelector from "../editor/modSelector";
 import { regJavaType } from "../editor/newCode";
 import { arrCatchType, elementType } from "../editor/Types";
-import Misc from "./misc";
+import Misc from "./misc/misc";
 import Nav from "../nav/headerNav";
 import Header from "../editor/header";
 import {FaCreate} from "@/components/common/ReactIcons";

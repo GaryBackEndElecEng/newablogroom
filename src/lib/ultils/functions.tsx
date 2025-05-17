@@ -1,5 +1,5 @@
-import { blogType, codeType, elementType, postType, rowType, selectorType } from "@/components/editor/Types";
-import { PrismaClient } from "@prisma/client";
+import { blogType, elementType, postType, rowType, selectorType } from "@/components/editor/Types";
+
 import { getErrorMessage } from "../errorBoundaries";
 import prisma from "@/prisma/prismaclient";
 

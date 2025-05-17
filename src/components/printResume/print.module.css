@@ -1,0 +1,27 @@
+.indexPage,
+.printpage {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 1rem;
+  margin-inline: auto;
+  margin-block: 1.5rem;
+}
+
+.printMainContainer {
+  display: flex;
+  width: 100%;
+  flex-direction: column;
+  gap: 1rem;
+  justify-content: auto;
+  align-items: center;
+  position: relative;
+}
+.printMainContainer > div {
+  margin-inline: auto;
+  margin-block: 1rem;
+  background-color: white;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}

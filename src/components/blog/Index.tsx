@@ -6,10 +6,10 @@ import ModSelector from "@/components/editor/modSelector";
 import Service from '../common/services';
 import User from '../user/userMain';
 import ShapeOutside from '../editor/shapeOutside';
-import Misc from '../common/misc';
+import Misc from '../common/misc/misc';
 import ChartJS from '../chart/chartJS';
 import Message from '../common/message';
-import Headerflag from '../editor/headerflag';
+import Headerflag from '../editor/headerFlag/headerflag';
 import styles from "./blog.module.css";
 import Dataset from '../common/dataset';
 import HtmlElement from '../editor/htmlElement';
@@ -21,7 +21,7 @@ import AuthService from '../common/auth';
 import RegSignIn from '../nav/regSignin';
 
 
-function Index({ blog, user }: { blog: blogType | null, user: userType | null }) {
+function Index({ blog, user, owner }: { blog: blogType | null, user: userType | null, owner: userType | null }) {
     const clientRef = React.useRef(null);
     const countRef = React.useRef(0);
 
@@ -61,7 +61,7 @@ function Index({ blog, user }: { blog: blogType | null, user: userType | null })
                                     const chart = new ChartJS(_modSelector, _service, _user, message);
                                     const displayBlog = new DisplayBlog(_modSelector, _service, _user, _blog, chart, message, htmlElement);
                                     displayBlog._onlyMeta = true;
-                                    displayBlog.main({ parent: target, blog: _blog, user: user });
+                                    displayBlog.main({ parent: target, blog: _blog, user: user, owner });
                                     countRef.current++;
                                 }
                             });
@@ -72,7 +72,7 @@ function Index({ blog, user }: { blog: blogType | null, user: userType | null })
             };
         };
 
-    }, [countRef, clientRef, blog, user]);
+    }, [countRef, clientRef, blog, user, owner]);
 
 
     return (

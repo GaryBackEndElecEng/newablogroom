@@ -1,4 +1,4 @@
-import Misc from "../common/misc";
+import Misc from "../common/misc/misc";
 import Service from "../common/services";
 import Nav from "../nav/headerNav";
 import Header from "./header";

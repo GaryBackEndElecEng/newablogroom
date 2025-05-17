@@ -1,7 +1,7 @@
 import {flexType,elementType,colType,rowType,selectorType,element_selType, iconType, focusOptions, deletedImgType,flexSelectorType, arrDivContType, flexChoiceType, blogType} from "./Types";
 import ModSelector from "./modSelector";
 import Service from "@/components/common/services";
-import Misc from "@/components/common/misc";
+import Misc from "@/components/common/misc/misc";
 import Main from "./main";
 import { FaCreate } from "../common/ReactIcons";
 import { FaCrosshairs } from "react-icons/fa";
