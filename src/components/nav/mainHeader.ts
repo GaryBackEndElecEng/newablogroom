@@ -72,7 +72,7 @@ class MainHeader {
         const repeatCount=1
         const isRepeat=this.browser.repeatShowControl({repeatCount});
         const isRepeatAdmin=this.browser.repeatAdminControl({repeatCount});
-        console.log("isRepeatAdmin",isRepeatAdmin)
+       
         //-----------------REPEAT CONTROL(ANIMATION)-------------------//
         MainHeader.injector = parent;
         Header.cleanUpByID(parent, "navHeader");

@@ -2506,7 +2506,7 @@ colAttrs=["col-start","col-end","col-center"];
                                         
                                         if(element.eleId===target.id){
                                             element.inner_html=target.innerHTML;
-                                            console.log(element.inner_html);
+                                           
                                         };
                                         return element;
                                     });

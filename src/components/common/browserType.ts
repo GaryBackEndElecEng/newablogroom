@@ -170,7 +170,7 @@ class BrowserType {
         const pathname=window.location.pathname;
          const states=this.getHistory();
          const getState=states?.filter(kv=>(kv.isAdmin)).find(kv=>kv.pathname===pathname);
-         console.log("getState.count",getState?.count)
+        
          if(getState){
             return getState.count <=repeatCount
          };

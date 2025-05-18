@@ -563,7 +563,7 @@ class ProfileMain{
                 const formdata=new FormData(e.currentTarget as HTMLFormElement);
                 const file=formdata.get("file") as File;
                 if(user.imgKey){
-                    this._service.adminImagemark(user.imgKey).then(async(res)=>{
+                    this._service.adminImagemark(user.imgKey,true).then(async(res)=>{
                         if(res){
                             Misc.message({parent,msg:"deleted old profile",type_:"success",time:600});
                         }
@@ -1113,6 +1113,7 @@ class ProfileMain{
         container.id="profile-show-final-work-container";
         container.className="profile-show-final-work-container";
         container.style.cssText=blog.cssText ? blog.cssText :"margin-inline:auto;display:flex;flex-direction:column;align-items:center;width:100%;margin-block:2rem;";
+        container.style.height="auto";
         container.id="blog-work"
         //META
         

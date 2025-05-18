@@ -335,7 +335,7 @@ class Toolbar{
                             Main.textarea = document.querySelector("div#textarea") as HTMLElement;
                             this.lineHeight(textarea,btn,idValues,isRow);
                         }else if(icon.name==="indent"){
-                            this.pIndent({row,btn,idValues});
+                            this.pIndent({row,btn,idValues,isRow});
                         }else{
                             //THIS CONTROLS ALL NONFLEX AND FLEX ELEMENTS
                             this.fontAction(btn,idValues);
@@ -652,13 +652,18 @@ class Toolbar{
     };
 
 
-    pIndent({row,btn,idValues}:{row:HTMLElement,btn:HTMLButtonElement,idValues:idValueType[]}) {
+    pIndent({row,btn,idValues,isRow}:{row:HTMLElement,btn:HTMLButtonElement,idValues:idValueType[],isRow:boolean}) {
         ShapeOutside.cleanUpByID(row, "p-indent-popup");
         btn.classList.add("active");
         btn.style.position="relative";
         const popup = document.createElement("div");
         popup.id="p-indent-popup";
-        popup.className=styles.pIndentPopup;
+        if(isRow){
+            popup.className=styles.pIndentPopup;
+
+        }else{
+             popup.className=styles.pIndentPopupSide;
+        }
         const small=document.createElement("small");
         small.id="title";
         small.textContent="select columns";
