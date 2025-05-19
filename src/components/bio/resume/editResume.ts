@@ -415,7 +415,7 @@ class EditResume {
     };
 
 
-    hideShowWorkExp({parent,resume,css_col,css_row,less400,french,}:{parent:HTMLElement,resume:resumeType,css_col:string,css_row:string,less400:boolean,french:boolean,}){
+    hideShowWorkExp({parent,resume,css_col,css_row,less400,french,}:{parent:HTMLElement,resume:resumeType,css_col:string,css_row:string,less400:boolean,french:boolean,}):resumeType{
         let show=true;
         const showHideWorkCont=document.createElement("div");
         showHideWorkCont.id="showHideWorkCont";
@@ -551,7 +551,7 @@ class EditResume {
          
             if(user?.id){
                 mainResume={...mainResume,user_id:user.id as string}
-                this.saveEditedResume({parent,mainResume,func});
+                this.saveEditedResume({parent:save,mainResume,func});
                 
 
             }

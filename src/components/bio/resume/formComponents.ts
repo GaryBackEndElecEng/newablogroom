@@ -122,9 +122,9 @@ class FormComponents{
                             achiev=this.achievementTextArea({parent:achievCont,order:0,key:key,value,less400,index,achiev,french});
                     
                             }else if(key==="reason"){
-                                achiev=this.achievementInput({parent:achievCont,order:1,achiev,value,key:key,less400,index,french});
+                                achiev=this.achievementReasonInput({parent:achievCont,order:1,achiev,value,key:key,less400,index,french});
                             }else if(key==="composite"){
-                                achiev=this.achievementTextArea({parent:achievCont,order:2,key:key,value,less400,index,achiev,french});
+                                achiev=this.achievementCompositeInput({parent:achievCont,order:2,key:key,value,less400,index,achiev,french});
                             }
     
                         }
@@ -180,9 +180,9 @@ class FormComponents{
                         achiev=this.achievementTextArea({parent:achievCont,order:0,key:key,value,less400,index,achiev,french});
                 
                         }else if(key==="reason"){
-                            achiev=this.achievementInput({parent:achievCont,order:1,achiev,value,key:key,less400,index,french});
+                            achiev=this.achievementReasonInput({parent:achievCont,order:1,achiev,value,key:key,less400,index,french});
                         }else if(key==="composite"){
-                            achiev=this.achievementTextArea({parent:achievCont,order:2,key:key,value,less400,index,achiev,french});
+                            achiev=this.achievementCompositeInput({parent:achievCont,order:2,key:key,value,less400,index,achiev,french});
                         }
 
                     }
@@ -215,8 +215,6 @@ class FormComponents{
             const value=(e.currentTarget as HTMLInputElement).value;
             if(key==="achievement"){
                 achiev.achievement=value
-            }else{
-                achiev.composite=value
             }
         };
         return achiev;
@@ -246,7 +244,30 @@ class FormComponents{
     };
 
 
-    achievementInput({parent,order,achiev,value,key,less400,index,french}:{parent:HTMLElement,order:number,achiev:awardType,value:string,key:string,less400:boolean,index:number,french:boolean}){
+    achievementReasonInput({parent,order,achiev,value,key,less400,index,french}:{parent:HTMLElement,order:number,achiev:awardType,value:string,key:string,less400:boolean,index:number,french:boolean}){
+        const lang=langConversion({key});
+        const css_col="display:flex;flex-direction:column;justify-content:center;align-items:center;gap:1rem;";
+        const {input,label,formGrp}=EditResume.inputComponent(parent);
+        formGrp.style.cssText=css_col +"width:50%;gap:1rem;flex:1 0 50%;position:relative;align-items:center;";
+        formGrp.style.width=less400 ? "100%":"auto";
+        formGrp.style.order=String(order);
+        input.id=`${key}`;
+        input.name="work-"+ key + "-" + String(index);
+        input.value=value as string;
+        input.placeholder=langInserts({french,key}).place;
+        input.style.width=less400 ? "100%":"75%";
+        label.setAttribute("for",input.id);
+        label.textContent=french && lang ? lang :key;
+        input.onchange=(e:Event)=>{
+            if(!e) return;
+            const value=(e.currentTarget as HTMLInputElement).value;
+            achiev.reason=value
+        };
+        return achiev;
+    };
+
+
+    achievementCompositeInput({parent,order,achiev,value,key,less400,index,french}:{parent:HTMLElement,order:number,achiev:awardType,value:string,key:string,less400:boolean,index:number,french:boolean}){
         const lang=langConversion({key});
         const css_col="display:flex;flex-direction:column;justify-content:center;align-items:center;gap:1rem;";
         const {input,label,formGrp}=EditResume.inputComponent(parent);

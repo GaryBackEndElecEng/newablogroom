@@ -791,10 +791,7 @@ experCard({parent,exper,less400,less900,css_col,css_row,index,french}:{parent:HT
     const achievCont=document.createElement("div");
     achievCont.id="achiev-cont";
     achievCont.className=styles.achievCont;
- 
-    const achieveTitle=document.createElement("h6");
-    achieveTitle.textContent=french ? langConversion({key:"achievements"}):"achievements";
-    achieveTitle.style.cssText="text-transform:capitalize;margin-bottom:0.25rem;margin-left:0;";
+
     if(check){
         
         exper.achievements.map((achiev,index)=>{
@@ -805,7 +802,6 @@ experCard({parent,exper,less400,less900,css_col,css_row,index,french}:{parent:HT
                 this.achievCard({parent:achievCont,achiev,index,french});
             }
         });
-        achievCont.appendChild(achieveTitle);
         expCard.appendChild(achievCont);
     }
     this.skillExperContainer({parent:expCard,css_row,expData:exper,less400,french});
@@ -1032,55 +1028,58 @@ if(check){
     achievCont.className=styles.achievEducCont;
     achievCont.style.marginLeft=less900 ? ( less400 ? "0.3rem":"0.75rem"):"1rem";
     achievCont.style.width=less900 ?(less400 ? "100%":"85%"):"76%";
-    const title=document.createElement("h6");
-    title.id="achieve-cont-title";
-    title.style.cssText="font-weight:bold;line-height:0.5rem;margin-block:0.25;text-transform:capitalize;";
-    title.textContent=french ? langConversion({key:"achievements"}):"achievements";
-    parent.appendChild(title);
     educData.achievements.map((achiev,index)=>{
-        const para1=document.createElement("p");
-        para1.id="achiev-para-" + String(index);
-        para1.style.cssText="text-wrap:pretty;margin-inline:0;";
-        para1.style.lineHeight=less900 ? (less400 ? "1.75rem":"1.5rem"):"1.75rem";
-        para1.innerHTML=`<span style=color:blue;>${index + 1}.</span>${achiev.achievement}`;
-        achievCont.appendChild(para1);
+        if(achiev){
+
+            const title=document.createElement("h6");
+            title.id="achieve-cont-title";
+            title.style.cssText="margin-block:0.75rem;text-transform:capitalize;color:blue;font-size:110%;";
+            title.textContent=french ? langConversion({key:"achievement"}):"achievement";
+            achievCont.appendChild(title);
+            const para1=document.createElement("p");
+            para1.id="achiev-para-" + String(index);
+            para1.style.cssText="text-wrap:pretty;margin-inline:0;";
+            para1.style.lineHeight=less900 ? (less400 ? "1.75rem":"1.5rem"):"1.75rem";
+            para1.innerHTML=`<span style=color:blue;>${index + 1}.</span>${achiev.achievement}`;
+            achievCont.appendChild(para1);
+            
+            if(achiev.reason && achiev.reason !==""){
+                ViewResume.division({parent:achievCont,position:"start",width:23});
+                const div=document.createElement("div");
+                div.id="achiev-cont-listings";
+                div.style.cssText=css_col + "margin-inline:0;line-height:1.1rem;";
         
-        if(achiev.reason && achiev.reason !==""){
-            ViewResume.division({parent:achievCont,position:"start",width:23});
-            const div=document.createElement("div");
-            div.id="achiev-cont-listings";
-            div.style.cssText=css_col + "margin-inline:0;line-height:1.1rem;";
-    
-            const text=french ? langConversion({key:"aim"}) : "aim";
-            const title=document.createElement("h6");
-            title.textContent=text;
-            const small=document.createElement("small");
-            small.id="small-" + String(index);
-            small.style.cssText="text-wrap:pretty;order:2";
-            small.style.marginLeft=less900 ? (less400 ? "0.3rem":"0.5rem"):"0.75rem";
-            small.textContent=achiev.reason;
-            
-            div.appendChild(title);
-            div.appendChild(small);
-            achievCont.appendChild(div);
-        };
-        if(achiev.composite && achiev.composite !==""){
-            console.log("composed of:",achiev.composite);
-            const div=document.createElement("div");
-            div.id="achiev-cont-listings";
-            div.style.cssText=css_col + "margin-inline:0;line-height:1.1rem;";
-            const word=french ? langConversion({key:"composite"}): "compose of:";
-            const title=document.createElement("h6");
-            title.textContent=word;
-            const small=document.createElement("small");
-            small.id="small-" + String(index);
-            small.style.cssText="text-wrap:pretty;";
-            small.style.marginLeft=less900 ? (less400 ? "0.3rem":"0.5rem"):"0.75rem";
-            small.textContent=achiev.composite;
-            
-            div.appendChild(title);
-            div.appendChild(small);
-            achievCont.appendChild(div);
+                const text=french ? langConversion({key:"aim"}) : "aim";
+                const title=document.createElement("h6");
+                title.textContent=text;
+                const small=document.createElement("small");
+                small.id="small-" + String(index);
+                small.style.cssText="text-wrap:pretty;order:2";
+                small.style.marginLeft=less900 ? (less400 ? "0.3rem":"0.5rem"):"0.75rem";
+                small.textContent=achiev.reason;
+                
+                div.appendChild(title);
+                div.appendChild(small);
+                achievCont.appendChild(div);
+            };
+            if(achiev.composite && achiev.composite !==""){
+               
+                const div=document.createElement("div");
+                div.id="achiev-cont-listings";
+                div.style.cssText=css_col + "margin-inline:0;line-height:1.1rem;";
+                const word=french ? langConversion({key:"composite"}): "compose of:";
+                const title=document.createElement("h6");
+                title.textContent=word;
+                const small=document.createElement("small");
+                small.id="small-" + String(index);
+                small.style.cssText="text-wrap:pretty;";
+                small.style.marginLeft=less900 ? (less400 ? "0.3rem":"0.5rem"):"0.75rem";
+                small.textContent=achiev.composite;
+                
+                div.appendChild(title);
+                div.appendChild(small);
+                achievCont.appendChild(div);
+            }
         }
     });
     parent.appendChild(achievCont);
@@ -1093,9 +1092,12 @@ achievCard({parent,achiev,index,french}:{parent:HTMLElement,achiev:awardType,ind
 const achievContCard=document.createElement("div");
 achievContCard.id="achievCard-cont-card";
 achievContCard.className=styles.achievContCard;
+const achievH6=document.createElement("h6");
+achievH6.textContent=french ? `${langConversion({key:"achievement"})}:`:"achievement";
 const para1=document.createElement("p");
 para1.id="achiev-para-" + String(index);
 para1.textContent=achiev.achievement;
+achievContCard.appendChild(achievH6);
 achievContCard.appendChild(para1);
 const achievReasonComp=document.createElement("div");
 achievReasonComp.id="achiev-reason-composite";
