@@ -487,8 +487,8 @@ getKey({imgUrl}:{imgUrl:string}):string|null{
                 method:"POST",
                 body:JSON.stringify(blog)
             };
-            return fetch(this.urlsaveBlog,option).then(async(res)=>{
-                //api/savegetblog
+            return fetch("/api/savegetblog",option).then(async(res)=>{
+                //api/savegetblog,this.urlsaveBlog
                     let blog_:blogType;
                     if(res.ok){
                     blog_= await res.json();

@@ -459,9 +459,11 @@ class User{
                     const rand=Math.floor(Math.random()*1000);
                     const formdata=new FormData(e.currentTarget as HTMLFormElement);
                     const desc=formdata.get("desc") as string;
+                    const title=formdata.get("title") as string;
                     const filename=formdata.get("filename") as string;
-                    const name=`${filename.split(" ").join("")}-${rand}`;
-                    blogUser={...blogUser,name:name,desc:desc};
+                    const name=`${filename.split(" ").join("")}${rand}`;
+                    blogUser={...blogUser,name:name,desc:desc,title};
+                    this._modSelector.loadBlog({blog:blogUser,user});
                     //closing form
                      await this._service.promsaveItems({blog:blogUser,user:user});
                     Misc.fadeOut({anchor:popup,xpos:50,ypos:100,time:400});

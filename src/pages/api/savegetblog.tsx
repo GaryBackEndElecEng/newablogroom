@@ -10,10 +10,8 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     if (req.method === "POST") {
         const getBlog = req.body as blogType;
         // console.log("BLOG:=>>>", getBlog)
-        if (getBlog && typeof (getBlog) === "object") {
-            const selects = (getBlog?.selectors.length > 0) ? getBlog.selectors as unknown[] as selectorType[] : null;
-            const eles = (getBlog?.elements.length > 0) ? getBlog.elements as unknown[] as elementType[] : null;
-            const codes = (getBlog?.codes.length > 0) ? getBlog.codes as unknown[] as codeType[] : null;
+        if (getBlog && getBlog.user_id) {
+
             const charts = (getBlog?.charts.length > 0) ? getBlog.charts as unknown[] as chartType[] : null;
             await deleteElements({ blog: getBlog });
             await deleteSelectors({ blog: getBlog });
@@ -32,10 +30,10 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
                         let update_elements: elementType[] = [];
                         let update_codes: codeType[] = [];
                         let update_charts: chartType[] = [];
-                        if (selects && selects?.length > 0) {
+                        if (getBlog?.selectors?.length > 0) {
                             //SELECT.ROWS=> STRING JSON.STRINGIFY ON DB SIDE: CLIENT SIDE:ROWS[]
                             updateSelects = await Promise.all(
-                                selects.toSorted((a, b) => { if (a.placement < b.placement) return -1; return 1 }).map(async (select) => {
+                                getBlog.selectors.toSorted((a, b) => { if (a.placement < b.placement) return -1; return 1 }).map(async (select) => {
                                     const select_ = await prisma.selector.create({
                                         data: {
                                             placement: select.placement,
@@ -76,10 +74,10 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
                             );
 
                         };
-                        if (eles && eles.length > 0) {
+                        if (getBlog?.elements?.length > 0) {
                             // console.log("eles", eles)//works
                             update_elements = await Promise.all(
-                                eles.toSorted((a, b) => { if (a.placement < b.placement) return -1; return 1 }).map(async (ele) => {
+                                getBlog.elements.toSorted((a, b) => { if (a.placement < b.placement) return -1; return 1 }).map(async (ele) => {
                                     const ele_ = await prisma.element.create({
                                         data: {
                                             blog_id: blog.id,
@@ -100,9 +98,9 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
                                 }) as unknown[] as elementType[]
                             );
                         };
-                        if (codes && codes.length > 0) {
+                        if (getBlog?.codes?.length > 0) {
                             update_codes = await Promise.all(
-                                codes.toSorted((a, b) => { if (a.placement < b.placement) return -1; return 1 }).map(async (code) => {
+                                getBlog.codes.toSorted((a, b) => { if (a.placement < b.placement) return -1; return 1 }).map(async (code) => {
                                     const code_ = await prisma.code.create({
                                         data: {
                                             name: code.name,

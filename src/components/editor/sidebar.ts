@@ -1939,7 +1939,7 @@ class Sidebar{
                 const user=this.user;
                 const blog=this._modSelector.blog;
                 const signedIn= user?.id ;
-                const allGood= (signedIn && blog && blog.user_id!=="" && blog.name);
+                const allGood= (signedIn && blog && blog.user_id!=="");
                 if(allGood){
                     this._metablog.metablog({
                         grandParent:null,

@@ -290,6 +290,8 @@ class Main {
         const _desc=desc || "description";
         this._modSelector.blog = { ...initBlog, name:name, title: _title, desc: _desc, user_id: user.id, eleId: parent.id };
         const blog = this._modSelector.blog;
+        this._modSelector.blog = { ...blog, class: Main.main_class, cssText: Main.main_css, eleId: parent.id }
+        this._modSelector.loadBlog({ blog: this._modSelector.blog, user });
         this._service.newBlog(blog).then(async (blog_) => {
             if (blog_ && blog_.user_id) {
                 this._modSelector.blog = { ...blog, id: blog_.id, class: Main.main_class, cssText: Main.main_css, eleId: parent.id }
