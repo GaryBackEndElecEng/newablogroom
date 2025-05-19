@@ -58,8 +58,10 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
 
     if (req.method === "PUT") {
+        const rand = Math.floor(Math.random() * 10000);
         const blog = req.body as blogType;
         const { id, name, user_id } = blog;
+        const newName = name || `newblog${rand}`;
         if (!(name && user_id)) { res.status(400).json({ error: `no blog recieved:${req.body}` }); return await prisma.$disconnect(); };
         try {
             if (id !== 0) {
@@ -87,7 +89,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
             } else {
                 const metaBlog = await prisma.blog.create({
                     data: {
-                        name: blog.name as string,
+                        name: newName,
                         user_id: blog.user_id,
                         title: blog.title || "title",
                         desc: blog.desc || "description",

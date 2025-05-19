@@ -223,6 +223,8 @@ colAttrs=["col-start","col-end","col-center"];
     ///--------------INJECTION INTO EDIT-----WORK DONE DURING REFRESH AND EDIT-------///////////////
    async showSelector(parent:HTMLElement,selector:selectorType,idValues:idValueType[]){
         //THIS IS USED FOR REFRESH 
+        const less400=window.innerWidth <400;
+        const less900=window.innerWidth <900;
         this.selectors=[...this.selectors,selector];
         const selNode=selector.name
         const innerCont=document.createElement(selNode);
@@ -231,6 +233,8 @@ colAttrs=["col-start","col-end","col-center"];
             innerCont.id=selector.eleId;
             const eleId=selector.eleId;
             innerCont.className=selector.class;
+            innerCont.style.cssText=selector.cssText;
+            innerCont.style.paddingInline=less400 ? "1.25rem":"1rem";
             innerCont.setAttribute("data-placement",`${selector.placement}`);
             innerCont.setAttribute("name",selector.name);
             innerCont.setAttribute("data-selector-id",`${selector.id}`);
@@ -295,6 +299,11 @@ colAttrs=["col-start","col-end","col-center"];
                     row.className=row_.class.split(" ").filter(cl=>(cl !=="box-shadow")).join(" ");
                     row.style.cssText=row_.cssText;
                     row.id=row_.eleId;
+                    if(less900){
+                        row.classList.add("flex-column");
+                        row.style.flexDirection="column";
+                        row.style.alignItems="center";
+                    }
                     //REMOVES BLOB URLS
                   
                    row_= await this._modSelector.removeBlob({target:row,rowColEle:row_,loc:"flexbox",level:"row",idValues,selRowCol:null,selRow}) as rowType;

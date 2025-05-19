@@ -157,8 +157,45 @@ class ShapeOutside{
         const para=document.createElement("p");
         para.id=element.eleId;
         para.style.cssText=element.cssText;
+         para.innerHTML=element.inner_html;
+         para.innerHTML=element.class;
         const eleId=para.id;
+        const img=para.querySelector("img") as HTMLImageElement;
+            
+            if(img){
+                const getWidth=Number((img.style.width).split("px")[0]);
+                img.setAttribute("contenteditable","false");
+                img.setAttribute("is-shapeoutside","true");
+                const eleSrc=element.img || this.logo;
+                img.alt="ww.ablogroom.com";
+                img.style.width=less400 ? "100%":"158px";
+                img.style.aspectRatio=less400 ? "":"1 / 1";
+                if(element.imgKey){
+                    const url=this._service.getFreeBgImageUrl({imgKey:element.imgKey});
+                    img.alt=element.imgKey;
+                    idValues.push({eleId,id:"imgKey",attValue:element.imgKey});
+                    img.src=imageLoader({src:url,width:getWidth,quality:90});
+                }else{
+                    img.src=imageLoader({src:eleSrc,width:getWidth,quality:90});
+                };
+
+                //--------COMPLETE:=> ADD SETATTRIBUTES TO SHOWSHAPEOS/////////////
+                const isCircle=attrTest && attrTest.id==="shapeOutsideCircle" ? attrTest.value: undefined;
+                const isSquare=attrTest && attrTest.id==="shapeOutsideSquare" ? attrTest.value : undefined;
+                const isPolygon=attrTest && attrTest.id==="shapeOutsidePolygon" ? attrTest.value : undefined;
+                if(isCircle){
+                    idValues.push({eleId,id:"shapeOutsideCircle",attValue:"true"});
+                    img.id="shape-outside-circle";
+                }else if(isSquare){
+                    idValues.push({eleId,id:"shapeOutsideSquare",attValue:"true"});
+                    img.id="shape-outside-square";
+                }else if(isPolygon){
+                    idValues.push({eleId,id:"shapeOutsidePolygon",attValue:"true"});
+                    img.id="shape-outside-polygon";
+                }
+            };
         if(less400){
+            para.classList.add("flex-column");
             para.style.display="flex";
             para.style.flexDirection="column";
             para.style.alignItems="center";
@@ -167,6 +204,10 @@ class ShapeOutside{
             para.style.width="100%";
             para.style.marginInline="auto";
             para.style.paddingInline="3px";
+            if(img){
+                img.style.float="none";
+                img.style.marginInline="auto";
+            }
         }
         const divCont=document.createElement("div");
         divCont.className=this.divCont_class;
@@ -230,48 +271,21 @@ class ShapeOutside{
                     });
                 }
             });
-            //--------COMPLETE:=> ADD SETATTRIBUTES TO SHOWSHAPEOS/////////////
-           
-       
             if(less400){
-                const cssStyle={maxWidth:"350px",float:"center",marginRight:"0px",height:"auto",width:"100%"};
-                para.innerHTML=Misc.adjdustSubStyles({inner_html:element.inner_html,parentnode:"p",childnode:"img",cssStyle});
-            }else{
-                para.innerHTML=element.inner_html
-            };
-            const img=para.querySelector("img") as HTMLImageElement;
-            
+            para.classList.add("flex-column");
+            para.style.display="flex";
+            para.style.flexDirection="column";
+            para.style.alignItems="center";
+            para.style.justifyContent="center";
+            para.style.height="";
+            para.style.width="100%";
+            para.style.marginInline="auto";
+            para.style.paddingInline="3px";
             if(img){
-                const getWidth=Number((img.style.width).split("px")[0]);
-                img.setAttribute("contenteditable","false");
-                img.setAttribute("is-shapeoutside","true");
-                const eleSrc=element.img || this.logo;
-                img.alt="ww.ablogroom.com";
-                img.style.width=less400 ? "100%":"158px";
-                img.style.aspectRatio=less400 ? "":"1 / 1";
-                if(element.imgKey){
-                const url=this._service.getFreeBgImageUrl({imgKey:element.imgKey});
-                img.alt=element.imgKey;
-                idValues.push({eleId,id:"imgKey",attValue:element.imgKey});
-                img.src=imageLoader({src:url,width:getWidth,quality:90});
-                }else{
-                    img.src=imageLoader({src:eleSrc,width:getWidth,quality:90});
-                };
-
-            };
-            const isCircle=attrTest && attrTest.id==="shapeOutsideCircle" ? attrTest.value: undefined;
-            const isSquare=attrTest && attrTest.id==="shapeOutsideSquare" ? attrTest.value : undefined;
-            const isPolygon=attrTest && attrTest.id==="shapeOutsidePolygon" ? attrTest.value : undefined;
-            if(isCircle){
-                idValues.push({eleId,id:"shapeOutsideCircle",attValue:"true"});
-                img.id="shape-outside-circle";
-            }else if(isSquare){
-                idValues.push({eleId,id:"shapeOutsideSquare",attValue:"true"});
-                img.id="shape-outside-square";
-            }else if(isPolygon){
-                idValues.push({eleId,id:"shapeOutsidePolygon",attValue:"true"});
-                img.id="shape-outside-polygon";
+                img.style.float="none";
+                img.style.marginInline="auto";
             }
+        }
             
             divCont.appendChild(para);
             Header.cleanUpByID(divCont,"setAttributes");
@@ -291,7 +305,7 @@ class ShapeOutside{
                 para.removeAttribute("contenteditable");
                 return Promise.resolve(arrDivCont) as Promise<arrDivContType>;
 
-        }
+            }
     };
 
 

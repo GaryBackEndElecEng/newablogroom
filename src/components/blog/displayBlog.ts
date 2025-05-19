@@ -123,7 +123,7 @@ class DisplayBlog{
      //MAIN INJECTION DONE @ Index.tsx//id=client_blog
     async main(item:{parent:HTMLElement,blog:blogType|null,user:userType|null,owner:userType|null}){
         const {parent,blog,user,owner}=item;
-        const isUserOwner=!!(user && owner && user?.id !=="" && user?.id===owner?.id)
+      
         const idValues=this._modSelector.dataset.idValues;
         
         const css_col="display:flex;flex-direction:column;align-items:center;justify-content:center";
@@ -662,7 +662,7 @@ class DisplayBlog{
 
 
    async showCleanSelector({selector,idValues,less900,less400}:{selector:selectorType,idValues:idValueType[],less400:boolean,less900:boolean}):Promise<HTMLElement>{
-   
+    
        
         const innerCont=document.createElement(selector.name);
        
@@ -673,9 +673,10 @@ class DisplayBlog{
             innerCont.className=selector.class;
             innerCont.setAttribute("name",selector.name);
             innerCont.setAttribute("data-selector-id",`${selector.id}`);
-                innerCont.setAttribute("data-container-id",`${innerCont.id}`);
+            innerCont.setAttribute("data-container-id",`${innerCont.id}`);
             innerCont.setAttribute("data-selector-id",selector.eleId);
             innerCont.style.cssText=selector.cssText;
+            innerCont.style.paddingInline=less400 ? "1.25rem":"1rem";
             innerCont.style.display="flex";
             innerCont.style.flexDirection="column";
             innerCont.style.alignItems="center";
@@ -697,12 +698,13 @@ class DisplayBlog{
                         row.className=row_.class.split(" ").filter(cl=>(cl !=="box-shadow")).join(" ");
                         row.style.cssText=row_.cssText;
                         row.id=eleId;
-                        if(less400){
+                        if(less900){
                             const height=row.style.height;
                             row.style.height="auto";
                             row.style.flexDirection="column";
                             row.style.maxHeight="";
                             row.style.minHeight=height;
+                            row.classList.add("flex-column");
                         };
                         
                         innerCont.appendChild(row);

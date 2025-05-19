@@ -17,7 +17,7 @@ class Service {
   private readonly  awsimgUrl:string="/api/awsimg";
   private readonly  postlike:string="/api/postlike";
   private readonly  liveonoffUrl:string="/api/liveonoff";
-  private readonly  newBlogUrl:string="/api/blog/createNew";
+  private readonly  newBlogUrl:string="/api/blog/createnew";
   private readonly  urlUpload:string="/api/uploadImage";
   private readonly  urlBlog:string="/api/blog";
   private readonly  urlsaveBlog:string="/api/savegetblog";

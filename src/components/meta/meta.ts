@@ -603,8 +603,6 @@ class Meta{
           {url:`${retBaseUrl}/bio`,lastModified:new Date(),changeFrequency:'monthly',priority:1},
           {url:`${retBaseUrl}/letter`,lastModified:new Date(),changeFrequency:'monthly',priority:1},
           {url:`${retBaseUrl}/print`,lastModified:new Date(),changeFrequency:'monthly',priority:1},
-          {url:`${retBaseUrl}/printblog`,lastModified:new Date(),changeFrequency:'monthly',priority:1},
-          {url:`${retBaseUrl}/printletter`,lastModified:new Date(),changeFrequency:'monthly',priority:1},
           {url:`${retBaseUrl}/quote`,lastModified:new Date(),changeFrequency:'monthly',priority:1},
           
          

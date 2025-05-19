@@ -252,7 +252,7 @@ class Main {
                 //ADDING USER_ID TO NEW BLOG IF EXIST!!
                 if (checkUser) {
                     if (!(filename)) { Misc.message({ parent, msg: "No filename", type_: "error", time: 1400 }); return container.remove(); };
-                    const _name=`${filename.split(" ").join("")}-${rand}`;
+                    const _name=`${filename.split(" ").join("")}${rand}`;
                     this.newBlogSave({parent,container,user,filename:_name,title,desc,callback:func})
 
                 } else {
@@ -285,7 +285,7 @@ class Main {
     }){
         const rand=Math.floor(Math.random()*1000);
         const initBlog = this._modSelector.blogInitializer(user);
-        const name =`${filename.split(" ").join("").trim()}-${rand}`;
+        const name =`${filename.split(" ").join("").trim()}${rand}`;
         const _title=title ? Misc.capitalize({str:title}) :"MyTitle";
         const _desc=desc || "description";
         this._modSelector.blog = { ...initBlog, name:name, title: _title, desc: _desc, user_id: user.id, eleId: parent.id };
@@ -525,7 +525,7 @@ class Main {
         parent.style.width = "100% !important";
         Header.cleanUpByID(parent, "textarea");
         parent.style.position = "relative";
-        const cssTextarea = "margin-inline:auto;padding-inline:1rem;padding-block:1.5rem;margin-block:1rem;border:1px solid lightgrey; border-radius:4px;width:100%;min-height:85%;height:100%;box-shadow:1px 1px 4px 1px grey;overflow-y:scroll;display:block;position:relative;padding-block;1rem;padding-bottom:2rem;display:flex;align-items:stretch; flex-direction:column;gap:1rem;";
+        const cssTextarea = "margin-inline:auto;padding-inline:1rem;padding-block:1.5rem;margin-block:1rem;border:1px solid lightgrey; border-radius:4px;width:100%;height:260vh;box-shadow:1px 1px 4px 1px grey;overflow-y:scroll;display:block;position:relative;padding-block;1rem;padding-bottom:2rem;display:flex;align-items:stretch; flex-direction:column;gap:1rem;";
         
         this.textarea = document.createElement("div");
         this.textarea.setAttribute("contenteditable", "false");

@@ -9,7 +9,6 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
     if (req.method === "POST") {
         const getBlog = req.body as blogType;
-        const rand = Math.floor(Math.random() * 1000);
         // console.log("BLOG:=>>>", getBlog)
         if (getBlog && typeof (getBlog) === "object") {
             const selects = (getBlog?.selectors.length > 0) ? getBlog.selectors as unknown[] as selectorType[] : null;
@@ -22,41 +21,10 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
             await deleteCodes({ blog: getBlog });
             const { id, name, user_id } = getBlog;
 
-            if (user_id && name && id) {
+            if (user_id && name && id && id !== 0) {
                 // console.log("USER ID", getBlog.user_id, "blog.id", getBlog.id)//works
                 try {
-                    const blog = await prisma.blog.upsert({
-                        where: { id, name: name as string, user_id },
-                        create: {
-                            name: name,
-                            desc: getBlog.desc ? getBlog.desc : "blog's description",
-                            user_id: getBlog.user_id as string,
-                            img: getBlog.img ? getBlog.img : null,
-                            eleId: getBlog.eleId,
-                            class: getBlog.class,
-                            inner_html: getBlog.inner_html ? getBlog.inner_html : null,
-                            cssText: getBlog.cssText,
-                            show: getBlog.show,
-                            attr: getBlog.attr || "circle",
-                            username: getBlog.username,
-                            rating: getBlog.rating || 1,
-                            title: getBlog.title || "title",
-
-                        },
-                        update: {
-                            title: getBlog.title || "title",
-                            desc: getBlog.desc,
-                            img: getBlog.img,
-                            imgKey: getBlog.imgKey,
-                            imgBgKey: getBlog.imgBgKey || null,
-                            class: getBlog.class,
-                            inner_html: getBlog.inner_html || null,
-                            cssText: getBlog.cssText,
-                            show: getBlog.show,
-                            attr: getBlog.attr || "circle",
-                            username: getBlog.username,
-                        }
-                    });
+                    const blog = await saveOnlyBlog({ blog: getBlog });
                     if (blog) {
                         // console.log("blog.id", blog.id, "blog.name", blog.name);//works
                         let newBlog: blogType = {} as blogType;
@@ -249,7 +217,61 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     }
 
 
-}
+};
+
+export async function saveOnlyBlog({ blog }: { blog: blogType }): Promise<blogType | null> {
+    if (!blog) return null;
+    let regBlog: blogType;
+    const rand = Math.floor(Math.random() * 10000);
+    const { id, name, user_id, img, eleId, class: _class, cssText, attr, username, rating, title, imgKey, imgBgKey, show, desc, inner_html } = blog;
+    try {
+        if (!(id && id !== 0)) {
+            regBlog = await prisma.blog.create({
+                data: {
+                    name: name || `newBlog${rand}`,
+                    desc: desc || "blog's description",
+                    user_id: user_id as string,
+                    img: img || null,
+                    eleId: eleId,
+                    class: _class,
+                    inner_html: inner_html || null,
+                    cssText: cssText,
+                    show: show,
+                    attr: attr || "circle",
+                    username: username,
+                    rating: rating || 1,
+                    title: title || "title",
+                }
+            }) as unknown as blogType;
+            await prisma.$disconnect();
+            return regBlog;
+        } else {
+            regBlog = await prisma.blog.update({
+                where: { id, name: name as string, user_id },
+                data: {
+                    title: title || "title",
+                    desc: desc,
+                    img: img,
+                    imgKey: imgKey,
+                    imgBgKey: imgBgKey || null,
+                    class: _class,
+                    inner_html: inner_html || null,
+                    cssText: cssText,
+                    show: show,
+                    attr: attr || "circle",
+                    username: username,
+                }
+            }) as unknown as blogType;
+            await prisma.$disconnect();
+            return regBlog;
+        }
+    } catch (error) {
+        const msg = getErrorMessage(error);
+        console.log(msg);
+        return null;
+    }
+
+};
 
 export async function deleteElements(item: { blog: blogType }) {
     const { blog } = item;

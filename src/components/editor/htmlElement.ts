@@ -169,6 +169,7 @@ class HtmlElement {
             target.classList.remove("isActive");
             target.style.cssText=element.cssText;
             target.className=element.class;
+            if(node==="p") target.classList.add("w-100");
             if(node==="p" && less400){
                 target.classList.remove("columns");
                 target.classList.remove("columns-3");
