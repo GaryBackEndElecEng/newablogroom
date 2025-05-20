@@ -34,7 +34,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
                 }
             });
             if (getref) {
-                const converts =await convertReference({ ref: getref as unknown as resumeRefStrType });
+                const converts ={...mainReference,res_name_id:getref.res_name_id,id:getref.id,french:getref.french};
                 res.status(200).json(converts);
                 return await prisma.$disconnect()
             } else {

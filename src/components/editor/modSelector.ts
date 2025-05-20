@@ -1775,6 +1775,7 @@ blogInitializer(user:userType|null):blogType{
         this._blog={...this._blog,user_id:user.id}
     }
     this.blog=this._blog;
+    localStorage.setItem("blog",JSON.stringify(this.blog));
     return this._blog;
 }
 

@@ -146,10 +146,51 @@
   z-index: 200;
   transform: translate(50px, 40px) scale(0.6);
 }
+.addReferenceCont {
+  display: flex;
+  flex-direction: column;
+  position: absolute;
+  top: 0%;
+  left: 0%;
+  background-color: white;
+  z-index: 200;
+  color: blue;
+  border-radius: 10px;
+  padding: 2px;
+  gap: 0.5rem;
+  padding: 0.5rem;
+  box-shadow: 1px 1px 10px 1px blue;
+  max-width: 50px;
+  width: 100%;
+  text-wrap: wrap;
+  transform: translate(0px, 60px) scale(0.8);
+}
+.removeReferenceCont {
+  display: flex;
+  flex-direction: column;
+  position: absolute;
+  top: 0%;
+  right: 0%;
+  background-color: white;
+  z-index: 200;
+  color: blue;
+  border-radius: 10px;
+  padding: 2px;
+  gap: 0.5rem;
+  padding: 0.5rem;
+  box-shadow: 1px 1px 10px 1px blue;
+  max-width: 50px;
+  width: 100%;
+  text-wrap: wrap;
+  transform: translate(0px, -50px) scale(0.9);
+}
 
 @media screen and (max-width: 900) {
   .addExperienceCont {
     transform: translate(0px, -10px) scale(0.7);
+  }
+  .removeReferenceCont {
+    transform: translate(0px, -50px) scale(0.9);
   }
   .addEducationCont {
     transform: translate(50px, -10px) scale(0.7);
@@ -168,6 +209,12 @@
   }
 }
 @media screen and (max-width: 400) {
+  .addReferenceCont {
+    transform: translate(10px, 50px) scale(0.7);
+  }
+  .removeReferenceCont {
+    transform: translate(10px, -50px) scale(0.7);
+  }
   .addExperienceCont {
     transform: translate(0px, 10px) scale(0.5);
   }

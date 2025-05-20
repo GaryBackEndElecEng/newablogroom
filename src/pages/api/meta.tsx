@@ -54,10 +54,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
                 return await prisma.$disconnect();
             }
         }
-    };
-
-
-    if (req.method === "PUT") {
+    } else if (req.method === "PUT") {
         const rand = Math.floor(Math.random() * 10000);
         const blog = req.body as blogType;
         const { id, name, user_id } = blog;
@@ -117,6 +114,8 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
             await prisma.$disconnect();
 
         }
+    } else {
+        res.status(400).json({ msg: "nothing recieved" })
     }
 
 

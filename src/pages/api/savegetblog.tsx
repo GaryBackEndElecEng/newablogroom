@@ -20,11 +20,10 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
             const { id, name, user_id } = getBlog;
 
             if (user_id && name && id && id !== 0) {
-                // console.log("USER ID", getBlog.user_id, "blog.id", getBlog.id)//works
                 try {
                     const blog = await saveOnlyBlog({ blog: getBlog });
                     if (blog) {
-                        // console.log("blog.id", blog.id, "blog.name", blog.name);//works
+
                         let newBlog: blogType = {} as blogType;
                         let updateSelects: selectorType[] = [];
                         let update_elements: elementType[] = [];
@@ -172,7 +171,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
                     return await prisma.$disconnect();
                 };
             } else {
-                res.status(400).json({ message: "no user_id" })
+                res.status(400).json({ message: `no user_id: USER_ID:${user_id},NAME:${name},id:${id}` })
                 return await prisma.$disconnect();
             };
         } else {

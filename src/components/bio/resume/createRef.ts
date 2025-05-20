@@ -296,7 +296,7 @@ public count:number;
                                         grandParent.removeChild(child)
                                     }
                                 });
-                                this.viewRef.showReferences({parent:grandParent,name,references,less400,less900,css_col,css_row,toPrint:false,show:true,time:1500});
+                                this.viewRef.showReferences({parent:grandParent,name,references,less400,less900,css_col,css_row,toPrint:false,show:true,time:1500,french});
                                 func(this.mainRefs)
                             },580);
                         },380);

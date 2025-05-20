@@ -8,6 +8,7 @@ import EditResume from "./editResume";
 import { getErrorMessage } from "@/components/common/errorBoundary";
 import FormComponents from "./formComponents";
 import ViewReference from "./viewReference";
+import Header from "@/components/editor/header";
 
 
 class EditReference{
@@ -139,12 +140,14 @@ class EditReference{
     editReferences({parent,mainRef,css_col,css_row,less900,less400,func}:{parent:HTMLElement,mainRef:mainResumeRefType,css_col:string,css_row:string,less900:boolean,less400:boolean,
         func:(nameRefs: nameRefType[],mainRef:mainResumeRefType,type:"add"|"rem") => Promise<void> | void
     }){
+        Header.cleanUpByID(parent,"edit-resume-ref");
         this.mainRef=mainRef;
+        const {references}=this.mainRef;
             const {id,name:name_,user_id,french}=mainRef;
             const nameRef:nameRefType={id:id as number,name:name_,user_id,res_name_id:null,french:false};
             const container=document.createElement("section");
             container.id="edit-resume-ref";
-            container.style.cssText=css_col;
+            container.style.cssText=css_col + "position:relative;";
             container.style.width=less900 ?(less400 ? "100%":"90%"):"80%";
             const name=document.createElement("h6");
             name.className="text-center text-primary font-weight-bold display-6 lean mt-2";
@@ -153,13 +156,23 @@ class EditReference{
             name.textContent="references";
             container.appendChild(name);
             this.closeForm({parent,target:container});
-            
+            this.formComp.addRemove.addReference({
+                parent:container,
+                css_col,
+                references,
+                less400,
+                french,
+                func:(_references)=>{
+                    this.mainRef.references=_references
+                    this.editReferences({parent,mainRef:this.mainRef,css_col,css_row,less900,less400,func});
+                }
+            })
             const form=document.createElement("form");
             form.className=styles.editForm;
             form.id="ref-form";
             this.mainRef.references=this.mainRef.references.map((reference,ind)=>{
                 if(reference){
-                   
+                    const {name}=reference;
                     const mainRand=Math.floor(Math.random()*1000);
                     const refContainer=document.createElement("div");
                     const rand=Math.floor(Math.random()*10 + ind+1);
@@ -170,12 +183,32 @@ class EditReference{
                         color="black"
                     }
                     refContainer.id=`refContainer-${ind}`;
-                    refContainer.style.cssText=css_col +`width:100%;background-color:rgba(0,0,0,${rand/10});border-radius:8px;box-shadow:1px 1px 12px 1px black;color:${color};margin-block:1.25rem;padding-block:1.25rem;`;
-                    const name_=document.createElement("h5");
-                    name_.style.cssText="line-height:1.25rem;font-size:120%;align-self:center;text-transform:uppercase;"
-                    name_.textContent=reference.name;
-                    refContainer.appendChild(name_);
+                    refContainer.style.cssText=css_col +`width:100%;background-color:rgba(0,0,0,${rand/10});border-radius:8px;box-shadow:1px 1px 12px 1px black;color:${color};margin-block:1.25rem;padding-block:1.25rem;position:relative;`;
+                   const {input:inputN,label:labelN,formGrp:formGrpN}=EditResume.inputComponent(refContainer);
+                   formGrpN.classList.add("text-center");
+                    inputN.id=`input-name`;
+                    inputN.type="text";
+                    inputN.value=name;
+                    labelN.setAttribute("for",inputN.id);
+                    labelN.textContent="name";
+                    inputN.onchange=(e:Event)=>{
+                        if(e){
+                            const value=(e.currentTarget as HTMLInputElement).value;
+                            reference.name=value;
+                        }
+                    };
                     form.appendChild(refContainer);
+                    this.formComp.addRemove.removeReference({
+                        target:refContainer,
+                        css_col,
+                        references,
+                        reference,
+                        less400,
+                        func:(_references)=>{
+                            this.mainRef.references=_references
+                            this.editReferences({parent,mainRef:this.mainRef,css_col,css_row,less900,less400,func});
+                        }
+                    });
                     
                     for(const [refKey,refValue] of Object.entries(reference)){
                       
@@ -268,7 +301,7 @@ class EditReference{
                         parent.appendChild(containerShow);
                         references.map((reference,index)=>{
                             if(reference){
-                                this.viewRef.refCard({parent:containerShow,less400,less900,css_col,css_row,reference,index});
+                                this.viewRef.refCard({parent:containerShow,less400,less900,css_col,css_row,reference,index,french});
                             }
                         });
                         this.saveReferences({parent,mainReference:this.mainRef,css_row,css_col,less400,func});
@@ -357,9 +390,9 @@ class EditReference{
                                 grandParent.removeChild(child);
                             }
                         });
-                        const {references,name}=res;
+                        const {references,name,french}=res;
                         this.mainRef=res;
-                        this.viewRef.showReferences({parent:grandParent,references,name,show:true,time:1500,css_col,css_row,less400,less900,toPrint:true});
+                        this.viewRef.showReferences({parent:grandParent,references,name,show:true,time:1500,css_col,css_row,less400,less900,toPrint:true,french});
                         func(this.nameRefs,res,"add")
                     }
                 });

@@ -1941,7 +1941,7 @@ getReference({name}:{name:string}):Promise<mainResumeRefType|void>{
           method:"POST",
           body:JSON.stringify(mainReference)
       }
-    
+    //"/api/resume/resumeref"
         return fetch(this.reference,option).then(async(res)=>{
             if(res.ok){
                 return await res.json() as mainResumeRefType

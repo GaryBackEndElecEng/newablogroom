@@ -1319,6 +1319,7 @@ class Sidebar{
         sidebarMain.style.background=this.bgColor;
         sidebarMain.style.height="100%";
         sidebarMain.className="flexCol";
+        this.clearTextarea({parent:sidebarMain,mainCont,idValues,textarea,mainHeader,footer,blog});
         this.introduction(sidebarMain,mainCont);
         this.initializeTheme({parent:sidebarMain,mainCont,idValues,textarea,mainHeader,footer});
         this.addToolbar({parent:sidebarMain,mainCont,idValues,textarea,mainHeader,footer,blog});
@@ -1446,6 +1447,60 @@ class Sidebar{
         });
      };
 
+
+
+    clearTextarea({parent,textarea,mainHeader,footer,blog}:{
+        parent: HTMLElement,
+        idValues:idValueType[],
+        mainCont:HTMLElement,
+        textarea:HTMLElement,
+        mainHeader:HTMLElement,
+        footer:HTMLElement,
+        blog:blogType|null
+
+    }){
+        const btnContainer=document.createElement("div");
+        btnContainer.className="flexCol text-center";
+        btnContainer.style.cssText="box-shadow:1px 1px 12px 1px white;border-radius:10px;padding-inline:0.5rem;padding-block:1rem;width:100%;";
+        
+        const divpara=document.createElement("div");
+        divpara.style.cssText="color:pink;font-size:18px;"
+        const para=document.createElement("p");
+        para.className="mc-auto px-1 text-balance text-center";
+        para.style.color="white";
+        para.style.cssText="text-wrap:wrap;margin-block:1rem;";
+        para.textContent="Clear Screen";
+        divpara.appendChild(para);
+        btnContainer.appendChild(divpara);
+        const btn_:btnType={
+            parent:btnContainer,
+            text:"initialize",
+            bg:"white",
+            color:"black",
+            type:"button"
+        }
+        const btn=buttonReturn(btn_);
+        btn.style.boxShadow="1px 1px 8px 1px white,-1px -1px 8px 1px white"
+        parent.appendChild(btnContainer);
+        btn.animate([
+            {transform:"translateY(-100%) skew(45deg,0deg)",opacity:"0.3"},
+            {transform:"translateY(0%) skew(0deg,0deg)",opacity:"1"}
+        ],{duration:1000,iterations:1});
+       
+        Misc.buttonHoverEffect(btn);
+        btn.addEventListener("click",(e:MouseEvent)=>{
+            if(e){
+                btn.disabled=true;
+                setTimeout(()=>{
+                    btn.disabled=false;
+                },1000);
+                Header.cleanUp(textarea);
+                Header.cleanUp(mainHeader);
+                Header.cleanUp(footer);
+                this._modSelector.blogInitializer(this._User.user);
+            }
+        });
+     };
 
 
     addToolbar({parent,idValues,mainCont,textarea,mainHeader,footer,blog}:{

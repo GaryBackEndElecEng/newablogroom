@@ -685,8 +685,7 @@ class AddRemove{
     addReference({parent,css_col,references,less400,french,func}:{parent:HTMLElement,css_col:string,less400:boolean,references:resumeRefType[],french:boolean,func:(references:resumeRefType[])=>void}){
         const cont=document.createElement("div");
         cont.id="add-reference-cont"
-        cont.style.cssText=css_col + "position:absolute;top:0%;left:0%;background-color:white;z-index:200;color:blue;border-radius:10px;padding:2px;gap:0.5rem;padding:0.5rem;box-shadow:1px 1px 10px 1px blue;max-width:50px;width:100%;text-wrap:wrap;";
-        cont.style.transform=less400 ? "translate(150px,50px) scale(0.5)":"translate(0px,-10px) scale(0.8)"
+        cont.className=styles.addReferenceCont;
         const name=document.createElement("small");
         name.style.cssText="transform:scale(0.8);";
         name.textContent="new ref";
@@ -702,7 +701,8 @@ class AddRemove{
         cont.onclick=(e:MouseEvent)=>{
            
             if(e){
-                    this.reference={...this.reference};
+                const len=references.length ||0
+                    this.reference={...this.reference,id:len};
                     if(french) this.reference=langReference({french,user:this.user});
                     references=[...references,this.reference];
                     func(references);
@@ -713,9 +713,8 @@ class AddRemove{
 
     removeReference({target,css_col,references,reference,less400,func}:{target:HTMLElement,css_col:string,less400:boolean,references:resumeRefType[],reference:resumeRefType,func:(references:resumeRefType[])=>void}){
         const cont=document.createElement("div");
-        cont.id="add-reference-cont"
-        cont.style.cssText=css_col + "position:absolute;top:0%;right:0%;background-color:white;z-index:200;color:blue;border-radius:10px;padding:2px;gap:0.5rem;padding:0.5rem;box-shadow:1px 1px 10px 1px blue;max-width:50px;width:100%;text-wrap:wrap;";
-        cont.style.transform=less400 ? "translate(150px,50px) scale(0.5)":"translate(0px,-10px) scale(0.9)"
+        cont.id="remove-reference-cont"
+        cont.className=styles.removeReferenceCont;
         const name=document.createElement("small");
         name.style.cssText="transform:scale(0.8);";
         name.textContent="del ref";

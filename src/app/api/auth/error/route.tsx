@@ -13,13 +13,12 @@ export async function GET(req: NextRequest) {
     const misc = url_.searchParams.get("misc");//from others
 
     if (misc) {
-        const newUrl: URL = new URL("/errorpage", url_.origin);
+        const newUrl: URL = new URL("/errorpage", baseUrl);
         newUrl.searchParams.set("misc", misc);
         newUrl.searchParams.set("source", "api/auth/error");
         return NextResponse.redirect(newUrl.href, 307);
     } else if (error) {
-
-        const newUrl: URL = new URL("/register", url_.origin);
+        const newUrl: URL = new URL("/register", baseUrl);
         newUrl.searchParams.set("error", "CredentialsSignin");
         return NextResponse.redirect(newUrl.href, 307);
     } else {

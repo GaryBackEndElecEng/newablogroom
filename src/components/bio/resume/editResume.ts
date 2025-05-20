@@ -553,7 +553,6 @@ class EditResume {
                 mainResume={...mainResume,user_id:user.id as string}
                 this.saveEditedResume({parent:save,mainResume,func});
                 
-
             }
         };
     };
