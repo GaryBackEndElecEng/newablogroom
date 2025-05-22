@@ -160,7 +160,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
                         res.status(200).json(newBlog);
                         return await prisma.$disconnect();
                     } else {
-                        res.status(400).json({ message: "no body provided" });
+                        res.status(400).json({ message: "Could not find or create Blog" });
                         return await prisma.$disconnect();
                     };
 
@@ -222,7 +222,10 @@ export async function saveOnlyBlog({ blog }: { blog: blogType }): Promise<blogTy
     const rand = Math.floor(Math.random() * 10000);
     const { id, name, user_id, img, eleId, class: _class, cssText, attr, username, rating, title, imgKey, imgBgKey, show, desc, inner_html } = blog;
     try {
-        if (!(id && id !== 0)) {
+        const isBlog = await prisma.blog.findUnique({
+            where: { id, name, user_id }
+        });
+        if (!(isBlog)) {
             regBlog = await prisma.blog.create({
                 data: {
                     name: name || `newBlog${rand}`,

@@ -61,7 +61,11 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         const newName = name || `newblog${rand}`;
         if (!(name && user_id)) { res.status(400).json({ error: `no blog recieved:${req.body}` }); return await prisma.$disconnect(); };
         try {
-            if (id !== 0) {
+
+            const getBlog = await prisma.blog.findUnique({
+                where: { id, user_id, name }
+            });
+            if (getBlog) {
 
                 const metaBlog = await prisma.blog.update({
                     where: { id, user_id, name },

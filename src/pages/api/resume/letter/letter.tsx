@@ -9,7 +9,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     if (req.method === "POST") {
         const mainLetter = req.body as mainIntroLetterType;
         if (!mainLetter) return res.status(400).json({ msg: "nothing recieved" });
-        const { id, name, res_name_id, letter, user_id } = mainLetter;
+        const { name, res_name_id, letter, user_id } = mainLetter;
 
         if (name && user_id && typeof (name) === "string" && typeof (user_id) === "string") {
             try {
@@ -17,8 +17,12 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
                 if (res_name_id) {
                     letter.res_name_id = res_name_id;
                 }
-                if (id !== 0) {
+                const findLetter = await prisma.letter.findUnique({
+                    where: { name },
 
+                });
+                if (findLetter) {
+                    const { name, id } = findLetter;
                     const updateLetter = await prisma.letter.update({
                         where: { id, name },
                         data: {
