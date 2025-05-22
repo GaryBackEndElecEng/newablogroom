@@ -78,21 +78,21 @@ public company:companyLetType;
     };
     ///-----------------GETTERS SETTERS----------------------//
     //---------------//-GETS mainletter FILE FROM THE URL\\------------///
-    main({parent,mainletter,showToPrint,french}:{parent:HTMLElement,mainletter:mainIntroLetterType|null,showToPrint:boolean,french:boolean}){
+    main({parent,mainletter,showToPrint,french,link}:{parent:HTMLElement,mainletter:mainIntroLetterType|null,showToPrint:boolean,french:boolean,link:string}){
         const mainLetter = document.createElement('div');
         mainLetter.id="main-letter-cont";
         mainLetter.className=styles.mainLetterCont;
         parent.appendChild(mainLetter);
         if(mainletter){
             this.letter=mainletter.letter;
-            this.showLetter({parent,mainletter,showToPrint,french});
+            this.showLetter({parent,mainletter,showToPrint,french,link});
         }else{
             Resume.message({parent,msg:"SORRY FILE WAS NOT FOUND",type:"warning",time:200});
         }
 
     };
 
-    showLetter({parent,mainletter,showToPrint,french}:{parent:HTMLElement,mainletter:mainIntroLetterType,showToPrint:boolean,french:boolean}){
+    showLetter({parent,mainletter,showToPrint,french,link}:{parent:HTMLElement,mainletter:mainIntroLetterType,showToPrint:boolean,french:boolean,link:string}){
         const less400=window.innerWidth <400;
         Resume.cleanUpById({parent,id:"main-show-letter"});
         const mainShowLetter=document.createElement("section");
@@ -101,7 +101,7 @@ public company:companyLetType;
         parent.appendChild(mainShowLetter);
         const {id,name}=mainletter;
         if(!showToPrint) this.filename({parent:mainShowLetter,id,name,less400});
-       this.letterBody({parent:mainShowLetter,mainletter,less400,french});
+       this.letterBody({parent:mainShowLetter,mainletter,less400,french,link});
        if(showToPrint){
 
            const btnRow=document.createElement("div");
@@ -135,10 +135,10 @@ public company:companyLetType;
 
     };
 
-    letterBody({parent,mainletter,less400,french}:{parent:HTMLElement,mainletter:mainIntroLetterType,less400:boolean,french:boolean}){
+    letterBody({parent,mainletter,less400,french,link}:{parent:HTMLElement,mainletter:mainIntroLetterType,less400:boolean,french:boolean,link:string}){
         const {letter,res_name_id:filename}=mainletter;
         const {contact,summary,company,conclusion,paragraphs,to,signature,position}=letter
-        this.contactHeader({parent,contact,position,filename,order:0,less400});
+        this.contactHeader({parent,contact,position,filename,order:0,less400,link});
         this.lineDivider({parent,width:47,color:"blue",height:"3px",order:1,position:"flex-start"});
         this.companyHeader({parent,company,less400,french,order:2});
         this.toWhom({parent,to,order:3,less400});
@@ -191,7 +191,7 @@ public company:companyLetType;
 
     };
 
-    contactHeader({parent,contact,position,filename,order,less400}:{parent:HTMLElement,contact:contactType,filename:string|undefined,order:number,less400:boolean,position:string}){
+    contactHeader({parent,contact,position,filename,order,less400,link}:{parent:HTMLElement,contact:contactType,filename:string|undefined,order:number,less400:boolean,position:string,link:string}){
         const contactHeader=document.createElement("div");
         contactHeader.id="contact-header";
         contactHeader.className=styles.contactHeader;
@@ -310,12 +310,11 @@ public company:companyLetType;
 
         //POSITION CONT
         //ANCHOR PATH
-        if(filename){
+        if(link){
 
             const anchor=document.createElement("a");
-            const newUrl=new URL(`/showresume/${filename}`,window.location.origin)
-            anchor.href=newUrl.href
-            anchor.textContent="resume + reference";
+            anchor.href=link
+            anchor.textContent="reference-link";
             anchor.style.order="2"
             rightSide.appendChild(anchor);
         }

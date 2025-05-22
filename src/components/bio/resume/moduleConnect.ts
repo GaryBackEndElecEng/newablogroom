@@ -134,11 +134,36 @@ class ModuleConnect {
             const msg=langNoData({french,cat:"combined"});
                 const noData={cat:"comb",msg:langNoData({french:false,cat:"combined"}),msgFr:msg} as noDataMsgType;
                 Topbar.noLetsResRefsMsg({parent,isRes:false,isRef:false,isLet:false,isEdit:false,noDataMsg:noData,french});
+        };
+        this.linkLetters({grandParent:parent,parent:rowCont,order:0,nameResumes:this.nameResumes,nameLetters:this.nameLetters,french});
+        this.linkNames({parent:rowCont,order:1,nameResumes,french});
+        this.nameresumes({parent:rowCont,order:2,nameResumes,french});
+       this.nameRefs= this.NameRefs({parent:rowCont,order:3,nameRefs,nameresumes:nameResumes,french});
+       this.nameLetters= this.nameLets({
+        parent:rowCont,
+        order:3,
+        nameLetters,
+        nameresumes:nameResumes,
+        french,
+        callback:(nameresumes,nameletters)=>{
+            //REDOES THE COMBINED
+           this.linkLetters({grandParent:parent,parent:rowCont,order:0,nameResumes:nameresumes,nameLetters:nameletters,french});
+           this.linkNames({parent:rowCont,order:1,nameResumes:nameresumes,french});
+            this.nameresumes({parent:rowCont,order:2,nameResumes:nameresumes,french});
+            this.nameRefs= this.NameRefs({parent:rowCont,order:3,nameRefs,nameresumes,french});
+           this.nameLetters= this.nameLets({parent:rowCont,order:4,nameLetters,nameresumes,french,callback:(_nameresumes,_nameletters)=>{
+            //REDOES THE COMBINED
+            this.nameResumes=_nameresumes;
+            this.nameLetters=_nameletters;
+            this.linkLetters({grandParent:parent,parent:rowCont,order:0,nameResumes:nameresumes,nameLetters:nameletters,french});
+           this.linkNames({parent:rowCont,order:1,nameResumes:nameresumes,french});
+            this.nameresumes({parent:rowCont,order:2,nameResumes:nameresumes,french});
+            this.nameRefs= this.NameRefs({parent:rowCont,order:3,nameRefs,nameresumes,french});
+            
+           }})
         }
-        this.linkNames({parent:rowCont,order:0,nameResumes,french});
-        this.nameresumes({parent:rowCont,order:1,nameResumes,french});
-       this.nameRefs= this.NameRefs({parent:rowCont,order:2,nameRefs,nameresumes:nameResumes,french});
-       this.nameLetters= this.nameLets({parent:rowCont,order:3,nameLetters,nameresumes:nameResumes,french});
+       });
+      
        const {button}=Resume.simpleButton({anchor:combinedCont,type:"button",bg:"#2d3236",color:"#ccedd6",text:"submit",time:400});
        button.disabled=true;
        button.id="combined-submit-btn";
@@ -162,14 +187,56 @@ class ModuleConnect {
     };
 
 
+    linkLetters({grandParent,parent,order,nameResumes,nameLetters,french}:{
+        parent:HTMLElement,
+        order:number,
+        nameResumes:nameResumeType[],
+        nameLetters:nameLetterType[],
+        grandParent:HTMLElement,
+        french:boolean
+
+    }){
+        Resume.cleanUpById({parent,id:"col-linkLetters"});
+        const col=document.createElement("div");
+        col.style.order=String(order);
+        col.id="col-linkLetters";
+        col.className=styles.colCont;
+        const label=document.createElement("h6");
+        label.textContent="let-links";
+        label.className=styles.combineLabel;
+        label.classList.add("lean");
+        label.style.cssText="font-size:135%;text-transform:uppercase;";
+        col.appendChild(label);
+        parent.appendChild(col);
+        nameLetters.toSorted((a,b)=>{if(a.id < b.id) return -1;return 1}).map((nameLet,index)=>{
+            if(nameLet){
+                const {res_name_id}=nameLet;
+                const nameResume=nameResumes.find(kv=>(kv.name===res_name_id));
+                const para=document.createElement("small");
+                para.id="let-link-" + String(index);
+                if(nameResume){
+                    const {name}=nameResume;
+                    const url=new URL(`/resumeletter/${name}`,location.origin);
+                    para.textContent=nameLet.name;
+                    this.copyLink({grandParent,parent:para,url:url.href,name,french});
+                }else{
+                    para.textContent="";
+                }
+                col.appendChild(para);
+            }
+        });
+    };
+
+
 
     linkNames({parent,order,nameResumes,french}:{parent:HTMLElement,order:number,nameResumes:nameResumeType[],french:boolean}){
+        Resume.cleanUpById({parent,id:"col-link-names"})
         const col=document.createElement("div");
         col.id="col-link-names";
         col.className=styles.colCont;
         const name=document.createElement("h6");
-        name.className="text-center text-primary lean my-1 mb-2 justify-self-start";
-        name.style.cssText="font-size:135%;text-transform:uppercase;";
+        name.className=styles.combineLabel;
+        name.classList.add("lean");
         name.textContent="avail. links";
         col.appendChild(name);
         const linkULCont=document.createElement("ul");
@@ -213,6 +280,7 @@ class ModuleConnect {
     };
 
     nameresumes({parent,order,nameResumes,french}:{parent:HTMLElement,order:number,nameResumes:nameResumeType[],french:boolean}){
+        Resume.cleanUpById({parent,id:"row-col-resumes-cont"});
         const colCont=document.createElement("div");
         colCont.id="row-col-resumes-cont";
         colCont.className=styles.colCont;
@@ -245,7 +313,15 @@ class ModuleConnect {
     };
 
 
-    NameRefs({parent,order,nameRefs,nameresumes,french}:{parent:HTMLElement,order:number,nameRefs:nameRefType[]|null,nameresumes:nameResumeType[],french:boolean}):nameRefType[]{
+    NameRefs({parent,order,nameRefs,nameresumes,french}:{
+        parent:HTMLElement,
+        order:number,
+        nameRefs:nameRefType[]|null
+        ,nameresumes:nameResumeType[],
+        french:boolean,
+     
+    }):nameRefType[]{
+        Resume.cleanUpById({parent,id:"row-col-refs-cont"});
         const colCont=document.createElement("div");
         colCont.id="row-col-refs-cont";
         colCont.className=styles.colCont;
@@ -294,9 +370,17 @@ class ModuleConnect {
     };
 
 
-    nameLets({parent,order,nameLetters,nameresumes,french}:{parent:HTMLElement,order:number,nameLetters:nameLetterType[]|null,nameresumes:nameResumeType[],french:boolean}):nameLetterType[]{
+    nameLets({parent,order,nameLetters,nameresumes,french,callback}:{
+        parent:HTMLElement,
+        order:number,
+        nameLetters:nameLetterType[]|null,
+        nameresumes:nameResumeType[],
+        french:boolean,
+        callback:(nameresumes:nameResumeType[],nameLetters:nameLetterType[])=>Promise<void>|void
+    }):nameLetterType[]{
+        Resume.cleanUpById({parent,id:"row-col-lets-cont"});
         const colCont=document.createElement("div");
-        colCont.id="row-col-refs-cont";
+        colCont.id="row-col-lets-cont";
         colCont.className=styles.colCont;
         colCont.style.order=String(order);
         const name=document.createElement("name");
@@ -306,7 +390,7 @@ class ModuleConnect {
         colCont.appendChild(name);
         const ol=document.createElement("ol");
         ol.style.cssText="width:100%;";
-        if(!nameLetters) return [] as nameLetterType[]
+        if(!nameLetters) return [] as nameLetterType[];
        nameLetters= nameLetters.map((refname,index)=>{
             if(refname){
                 const li=document.createElement("li");
@@ -320,14 +404,24 @@ class ModuleConnect {
                         this.attachDetachAction({target:li,nameresume,nameLetRef:refname,french});
                     };
                 });
+                
                 li.appendChild(text);
-                this.selection({
+                this.selectionNameLet({
                     target:li,
                     nameresumes,
+                    nameLetters,
+                    nameLet:refname,
                     french,
-                    func:(nameresume)=>{
+                    func:(nameresume,nameletters)=>{
                          //---ATTACHES/DETATCHES REF/LETTER TO RESUME-------/////
                         this.attachDetachAction({target:li,nameresume,nameLetRef:refname,french});
+                        nameresumes = nameresumes.map(nameRes=>{
+                            if(nameRes.name===nameresume.name){
+                                nameRes.enable=true;
+                            }
+                            return nameRes;
+                        });
+                        callback(nameresumes,nameletters);
                        
                     }
                 });
@@ -364,6 +458,56 @@ class ModuleConnect {
             const valueStr=(e.currentTarget as HTMLSelectElement).value;
             const nameResume=JSON.parse(valueStr as string) as nameResumeType;
             func(nameResume)
+            const getBtn=document.querySelector("button#combined-submit-btn") as HTMLButtonElement;
+            if(!getBtn)return;
+            const msg=french ? langConversion({key:"press submit to save"}) : "press submit to save";
+            getBtn.setAttribute("data-submit-btn",msg)
+            getBtn.classList.add(styles.combinedSubmitBtn);
+            getBtn.disabled=false;
+        };
+    };
+
+    selectionNameLet({target,nameresumes,nameLet,nameLetters,french,func}:{target:HTMLElement,nameresumes:nameResumeType[],nameLet:nameLetterType,nameLetters:nameLetterType[]|null,french:boolean,func:(nameResume:nameResumeType,nameLetters:nameLetterType[])=>nameResumeType|void}){
+        const cont=document.createElement("div");
+        cont.id="selection-cont";
+        cont.className=styles.selectionCont;
+        target.appendChild(cont);
+        const select=document.createElement("select");
+        select.id="select";
+        select.className=styles.select;
+        cont.appendChild(select);
+        const len=nameresumes?.length ||1;
+        const _cat=[{id:0,name:"select",enable:false,user_id:this.user?.id as string,french:false},{id:len+1,name:"detach",enable:false,user_id:this.user?.id as string,french:false}];
+        const _nameresumes=nameresumes.concat(_cat);
+        _nameresumes.toSorted((a,b)=>{if(a.id <b.id) return -1;return 1}).map((resname,index)=>{
+            const option=document.createElement("option");
+            option.id=`order-${index}`;
+            option.value=JSON.stringify(resname);
+            option.textContent=resname.name;
+            select.appendChild(option);
+        });
+        select.onchange=(e:Event)=>{
+            if(!e) return;
+            const valueStr=(e.currentTarget as HTMLSelectElement).value;
+            const nameResume=JSON.parse(valueStr as string) as nameResumeType;
+            if(nameLetters){
+                nameLetters=this.nameLetters.map(_nameLet=>{
+                    if(_nameLet.name===nameLet.name){
+                        const {name}=nameResume;
+                        if(name !=="detach"){
+                            _nameLet.res_name_id=name;
+                        }else{
+                            _nameLet.res_name_id=null;
+                        };
+                       
+                    }
+                    return _nameLet
+                });
+                
+                func(nameResume,nameLetters)
+            }else{
+                func(nameResume,[] as nameLetterType[]);
+            }
             const getBtn=document.querySelector("button#combined-submit-btn") as HTMLButtonElement;
             if(!getBtn)return;
             const msg=french ? langConversion({key:"press submit to save"}) : "press submit to save";
@@ -436,6 +580,8 @@ class ModuleConnect {
     return {combined:this._combined,hasCombined}
 
     };
+
+
     clearAccess({parent,nameResume,combined }:{parent:HTMLElement,combined:combinedType,nameResume:nameResumeType}){
         const {nameResumes,nameRefs,nameLetters}=combined;
             const clearAccessCont=document.createElement("div");

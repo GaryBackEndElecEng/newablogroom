@@ -17,7 +17,7 @@ class Service {
   private readonly  awsimgUrl:string="/api/awsimg";
   private readonly  postlike:string="/api/postlike";
   private readonly  liveonoffUrl:string="/api/liveonoff";
-  private readonly  newBlogUrl:string="/api/blog/createnew";
+  private readonly  newBlogUrl:string="/api/newblog";
   private readonly  urlUpload:string="/api/uploadImage";
   private readonly  urlBlog:string="/api/blog";
   private readonly  urlsaveBlog:string="/api/savegetblog";
@@ -93,7 +93,7 @@ class Service {
         this.awsimgUrl="/api/awsimg";
         this.deletemarkImg="/api/admin/deletemarkimg";
         this.liveonoffUrl="/api/liveonoff";
-        this.newBlogUrl="/api/blog/createnew";
+        this.newBlogUrl="/api/newblog";
         this.urlUpload="/api/uploadImage";
         this.urlBlog="/api/blog";
         this.urlsaveBlog="/api/savegetblog";
@@ -954,7 +954,7 @@ getKey({imgUrl}:{imgUrl:string}):string|null{
             body:JSON.stringify(blog)
         }
         return fetch(this.newBlogUrl,option).then(async(res)=>{
-            ///api/blog/createnew
+            ///api/newblog
             if(res){
                 blog= await res.json() as blogType;
                 return blog;

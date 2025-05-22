@@ -1,5 +1,5 @@
 import { getErrorMessage } from "@/components/common/errorBoundary";
-import { letterType, mainIntroLetterStrType, mainIntroLetterType } from "@/components/bio/resume/refTypes";
+import { letterType, mainIntroLetterType } from "@/components/bio/resume/refTypes";
 import { NextApiRequest, NextApiResponse } from "next";
 import { PrismaClient } from "@prisma/client";
 
@@ -9,7 +9,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     if (req.method === "POST") {
         const mainLetter = req.body as mainIntroLetterType;
         if (!mainLetter) return res.status(400).json({ msg: "nothing recieved" });
-        const { name, res_name_id, letter, user_id } = mainLetter;
+        const { id, name, res_name_id, letter, user_id } = mainLetter;
 
         if (name && user_id && typeof (name) === "string" && typeof (user_id) === "string") {
             try {
@@ -17,49 +17,42 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
                 if (res_name_id) {
                     letter.res_name_id = res_name_id;
                 }
-                const get_letter = await prisma.letter.findUnique({
-                    where: { name: name },
-                });
-                if (get_letter) {
+                if (id !== 0) {
+
                     const updateLetter = await prisma.letter.update({
-                        where: { id: get_letter.id },
+                        where: { id, name },
                         data: {
+                            res_name_id,
                             letter: JSON.stringify(letter)
                         }
                     });
-                    const { id, name, letter: letStr } = updateLetter as mainIntroLetterStrType;
-                    const _letter = JSON.parse(letStr as string) as letterType;
-                    _letter.filename = name;
-                    const convert = { id, name, letter: { ..._letter, id, name } };
-                    res.status(200).json(convert);
-                    return await prisma.$disconnect()
-
-                } else if (!get_letter) {
-
-                    const getLetter = await prisma.letter.create({
-                        data: {
-                            name: name,
-                            user_id: user_id as string,
-                            letter: JSON.stringify(letter),
-                        }
-
-                    });
-                    if (getLetter) {
-
-                        const { id, name, letter } = getLetter as mainIntroLetterStrType;
-                        const _letter = JSON.parse(letter as string) as letterType;
-                        _letter.filename = name;
-                        const convert = { id, name, letter: { ..._letter, id, name } };
+                    if (updateLetter) {
+                        const convert = { ...mainLetter, id: updateLetter.id };
                         res.status(200).json(convert);
                         return await prisma.$disconnect()
+
                     } else {
-                        res.status(400).json({ msg: "was not created" });
+                        res.status(400).json({ msg: "could not update letter" });
                         return await prisma.$disconnect();
                     }
                 } else {
-                    res.status(304).json({ msg: "could not return,no letter" });
-                    return await prisma.$disconnect()
-                }
+                    const newLetter = await prisma.letter.create({
+                        data: {
+                            name,
+                            user_id,
+                            res_name_id,
+                            letter: JSON.stringify(letter)
+                        },
+                    });
+                    if (newLetter) {
+                        const convert = { ...mainLetter, id: newLetter.id };
+                        res.status(200).json(convert);
+                        return await prisma.$disconnect()
+                    } else {
+                        res.status(400).json({ msg: "could not create new letter" });
+                        return await prisma.$disconnect();
+                    }
+                };
 
             } catch (error) {
                 const msg = getErrorMessage(error);

@@ -225,6 +225,13 @@
   display: flex;
 }
 
+.combineLabel {
+  font-size: 135%;
+  text-transform: uppercase;
+  margin-inline: auto;
+  color: blue;
+}
+
 @keyframes slideIn {
   from {
     opacity: 0;

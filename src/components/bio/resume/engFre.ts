@@ -68,6 +68,7 @@ export const langConversion=({key}:{key:string}):string=>{
         {eng:"coName",fr:"Co:"},
         {eng:"contact",fr:"filiale /connexion"},
         {eng:"ref links",fr:"liens de reference"},
+        {eng:"reference link",fr:"liens de reference"},
         {eng:"desc",fr:"desc"},
         {eng:"success",fr:"succès"},
         {eng:"email",fr:"couriel"},

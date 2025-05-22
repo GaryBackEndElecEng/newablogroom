@@ -40,49 +40,35 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
 async function verifyAndCreate({ blog }: { blog: blogType }): Promise<blogType | null> {
     if (!blog) return null;
-    const { name, user_id, title, desc, attr, show, rating, username, eleId, cssText, class: _class } = blog;
+    const { id, name, user_id, title, desc, attr, show, rating, username, eleId, cssText, class: _class } = blog;
+    const check = !!(id === 0 && name && name?.length && user_id && user_id?.length)
+    if (check) {
 
-    if (name && user_id) {
-
-        const _blog = await prisma.blog.findMany({
-            where: { name: name as string, user_id },
+        const createNew = await prisma.blog.create({
+            data: {
+                name: name as string,
+                user_id: user_id,
+                title: title || "title",
+                desc: desc || "description",
+                attr: attr || "square",
+                show: show || false,
+                rating: rating || 0,
+                username: username,
+                eleId: eleId,
+                cssText: cssText,
+                class: _class
+            }
         });
-        if (!(_blog && _blog?.length > 0)) {
-            const createNew = await prisma.blog.create({
-                data: {
-                    name: name as string,
-                    user_id,
-                    title: title || "title",
-                    desc: desc || "description",
-                    attr: attr || "square",
-                    show: show || false,
-                    rating: rating || 0,
-                    username: username,
-                    eleId: eleId,
-                    cssText: cssText,
-                    class: _class
-                }
-            });
-            if (createNew) {
-                await prisma.$disconnect();
-                return { ...blog, id: createNew.id } as unknown as blogType;
-            } else {
-                await prisma.$disconnect();
-                return null;
-            };
+        if (createNew) {
+            await prisma.$disconnect();
+            return { ...blog, id: createNew.id } as unknown as blogType;
         } else {
             await prisma.$disconnect();
-            return { ...blog, id: _blog[0].id } as unknown as blogType;
+            return null;
         }
-    } else {
-        await prisma.$disconnect();
-        return null
-    }
+    };
     await prisma.$disconnect();
     return null;
 
-
-
-    return null;
 }
 

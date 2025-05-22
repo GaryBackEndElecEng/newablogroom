@@ -25,3 +25,39 @@
   justify-content: center;
   align-items: center;
 }
+.letterResumeCont,
+.resumeMainCont {
+  display: flex;
+  width: 100%;
+  flex-direction: column;
+  gap: 3rem;
+  justify-content: flex-start;
+  align-items: flex-start;
+  position: relative;
+  margin-inline: 0;
+  width: 90%;
+}
+.letterResumeCont > section {
+  margin-inline: 0;
+  width: 100%;
+}
+.letterResumeCont > section#letter {
+  page-break-after: always;
+}
+
+@media screen and (max-width: 900px) {
+  .resumeMainCont {
+    width: 95%;
+  }
+  .letterResumeCont {
+    width: 95%;
+  }
+}
+@media screen and (max-width: 400px) {
+  .resumeMainCont {
+    width: 100%;
+  }
+  .letterResumeCont {
+    width: 100%;
+  }
+}

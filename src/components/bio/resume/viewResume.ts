@@ -5,7 +5,7 @@ import { awardType, contactType, educationType, mainResumeType, miscType, nameRe
 import Resume from "./resume";
 import styles from "./viewResume.module.css";
 import { langConversion } from "./engFre";
-import PrintResume from "@/components/printResume/printresume";
+
 
 
 
@@ -86,7 +86,7 @@ async showResume({parent,mainResume,french,func1}:{parent:HTMLElement,mainResume
     this.storeMainResume({mainResume});
     
     if(mainResume){
-        this.resume({parent,mainResume,showPrint:true,closeDelete:false,french,func1});
+        this.resume({parent,mainResume,showPrint:true,closeDelete:false,func1});
     }
     
 };
@@ -149,7 +149,6 @@ copyLinkFromSidebar({parent,mainResumes}:{parent:HTMLElement,mainResumes:mainRes
                         innerRow.onclick=(e:MouseEvent)=>{
                             if(!e) return;
                             parent.style.overflowY="scroll";
-                            const {french}=mainResume;
                             const rows=popup.querySelectorAll("div#row");
                             rows.forEach(_row=>{
                                 popup.removeChild(_row);
@@ -159,7 +158,6 @@ copyLinkFromSidebar({parent,mainResumes}:{parent:HTMLElement,mainResumes:mainRes
                                 mainResume,
                                 showPrint:false,
                                 closeDelete:true,
-                                french,
                                 func1:()=>{},
                             });
                             if(enabled){
@@ -220,9 +218,10 @@ storeMainResume({mainResume}:{mainResume:mainResumeType|undefined}):{nameResumes
 
 
 
-resume({parent,mainResume,showPrint,closeDelete,french,func1}:{parent:HTMLElement,mainResume:mainResumeType,showPrint:boolean,closeDelete:boolean,french:boolean,
+resume({parent,mainResume,showPrint,closeDelete,func1}:{parent:HTMLElement,mainResume:mainResumeType,showPrint:boolean,closeDelete:boolean,
     func1:(mainResumes:mainResumeType[],nameResumes:nameResumeType[])=>Promise<void>|void
 }){
+    const {french}=mainResume;
     const less900=window.innerWidth <900;
     const less400=window.innerWidth <400;
     const time=700;
@@ -740,8 +739,9 @@ addressTitle({parent,less400,less900,contact,filename,french}:{less400:boolean,l
     if(filename){
 
         const anchor=document.createElement("a");
-        const lang=langConversion({key:"resume + reference"})
-        const text = french && lang ? lang :"resume + reference"
+        anchor.style.cssText="margin-inline:0;margin-top:1rem;";
+        const lang=langConversion({key:"reference link"})
+        const text = french && lang ? lang :"reference link"
         const newUrl=new URL(`/showResume/${filename}`,window.location.origin)
         anchor.href=newUrl.href
         anchor.textContent=text;

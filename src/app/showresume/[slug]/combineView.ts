@@ -27,7 +27,8 @@ class CombineView {
         mainLetters:mainIntroLetterType[]|null
 
     }){
-        const {french}=mainResume as mainResumeType;
+        const {french,name,resume}=mainResume as mainResumeType;
+        const {contact,sites}=resume;
         this._injector=injector;
         this._mainResume=mainResume;
         this._mainRefs=mainRefs;
@@ -50,32 +51,22 @@ class CombineView {
         resCont.id="res-cont";
         resCont.className=styles.resCont;
         resCont.style.order="3";
-        if(mainLetters?.length){
-            //---------------------------IF LETTER EXIST-------------------------//
-            mainLetters.map(mainletter=>{
-                this._letterView.letterBody({parent:letCont,mainletter,less400,french});
-            });
-            this.titleName({
-                parent:mainCont,
-                name:"resume",
-                order:1,
-                less400,
-                func:(show)=>{
-                    this.showHide({target:resCont,show,time:1000});
-                }
-            });
-            this.showHide({target:resCont,show:false,time:0});
-            this._letterView.lineDivider({parent:mainCont,width:45,color:"lightblue",height:"2px",order:2,position:"flex-start"});
-            if(mainResume){
-                this._viewResume.showCombined({parent:resCont,resume:mainResume.resume,french,showHeader:false,isPrint:false});
-            };
-        }else{
-             //---------------------------IF LETTER DOES NOT EXIST-------------------------//
-            this.showHide({target:resCont,show:true,time:1500});
-            if(mainResume){
-                this._viewResume.showCombined({parent:resCont,resume:mainResume.resume,french,showHeader:true,isPrint:false});
-            };
-        }
+        this._viewResume.header({parent:mainCont,less400,less900,css_col,css_row,contact,sites,filename:name,french});
+        this.titleName({
+            parent:mainCont,
+            name:"resume",
+            order:1,
+            less400,
+            func:(show)=>{
+                this.showHide({target:resCont,show,time:1000});
+            }
+        });
+        this.showHide({target:resCont,show:false,time:0});
+        this._letterView.lineDivider({parent:mainCont,width:45,color:"lightblue",height:"2px",order:2,position:"flex-start"});
+        if(mainResume){
+            this._viewResume.showCombined({parent:resCont,resume:mainResume.resume,french,showHeader:false,isPrint:false});
+        };
+      
         mainCont.appendChild(resCont);
         const refCont=document.createElement("div");
         refCont.id="ref-cont";
@@ -126,9 +117,9 @@ class CombineView {
                         console.log(res)
                        setTimeout(()=>{
                         window.print();
-                        history.go(-1);
+                        const url=new URL("/",location.origin);
+                       location.href=url.href;
                        },2000);
-
                     }
                 });
             }
@@ -222,12 +213,14 @@ class CombineView {
     };
 
 
-   async printDoc({injector}:{
-        injector:HTMLElement,
-        
-       
+   async printDoc({injector}:{injector:HTMLElement,}): Promise<{
+    injector:HTMLElement,
+    mainResume:mainResumeType,
+    mainRefs:mainResumeRefType[],
+    mainLetters:mainIntroLetterType[],
+    mainCont:HTMLElement
 
-    }): Promise<{injector:HTMLElement,mainResume:mainResumeType,mainRefs:mainResumeRefType[],mainLetters:mainIntroLetterType[],mainCont:HTMLElement}>{
+   }>{
         const mainResume=this._mainResume;
         const {french}=mainResume as mainResumeType;
         const mainRefs=this._mainRefs;
@@ -245,31 +238,9 @@ class CombineView {
         const resCont=document.createElement("div");
         resCont.id="res-cont";
         
-        if(mainLetters?.length){
-            letCont.className=styles.letCont;
-            letCont.style.order="0";
-            mainCont.appendChild(letCont);
-            mainLetters.map(mainletter=>{
-                this._letterView.letterBody({parent:letCont,mainletter,less400,french});
-            });
-            this._letterView.lineDivider({parent:mainCont,width:45,color:"lightblue",height:"2px",order:2,position:"flex-start"});
-            if(mainResume){
-                resCont.className=styles.resCont;
-                resCont.style.order="3";
-                this.titlePrint({
-                    parent:mainCont,
-                    name:"resume",
-                    order:3,
-                    less400
-                });
-                this._viewResume.showCombined({parent:resCont,resume:mainResume.resume,french,showHeader:false,isPrint:true});
-            };
-        }else{
-             //---------------------------IF LETTER DOES NOT EXIST-------------------------//
-            if(mainResume){
-                this._viewResume.showCombined({parent:resCont,resume:mainResume.resume,french,showHeader:true,isPrint:true});
-            };
-        }
+        if(mainResume){
+            this._viewResume.showCombined({parent:resCont,resume:mainResume.resume,french,showHeader:true,isPrint:true});
+        };
         this._letterView.lineDivider({parent:mainCont,width:45,color:"lightblue",height:"2px",order:5,position:"flex-start"});
         if(mainRefs?.length){
             //---------------------------IF REFRENCES EXIST---------------------//

@@ -76,7 +76,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
                         if (getBlog?.elements?.length > 0) {
                             // console.log("eles", eles)//works
                             update_elements = await Promise.all(
-                                getBlog.elements.sort((a, b) => { if (a.placement < b.placement) return -1; return 1 }).map(async (ele) => {
+                                getBlog.elements.toSorted((a, b) => { if (a.placement < b.placement) return -1; return 1 }).map(async (ele) => {
                                     const ele_ = await prisma.element.create({
                                         data: {
                                             blog_id: blog.id,
@@ -99,7 +99,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
                         };
                         if (getBlog?.codes?.length > 0) {
                             update_codes = await Promise.all(
-                                getBlog.codes.sort((a, b) => { if (a.placement < b.placement) return -1; return 1 }).map(async (code) => {
+                                getBlog.codes.toSorted((a, b) => { if (a.placement < b.placement) return -1; return 1 }).map(async (code) => {
                                     const code_ = await prisma.code.create({
                                         data: {
                                             name: code.name,
@@ -136,7 +136,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
                         };
                         if (charts && charts.length > 0) {
                             // console.log("charts", charts)//works
-                            update_charts = await Promise.all(charts.sort((a, b) => { if (a.placement < b.placement) return -1; else return 1 }).map(async (chart) => {
+                            update_charts = await Promise.all(charts.toSorted((a, b) => { if (a.placement < b.placement) return -1; else return 1 }).map(async (chart) => {
 
                                 const chart_ = await prisma.chart.create({
                                     data: {

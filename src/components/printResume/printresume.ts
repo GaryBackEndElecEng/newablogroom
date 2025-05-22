@@ -1,18 +1,22 @@
 
 
-import { awardType, contactType, educationType, mainResumeRefType, mainResumeType, resumeType, workExperienceType } from "@/components/bio/resume/refTypes";
+import { awardType, contactType, educationType, mainIntroLetterType, mainResumeRefType, mainResumeType, resumeType, workExperienceType } from "@/components/bio/resume/refTypes";
 import Resume from "@/components/bio/resume/resume";
 import ViewResume from "@/components/bio/resume/viewResume";
 import Service from "@/components/common/services";
+import LetterView from "../bio/letter/letterView";
+import styles from "./print.module.css";
 
 
 class PrintResume{
     private _mainResume:mainResumeType;
-    private _mainResumeRef:mainResumeRefType
+    private _mainResumeRef:mainResumeRefType;
+    private _letterView:LetterView;
 
     constructor(private _service:Service,private viewResume:ViewResume){
         this._mainResume={} as mainResumeType;
         this._mainResumeRef={} as mainResumeRefType;
+        this._letterView=new LetterView();
     };
 
     //-----------GETTERS SETTERS-------------//
@@ -45,8 +49,7 @@ class PrintResume{
         const css_row="display:flex;flex-wrap:nowrap;align-items:center;justify-content:center;gap:1rem;";
         if(mainResume){
             this.mainResume=mainResume;
-            const {french}=mainResume
-            this.viewResume.resume({parent:injector,mainResume,showPrint:false,french,closeDelete:true,func1:()=>{}});
+            this.viewResume.resume({parent:injector,mainResume,showPrint:false,closeDelete:true,func1:()=>{}});
 
         }else if(mainResumeRef){
             // print out refrerence
@@ -108,7 +111,46 @@ class PrintResume{
         }
     };
 
-    resume({parent,resume}:{parent:HTMLElement,resume:resumeType}){
+    letterResumePrint({parent,mainResume,mainLetter}:{parent:HTMLElement,mainResume:mainResumeType|null,mainLetter:mainIntroLetterType|null}){
+        if(mainLetter&& mainResume){
+            const {resume,french,name}=mainResume;
+            const url=new URL(`/resumeletter/${name}`,location.origin);
+            const container=document.createElement("article");
+            container.id="letterResumeCont";
+            container.className=styles.letterResumeCont;
+            parent.appendChild(container);
+            const letterCont=document.createElement("section");
+            letterCont.id="letter";
+            const resumeCont=document.createElement("section");
+            letterCont.id="resume";
+            container.appendChild(letterCont);
+            container.appendChild(resumeCont);
+            this._letterView.showLetter({parent:letterCont,mainletter:mainLetter,showToPrint:false,french,link:url.href});
+            this.resume({parent:resumeCont,resume,showHeader:false,showPrint:false});
+            const {button}=Resume.simpleButton({anchor:container,type:"button",bg:"black",color:"white",text:"print",time:800});
+            button.onclick=(e:MouseEvent)=>{
+                if(!e) return ;
+                button.hidden=true;
+                const getHeader=document.querySelector("header#navHeader") as HTMLElement;
+                const getFooter=document.querySelector("section#footerInjector") as HTMLElement;
+                if(!(getHeader && getFooter)) return;
+                getHeader.hidden=true;
+                getFooter.hidden=true;
+                window.print();
+
+
+            };
+        }else{
+            Resume.message({parent,msg:"no resume or letter",type:"warning",time:1200});
+            setTimeout(()=>{
+                const url=new URL("/",location.origin);
+                location.href=url.href;
+            },1200);
+        }
+
+    }
+
+    resume({parent,resume,showHeader,showPrint}:{parent:HTMLElement,resume:resumeType,showHeader:boolean,showPrint:boolean}){
         const less900=window.innerWidth <900;
         const less400=window.innerWidth <400;
         const time=700;
@@ -126,20 +168,22 @@ class PrintResume{
         const css_col="display:flex;flex-direction:column;";
         const css_row="display:flex;flex-wrap:nowrap;align-items:center;";
         const mainCont=document.createElement("section");
-        mainCont.id="resume-mainCont";
-        mainCont.style.cssText=css_col + "position:relative;margin-inline:auto;";
-        mainCont.style.width=less900 ? (less400 ? "100%":"95%"):"90%";
-        this.header({parent:mainCont,css_col,css_row,less400,less900,contact,sites});
+        mainCont.id="resumeMainCont";
+        mainCont.className=styles.resumeMainCont;
+        if(showHeader){
+            this.header({parent:mainCont,css_col,css_row,less400,less900,contact,sites});
+
+        }
         this.summaryCont({parent:mainCont,less400,less900,css_col,summary});
         //experience button
         const experienceCont=document.createElement("div");
         experienceCont.id="experience-cont";
-        experienceCont.style.cssText=css_col + "justify-content:center;align-items:center;width:100%;";
+        experienceCont.style.cssText=css_col + "width:100%;justify-self:flex-start;align-self:flex-start;align-items:flex-start;";
         mainCont.appendChild(experienceCont);
         this.experience({parent:experienceCont,less400,less900,css_col,css_row,experData,show:true,time});
         const educateCont=document.createElement("div");
         educateCont.id="educate-cont";
-        educateCont.style.cssText=css_col + "width:100%";
+        educateCont.style.cssText=css_col + "width:100%;justify-self:flex-start;align-self:flex-start;align-items:flex-start;margin-inline:0;";
         mainCont.appendChild(educateCont);
         this.education({parent:educateCont,less400,less900,css_col,css_row,educDataArr,show:true,time});
         const extraCont=document.createElement("div");
@@ -154,28 +198,31 @@ class PrintResume{
             ul.appendChild(li);
         });
         mainCont.appendChild(ul);
-        const btnDiv=document.createElement("div");
-        btnDiv.id="btn-div";
-        btnDiv.style.cssText=css_row +"margin-inline:auto;margin-block:2rem;justify-content:center;gap:1.5rem;";
-       
-           
-            const {button:print}=Resume.simpleButton({anchor:btnDiv,bg:"black",color:"white",text:"print",time:400,type:"button"});
-    
-         
-            print.onclick=(e:MouseEvent)=>{
-                if(!e) return;
-                mainCont.removeChild(btnDiv);
-               setTimeout(()=>{
-                window.print();
-                const url=new URL("/",window.location.origin);
-                window.location.href=url.href;
+        if(showPrint){
 
-               },0); 
+            const btnDiv=document.createElement("div");
+            btnDiv.id="btn-div";
+            btnDiv.style.cssText=css_row +"margin-inline:auto;margin-block:2rem;justify-content:center;gap:1.5rem;";
+           
                
-            };
+                const {button:print}=Resume.simpleButton({anchor:btnDiv,bg:"black",color:"white",text:"print",time:400,type:"button"});
+        
+             
+                print.onclick=(e:MouseEvent)=>{
+                    if(!e) return;
+                    mainCont.removeChild(btnDiv);
+                   setTimeout(()=>{
+                    window.print();
+                    const url=new URL("/",window.location.origin);
+                    window.location.href=url.href;
+    
+                   },0); 
+                   
+                };
+                mainCont.appendChild(btnDiv);
+        }
         
         
-        mainCont.appendChild(btnDiv);
         parent.appendChild(mainCont);
     };
 
@@ -183,11 +230,11 @@ class PrintResume{
     summaryCont({parent,less400,less900,css_col,summary}:{less400:boolean,less900:boolean,parent:HTMLElement,css_col:string,summary:string}){
         const summaryCont=document.createElement("div");
         summaryCont.id="summary-cont";
-        summaryCont.style.cssText=css_col + "margin-inline:auto;margin-top:1rem;";
-        summaryCont.style.width=less900 ? (less400 ? "100%":"95%"):"90%";
+        summaryCont.style.cssText=css_col + "margin-inline:auto;margin-top:1rem;width:100%;";
         summaryCont.style.paddingInline=less900 ? (less400 ? "0.25rem":"1rem"):"1.5rem";
         const h6=document.createElement("h6");
-        h6.style.cssText="text-transform:uppercase;line-height:0.15rem;margin-bottom:7px;";
+        h6.className="text-center lean display-6 text-primary";
+        h6.style.cssText="text-transform:uppercase;margin-bottom:7px;";
         h6.textContent="summary";
         summaryCont.appendChild(h6);
         const para=document.createElement("p");
@@ -295,14 +342,14 @@ class PrintResume{
         if(show){
             const workExpCont=document.createElement("div");
             workExpCont.id="work-experience-cont";
-            workExpCont.style.cssText=css_col + "width:100%;gap:1rem;";
+            workExpCont.style.cssText=css_col + "width:100%;gap:1rem;margin-inline:0;";
             const title=document.createElement("h3");
             title.id="title-exp";
-            title.className="display-4 my-1 mb-3";
+            title.className="display-4 my-1 mb-3 mx-0";
             title.textContent="EXPERIENCE";
             const line=document.createElement("div");
             line.id="divider";
-            line.style.cssText="width:75%;height:3px;background-color:#0785f1;margin-block:0.25rem;";
+            line.style.cssText="width:75%;height:3px;background-color:#0785f1;margin-block:0.25rem;margin-inline:0;";
             workExpCont.appendChild(title);
             workExpCont.appendChild(line);
             experData.map((exper,index)=>{
@@ -345,12 +392,13 @@ class PrintResume{
         card.appendChild(summary);
         const achievCont=document.createElement("div");
         achievCont.id="achiev-cont";
-        achievCont.style.cssText=css_col;
+        achievCont.style.cssText="width:100%;margin-inline:0;";
         achievCont.style.lineHeight=less900 ? (less400 ? "1.5rem":"0.85rem"):"1rem";
         achievCont.style.width=less900 ?(less400 ? "100%":"85%"):"76%";
         achievCont.style.marginLeft=less900 ?(less400 ? "3px":"0.5rem"):"1rem";
         const achieveTitle=document.createElement("h6");
         achieveTitle.textContent="achievement";
+        achieveTitle.className="text-primary";
         achieveTitle.style.cssText="text-transform:capitalize;margin-bottom:0.25rem;margin-left:0;";
         achievCont.appendChild(achieveTitle);
         exper.achievements.map((achiev,index)=>{
@@ -370,35 +418,37 @@ class PrintResume{
         const cardHeader=document.createElement("div");
         cardHeader.id="card-header";
         cardHeader.style.cssText="margin-block:1rem;";
-        cardHeader.style.lineHeight=less900 ? ( less400 ? "1rem":"1.1rem"):"1.0rem";
+        cardHeader.style.lineHeight=less900 ? ( less400 ? "1.25rem":"1.35rem"):"1.25rem";
     
         const title=document.createElement("h6");
         title.id="title";
         title.className="text-primary display-6";
-        title.style.cssText="margin-block:0;text-transform:capitalize;";
-        title.style.fontSize=less900 ? (less400 ? "110%":"115%"):"120%";
+        title.style.cssText="margin-block:.5rem;text-transform:capitalize;";
+        title.style.fontSize=less900 ? (less400 ? "130%":"150%"):"160%";
         title.textContent=exper.title;
         cardHeader.appendChild(title);
         //company
         const company=document.createElement("p");
         company.id="company";
-        company.className="text-primary";
+        company.className="text-primary my-0";
+        company.style.cssText="margin-block:.5rem;";
         company.innerHTML=`<span style=color:blue;>Co:</span>${exper.company}`;
         cardHeader.appendChild(company);
         //location
         const location=document.createElement("p");
         location.id="summary";
-        location.className="px-1 py-1";
-        location.style.textWrap="pretty";
-        location.innerHTML=`<span style=color:blue;>Loc:</span>${exper.location}`;
+        location.className="px-0 my-0";
+        location.style.cssText="margin-block:.5rem;text-wrap:pretty;";
+        location.innerHTML=`<span style=color:blue;>Loc: </span>${exper.location}`;
         cardHeader.appendChild(location);
         //date
         const dateCont=document.createElement("div");
         dateCont.id="dat-cont";
-        dateCont.style.cssText=css_row + " width:100%;justif-content:flex-start;gap:0.5rem;";
+        dateCont.style.cssText=" width:100%;margin-block:0.5rem;";
         const from=document.createElement("span");
         from.id="from";
         from.className="text-primary";
+        from.style.marginInline="1rem";
         from.innerHTML=`<span style=color:blue;>From:</span> ${exper.from}`;
         dateCont.appendChild(from);
         const to=document.createElement("span");
@@ -419,7 +469,7 @@ class PrintResume{
     const para1=document.createElement("p");
     para1.id="achiev-para-" + String(index);
     para1.style.cssText="text-wrap:pretty";
-    para1.style.lineHeight=less900 ? (less400 ? "1.25rem":"1.1rem"):"1.0rem";
+    para1.style.lineHeight=less900 ? (less400 ? "1.25rem":"1.35rem"):"1.25rem";
     para1.textContent=achiev.achievement;
     cont.appendChild(para1);
     const reasonComp=document.createElement("div");
@@ -428,20 +478,20 @@ class PrintResume{
     if(achiev?.reason){
         const title=document.createElement("small");
         title.textContent="purpose:";
-        title.style.cssText="color:blue;";
+        title.style.cssText="color:blue;margin-inline:0;";
         const small=document.createElement("small");
         small.id="small-reason" + String(index);
-        small.style.cssText="text-wrap:pretty";
+        small.style.cssText="text-wrap:pretty;margin-inline:0;";
         small.textContent=achiev.reason;
         reasonComp.appendChild(title);
         reasonComp.appendChild(small);
     };if(achiev?.composite){
         const title=document.createElement("small");
         title.textContent="composite:";
-        title.style.cssText="color:blue";
+        title.style.cssText="color:blue;margin-inline:0;";
         const small=document.createElement("small");
         small.id="small-composite" + String(index);
-        small.style.cssText="text-wrap:pretty";
+        small.style.cssText="text-wrap:pretty;margin-inline:0;";
         small.textContent=achiev.composite;
         reasonComp.appendChild(title);
         reasonComp.appendChild(small);
@@ -455,16 +505,16 @@ class PrintResume{
         if(show){
             const educationCont=document.createElement("div");
             educationCont.id="main-education";
-            educationCont.style.cssText=css_col + "width:100%;gap:1rem;margin-block:1rem;margin-top:2rem;";
+            educationCont.style.cssText=css_col + "width:100%;gap:1rem;margin-block:1rem;margin-top:2rem;margin-inline:0;";
             const title=document.createElement("h3");
             title.id="education-title";
-            title.className="display-4 my-1 mb-3 w-100";
+            title.className="display-4 my-1 mb-3 w-100 lean";
             title.textContent="education";
-            title.style.cssText="text-transform:uppercase;font-weight:bold;margin-block:0rem;";
+            title.style.cssText="text-transform:uppercase;margin-block:0rem;";
             //divider
             const line=document.createElement("div");
             line.id="divider";
-            line.style.cssText="width:75%;height:3px;background-color:#0785f1;margin-block:0.25rem;";
+            line.style.cssText="width:75%;height:3px;background-color:#0785f1;margin-block:0.25rem;margin-inline:0;";
             educationCont.appendChild(title);
             educationCont.appendChild(line);
             parent.appendChild(educationCont);
@@ -519,45 +569,45 @@ class PrintResume{
     educateHeader({parent,css_col,css_row,less900,less400,educData}:{parent:HTMLElement,css_col:string,css_row:string,less900:boolean,less400:boolean,educData:educationType}){
             const cont=document.createElement("div");
             cont.id="education-header";
-            cont.style.cssText=css_col;
-            cont.style.lineHeight=less900 ? (less400 ? "0.35rem":"0.3rem"):"0.35rem";
+            cont.style.cssText="width:100%;margin-inline:0;";
+            cont.style.lineHeight=less900 ? (less400 ? "0.55rem":"0.7rem"):"0.75rem";
             const school=document.createElement("p");
             school.id="school";
-            school.className="text-primary my-1 mb-3";
+            school.className="text-primary my-1 mb-3 display-6 lean";
             school.textContent=educData.school;
-            school.style.fontSize=less900 ? (less400 ? "105%":"110%"):"115%";
-            school.style.fontWeight="bold";
+            school.style.fontSize=less900 ? (less400 ? "135%":"140%"):"160%";
             school.style.marginBlock=less900 ? (less400 ? "0.6rem":"0.62rem"):"0.75rem";
             cont.appendChild(school);
             //degree
             const degree=document.createElement("p");
             degree.id="degree";
             degree.className="text-primary my-1";
-            degree.innerHTML=`<span style=color:blue;>Deg:</span>${educData.degree}`;
+            degree.innerHTML=`<span style=color:blue;>Deg: </span>${educData.degree}`;
             degree.style.marginBlock=less900 ? (less400 ? "0.45rem":"0.4rem"):"0.5rem";
             cont.appendChild(degree);
             //location
             const location=document.createElement("p");
             location.id="location";
-            location.className="px-1 py-1";
+            location.className="px-0 py-1";
             location.style.marginBlock=less900 ? (less400 ? "0.45rem":"0.4rem"):"0.5rem";
-            location.innerHTML=`<span style=color:blue;>Loc:</span>${educData.location}`;
+            location.innerHTML=`<span style=color:blue;>Loc: </span>${educData.location}`;
             cont.appendChild(location);
             //level
             const level=document.createElement("p");
             level.id="level";
-            level.className="px-1 py-1";
-            level.innerHTML=`<span style=color:blue;>Lev:</span>${educData.level}`;
+            level.className="px-0 py-1";
+            level.innerHTML=`<span style=color:blue;>Lev: </span>${educData.level}`;
             level.style.marginBlock=less900 ? (less400 ? "0.45rem":"0.4rem"):"0.5rem";
             cont.appendChild(level);
             //date
             const dateCont=document.createElement("div");
             dateCont.id="date-cont";
-            dateCont.style.cssText=css_row + " width:100%;justif-content:flex-start;gap:1.25rem;";
+            dateCont.style.cssText=" width:100%; margin-inline:0;";
             dateCont.style.marginBlock=less900 ? (less400 ? "0.45rem":"0.4rem"):"0.5rem";
             const from=document.createElement("span");
             from.id="from";
             from.className="text-primary";
+            from.style.marginInline="1rem";
             from.innerHTML=`<span style=color:blue;>From:</span> ${educData.from}`;
             dateCont.appendChild(from);
             const to=document.createElement("span");
@@ -570,8 +620,8 @@ class PrintResume{
             if(educData.relevantWork){
                 const relevant=document.createElement("p");
                 relevant.id="relevant";
-                relevant.className="px-1 py-1";
-                relevant.innerHTML=`<span style=color:blue;>Relevant to:</span>${educData.relevantWork}`;
+                relevant.className="px-0 py-1";
+                relevant.innerHTML=`<span style=color:blue;>Relevant to: </span>${educData.relevantWork}`;
                 relevant.style.marginBlock=less900 ? (less400 ? "0.45rem":"0.4rem"):"0.5rem";
                 cont.appendChild(relevant);
             }
@@ -580,7 +630,7 @@ class PrintResume{
                 const gpa=document.createElement("p");
                 gpa.id="gpa";
                 gpa.className="px-1 py-1";
-                gpa.innerHTML=`<span style=color:blue;>GPA:</span>${educData.GPA}`;
+                gpa.innerHTML=`<span style=color:blue;>GPA: </span>${educData.GPA}`;
                 gpa.style.marginBlock=less900 ? (less400 ? "0.45rem":"0.4rem"):"0.5rem";
                 cont.appendChild(gpa);
             }
@@ -595,14 +645,15 @@ class PrintResume{
         achievCont.style.width=less900 ?(less400 ? "100%":"85%"):"76%";
         const title=document.createElement("h6");
         title.id="achieve-cont-title";
-        title.style.cssText="font-weight:bold;line-height:0.5rem;margin-block:0.25;text-transform:capitalize;";
+        title.style.cssText="font-weight:bold;margin-block:0.25;text-transform:capitalize;margin-inline:0;";
+        title.className="text-primary";
         title.textContent="achievments";
         parent.appendChild(title);
         educData.achievements.map((achiev,index)=>{
             const para1=document.createElement("p");
             para1.id="achiev-para-" + String(index);
-            para1.style.cssText="text-wrap:pretty";
-            para1.style.lineHeight=less900 ? (less400 ? "1.25rem":"1.15rem"):"1.20rem";
+            para1.style.cssText="text-wrap:pretty;margin-inline:0;";
+            para1.style.lineHeight=less900 ? (less400 ? "1.25rem":"1.35rem"):"1.25rem";
             para1.innerHTML=`<span style=color:blue;>${index + 1}.</span>${achiev.achievement}`;
             achievCont.appendChild(para1);
             const div=document.createElement("div");
@@ -612,7 +663,7 @@ class PrintResume{
         
                 const small=document.createElement("small");
                 small.id="small-" + String(index);
-                small.style.cssText="text-wrap:pretty;";
+                small.style.cssText="text-wrap:pretty;margin-inline:0;";
                 small.style.marginLeft=less900 ? (less400 ? "0.3rem":"0.5rem"):"0.75rem";
                 small.innerHTML=`<span style=color:blue>purp:</span>${achiev.reason}`;
                 
@@ -622,7 +673,7 @@ class PrintResume{
         
                 const small=document.createElement("small");
                 small.id="small-" + String(index);
-                small.style.cssText="text-wrap:pretty;";
+                small.style.cssText="text-wrap:pretty;margin-inline:0;";
                 small.style.marginLeft=less900 ? (less400 ? "0.3rem":"0.5rem"):"0.75rem";
                 small.innerHTML=`<span style=color:blue>comp:</span>${achiev.composite}`;
                 
@@ -636,18 +687,20 @@ class PrintResume{
     skillContainer({parent,css_row,educData,less400}:{parent:HTMLElement,css_row:string,educData:educationType,less400:boolean}){
         const skillCont=document.createElement("div");
         skillCont.id="skill-cont";
-        skillCont.style.cssText=css_row + "align-items:center;gap:0.5rem";
+        skillCont.style.cssText=css_row + "align-items:center;gap:0.5rem;justify-content:flex-start;margin-inline:0;";
         skillCont.style.flexWrap=less400 ? "wrap":"nowrap";
         skillCont.style.gap=less400 ? "0":"0.5rem";
-        const skillTitle=document.createElement("span");
-        skillTitle.id="skill-title";
-        skillTitle.textContent="skills";
-        skillTitle.style.cssText="color:blue;";
-        skillCont.appendChild(skillTitle);
         educData.skills.map((skill,index)=>{
+            if(index===0){
+                const _skill=document.createElement("p");
+                _skill.id="skill-title";
+                _skill.style.cssText="color:blue;margin-inline:0;margin-right:10px;";
+                _skill.textContent="skills";
+                skillCont.appendChild(_skill);
+            }
             const skill_=document.createElement("p");
             skill_.id="skill-" + String(index);
-            skill_.className="px-1 py-1";
+            skill_.className="px-1 py-1 mx-0";
             skill_.style.textWrap="pretty";
             skill_.innerHTML=`<span style=color:blue;>|</span>${skill}`;
             skillCont.appendChild(skill_);

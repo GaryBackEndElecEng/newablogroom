@@ -9,7 +9,7 @@ import AddRemove from "./addRemove";
 import FormComponents from "./formComponents";
 import styles from "./editresume.module.css"
 import { langAchievement, langConversion, langSkills } from "./engFre";
-import { AmplifyDependentResourcesAttributes } from '../../../../amplify/backend/types/amplify-dependent-resources-ref';
+
 
 
 
@@ -404,7 +404,7 @@ class EditResume {
                     setTimeout(()=>{
                         parent.removeChild(container);
                      
-                        this.viewresume.resume({parent,mainResume:this.mainResume,showPrint:false,closeDelete:true,french,
+                        this.viewresume.resume({parent,mainResume:this.mainResume,showPrint:false,closeDelete:true,
                             func1:()=>{}
                         });
                         this.saveCreateNewResume({grandParent,parent,row,mainResume:this.mainResume,css_row,css_col,user,french,func});

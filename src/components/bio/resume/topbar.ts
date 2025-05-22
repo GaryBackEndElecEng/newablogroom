@@ -639,7 +639,8 @@ class Topbar {
 
                         this.nameLetters.map((nameLetter, index) => {
                             if (nameLetter) {
-                                const { name } = nameLetter;
+                                const { name,res_name_id } = nameLetter;
+                                const mainRes=mainResumes.find(kv=>(kv.name===res_name_id));
                                 const { button: editLetter } = Resume.simpleButton({ anchor: html, bg: "black", color: "white", text: name, time: 400, type: "button" });
                                 editLetter.style.order = String(index);
                                 editLetter.onclick = (e: MouseEvent) => {
@@ -674,7 +675,13 @@ class Topbar {
                                                         french
                                                     });
                                                     if (mainLet) {
-                                                        this.letterEditor.letterView.showLetter({ parent: mainContainer, mainletter: mainLet, showToPrint: false, french });
+                                                        let url:URL;
+                                                        if(mainRes){
+                                                            url=new URL(`/showresume/${res_name_id}`,location.origin);
+                                                        }else{
+                                                            url=new URL("/",location.origin)
+                                                        }
+                                                        this.letterEditor.letterView.showLetter({ parent: mainContainer, mainletter: mainLet, showToPrint: false, french,link:url.href });
                                                     }
 
 
@@ -718,14 +725,22 @@ class Topbar {
 
                         nameLetters.map(namelet => {
 
-                            const { name } = namelet;
+                            const { name} = namelet;
                             const { button: nameLetBtn } = Resume.simpleButton({ anchor: html, bg: "black", color: "white", text: name, time: 400, type: "button" });
                             nameLetBtn.style.order = order;
                             nameLetBtn.onclick = (e: MouseEvent) => {
                                 if (e) {
                                     const mainletter = this._mainLetters?.find(kv => (kv.name === name)) || undefined;
-
+                                    
                                     if (mainletter) {
+                                        const {res_name_id}=mainletter;
+                                        const mainRes=mainResumes.find(kv=>(kv.name===res_name_id));
+                                        let url:URL;
+                                        if(mainRes){
+                                            url=new URL(`/showresume/${res_name_id}`,location.origin);
+                                        }else{
+                                            url=new URL("/",location.origin);
+                                        }
                                         Topbar.executeOpen({
                                             mainContainer,
                                             openId: this.openId,
@@ -734,7 +749,7 @@ class Topbar {
                                             backBtnId: this.backBtnId,
                                             show: true,
                                             func: (openCont) => {
-                                                this.letterView.main({ parent: openCont, mainletter, showToPrint: true, french });
+                                                this.letterView.main({ parent: openCont, mainletter, showToPrint: true, french,link:url.href });
                                             },
                                         });
 
