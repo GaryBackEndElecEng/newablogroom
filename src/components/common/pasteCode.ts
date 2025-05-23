@@ -78,7 +78,7 @@ class PasteCode{
             idValues.push({eleId,id:"isElement",attValue:"true"});
             idValues.push({eleId,id:"pasteCode",attValue:"pasteCode"});
             idValues.push({eleId,id:"attr",attValue:String(element.attr)});
-            idValues.push({eleId,id:"editableFalse",attValue:"false"});
+           
             this._modSelector.dataset.populateElement({target,selRowColEle:element,idValues,level:"element",loc:"htmlElement",clean:true});
             target.className=element.class
             target.innerHTML=element.inner_html;
@@ -98,8 +98,11 @@ class PasteCode{
                     getPre.classList.remove("text-align-center");
                     getPre.classList.add("text-align-start");
                     getPre.removeAttribute("contenteditable");
-                
-           
+            ([...target.children] as HTMLElement[]).forEach(child=>{
+                if(child){
+                    child.removeAttribute("contenteditable");
+                }
+            });
             
             Misc.growIn({anchor:divCont,scale:0,opacity:0,time:400});
             const arrDivCont:arrDivContType={divCont,placement:element.placement,target,isNormal:false,ele:element,chart:null,sel:null}

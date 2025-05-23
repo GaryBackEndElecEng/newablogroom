@@ -1576,7 +1576,7 @@ class Dataset{
                     }else if(kv.value && kv.value!=="null") {
                         target.setAttribute(kv.key,kv.value)
                         if(kv.id !=="editableTrue"){
-                            target.setAttribute(kv.key,kv.value)
+                            target.removeAttribute("contenteditable");
                         }
                     }
                 }
