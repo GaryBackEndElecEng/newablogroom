@@ -95,7 +95,7 @@ class HtmlElement {
        const eleId=element.eleId;
        
         const node=element.name as eleEnumType;
-        const editableNodes=["p","ul","blockquote","ol","h1","h2","h3","h4","h5","h6"].includes(node);
+        const editableNodes=["p","ul","blockquote","ol","h1","h2","h3","h4","h5","h6","div"].includes(node);
         const attrTest= (element.attr && attrEnumArrTest(element)) ? attrEnumArrTest(element) : undefined;
         const typeTest= (element.type && typeEnumArrTest(element)) ? typeEnumArrTest(element) : undefined;
         const isTime=attrTest?.id==="time" ? attrTest.value:undefined;
@@ -271,7 +271,7 @@ class HtmlElement {
     }):Promise<arrDivContType|undefined>{
       
         const node=element.name;
-        const editableNodes=["p","ul","blockquote","ol","h1","h2","h3","h4","h5","h6"].includes(node);
+        const editableNodes=["p","ul","blockquote","ol","h1","h2","h3","h4","h5","h6","div"].includes(node);
         const eleId=element.eleId;
         const attrTest=attrEnumArrTest(element);
         const typeTest=typeEnumArrTest(element);

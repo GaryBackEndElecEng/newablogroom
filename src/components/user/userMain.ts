@@ -22,6 +22,7 @@ class UserSetups  {
         constructor(private _modSelector:ModSelector,private _service:Service){
             this.bgColor=this._modSelector._bgColor
             this.btnColor=this._modSelector.btnColor;
+
         }
 
         changeImage(targetContainer:HTMLElement,formdata:FormData|null):{targetContainer:HTMLElement,select:HTMLElement,mainTextarea:HTMLElement}{
@@ -446,7 +447,8 @@ class User{
         const cssPopup={inset:"120% 0% 0% 0%",position:"absolute"};
         let blogUser:blogType={} as blogType;
         if(!(user.email && user.id)){
-            await this._service.signIn(parent)
+            // await this._service.signIn(parent);
+            await this.regSignIn.signIn();
         }else if(blog){
             blogUser={...blog,user_id:user.id,id:0}
             this._modSelector.blog=blog;
@@ -829,7 +831,7 @@ class User{
      
      switch(true){
         case notSignedIn:
-            await this._service.signIn(parent);
+           await this.regSignIn.signIn();
         return
         case hasBlogWithSigninAndNoBlogName:
             this.SaveWorkblogNameDesc({parent,blog,user,func})

@@ -2748,7 +2748,7 @@ class Sidebar{
         parent.style.position="relative";
         const width=window.innerWidth <900 ? 80 :30;
         const popup=document.createElement("div");
-        popup.style.cssText=`position:absolute; background:#0a2351;backdrop-filter:blur(15px);color:white;width:${width}%;height:30vh;margin-inline:auto;display:flex;flex-direction:column;justify-content:center;align-items:center;border-radius:10px; box-shadow:1px 1px 5px 1px black;inset:50% 0%`;
+        popup.style.cssText=`position:absolute; background:#0a2351;backdrop-filter:blur(15px);color:white;width:${width}%;height:30vh;margin-inline:auto;display:flex;flex-direction:column;justify-content:center;align-items:center;border-radius:10px; box-shadow:1px 1px 5px 1px black;inset:auto 0% auto 0%;z-index:200;`;
         const form=document.createElement("form");
         form.style.cssText="display:flex;flex-direction:column;justify-content:center;align-items:center;margin:auto;gap-1;position:relative;"
         const formGrp1=document.createElement("div");
@@ -2792,7 +2792,11 @@ class Sidebar{
                 parent.appendChild(divCont);
                await this._modSelector.elementAdder({target:hr,sel:null,rowEle:null,colEle:null,idValues}).then(async(res)=>{
                 if(res){
+                    const ele=res.ele as elementType;
                     idValues=res.idValues
+                    divCont.setAttribute("data-element",`${ele.placement}-A`);
+                    divCont.classList.add("isActive");
+                    res.target.classList.add("isActive");
                     this._modSelector.removeMainElement({parent,divCont,target:res.target,idValues,selRowCol})
                 }
                });
@@ -2815,7 +2819,8 @@ class Sidebar{
         parent.style.position="relative";
         const width=window.innerWidth <900 ? 80 :30;
         const popup=document.createElement("div");
-        popup.style.cssText=`position:absolute; background:#0a2351;backdrop-filter:blur(15px);color:white;width:${width}%;height:30vh;margin-inline:auto;display:flex;flex-direction:column;justify-content:center;align-items:center;border-radius:10px; box-shadow:1px 1px 5px 1px black;inset:50% 0%`;
+        popup.id="popup-divider";
+        popup.style.cssText=`position:absolute; background:#0a2351;backdrop-filter:blur(15px);color:white;width:${width}%;height:30vh;margin-inline:auto;display:flex;flex-direction:column;justify-content:center;align-items:center;border-radius:10px; box-shadow:1px 1px 5px 1px black;inset:auto 0% auto 0%;z-index:200;`;
         const form=document.createElement("form");
         form.style.cssText="display:flex;flex-direction:column;justify-content:center;align-items:center;margin:auto;gap-1;"
         const formGrp=document.createElement("div");
@@ -2883,12 +2888,20 @@ class Sidebar{
                 const {divcont,target}=Misc.divider({parent,numLines:num,divCont,color});
                 target.style.width="100%";
                 divcont.style.position="relative";
+                
                 Misc.fadeOut({anchor:popup,xpos:50,ypos:100,time:500});
                 setTimeout(()=>{
                     parent.removeChild(popup);
                 },480);
-                this._modSelector.elementAdder({target,sel:null,rowEle:null,colEle:null,idValues});
-                this._modSelector.removeMainElement({parent,divCont,target,idValues,selRowCol})
+                this._modSelector.elementAdder({target,sel:null,rowEle:null,colEle:null,idValues}).then(async(res)=>{
+                    if(res){
+                        const ele=res.ele as elementType;
+                        divCont.setAttribute("data-placement",`${ele.placement}-A`);
+                        divCont.classList.toggle("isActive");
+                        res.target.classList.toggle("isActive");
+                        this._modSelector.removeMainElement({parent,divCont,target,idValues,selRowCol});
+                    }
+                });
             }
         });
         

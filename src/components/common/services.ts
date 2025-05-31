@@ -12,6 +12,7 @@ import Header from "../editor/header";
 import Nav from "../nav/headerNav";
 import { onChangeVerifyType } from '../editor/Types';
 import { idValueType, selRowColType } from "@/lib/attributeTypes";
+import RegSignIn from "../nav/regSignin";
 
 class Service {
   private readonly  awsimgUrl:string="/api/awsimg";
@@ -529,7 +530,9 @@ getKey({imgUrl}:{imgUrl:string}):string|null{
         const providers= await getProviders() as unknown as providerType[];
         Misc.signiMain(useParent,providers,csrfToken);
         
-    }
+    };
+
+
     async signout(item:{redirect:boolean}){
         const {redirect}=item;
         Nav.navHeader=document.querySelector("header#navHeader") as HTMLElement;
@@ -561,7 +564,8 @@ getKey({imgUrl}:{imgUrl:string}):string|null{
             return;
 
         };
-    }
+    };
+    
 
     //THIS GETS IMAGE FROM AWS USING ONLY A KEY
     async getSimpleImg(Key:string):Promise<gets3ImgKey|null>{

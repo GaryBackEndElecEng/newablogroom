@@ -1354,11 +1354,7 @@ class ShapeOutside{
     }){
         //polygon
        
-        const user=this._user.user;
-        if(!(user.email && user.id)){
-            Nav.navHeader=document.querySelector("header#navHeader") as HTMLElement;
-            await this._service.signIn(Nav.navHeader);
-        }
+        
         if(selRowCol){
             column.classList.add("coliIsActive");
         }

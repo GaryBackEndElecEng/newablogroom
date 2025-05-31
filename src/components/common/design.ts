@@ -147,13 +147,14 @@ class Design{
 
 
     //PARENT: main.textarea
-    circlesDesign(parent:HTMLElement,idValues:idValueType[]){
+   async circlesDesign(parent:HTMLElement,idValues:idValueType[]){
         const rand=Math.round(Math.random()*100);
         const idEnum="isCircle";
 
         const minHeight=200;
         const divCont=document.createElement("div");
-        divCont.style.cssText="display:flex;flex-direction:column;align-items:center;justify-content:center;padding:1rem;"
+        divCont.id="divCont-circleDesign";
+        divCont.style.cssText="display:flex;flex-direction:column;align-items:center;justify-content:center;padding:1rem;position:relative;width:100%;"
         const target=document.createElement("div");
         target.id=`div-circleDesign-${rand}`;
         const eleId=target.id;
@@ -164,11 +165,34 @@ class Design{
         target.setAttribute("data-circle-design","true");
         //GENERATES PATTERN
         //GENERATES PATTERN
-        this.circleOptionGen({target:target,maxRand:undefined,stroke:undefined,fill:undefined})//generate pattern
-        //GENERATES PATTERN
-         this.formCircleGen(target).then(async(res)=>{
+        
+        divCont.appendChild(target);
+        idValues.push({eleId,id:idEnum,attValue:idEnum});
+        idValues.push({eleId,id:"elementId",attValue:eleId});
+        idValues.push({eleId,id:"ID",attValue:eleId});
+        idValues.push({eleId,id:"type",attValue:"design"});
+        const {cleaned}=this._modSelector.removeClasses({target,classes:["isActive","box-shadow"]});
+        this.element={...this.element,
+            type:"design",
+            attr:idEnum,
+                name:node,
+                eleId,
+            inner_html:target.innerHTML,
+            class:cleaned.join(" "),
+
+        };
+        this.elementAdder({target,element:this.element,idValues,type:"isCircle"}).then(async(res)=>{
             if(res){
-                res.form.onsubmit=(e:SubmitEvent)=>{
+                const ele=res.ele as elementType;
+                divCont.setAttribute("data-placement",`${ele.placement}`);
+                this._modSelector.editElement({target:res.target,idValues,selRowCol:null});
+            }
+        });
+       const {target:retTurn}= await this.circleOptionGen({target:target,maxRand:undefined,stroke:undefined,fill:undefined})//generate pattern
+        //GENERATES PATTERN
+         this.formCircleGen({target:retTurn,divCont,idValues}).then(async(res)=>{
+            if(res){
+                res.form.onsubmit=async(e:SubmitEvent)=>{
                     if(e){
                         e.preventDefault();
                         const formdata=new FormData(e.currentTarget as HTMLFormElement);
@@ -176,36 +200,16 @@ class Design{
                         const stroke=formdata.get("stroke") ? formdata.get("stroke") as string : undefined;
                         const rand=parseInt(formdata.get("random") as string) as number;
                         this.circleOptionGen({target,maxRand:rand,stroke,fill})//generate pattern
-                        target.removeChild(res.popup);
-                        idValues.push({eleId,id:idEnum,attValue:idEnum});
-                        idValues.push({eleId,id:"elementId",attValue:eleId});
-                        idValues.push({eleId,id:"ID",attValue:eleId});
-                        idValues.push({eleId,id:"type",attValue:"design"});
-                        const {cleaned}=this._modSelector.removeClasses({target,classes:["isActive","box-shadow"]});
-                        this.element={...this.element,
-                            type:"design",
-                            attr:idEnum,
-                             name:node,
-                             eleId,
-                            inner_html:target.innerHTML,
-                            class:cleaned.join(" "),
-
-                        };
-                        this.elementAdder({target,element:this.element,idValues,type:"isCircle"}).then(async(res)=>{
-                            if(res){
-                                const ele=res.ele as elementType;
-                                divCont.setAttribute("data-placement",`${ele.placement}`);
-                            }
-                        });
+                        divCont.removeChild(res.popup);
+                        this.updateElement({target:retTurn,idValues});
+                        
                         divCont.onclick=(e:MouseEvent)=>{
                             if(e){
                                 divCont.classList.toggle("isActive");
-                                target.classList.toggle("isActive");
+                                res.target.classList.toggle("isActive");
                                 this.removeMainElement({parent,divCont,target,idValues});
-                                this.updateElement({target,idValues});
                             }
                         };
-                        this._modSelector.editElement({target,idValues,selRowCol:null});
                     }
                 };
             }
@@ -222,7 +226,8 @@ class Design{
         Misc.matchMedia({parent:para,maxWidth:420,cssStyle:{top:"60%",paddingInline:"10px"}})
      }
 
-     async formCircleGen(target:HTMLElement){
+     async formCircleGen({target,divCont,idValues}:{target:HTMLElement,divCont:HTMLElement,idValues:idValueType[]}){
+        
         const popup=document.createElement("div");
         popup.style.cssText="position:absolute;width:300px;top:100%;left:30%;right:30%;display:flex;place-items:center;";
         const form=document.createElement("form");
@@ -261,13 +266,13 @@ class Design{
         rInput.value="40";
         rInput.placeholder="10";
         rlable.setAttribute("for",sInput.id);
-        Misc.simpleButton({anchor:form,type:"submit",bg:Nav.btnColor,color:"white",time:400,text:"save"});
+        const {button}=Misc.simpleButton({anchor:form,type:"submit",bg:"black",color:"white",text:"save",time:400});
         popup.appendChild(form);
-        target.appendChild(popup);
+        divCont.appendChild(popup);
         Misc.growIn({anchor:popup,scale:0,opacity:0,time:400});
         Misc.matchMedia({parent:popup,maxWidth:900,cssStyle:{left:"25%",right:"25%"}});
         Misc.matchMedia({parent:popup,maxWidth:420,cssStyle:{left:"10%",right:"10%"}});
-        fInput.onchange=(e:Event)=>{
+        fInput.onchange=async(e:Event)=>{
             if(e){
                 const fill_=(e.currentTarget as HTMLInputElement).value;
                 const stroke_=(sInput as HTMLInputElement).value;
@@ -275,11 +280,13 @@ class Design{
                 const getStroke=Design.hexToRgbA(stroke_) as string;
                 const rand_=parseInt((rInput as HTMLInputElement).value as string) as number;
                 //GENERATES PATTERN
-                this.circleOptionGen({target,maxRand:rand_,stroke:getStroke,fill:getFill})//generate pattern
+               const {target:retTurn}=await  this.circleOptionGen({target,maxRand:rand_,stroke:getStroke,fill:getFill})//generate pattern
+             const {target:retTurn1}= await  this._modSelector.updateElement({target:retTurn,idValues,selRowCol:null});
                 //GENERATES PATTERN
+                target=retTurn1;
             }
         }
-        sInput.onchange=(e:Event)=>{
+        sInput.onchange=async(e:Event)=>{
             if(e){
                 const stroke_=(e.currentTarget as HTMLInputElement).value;
                 const fill_=(fInput as HTMLInputElement).value;
@@ -287,11 +294,13 @@ class Design{
                 const getStroke=Design.hexToRgbA(stroke_) as string;
                 const rand_=parseInt((rInput as HTMLInputElement).value as string) as number;
                 //GENERATES PATTERN
-                this.circleOptionGen({target:target,maxRand:rand_,stroke:getStroke,fill:getFill})//generate pattern
+                const {target:retTurn}= await this.circleOptionGen({target:target,maxRand:rand_,stroke:getStroke,fill:getFill})//generate pattern
+               const {target:retTurn2}= await  this._modSelector.updateElement({target:retTurn,idValues,selRowCol:null});
                 //GENERATES PATTERN
+                target=retTurn2;
             }
         }
-        rInput.onchange=(e:Event)=>{
+        rInput.onchange=async(e:Event)=>{
             if(e){
                 const rand_=parseInt((sInput as HTMLInputElement).value as string) as number;
                 const fill_=(fInput as HTMLInputElement).value;
@@ -299,14 +308,16 @@ class Design{
                 const getFill=Design.hexToRgbA(fill_) as string;
                 const getStroke=Design.hexToRgbA(stroke_) as string;
                 //GENERATES PATTERN
-                this.circleOptionGen({target:target,maxRand:rand_,stroke:getStroke,fill:getFill})//generate pattern
+                const {target:retTurn}= await this.circleOptionGen({target:target,maxRand:rand_,stroke:getStroke,fill:getFill})//generate pattern
+                const {target:retTurn2}= await  this._modSelector.updateElement({target:retTurn,idValues,selRowCol:null});
                 //GENERATES PATTERN
+                target=retTurn2;
             }
         }
-        return Promise.resolve({form:form,popup:popup}) as Promise<{form:HTMLFormElement,popup:HTMLElement}>;
-     }
+        return Promise.resolve({form:form,popup:popup,target,button}) as Promise<{form:HTMLFormElement,popup:HTMLElement,target:HTMLElement,button:HTMLButtonElement}>;
+     };
 
-     circleOptionGen(item:{target:HTMLElement,maxRand:number|undefined,stroke:string|undefined,fill:string|undefined}){
+    async circleOptionGen(item:{target:HTMLElement,maxRand:number|undefined,stroke:string|undefined,fill:string|undefined}):Promise<{target:HTMLElement}>{
         const {target,maxRand,stroke,fill}=item;
         // CLEAN UP
         const getelements=target.querySelectorAll("div.svgCont-circle") as any as HTMLElement[];
@@ -341,7 +352,7 @@ class Design{
                     }
             }
         }
-        arr.map(xy=>{
+       const retTurns= await Promise.all(arr.map(async(xy)=>{
             const width=xy.width;
             x=xy.x;
             if(xy.y <100){
@@ -352,9 +363,15 @@ class Design{
            
             const _stroke_=xy.stroke;
             const _fill_=xy.fill;
-            this.generateCircle({target,x,y,width,fill:_fill_,stroke:_stroke_});
-        });
-     }
+           const {target:retTurn}= await this.generateCircle({target,x,y,width,fill:_fill_,stroke:_stroke_});
+           return retTurn;
+        }));
+
+        return {target:retTurns[retTurns.length-1]}
+
+     };
+
+
      colorInjector(color:string|undefined,rand:number){
         if(color){
             const regColor:RegExp=/^(rgba\()(\d{3},)(\d{3},)(\d{3},)\d\)/;
@@ -387,7 +404,8 @@ class Design{
                 return color;
             }
         }
-     }
+     };
+
     generateCircle(item:{target:HTMLElement,x:number,y:number,width:number,fill:string,stroke:string}){
         const {target,x,y,width,fill,stroke}=item;
         target.style.position="relative";
@@ -410,6 +428,7 @@ class Design{
         svg.appendChild(circle);
         svgCont.appendChild(svg);
         target.appendChild(svgCont);
+        return Promise.resolve({target}) as Promise<{target:HTMLElement}>;
     }
       //---------SEMI-CIRCLE-------------------------//
      //Wave- Art
@@ -1095,9 +1114,7 @@ class Design{
         popup.className="popup";
         popup.setAttribute("is-popup","true");
         popup.style.cssText="position:absolute;box-shadow:1px 1px 10px black,-1px -1px 12px 1px blue;border-radius:20px;min-height:15vh;z-index:200;background-color:white;";
-        popup.style.top=`${height/2}px`;
-        popup.style.left="10%";
-        popup.style.right="10%";
+        popup.style.inset ="auto 0% auto 0%";
         const row = document.createElement("div");
         row.className="row";
         row.style.cssText="display:flex;flex-wrap:wrap;gap:1.25rem;"

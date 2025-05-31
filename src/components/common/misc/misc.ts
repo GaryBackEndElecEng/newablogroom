@@ -750,7 +750,7 @@ class Misc{
         const container=document.createElement("section");
         container.id="signIn-main";
         container.style.cssText="margin:auto;position:relative;background-color:white;filter:drop-shadow(0 0 0.75rem crimson);border-radius:7px;padding:1rem;;z-index:1000;display:flex;flex-direction:column;align-items:center;gap:2rem;padding:1.5rem;";
-        Object.values(providers).map((provider)=>{
+        providers.map((provider)=>{
             //provider={callbackUrl:string=>https://,,,api/auth/callback/credentials or google,id:string=>"credentials/google",name:string,signinUrl:string=>http://local,,,api/auth/credentials}
             const signInCallBack=provider.callbackUrl as unknown as string;
             if((provider.id as unknown as string)==="credentials"){
@@ -821,6 +821,7 @@ class Misc{
         container.appendChild(form);
         //APPENDING POPUP TO PARENT
         parent.appendChild(container);
+        Misc.removePopup({parent,target:container,position:"right"});
         email.onchange=(e:Event)=>{
             if(e){
                 btn.disabled=false;
